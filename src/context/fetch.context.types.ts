@@ -1,3 +1,1 @@
-export type FetchContextValuesType {
-
-}
+export type FetchContextValuesType = {};
