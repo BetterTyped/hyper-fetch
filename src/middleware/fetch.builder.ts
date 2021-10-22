@@ -13,7 +13,7 @@ export class FetchBuilder {
   // 2. setErrorMapper
   // - możliwość zmapowania errorów z requestów, zwraca zawsze jeden styl errora {message, originalError}
   // 3. setHttpClient (Wszystko z api middleware) => void
-  // - coś w stylu httpClient = (callback) => this.getAdditionalHeaders = callback
+  // - coś w stylu setHttpClient = (callback) => this.httpClient = callback
   // - możliwość podpięcia axiosa / graphql i przekazanie callbacka wgłąb apiMiddleware
   // 4. setHeaders: () => ustawia callback rozszerzający headery
   // - coś w stylu setHeaders = (callback) => this.getAdditionalHeaders = callback
@@ -29,7 +29,7 @@ export class FetchBuilder {
    * ... - jak coś jeszcze znajdziemy będziemy rozszerzać
    * }
    */
-  // 6. build - zwraca callback z () => api middleware()
+  // 6. build() - zwraca callback z (middlewareOptions: FetchMiddlewareOptions) => fetchMiddleware(this.getBuilderConfig(), middlewareOptions)
 
   setErrorMapper = () => {};
 }
@@ -41,6 +41,9 @@ export class FetchBuilder {
 //   httpClientOptions: {},
 // }).setHeaders(() => {
 //   const token = store.getToken();
+//   if(token) {
+//     return {}
+//   }
 //   return { auth: token };
 // });
 
@@ -54,3 +57,6 @@ export class FetchBuilder {
 //     });
 //   },
 // );
+
+// Działanie middleware
+// const getUser = fetchMiddleware({endpoint, method, headers}:FetchMiddlewareOptions);
