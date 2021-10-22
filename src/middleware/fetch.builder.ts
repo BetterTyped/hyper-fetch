@@ -30,6 +30,8 @@ export class FetchBuilder {
    * }
    */
   // 6. build - zwraca callback z () => api middleware()
+
+  setErrorMapper = () => {};
 }
 
 // 1. Używamy wbudowanego w przeglądarkę fetch() -> dajemy solution out of the box
