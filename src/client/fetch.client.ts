@@ -1,5 +1,7 @@
 /**
- * fetchQuery
+ * FetchClient
+ * https://react-query.tanstack.com/reference/QueryClient
+fetchQuery
 fetchInfiniteQuery
 prefetchQuery
 prefetchInfiniteQuery

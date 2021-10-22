@@ -1,3 +1,5 @@
+import { FetchBuilder } from "./fetch.builder";
+import { fetchHttpClient, HttpClientResponseType } from "./fetch.http-client";
 /**
  * FetchMiddleware()
  *
@@ -22,7 +24,44 @@
  * fetch()
  */
 
-export class FetchMiddleware {}
+export type FetchMiddlewareOptions<GenericEndpoint extends string> = {
+  endpoint: GenericEndpoint;
+  headers: Headers;
+  method?: "GET" | "POST" | "PUT" | "PATCH";
+};
+
+export class FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType extends string> {
+  private readonly endpoint: EndpointType;
+  private readonly headers: Headers;
+  private readonly method: string;
+
+  constructor(
+    private readonly builderConfig: ReturnType<FetchBuilder["getBuilderConfig"]>,
+    private readonly apiConfig: FetchMiddlewareOptions<EndpointType>,
+  ) {
+    const { endpoint, headers, method } = apiConfig;
+
+    this.endpoint = endpoint;
+    this.headers = headers;
+    this.method = method || builderConfig.defaultMethod;
+  }
+
+  clone = () => {
+    const cloned = new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
+      this.builderConfig,
+      this.apiConfig,
+    );
+    return Object.assign(cloned, {
+      ...this,
+      // endpoint: params ? this.handleMapEndpointParams(params) : rest.endpoint,
+    });
+  };
+
+  fetch = (): Promise<HttpClientResponseType<ResponseType, ErrorType>> => {
+    const { httpClient } = this.builderConfig;
+    return httpClient ? httpClient(this) : fetchHttpClient(this);
+  };
+}
 
 // TYPESCRIPT TEST CASES
 
