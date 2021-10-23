@@ -2,6 +2,8 @@ import { FetchBuilder } from "./fetch.builder";
 import { getProgressData } from "./fetch.middleware.utils";
 import {
   ClientProgressCallback,
+  DefaultOptionsType,
+  ExtractRouteParams,
   FetchMethodType,
   FetchMiddlewareOptions,
   FetchType,
@@ -10,7 +12,7 @@ import {
   ProgressEvent,
 } from "./fetch.middleware.types";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { HttpMethodsType } from "types";
+import { HttpMethodsType, NegativeTypes } from "types";
 
 export class FetchMiddleware<
   ResponseType,
@@ -25,14 +27,15 @@ export class FetchMiddleware<
   constructor(
     readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
+    readonly defaultOptions?: DefaultOptionsType<PayloadType, EndpointType>,
   ) {}
 
-  readonly endpoint: EndpointType = this.apiConfig.endpoint;
+  readonly endpoint: EndpointType = this.defaultOptions?.endpoint || this.apiConfig.endpoint;
   readonly headers?: Headers = this.apiConfig.headers;
   readonly method: HttpMethodsType = this.apiConfig.method || HttpMethodsEnum.get;
-  readonly params: ParamsType;
-  readonly data: PayloadType | null;
-  readonly queryParams: string;
+  readonly params: ExtractRouteParams<EndpointType> | NegativeTypes = this.defaultOptions?.params;
+  readonly data: PayloadType | NegativeTypes = this.defaultOptions?.data;
+  readonly queryParams: string | NegativeTypes = this.defaultOptions?.queryParams;
   readonly options: ClientOptions;
 
   private timestamp: Date = new Date();
@@ -60,27 +63,21 @@ export class FetchMiddleware<
     return cloned;
   };
 
-  public setData = (data: PayloadType) => {
-    const cloned = this.clone({ data });
-    return cloned as FetchMiddleware<
+  setData = (data: PayloadType) => {
+    return this.clone({ data }) as FetchMiddleware<
       ResponseType,
       PayloadType,
       ErrorType,
       EndpointType,
+      ClientOptions,
       true,
       HasParams,
       HasQuery
     >;
   };
 
-  public setParams = (
-    params: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["params"],
-  ) => {
-    const cloned = this;
-    if (params) {
-      this.clone({ params });
-    }
-    return cloned as FetchMiddleware<
+  setParams = (params: ExtractRouteParams<EndpointType>) => {
+    return this.clone({ params }) as FetchMiddleware<
       ResponseType,
       PayloadType,
       ErrorType,
@@ -92,9 +89,8 @@ export class FetchMiddleware<
     >;
   };
 
-  public setQueryParams = (queryParams: string) => {
-    const cloned = this.clone({ queryParams });
-    return cloned as FetchMiddleware<
+  setQueryParams = (queryParams: string) => {
+    return this.clone({ queryParams }) as FetchMiddleware<
       ResponseType,
       PayloadType,
       ErrorType,
@@ -116,13 +112,11 @@ export class FetchMiddleware<
     return endpoint;
   };
 
-  private clone(
-    { params = this.params, queryParams = this.queryParams, data = this.data } = {
-      params: this.params,
-      queryParams: this.queryParams,
-      data: this.data,
-    },
-  ): FetchMiddleware<
+  private clone(options?: {
+    queryParams?: string | NegativeTypes;
+    params?: ExtractRouteParams<EndpointType> | NegativeTypes;
+    data?: PayloadType | NegativeTypes;
+  }): FetchMiddleware<
     ResponseType,
     PayloadType,
     ErrorType,
@@ -132,21 +126,25 @@ export class FetchMiddleware<
     HasParams,
     HasQuery
   > {
+    const defaultOptions: DefaultOptionsType<PayloadType, EndpointType> = {
+      endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
+      params: options?.params || this.params,
+      queryParams: options?.queryParams || this.queryParams,
+      data: options?.data || this.data,
+    };
+
     const cloned = new FetchMiddleware<
       ResponseType,
       PayloadType,
       ErrorType,
       EndpointType,
-      ClientOptions
-    >(this.builderConfig, this.apiConfig);
+      ClientOptions,
+      HasData,
+      HasParams,
+      HasQuery
+    >(this.builderConfig, this.apiConfig, defaultOptions);
 
-    return Object.assign(cloned, {
-      ...this,
-      endpoint: this.paramsMapper(this.params),
-      params,
-      queryParams,
-      data,
-    });
+    return cloned;
   }
 
   fetch: FetchMethodType<
@@ -157,10 +155,9 @@ export class FetchMiddleware<
     HasData,
     HasParams,
     HasQuery
-  > = (options) => {
-    const middleware = this.clone();
+  > = (options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
+    const middleware = this.clone(options);
     const { client } = this.builderConfig;
-
     this.timestamp = new Date();
     return client(middleware);
   };
@@ -172,22 +169,22 @@ export class FetchMiddleware<
 //   baseUrl: "http://localhost:3000",
 // }).build();
 
-// const getUsers = fetchMiddleware<{ name: string }[]>()({
+// const getUsers = fetchMiddleware<{ id: string }[]>()({
 //   method: "GET",
 //   endpoint: "/users",
 // });
 
-// const getUser = fetchMiddleware<{ name: string }>()({
+// const getUser = fetchMiddleware<{ id: string }>()({
 //   method: "GET",
 //   endpoint: "/users/:id",
 // });
 
-// const postUser = fetchMiddleware<{ name: string }, { name: string }>()({
+// const postUser = fetchMiddleware<{ id: string }, { name: string }>()({
 //   method: "POST",
 //   endpoint: "/users",
 // });
 
-// const patchUser = fetchMiddleware<{ name: string }, { name: string }>()({
+// const patchUser = fetchMiddleware<{ id: string }, { name: string }>()({
 //   method: "PATCH",
 //   endpoint: "/users/:id",
 // });
@@ -232,5 +229,3 @@ export class FetchMiddleware<
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
 //   .fetch({ params: { id: "" } });
-
-// const { payload, error } = useFetch(getUsers);

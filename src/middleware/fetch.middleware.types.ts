@@ -14,59 +14,66 @@ export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions
   options?: ClientOptions;
 };
 
+export type DefaultOptionsType<PayloadType, GenericEndpoint extends string> = {
+  endpoint?: GenericEndpoint | NegativeTypes;
+  params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
+  queryParams?: string | NegativeTypes;
+  data?: PayloadType | NegativeTypes;
+};
+
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
-export type ApiQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
-  ? { queryParams?: undefined }
-  : {
-      queryParams?: string;
-    };
-
 export type ExtractRouteParams<T extends string> = string extends T
-  ? null
+  ? NegativeTypes
   : T extends `${infer Start}:${infer Param}/${infer Rest}`
   ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
   : T extends `${infer Start}:${infer Param}`
   ? { [k in Param]: ParamType }
-  : null;
+  : NegativeTypes;
+
+export type ApiQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
+  ? { queryParams?: NegativeTypes }
+  : {
+      queryParams?: string;
+    };
 
 export type ApiParamsType<
-  Params extends string,
+  EndpointType extends string,
   HasParams extends true | false = false,
-> = ExtractRouteParams<Params> extends NegativeTypes
-  ? { params?: undefined }
+> = ExtractRouteParams<EndpointType> extends NegativeTypes
+  ? { params?: NegativeTypes }
   : true extends HasParams
-  ? { params?: undefined }
-  : { params: ExtractRouteParams<Params> };
+  ? { params?: NegativeTypes }
+  : { params: ExtractRouteParams<EndpointType> };
 
 export type ApiRequestDataType<
-  RequestData,
+  PayloadType,
   HasData extends true | false = false,
-> = RequestData extends NegativeTypes
-  ? { data?: undefined }
+> = PayloadType extends NegativeTypes
+  ? { data?: NegativeTypes }
   : HasData extends true
-  ? { data?: undefined }
-  : { data: RequestData };
+  ? { data?: NegativeTypes }
+  : { data: PayloadType };
 
 export type FetchType<
-  RequestData,
-  Params extends string,
+  PayloadType,
+  EndpointType extends string,
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
 > = ApiQueryParamsType<HasQuery> &
-  ApiParamsType<Params, HasParams> &
-  ApiRequestDataType<RequestData, HasData>;
+  ApiParamsType<EndpointType, HasParams> &
+  ApiRequestDataType<PayloadType, HasData>;
 
 export type FetchMethodType<
   ResponseType,
   PayloadType,
   ErrorType,
   EndpointType extends string,
-  HasData extends true | false = false,
-  HasParams extends true | false = false,
-  HasQuery extends true | false = false,
+  HasData extends true | false,
+  HasParams extends true | false,
+  HasQuery extends true | false,
 > = FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
   ? FetchType<
       PayloadType,

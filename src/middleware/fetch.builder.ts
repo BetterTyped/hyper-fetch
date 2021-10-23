@@ -42,7 +42,7 @@ export class FetchBuilder<
   });
 
   build() {
-    return <ResponseType, PayloadType = never>() =>
+    return <ResponseType, PayloadType = undefined>() =>
       <EndpointType extends string>(
         params: FetchMiddlewareOptions<EndpointType, ClientOptions>,
       ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions> =>

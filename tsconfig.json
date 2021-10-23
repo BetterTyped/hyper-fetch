@@ -23,5 +23,9 @@
     "strictPropertyInitialization": false
   },
   "include": ["src"],
-  "plugins": [{ "transform": "@zerollup/ts-transform-paths" }]
+  "plugins": [
+    {
+      "transform": "@zerollup/ts-transform-paths"
+    }
+  ]
 }

@@ -1,21 +1,23 @@
 import { ClientResponseType, ClientType, FetchClientOptions } from "./fetch.client.types";
 
-export const fetchClient:ClientType<any, FetchClientOptions> = ({
+export const fetchClient: ClientType<any, FetchClientOptions> = ({
   endpoint,
   headers,
+  method,
+  queryParams = "",
+  data,
   apiConfig,
   builderConfig,
 }) => {
   const requestOptions = apiConfig.options || {};
 
   return new Promise<ClientResponseType<any, any>>((resolve) => {
-    return fetch(
-      builderConfig.baseUrl + endpoint,
-      {
-        ...requestOptions,
-        headers,
-      }
-    )
+    return fetch(builderConfig.baseUrl + endpoint + queryParams, {
+      ...requestOptions,
+      headers,
+      method,
+      body: data instanceof FormData ? data : JSON.stringify(data),
+    })
       .then(async (response) => {
         if (response.ok) {
           const data = await response.json();

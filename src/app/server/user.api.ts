@@ -1,21 +1,19 @@
 import { middleware } from "./middleware";
 
-export const getUser = middleware()({
+export const getUser = middleware<{ name: string }[]>()({
   endpoint: "/api/user/:userId",
-  method: "GET",
 });
 
-export const getUsers = middleware()({
+export const getUsers = middleware<{ name: string }[]>()({
   endpoint: "/api/users",
-  method: "GET",
 });
 
-export const postUser = middleware()({
+export const postUser = middleware<{ name: string }, { email: string }>()({
   endpoint: "/api/user",
   method: "POST",
 });
 
-export const patchUser = middleware()({
+export const patchUser = middleware<{ name: string }, { email: string }>()({
   endpoint: "/api/user/:userId",
   method: "PATCH",
 });
