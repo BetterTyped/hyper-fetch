@@ -6,10 +6,47 @@
  *
  * build()
  */
+import { FetchMiddleware } from "./fetch.middleware";
+import { FetchMiddlewareOptions } from "./fetch.middleware.types";
 
-export class FetchBuilder {
+export type ApiErrorMapperCallback = (errorResponse: any) => string;
+
+export type FetchBuilderProps = {
+  baseUrl: string,
+  clientOptions?: {}
+}
+
+export class FetchBuilder<ErrorType extends Record<string, any> | string> {
+  private readonly baseUrl: string;
+  private readonly clientOptions?: {};
+  private errorMapper: ApiErrorMapperCallback = (error) => error;
+
+  constructor({baseUrl, clientOptions}: FetchBuilderProps) {
+    this.baseUrl = baseUrl;
+    this.clientOptions = clientOptions
+  }
+
+  setErrorsMapper = (callback: ApiErrorMapperCallback): FetchBuilder<ErrorType> => {
+    this.errorMapper = callback;
+    return this;
+  };
+
+  private getBuilderConfig = () => ({
+    baseUrl: this.baseUrl,
+    errorMapper: this.errorMapper,
+  });
+
+  build() {
+    return <ResponseType, PayloadType>() => <EndpointType extends string>(params: FetchMiddlewareOptions<EndpointType>):
+      FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType> =>
+      new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
+        this.getBuilderConfig(),
+        params,
+      );
+  }
+
   // 1. Zgromadzić config serwera dla fetch Middleware - czyli baseUrl, httpClientOptions
-  // httpClientOptions = { interceptors: [fn, fn, fn] }
+  // httpClientOptions = { interceptors: [fn, fn, fn] } -> to ma się podłączać pod każdy request i będzie obsłużone w api middleware
   // 2. setErrorMapper
   // - możliwość zmapowania errorów z requestów, zwraca zawsze jeden styl errora {message, originalError}
   // 3. setHttpClient (Wszystko z api middleware) => void

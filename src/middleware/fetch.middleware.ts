@@ -1,17 +1,15 @@
 import { FetchBuilder } from "./fetch.builder";
-import { fetchClient } from "../client/fetch.client";
 import { getProgressData } from "./fetch.middleware.utils";
-import { OnProgressCallback } from "./fetch.middleware.types";
-import { HttpMethodsEnum } from "constants/http.constants";
-
 import {
   ClientProgressCallback,
   FetchMethodType,
   FetchMiddlewareOptions,
   FetchType,
+  OnProgressCallback,
   ParamsType,
   ProgressEvent,
 } from "./fetch.middleware.types";
+import { HttpMethodsEnum } from "constants/http.constants";
 
 export class FetchMiddleware<
   ResponseType,
@@ -23,7 +21,7 @@ export class FetchMiddleware<
   HasQuery extends true | false = false,
 > {
   constructor(
-    readonly builderConfig: ReturnType<FetchBuilder["getBuilderConfig"]>,
+    readonly builderConfig: ReturnType<FetchBuilder<ErrorType>["getBuilderConfig"]>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType>,
   ) {}
 
