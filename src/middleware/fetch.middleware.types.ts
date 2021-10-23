@@ -1,6 +1,5 @@
 import { ClientResponseType } from "client/fetch.client.types";
-import { HttpMethodsEnum } from "constants/http.constants";
-import { NegativeTypes } from "types";
+import { HttpMethodsType, NegativeTypes } from "types";
 
 export type ProgressEvent = { total: number; loaded: number };
 export type ProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
@@ -10,8 +9,8 @@ export type ClientProgressCallback = (progressEvent: ProgressEvent) => void;
 
 export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
-  headers: Headers;
-  method?: HttpMethodsEnum;
+  headers?: Headers;
+  method?: HttpMethodsType;
   options?: ClientOptions;
 };
 

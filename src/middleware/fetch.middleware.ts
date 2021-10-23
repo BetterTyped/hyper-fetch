@@ -10,6 +10,7 @@ import {
   ProgressEvent,
 } from "./fetch.middleware.types";
 import { HttpMethodsEnum } from "constants/http.constants";
+import { HttpMethodsType } from "types";
 
 export class FetchMiddleware<
   ResponseType,
@@ -27,8 +28,8 @@ export class FetchMiddleware<
   ) {}
 
   readonly endpoint: EndpointType = this.apiConfig.endpoint;
-  readonly headers: Headers = this.apiConfig.headers;
-  readonly method: HttpMethodsEnum = this.apiConfig.method || HttpMethodsEnum.get;
+  readonly headers?: Headers = this.apiConfig.headers;
+  readonly method: HttpMethodsType = this.apiConfig.method || HttpMethodsEnum.get;
   readonly params: ParamsType;
   readonly data: PayloadType | null;
   readonly queryParams: string;
@@ -131,10 +132,13 @@ export class FetchMiddleware<
     HasParams,
     HasQuery
   > {
-    const cloned = new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions>(
-      this.builderConfig,
-      this.apiConfig,
-    );
+    const cloned = new FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      ClientOptions
+    >(this.builderConfig, this.apiConfig);
 
     return Object.assign(cloned, {
       ...this,
@@ -153,7 +157,7 @@ export class FetchMiddleware<
     HasData,
     HasParams,
     HasQuery
-  > = () => {
+  > = (options) => {
     const middleware = this.clone();
     const { client } = this.builderConfig;
 
@@ -169,22 +173,22 @@ export class FetchMiddleware<
 // }).build();
 
 // const getUsers = fetchMiddleware<{ name: string }[]>()({
-//   method: "get",
+//   method: "GET",
 //   endpoint: "/users",
 // });
 
 // const getUser = fetchMiddleware<{ name: string }>()({
-//   method: "get",
+//   method: "GET",
 //   endpoint: "/users/:id",
 // });
 
 // const postUser = fetchMiddleware<{ name: string }, { name: string }>()({
-//   method: "get",
+//   method: "POST",
 //   endpoint: "/users",
 // });
 
 // const patchUser = fetchMiddleware<{ name: string }, { name: string }>()({
-//   method: "get",
+//   method: "PATCH",
 //   endpoint: "/users/:id",
 // });
 
