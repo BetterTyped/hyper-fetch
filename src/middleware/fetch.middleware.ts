@@ -16,13 +16,14 @@ export class FetchMiddleware<
   PayloadType,
   ErrorType,
   EndpointType extends string,
+  ClientOptions,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
   constructor(
-    readonly builderConfig: ReturnType<FetchBuilder<ErrorType>["getBuilderConfig"]>,
-    readonly apiConfig: FetchMiddlewareOptions<EndpointType>,
+    readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
+    readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
   ) {}
 
   readonly endpoint: EndpointType = this.apiConfig.endpoint;
@@ -31,6 +32,7 @@ export class FetchMiddleware<
   readonly params: ParamsType;
   readonly data: PayloadType | null;
   readonly queryParams: string;
+  readonly options: ClientOptions;
 
   private timestamp: Date = new Date();
 
@@ -82,6 +84,7 @@ export class FetchMiddleware<
       PayloadType,
       ErrorType,
       EndpointType,
+      ClientOptions,
       HasData,
       true,
       HasQuery
@@ -95,6 +98,7 @@ export class FetchMiddleware<
       PayloadType,
       ErrorType,
       EndpointType,
+      ClientOptions,
       HasData,
       HasParams,
       true
@@ -122,11 +126,12 @@ export class FetchMiddleware<
     PayloadType,
     ErrorType,
     EndpointType,
+    ClientOptions,
     HasData,
     HasParams,
     HasQuery
   > {
-    const cloned = new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
+    const cloned = new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions>(
       this.builderConfig,
       this.apiConfig,
     );
@@ -150,10 +155,10 @@ export class FetchMiddleware<
     HasQuery
   > = () => {
     const middleware = this.clone();
-    const { httpClient } = this.builderConfig;
+    const { client } = this.builderConfig;
 
     this.timestamp = new Date();
-    return httpClient(middleware);
+    return client(middleware);
   };
 }
 

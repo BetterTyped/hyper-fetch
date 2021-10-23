@@ -8,10 +8,11 @@ export type ProgressResponse = { progress: number; timeLeft: number; sizeLeft: n
 export type OnProgressCallback = ({ progress, timeLeft, sizeLeft }: ProgressResponse) => void;
 export type ClientProgressCallback = (progressEvent: ProgressEvent) => void;
 
-export type FetchMiddlewareOptions<GenericEndpoint extends string> = {
+export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
   headers: Headers;
   method?: HttpMethodsEnum;
+  options?: ClientOptions;
 };
 
 export type ParamType = string | number;
@@ -77,10 +78,10 @@ export type FetchMethodType<
     >["params"] extends NegativeTypes
     ? (
         options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
-      ) => ClientResponseType<ResponseType, ErrorType>
+      ) => Promise<ClientResponseType<ResponseType, ErrorType>>
     : (
         options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
-      ) => ClientResponseType<ResponseType, ErrorType>
+      ) => Promise<ClientResponseType<ResponseType, ErrorType>>
   : (
       options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
-    ) => ClientResponseType<ResponseType, ErrorType>;
+    ) => Promise<ClientResponseType<ResponseType, ErrorType>>;

@@ -8,7 +8,7 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "source": "src/index.ts",
+  "source": "src/library.ts",
   "jsnext:main": "dist/index.esm.js",
   "private": false,
   "engines": {
