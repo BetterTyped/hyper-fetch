@@ -12,18 +12,18 @@ import { FetchMiddlewareOptions } from "./fetch.middleware.types";
 export type ApiErrorMapperCallback = (errorResponse: any) => string;
 
 export type FetchBuilderProps = {
-  baseUrl: string,
-  clientOptions?: {}
-}
+  baseUrl: string;
+  clientOptions?: {};
+};
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string> {
   private readonly baseUrl: string;
   private readonly clientOptions?: {};
   private errorMapper: ApiErrorMapperCallback = (error) => error;
 
-  constructor({baseUrl, clientOptions}: FetchBuilderProps) {
+  constructor({ baseUrl, clientOptions }: FetchBuilderProps) {
     this.baseUrl = baseUrl;
-    this.clientOptions = clientOptions
+    this.clientOptions = clientOptions;
   }
 
   setErrorsMapper = (callback: ApiErrorMapperCallback): FetchBuilder<ErrorType> => {
@@ -37,12 +37,14 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string> {
   });
 
   build() {
-    return <ResponseType, PayloadType>() => <EndpointType extends string>(params: FetchMiddlewareOptions<EndpointType>):
-      FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType> =>
-      new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
-        this.getBuilderConfig(),
-        params,
-      );
+    return <ResponseType, PayloadType>() =>
+      <EndpointType extends string>(
+        params: FetchMiddlewareOptions<EndpointType>,
+      ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType> =>
+        new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
+          this.getBuilderConfig(),
+          params,
+        );
   }
 
   // 1. Zgromadzić config serwera dla fetch Middleware - czyli baseUrl, httpClientOptions
