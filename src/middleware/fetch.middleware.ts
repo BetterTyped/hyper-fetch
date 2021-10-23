@@ -1,65 +1,161 @@
 import { FetchBuilder } from "./fetch.builder";
-import { fetchHttpClient, HttpClientResponseType } from "./fetch.http-client";
-/**
- * FetchMiddleware()
- *
- * endpoint
- * method
- * headers
- *
- * onRequestStart
- * onRequestProgress
- * onRequestProgress
- * onResponseStart
- * onResponseProgress
- * onResponseProgress
- * onSuccess
- * onError
- * onFinish
- *
- * setData
- * setParams
- * setQueryParams
- *
- * fetch()
- */
+import { fetchClient } from "../client/fetch.client";
+import { getProgressData } from "./fetch.middleware.utils";
+import { OnProgressCallback } from "./fetch.middleware.types";
+import { HttpMethodsEnum } from "constants/http.constants";
 
-export type FetchMiddlewareOptions<GenericEndpoint extends string> = {
-  endpoint: GenericEndpoint;
-  headers: Headers;
-  method?: "GET" | "POST" | "PUT" | "PATCH";
-};
+import {
+  ClientProgressCallback,
+  FetchMethodType,
+  FetchMiddlewareOptions,
+  FetchType,
+  ParamsType,
+  ProgressEvent,
+} from "./fetch.middleware.types";
 
-export class FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType extends string> {
-  private readonly endpoint: EndpointType;
-  private readonly headers: Headers;
-  private readonly method: string;
-
+export class FetchMiddleware<
+  ResponseType,
+  PayloadType,
+  ErrorType,
+  EndpointType extends string,
+  HasData extends true | false = false,
+  HasParams extends true | false = false,
+  HasQuery extends true | false = false,
+> {
   constructor(
-    private readonly builderConfig: ReturnType<FetchBuilder["getBuilderConfig"]>,
-    private readonly apiConfig: FetchMiddlewareOptions<EndpointType>,
-  ) {
-    const { endpoint, headers, method } = apiConfig;
+    readonly builderConfig: ReturnType<FetchBuilder["getBuilderConfig"]>,
+    readonly apiConfig: FetchMiddlewareOptions<EndpointType>,
+  ) {}
 
-    this.endpoint = endpoint;
-    this.headers = headers;
-    this.method = method || builderConfig.defaultMethod;
-  }
+  readonly endpoint: EndpointType = this.apiConfig.endpoint;
+  readonly headers: Headers = this.apiConfig.headers;
+  readonly method: HttpMethodsEnum = this.apiConfig.method || HttpMethodsEnum.get;
+  readonly params: ParamsType;
+  readonly data: PayloadType | null;
+  readonly queryParams: string;
 
-  clone = () => {
+  private timestamp: Date = new Date();
+
+  readonly uploadProgressCallbacks: ClientProgressCallback[] = [];
+  readonly downloadProgressCallbacks: ClientProgressCallback[] = [];
+
+  public onUploadProgress = (callback: OnProgressCallback) => {
+    const cloned = this.clone();
+
+    const startTime = this.timestamp;
+    const progressCallback = (event: ProgressEvent) => callback(getProgressData(startTime, event));
+    cloned.uploadProgressCallbacks.push(progressCallback);
+
+    return cloned;
+  };
+
+  public onDownloadProgress = (callback: OnProgressCallback) => {
+    const cloned = this.clone();
+
+    const startTime = this.timestamp;
+    const progressCallback = (event: ProgressEvent) => callback(getProgressData(startTime, event));
+    cloned.downloadProgressCallbacks.push(progressCallback);
+
+    return cloned;
+  };
+
+  public setData = (data: PayloadType) => {
+    const cloned = this.clone({ data });
+    return cloned as FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      true,
+      HasParams,
+      HasQuery
+    >;
+  };
+
+  public setParams = (
+    params: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["params"],
+  ) => {
+    const cloned = this;
+    if (params) {
+      this.clone({ params });
+    }
+    return cloned as FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      HasData,
+      true,
+      HasQuery
+    >;
+  };
+
+  public setQueryParams = (queryParams: string) => {
+    const cloned = this.clone({ queryParams });
+    return cloned as FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      HasData,
+      HasParams,
+      true
+    >;
+  };
+
+  private paramsMapper = (params: ParamsType | null | undefined): string => {
+    let endpoint = this.apiConfig.endpoint as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        endpoint = endpoint.replaceAll(new RegExp(`:${key}`, "g"), String(value));
+      });
+    }
+    return endpoint;
+  };
+
+  private clone(
+    { params = this.params, queryParams = this.queryParams, data = this.data } = {
+      params: this.params,
+      queryParams: this.queryParams,
+      data: this.data,
+    },
+  ): FetchMiddleware<
+    ResponseType,
+    PayloadType,
+    ErrorType,
+    EndpointType,
+    HasData,
+    HasParams,
+    HasQuery
+  > {
     const cloned = new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType>(
       this.builderConfig,
       this.apiConfig,
     );
+
     return Object.assign(cloned, {
       ...this,
-      // endpoint: params ? this.handleMapEndpointParams(params) : rest.endpoint,
+      endpoint: this.paramsMapper(this.params),
+      params,
+      queryParams,
+      data,
     });
-  };
+  }
 
-  fetch = (): Promise<HttpClientResponseType<ResponseType, ErrorType>> => {
+  fetch: FetchMethodType<
+    ResponseType,
+    PayloadType,
+    ErrorType,
+    EndpointType,
+    HasData,
+    HasParams,
+    HasQuery
+  > = () => {
+    const middleware = this.clone();
     const { httpClient } = this.builderConfig;
-    return httpClient ? httpClient(this) : fetchHttpClient(this);
+
+    this.timestamp = new Date();
+    return httpClient(middleware);
   };
 }
 
