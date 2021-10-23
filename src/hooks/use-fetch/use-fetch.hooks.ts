@@ -1,6 +1,6 @@
 /**
  * const {
- *  data: T
+ data: T
  isLoading: boolean
  error: T
  actions: setters
