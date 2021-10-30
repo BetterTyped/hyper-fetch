@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
 import { Cache } from "cache/cache";
-import { FetchMiddlewareInstance } from "middleware/fetch.middleware.types";
+import { FetchMiddlewareInstance } from "middleware";
 
 /**
  * const {
@@ -52,7 +52,7 @@ import { FetchMiddlewareInstance } from "middleware/fetch.middleware.types";
  */
 
 export const useFetch = <T extends FetchMiddlewareInstance>(middleware: T) => {
-  const cache = useRef(new Cache(middleware)).current;
+  const cache = useRef(new Cache<T>(middleware)).current;
 
   return false;
   // return (

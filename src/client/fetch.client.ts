@@ -14,7 +14,7 @@ export const fetchClient: ClientType<any, FetchClientOptions> = ({
   return new Promise<ClientResponseType<any, any>>((resolve) => {
     return fetch(builderConfig.baseUrl + endpoint + queryParams, {
       ...requestOptions,
-      headers,
+      headers: { ...builderConfig.getHeaders(), ...headers },
       method,
       body: data instanceof FormData ? data : JSON.stringify(data),
     })

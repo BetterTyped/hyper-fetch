@@ -1,10 +1,10 @@
 import { ProgressEvent } from "./fetch.middleware.types";
 
-export const apiProgressUtils = ({ loaded, total }: ProgressEvent): number => {
+export const fetchProgressUtils = ({ loaded, total }: ProgressEvent): number => {
   return Number(((total * 100) / loaded).toFixed(0));
 };
 
-export const apiEtaUtils = (
+export const fetchEtaUtils = (
   startDate: Date,
   { total, loaded }: ProgressEvent,
 ): { sizeLeft: number; timeLeft: number } => {
@@ -26,7 +26,7 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ProgressE
   }
 
   return {
-    progress: apiProgressUtils(progressEvent),
-    ...apiEtaUtils(requestStartTime, progressEvent),
+    progress: fetchProgressUtils(progressEvent),
+    ...fetchEtaUtils(requestStartTime, progressEvent),
   };
 };

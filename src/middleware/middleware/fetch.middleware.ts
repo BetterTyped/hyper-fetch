@@ -1,4 +1,4 @@
-import { FetchBuilder } from "./fetch.builder";
+import { FetchBuilder } from "../builder/fetch.builder";
 import { getProgressData } from "./fetch.middleware.utils";
 import {
   ClientProgressCallback,
@@ -31,7 +31,7 @@ export class FetchMiddleware<
   ) {}
 
   readonly endpoint: EndpointType = this.defaultOptions?.endpoint || this.apiConfig.endpoint;
-  readonly headers?: Headers = this.apiConfig.headers;
+  readonly headers?: HeadersInit = this.apiConfig.headers;
   readonly method: HttpMethodsType = this.apiConfig.method || HttpMethodsEnum.get;
   readonly params: ExtractRouteParams<EndpointType> | NegativeTypes = this.defaultOptions?.params;
   readonly data: PayloadType | NegativeTypes = this.defaultOptions?.data;

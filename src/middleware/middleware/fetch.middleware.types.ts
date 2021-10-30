@@ -10,7 +10,7 @@ export type ClientProgressCallback = (progressEvent: ProgressEvent) => void;
 
 export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
-  headers?: Headers;
+  headers?: HeadersInit;
   method?: HttpMethodsType;
   options?: ClientOptions;
 };
@@ -33,13 +33,13 @@ export type ExtractRouteParams<T extends string> = string extends T
   ? { [k in Param]: ParamType }
   : NegativeTypes;
 
-export type ApiQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
+export type FetchQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
       queryParams?: string;
     };
 
-export type ApiParamsType<
+export type FetchParamsType<
   EndpointType extends string,
   HasParams extends true | false = false,
 > = ExtractRouteParams<EndpointType> extends NegativeTypes
@@ -48,7 +48,7 @@ export type ApiParamsType<
   ? { params?: NegativeTypes }
   : { params: ExtractRouteParams<EndpointType> };
 
-export type ApiRequestDataType<
+export type FetchRequestDataType<
   PayloadType,
   HasData extends true | false = false,
 > = PayloadType extends NegativeTypes
@@ -63,9 +63,9 @@ export type FetchType<
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
-> = ApiQueryParamsType<HasQuery> &
-  ApiParamsType<EndpointType, HasParams> &
-  ApiRequestDataType<PayloadType, HasData>;
+> = FetchQueryParamsType<HasQuery> &
+  FetchParamsType<EndpointType, HasParams> &
+  FetchRequestDataType<PayloadType, HasData>;
 
 export type FetchMethodType<
   ResponseType,

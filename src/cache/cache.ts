@@ -4,10 +4,9 @@ import {
   CacheValueType,
   CacheStoreValueType,
 } from "./cache.types";
-import { FetchMiddlewareInstance } from "middleware/fetch.middleware.types";
-import { deepCompare } from "./cache.utils";
-
-const CacheStore = new Map<CacheStoreKeyType, CacheStoreValueType>();
+import { FetchMiddlewareInstance } from "middleware";
+import { deepCompare, CacheStore } from "cache";
+import { ExtractResponse } from "types";
 
 /**
  * Cache class should be initialized per "base" endpoint of middleware(not modified with params or queryParams).
@@ -15,18 +14,22 @@ const CacheStore = new Map<CacheStoreKeyType, CacheStoreValueType>();
  * With this segregation of data we can keep paginated data, filtered data, without overriding it between not related fetches.
  * Key for interactions should be generated later in the hooks with getCacheKey util function, which joins the stringified values to create isolated space.
  *
- * Example:
- *   endpoint => user/:userId
- *        cache => "user/1": {...}, "user/2": {...}, "user/6": {...}
+ * Example structure:
+ *
+ * CacheStore:
+ *   endpoint => "/users/:userId":
+ *        caches => ["/users/1", {...}], ["/users/3", {...}], ["/users/6", {...}]
+ *   endpoint => "/users"
+ *        caches => ["/users", {...}], ["/users?email=someEmail", {...}], ["/users?search=mac", {...}]
  */
-export class Cache {
-  constructor(private fetchMiddleware: FetchMiddlewareInstance) {
+export class Cache<T extends FetchMiddlewareInstance> {
+  constructor(private fetchMiddleware: T) {
     this.initialize();
   }
 
   private readonly cacheKey: CacheStoreKeyType = this.fetchMiddleware.apiConfig.endpoint;
 
-  set = <T>(key: CacheKeyType, data: T): void => {
+  set = (key: CacheKeyType, data: ExtractResponse<T>): void => {
     const storedEntity = CacheStore.get(this.cacheKey);
     const cachedData = storedEntity?.get(key);
     const isEqual = deepCompare(cachedData, data);
@@ -38,7 +41,7 @@ export class Cache {
     }
   };
 
-  get = <T>(key: string): CacheValueType<T> | undefined => {
+  get = (key: string): CacheValueType<ExtractResponse<T>> | undefined => {
     const storedEntity = CacheStore.get(this.cacheKey);
     const cachedData = storedEntity?.get(key);
 

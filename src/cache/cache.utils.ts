@@ -1,4 +1,4 @@
-import { FetchMiddlewareInstance } from "middleware/fetch.middleware.types";
+import { FetchMiddlewareInstance } from "middleware";
 
 export const stringify = (value: unknown): string => {
   try {
