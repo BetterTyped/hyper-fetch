@@ -20,7 +20,7 @@ import { ExtractResponse } from "types";
  *   endpoint => "/users/:userId":
  *        caches => ["/users/1", {...}], ["/users/3", {...}], ["/users/6", {...}]
  *   endpoint => "/users"
- *        caches => ["/users", {...}], ["/users?email=someEmail", {...}], ["/users?search=mac", {...}]
+ *        caches => ["/users", {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
  */
 export class Cache<T extends FetchMiddlewareInstance> {
   constructor(private fetchMiddleware: T) {
