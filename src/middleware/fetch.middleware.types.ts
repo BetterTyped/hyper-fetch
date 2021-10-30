@@ -1,5 +1,6 @@
 import { ClientResponseType } from "client/fetch.client.types";
 import { HttpMethodsType, NegativeTypes } from "types";
+import { FetchMiddleware } from "./fetch.middleware";
 
 export type ProgressEvent = { total: number; loaded: number };
 export type ProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
@@ -91,3 +92,5 @@ export type FetchMethodType<
   : (
       options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
+
+export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any>;
