@@ -13,9 +13,18 @@ export const App: React.FC = () => {
   // });
 
   // console.log(useFetch);
-  useFetch(getUsers as any);
+  const { data, error, loading } = useFetch(getUsers as any);
 
   // const values = useFetch(getUsers as any);
 
-  return <div>React Fetch test</div>;
+  console.log({ data, error, loading });
+
+  return (
+    <div>
+      React Fetch test
+      {loading && <div>Loading...</div>}
+      {data && <div>HAS DATA!!!</div>}
+      {error && <div>Has error!!!</div>}
+    </div>
+  );
 };

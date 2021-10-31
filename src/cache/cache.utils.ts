@@ -3,6 +3,7 @@ import { FetchMiddlewareInstance } from "middleware";
 export const stringify = (value: unknown): string => {
   try {
     if (typeof value === "string") return value;
+    if (value === undefined || value === null) return "";
     return JSON.stringify(value);
   } catch (_) {
     return "";

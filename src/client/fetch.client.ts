@@ -21,6 +21,7 @@ export const fetchClient: ClientType<any, FetchClientOptions> = ({
       .then(async (response) => {
         if (response.ok) {
           const responseData = await response.json();
+          console.log(responseData);
           return resolve([responseData, null, response.status]);
         }
         return Promise.reject(response);

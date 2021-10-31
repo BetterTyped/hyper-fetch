@@ -1,12 +1,14 @@
 import { FetchMiddlewareInstance } from "middleware";
 import { deepCompare, CacheStore } from "cache";
-import { ExtractResponse } from "types";
+import { ExtractResponse, ExtractError } from "types";
+import { ClientResponseType } from "client";
 import {
   CacheKeyType,
   CacheStoreKeyType,
   CacheValueType,
   CacheStoreValueType,
 } from "./cache.types";
+import { CACHE_EVENTS } from "./cache.events";
 
 /**
  * Cache class should be initialized per "base" endpoint of middleware(not modified with params or queryParams).
@@ -23,21 +25,27 @@ import {
  *        caches => ["/users", {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
  */
 export class Cache<T extends FetchMiddlewareInstance> {
+  private cacheKey: CacheStoreKeyType;
+
   constructor(private fetchMiddleware: T) {
-    this.initialize();
+    this.cacheKey = this.fetchMiddleware.apiConfig.endpoint;
+    this.initialize(this.cacheKey);
   }
 
-  private readonly cacheKey: CacheStoreKeyType = this.fetchMiddleware.apiConfig.endpoint;
-
-  set = (key: CacheKeyType, data: ExtractResponse<T>): void => {
+  set = (
+    key: CacheKeyType,
+    response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
+    retries: number,
+  ): void => {
     const storedEntity = CacheStore.get(this.cacheKey);
     const cachedData = storedEntity?.get(key);
-    const isEqual = deepCompare(cachedData, data);
+    const isEqual = cachedData ? deepCompare(cachedData.response, response) : false;
 
-    const newData: CacheValueType = { data, timestamp: new Date() };
+    const newData: CacheValueType = { response, retries, timestamp: new Date() };
 
     if (storedEntity && !isEqual) {
       storedEntity.set(key, newData);
+      CACHE_EVENTS.set<T>(key, newData);
     }
   };
 
@@ -53,7 +61,7 @@ export class Cache<T extends FetchMiddlewareInstance> {
     storedEntity?.delete(key);
   };
 
-  initialize = (): void => {
+  initialize = (cacheKey: CacheKeyType): void => {
     const storedEntity = CacheStore.get(this.cacheKey);
     if (!storedEntity) {
       const newCacheData: CacheStoreValueType = new Map();

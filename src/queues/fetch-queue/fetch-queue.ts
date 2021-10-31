@@ -1,3 +1,5 @@
+import { Cache } from "cache";
+import { FetchMiddlewareInstance } from "middleware";
 import {
   FetchQueueStoreKeyType,
   FetchQueueStoreValueType,
@@ -10,8 +12,8 @@ export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreVa
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
-export class FetchQueue {
-  constructor(private requestKey: string) {}
+export class FetchQueue<T extends FetchMiddlewareInstance> {
+  constructor(private requestKey: string, private cache: Cache<T>) {}
 
   add = async (queueElement: FetchQueueValueType): Promise<void> => {
     const queueEntity = this.get();
@@ -21,9 +23,11 @@ export class FetchQueue {
       // 1. Add to queue
       FetchQueueStore.set(this.requestKey, queueElement);
       // 2. Start request
-      await queueElement.request.fetch();
+      const response = await queueElement.request.fetch();
       // 3. Remove from queue
       this.delete();
+      // 4. Save response to cache
+      this.cache.set(this.requestKey, response, queueElement.retries);
     }
   };
 
