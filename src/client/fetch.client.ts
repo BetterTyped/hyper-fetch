@@ -19,15 +19,14 @@ export const fetchClient: ClientType<any, FetchClientOptions> = ({
       body: data instanceof FormData ? data : JSON.stringify(data),
     })
       .then(async (response) => {
+        const responseData = await response.json();
         if (response.ok) {
-          const responseData = await response.json();
-          console.log(responseData);
           return resolve([responseData, null, response.status]);
         }
-        return Promise.reject(response);
+        return resolve([null, responseData, response.status]);
       })
-      .catch((response) => {
-        return resolve([null, response.error, response.status]);
+      .catch((error) => {
+        return resolve([null, error, 0]);
       });
   });
 };
