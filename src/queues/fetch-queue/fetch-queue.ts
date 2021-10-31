@@ -1,4 +1,3 @@
-import { FetchMiddlewareInstance } from "middleware";
 import {
   FetchQueueStoreKeyType,
   FetchQueueStoreValueType,
@@ -8,41 +7,37 @@ import {
 export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>();
 
 /**
- * Queue class was made to store controlled request Fetchs, and firing them one-by-one per queue.
+ * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
 export class FetchQueue {
-  constructor(private queueName: string) {
-    this.initialize();
-  }
+  constructor(private requestKey: string) {}
 
-  add = <T extends FetchMiddlewareInstance>(request: T): void => {
-    const queueEntity = FetchQueueStore.get(this.queueName);
+  add = async (queueElement: FetchQueueValueType): Promise<void> => {
+    const queueEntity = this.get();
 
-    if (queueEntity) {
-      const newQueueElement: FetchQueueValueType = { request, retries: 0, timestamp: new Date() };
-      queueEntity.add(newQueueElement);
+    // If no concurrent requests found
+    if (!queueEntity) {
+      // 1. Add to queue
+      FetchQueueStore.set(this.requestKey, queueElement);
+      // 2. Start request
+      await queueElement.request.fetch();
+      // 3. Remove from queue
+      this.delete();
     }
   };
 
-  get = (): Set<FetchQueueValueType> | undefined => {
-    const storedEntity = FetchQueueStore.get(this.queueName);
+  get = (): FetchQueueValueType | undefined => {
+    const storedEntity = FetchQueueStore.get(this.requestKey);
 
     return storedEntity;
   };
 
-  delete = (value: FetchQueueValueType): void => {
-    FetchQueueStore.get(this.queueName)?.delete(value);
-  };
-
-  initialize = (): void => {
-    const storedEntity = FetchQueueStore.get(this.queueName);
-    if (!storedEntity) {
-      FetchQueueStore.set(this.queueName, new Set());
-    }
+  delete = (): void => {
+    FetchQueueStore.delete(this.requestKey);
   };
 
   destroy = (): void => {
-    FetchQueueStore.delete(this.queueName);
+    FetchQueueStore.clear();
   };
 }

@@ -1,12 +1,12 @@
+import { FetchMiddlewareInstance } from "middleware";
+import { deepCompare, CacheStore } from "cache";
+import { ExtractResponse } from "types";
 import {
   CacheKeyType,
   CacheStoreKeyType,
   CacheValueType,
   CacheStoreValueType,
 } from "./cache.types";
-import { FetchMiddlewareInstance } from "middleware";
-import { deepCompare, CacheStore } from "cache";
-import { ExtractResponse } from "types";
 
 /**
  * Cache class should be initialized per "base" endpoint of middleware(not modified with params or queryParams).

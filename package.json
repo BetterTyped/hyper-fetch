@@ -101,5 +101,8 @@
     "useDidUnmount",
     "useDidRender",
     "useWillUnmount"
-  ]
+  ],
+  "dependencies": {
+    "@better-typed/react-lifecycle-hooks": "^0.1.6"
+  }
 }

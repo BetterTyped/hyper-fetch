@@ -20,11 +20,10 @@ export const fetchClient: ClientType<any, FetchClientOptions> = ({
     })
       .then(async (response) => {
         if (response.ok) {
-          const data = await response.json();
-          return resolve([data, null, response.status]);
-        } else {
-          return Promise.reject(response);
+          const responseData = await response.json();
+          return resolve([responseData, null, response.status]);
         }
+        return Promise.reject(response);
       })
       .catch((response) => {
         return resolve([null, response.error, response.status]);

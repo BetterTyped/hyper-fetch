@@ -1,3 +1,4 @@
-// export * from "./lib" // export library entry point
+// rollup builder entry point
 
 export * from "./middleware";
+export * from "./hooks";

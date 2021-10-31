@@ -12,5 +12,7 @@ export const FetchContext = React.createContext(initialFetchContextValues);
  * @returns
  */
 export const FetchProvider: React.FC<FetchProviderProps> = ({ children }) => {
-  return <FetchContext.Provider value={{}}>{children}</FetchContext.Provider>;
+  return (
+    <FetchContext.Provider value={{ currentDummyData: null }}>{children}</FetchContext.Provider>
+  );
 };

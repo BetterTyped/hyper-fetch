@@ -1212,6 +1212,11 @@
   resolved "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@better-typed/react-lifecycle-hooks@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.npmjs.org/@better-typed/react-lifecycle-hooks/-/react-lifecycle-hooks-0.1.6.tgz#b3d66baf16e9042900878f0e6481950462c54e26"
+  integrity sha512-uhKCpzFcDBbtUuQpyFGQhhokCwrUlT9TZSPkaJAV+Z0Bge195AY/bw0Espemx+X+V2ydNBVPMqFXhHd76kXZsQ==
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.npmjs.org/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"

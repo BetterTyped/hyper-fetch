@@ -1,10 +1,10 @@
+import { ClientType, FetchClientOptions, fetchClient } from "client";
+import { FetchMiddleware, FetchMiddlewareOptions } from "middleware";
 import {
   BuilderErrorMapperCallback,
   BuilderHeadersCallback,
   FetchBuilderProps,
 } from "./fetch.builder.types";
-import { ClientType, FetchClientOptions, fetchClient } from "client";
-import { FetchMiddleware, FetchMiddlewareOptions } from "middleware";
 
 export class FetchBuilder<
   ErrorType extends Record<string, any> | string,
@@ -33,9 +33,13 @@ export class FetchBuilder<
     return this;
   };
 
-  setErrorMapper = (callback: BuilderErrorMapperCallback) => (this.errorMapper = callback);
+  setErrorMapper = (callback: BuilderErrorMapperCallback) => {
+    this.errorMapper = callback;
+  };
 
-  setHeaders = (callback: BuilderHeadersCallback) => (this.getHeaders = callback);
+  setHeaders = (callback: BuilderHeadersCallback) => {
+    this.getHeaders = callback;
+  };
 
   private getBuilderConfig = () => ({
     baseUrl: this.baseUrl,

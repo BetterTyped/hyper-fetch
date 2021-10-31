@@ -1,7 +1,10 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
+import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { Cache } from "cache/cache";
 import { FetchMiddlewareInstance } from "middleware";
+import { getCacheKey } from "cache";
+import { FetchQueue } from "queues";
 
 /**
  * const {
@@ -51,8 +54,39 @@ import { FetchMiddlewareInstance } from "middleware";
 })
  */
 
-export const useFetch = <T extends FetchMiddlewareInstance>(middleware: T) => {
+export const useFetch = <T extends FetchMiddlewareInstance>(
+  middleware: T,
+  { cacheKey = "" } = { cacheKey: "" },
+) => {
   const cache = useRef(new Cache<T>(middleware)).current;
+
+  useDidUpdate(
+    () => {
+      const key = getCacheKey(middleware, cacheKey);
+      const queue = new FetchQueue(key);
+
+      const isPending = queue.get();
+
+      // If already ongoing
+      if (isPending) {
+        // Here await for event to finish
+      }
+
+      // If it's first request
+      if (!isPending) {
+        queue.add({
+          request: middleware,
+          retries: 0,
+        });
+      }
+    },
+    [],
+    true,
+  );
+
+  useDidMount(() => {
+    // listeners for retries and responses, cache injection etc
+  });
 
   return false;
   // return (

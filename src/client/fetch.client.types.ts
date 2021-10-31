@@ -1,4 +1,4 @@
-import { FetchMiddleware } from "middleware/fetch.middleware";
+import { FetchMiddleware } from "middleware/middleware/fetch.middleware";
 
 export type FetchClientOptions = Parameters<typeof fetch>["1"];
 

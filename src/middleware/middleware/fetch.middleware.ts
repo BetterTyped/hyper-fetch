@@ -1,3 +1,5 @@
+import { HttpMethodsEnum } from "constants/http.constants";
+import { HttpMethodsType, NegativeTypes } from "types";
 import { FetchBuilder } from "../builder/fetch.builder";
 import { getProgressData } from "./fetch.middleware.utils";
 import {
@@ -11,8 +13,6 @@ import {
   ParamsType,
   ProgressEvent,
 } from "./fetch.middleware.types";
-import { HttpMethodsEnum } from "constants/http.constants";
-import { HttpMethodsType, NegativeTypes } from "types";
 
 export class FetchMiddleware<
   ResponseType,
@@ -24,19 +24,26 @@ export class FetchMiddleware<
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
+  endpoint: EndpointType;
+  headers?: HeadersInit;
+  method: HttpMethodsType;
+  params: ExtractRouteParams<EndpointType> | NegativeTypes;
+  data: PayloadType | NegativeTypes;
+  queryParams: string | NegativeTypes;
+  options: ClientOptions;
+
   constructor(
     readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
     readonly defaultOptions?: DefaultOptionsType<PayloadType, EndpointType>,
-  ) {}
-
-  readonly endpoint: EndpointType = this.defaultOptions?.endpoint || this.apiConfig.endpoint;
-  readonly headers?: HeadersInit = this.apiConfig.headers;
-  readonly method: HttpMethodsType = this.apiConfig.method || HttpMethodsEnum.get;
-  readonly params: ExtractRouteParams<EndpointType> | NegativeTypes = this.defaultOptions?.params;
-  readonly data: PayloadType | NegativeTypes = this.defaultOptions?.data;
-  readonly queryParams: string | NegativeTypes = this.defaultOptions?.queryParams;
-  readonly options: ClientOptions;
+  ) {
+    this.endpoint = defaultOptions?.endpoint || apiConfig?.endpoint;
+    this.headers = apiConfig?.headers;
+    this.method = apiConfig?.method || HttpMethodsEnum.get;
+    this.params = defaultOptions?.params;
+    this.data = defaultOptions?.data;
+    this.queryParams = defaultOptions?.queryParams;
+  }
 
   private timestamp: Date = new Date();
 
@@ -126,7 +133,7 @@ export class FetchMiddleware<
     HasParams,
     HasQuery
   > {
-    const defaultOptions: DefaultOptionsType<PayloadType, EndpointType> = {
+    const currentOptions: DefaultOptionsType<PayloadType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
       queryParams: options?.queryParams || this.queryParams,
@@ -142,7 +149,7 @@ export class FetchMiddleware<
       HasData,
       HasParams,
       HasQuery
-    >(this.builderConfig, this.apiConfig, defaultOptions);
+    >(this.builderConfig, this.apiConfig, currentOptions);
 
     return cloned;
   }

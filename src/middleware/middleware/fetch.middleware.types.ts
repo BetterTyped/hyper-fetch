@@ -93,4 +93,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any>;
+export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, true, true, true>;

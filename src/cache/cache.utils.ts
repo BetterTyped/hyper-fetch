@@ -41,7 +41,7 @@ export const getCacheKey = (
 };
 
 export const isEmpty = (value: any): boolean => {
-  if (!Boolean(value)) return true;
+  if (!value) return true;
 
   if (Array.isArray(value)) return !value.length;
 
@@ -56,11 +56,15 @@ export const deepCompare = (firstValue: any, secondValue: any): boolean => {
 
   if (firstValueType !== secondValueType) return false;
 
-  if (typeof firstValue === "function") return "" + firstValue === "" + secondValue;
+  if (typeof firstValue === "function") return `${firstValue}` === `${secondValue}`;
 
   // null, undefined, string, number, bool, NaN
   if (firstValueType !== "[object Object]" && firstValueType !== "[object Array]") {
-    if (firstValueType === "[object Number]" && isNaN(firstValue) && isNaN(secondValue))
+    if (
+      firstValueType === "[object Number]" &&
+      Number.isNaN(firstValue) &&
+      Number.isNaN(secondValue)
+    )
       return true;
     return firstValue === secondValue;
   }
@@ -77,6 +81,8 @@ export const deepCompare = (firstValue: any, secondValue: any): boolean => {
   if (Object.keys(firstValue).length !== Object.keys(secondValue).length) return false;
 
   return Object.entries(firstValue).every(
-    ([key, value]) => secondValue.hasOwnProperty(key) && deepCompare(value, secondValue[key]),
+    ([key, value]) =>
+      Object.prototype.hasOwnProperty.call(secondValue, key) &&
+      deepCompare(value, secondValue[key]),
   );
 };
