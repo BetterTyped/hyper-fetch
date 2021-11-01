@@ -135,6 +135,10 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleFetch();
   };
 
+  const handleData = () => {
+    return mapperFn && state.data ? mapperFn(state.data) : state.data;
+  };
+
   useDidMount(() => {
     handleCallbacks(initState?.response);
     handleInitialCacheState();
@@ -196,7 +200,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
 
   return {
     ...state,
-    data: mapperFn && state.data ? (mapperFn(state.data) as any) : state.data,
+    data: handleData() as any,
     actions,
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
       onSuccessCallback.current = callback;
