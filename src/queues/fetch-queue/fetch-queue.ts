@@ -1,4 +1,4 @@
-import { Cache } from "cache";
+import { Cache, deepCompare } from "cache";
 import { FetchMiddlewareInstance } from "middleware";
 import { FetchQueueStoreKeyType, FetchQueueStoreValueType, FetchQueueValueType } from "./fetch-queue.types";
 
@@ -11,8 +11,16 @@ export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreVa
 export class FetchQueue<T extends FetchMiddlewareInstance> {
   constructor(private requestKey: string, private cache: Cache<T>) {}
 
-  add = async (queueElement: FetchQueueValueType): Promise<void> => {
+  add = async (
+    queueElement: FetchQueueValueType,
+    cancelable = false,
+    deepCompareFn: typeof deepCompare | null,
+  ): Promise<void> => {
     const queueEntity = this.get();
+
+    if (cancelable) {
+      this.delete();
+    }
 
     // If no concurrent requests found
     if (!queueEntity) {
@@ -23,7 +31,7 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
       // 3. Remove from queue
       this.delete();
       // 4. Save response to cache
-      this.cache.set(this.requestKey, response, queueElement.retries);
+      this.cache.set(this.requestKey, response, queueElement.retries, deepCompareFn);
     }
   };
 

@@ -1,0 +1,45 @@
+{
+  "root": true,
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src/"]
+      }
+    },
+    "react": {
+      "pragma": "React",
+      "version": "detect"
+    }
+  },
+  "plugins": ["react", "react-hooks"],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "airbnb",
+    "airbnb-typescript",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/prop-types": "off",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "react/react-in-jsx-scope": "off",
+    "react/display-name": 0,
+    "import/no-extraneous-dependencies": 0,
+    "import/prefer-default-export": 0,
+    "import/no-cycle": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/lines-between-class-members": "off",
+    "prettier/prettier": ["error"],
+    "consistent-return": 0,
+    "@typescript-eslint/no-throw-literal": 0
+  },
+  "parserOptions": {
+    "files": ["*.ts", "*.tsx"],
+    "project": ["./tsconfig.json"]
+  }
+}

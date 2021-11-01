@@ -10,7 +10,7 @@ export const stringify = (value: unknown): string => {
   }
 };
 
-export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey: string | undefined): string => {
+export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey = ""): string => {
   /**
    * Bellow stringified values allow to match the response family *random Vin Diesel meme*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
@@ -24,15 +24,16 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
    * data: string;
    */
 
-  let cacheKey = customCacheKey || "";
+  let cacheKey = customCacheKey;
 
   if (!customCacheKey) {
+    const methodKey = stringify(fetchMiddleware.method);
     const endpointKey = stringify(fetchMiddleware.endpoint);
     const queryParamsKey = stringify(fetchMiddleware.queryParams);
     const paramsKey = stringify(fetchMiddleware.params);
     const dataKey = stringify(fetchMiddleware.data);
 
-    cacheKey = endpointKey + queryParamsKey + paramsKey + dataKey;
+    cacheKey = `${methodKey}-${endpointKey}-${queryParamsKey}-${paramsKey}-${dataKey}`;
   }
 
   return cacheKey;

@@ -13,7 +13,7 @@ export const App: React.FC = () => {
   // });
 
   // console.log(useFetch);
-  const { data, error, loading } = useFetch(getUsers as any);
+  const { data, error, loading } = useFetch(getUsers as any, { refresh: true, refreshTime: 200 });
   const data2 = useFetch(getUsers as any);
   const data3 = useFetch(getUsers as any);
   const data4 = useFetch(getUsers as any);

@@ -27,12 +27,13 @@
   "scripts": {
     "build": "rollup -c",
     "build:docs": "cd documentation && yarn build",
-    "prepare": "install-peers && yarn build",
+    "prepare": "install-peers && husky install && yarn build",
     "predeploy": "yarn run build:docs",
     "deploy": "gh-pages -d documentation/build",
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "lint": "eslint --ext .js,.jsx,.tsx,.ts"
+    "format": "prettier --write",
+    "lint": "eslint --ext .js,.jsx,.tsx,.ts --fix"
   },
   "eslintConfig": {
     "extends": [
@@ -92,21 +93,21 @@
   "keywords": [
     "react",
     "hooks",
-    "lifecycle",
+    "fetch",
     "use",
-    "did",
-    "mount",
-    "update",
-    "unmount",
-    "render",
+    "query",
+    "fetch",
+    "call",
+    "cache",
+    "queue",
     "hook",
-    "useDidMount",
-    "useDidUnmount",
-    "useDidRender",
-    "useWillUnmount"
+    "useFetch",
+    "useCall",
+    "useCache",
+    "useQueue"
   ],
   "dependencies": {
-    "@better-typed/react-lifecycle-hooks": "^0.1.6"
+    "@better-typed/react-lifecycle-hooks": "^1.0.1"
   },
   "husky": {
     "hooks": {
@@ -114,9 +115,9 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,scss,md,mdx}": [
-      "prettier --write",
-      "eslint --ext .js,.jsx,.tsx,.ts --fix"
+    "*.{js,jsx,ts,tsx}": [
+      "yarn format",
+      "yarn lint"
     ]
   }
 }

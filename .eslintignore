@@ -1,2 +1,6 @@
 dist
 documentation
+example
+rollup.config.js
+package.json
+.eslintrc.json

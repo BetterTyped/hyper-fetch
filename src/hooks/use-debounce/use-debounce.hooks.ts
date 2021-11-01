@@ -29,10 +29,9 @@ export const useDebounce = (delay = 600): UseDebounceReturnType => {
   const setDebounce: DebounceFunction = (callback) => {
     resetDebounce();
 
-    debounce.current.timer = setTimeout(async () => {
+    debounce.current.timer = setTimeout(() => {
       debounce.current.timer = null;
-
-      await callback?.();
+      callback();
     }, debounce.current.time);
   };
 

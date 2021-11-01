@@ -31,10 +31,11 @@ export class Cache<T extends FetchMiddlewareInstance> {
     key: CacheKeyType,
     response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
     retries: number,
+    deepCompareFn: typeof deepCompare | null = deepCompare,
   ): void => {
     const storedEntity = CacheStore.get(this.cacheKey);
     const cachedData = storedEntity?.get(key);
-    const isEqual = cachedData ? deepCompare(cachedData.response, response) : false;
+    const isEqual = cachedData && deepCompareFn ? deepCompareFn(cachedData.response, response) : false;
 
     const newData: CacheValueType = { response, retries, timestamp: new Date() };
 
@@ -57,10 +58,10 @@ export class Cache<T extends FetchMiddlewareInstance> {
   };
 
   initialize = (cacheKey: CacheKeyType): void => {
-    const storedEntity = CacheStore.get(this.cacheKey);
+    const storedEntity = CacheStore.get(cacheKey);
     if (!storedEntity) {
       const newCacheData: CacheStoreValueType = new Map();
-      CacheStore.set(this.cacheKey, newCacheData);
+      CacheStore.set(cacheKey, newCacheData);
     }
   };
 
