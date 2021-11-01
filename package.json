@@ -1,10 +1,10 @@
 {
-  "name": "template",
+  "name": "react-fetch",
   "version": "0.0.1",
   "author": "BetterTyped",
   "license": "MIT",
   "description": "",
-  "repository": "BetterTyped/template",
+  "repository": "@better-typed/react-fetch",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -32,7 +32,7 @@
     "deploy": "gh-pages -d documentation/build",
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "lint": "eslint src/ --ext .js,.jsx,.tsx,.ts"
+    "lint": "eslint --ext .js,.jsx,.tsx,.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -106,10 +106,5 @@
   ],
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^0.1.6"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint"
-    }
   }
 }

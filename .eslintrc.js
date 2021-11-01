@@ -52,5 +52,5 @@ module.exports = {
     files: ["*.ts", "*.tsx"],
     project: ["./tsconfig.json"],
   },
-  ignorePatterns: [".eslintrc.js"],
+  ignorePatterns: [".eslintrc.js", "rollup.config.js", "example", "documentation", "dist"],
 };
