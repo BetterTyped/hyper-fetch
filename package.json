@@ -70,6 +70,7 @@
     "gh-pages": "^3.2.3",
     "husky": "^7.0.4",
     "install-peers-cli": "^2.2.0",
+    "lint-staged": "^11.2.6",
     "postcss": "^8.3.9",
     "prettier": "^2.4.1",
     "react-scripts": "^4.0.3",
@@ -106,5 +107,16 @@
   ],
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^0.1.6"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write",
+      "eslint --ext .js,.jsx,.tsx,.ts"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
