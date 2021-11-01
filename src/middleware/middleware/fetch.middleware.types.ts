@@ -48,10 +48,7 @@ export type FetchParamsType<
   ? { params?: NegativeTypes }
   : { params: ExtractRouteParams<EndpointType> };
 
-export type FetchRequestDataType<
-  PayloadType,
-  HasData extends true | false = false,
-> = PayloadType extends NegativeTypes
+export type FetchRequestDataType<PayloadType, HasData extends true | false = false> = PayloadType extends NegativeTypes
   ? { data?: NegativeTypes }
   : HasData extends true
   ? { data?: NegativeTypes }
@@ -76,13 +73,7 @@ export type FetchMethodType<
   HasParams extends true | false,
   HasQuery extends true | false,
 > = FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
-  ? FetchType<
-      PayloadType,
-      EndpointType,
-      HasData,
-      HasParams,
-      HasQuery
-    >["params"] extends NegativeTypes
+  ? FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["params"] extends NegativeTypes
     ? (
         options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
       ) => Promise<ClientResponseType<ResponseType, ErrorType>>

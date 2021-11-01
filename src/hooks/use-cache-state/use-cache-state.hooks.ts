@@ -8,10 +8,7 @@ import { getInitialCacheStateData } from "./use-cache-state.utils";
 export const useCacheState = <DataType, ErrorType>(
   initialData: CacheValueType | undefined,
 ): [UseCacheStateType<DataType, ErrorType>, UseCacheStateActions<DataType, ErrorType>] => {
-  const [state, dispatch] = useReducer(
-    cacheStateReducer<DataType, ErrorType>(),
-    getInitialCacheStateData(initialData),
-  );
+  const [state, dispatch] = useReducer(cacheStateReducer<DataType, ErrorType>(), getInitialCacheStateData(initialData));
 
   const actions: UseCacheStateActions<DataType, ErrorType> = {
     setCacheData: (cacheData) => {
@@ -25,6 +22,9 @@ export const useCacheState = <DataType, ErrorType>(
     },
     setError: (error) => {
       dispatch({ type: UseCacheStateEnum.setError, error });
+    },
+    setRefreshed: (isRefreshed) => {
+      dispatch({ type: UseCacheStateEnum.setRefreshed, isRefreshed });
     },
   };
 

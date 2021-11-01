@@ -1,15 +1,8 @@
 import { ClientType, FetchClientOptions, fetchClient } from "client";
 import { FetchMiddleware, FetchMiddlewareOptions } from "middleware";
-import {
-  BuilderErrorMapperCallback,
-  BuilderHeadersCallback,
-  FetchBuilderProps,
-} from "./fetch.builder.types";
+import { BuilderErrorMapperCallback, BuilderHeadersCallback, FetchBuilderProps } from "./fetch.builder.types";
 
-export class FetchBuilder<
-  ErrorType extends Record<string, any> | string,
-  ClientOptions = FetchClientOptions,
-> {
+export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientOptions> {
   private readonly baseUrl: string;
   private errorMapper: BuilderErrorMapperCallback = (error) => error;
   private getHeaders: BuilderHeadersCallback = () => undefined;
@@ -19,16 +12,12 @@ export class FetchBuilder<
     this.baseUrl = baseUrl;
   }
 
-  setErrorsMapper = (
-    callback: BuilderErrorMapperCallback,
-  ): FetchBuilder<ErrorType, ClientOptions> => {
+  setErrorsMapper = (callback: BuilderErrorMapperCallback): FetchBuilder<ErrorType, ClientOptions> => {
     this.errorMapper = callback;
     return this;
   };
 
-  setClient = (
-    callback: ClientType<ErrorType, ClientOptions>,
-  ): FetchBuilder<ErrorType, ClientOptions> => {
+  setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
     this.client = callback;
     return this;
   };

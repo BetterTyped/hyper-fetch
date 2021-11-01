@@ -1,10 +1,6 @@
 import { Cache } from "cache";
 import { FetchMiddlewareInstance } from "middleware";
-import {
-  FetchQueueStoreKeyType,
-  FetchQueueStoreValueType,
-  FetchQueueValueType,
-} from "./fetch-queue.types";
+import { FetchQueueStoreKeyType, FetchQueueStoreValueType, FetchQueueValueType } from "./fetch-queue.types";
 
 export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>();
 

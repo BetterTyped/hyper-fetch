@@ -2,12 +2,7 @@ import { FetchMiddlewareInstance } from "middleware";
 import { deepCompare, CacheStore } from "cache";
 import { ExtractResponse, ExtractError } from "types";
 import { ClientResponseType } from "client";
-import {
-  CacheKeyType,
-  CacheStoreKeyType,
-  CacheValueType,
-  CacheStoreValueType,
-} from "./cache.types";
+import { CacheKeyType, CacheStoreKeyType, CacheValueType, CacheStoreValueType } from "./cache.types";
 import { CACHE_EVENTS } from "./cache.events";
 
 /**

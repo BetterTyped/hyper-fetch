@@ -14,10 +14,16 @@ export const App: React.FC = () => {
 
   // console.log(useFetch);
   const { data, error, loading } = useFetch(getUsers as any);
+  const data2 = useFetch(getUsers as any);
+  const data3 = useFetch(getUsers as any);
+  const data4 = useFetch(getUsers as any);
 
   // const values = useFetch(getUsers as any);
 
-  console.log({ data, error, loading });
+  console.log(1, { data, error, loading });
+  console.log(2, data2);
+  console.log(3, data3);
+  console.log(4, data4);
 
   return (
     <div>

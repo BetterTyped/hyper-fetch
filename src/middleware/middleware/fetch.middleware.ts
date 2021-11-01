@@ -123,16 +123,7 @@ export class FetchMiddleware<
     queryParams?: string | NegativeTypes;
     params?: ExtractRouteParams<EndpointType> | NegativeTypes;
     data?: PayloadType | NegativeTypes;
-  }): FetchMiddleware<
-    ResponseType,
-    PayloadType,
-    ErrorType,
-    EndpointType,
-    ClientOptions,
-    HasData,
-    HasParams,
-    HasQuery
-  > {
+  }): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, HasParams, HasQuery> {
     const currentOptions: DefaultOptionsType<PayloadType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
@@ -154,15 +145,9 @@ export class FetchMiddleware<
     return cloned;
   }
 
-  fetch: FetchMethodType<
-    ResponseType,
-    PayloadType,
-    ErrorType,
-    EndpointType,
-    HasData,
-    HasParams,
-    HasQuery
-  > = (options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
+  fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> = (
+    options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+  ) => {
     const middleware = this.clone(options);
     const { client } = this.builderConfig;
     this.timestamp = new Date();

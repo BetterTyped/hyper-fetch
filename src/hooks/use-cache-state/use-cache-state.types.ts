@@ -7,6 +7,7 @@ export type UseCacheStateType<DataType = any, ErrorType = any> = {
   loading: boolean;
   status: null | number;
   isCanceled: boolean;
+  isRefreshed: boolean;
   retries: number;
   timestamp: null | Date;
 };
@@ -16,10 +17,12 @@ export type UseCacheStateActions<DataType, ErrorType> = {
   [UseCacheStateEnum.setLoading]: (loading: boolean) => void;
   [UseCacheStateEnum.setData]: (data: DataType) => void;
   [UseCacheStateEnum.setError]: (error: ErrorType) => void;
+  [UseCacheStateEnum.setRefreshed]: (isRefreshed: boolean) => void;
 };
 
 export type UseCacheStateAction<DataType, ErrorType> =
   | { type: typeof UseCacheStateEnum.setCacheData; cacheData: CacheValueType }
   | { type: typeof UseCacheStateEnum.setLoading; loading: boolean }
   | { type: typeof UseCacheStateEnum.setData; data: DataType | null }
-  | { type: typeof UseCacheStateEnum.setError; error: null | ErrorType };
+  | { type: typeof UseCacheStateEnum.setError; error: null | ErrorType }
+  | { type: typeof UseCacheStateEnum.setRefreshed; isRefreshed: boolean };

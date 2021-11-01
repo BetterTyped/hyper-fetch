@@ -10,10 +10,7 @@ export const stringify = (value: unknown): string => {
   }
 };
 
-export const getCacheKey = (
-  fetchMiddleware: FetchMiddlewareInstance,
-  customCacheKey: string | undefined,
-): string => {
+export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey: string | undefined): string => {
   /**
    * Bellow stringified values allow to match the response family *random Vin Diesel meme*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
@@ -61,12 +58,7 @@ export const deepCompare = (firstValue: any, secondValue: any): boolean => {
 
   // null, undefined, string, number, bool, NaN
   if (firstValueType !== "[object Object]" && firstValueType !== "[object Array]") {
-    if (
-      firstValueType === "[object Number]" &&
-      Number.isNaN(firstValue) &&
-      Number.isNaN(secondValue)
-    )
-      return true;
+    if (firstValueType === "[object Number]" && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
     return firstValue === secondValue;
   }
 
@@ -82,8 +74,6 @@ export const deepCompare = (firstValue: any, secondValue: any): boolean => {
   if (Object.keys(firstValue).length !== Object.keys(secondValue).length) return false;
 
   return Object.entries(firstValue).every(
-    ([key, value]) =>
-      Object.prototype.hasOwnProperty.call(secondValue, key) &&
-      deepCompare(value, secondValue[key]),
+    ([key, value]) => Object.prototype.hasOwnProperty.call(secondValue, key) && deepCompare(value, secondValue[key]),
   );
 };

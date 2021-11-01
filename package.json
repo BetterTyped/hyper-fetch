@@ -31,7 +31,8 @@
     "predeploy": "yarn run build:docs",
     "deploy": "gh-pages -d documentation/build",
     "start": "react-scripts start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "lint": "eslint src/ --ext .js,.jsx,.tsx,.ts"
   },
   "eslintConfig": {
     "extends": [
@@ -67,6 +68,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "gh-pages": "^3.2.3",
+    "husky": "^7.0.4",
     "install-peers-cli": "^2.2.0",
     "postcss": "^8.3.9",
     "prettier": "^2.4.1",
@@ -104,5 +106,10 @@
   ],
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^0.1.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint"
+    }
   }
 }

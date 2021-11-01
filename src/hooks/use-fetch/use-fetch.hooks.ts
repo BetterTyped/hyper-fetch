@@ -5,106 +5,140 @@ import { Cache } from "cache/cache";
 import { FetchMiddlewareInstance } from "middleware";
 import { getCacheKey, CACHE_EVENTS } from "cache";
 import { FetchQueue } from "queues";
-import { useCacheState } from "hooks/use-cache-state/use-cache-state.hooks";
-import { ExtractResponse, ExtractError } from "types";
+import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
+import { DateInterval } from "constants/time.constants";
 
-/**
- * const {
- data: T
- isLoading: boolean
- error: T
- actions: setters
- onSuccess: fn (data, isRefreshed)
- onError: fn (data, isRefreshed)
- onFinished: fn (data, error, isRefreshed)
- status: number 200 404 etc
- isCanceled: bool
- isCached: bool
- isRefreshed: bool
- timestamp: Date
- isSuccess: bool
- isError: bool
- isRefreshingError: bool
- isDebounce: bool
- failureCount: number
- fetchCount: number
- refresh: fn
- invalidateCache: fn - jednocześnie triggeruje refresh
- cancel: fn
-} = useFetch({
- dependencies: any[]
- disabled: bool
- retry: boolean / number
- retryTime: number
- cache: once, service-worker, aging, none
- cacheTime: number
- cacheKey: string - custom to endpoint
- cacheOnMount: boolean
- cacheInitialData: T
- refreshTime: number / null
- refreshOnTabBlur: boolean
- refreshOnTabFocus: boolean
- refreshOnReconnect: boolean
- debounceTime: number,
- suspense: boolean
- throw: boolean
- cancelable: boolean
- mapperFn: (data) => newDataType
- deepCompareFn: (data) => void
- middleware: []
-})
- */
+import { useCacheState } from "hooks/use-cache-state/use-cache-state.hooks";
+import { useDebounce } from "hooks/use-debounce/use-debounce.hook";
+
+import {
+  OnErrorCallbackType,
+  OnFinishedCallbackType,
+  OnSuccessCallbackType,
+  UseFetchOptionsType,
+} from "./use-fetch.types";
+import { getCacheState } from "./use-fetch.utils";
 
 export const useFetch = <T extends FetchMiddlewareInstance>(
   middleware: T,
-  { cacheKey = "" } = { cacheKey: "" },
+  {
+    dependencies = [],
+    disabled = false,
+    retry = false,
+    retryTime = DateInterval.second,
+    cacheType = "normal",
+    cacheTime = DateInterval.hour,
+    cacheKey = "",
+    cacheOnMount = true,
+    initialCacheData = null,
+    initialData = null,
+    refreshTime = DateInterval.hour,
+    refreshOnTabBlur = false,
+    refreshOnTabFocus = false,
+    refreshOnReconnect = false,
+    debounceTime = 0,
+    suspense = false,
+    shouldThrow = false,
+    cancelable = false,
+    mapperFn = null,
+    deepCompareFn = null,
+    plugins = [],
+  }: UseFetchOptionsType<T>,
 ) => {
+  const requestDebounce = useDebounce(debounceTime);
+  const refreshDebounce = useDebounce(retryTime);
+
   const key = useRef(getCacheKey(middleware, cacheKey)).current;
   const cache = useRef(new Cache<T>(middleware)).current;
-  const [state, actions] = useCacheState<ExtractResponse<T>, ExtractError<T>>(cache.get(key));
+  const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime, cacheType)).current;
+  const initState = useRef(initialData || initCacheState).current;
+  const [state, actions] = useCacheState<ExtractResponse<T>, ExtractError<T>>(initState);
+
+  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
+  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
+  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
+
+  const handleFetch = (retries = 0) => {
+    if (!disabled) {
+      const queue = new FetchQueue(key, cache);
+
+      queue.add({
+        request: middleware,
+        retries,
+      });
+    }
+  };
+
+  const handleRetry = (retries: number) => {
+    if (retry === true || (typeof retry === "number" && retries < retry)) {
+      refreshDebounce.debounce(() => handleFetch(retries + 1));
+    }
+  };
+
+  const handleCallbacks = (response: ExtractFetchReturn<T> | undefined, retries = 0) => {
+    if (response) {
+      if (response[0]) {
+        onSuccessCallback?.current?.(response[0]);
+      }
+      if (response[1]) {
+        onErrorCallback?.current?.(response[1]);
+        handleRetry(retries);
+      }
+      onFinishedCallback?.current?.(response);
+    }
+  };
+
+  const handleGetUpdatedCache = () => {
+    CACHE_EVENTS.get<T>(key, (cacheData) => {
+      actions.setCacheData(cacheData); // fix unmount listener
+      handleCallbacks(cacheData.response, cacheData.retries);
+    });
+  };
+
+  const handleInitialCacheState = () => {
+    if (!initCacheState && initialCacheData) {
+      // cache.set() // add initial injection
+    }
+  };
+
+  const refresh = () => {
+    handleFetch();
+  };
 
   useDidMount(() => {
-    CACHE_EVENTS.get<T>(key, (cacheData) => {
-      actions.setCacheData(cacheData);
-    });
-    // listeners for retries and responses, cache injection etc
+    handleCallbacks(initState?.response);
+    handleGetUpdatedCache();
+    handleInitialCacheState();
   });
 
   useDidUpdate(
     () => {
-      const queue = new FetchQueue(key, cache);
-
-      const isPending = queue.get();
-
-      // If already ongoing
-      if (isPending) {
-        // Here await for event to finish
-      }
-
-      // If it's first request
-      if (!isPending) {
-        queue.add({
-          request: middleware,
-          retries: 0,
+      if (!initCacheState) {
+        requestDebounce.debounce(() => {
+          handleFetch();
         });
       }
     },
-    [],
+    [...dependencies, disabled],
     true,
   );
 
   return {
     ...state,
     actions,
-    onSuccess: () => null,
-    onError: () => null,
-    onFinished: () => null,
+    onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
+      onSuccessCallback.current = callback;
+    },
+    onError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+      onErrorCallback.current = callback;
+    },
+    onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
+      onFinishedCallback.current = callback;
+    },
     isCanceled: false,
-    isRefreshed: !!state.retries,
-    isRefreshingError: !!state.error && !!state.retries,
-    isDebouncing: false,
-    refresh: () => null,
-    invalidateCache: () => null,
-    cancel: () => null,
+    isRefreshed: state.isRefreshed,
+    isRefreshingError: !!state.error && state.isRefreshed,
+    isDebouncing: requestDebounce.active,
+    refresh,
   };
 };
