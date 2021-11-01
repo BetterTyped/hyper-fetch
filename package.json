@@ -108,15 +108,15 @@
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^0.1.6"
   },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write",
-      "eslint --ext .js,.jsx,.tsx,.ts"
-    ]
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md,mdx}": [
+      "prettier --write",
+      "eslint --ext .js,.jsx,.tsx,.ts --fix"
+    ]
   }
 }
