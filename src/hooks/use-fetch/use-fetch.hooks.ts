@@ -170,6 +170,16 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleFetch(0, true);
   };
 
+  const handleMountEvents = () => {
+    FETCH_QUEUE_EVENTS.getLoading(key, handleGetLoadingEvent);
+    CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
+  };
+
+  const handleUnMountEvents = () => {
+    FETCH_QUEUE_EVENTS.umountLoading(key, handleGetLoadingEvent);
+    CACHE_EVENTS.umount(key, handleGetUpdatedCache);
+  };
+
   const handleData = () => {
     return mapperFn && state.data ? mapperFn(state.data) : state.data;
   };
@@ -181,9 +191,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   useDidMount(() => {
     handleCallbacks(initState?.response);
     handleInitialCacheState();
-
-    FETCH_QUEUE_EVENTS.getLoading(key, handleGetLoadingEvent);
-    CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
+    handleMountEvents();
   });
 
   /**
@@ -208,12 +216,16 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   );
 
   /**
-   * When cache key changes - we have to apply changes to switch the cache container
+   * When cache key changes dynamically - we have to apply changes to switch the cache container and mount new listeners
    */
   useDidUpdate(
     () => {
+      handleUnMountEvents();
+
       key = getCacheKey(middleware);
       cache = new Cache<T>(middleware);
+
+      handleMountEvents();
     },
     [getCacheKey(middleware)],
     true,
@@ -233,8 +245,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
    * Unmount all events to prevent updates of unmounted state
    */
   useWillUnmount(() => {
-    FETCH_QUEUE_EVENTS.umountLoading(key, handleGetLoadingEvent);
-    CACHE_EVENTS.umount(key, handleGetUpdatedCache);
+    handleUnMountEvents();
   });
 
   useWindowEvent(

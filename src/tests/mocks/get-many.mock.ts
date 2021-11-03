@@ -15,5 +15,11 @@ export const getManyMock = buildMock(getManyRequest, [
   { name: "Kuba", age: 111 },
 ]);
 
+export const getManyAlternativeMock = buildMock(getManyRequest, [
+  { name: "Albert", age: 321 },
+  { name: "Szymon", age: 123 },
+  { name: "Kuba", age: 111 },
+]);
+
 export const interceptGetMany = <StatusType extends number | ErrorCodesType>(status: StatusType) =>
   createInterceptor(getManyMock, status);

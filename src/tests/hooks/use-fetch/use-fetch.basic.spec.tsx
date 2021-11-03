@@ -1,11 +1,11 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
-import { CACHE_EVENTS, Cache, getCacheKey } from "cache";
+import { CACHE_EVENTS } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
-import { getManyMock, getManyRequest, interceptGetMany } from "tests/mocks";
+import { getManyRequest, interceptGetMany } from "tests/mocks";
 import { ErrorMockType } from "tests/server/server.constants";
-import { getCurrentState, mockMiddleware } from "../utils";
+import { getCurrentState } from "../utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../shared/fetch.tests";
 
 const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest));
@@ -231,27 +231,5 @@ describe("Basic useFetch hook usage", () => {
     const errorStateTwo = getCurrentState(responseTwo);
     expect(errorStateOne.error).toBe(customError);
     expect(errorStateTwo.error).toBe(successStateTwo.error);
-  });
-
-  it("should initialize with cache values and not make additional request", async () => {
-    const { fixture } = getManyMock();
-
-    const cache = new Cache(getManyRequest);
-    const cacheKey = getCacheKey(getManyRequest);
-    cache.set({
-      key: cacheKey,
-      response: [fixture, null, 200],
-      retries: 0,
-      isRefreshed: false,
-    });
-
-    const mockedFetch = jest.fn(() => [fixture, null, 200]);
-    const render = () => renderHook(() => useFetch(mockMiddleware(getManyRequest, mockedFetch)));
-
-    const response = render();
-    const state = getCurrentState(response);
-
-    expect(mockedFetch).not.toHaveBeenCalled();
-    testFetchSuccessState(fixture, state);
   });
 });
