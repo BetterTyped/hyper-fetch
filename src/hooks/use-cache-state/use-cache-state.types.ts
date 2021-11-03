@@ -6,23 +6,28 @@ export type UseCacheStateType<DataType = any, ErrorType = any> = {
   error: null | ErrorType;
   loading: boolean;
   status: null | number;
-  isCanceled: boolean;
   isRefreshed: boolean;
   retries: number;
   timestamp: null | Date;
 };
 
 export type UseCacheStateActions<DataType, ErrorType> = {
-  [UseCacheStateEnum.setCacheData]: (cacheData: CacheValueType) => void;
-  [UseCacheStateEnum.setLoading]: (loading: boolean) => void;
-  [UseCacheStateEnum.setData]: (data: DataType) => void;
-  [UseCacheStateEnum.setError]: (error: ErrorType) => void;
-  [UseCacheStateEnum.setRefreshed]: (isRefreshed: boolean) => void;
+  [UseCacheStateEnum.setCacheData]: (cacheData: CacheValueType, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setData]: (data: DataType, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setError]: (error: ErrorType, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setLoading]: (loading: boolean, emitToHooks?: boolean) => void;
+  [UseCacheStateEnum.setStatus]: (status: number | null, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setRefreshed]: (isRefreshed: boolean, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setRetries]: (retries: number, emitToCache?: boolean) => void;
+  [UseCacheStateEnum.setTimestamp]: (timestamp: null | Date, emitToCache?: boolean) => void;
 };
 
 export type UseCacheStateAction<DataType, ErrorType> =
   | { type: typeof UseCacheStateEnum.setCacheData; cacheData: CacheValueType }
-  | { type: typeof UseCacheStateEnum.setLoading; loading: boolean }
   | { type: typeof UseCacheStateEnum.setData; data: DataType | null }
   | { type: typeof UseCacheStateEnum.setError; error: null | ErrorType }
-  | { type: typeof UseCacheStateEnum.setRefreshed; isRefreshed: boolean };
+  | { type: typeof UseCacheStateEnum.setLoading; loading: boolean }
+  | { type: typeof UseCacheStateEnum.setStatus; status: null | number }
+  | { type: typeof UseCacheStateEnum.setRefreshed; isRefreshed: boolean }
+  | { type: typeof UseCacheStateEnum.setRetries; retries: number }
+  | { type: typeof UseCacheStateEnum.setTimestamp; timestamp: null | Date };

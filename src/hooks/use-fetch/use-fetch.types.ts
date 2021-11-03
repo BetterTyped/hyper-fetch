@@ -36,7 +36,7 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
   plugins?: any[];
 };
 
-export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse> = Omit<
+export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
   UseCacheStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {

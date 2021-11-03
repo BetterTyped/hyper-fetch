@@ -9,5 +9,5 @@ export type ClientType<ErrorType, ClientOptions> = (
 export type ClientResponseType<GenericDataType, GenericErrorType> = [
   GenericDataType | null,
   GenericErrorType | null,
-  number,
+  number | null,
 ];

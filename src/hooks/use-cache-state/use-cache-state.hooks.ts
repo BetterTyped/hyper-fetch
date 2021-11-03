@@ -1,30 +1,116 @@
-import { CacheValueType } from "cache";
 import { useReducer } from "react";
+
+import { Cache, CacheValueType } from "cache";
+import { FetchMiddlewareInstance } from "middleware";
+import { ExtractResponse, ExtractError } from "types";
+import { FETCH_QUEUE_EVENTS } from "queues";
 import { UseCacheStateEnum, cacheStateReducer } from "./use-cache-state.constants";
 import { UseCacheStateActions, UseCacheStateType } from "./use-cache-state.types";
 import { getInitialCacheStateData } from "./use-cache-state.utils";
 
-// implement DEPENDENCY TRACKING MECHANISM!!!
-export const useCacheState = <DataType, ErrorType>(
+// TBD: implement DEPENDENCY TRACKING MECHANISM!!!
+export const useCacheState = <T extends FetchMiddlewareInstance>(
+  key: string,
+  cache: Cache<T>,
   initialData: CacheValueType | undefined,
-): [UseCacheStateType<DataType, ErrorType>, UseCacheStateActions<DataType, ErrorType>] => {
-  const [state, dispatch] = useReducer(cacheStateReducer<DataType, ErrorType>(), getInitialCacheStateData(initialData));
+): [
+  UseCacheStateType<ExtractResponse<T>, ExtractError<T>>,
+  UseCacheStateActions<ExtractResponse<T>, ExtractError<T>>,
+] => {
+  const [state, dispatch] = useReducer(
+    cacheStateReducer<ExtractResponse<T>, ExtractError<T>>(),
+    getInitialCacheStateData(initialData),
+  );
 
-  const actions: UseCacheStateActions<DataType, ErrorType> = {
-    setCacheData: (cacheData) => {
+  const actions: UseCacheStateActions<ExtractResponse<T>, ExtractError<T>> = {
+    setCacheData: (cacheData, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          ...cacheData,
+          key,
+        });
+      }
       dispatch({ type: UseCacheStateEnum.setCacheData, cacheData });
     },
-    setLoading: (loading) => {
-      dispatch({ type: UseCacheStateEnum.setLoading, loading });
+    setData: (data, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [data, state.error, state.status],
+          retries: state.retries,
+          isRefreshed: state.isRefreshed,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setData, data });
+      }
     },
-    setData: (data) => {
-      dispatch({ type: UseCacheStateEnum.setData, data });
+    setError: (error, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, error, state.status],
+          retries: state.retries,
+          isRefreshed: state.isRefreshed,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setError, error });
+      }
     },
-    setError: (error) => {
-      dispatch({ type: UseCacheStateEnum.setError, error });
+    setLoading: (loading, emitToHooks = true) => {
+      if (emitToHooks) {
+        FETCH_QUEUE_EVENTS.setLoading(key, loading);
+      } else {
+        dispatch({ type: UseCacheStateEnum.setLoading, loading });
+      }
     },
-    setRefreshed: (isRefreshed) => {
-      dispatch({ type: UseCacheStateEnum.setRefreshed, isRefreshed });
+    setStatus: (status, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, state.error, status],
+          retries: state.retries,
+          isRefreshed: state.isRefreshed,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setStatus, status });
+      }
+    },
+    setRefreshed: (isRefreshed, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, state.error, state.status],
+          retries: state.retries,
+          isRefreshed,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setRefreshed, isRefreshed });
+      }
+    },
+    setRetries: (retries, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, state.error, state.status],
+          retries,
+          isRefreshed: state.isRefreshed,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setRetries, retries });
+      }
+    },
+    setTimestamp: (timestamp, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, state.error, state.status],
+          retries: state.retries,
+          isRefreshed: state.isRefreshed,
+          timestamp: timestamp || undefined,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setTimestamp, timestamp });
+      }
     },
   };
 

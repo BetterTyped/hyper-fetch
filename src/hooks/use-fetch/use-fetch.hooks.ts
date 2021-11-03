@@ -59,7 +59,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const cache = useRef(new Cache<T>(middleware)).current;
   const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime)).current;
   const initState = useRef(initialData || initCacheState).current;
-  const [state, actions] = useCacheState<ExtractResponse<T>, ExtractError<T>>(initState);
+  const [state, actions] = useCacheState<T>(key, cache, initState);
 
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
@@ -139,12 +139,12 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   };
 
   const handleGetUpdatedCache = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    actions.setCacheData(cacheData);
+    actions.setCacheData(cacheData, false);
     handleCallbacks(cacheData.response, cacheData.retries);
   };
 
   const handleGetLoadingEvent = (isLoading: boolean) => {
-    actions.setLoading(isLoading);
+    actions.setLoading(isLoading, false);
   };
 
   const handleInitialCacheState = () => {

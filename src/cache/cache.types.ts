@@ -19,5 +19,6 @@ export type CacheSetDataType<T> = {
   response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
   retries: number;
   isRefreshed: boolean;
+  timestamp?: Date;
   deepCompareFn?: typeof deepCompare | null;
 };

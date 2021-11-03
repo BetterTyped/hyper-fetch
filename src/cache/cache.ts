@@ -26,7 +26,14 @@ export class Cache<T extends FetchMiddlewareInstance> {
     this.initialize(this.cacheKey);
   }
 
-  set = ({ key, response, retries, deepCompareFn = deepCompare, isRefreshed }: CacheSetDataType<T>): void => {
+  set = ({
+    key,
+    response,
+    retries,
+    deepCompareFn = deepCompare,
+    isRefreshed,
+    timestamp = new Date(),
+  }: CacheSetDataType<T>): void => {
     const cacheEntity = CacheStore.get(this.cacheKey);
     const cachedData = cacheEntity?.get(key);
     // We have to compare stored data with deepCompare, this will allow us to limit rerendering
@@ -39,7 +46,7 @@ export class Cache<T extends FetchMiddlewareInstance> {
     // We need to check it against cache and return last valid data we have
     const dataToSave = getCacheData(cachedData?.response, response, refreshError);
 
-    const newData: CacheValueType = { response: dataToSave, retries, refreshError, isRefreshed, timestamp: new Date() };
+    const newData: CacheValueType = { response: dataToSave, retries, refreshError, isRefreshed, timestamp };
 
     if (cacheEntity && !isEqual) {
       cacheEntity.set(key, newData);

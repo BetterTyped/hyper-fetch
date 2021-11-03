@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -22,7 +26,9 @@
     "noImplicitReturns": false,
     "strictPropertyInitialization": false
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "plugins": [
     {
       "transform": "@zerollup/ts-transform-paths"
