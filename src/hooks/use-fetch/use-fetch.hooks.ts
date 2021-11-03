@@ -4,7 +4,7 @@ import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-l
 import { Cache } from "cache/cache";
 import { FetchMiddlewareInstance } from "middleware";
 import { getCacheKey, CACHE_EVENTS, CacheValueType } from "cache";
-import { FetchQueue } from "queues";
+import { FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 import { DateInterval } from "constants/time.constants";
 
@@ -33,7 +33,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     disabled = false,
     retry = false,
     retryTime = DateInterval.second,
-    cacheTime = DateInterval.hour,
+    cacheTime = DateInterval.minute * 5,
     cacheKey = "",
     cacheOnMount = true,
     initialCacheData = null,
@@ -65,18 +65,29 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
   const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
 
-  const handleFetch = (retries = 0) => {
-    if (!disabled) {
-      const queue = new FetchQueue(key, cache);
+  const isStaleCacheData = () => {
+    const { timestamp, data } = state;
 
-      queue.add(
-        {
-          request: middleware,
-          retries,
-        },
+    return timestamp && data ? +new Date() - +timestamp + cacheTime > 0 : true;
+  };
+
+  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed) => {
+    const queue = new FetchQueue(key, cache);
+
+    const isStale = isStaleCacheData();
+
+    if (!disabled && isStale) {
+      const request = {
+        request: middleware,
+        retries,
+        timestamp: new Date(),
+      };
+
+      queue.add(request, {
         cancelable,
         deepCompareFn,
-      );
+        isRefreshed,
+      });
     }
   };
 
@@ -91,13 +102,20 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const handleRefresh = () => {
     refreshInterval.resetInterval();
 
-    const queue = new FetchQueue(key, cache);
-    const currentRequest = queue.get();
+    const { timestamp } = state;
 
-    if (refresh && !currentRequest) {
+    const timeLeft = timestamp ? Math.max(+timestamp + refreshTime - +new Date()) : 0;
+
+    if (refresh) {
       refreshInterval.interval(() => {
-        handleFetch();
-      });
+        const queue = new FetchQueue(key, cache);
+        const currentRequest = queue.get();
+
+        if (!currentRequest) {
+          handleFetch(0, true);
+          refreshInterval.resetInterval();
+        }
+      }, timeLeft);
     }
   };
 
@@ -125,14 +143,18 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleCallbacks(cacheData.response, cacheData.retries);
   };
 
+  const handleGetLoadingEvent = (isLoading: boolean) => {
+    actions.setLoading(isLoading);
+  };
+
   const handleInitialCacheState = () => {
     if (!initCacheState && initialCacheData) {
-      cache.set(key, initialCacheData, 0);
+      cache.set({ key, response: initialCacheData, retries: 0, isRefreshed: false });
     }
   };
 
   const refreshFn = () => {
-    handleFetch();
+    handleFetch(0, true);
   };
 
   const handleData = () => {
@@ -143,16 +165,17 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleCallbacks(initState?.response);
     handleInitialCacheState();
 
+    FETCH_QUEUE_EVENTS.getLoading(key, handleGetLoadingEvent);
     CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
   });
 
   useDidUpdate(
     () => {
-      if (!initCacheState && !disabled) {
-        if (debounce) {
+      if (!disabled) {
+        if ((initCacheState || state.data || state.error) && debounce) {
           requestDebounce.debounce(handleFetch);
         } else {
-          handleFetch();
+          handleFetch(0);
         }
       }
     },
@@ -166,36 +189,37 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
         handleRefresh();
       }
     },
-    [refresh, disabled, refreshTime],
+    [refresh, disabled, refreshTime, state.timestamp, refreshInterval.active],
     true,
   );
 
   useWillUnmount(() => {
+    FETCH_QUEUE_EVENTS.umountLoading(key, handleGetLoadingEvent);
     CACHE_EVENTS.umount(key, handleGetUpdatedCache);
   });
 
   useWindowEvent(
     "online",
     () => {
-      handleFetch();
+      handleFetch(0, true);
     },
-    refreshOnReconnect,
+    !refreshOnReconnect,
   );
 
   useWindowEvent(
     "focus",
     () => {
-      handleFetch();
+      handleFetch(0, true);
     },
-    refreshOnTabFocus,
+    !refreshOnTabFocus,
   );
 
   useWindowEvent(
     "blur",
     () => {
-      handleFetch();
+      handleFetch(0, true);
     },
-    refreshOnTabBlur,
+    !refreshOnTabBlur,
   );
 
   return {
@@ -211,7 +235,6 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
       onFinishedCallback.current = callback;
     },
-    isCanceled: false,
     isRefreshed: state.isRefreshed,
     isRefreshingError: !!state.error && state.isRefreshed,
     isDebouncing: requestDebounce.active,

@@ -6,7 +6,7 @@ type Interval = {
   timer: ReturnType<typeof setInterval> | null;
 };
 
-type IntervalFn = (callback: () => void | Promise<void>) => void;
+type IntervalFn = (callback: () => void | Promise<void>, customTime?: number) => void;
 
 type UseIntervalReturnType = {
   interval: IntervalFn;
@@ -26,12 +26,15 @@ export const useInterval = (delay = 600): UseIntervalReturnType => {
     interval.current.timer = null;
   };
 
-  const createInterval: IntervalFn = (callback) => {
+  const createInterval: IntervalFn = (callback, customTime = 0) => {
     resetInterval();
 
-    interval.current.timer = setInterval(() => {
-      callback();
-    }, interval.current.time);
+    interval.current.timer = setInterval(
+      () => {
+        callback();
+      },
+      customTime <= 0 ? interval.current.time : customTime,
+    );
   };
 
   useWillUnmount(resetInterval);

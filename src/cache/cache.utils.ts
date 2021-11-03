@@ -1,4 +1,16 @@
 import { FetchMiddlewareInstance } from "middleware";
+import { ExtractError, ExtractFetchReturn } from "types";
+
+export const getCacheData = <T extends FetchMiddlewareInstance>(
+  previousResponse: ExtractFetchReturn<T> | undefined,
+  response: ExtractFetchReturn<T>,
+  refreshError: ExtractError<T> | null,
+): ExtractFetchReturn<T> => {
+  if (refreshError && previousResponse?.[0]) {
+    return previousResponse;
+  }
+  return response;
+};
 
 export const stringify = (value: unknown): string => {
   try {
@@ -12,7 +24,7 @@ export const stringify = (value: unknown): string => {
 
 export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey = ""): string => {
   /**
-   * Bellow stringified values allow to match the response family *random Vin Diesel meme*
+   * Bellow stringified values allow to match the response family *paste random Vin Diesel meme here*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
    * We want both results to be cached in separate places to not override each other.
    *
@@ -31,13 +43,14 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
     const endpointKey = stringify(fetchMiddleware.endpoint);
     const queryParamsKey = stringify(fetchMiddleware.queryParams);
     const paramsKey = stringify(fetchMiddleware.params);
-    const dataKey = stringify(fetchMiddleware.data);
 
-    cacheKey = `${methodKey}-${endpointKey}-${queryParamsKey}-${paramsKey}-${dataKey}`;
+    cacheKey = `${methodKey}-${endpointKey}-${queryParamsKey}-${paramsKey}`;
   }
 
   return cacheKey;
 };
+
+// Deep compare
 
 export const isEmpty = (value: any): boolean => {
   if (!value) return true;

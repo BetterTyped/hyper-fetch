@@ -16,7 +16,7 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
   cacheOnMount?: boolean;
   initialCacheData?: ExtractFetchReturn<T> | null;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
-  refresh: boolean;
+  refresh?: boolean;
   refreshTime?: number;
   refreshOnTabBlur?: boolean;
   refreshOnTabFocus?: boolean;
@@ -45,7 +45,6 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  isCanceled: boolean;
   isRefreshed: boolean;
   isRefreshingError: boolean;
   isDebouncing: boolean;

@@ -34,6 +34,7 @@ export const cacheStateReducer =
           status: action.cacheData.response[2],
           retries: action.cacheData.retries,
           timestamp: action.cacheData.timestamp,
+          isRefreshed: action.cacheData.isRefreshed,
           loading: false,
         };
       case UseCacheStateEnum.setLoading:

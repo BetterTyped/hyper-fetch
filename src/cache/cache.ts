@@ -1,8 +1,7 @@
 import { FetchMiddlewareInstance } from "middleware";
-import { deepCompare, CacheStore } from "cache";
-import { ExtractResponse, ExtractError } from "types";
-import { ClientResponseType } from "client";
-import { CacheKeyType, CacheStoreKeyType, CacheValueType, CacheStoreValueType } from "./cache.types";
+import { deepCompare, CacheStore, getCacheData } from "cache";
+import { ExtractResponse } from "types";
+import { CacheKeyType, CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
 import { CACHE_EVENTS } from "./cache.events";
 
 /**
@@ -27,39 +26,42 @@ export class Cache<T extends FetchMiddlewareInstance> {
     this.initialize(this.cacheKey);
   }
 
-  set = (
-    key: CacheKeyType,
-    response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-    retries: number,
-    deepCompareFn: typeof deepCompare | null = deepCompare,
-  ): void => {
-    const storedEntity = CacheStore.get(this.cacheKey);
-    const cachedData = storedEntity?.get(key);
+  set = ({ key, response, retries, deepCompareFn = deepCompare, isRefreshed }: CacheSetDataType<T>): void => {
+    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cachedData = cacheEntity?.get(key);
+    // We have to compare stored data with deepCompare, this will allow us to limit rerendering
     const isEqual = cachedData && deepCompareFn ? deepCompareFn(cachedData.response, response) : false;
 
-    const newData: CacheValueType = { response, retries, timestamp: new Date() };
+    // Refresh error is saved separate to not confuse render with having already cached data and refreshed one throwing error
+    // Keeping it in separate location let us to handle refreshing errors in different ways
+    const refreshError = isRefreshed ? response[1] : null;
+    // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
+    // We need to check it against cache and return last valid data we have
+    const dataToSave = getCacheData(cachedData?.response, response, refreshError);
 
-    if (storedEntity && !isEqual) {
-      storedEntity.set(key, newData);
+    const newData: CacheValueType = { response: dataToSave, retries, refreshError, isRefreshed, timestamp: new Date() };
+
+    if (cacheEntity && !isEqual) {
+      cacheEntity.set(key, newData);
       CACHE_EVENTS.set<T>(key, newData);
     }
   };
 
   get = (key: string): CacheValueType<ExtractResponse<T>> | undefined => {
-    const storedEntity = CacheStore.get(this.cacheKey);
-    const cachedData = storedEntity?.get(key);
+    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cachedData = cacheEntity?.get(key);
 
     return cachedData;
   };
 
   delete = (key: string): void => {
-    const storedEntity = CacheStore.get(this.cacheKey);
-    storedEntity?.delete(key);
+    const cacheEntity = CacheStore.get(this.cacheKey);
+    cacheEntity?.delete(key);
   };
 
   initialize = (cacheKey: CacheKeyType): void => {
-    const storedEntity = CacheStore.get(cacheKey);
-    if (!storedEntity) {
+    const cacheEntity = CacheStore.get(cacheKey);
+    if (!cacheEntity) {
       const newCacheData: CacheStoreValueType = new Map();
       CacheStore.set(cacheKey, newCacheData);
     }

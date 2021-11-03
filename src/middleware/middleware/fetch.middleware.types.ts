@@ -27,9 +27,9 @@ export type ParamsType = Record<string, ParamType>;
 
 export type ExtractRouteParams<T extends string> = string extends T
   ? NegativeTypes
-  : T extends `${infer Start}:${infer Param}/${infer Rest}`
+  : T extends `${string}:${infer Param}/${infer Rest}`
   ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
-  : T extends `${infer Start}:${infer Param}`
+  : T extends `${string}:${infer Param}`
   ? { [k in Param]: ParamType }
   : NegativeTypes;
 
@@ -72,7 +72,11 @@ export type FetchMethodType<
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
-> = FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
+> = FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends any
+  ? (
+      options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+    ) => Promise<ClientResponseType<ResponseType, ErrorType>>
+  : FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
   ? FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["params"] extends NegativeTypes
     ? (
         options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
@@ -84,4 +88,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, true, true, true>;
+export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, any, any, any>;
