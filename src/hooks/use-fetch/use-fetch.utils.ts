@@ -5,7 +5,7 @@ export const getCacheState = (
   useOnMount: boolean,
   cacheTime: number,
 ): CacheValueType | undefined => {
-  if (useOnMount && cacheData && +cacheData.timestamp + cacheTime < +new Date()) {
+  if (useOnMount && cacheData && +cacheData.timestamp + cacheTime > +new Date()) {
     return cacheData;
   }
   return undefined;

@@ -55,8 +55,8 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
 
-  const key = useRef(getCacheKey(middleware, cacheKey)).current;
-  const cache = useRef(new Cache<T>(middleware)).current;
+  let key = useRef(getCacheKey(middleware, cacheKey)).current;
+  let cache = useRef(new Cache<T>(middleware)).current;
   const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime)).current;
   const initState = useRef(initialData || initCacheState).current;
   const [state, actions] = useCacheState<T>(key, cache, initState);
@@ -67,16 +67,26 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
 
   const isStaleCacheData = () => {
     const { timestamp, data } = state;
+    if (!timestamp || !data) return true;
+    return +new Date() > +timestamp + cacheTime;
+  };
 
-    return timestamp && data ? +new Date() - +timestamp + cacheTime > 0 : true;
+  const hasStateData = () => {
+    return !!state.data || !!state.error;
   };
 
   const handleFetch = (retries = 0, isRefreshed = state.isRefreshed) => {
     const queue = new FetchQueue(key, cache);
 
     const isStale = isStaleCacheData();
+    const hasData = hasStateData();
 
-    if (!disabled && isStale) {
+    /**
+     * We can fetch when data is not stale or we don't have data at all
+     * The exception is made for refreshing which should be triggered no matter if data is fresh or not
+     * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
+     */
+    if (!disabled && (isStale || !hasData || isRefreshed)) {
       const request = {
         request: middleware,
         retries,
@@ -151,6 +161,9 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     if (!initCacheState && initialCacheData) {
       cache.set({ key, response: initialCacheData, retries: 0, isRefreshed: false });
     }
+    if (initCacheState) {
+      actions.setCacheData(initCacheState, false);
+    }
   };
 
   const refreshFn = () => {
@@ -161,6 +174,10 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     return mapperFn && state.data ? mapperFn(state.data) : state.data;
   };
 
+  /**
+   * Initialization of the events related to data exchange with cache and queue
+   * This allow to share the state with other hooks and keep it related
+   */
   useDidMount(() => {
     handleCallbacks(initState?.response);
     handleInitialCacheState();
@@ -169,17 +186,36 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
   });
 
+  /**
+   * Main fetching logic for mounting and updates handling
+   */
   useDidUpdate(
     () => {
-      if (!disabled) {
-        if ((initCacheState || state.data || state.error) && debounce) {
-          requestDebounce.debounce(handleFetch);
-        } else {
-          handleFetch(0);
-        }
+      const hasData = hasStateData();
+
+      /**
+       * While debouncing we need to make sure that first request is not debounced when the cache is not available
+       * This way it will not wait for debouncing but fetch data right away
+       */
+      if (hasData && debounce) {
+        requestDebounce.debounce(handleFetch);
+      } else {
+        handleFetch(0);
       }
     },
     [...dependencies, disabled],
+    true,
+  );
+
+  /**
+   * When cache key changes - we have to apply changes to switch the cache container
+   */
+  useDidUpdate(
+    () => {
+      key = getCacheKey(middleware);
+      cache = new Cache<T>(middleware);
+    },
+    [getCacheKey(middleware)],
     true,
   );
 
@@ -193,6 +229,9 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     true,
   );
 
+  /**
+   * Unmount all events to prevent updates of unmounted state
+   */
   useWillUnmount(() => {
     FETCH_QUEUE_EVENTS.umountLoading(key, handleGetLoadingEvent);
     CACHE_EVENTS.umount(key, handleGetUpdatedCache);

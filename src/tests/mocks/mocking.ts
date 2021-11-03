@@ -1,5 +1,4 @@
-import { FetchBuilder, FetchMiddlewareInstance } from "middleware";
-import { ErrorMockType } from "tests/server/server.constants";
+import { FetchMiddlewareInstance } from "middleware";
 import { ExtractResponse } from "types";
 
 export type FetchMockType<T> = () => {
@@ -20,5 +19,3 @@ export const buildMock = <T extends FetchMiddlewareInstance>(
     fixture: mock,
   });
 };
-
-export const testMiddleware = new FetchBuilder<ErrorMockType>({ baseUrl: "http://localhost:3000" }).build();

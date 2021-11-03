@@ -1,23 +1,31 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
+import { CACHE_EVENTS, Cache, getCacheKey } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
-import { getManyRequest, interceptGetMany } from "tests/mocks";
+import { getManyMock, getManyRequest, interceptGetMany } from "tests/mocks";
 import { ErrorMockType } from "tests/server/server.constants";
-import { getCurrentState } from "../utils";
+import { getCurrentState, mockMiddleware } from "../utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../shared/fetch.tests";
 
 const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest));
 
-describe("useFetch hook", () => {
-  beforeAll(() => startServer());
+describe("Basic useFetch hook usage", () => {
+  beforeAll(() => {
+    startServer();
+  });
 
-  afterEach(() => resetMocks());
+  afterEach(() => {
+    resetMocks();
+  });
 
-  afterAll(() => stopServer());
+  afterAll(() => {
+    stopServer();
+  });
 
   beforeEach(async () => {
     setToken();
+    CACHE_EVENTS.destroy();
   });
 
   it("should initialize in loading state", () => {
@@ -166,7 +174,7 @@ describe("useFetch hook", () => {
     expect(errorStateTwo.error).toBe(customError);
   });
 
-  it("should allow to use reducer actions to override only the local state", async () => {
+  it("should allow to use reducer actions to override only the local state and not affect other related hooks", async () => {
     const mock = interceptGetMany(200);
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
@@ -223,5 +231,27 @@ describe("useFetch hook", () => {
     const errorStateTwo = getCurrentState(responseTwo);
     expect(errorStateOne.error).toBe(customError);
     expect(errorStateTwo.error).toBe(successStateTwo.error);
+  });
+
+  it("should initialize with cache values and not make additional request", async () => {
+    const { fixture } = getManyMock();
+
+    const cache = new Cache(getManyRequest);
+    const cacheKey = getCacheKey(getManyRequest);
+    cache.set({
+      key: cacheKey,
+      response: [fixture, null, 200],
+      retries: 0,
+      isRefreshed: false,
+    });
+
+    const mockedFetch = jest.fn(() => [fixture, null, 200]);
+    const render = () => renderHook(() => useFetch(mockMiddleware(getManyRequest, mockedFetch)));
+
+    const response = render();
+    const state = getCurrentState(response);
+
+    expect(mockedFetch).not.toHaveBeenCalled();
+    testFetchSuccessState(fixture, state);
   });
 });

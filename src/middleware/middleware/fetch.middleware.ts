@@ -70,7 +70,7 @@ export class FetchMiddleware<
     return cloned;
   };
 
-  setData = (data: PayloadType) => {
+  public setData = (data: PayloadType) => {
     return this.clone({ data }) as FetchMiddleware<
       ResponseType,
       PayloadType,
@@ -83,7 +83,7 @@ export class FetchMiddleware<
     >;
   };
 
-  setParams = (params: ExtractRouteParams<EndpointType>) => {
+  public setParams = (params: ExtractRouteParams<EndpointType>) => {
     return this.clone({ params }) as FetchMiddleware<
       ResponseType,
       PayloadType,
@@ -96,7 +96,7 @@ export class FetchMiddleware<
     >;
   };
 
-  setQueryParams = (queryParams: string) => {
+  public setQueryParams = (queryParams: string) => {
     return this.clone({ queryParams }) as FetchMiddleware<
       ResponseType,
       PayloadType,
@@ -119,7 +119,7 @@ export class FetchMiddleware<
     return endpoint;
   };
 
-  private clone(options?: {
+  public clone(options?: {
     queryParams?: string | NegativeTypes;
     params?: ExtractRouteParams<EndpointType> | NegativeTypes;
     data?: PayloadType | NegativeTypes;
@@ -145,7 +145,7 @@ export class FetchMiddleware<
     return cloned;
   }
 
-  fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> = (
+  public fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> = (
     options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
   ) => {
     const middleware = this.clone(options);
