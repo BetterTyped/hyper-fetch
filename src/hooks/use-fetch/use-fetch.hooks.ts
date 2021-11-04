@@ -233,11 +233,9 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
 
   useDidUpdate(
     () => {
-      if (!disabled && refresh) {
-        handleRefresh();
-      }
+      handleRefresh();
     },
-    [refresh, disabled, refreshTime, state.timestamp, refreshInterval.active],
+    [refresh, refreshTime, state.timestamp],
     true,
   );
 

@@ -29,3 +29,27 @@ export const testFetchErrorState = <T extends UseFetchReturnType<FetchMiddleware
   expect(response.data).toEqual(null);
   expect(response.error).toMatchObject(mock);
 };
+
+export const testRefreshFetchSuccessState = <T extends UseFetchReturnType<FetchMiddlewareInstance>>(
+  mock: T["data"],
+  response: T,
+): void => {
+  const status = response.status || 0;
+  expect(status >= 200 && status < 300).toBeTruthy();
+  expect(response.isRefreshed).toEqual(true);
+  expect(response.loading).toEqual(false);
+  expect(response.data).toMatchObject(mock as Record<string, unknown>);
+  expect(response.error).toEqual(null);
+};
+
+export const testRefreshFetchErrorState = <T extends UseFetchReturnType<FetchMiddlewareInstance>>(
+  mock: T["data"],
+  response: T,
+): void => {
+  const status = response.status || 0;
+  expect(status >= 200 && status < 300).toBeTruthy();
+  expect(response.isRefreshed).toEqual(true);
+  expect(response.refreshError).toEqual(mock);
+  expect(response.loading).toEqual(false);
+  expect(response.error).toEqual(null);
+};

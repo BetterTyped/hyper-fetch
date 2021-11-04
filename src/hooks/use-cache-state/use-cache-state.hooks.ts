@@ -29,8 +29,9 @@ export const useCacheState = <T extends FetchMiddlewareInstance>(
           ...cacheData,
           key,
         });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setCacheData, cacheData });
       }
-      dispatch({ type: UseCacheStateEnum.setCacheData, cacheData });
     },
     setData: (data, emitToCache = true) => {
       if (emitToCache) {
@@ -85,6 +86,18 @@ export const useCacheState = <T extends FetchMiddlewareInstance>(
         });
       } else {
         dispatch({ type: UseCacheStateEnum.setRefreshed, isRefreshed });
+      }
+    },
+    setRefreshError: (refreshError, emitToCache = true) => {
+      if (emitToCache) {
+        cache.set({
+          key,
+          response: [state.data, refreshError, state.status],
+          retries: state.retries,
+          isRefreshed: true,
+        });
+      } else {
+        dispatch({ type: UseCacheStateEnum.setRefreshError, refreshError });
       }
     },
     setRetries: (retries, emitToCache = true) => {

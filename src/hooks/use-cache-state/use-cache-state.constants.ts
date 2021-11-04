@@ -9,6 +9,7 @@ export const UseCacheStateEnum = {
   setStatus: "setStatus",
   setRetries: "setRetries",
   setTimestamp: "setTimestamp",
+  setRefreshError: "setRefreshError",
 } as const;
 
 export const initialState: UseCacheStateType = {
@@ -16,6 +17,7 @@ export const initialState: UseCacheStateType = {
   error: null,
   loading: true,
   status: null,
+  refreshError: null,
   isRefreshed: false,
   retries: 0,
   timestamp: null,
@@ -36,6 +38,7 @@ export const cacheStateReducer =
           status: action.cacheData.response[2],
           retries: action.cacheData.retries,
           timestamp: action.cacheData.timestamp,
+          refreshError: action.cacheData.refreshError,
           isRefreshed: action.cacheData.isRefreshed,
           loading: false,
         };
@@ -49,6 +52,8 @@ export const cacheStateReducer =
         return { ...state, isRefreshed: action.isRefreshed };
       case UseCacheStateEnum.setStatus:
         return { ...state, status: action.status };
+      case UseCacheStateEnum.setRefreshError:
+        return { ...state, refreshError: action.refreshError };
       default:
         throw new Error("Wrong reducer action!");
     }

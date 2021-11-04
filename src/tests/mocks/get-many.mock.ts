@@ -23,3 +23,6 @@ export const getManyAlternativeMock = buildMock(getManyRequest, [
 
 export const interceptGetMany = <StatusType extends number | ErrorCodesType>(status: StatusType) =>
   createInterceptor(getManyMock, status);
+
+export const interceptGetManyAlternative = <StatusType extends number | ErrorCodesType>(status: StatusType) =>
+  createInterceptor(getManyAlternativeMock, status);
