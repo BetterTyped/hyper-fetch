@@ -1,13 +1,15 @@
+import { waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
 import { CACHE_EVENTS, Cache, getCacheKey } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
 import { getManyMock, getManyRequest } from "tests/mocks";
-import { getCurrentState, mockMiddleware } from "../utils";
-import { testFetchSuccessState } from "../shared/fetch.tests";
 
-describe("Basic useFetch hook usage", () => {
+const { fixture } = getManyMock();
+jest.spyOn(getManyRequest, "fetch");
+
+describe("useFetch hook deduplicate logic", () => {
   beforeAll(() => {
     startServer();
   });
@@ -26,8 +28,6 @@ describe("Basic useFetch hook usage", () => {
   });
 
   it("should initialize with cache values without making any request", async () => {
-    const { fixture } = getManyMock();
-
     const cache = new Cache(getManyRequest);
     const cacheKey = getCacheKey(getManyRequest);
     cache.set({
@@ -37,13 +37,22 @@ describe("Basic useFetch hook usage", () => {
       isRefreshed: false,
     });
 
-    const mockedFetch = jest.fn(() => [fixture, null, 200]);
-    const render = () => renderHook(() => useFetch(mockMiddleware(getManyRequest, mockedFetch)));
+    renderHook(() => useFetch(getManyRequest));
 
-    const response = render();
-    const state = getCurrentState(response);
+    await waitFor(() => {
+      expect(getManyRequest.fetch).toHaveBeenCalledTimes(0);
+    });
+  });
 
-    expect(mockedFetch).not.toHaveBeenCalled();
-    testFetchSuccessState(fixture, state);
+  it("should deduplicate 2 fetches into one request", async () => {
+    renderHook(() => useFetch(getManyRequest));
+    renderHook(() => useFetch(getManyRequest));
+
+    await waitFor(() => {
+      expect(getManyRequest.fetch).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(getManyRequest.fetch).not.toHaveBeenCalledTimes(2);
+    });
   });
 });
