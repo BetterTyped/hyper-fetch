@@ -111,6 +111,11 @@
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^1.0.1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn format",
