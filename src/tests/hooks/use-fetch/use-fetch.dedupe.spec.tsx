@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
-import { CACHE_EVENTS, Cache, getCacheKey } from "cache";
+import { CacheStore, Cache, getCacheKey } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
 import { getManyMock, getManyRequest } from "tests/mocks";
 
@@ -24,7 +24,7 @@ describe("useFetch hook deduplicate logic", () => {
 
   beforeEach(async () => {
     setToken();
-    CACHE_EVENTS.destroy();
+    CacheStore.clear();
   });
 
   it("should initialize with cache values without making any request", async () => {

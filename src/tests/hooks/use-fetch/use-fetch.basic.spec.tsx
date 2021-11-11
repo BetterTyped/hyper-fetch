@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
-import { CACHE_EVENTS } from "cache";
+import { CacheStore } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
 import { getManyRequest, interceptGetMany } from "tests/mocks";
 import { ErrorMockType } from "tests/server/server.constants";
@@ -25,7 +25,7 @@ describe("Basic useFetch hook usage", () => {
 
   beforeEach(async () => {
     setToken();
-    CACHE_EVENTS.destroy();
+    CacheStore.clear();
   });
 
   it("should initialize in loading state", () => {

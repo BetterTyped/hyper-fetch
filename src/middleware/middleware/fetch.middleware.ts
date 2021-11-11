@@ -1,5 +1,6 @@
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
+import { ClientResponseType } from "client";
 import { FetchBuilder } from "../builder/fetch.builder";
 import { getProgressData } from "./fetch.middleware.utils";
 import {
@@ -24,6 +25,7 @@ export class FetchMiddleware<
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
+  mockedData: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   endpoint: EndpointType;
   headers?: HeadersInit;
   method: HttpMethodsType;
@@ -35,7 +37,7 @@ export class FetchMiddleware<
   constructor(
     readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
-    readonly defaultOptions?: DefaultOptionsType<PayloadType, EndpointType>,
+    readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
   ) {
     this.endpoint = defaultOptions?.endpoint || apiConfig?.endpoint;
     this.headers = apiConfig?.headers;
@@ -43,6 +45,7 @@ export class FetchMiddleware<
     this.params = defaultOptions?.params;
     this.data = defaultOptions?.data;
     this.queryParams = defaultOptions?.queryParams;
+    this.mockedData = defaultOptions?.mockedData;
   }
 
   private timestamp: Date = new Date();
@@ -109,6 +112,19 @@ export class FetchMiddleware<
     >;
   };
 
+  public mock = (mockedData: (data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) => {
+    return this.clone({ mockedData }) as FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      ClientOptions,
+      HasData,
+      HasParams,
+      true
+    >;
+  };
+
   private paramsMapper = (params: ParamsType | null | undefined): string => {
     let endpoint = this.apiConfig.endpoint as string;
     if (params) {
@@ -119,16 +135,15 @@ export class FetchMiddleware<
     return endpoint;
   };
 
-  public clone(options?: {
-    queryParams?: string | NegativeTypes;
-    params?: ExtractRouteParams<EndpointType> | NegativeTypes;
-    data?: PayloadType | NegativeTypes;
-  }): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, HasParams, HasQuery> {
-    const currentOptions: DefaultOptionsType<PayloadType, EndpointType> = {
+  public clone(
+    options?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
+  ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, HasParams, HasQuery> {
+    const currentOptions: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
+      mockedData: options?.mockedData || this.mockedData,
     };
 
     const cloned = new FetchMiddleware<
@@ -148,6 +163,8 @@ export class FetchMiddleware<
   public fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> = (
     options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
   ) => {
+    if (this.mockedData) return Promise.resolve(this.mockedData(this.data as PayloadType));
+
     const middleware = this.clone(options);
     const { client } = this.builderConfig;
     this.timestamp = new Date();

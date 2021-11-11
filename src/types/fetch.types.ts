@@ -14,6 +14,8 @@ export type ExtractError<T> = T extends FetchMiddleware<any, any, infer E, any, 
 
 export type ExtractParams<T> = T extends FetchMiddleware<any, any, any, infer P, any> ? ExtractRouteParams<P> : never;
 
+export type ExtractEndpoint<T> = T extends FetchMiddleware<any, any, any, infer P, any> ? P : never;
+
 export type ExtractHasData<T> = T extends FetchMiddleware<any, any, any, any, any, infer D> ? D : never;
 
 export type ExtractHasParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, infer D> ? D : never;

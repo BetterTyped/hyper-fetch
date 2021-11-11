@@ -1,12 +1,23 @@
-import { FetchMiddlewareInstance } from "middleware";
-import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
+import { FetchMethodType, FetchMiddlewareInstance } from "middleware";
+import {
+  ExtractFetchReturn,
+  ExtractResponse,
+  ExtractError,
+  ExtractRequest,
+  ExtractEndpoint,
+  ExtractHasData,
+  ExtractHasParams,
+  ExtractHasQueryParams,
+} from "types";
 import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
 import { UseCacheStateActions, UseCacheStateType } from "../use-cache-state/use-cache-state.types";
 
-export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
-  dependencies?: any[];
+export type UseSubmitOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
   disabled?: boolean;
+  queueKey: string;
+  invalidate: (string | FetchMiddlewareInstance)[];
+  dependencies?: any[];
   retry?: boolean | number;
   retryTime?: number;
   cacheTime?: number;
@@ -14,16 +25,12 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
   cacheOnMount?: boolean;
   initialCacheData?: ExtractFetchReturn<T> | null;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
-  refresh?: boolean;
-  refreshTime?: number;
-  refreshOnTabBlur?: boolean;
-  refreshOnTabFocus?: boolean;
-  refreshOnReconnect?: boolean;
   debounce?: boolean;
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
   cancelable?: boolean;
+  offline?: boolean;
   mapperFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
   deepCompareFn?:
     | ((
@@ -31,10 +38,9 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
         newValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
       ) => boolean)
     | null;
-  plugins?: any[];
 };
 
-export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
+export type UseSubmitReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
   UseCacheStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
@@ -47,6 +53,15 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
   isRefreshingError: boolean;
   isDebouncing: boolean;
   refresh: () => void;
+  submit: FetchMethodType<
+    MapperResponse extends never ? ExtractResponse<T> : MapperResponse,
+    ExtractRequest<T>,
+    ExtractError<T>,
+    ExtractEndpoint<T>,
+    ExtractHasData<T>,
+    ExtractHasParams<T>,
+    ExtractHasQueryParams<T>
+  >;
 };
 
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;

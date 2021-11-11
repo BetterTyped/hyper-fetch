@@ -8,7 +8,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     setTimeout(() => {
       setUnmounted(true);
-    }, DateInterval.second * 10);
+    }, DateInterval.second * 15);
   }, []);
 
   return (

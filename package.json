@@ -30,7 +30,6 @@
     "prepare": "install-peers && husky install && yarn build",
     "predeploy": "yarn run build:docs",
     "deploy": "gh-pages -d documentation/build",
-    "start": "react-scripts start",
     "test": "react-scripts test",
     "format": "prettier --write",
     "lint": "eslint --ext .js,.jsx,.tsx,.ts --fix"

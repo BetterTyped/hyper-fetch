@@ -9,6 +9,10 @@ export const fetchClient: ClientType<any, FetchClientOptions> = ({
   apiConfig,
   builderConfig,
 }) => {
+  if (!window.fetch) {
+    throw new Error("There is no window.fetch, make sure it's provided when using SSR.");
+  }
+
   const requestOptions = apiConfig.options || {};
 
   return new Promise<ClientResponseType<any, any>>((resolve) => {

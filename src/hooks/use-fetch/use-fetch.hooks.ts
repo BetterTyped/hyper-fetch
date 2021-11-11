@@ -6,7 +6,6 @@ import { FetchMiddlewareInstance } from "middleware";
 import { getCacheKey, CACHE_EVENTS, CacheValueType } from "cache";
 import { FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
-import { DateInterval } from "constants/time.constants";
 
 import { useCacheState } from "hooks/use-cache-state/use-cache-state.hooks";
 import { useDebounce } from "hooks/use-debounce/use-debounce.hooks";
@@ -29,26 +28,26 @@ import { useFetchDefaultOptions } from "./use-fetch.constants";
 export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   middleware: T,
   {
-    dependencies = [],
-    disabled = false,
-    retry = false,
-    retryTime = DateInterval.second,
-    cacheTime = DateInterval.minute * 5,
-    cacheKey = "",
-    cacheOnMount = true,
-    initialCacheData = null,
-    initialData = null,
-    refresh = false,
-    refreshTime = DateInterval.hour,
-    refreshOnTabBlur = false,
-    refreshOnTabFocus = false,
-    refreshOnReconnect = false,
-    debounce = false,
-    cancelable = false,
-    debounceTime = DateInterval.second * 200,
-    deepCompareFn = null,
-    mapperFn = null,
-    shouldThrow = false,
+    dependencies = useFetchDefaultOptions.dependencies,
+    disabled = useFetchDefaultOptions.disabled,
+    retry = useFetchDefaultOptions.retry,
+    retryTime = useFetchDefaultOptions.retryTime,
+    cacheTime = useFetchDefaultOptions.cacheTime,
+    cacheKey = useFetchDefaultOptions.cacheKey,
+    cacheOnMount = useFetchDefaultOptions.cacheOnMount,
+    initialCacheData = useFetchDefaultOptions.initialCacheData,
+    initialData = useFetchDefaultOptions.initialData,
+    refresh = useFetchDefaultOptions.refresh,
+    refreshTime = useFetchDefaultOptions.refreshTime,
+    refreshOnTabBlur = useFetchDefaultOptions.refreshOnTabBlur,
+    refreshOnTabFocus = useFetchDefaultOptions.refreshOnTabFocus,
+    refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
+    debounce = useFetchDefaultOptions.debounce,
+    debounceTime = useFetchDefaultOptions.debounceTime,
+    cancelable = useFetchDefaultOptions.cancelable,
+    deepCompareFn = useFetchDefaultOptions.deepCompareFn,
+    mapperFn = useFetchDefaultOptions.mapperFn,
+    shouldThrow = useFetchDefaultOptions.shouldThrow,
   }: UseFetchOptionsType<T, MapperResponse> = useFetchDefaultOptions,
 ): UseFetchReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
   const requestDebounce = useDebounce(debounceTime);

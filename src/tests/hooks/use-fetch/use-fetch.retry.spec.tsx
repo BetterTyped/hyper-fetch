@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
-import { CACHE_EVENTS } from "cache";
+import { CacheStore } from "cache";
 import { startServer, resetMocks, stopServer, setToken } from "tests/server";
 import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "tests/mocks";
 import { getCurrentState } from "../utils/state.utils";
@@ -24,7 +24,7 @@ describe("useFetch hook retry logic", () => {
 
   beforeEach(async () => {
     setToken();
-    CACHE_EVENTS.destroy();
+    CacheStore.clear();
   });
 
   it("should retry request after 200ms", async () => {

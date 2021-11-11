@@ -1,11 +1,11 @@
 import { useFetch, DateInterval } from "@better-typed/react-fetch";
 
-import { getUsers } from "server/user.api";
+import { getUsers } from "server/requests/user.api";
 
 export const GetUsersComponent = () => {
   const { data, error, loading } = useFetch(getUsers, {
     refresh: true,
-    refreshTime: DateInterval.second * 3,
+    refreshTime: DateInterval.second * 5,
   });
 
   return (

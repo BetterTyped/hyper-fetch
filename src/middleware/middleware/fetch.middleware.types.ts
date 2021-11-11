@@ -15,11 +15,12 @@ export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions
   options?: ClientOptions;
 };
 
-export type DefaultOptionsType<PayloadType, GenericEndpoint extends string> = {
+export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndpoint extends string> = {
   endpoint?: GenericEndpoint | NegativeTypes;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
+  mockedData?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
 };
 
 export type ParamType = string | number;
