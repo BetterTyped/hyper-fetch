@@ -13,16 +13,16 @@ import { CACHE_EVENTS } from "./cache.events";
  * Example structure:
  *
  * CacheStore:
- *   endpoint => "/users/:userId":
+ *   endpoint => "GET_/users/:userId":
  *        caches => ["/users/1", {...}], ["/users/3", {...}], ["/users/6", {...}]
- *   endpoint => "/users"
+ *   endpoint => "GET_/users"
  *        caches => ["/users", {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
  */
 export class Cache<T extends FetchMiddlewareInstance> {
   private cacheKey: CacheStoreKeyType;
 
   constructor(private fetchMiddleware: T) {
-    this.cacheKey = this.fetchMiddleware.apiConfig.endpoint;
+    this.cacheKey = `${this.fetchMiddleware.method}_${this.fetchMiddleware.apiConfig.endpoint}`;
     this.initialize(this.cacheKey);
   }
 

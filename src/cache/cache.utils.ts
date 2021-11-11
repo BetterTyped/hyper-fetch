@@ -24,7 +24,7 @@ export const stringify = (value: unknown): string => {
 
 export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey = ""): string => {
   /**
-   * Bellow stringified values allow to match the response family *paste random Vin Diesel meme here*
+   * Below stringified values allow to match the response family *paste random Vin Diesel meme here*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
    * We want both results to be cached in separate places to not override each other.
    *
@@ -33,7 +33,7 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
    * endpoint: string;
    * queryParams: string;
    * params: string;
-   * data: string;
+   * data: string; // TODO <- solve later. First thought - some kind of hash based on the data. // caching by body should be settable explicitly by user ?
    */
 
   let cacheKey = customCacheKey;
@@ -44,7 +44,7 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
     const queryParamsKey = stringify(fetchMiddleware.queryParams);
     const paramsKey = stringify(fetchMiddleware.params);
 
-    cacheKey = `${methodKey}-${endpointKey}-${queryParamsKey}-${paramsKey}`;
+    cacheKey = `${methodKey}_${endpointKey}_${queryParamsKey}_${paramsKey}`;
   }
 
   return cacheKey;
