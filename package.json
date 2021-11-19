@@ -25,6 +25,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
+    "start": "rollup -c -w",
     "build": "rollup -c",
     "build:docs": "cd documentation && yarn build",
     "prepare": "install-peers && husky install && yarn build",

@@ -20,7 +20,8 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
 
     // If no concurrent requests found or the previous request can be canceled
     if (!queueEntity || cancelable) {
-      // Make sure to delete running request
+      // Make sure to delete/cancel running request
+      queueEntity?.request?.cancelRequest();
       this.delete();
       // Propagate the loading to all connected hooks
       FETCH_QUEUE_EVENTS.setLoading(this.requestKey, true);
@@ -28,7 +29,7 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
       // 1. Add to queue
       FetchQueueStore.set(this.requestKey, queueElement);
       // 2. Start request
-      const response = await queueElement.request.fetch();
+      const response = await queueElement.request.send();
 
       // Request can run for some time, once it's done, we have to check if it's the one that was initially requested
       // It can be different once the previous call was set as cancelled and removed from queue before this request got resolved

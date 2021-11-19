@@ -1,12 +1,12 @@
-import { ProgressEvent } from "./fetch.middleware.types";
+import { ClientProgressEvent } from "./fetch.middleware.types";
 
-export const fetchProgressUtils = ({ loaded, total }: ProgressEvent): number => {
+export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
   return Number(((total * 100) / loaded).toFixed(0));
 };
 
 export const fetchEtaUtils = (
   startDate: Date,
-  { total, loaded }: ProgressEvent,
+  { total, loaded }: ClientProgressEvent,
 ): { sizeLeft: number; timeLeft: number } => {
   const timeElapsed = +new Date() - +startDate;
   const uploadSpeed = loaded / timeElapsed;
@@ -15,7 +15,7 @@ export const fetchEtaUtils = (
   return { timeLeft, sizeLeft };
 };
 
-export const getProgressData = (requestStartTime: Date, progressEvent: ProgressEvent) => {
+export const getProgressData = (requestStartTime: Date, progressEvent: ClientProgressEvent) => {
   const { total, loaded } = progressEvent;
   if (!total || !loaded) {
     return {

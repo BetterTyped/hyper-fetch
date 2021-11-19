@@ -23,3 +23,7 @@ export type ExtractHasParams<T> = T extends FetchMiddleware<any, any, any, any, 
 export type ExtractHasQueryParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, any, infer D>
   ? D
   : never;
+
+export type ExtractMappedError<T> = T extends FetchMiddleware<any, any, infer E, any, any>
+  ? { error: E; message: string }
+  : never;

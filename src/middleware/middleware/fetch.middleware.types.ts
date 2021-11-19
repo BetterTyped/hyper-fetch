@@ -1,18 +1,36 @@
-import { ClientResponseType } from "client/fetch.client.types";
-import { HttpMethodsType, NegativeTypes } from "types";
+import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType } from "client/fetch.client.types";
+import { HttpMethodsType, NegativeTypes, ExtractResponse, ExtractError } from "types";
 import { FetchMiddleware } from "./fetch.middleware";
 
-export type ProgressEvent = { total: number; loaded: number };
-export type ProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
+// Progress
+export type ClientProgressEvent = { total: number; loaded: number };
+export type ClientProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
 
-export type OnProgressCallback = ({ progress, timeLeft, sizeLeft }: ProgressResponse) => void;
-export type ClientProgressCallback = (progressEvent: ProgressEvent) => void;
+// Callbacks
+export type ClientStartCallback = (e: ProgressEvent<XMLHttpRequest>) => void;
+export type ClientProgressCallback = ({ progress, timeLeft, sizeLeft }: ClientProgressResponse) => void;
+export type ClientErrorCallback = <T extends FetchMiddlewareInstance>(
+  response: ClientResponseErrorType<ExtractError<T>>,
+  middleware: T,
+) => void;
+export type ClientSuccessCallback = <T extends FetchMiddlewareInstance>(
+  response: ClientResponseSuccessType<ExtractResponse<T>>,
+  middleware: T,
+) => void;
+export type ClientFinishedCallback = <T extends FetchMiddlewareInstance>(
+  response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
+  middleware: T,
+) => void;
+export type ClientCancelTokenCallback = <T extends FetchMiddlewareInstance>(middleware: T) => void;
 
+// Middleware
 export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
   headers?: HeadersInit;
   method?: HttpMethodsType;
   options?: ClientOptions;
+  disableResponseInterceptors?: boolean;
+  disableRequestInterceptors?: boolean;
 };
 
 export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndpoint extends string> = {
@@ -21,6 +39,7 @@ export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndp
   queryParams?: string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
   mockedData?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
+  cancelRequest?: VoidFunction;
 };
 
 export type ParamType = string | number;

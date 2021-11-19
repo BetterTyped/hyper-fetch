@@ -37,7 +37,7 @@ export const useCacheState = <T extends FetchMiddlewareInstance>(
       if (emitToCache) {
         cache.set({
           key,
-          response: [data, state.error, state.status],
+          response: [data, state.error, state.status as number],
           retries: state.retries,
           isRefreshed: state.isRefreshed,
         });

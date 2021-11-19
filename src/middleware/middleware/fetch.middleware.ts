@@ -2,7 +2,6 @@ import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientResponseType } from "client";
 import { FetchBuilder } from "../builder/fetch.builder";
-import { getProgressData } from "./fetch.middleware.utils";
 import {
   ClientProgressCallback,
   DefaultOptionsType,
@@ -10,9 +9,12 @@ import {
   FetchMethodType,
   FetchMiddlewareOptions,
   FetchType,
-  OnProgressCallback,
   ParamsType,
-  ProgressEvent,
+  ClientErrorCallback,
+  ClientFinishedCallback,
+  ClientSuccessCallback,
+  ClientStartCallback,
+  ClientCancelTokenCallback,
 } from "./fetch.middleware.types";
 
 export class FetchMiddleware<
@@ -33,6 +35,7 @@ export class FetchMiddleware<
   data: PayloadType | NegativeTypes;
   queryParams: string | NegativeTypes;
   options: ClientOptions;
+  cancelRequest: VoidFunction;
 
   constructor(
     readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
@@ -48,29 +51,81 @@ export class FetchMiddleware<
     this.mockedData = defaultOptions?.mockedData;
   }
 
-  private timestamp: Date = new Date();
+  readonly requestStartCallbacks: ClientStartCallback[] = [];
+  readonly responseStartCallbacks: ClientStartCallback[] = [];
+  readonly requestProgressCallbacks: ClientProgressCallback[] = [];
+  readonly responseProgressCallbacks: ClientProgressCallback[] = [];
+  readonly onFinishedCallbacks: ClientFinishedCallback[] = [];
+  readonly onErrorCallbacks: ClientErrorCallback[] = [];
+  readonly onSuccessCallbacks: ClientSuccessCallback[] = [];
 
-  readonly uploadProgressCallbacks: ClientProgressCallback[] = [];
-  readonly downloadProgressCallbacks: ClientProgressCallback[] = [];
-
-  public onUploadProgress = (callback: OnProgressCallback) => {
+  public onRequestStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
-    const startTime = this.timestamp;
-    const progressCallback = (event: ProgressEvent) => callback(getProgressData(startTime, event));
-    cloned.uploadProgressCallbacks.push(progressCallback);
+    cloned.requestStartCallbacks.push(callback);
 
     return cloned;
   };
 
-  public onDownloadProgress = (callback: OnProgressCallback) => {
+  public onResponseStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
-    const startTime = this.timestamp;
-    const progressCallback = (event: ProgressEvent) => callback(getProgressData(startTime, event));
-    cloned.downloadProgressCallbacks.push(progressCallback);
+    cloned.responseStartCallbacks.push(callback);
 
     return cloned;
+  };
+
+  public onRequestProgress = (callback: ClientProgressCallback) => {
+    const cloned = this.clone();
+
+    cloned.requestProgressCallbacks.push(callback);
+
+    return cloned;
+  };
+
+  public onResponseProgress = (callback: ClientProgressCallback) => {
+    const cloned = this.clone();
+
+    cloned.responseProgressCallbacks.push(callback);
+
+    return cloned;
+  };
+
+  public onError = (callback: ClientErrorCallback) => {
+    const cloned = this.clone();
+
+    cloned.onErrorCallbacks.push(callback);
+
+    return cloned;
+  };
+
+  public onSuccess = (callback: ClientSuccessCallback) => {
+    const cloned = this.clone();
+
+    cloned.onSuccessCallbacks.push(callback);
+
+    return cloned;
+  };
+
+  public onFinished = (callback: ClientFinishedCallback) => {
+    const cloned = this.clone();
+
+    cloned.onFinishedCallbacks.push(callback);
+
+    return cloned;
+  };
+
+  public setCancelToken = (callback: ClientCancelTokenCallback) => {
+    return this.clone({ cancelRequest: () => callback(this) }) as FetchMiddleware<
+      ResponseType,
+      PayloadType,
+      ErrorType,
+      EndpointType,
+      ClientOptions,
+      true,
+      HasParams,
+      HasQuery
+    >;
   };
 
   public setData = (data: PayloadType) => {
@@ -144,6 +199,7 @@ export class FetchMiddleware<
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
       mockedData: options?.mockedData || this.mockedData,
+      cancelRequest: this.cancelRequest,
     };
 
     const cloned = new FetchMiddleware<
@@ -160,20 +216,15 @@ export class FetchMiddleware<
     return cloned;
   }
 
-  public fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> =
+  public send: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> =
     async (options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
       if (this.mockedData) return Promise.resolve(this.mockedData(this.data as PayloadType));
 
       const middleware = this.clone(options);
-      const mappedRequest = (await middleware.builderConfig?.onRequest?.(middleware)) || middleware;
 
       const { client } = this.builderConfig;
-      this.timestamp = new Date();
 
-      const response = await client(mappedRequest);
-      const mappedResponse = (await middleware.builderConfig?.onResponse?.(response, mappedRequest)) || response;
-
-      return mappedResponse;
+      return client(middleware);
     };
 }
 
@@ -204,42 +255,42 @@ export class FetchMiddleware<
 // });
 
 // // OK
-// getUsers.fetch({ queryParams: "" });
-// getUsers.setQueryParams("").fetch();
+// getUsers.send({ queryParams: "" });
+// getUsers.setQueryParams("").send();
 // // Fail
-// getUsers.fetch({ data: "" });
-// getUsers.fetch({ params: "" });
-// getUsers.setQueryParams("").fetch({ queryParams: "" });
+// getUsers.send({ data: "" });
+// getUsers.send({ params: "" });
+// getUsers.setQueryParams("").send({ queryParams: "" });
 
 // // OK
-// getUser.fetch({ params: { id: "" }, queryParams: "" });
-// getUser.setParams({ id: "" }).fetch({ queryParams: "" });
+// getUser.send({ params: { id: "" }, queryParams: "" });
+// getUser.setParams({ id: "" }).send({ queryParams: "" });
 // // Fail
-// getUser.fetch({ queryParams: "" });
-// getUser.fetch();
-// getUser.setParams({ id: "" }).fetch({ params: { id: "" } });
+// getUser.send({ queryParams: "" });
+// getUser.send();
+// getUser.setParams({ id: "" }).send({ params: { id: "" } });
 
 // // OK
-// postUser.fetch({ data: { name: "" } });
-// postUser.setData({ name: "" }).fetch();
+// postUser.send({ data: { name: "" } });
+// postUser.setData({ name: "" }).send();
 // // Fail
-// postUser.fetch({ queryParams: "" });
-// postUser.fetch({ data: null });
-// postUser.fetch();
-// postUser.setData({ name: "" }).fetch({ data: { name: "" } });
+// postUser.send({ queryParams: "" });
+// postUser.send({ data: null });
+// postUser.send();
+// postUser.setData({ name: "" }).send({ data: { name: "" } });
 
 // // OK
-// patchUser.fetch({ params: { id: "" }, data: { name: "" } });
-// patchUser.setParams({ id: "" }).setData({ name: "" }).fetch();
+// patchUser.send({ params: { id: "" }, data: { name: "" } });
+// patchUser.setParams({ id: "" }).setData({ name: "" }).send();
 // // Fail
-// patchUser.fetch({ queryParams: "" });
-// patchUser.fetch({ data: null });
-// patchUser.fetch();
+// patchUser.send({ queryParams: "" });
+// patchUser.send({ data: null });
+// patchUser.send();
 // patchUser
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
-//   .fetch({ data: { name: "" } });
+//   .send({ data: { name: "" } });
 // patchUser
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
-//   .fetch({ params: { id: "" } });
+//   .send({ params: { id: "" } });
