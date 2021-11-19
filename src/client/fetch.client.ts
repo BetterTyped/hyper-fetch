@@ -38,41 +38,43 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
     setClientHeaders(middlewareInstance, xhr);
 
     // Request listeners group ↓
-    xhr.upload.onerror = (e) => {
+    xhr.upload.onerror = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
-    xhr.upload.onabort = (e) => {
+    xhr.upload.onabort = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
-    xhr.upload.ontimeout = (e) => {
+    xhr.upload.ontimeout = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
 
-    xhr.upload.onprogress = (e) => {
+    xhr.upload.onprogress = (e): void => {
       setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), e as ProgressEvent<XMLHttpRequest>);
     };
 
-    xhr.upload.onloadstart = (e) => {
+    xhr.upload.onloadstart = (e): void => {
       requestStartTimestamp = +new Date();
-      middlewareInstance.requestStartCallbacks?.forEach((callback) => callback(e as ProgressEvent<XMLHttpRequest>));
+      middlewareInstance.requestStartCallbacks?.forEach((callback: (arg0: ProgressEvent<XMLHttpRequest>) => void) =>
+        callback(e as ProgressEvent<XMLHttpRequest>),
+      );
     };
 
-    xhr.upload.onloadend = () => {
+    xhr.upload.onloadend = (): void => {
       requestStartTimestamp = null;
     };
 
     // Response listeners group ↓
-    xhr.onerror = (e) => {
+    xhr.onerror = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
-    xhr.onabort = (e) => {
+    xhr.onabort = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
-    xhr.ontimeout = (e) => {
+    xhr.ontimeout = (e): void => {
       handleClientError(middlewareInstance, e as ProgressEvent<XMLHttpRequest>, resolve);
     };
 
-    xhr.onprogress = (e) => {
+    xhr.onprogress = (e): void => {
       setResponseProgress(
         middlewareInstance,
         responseStartTimestamp || +new Date(),
@@ -80,16 +82,18 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
       );
     };
 
-    xhr.onloadstart = (e) => {
+    xhr.onloadstart = (e): void => {
       responseStartTimestamp = +new Date();
-      middlewareInstance.responseStartCallbacks?.forEach((callback) => callback(e as ProgressEvent<XMLHttpRequest>));
+      middlewareInstance.responseStartCallbacks?.forEach((callback: (e: ProgressEvent<XMLHttpRequest>) => void) =>
+        callback(e as ProgressEvent<XMLHttpRequest>),
+      );
     };
 
-    xhr.onloadend = () => {
+    xhr.onloadend = (): void => {
       responseStartTimestamp = null;
     };
 
-    xhr.onreadystatechange = (e) => {
+    xhr.onreadystatechange = (e): void => {
       const event = e as ProgressEvent<XMLHttpRequest>;
       const finishedState = 4;
 
