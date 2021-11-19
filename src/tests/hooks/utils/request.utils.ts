@@ -5,6 +5,6 @@ export const mockMiddleware = (
   fetchMock: VoidFunction,
 ): FetchMiddlewareInstance => {
   const newMiddleware = middleware.clone();
-  newMiddleware.fetch = fetchMock as any;
+  newMiddleware.send = fetchMock as any;
   return newMiddleware;
 };

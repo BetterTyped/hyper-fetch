@@ -30,6 +30,9 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
   return new Promise<ClientResponseType<any, any>>((resolve) => {
     requestStartTimestamp = null;
     responseStartTimestamp = null;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    xhr.upload = {};
 
     // Setup Request
     setClientOptions(middlewareInstance, xhr);

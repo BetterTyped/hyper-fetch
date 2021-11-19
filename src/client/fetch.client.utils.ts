@@ -110,7 +110,7 @@ export const handleClientSuccess = <T extends FetchMiddlewareInstance>(
 
   const { status } = event.target;
 
-  const data = parseResponse(event.target);
+  const data = parseResponse(event.target?.response);
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 

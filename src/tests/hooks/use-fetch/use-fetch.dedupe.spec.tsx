@@ -7,7 +7,7 @@ import { startServer, resetMocks, stopServer, setToken } from "tests/server";
 import { getManyMock, getManyRequest } from "tests/mocks";
 
 const { fixture } = getManyMock();
-jest.spyOn(getManyRequest, "fetch");
+jest.spyOn(getManyRequest, "send");
 
 describe("useFetch hook deduplicate logic", () => {
   beforeAll(() => {
@@ -40,7 +40,7 @@ describe("useFetch hook deduplicate logic", () => {
     renderHook(() => useFetch(getManyRequest));
 
     await waitFor(() => {
-      expect(getManyRequest.fetch).toHaveBeenCalledTimes(0);
+      expect(getManyRequest.send).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -49,10 +49,10 @@ describe("useFetch hook deduplicate logic", () => {
     renderHook(() => useFetch(getManyRequest));
 
     await waitFor(() => {
-      expect(getManyRequest.fetch).toHaveBeenCalledTimes(1);
+      expect(getManyRequest.send).toHaveBeenCalledTimes(1);
     });
     await waitFor(() => {
-      expect(getManyRequest.fetch).not.toHaveBeenCalledTimes(2);
+      expect(getManyRequest.send).not.toHaveBeenCalledTimes(2);
     });
   });
 });
