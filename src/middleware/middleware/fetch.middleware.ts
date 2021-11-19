@@ -160,16 +160,21 @@ export class FetchMiddleware<
     return cloned;
   }
 
-  public fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> = (
-    options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
-  ) => {
-    if (this.mockedData) return Promise.resolve(this.mockedData(this.data as PayloadType));
+  public fetch: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> =
+    async (options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
+      if (this.mockedData) return Promise.resolve(this.mockedData(this.data as PayloadType));
 
-    const middleware = this.clone(options);
-    const { client } = this.builderConfig;
-    this.timestamp = new Date();
-    return client(middleware);
-  };
+      const middleware = this.clone(options);
+      const mappedRequest = (await middleware.builderConfig?.onRequest?.(middleware)) || middleware;
+
+      const { client } = this.builderConfig;
+      this.timestamp = new Date();
+
+      const response = await client(mappedRequest);
+      const mappedResponse = (await middleware.builderConfig?.onResponse?.(response, mappedRequest)) || response;
+
+      return mappedResponse;
+    };
 }
 
 // TYPESCRIPT TEST CASES

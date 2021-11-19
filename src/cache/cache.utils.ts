@@ -33,7 +33,6 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
    * endpoint: string;
    * queryParams: string;
    * params: string;
-   * data: string; // TODO <- solve later. First thought - some kind of hash based on the data. // caching by body should be settable explicitly by user ?
    */
 
   let cacheKey = customCacheKey;

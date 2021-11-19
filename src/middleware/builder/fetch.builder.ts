@@ -1,19 +1,29 @@
 import { ClientType, FetchClientOptions, fetchClient } from "client";
-import { FetchMiddleware, FetchMiddlewareOptions } from "middleware";
-import { BuilderErrorMapperCallback, BuilderHeadersCallback, FetchBuilderProps } from "./fetch.builder.types";
+import {
+  FetchMiddleware,
+  FetchMiddlewareOptions,
+  RequestInterceptorCallback,
+  ResponseInterceptorCallback,
+  FetchBuilderProps,
+  ErrorMessageMapperCallback,
+} from "middleware";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientOptions> {
   private readonly baseUrl: string;
-  private errorMapper: BuilderErrorMapperCallback = (error) => error;
-  private getHeaders: BuilderHeadersCallback = () => undefined;
-  private client: ClientType<ErrorType, ClientOptions> = fetchClient;
+  private readonly debug: boolean;
 
-  constructor({ baseUrl }: FetchBuilderProps) {
+  private client: ClientType<ErrorType, ClientOptions> = fetchClient;
+  private errorMessageMapper: ErrorMessageMapperCallback<ErrorType> | undefined;
+  private onRequestCallback: RequestInterceptorCallback | undefined;
+  private onResponseCallback: ResponseInterceptorCallback | undefined;
+
+  constructor({ baseUrl, debug = false }: FetchBuilderProps) {
     this.baseUrl = baseUrl;
+    this.debug = debug;
   }
 
-  setErrorsMapper = (callback: BuilderErrorMapperCallback): FetchBuilder<ErrorType, ClientOptions> => {
-    this.errorMapper = callback;
+  setErrorMessage = (callback: ErrorMessageMapperCallback<ErrorType>): FetchBuilder<ErrorType, ClientOptions> => {
+    this.errorMessageMapper = callback;
     return this;
   };
 
@@ -22,19 +32,23 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return this;
   };
 
-  setErrorMapper = (callback: BuilderErrorMapperCallback) => {
-    this.errorMapper = callback;
+  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+    this.onRequestCallback = callback;
+    return this;
   };
 
-  setHeaders = (callback: BuilderHeadersCallback) => {
-    this.getHeaders = callback;
+  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+    this.onResponseCallback = callback;
+    return this;
   };
 
   private getBuilderConfig = () => ({
     baseUrl: this.baseUrl,
+    debug: this.debug,
     client: this.client,
-    errorMapper: this.errorMapper,
-    getHeaders: this.getHeaders,
+    errorMessageMapper: this.errorMessageMapper,
+    onRequest: this.onRequestCallback,
+    onResponse: this.onResponseCallback,
   });
 
   build() {
