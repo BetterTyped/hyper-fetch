@@ -35,7 +35,7 @@ export class FetchMiddleware<
   data: PayloadType | NegativeTypes;
   queryParams: string | NegativeTypes;
   options: ClientOptions;
-  cancelRequest: VoidFunction;
+  cancelRequest: VoidFunction | undefined;
 
   constructor(
     readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
@@ -116,7 +116,11 @@ export class FetchMiddleware<
   };
 
   public setCancelToken = (callback: ClientCancelTokenCallback) => {
-    return this.clone({ cancelRequest: () => callback(this) }) as FetchMiddleware<
+    const cloned = this.clone();
+
+    cloned.cancelRequest = () => callback(cloned);
+
+    return cloned as FetchMiddleware<
       ResponseType,
       PayloadType,
       ErrorType,

@@ -21,7 +21,8 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  const middlewareInstance = await middleware.builderConfig.onRequestCallbacks(middleware);
+  const cancelableMiddleware = middleware.cancelRequest ? middleware : middleware.setCancelToken(() => xhr.abort);
+  const middlewareInstance = await cancelableMiddleware.builderConfig.onRequestCallbacks(middleware);
   const { builderConfig, endpoint, queryParams = "", data, method } = middlewareInstance;
 
   const url = builderConfig.baseUrl + endpoint + queryParams;
