@@ -10,17 +10,19 @@ import {
 } from "middleware";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientOptions> {
-  private readonly baseUrl: string;
-  private readonly debug: boolean;
+  baseUrl: string;
+  debug: boolean;
+  options: ClientOptions | undefined;
+  client: ClientType<ErrorType, ClientOptions> = fetchClient;
 
-  private client: ClientType<ErrorType, ClientOptions> = fetchClient;
-  private onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
-  private onRequestCallbacks: RequestInterceptorCallback[] = [];
-  private onResponseCallbacks: ResponseInterceptorCallback[] = [];
+  onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
+  onRequestCallbacks: RequestInterceptorCallback[] = [];
+  onResponseCallbacks: ResponseInterceptorCallback[] = [];
 
-  constructor({ baseUrl, debug = false }: FetchBuilderProps) {
+  constructor({ baseUrl, debug = false, options }: FetchBuilderProps<ClientOptions>) {
     this.baseUrl = baseUrl;
     this.debug = debug;
+    this.options = options;
   }
 
   setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
@@ -68,6 +70,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   private getBuilderConfig = () => ({
     baseUrl: this.baseUrl,
     debug: this.debug,
+    options: this.options,
     client: this.client,
     onErrorCallback: this.onErrorCallback,
     onRequestCallbacks: this.handleRequestCallbacks,

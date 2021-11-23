@@ -21,7 +21,6 @@ export type ClientFinishedCallback = <T extends FetchMiddlewareInstance>(
   response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
   middleware: T,
 ) => void;
-export type ClientCancelTokenCallback = <T extends FetchMiddlewareInstance>(middleware: T) => void;
 
 // Middleware
 export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
@@ -38,8 +37,8 @@ export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndp
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
-  mockedData?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
-  cancelRequest?: VoidFunction;
+  mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
+  abortController?: AbortController;
 };
 
 export type ParamType = string | number;

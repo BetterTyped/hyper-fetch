@@ -1,6 +1,6 @@
 import { FetchMiddleware } from "middleware/middleware/fetch.middleware";
 
-export type FetchClientOptions = XMLHttpRequest;
+export type FetchClientOptions = Partial<XMLHttpRequest>;
 
 export type ClientType<ErrorType, ClientOptions> = (
   middleware: FetchMiddleware<any, any, ErrorType, any, ClientOptions, any, any, any>,

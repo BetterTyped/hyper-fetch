@@ -25,13 +25,14 @@ export const createInterceptor = <
 >(
   apiStub: T,
   status: StatusType,
+  delay?: number,
 ): StatusType extends ErrorCodesType ? ErrorMockType : ReturnType<T>["fixture"] => {
   const { endpoint, method, fixture } = apiStub();
   const url = getInterceptEndpoint(endpoint);
 
   const mock = status in errorResponses ? errorResponses[status as ErrorCodesType] : fixture;
 
-  server.use(getMethod(url, method, status, mock));
+  server.use(getMethod(url, method, status, mock, delay));
 
   return mock;
 };

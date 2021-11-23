@@ -1,12 +1,35 @@
-import { rest } from "msw";
+import {
+  DefaultRequestBody,
+  RequestParams,
+  ResponseComposition,
+  rest,
+  RestContext,
+  RestHandler,
+  RestRequest,
+} from "msw";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
-export const getMethod = (url: RegExp, method: string, status: number, response: Record<string, any>) => {
-  function callback(_req: any, res: any, ctx: any) {
-    return res(ctx.status(status), ctx.json(response || {}));
+export const getMethod = (
+  url: RegExp,
+  method: string,
+  status: number,
+  response: Record<string, any>,
+  delay = 0,
+): RestHandler => {
+  function callback(
+    _req: RestRequest<DefaultRequestBody, RequestParams>,
+    res: ResponseComposition<any>,
+    ctx: RestContext,
+  ) {
+    const args = [ctx.delay(), ctx.status(status), ctx.json(response || {})];
+
+    if (!delay) {
+      return res(...args);
+    }
+    return setTimeout(() => res(...args), delay) as any;
   }
 
   if (method.toUpperCase() === "POST") {

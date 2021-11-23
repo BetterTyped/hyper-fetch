@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DateInterval } from "@better-typed/react-fetch";
+import { DateInterval, useFetch } from "@better-typed/react-fetch";
 
 import { GetUsersComponent } from "components/get-users-component";
 
@@ -20,6 +20,11 @@ export const App: React.FC = () => {
       {unmounted && <GetUsersComponent />}
       {unmounted && <GetUsersComponent />}
       {!unmounted && <GetUsersComponent />}
+      {/*
+      - Pagination
+      - Infinite scroll
+      - deduplication of request
+      */}
     </div>
   );
 };

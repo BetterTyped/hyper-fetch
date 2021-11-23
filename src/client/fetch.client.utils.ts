@@ -24,6 +24,16 @@ export const stringifyPayload = (response: string | unknown): string => {
   }
 };
 
+export const getResponseError = (errorCase?: "timeout" | "abort") => {
+  if (errorCase === "timeout") {
+    return new Error("Request timeout");
+  }
+  if (errorCase === "abort") {
+    return new Error("Request cancelled");
+  }
+  return new Error("Something went wrong");
+};
+
 // Client data handlers
 
 export const setClientHeaders = <T extends FetchMiddlewareInstance>(middleware: T, xhr: XMLHttpRequest): void => {
@@ -37,7 +47,7 @@ export const setClientHeaders = <T extends FetchMiddlewareInstance>(middleware: 
 };
 
 export const setClientOptions = <T extends FetchMiddlewareInstance>(middleware: T, xhr: XMLHttpRequest): void => {
-  const requestOptions = middleware.apiConfig.options || {};
+  const requestOptions = { ...middleware.builderConfig.options, ...middleware.apiConfig.options };
 
   Object.entries(requestOptions).forEach(([name, value]) => {
     // eslint-disable-next-line no-param-reassign
@@ -85,14 +95,22 @@ export const setRequestProgress = <T extends FetchMiddlewareInstance>(
 
 export const handleClientError = <T extends FetchMiddlewareInstance>(
   middleware: T,
-  event: ProgressEvent<XMLHttpRequest>,
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
+  event?: ProgressEvent<XMLHttpRequest>,
+  errorCase?: "timeout" | "abort",
 ): void => {
-  if (!event.target) return;
+  if (!event?.target && !errorCase) {
+    return;
+  }
 
-  const { status, response } = event.target;
+  let status = 0;
+  let error: Error | ExtractError<T> | ExtractMappedError<T> = getResponseError(errorCase);
 
-  const error = getErrorResponse(middleware, response);
+  if (event?.target && !errorCase) {
+    status = event.target.status;
+    const { response } = event.target;
+    error = getErrorResponse(middleware, response);
+  }
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 

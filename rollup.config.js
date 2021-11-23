@@ -12,7 +12,6 @@ import svgr from "@svgr/rollup";
 import url from "rollup-plugin-url";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
-import copy from "rollup-plugin-copy";
 import { terser } from "rollup-plugin-terser";
 
 export default [
@@ -59,9 +58,6 @@ export default [
             removeViewBox: false,
           },
         },
-      }),
-      copy({
-        targets: [{ src: "src/assets/styles/light-theme.css", dest: "dist/assets/styles" }],
       }),
       terser({
         compress: true,

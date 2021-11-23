@@ -21,8 +21,8 @@ export const getManyAlternativeMock = buildMock(getManyRequest, [
   { name: "Kuba", age: 111 },
 ]);
 
-export const interceptGetMany = <StatusType extends number | ErrorCodesType>(status: StatusType) =>
-  createInterceptor(getManyMock, status);
+export const interceptGetMany = <StatusType extends number | ErrorCodesType>(status: StatusType, delay?: number) =>
+  createInterceptor(getManyMock, status, delay);
 
 export const interceptGetManyAlternative = <StatusType extends number | ErrorCodesType>(status: StatusType) =>
   createInterceptor(getManyAlternativeMock, status);

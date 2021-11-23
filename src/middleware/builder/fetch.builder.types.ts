@@ -1,9 +1,10 @@
 import { ClientResponseType } from "client";
 import { FetchMiddlewareInstance } from "../middleware/fetch.middleware.types";
 
-export type FetchBuilderProps = {
+export type FetchBuilderProps<ClientOptions> = {
   baseUrl: string;
   debug?: boolean;
+  options?: ClientOptions;
 };
 
 export type ErrorMessageMapperCallback<ErrorType> = (error: any) => ErrorType;

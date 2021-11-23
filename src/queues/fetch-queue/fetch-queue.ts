@@ -21,8 +21,8 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
     // If no concurrent requests found or the previous request can be canceled
     if (!queueEntity || cancelable) {
       // Make sure to delete/cancel running request
-      queueEntity?.request?.cancelRequest?.();
       this.delete();
+      queueEntity?.request?.abortController?.abort();
       // Propagate the loading to all connected hooks
       FETCH_QUEUE_EVENTS.setLoading(this.requestKey, true);
 
