@@ -11,6 +11,7 @@
 # production
 /build
 /dist
+/temp
 
 # misc
 .eslintcache

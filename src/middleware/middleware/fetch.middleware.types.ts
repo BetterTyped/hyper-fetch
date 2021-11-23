@@ -7,7 +7,8 @@ export type ClientProgressEvent = { total: number; loaded: number };
 export type ClientProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
 
 // Callbacks
-export type ClientStartCallback = (e: ProgressEvent<XMLHttpRequest>) => void;
+export type ClientStartCallback = () => void;
+export type ClientResponseStartCallback = () => void;
 export type ClientProgressCallback = ({ progress, timeLeft, sizeLeft }: ClientProgressResponse) => void;
 export type ClientErrorCallback = <T extends FetchMiddlewareInstance>(
   response: ClientResponseErrorType<ExtractError<T>>,

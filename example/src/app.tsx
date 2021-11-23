@@ -1,30 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { DateInterval, useFetch } from "@better-typed/react-fetch";
+import React from "react";
+import { Route, Routes } from "react-router";
+import { BrowserRouter } from "react-router-dom";
 
-import { GetUsersComponent } from "components/get-users-component";
+import { DashboardPage } from "pages/dashboard/dashboard.page";
+import { RestFormPage } from "pages/rest/form/rest-form.page";
+import { RestListPage } from "pages/rest/list/rest-list.page";
+import { RestDetailsPage } from "pages/rest/details/rest-details.page";
 
 export const App: React.FC = () => {
-  const [unmounted, setUnmounted] = useState(false);
-  useEffect(() => {
-    setTimeout(() => {
-      setUnmounted(true);
-    }, DateInterval.second * 15);
-  }, []);
-
   return (
-    <div>
-      React Fetch test
-      <GetUsersComponent />
-      <GetUsersComponent />
-      {unmounted && <GetUsersComponent />}
-      {unmounted && <GetUsersComponent />}
-      {unmounted && <GetUsersComponent />}
-      {!unmounted && <GetUsersComponent />}
-      {/*
-      - Pagination
-      - Infinite scroll
-      - deduplication of request
-      */}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+        <Route path="/rest/details" element={<RestDetailsPage />} />
+        <Route path="/rest/list" element={<RestListPage />} />
+        <Route path="/rest/form" element={<RestFormPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 };

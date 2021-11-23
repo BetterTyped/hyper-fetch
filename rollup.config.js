@@ -12,17 +12,18 @@ import svgr from "@svgr/rollup";
 import url from "rollup-plugin-url";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
+import copy from "rollup-plugin-copy";
 import { terser } from "rollup-plugin-terser";
 
 export default [
   {
     input: pkg.source,
     output: [
-      { file: pkg.main, format: "cjs", exports: "named", sourcemap: true },
-      { file: pkg.module, format: "esm", exports: "named", sourcemap: true },
+      { file: pkg.main.replace("dist", "temp"), format: "cjs", exports: "named", sourcemap: true },
+      { file: pkg.module.replace("dist", "temp"), format: "esm", exports: "named", sourcemap: true },
     ],
     plugins: [
-      del({ targets: ["dist/*"] }),
+      del({ targets: ["temp/*"] }),
       external({
         includeDependencies: true,
       }),
@@ -74,7 +75,13 @@ export default [
         compilerOptions: {
           baseUrl: "./src",
         },
+        hook: "options",
       }),
+      copy({
+        targets: [{ src: "temp/*", dest: "dist" }],
+        hook: "buildEnd",
+      }),
+      del({ targets: ["temp"], hook: "closeBundle" }),
     ],
   },
 ];

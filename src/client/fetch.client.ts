@@ -40,6 +40,9 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
     middleware.abortController?.signal?.addEventListener("abort", xhr.abort);
 
     // Request listeners
+    requestStartTimestamp = +new Date();
+    middlewareInstance.requestStartCallback?.();
+
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
         setRequestProgress(
@@ -48,21 +51,12 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
           e as ProgressEvent<XMLHttpRequest>,
         );
       };
-
-      xhr.upload.onloadstart = (e): void => {
-        requestStartTimestamp = +new Date();
-        middlewareInstance.requestStartCallbacks?.forEach((callback: (arg: ProgressEvent<XMLHttpRequest>) => void) =>
-          callback(e as ProgressEvent<XMLHttpRequest>),
-        );
-      };
-
-      xhr.upload.onloadend = (): void => {
-        requestStartTimestamp = null;
-      };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
+      requestStartTimestamp = null;
+
       setResponseProgress(
         middlewareInstance,
         responseStartTimestamp || +new Date(),
@@ -70,25 +64,12 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
       );
     };
 
-    xhr.onloadstart = (e): void => {
+    xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      middlewareInstance.responseStartCallbacks?.forEach((callback: (e: ProgressEvent<XMLHttpRequest>) => void) =>
-        callback(e as ProgressEvent<XMLHttpRequest>),
-      );
+      middlewareInstance.responseStartCallback?.();
     };
 
     // Error listeners
-    if (xhr.upload) {
-      xhr.upload.onabort = (e): void => {
-        handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
-      };
-      xhr.upload.ontimeout = (e): void => {
-        handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
-      };
-      xhr.upload.onerror = (e): void => {
-        handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>);
-      };
-    }
     xhr.onabort = (e): void => {
       handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
     };

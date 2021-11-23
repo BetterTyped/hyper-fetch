@@ -14,6 +14,7 @@ import {
   ClientFinishedCallback,
   ClientSuccessCallback,
   ClientStartCallback,
+  ClientResponseStartCallback,
 } from "./fetch.middleware.types";
 
 export class FetchMiddleware<
@@ -51,18 +52,18 @@ export class FetchMiddleware<
     this.mockCallback = defaultOptions?.mockCallback;
   }
 
-  readonly requestStartCallbacks: ClientStartCallback[] = [];
-  readonly responseStartCallbacks: ClientStartCallback[] = [];
-  readonly requestProgressCallbacks: ClientProgressCallback[] = [];
-  readonly responseProgressCallbacks: ClientProgressCallback[] = [];
-  readonly onFinishedCallbacks: ClientFinishedCallback[] = [];
-  readonly onErrorCallbacks: ClientErrorCallback[] = [];
-  readonly onSuccessCallbacks: ClientSuccessCallback[] = [];
+  requestStartCallback: ClientStartCallback | undefined;
+  responseStartCallback: ClientResponseStartCallback | undefined;
+  requestProgressCallback: ClientProgressCallback | undefined;
+  responseProgressCallback: ClientProgressCallback | undefined;
+  onFinishedCallback: ClientFinishedCallback | undefined;
+  onErrorCallback: ClientErrorCallback | undefined;
+  onSuccessCallback: ClientSuccessCallback | undefined;
 
   public onRequestStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
-    cloned.requestStartCallbacks.push(callback);
+    cloned.requestStartCallback = callback;
 
     return cloned;
   };
@@ -70,7 +71,7 @@ export class FetchMiddleware<
   public onResponseStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
-    cloned.responseStartCallbacks.push(callback);
+    cloned.responseStartCallback = callback;
 
     return cloned;
   };
@@ -78,7 +79,7 @@ export class FetchMiddleware<
   public onRequestProgress = (callback: ClientProgressCallback) => {
     const cloned = this.clone();
 
-    cloned.requestProgressCallbacks.push(callback);
+    cloned.requestProgressCallback = callback;
 
     return cloned;
   };
@@ -86,7 +87,7 @@ export class FetchMiddleware<
   public onResponseProgress = (callback: ClientProgressCallback) => {
     const cloned = this.clone();
 
-    cloned.responseProgressCallbacks.push(callback);
+    cloned.responseProgressCallback = callback;
 
     return cloned;
   };
@@ -94,7 +95,7 @@ export class FetchMiddleware<
   public onError = (callback: ClientErrorCallback) => {
     const cloned = this.clone();
 
-    cloned.onErrorCallbacks.push(callback);
+    cloned.onErrorCallback = callback;
 
     return cloned;
   };
@@ -102,7 +103,7 @@ export class FetchMiddleware<
   public onSuccess = (callback: ClientSuccessCallback) => {
     const cloned = this.clone();
 
-    cloned.onSuccessCallbacks.push(callback);
+    cloned.onSuccessCallback = callback;
 
     return cloned;
   };
@@ -110,7 +111,7 @@ export class FetchMiddleware<
   public onFinished = (callback: ClientFinishedCallback) => {
     const cloned = this.clone();
 
-    cloned.onFinishedCallbacks.push(callback);
+    cloned.onFinishedCallback = callback;
 
     return cloned;
   };
@@ -164,6 +165,18 @@ export class FetchMiddleware<
     return this.clone({ mockCallback });
   };
 
+  public clean = () => {
+    delete this.requestStartCallback;
+    delete this.responseStartCallback;
+    delete this.requestProgressCallback;
+    delete this.responseProgressCallback;
+    delete this.onFinishedCallback;
+    delete this.onErrorCallback;
+    delete this.onSuccessCallback;
+
+    return this;
+  };
+
   private paramsMapper = (params: ParamsType | null | undefined): string => {
     let endpoint = this.apiConfig.endpoint as string;
     if (params) {
@@ -198,13 +211,13 @@ export class FetchMiddleware<
     >(this.builderConfig, this.apiConfig, currentOptions);
 
     return Object.assign(cloned, {
-      requestStartCallbacks: this.requestStartCallbacks,
-      responseStartCallbacks: this.responseStartCallbacks,
-      requestProgressCallbacks: this.requestProgressCallbacks,
-      responseProgressCallbacks: this.responseProgressCallbacks,
-      onFinishedCallbacks: this.onFinishedCallbacks,
-      onErrorCallbacks: this.onErrorCallbacks,
-      onSuccessCallbacks: this.onSuccessCallbacks,
+      requestStartCallback: this.requestStartCallback,
+      responseStartCallback: this.responseStartCallback,
+      requestProgressCallback: this.requestProgressCallback,
+      responseProgressCallback: this.responseProgressCallback,
+      onFinishedCallback: this.onFinishedCallback,
+      onErrorCallback: this.onErrorCallback,
+      onSuccessCallback: this.onSuccessCallback,
     });
   }
 
