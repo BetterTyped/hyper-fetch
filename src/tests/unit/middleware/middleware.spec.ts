@@ -46,13 +46,13 @@ describe("Basic FetchMiddleware usage", () => {
       .onFinished(callback)
       .onFinished(callback);
 
-    expect(middleware.requestStartCallbacks).toHaveLength(2);
-    expect(middleware.responseStartCallbacks).toHaveLength(2);
-    expect(middleware.requestProgressCallbacks).toHaveLength(2);
-    expect(middleware.responseProgressCallbacks).toHaveLength(2);
-    expect(middleware.onErrorCallbacks).toHaveLength(2);
-    expect(middleware.onSuccessCallbacks).toHaveLength(2);
-    expect(middleware.onFinishedCallbacks).toHaveLength(2);
+    expect(middleware.requestStartCallback).toBeDefined();
+    expect(middleware.responseStartCallback).toBeDefined();
+    expect(middleware.requestProgressCallback).toBeDefined();
+    expect(middleware.responseProgressCallback).toBeDefined();
+    expect(middleware.onErrorCallback).toBeDefined();
+    expect(middleware.onSuccessCallback).toBeDefined();
+    expect(middleware.onFinishedCallback).toBeDefined();
   });
 
   it("should allow to set data using setData method", async () => {
