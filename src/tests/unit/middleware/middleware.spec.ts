@@ -1,5 +1,7 @@
 import { FetchBuilder, FetchMiddlewareOptions } from "middleware";
 import { ClientResponseType, ClientType } from "client";
+import { startServer, stopServer } from "tests/utils/server";
+import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
 
 const options = {
   endpoint: "/some-endpoint",
@@ -32,18 +34,11 @@ describe("Basic FetchMiddleware usage", () => {
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const middleware = builder()(options)
       .onRequestStart(callback)
-      .onRequestStart(callback)
-      .onResponseStart(callback)
       .onResponseStart(callback)
       .onRequestProgress(callback)
-      .onRequestProgress(callback)
-      .onResponseProgress(callback)
       .onResponseProgress(callback)
       .onError(callback)
-      .onError(callback)
       .onSuccess(callback)
-      .onSuccess(callback)
-      .onFinished(callback)
       .onFinished(callback);
 
     expect(middleware.requestStartCallback).toBeDefined();
@@ -128,5 +123,89 @@ describe("Basic FetchMiddleware usage", () => {
 
     expect(triggered).toBeTruthy();
     expect(data).toStrictEqual(mockData);
+  });
+
+  it("should allow to track response and request progress", async () => {
+    startServer();
+
+    interceptGetMany(200);
+
+    let reqProgress = 0;
+    let resProgress = 0;
+
+    await getManyRequest
+      .onRequestProgress(({ progress }) => {
+        reqProgress = progress;
+      })
+      .onResponseProgress(({ progress }) => {
+        resProgress = progress;
+      })
+      .send();
+
+    expect(reqProgress).toBe(100);
+    expect(resProgress).toBe(100);
+
+    stopServer();
+  });
+
+  it("should trigger onRequestStart and onResponseStart callback when response and request starts", async () => {
+    startServer();
+
+    interceptGetMany(200);
+
+    const startReqFn = jest.fn();
+    const startResFn = jest.fn();
+
+    await getManyRequest.onRequestStart(startReqFn).onResponseStart(startResFn).send();
+
+    expect(startReqFn).toBeCalledTimes(1);
+    expect(startResFn).toBeCalledTimes(1);
+    stopServer();
+  });
+
+  it("should trigger onError callback once error occurs", async () => {
+    startServer();
+
+    interceptGetMany(400);
+
+    const errorFn = jest.fn();
+
+    await getManyRequest.onError(errorFn).send();
+
+    expect(errorFn).toBeCalledTimes(1);
+
+    stopServer();
+  });
+
+  it("should trigger onSuccess callback once request is successful", async () => {
+    startServer();
+
+    interceptGetMany(200);
+
+    const successFn = jest.fn();
+
+    await getManyRequest.onSuccess(successFn).send();
+
+    expect(successFn).toBeCalledTimes(1);
+
+    stopServer();
+  });
+
+  it("should trigger onFinished callback once request is successful or failed", async () => {
+    startServer();
+
+    interceptGetMany(200);
+
+    const finishedFn = jest.fn();
+
+    await getManyRequest.onFinished(finishedFn).send();
+
+    interceptGetMany(400);
+
+    await getManyRequest.onFinished(finishedFn).send();
+
+    expect(finishedFn).toBeCalledTimes(2);
+
+    stopServer();
   });
 });

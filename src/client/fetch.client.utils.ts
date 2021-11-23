@@ -1,5 +1,5 @@
 import { ClientResponseErrorType, ClientResponseSuccessType } from "client";
-import { FetchMiddlewareInstance, getProgressData } from "middleware";
+import { ClientProgressEvent, FetchMiddlewareInstance, getProgressData } from "middleware";
 import { ExtractError, ExtractMappedError, ExtractResponse } from "types";
 
 export type ClientHeadersProps = {
@@ -74,21 +74,21 @@ export const getErrorResponse = <T extends FetchMiddlewareInstance>(
 export const setResponseProgress = <T extends FetchMiddlewareInstance>(
   middleware: T,
   startDate: number,
-  event: ProgressEvent<XMLHttpRequest>,
+  event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  middleware.responseProgressCallbacks?.forEach((callback) => callback(progress));
+  middleware.responseProgressCallback?.(progress);
 };
 
 export const setRequestProgress = <T extends FetchMiddlewareInstance>(
   middleware: T,
   startDate: number,
-  event: ProgressEvent<XMLHttpRequest>,
+  event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  middleware.requestProgressCallbacks?.forEach((callback) => callback(progress));
+  middleware.requestProgressCallback?.(progress);
 };
 
 // Client response handlers
@@ -115,8 +115,8 @@ export const handleClientError = async <T extends FetchMiddlewareInstance>(
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
   await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
-  middleware.onErrorCallbacks?.forEach((callback) => callback(responseData, middleware));
-  middleware.onFinishedCallbacks?.forEach((callback) => callback(responseData, middleware));
+  middleware.onErrorCallback?.(responseData, middleware);
+  middleware.onFinishedCallback?.(responseData, middleware);
   resolve(responseData);
 };
 
@@ -134,7 +134,7 @@ export const handleClientSuccess = async <T extends FetchMiddlewareInstance>(
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
   await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
-  middleware.onSuccessCallbacks?.forEach((callback) => callback(responseData, middleware));
-  middleware.onFinishedCallbacks?.forEach((callback) => callback(responseData, middleware));
+  middleware.onSuccessCallback?.(responseData, middleware);
+  middleware.onFinishedCallback?.(responseData, middleware);
   resolve(responseData);
 };

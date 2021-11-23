@@ -28,7 +28,7 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
   const url = builderConfig.baseUrl + endpoint + queryParams;
 
   return new Promise<ClientResponseType<any, any>>((resolve) => {
-    requestStartTimestamp = null;
+    requestStartTimestamp = +new Date();
     responseStartTimestamp = null;
 
     // Setup Request
@@ -40,22 +40,19 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
     middleware.abortController?.signal?.addEventListener("abort", xhr.abort);
 
     // Request listeners
-    requestStartTimestamp = +new Date();
     middlewareInstance.requestStartCallback?.();
+    setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
 
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(
-          middlewareInstance,
-          requestStartTimestamp || +new Date(),
-          e as ProgressEvent<XMLHttpRequest>,
-        );
+        setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), e);
       };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
       requestStartTimestamp = null;
+      setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 1 });
 
       setResponseProgress(
         middlewareInstance,

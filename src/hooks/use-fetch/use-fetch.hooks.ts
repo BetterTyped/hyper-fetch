@@ -243,6 +243,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
    */
   useWillUnmount(() => {
     handleUnMountEvents();
+    middleware.clean();
   });
 
   useWindowEvent(
