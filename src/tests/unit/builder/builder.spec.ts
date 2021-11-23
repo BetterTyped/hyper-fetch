@@ -1,5 +1,7 @@
 import { ClientType, FetchClientOptions } from "client";
 import { FetchBuilder, FetchMiddleware } from "middleware";
+import { interceptBase } from "tests/utils/mocks";
+import { startServer, stopServer } from "tests/utils/server";
 
 const baseUrl = "some-url";
 const options: FetchClientOptions = { timeout: 1000 };
@@ -32,6 +34,45 @@ describe("Basic FetchBuilder usage", () => {
     const builder = new FetchBuilder({ baseUrl, options }).setClient(customHttpClient);
 
     expect(builder.client).toBe(customHttpClient);
+  });
+
+  it("should call the methods", async () => {
+    startServer();
+
+    const errorCall = jest.fn();
+    const requestCall = jest.fn();
+    const responseCall = jest.fn();
+
+    const builder = new FetchBuilder({ baseUrl })
+      .onError((error) => {
+        errorCall(error);
+        return error;
+      })
+      .onRequest((middleware) => {
+        requestCall(middleware);
+        return middleware;
+      })
+      .onResponse((middleware, response) => {
+        responseCall(middleware, response);
+        return [null, null, 0];
+      })
+      .build();
+
+    const middleware = builder()({
+      endpoint: "/",
+    });
+
+    interceptBase(400);
+
+    await middleware.send();
+
+    expect(errorCall.mock.calls[0][0]).toEqual({ message: "Error" });
+
+    expect(requestCall.mock.calls[0][0] instanceof FetchMiddleware).toBeTruthy();
+
+    expect(responseCall.mock.calls[0][0] instanceof FetchMiddleware).toBeTruthy();
+    expect(responseCall.mock.calls[0][1]).toEqual([null, { message: "Error" }, 400]);
+    stopServer();
   });
 
   it("should return FetchMiddleware instance callback on build", async () => {

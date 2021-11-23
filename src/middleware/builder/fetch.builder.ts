@@ -1,4 +1,4 @@
-import { ClientType, FetchClientOptions, fetchClient } from "client";
+import { ClientType, FetchClientOptions, fetchClient, ClientResponseType } from "client";
 import {
   FetchMiddleware,
   FetchMiddlewareOptions,
@@ -56,7 +56,10 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newMiddleware;
   };
 
-  private handleResponseCallbacks = async <T extends FetchMiddlewareInstance>(middleware: T, response: any) => {
+  private handleResponseCallbacks = async <T extends FetchMiddlewareInstance>(
+    middleware: T,
+    response: ClientResponseType<any, ErrorType>,
+  ) => {
     let newResponse = response;
     if (!middleware.apiConfig.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax

@@ -1,5 +1,5 @@
 import { DateInterval } from "index";
-import { createInterceptor, ErrorCodesType, testMiddleware } from "tests/server";
+import { createInterceptor, ErrorCodesType, testMiddleware } from "tests/utils/server";
 import { buildMock } from ".";
 
 export const postFile = testMiddleware<number, FormData>()({

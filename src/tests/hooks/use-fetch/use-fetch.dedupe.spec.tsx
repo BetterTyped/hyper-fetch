@@ -3,8 +3,8 @@ import { renderHook } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
 import { CacheStore, Cache, getCacheKey } from "cache";
-import { startServer, resetMocks, stopServer, setToken } from "tests/server";
-import { getManyMock, getManyRequest } from "tests/mocks";
+import { startServer, resetMocks, stopServer, setToken } from "tests/utils/server";
+import { getManyMock, getManyRequest } from "tests/utils/mocks";
 
 const { fixture } = getManyMock();
 jest.spyOn(getManyRequest, "send");

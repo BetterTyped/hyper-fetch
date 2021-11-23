@@ -93,12 +93,12 @@ export const setRequestProgress = <T extends FetchMiddlewareInstance>(
 
 // Client response handlers
 
-export const handleClientError = <T extends FetchMiddlewareInstance>(
+export const handleClientError = async <T extends FetchMiddlewareInstance>(
   middleware: T,
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
   event?: ProgressEvent<XMLHttpRequest>,
   errorCase?: "timeout" | "abort",
-): void => {
+): Promise<void> => {
   if (!event?.target && !errorCase) {
     return;
   }
@@ -114,16 +114,17 @@ export const handleClientError = <T extends FetchMiddlewareInstance>(
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
+  await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
   middleware.onErrorCallbacks?.forEach((callback) => callback(responseData, middleware));
   middleware.onFinishedCallbacks?.forEach((callback) => callback(responseData, middleware));
   resolve(responseData);
 };
 
-export const handleClientSuccess = <T extends FetchMiddlewareInstance>(
+export const handleClientSuccess = async <T extends FetchMiddlewareInstance>(
   middleware: T,
   event: ProgressEvent<XMLHttpRequest>,
   resolve: (data: ClientResponseSuccessType<ExtractResponse<T>>) => void,
-): void => {
+): Promise<void> => {
   if (!event.target) return;
 
   const { status } = event.target;
@@ -132,6 +133,7 @@ export const handleClientSuccess = <T extends FetchMiddlewareInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
+  await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
   middleware.onSuccessCallbacks?.forEach((callback) => callback(responseData, middleware));
   middleware.onFinishedCallbacks?.forEach((callback) => callback(responseData, middleware));
   resolve(responseData);

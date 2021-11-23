@@ -2,9 +2,9 @@ import { renderHook, act } from "@testing-library/react-hooks";
 
 import { useFetch } from "hooks";
 import { CacheStore } from "cache";
-import { startServer, resetMocks, stopServer, setToken } from "tests/server";
-import { getManyRequest, interceptGetMany } from "tests/mocks";
-import { ErrorMockType } from "tests/server/server.constants";
+import { startServer, resetMocks, stopServer, setToken } from "tests/utils/server";
+import { getManyRequest, interceptGetMany } from "tests/utils/mocks";
+import { ErrorMockType } from "tests/utils/server/server.constants";
 import { getCurrentState } from "../utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../shared/fetch.tests";
 

@@ -1,5 +1,5 @@
-import { createInterceptor, testMiddleware } from "tests/server";
-import { ErrorCodesType } from "tests/server/server.constants";
+import { createInterceptor, testMiddleware } from "tests/utils/server";
+import { ErrorCodesType } from "tests/utils/server/server.constants";
 import { buildMock } from "./mocking";
 
 export type GetOneResponseType = {

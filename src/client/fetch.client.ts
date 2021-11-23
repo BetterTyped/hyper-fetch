@@ -104,9 +104,6 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
       responseStartTimestamp = null;
     };
 
-    // Send request
-    xhr.send(getClientPayload(data));
-
     xhr.onreadystatechange = (e) => {
       const event = e as ProgressEvent<XMLHttpRequest>;
       const finishedState = 4;

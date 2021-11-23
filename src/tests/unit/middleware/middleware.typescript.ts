@@ -1,3 +1,5 @@
+// Typescript test cases
+
 // import { FetchBuilder } from "middleware";
 
 // const fetchMiddleware = new FetchBuilder({

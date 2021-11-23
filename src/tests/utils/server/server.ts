@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 
 import { FetchMiddlewareInstance } from "middleware";
-import { FetchMockType } from "tests/mocks";
+import { FetchMockType } from "tests/utils/mocks";
 import { getInterceptEndpoint, getMethod } from "./server.utils";
 import { ErrorCodesType, ErrorMockType, errorResponses } from "./server.constants";
 

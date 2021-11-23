@@ -1,5 +1,5 @@
-import { resetMocks, startServer, stopServer } from "tests/server";
-import { getBase, interceptBase, getManyRequest, interceptGetMany } from "tests/mocks";
+import { resetMocks, startServer, stopServer } from "tests/utils/server";
+import { getBase, interceptBase, getManyRequest, interceptGetMany } from "tests/utils/mocks";
 import { fetchClient } from "client";
 
 describe("Basic XHR Client usage", () => {
