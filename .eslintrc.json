@@ -22,8 +22,6 @@
   },
   "plugins": ["react", "react-hooks"],
   "extends": [
-    "react-app",
-    "react-app/jest",
     "eslint:recommended",
     "plugin:react-hooks/recommended",
     "prettier",
