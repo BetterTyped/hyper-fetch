@@ -8,6 +8,7 @@ import {
   ErrorMessageMapperCallback,
   FetchMiddlewareInstance,
 } from "middleware";
+import { FetchBuilderConfig } from "./fetch.builder.types";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientOptions> {
   baseUrl: string;
@@ -70,7 +71,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newResponse;
   };
 
-  private getBuilderConfig = () => ({
+  private getBuilderConfig = (): FetchBuilderConfig<ErrorType, ClientOptions> => ({
     baseUrl: this.baseUrl,
     debug: this.debug,
     options: this.options,

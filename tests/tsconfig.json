@@ -4,5 +4,6 @@
     "rootDir": "../",
     "strict": false
   },
-  "include": [".", "../scripts/jest-setup.ts", "babel.config.js"]
+  "include": [".", "../scripts/jest-setup.ts"],
+  "exclude": ["babel.config.js"]
 }

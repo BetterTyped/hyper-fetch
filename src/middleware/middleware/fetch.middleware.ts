@@ -1,7 +1,7 @@
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientResponseType } from "client";
-import { FetchBuilder } from "../builder/fetch.builder";
+import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 import {
   ClientProgressCallback,
   DefaultOptionsType,
@@ -34,12 +34,12 @@ export class FetchMiddleware<
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: PayloadType | NegativeTypes;
   queryParams: string | NegativeTypes;
-  options: ClientOptions;
+  options: ClientOptions | undefined;
 
   abortController = new AbortController();
 
   constructor(
-    readonly builderConfig: ReturnType<FetchBuilder<ErrorType, ClientOptions>["getBuilderConfig"]>,
+    readonly builderConfig: FetchBuilderConfig<ErrorType, ClientOptions>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
     readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
   ) {
@@ -222,10 +222,10 @@ export class FetchMiddleware<
   }
 
   public send: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> =
-    async (options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
+    async (setup?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
       if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
 
-      const middleware = this.clone(options);
+      const middleware = this.clone(setup);
 
       const { client } = this.builderConfig;
 

@@ -20,7 +20,7 @@ export default [
       { file: pkg.module.replace("dist", "temp"), format: "esm", exports: "named", sourcemap: true },
     ],
     plugins: [
-      del({ targets: ["node_modules/.cache/temp/*"] }),
+      del({ targets: ["temp/*"] }),
       external({
         includeDependencies: true,
       }),
@@ -32,16 +32,17 @@ export default [
         include: ["node_modules/**"],
       }),
       typescript({
-        declaration: true,
+        useTsconfigDeclarationDir: true,
         rollupCommonJSResolveHack: true,
       }),
-      babel({
-        exclude: ["node_modules/**"],
-        extensions: [...DEFAULT_EXTENSIONS, ".ts", ".tsx"],
-      }),
-      terser({
-        compress: true,
-      }),
+      // babel({
+      //   babelrc: false,
+      //   exclude: ["node_modules/**"],
+      //   extensions: [...DEFAULT_EXTENSIONS, ".ts", ".tsx"],
+      // }),
+      // terser({
+      //   compress: true,
+      // }),
     ],
     external: Object.keys(pkg.peerDependencies || {}),
   },
