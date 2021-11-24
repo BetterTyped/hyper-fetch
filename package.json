@@ -29,6 +29,7 @@
     "predeploy": "yarn build:docs",
     "deploy": "gh-pages -d documentation/build",
     "test": "jest",
+    "coverage": "jest --coverage",
     "format": "prettier --write",
     "lint": "eslint --ext .js,.jsx,.tsx,.ts --fix"
   },
