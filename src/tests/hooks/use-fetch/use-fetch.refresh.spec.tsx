@@ -34,7 +34,7 @@ describe("useFetch hook refresh logic", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading;
+      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
     });
 
     const stateOne = getCurrentState(responseOne);
@@ -77,7 +77,7 @@ describe("useFetch hook refresh logic", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading;
+      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
     });
 
     const stateOne = getCurrentState(responseOne);

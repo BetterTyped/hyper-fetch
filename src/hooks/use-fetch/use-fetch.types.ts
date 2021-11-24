@@ -2,7 +2,7 @@ import { FetchMiddlewareInstance } from "middleware";
 import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
 import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
-import { UseCacheStateActions, UseCacheStateType } from "../use-cache-state/use-cache-state.types";
+import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
   dependencies?: any[];
@@ -35,11 +35,11 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
 };
 
 export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
-  UseCacheStateType<ExtractResponse<T>, ExtractError<T>>,
+  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
-  actions: UseCacheStateActions<ExtractResponse<T>, ExtractError<T>>;
+  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

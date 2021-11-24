@@ -13,7 +13,8 @@ export const testFetchSuccessState = <T extends UseFetchReturnType<FetchMiddlewa
   response: T,
 ): void => {
   const status = response.status || 0;
-  expect(status >= 200 && status < 300).toBeTruthy();
+
+  expect(status).toBe(200);
   expect(response.loading).toEqual(false);
   expect(response.data).toMatchObject(mock as Record<string, unknown>);
   expect(response.error).toEqual(null);

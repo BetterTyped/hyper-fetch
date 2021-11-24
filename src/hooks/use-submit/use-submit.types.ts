@@ -11,7 +11,7 @@ import {
 } from "types";
 import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
-import { UseCacheStateActions, UseCacheStateType } from "../use-cache-state/use-cache-state.types";
+import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseSubmitOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
   disabled?: boolean;
@@ -41,11 +41,11 @@ export type UseSubmitOptionsType<T extends FetchMiddlewareInstance, MapperRespon
 };
 
 export type UseSubmitReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
-  UseCacheStateType<ExtractResponse<T>, ExtractError<T>>,
+  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
-  actions: UseCacheStateActions<ExtractResponse<T>, ExtractError<T>>;
+  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

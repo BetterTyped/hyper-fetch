@@ -39,9 +39,7 @@ describe("useFetch hook deduplicate logic", () => {
 
     renderHook(() => useFetch(getManyRequest));
 
-    await waitFor(() => {
-      expect(getManyRequest.send).toHaveBeenCalledTimes(0);
-    });
+    expect(getManyRequest.send).toHaveBeenCalledTimes(0);
   });
 
   it("should deduplicate 2 fetches into one request", async () => {

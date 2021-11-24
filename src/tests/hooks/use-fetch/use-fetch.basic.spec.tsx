@@ -47,7 +47,7 @@ describe("Basic useFetch hook usage", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading;
+      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
     });
 
     const stateOne = getCurrentState(responseOne);
@@ -63,7 +63,7 @@ describe("Basic useFetch hook usage", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).error;
+      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
     });
 
     const stateOne = getCurrentState(responseOne);

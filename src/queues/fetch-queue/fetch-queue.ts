@@ -41,7 +41,9 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
         // 4. Remove from queue
         this.delete();
         // 5. Save response to cache
-        this.cache.set({ key: this.requestKey, response, retries: queueElement.retries, deepCompareFn, isRefreshed });
+        if (response) {
+          this.cache.set({ key: this.requestKey, response, retries: queueElement.retries, deepCompareFn, isRefreshed });
+        }
       }
     }
   };
