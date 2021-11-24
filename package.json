@@ -127,7 +127,8 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn format",
-      "yarn lint"
+      "yarn lint",
+      "yarn test --bail --findRelatedTests"
     ]
   }
 }
