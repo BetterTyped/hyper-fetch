@@ -8,9 +8,6 @@ import external from "rollup-plugin-peer-deps-external";
 import del from "rollup-plugin-delete";
 import typescript from "rollup-plugin-typescript2";
 import commonjs from "@rollup/plugin-commonjs";
-import svgr from "@svgr/rollup";
-import url from "rollup-plugin-url";
-import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
 import copy from "rollup-plugin-copy";
 import { terser } from "rollup-plugin-terser";
@@ -23,7 +20,7 @@ export default [
       { file: pkg.module.replace("dist", "temp"), format: "esm", exports: "named", sourcemap: true },
     ],
     plugins: [
-      del({ targets: ["temp/*"] }),
+      del({ targets: ["node_modules/.cache/temp/*"] }),
       external({
         includeDependencies: true,
       }),
@@ -41,24 +38,6 @@ export default [
       babel({
         exclude: ["node_modules/**"],
         extensions: [...DEFAULT_EXTENSIONS, ".ts", ".tsx"],
-      }),
-      postcss({
-        minimize: true,
-        extract: "assets/styles/index.css",
-        modules: {
-          globalModulePaths: [/^((?!module.css)[\s\S])*$/],
-        },
-      }),
-      url({
-        fileName: "[dirname][hash][extname]",
-        sourceDir: path.join(__dirname, "src"),
-      }),
-      svgr({
-        svgoConfig: {
-          plugins: {
-            removeViewBox: false,
-          },
-        },
       }),
       terser({
         compress: true,

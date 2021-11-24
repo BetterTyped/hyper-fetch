@@ -20,8 +20,11 @@ export const useWindowEvent: WindowEventHook = (eventName, handler, disabled, op
 
   useDidUpdate(
     () => {
-      if (!window || !document || !disabled) return;
-      const eventListener: typeof handler = (event) => !isMounted && handlerRef.current && handlerRef.current(event);
+      if (!window || !document || disabled) {
+        return;
+      }
+
+      const eventListener: typeof handler = (event) => isMounted && handlerRef.current?.(event);
       window.addEventListener(eventName, eventListener, options || false);
       return () => window.removeEventListener(eventName, eventListener, options || false);
     },

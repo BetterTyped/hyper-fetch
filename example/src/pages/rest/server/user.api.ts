@@ -1,5 +1,6 @@
-import { rest, setupWorker } from "msw";
 import { FetchMiddlewareInstance } from "@better-typed/react-fetch";
+import { rest, setupWorker } from "msw";
+
 import { getRandomUser, getRandomUsers } from "utils/users.utils";
 import { restMiddleware } from "pages/rest/server/middleware";
 import { PostUserModel, UserModel } from "models";

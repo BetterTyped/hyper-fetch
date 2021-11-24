@@ -1,5 +1,14 @@
 {
   "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 11,
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": ["babel.config.js"],
   "settings": {
     "import/resolver": {
       "node": {
@@ -13,6 +22,11 @@
   },
   "plugins": ["react", "react-hooks"],
   "extends": [
+    "react-app",
+    "react-app/jest",
+    "eslint:recommended",
+    "plugin:react-hooks/recommended",
+    "prettier",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
@@ -37,9 +51,5 @@
     "prettier/prettier": ["error"],
     "consistent-return": 0,
     "@typescript-eslint/no-throw-literal": 0
-  },
-  "parserOptions": {
-    "files": ["*.ts", "*.tsx"],
-    "project": ["./tsconfig.json"]
   }
 }

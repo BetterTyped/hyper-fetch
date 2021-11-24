@@ -272,9 +272,18 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
 
   return {
     ...state,
-    get data(): any {
+    // ts bug somehow multiplies the typings required here
+    get data(): (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
+      ? ExtractResponse<T>
+      : MapperResponse extends never
+      ? ExtractResponse<T>
+      : MapperResponse {
       setRenderKey("data");
-      return handleData();
+      return handleData() as (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
+        ? ExtractResponse<T>
+        : MapperResponse extends never
+        ? ExtractResponse<T>
+        : MapperResponse;
     },
     get error() {
       setRenderKey("error");

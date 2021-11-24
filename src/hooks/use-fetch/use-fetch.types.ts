@@ -31,7 +31,6 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
         newValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
       ) => boolean)
     | null;
-  plugins?: any[];
 };
 
 export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<

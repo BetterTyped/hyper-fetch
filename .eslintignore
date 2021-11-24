@@ -2,5 +2,7 @@ dist
 documentation
 example
 rollup.config.js
+babel.config.js
+jest.config.ts
 package.json
 .eslintrc.json
