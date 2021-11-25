@@ -50,8 +50,6 @@ export class FetchMiddleware<
     this.data = defaultOptions?.data;
     this.queryParams = defaultOptions?.queryParams;
     this.mockCallback = defaultOptions?.mockCallback;
-
-    alert(1);
   }
 
   requestStartCallback: ClientStartCallback | undefined;
