@@ -2,8 +2,8 @@ import { useRef } from "react";
 import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import { Cache } from "cache/cache";
-import { FetchMiddlewareInstance } from "middleware";
-import { getCacheKey, CACHE_EVENTS, CacheValueType } from "cache";
+import { FetchMiddlewareInstance, FetchMiddleware } from "middleware";
+import { getCacheKey, CACHE_EVENTS, CacheValueType, getCacheInstanceKey, getRevalidateKey } from "cache";
 import { FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
@@ -54,11 +54,11 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
 
-  let key = useRef(getCacheKey(middleware, cacheKey)).current;
-  let cache = useRef(new Cache<T>(middleware)).current;
-  const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime)).current;
-  const initState = useRef(initialData || initCacheState).current;
-  const [state, actions, setRenderKey] = useDependentState<T>(key, cache, initState);
+  const cache = new Cache<T>(middleware, cacheKey);
+  const key = getCacheKey(middleware);
+  const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime));
+  const initState = useRef(initialData || initCacheState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(key, cache, initState.current);
 
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
@@ -74,7 +74,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     return !!state.data || !!state.error;
   };
 
-  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed) => {
+  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed, shouldCancel = cancelable) => {
     const queue = new FetchQueue(key, cache);
 
     const isStale = isStaleCacheData();
@@ -93,7 +93,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
       };
 
       queue.add(request, {
-        cancelable,
+        cancelable: shouldCancel,
         deepCompareFn,
         isRefreshed,
       });
@@ -160,23 +160,35 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     if (!initCacheState && initialCacheData) {
       cache.set({ key, response: initialCacheData, retries: 0, isRefreshed: false });
     }
-    if (initCacheState) {
-      actions.setCacheData(initCacheState, false);
+    if (initCacheState.current) {
+      actions.setCacheData(initCacheState.current, false);
     }
   };
 
-  const refreshFn = () => {
-    handleFetch(0, true);
+  const handleRevalidate = () => {
+    handleFetch(0, true, true);
+  };
+
+  const refreshFn = (invalidateKey?: string | FetchMiddlewareInstance) => {
+    if (invalidateKey && typeof invalidateKey === "string") {
+      CACHE_EVENTS.revalidate(invalidateKey);
+    } else if (invalidateKey && invalidateKey instanceof FetchMiddleware) {
+      CACHE_EVENTS.revalidate(getCacheInstanceKey(invalidateKey));
+    } else {
+      handleRevalidate();
+    }
   };
 
   const handleMountEvents = () => {
     FETCH_QUEUE_EVENTS.getLoading(key, handleGetLoadingEvent);
     CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
+    CACHE_EVENTS.onRevalidate(key, handleRevalidate);
   };
 
   const handleUnMountEvents = () => {
-    FETCH_QUEUE_EVENTS.umountLoading(key, handleGetLoadingEvent);
+    FETCH_QUEUE_EVENTS.umount(key, handleGetLoadingEvent);
     CACHE_EVENTS.umount(key, handleGetUpdatedCache);
+    CACHE_EVENTS.umount(getRevalidateKey(key), handleRevalidate);
   };
 
   const handleData = () => {
@@ -188,7 +200,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
    * This allow to share the state with other hooks and keep it related
    */
   useDidMount(() => {
-    handleCallbacks(initState?.response);
+    handleCallbacks(initState.current?.response);
     handleInitialCacheState();
     handleMountEvents();
   });
@@ -211,22 +223,6 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
       }
     },
     [...dependencies, disabled],
-    true,
-  );
-
-  /**
-   * When cache key changes dynamically - we have to apply changes to switch the cache container and mount new listeners
-   */
-  useDidUpdate(
-    () => {
-      handleUnMountEvents();
-
-      key = getCacheKey(middleware);
-      cache = new Cache<T>(middleware);
-
-      handleMountEvents();
-    },
-    [getCacheKey(middleware)],
     true,
   );
 
@@ -296,6 +292,10 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     get status() {
       setRenderKey("status");
       return state.status;
+    },
+    get retryError() {
+      setRenderKey("retryError");
+      return state.retryError;
     },
     get refreshError() {
       setRenderKey("refreshError");

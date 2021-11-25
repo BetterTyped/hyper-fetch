@@ -45,7 +45,7 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
   isRefreshed: boolean;
   isRefreshingError: boolean;
   isDebouncing: boolean;
-  refresh: () => void;
+  refresh: (invalidateKey?: string | FetchMiddlewareInstance) => void;
 };
 
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;

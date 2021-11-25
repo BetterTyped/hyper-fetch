@@ -45,6 +45,7 @@ export const useDependentState = <T extends FetchMiddlewareInstance>(
           status: cacheData.response[2],
           retries: cacheData.retries,
           timestamp: cacheData.timestamp,
+          retryError: cacheData.retryError,
           refreshError: cacheData.refreshError,
           isRefreshed: cacheData.isRefreshed,
           loading: false,
@@ -132,6 +133,20 @@ export const useDependentState = <T extends FetchMiddlewareInstance>(
       } else {
         state.current.refreshError = refreshError;
         renderOnKeyTrigger(["refreshError"]);
+      }
+    },
+    setRetryError: (retryError, emitToCache = true) => {
+      if (emitToCache) {
+        const currentState = state.current;
+        cache.set({
+          key,
+          response: [currentState.data, retryError, currentState.status],
+          retries: currentState.retries,
+          isRefreshed: true,
+        });
+      } else {
+        state.current.retryError = retryError;
+        renderOnKeyTrigger(["retryError"]);
       }
     },
     setRetries: (retries, emitToCache = true) => {

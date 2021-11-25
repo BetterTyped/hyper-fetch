@@ -12,7 +12,7 @@ export const FETCH_QUEUE_EVENTS = {
   getLoading: (key: CacheKeyType, callback: (value: boolean) => void): void => {
     fetchQueueEventEmitter.on(getLoadingEventKey(key), callback);
   },
-  umountLoading: (key: CacheKeyType, callback: (value: boolean) => void): void => {
+  umount: <T extends (...args: any[]) => void>(key: CacheKeyType, callback: T): void => {
     fetchQueueEventEmitter.removeListener(getLoadingEventKey(key), callback);
   },
 };

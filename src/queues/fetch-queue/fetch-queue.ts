@@ -58,7 +58,7 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
     FetchQueueStore.delete(this.requestKey);
   };
 
-  destroy = (): void => {
+  static destroy = (): void => {
     FetchQueueStore.clear();
   };
 }

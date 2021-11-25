@@ -11,6 +11,7 @@ export type CacheValueType<DataType = any, ErrorType = any> = {
   retries: number;
   timestamp: Date;
   refreshError: ErrorType;
+  retryError: ErrorType;
   isRefreshed: boolean;
 };
 

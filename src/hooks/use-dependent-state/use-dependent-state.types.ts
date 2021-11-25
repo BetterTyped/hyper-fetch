@@ -6,6 +6,7 @@ export type UseDependentStateType<DataType = any, ErrorType = any> = {
   loading: boolean;
   status: null | number;
   refreshError: null | ErrorType;
+  retryError: null | ErrorType;
   isRefreshed: boolean;
   retries: number;
   timestamp: null | Date;
@@ -21,4 +22,5 @@ export type UseDependentStateActions<DataType, ErrorType> = {
   setRetries: (retries: number, emitToCache?: boolean) => void;
   setTimestamp: (timestamp: null | Date, emitToCache?: boolean) => void;
   setRefreshError: (refreshError: null | ErrorType, emitToCache?: boolean) => void;
+  setRetryError: (retryError: null | ErrorType, emitToCache?: boolean) => void;
 };

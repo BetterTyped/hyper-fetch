@@ -6,6 +6,7 @@ export const initialState: UseDependentStateType = {
   loading: true,
   status: null,
   refreshError: null,
+  retryError: null,
   isRefreshed: false,
   retries: 0,
   timestamp: null,

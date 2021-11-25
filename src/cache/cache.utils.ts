@@ -5,8 +5,9 @@ export const getCacheData = <T extends FetchMiddlewareInstance>(
   previousResponse: ExtractFetchReturn<T> | undefined,
   response: ExtractFetchReturn<T>,
   refreshError: ExtractError<T> | null,
+  retryError: ExtractError<T> | null,
 ): ExtractFetchReturn<T> => {
-  if (refreshError && previousResponse?.[0]) {
+  if ((retryError || refreshError) && previousResponse?.[0]) {
     return previousResponse;
   }
   return response;
@@ -22,6 +23,26 @@ export const stringify = (value: unknown): string => {
   }
 };
 
+export const getRevalidateKey = (key: string): string => {
+  return `${key}_revalidate`;
+};
+
+/**
+ * Cache instance for individual middleware that collects individual requests responses from
+ * the same endpoint (they may differ base on the custom key, endpoint params etc)
+ * @param fetchMiddleware
+ * @returns
+ */
+export const getCacheInstanceKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey?: string): string => {
+  return customCacheKey || `${fetchMiddleware.method}_${fetchMiddleware.apiConfig.endpoint}`;
+};
+
+/**
+ * Individual request cache that is packed with the group of cached responses from the same endpoint instance
+ * @param fetchMiddleware
+ * @param customCacheKey
+ * @returns
+ */
 export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey = ""): string => {
   /**
    * Below stringified values allow to match the response family *paste random Vin Diesel meme here*
