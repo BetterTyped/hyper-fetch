@@ -18,9 +18,6 @@ describe("Basic FetchMiddleware usage", () => {
       disableRequestInterceptors: true,
     };
 
-    // eslint-disable-next-line no-console
-    console.log(1);
-
     const middleware = new FetchBuilder({ baseUrl: "/some-url" }).build()()(props);
 
     expect(middleware.method).toBe(props.method);
