@@ -2,7 +2,7 @@ import { fetchClient } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getBase, interceptBase, getManyRequest, interceptGetMany } from "../../utils/mocks";
 
-describe("Basic XHR Client usage", () => {
+describe("Client - XHR", () => {
   beforeAll(() => {
     startServer();
   });

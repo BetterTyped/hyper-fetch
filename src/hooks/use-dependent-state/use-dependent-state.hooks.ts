@@ -62,7 +62,7 @@ export const useDependentState = <T extends FetchMiddlewareInstance>(
         const currentState = state.current;
         cache.set({
           key,
-          response: [data, currentState.error, currentState.status as number],
+          response: [data, currentState.error, currentState.status],
           retries: currentState.retries,
           isRefreshed: currentState.isRefreshed,
         });

@@ -30,7 +30,7 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
         previousValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
         newValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
       ) => boolean)
-    | null;
+    | undefined;
 };
 
 export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<

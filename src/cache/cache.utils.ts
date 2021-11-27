@@ -17,7 +17,9 @@ export const stringify = (value: unknown): string => {
   try {
     if (typeof value === "string") return value;
     if (value === undefined || value === null) return "";
-    return JSON.stringify(value);
+    const data = JSON.stringify(value);
+    if (typeof data !== "string") throw new Error();
+    return data;
   } catch (_) {
     return "";
   }
@@ -71,43 +73,62 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
 };
 
 // Deep compare
-
-export const isEmpty = (value: any): boolean => {
-  if (!value) return true;
-
+export const isEmpty = (value: unknown): boolean => {
+  const valueType = Object.prototype.toString.call(value);
   if (Array.isArray(value)) return !value.length;
-
-  if (typeof value === "object") return !Object.keys(value).length;
-
+  if (typeof value === "object" && value !== null && valueType === "[object Object]") return !Object.keys(value).length;
   return false;
 };
 
-export const deepCompare = (firstValue: any, secondValue: any): boolean => {
+/**
+ * Allow to deep compare any values passed from response
+ * @param firstValue unknown
+ * @param secondValue unknown
+ * @returns true when elements are equal
+ */
+export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
   const firstValueType = Object.prototype.toString.call(firstValue);
   const secondValueType = Object.prototype.toString.call(secondValue);
 
+  const firstType = typeof firstValue;
+  const secondType = typeof secondValue;
+
+  const isType = (type: unknown) => firstType === type && secondType === type;
+  const isTypeValue = (type: unknown) => firstValueType === type && secondValueType === type;
+
+  // Compared types are different
   if (firstValueType !== secondValueType) return false;
 
-  if (typeof firstValue === "function") return `${firstValue}` === `${secondValue}`;
+  // Null
+  if (firstValue === null && secondValue === null) return true;
 
-  // null, undefined, string, number, bool, NaN
-  if (firstValueType !== "[object Object]" && firstValueType !== "[object Array]") {
-    if (firstValueType === "[object Number]" && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
-    return firstValue === secondValue;
-  }
+  // NaN
+  if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
 
+  // Empty Array or Object
+  if (isEmpty(firstValue) && isEmpty(secondValue)) return true;
+
+  // Array
   if (Array.isArray(firstValue) && Array.isArray(secondValue)) {
     if (firstValue.length !== secondValue.length) return false;
 
-    if (!firstValue.length && !secondValue.length) return true;
-
-    return firstValue.every((firstValueEl, i) => deepCompare(firstValueEl, secondValue[i]));
+    return !firstValue.some((element, i) => !isEqual(element, secondValue[i]));
   }
 
-  if (isEmpty(firstValue) && isEmpty(secondValue)) return true;
-  if (Object.keys(firstValue).length !== Object.keys(secondValue).length) return false;
+  // Object
+  if (isType("object") && isTypeValue("[object Object]")) {
+    if (Object.keys(firstValue as object).length !== Object.keys(secondValue as object).length) return false;
 
-  return Object.entries(firstValue).every(
-    ([key, value]) => Object.prototype.hasOwnProperty.call(secondValue, key) && deepCompare(value, secondValue[key]),
-  );
+    return !Object.entries(firstValue as object).some(
+      ([key, value]) => !isEqual(value, (secondValue as Record<string, unknown>)[key]),
+    );
+  }
+
+  // Date
+  if (firstValue instanceof Date && secondValue instanceof Date) {
+    return +firstValue === +secondValue;
+  }
+
+  // undefined, string, number, bool
+  return firstValue === secondValue;
 };

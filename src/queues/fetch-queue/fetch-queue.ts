@@ -1,8 +1,9 @@
-import { Cache, deepCompare } from "cache";
+import { Cache, isEqual } from "cache";
 import { FetchMiddlewareInstance } from "middleware";
 import { FetchQueueOptionsType } from "queues";
 import { FetchQueueStoreKeyType, FetchQueueStoreValueType, FetchQueueValueType } from "./fetch-queue.types";
 import { FETCH_QUEUE_EVENTS } from "./fetch-queue.events";
+import { initialFetchQueueOptions } from "./fetch-queue.constants";
 
 export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>();
 
@@ -14,15 +15,24 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
   constructor(private requestKey: string, private cache: Cache<T>) {}
 
   add = async (queueElement: FetchQueueValueType, options?: FetchQueueOptionsType): Promise<void> => {
-    const { cancelable = false, deepCompareFn = deepCompare, isRefreshed = false } = options || {};
+    const {
+      cancelable = false,
+      deepCompareFn = isEqual,
+      isRefreshed = false,
+      isRevalidated = false,
+    } = options || initialFetchQueueOptions;
 
     const queueEntity = this.get();
 
+    // Prevent to send many equal request from different sources in the same timestamp
+    const isEqualTimestamp = queueEntity ? queueEntity.timestamp.getTime() !== +new Date() : true;
+    const canRevalidate = isRevalidated && isEqualTimestamp;
+
     // If no concurrent requests found or the previous request can be canceled
-    if (!queueEntity || cancelable) {
+    if (!queueEntity || cancelable || canRevalidate) {
       // Make sure to delete/cancel running request
       this.delete();
-      queueEntity?.request?.abortController?.abort();
+      queueEntity?.request?.abortController.abort();
       // Propagate the loading to all connected hooks
       FETCH_QUEUE_EVENTS.setLoading(this.requestKey, true);
 
@@ -56,9 +66,5 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
 
   delete = (): void => {
     FetchQueueStore.delete(this.requestKey);
-  };
-
-  static destroy = (): void => {
-    FetchQueueStore.clear();
   };
 }

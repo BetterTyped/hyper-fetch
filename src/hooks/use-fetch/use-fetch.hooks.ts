@@ -1,9 +1,16 @@
 import { useRef } from "react";
 import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
-import { Cache } from "cache/cache";
+import {
+  Cache,
+  isEqual,
+  getCacheKey,
+  CACHE_EVENTS,
+  CacheValueType,
+  getCacheInstanceKey,
+  getRevalidateKey,
+} from "cache";
 import { FetchMiddlewareInstance, FetchMiddleware } from "middleware";
-import { getCacheKey, CACHE_EVENTS, CacheValueType, getCacheInstanceKey, getRevalidateKey } from "cache";
 import { FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
@@ -74,7 +81,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     return !!state.data || !!state.error;
   };
 
-  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed, shouldCancel = cancelable) => {
+  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed, isRevalidated = false) => {
     const queue = new FetchQueue(key, cache);
 
     const isStale = isStaleCacheData();
@@ -85,7 +92,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
      * The exception is made for refreshing which should be triggered no matter if data is fresh or not
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
-    if (!disabled && (isStale || !hasData || isRefreshed)) {
+    if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
       const request = {
         request: middleware,
         retries,
@@ -93,9 +100,10 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
       };
 
       queue.add(request, {
-        cancelable: shouldCancel,
-        deepCompareFn,
+        cancelable,
+        deepCompareFn: deepCompareFn as typeof isEqual,
         isRefreshed,
+        isRevalidated,
       });
     }
   };

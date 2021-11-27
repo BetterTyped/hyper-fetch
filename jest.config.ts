@@ -5,13 +5,12 @@ const config: Config.InitialOptions = {
   preset: "ts-jest",
   roots: ["<rootDir>/tests", "<rootDir>/src"],
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
-  coverageDirectory: "coverage",
-  testPathIgnorePatterns: ["node_modules", "documentation", "example", "dist", "coverage"],
   moduleDirectories: ["node_modules", "src"],
   globals: {
     "ts-jest": {
       tsconfig: "./tests/tsconfig.tests.json",
     },
   },
+  watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
 };
 export default config;

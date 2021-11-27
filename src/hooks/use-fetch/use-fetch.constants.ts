@@ -18,7 +18,7 @@ export const useFetchDefaultOptions = {
   debounce: false,
   cancelable: false,
   debounceTime: DateInterval.second * 200,
-  deepCompareFn: null,
+  deepCompareFn: undefined,
   mapperFn: null,
   shouldThrow: false,
 };

@@ -1,5 +1,5 @@
 import { FetchMiddlewareInstance } from "middleware";
-import { deepCompare } from "cache";
+import { isEqual } from "cache";
 
 export type FetchQueueStoreKeyType = string;
 export type FetchQueueStoreValueType = FetchQueueValueType;
@@ -9,7 +9,8 @@ export type FetchQueueValueType = {
   timestamp: Date;
 };
 export type FetchQueueOptionsType = {
-  isRefreshed: boolean;
-  cancelable: boolean;
-  deepCompareFn?: typeof deepCompare | null;
+  cancelable?: boolean;
+  isRefreshed?: boolean;
+  isRevalidated?: boolean;
+  deepCompareFn?: typeof isEqual | undefined;
 };

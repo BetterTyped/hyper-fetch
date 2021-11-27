@@ -1,6 +1,5 @@
 import { ClientResponseType } from "client";
 import { ExtractResponse, ExtractError } from "types";
-import { deepCompare } from "cache";
 
 export type CacheStoreKeyType = string;
 export type CacheStoreValueType = Map<CacheKeyType, CacheValueType>;
@@ -21,5 +20,5 @@ export type CacheSetDataType<T> = {
   retries: number;
   isRefreshed: boolean;
   timestamp?: Date;
-  deepCompareFn?: typeof deepCompare | null;
+  deepCompareFn?: null | ((value: unknown, valueToCompare: unknown) => boolean);
 };
