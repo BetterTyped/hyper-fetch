@@ -128,5 +128,18 @@ describe("Cache", () => {
       expect(trigger).toBeCalledTimes(0);
       expect(cacheInstance.get(endpointKey)).not.toBeDefined();
     });
+
+    it("should return undefined when removed cache entity", async () => {
+      const trigger = jest.fn();
+
+      CACHE_EVENTS.onRevalidate(requestKey, () => {
+        trigger();
+      });
+
+      CacheStore.clear();
+
+      expect(trigger).toBeCalledTimes(0);
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+    });
   });
 });

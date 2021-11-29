@@ -1,12 +1,24 @@
 import { ClientType, FetchClientOptions } from "client";
 import { FetchBuilder, FetchMiddleware } from "middleware";
 import { interceptBase } from "../../utils/mocks";
-import { startServer, stopServer } from "../../utils/server";
+import { resetMocks, startServer, stopServer } from "../../utils/server";
 
 const baseUrl = "some-url";
 const options: FetchClientOptions = { timeout: 1000 };
 
 describe("FetchBuilder", () => {
+  beforeAll(() => {
+    startServer();
+  });
+
+  afterEach(() => {
+    resetMocks();
+  });
+
+  afterAll(() => {
+    stopServer();
+  });
+
   describe("When initializing the builder", () => {
     it("should assign provided props", async () => {
       const builder = new FetchBuilder({ baseUrl, debug: true, options });
@@ -40,8 +52,6 @@ describe("FetchBuilder", () => {
     });
 
     it("should call the methods", async () => {
-      startServer();
-
       const errorCall = jest.fn();
       const requestCall = jest.fn();
       const responseCall = jest.fn();
@@ -55,8 +65,8 @@ describe("FetchBuilder", () => {
           requestCall(middleware);
           return middleware;
         })
-        .onResponse((middleware, response) => {
-          responseCall(middleware, response);
+        .onResponse((response, middleware) => {
+          responseCall(response, middleware);
           return [null, null, 0];
         })
         .build();
@@ -71,9 +81,8 @@ describe("FetchBuilder", () => {
 
       expect(errorCall.mock.calls[0][0]).toEqual({ message: "Error" });
       expect(requestCall.mock.calls[0][0] instanceof FetchMiddleware).toBeTruthy();
-      expect(responseCall.mock.calls[0][0] instanceof FetchMiddleware).toBeTruthy();
-      expect(responseCall.mock.calls[0][1]).toEqual([null, { message: "Error" }, 400]);
-      stopServer();
+      expect(responseCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);
+      expect(responseCall.mock.calls[0][1] instanceof FetchMiddleware).toBeTruthy();
     });
 
     it("should return FetchMiddleware instance callback on build", async () => {
@@ -84,6 +93,88 @@ describe("FetchBuilder", () => {
       const middleware = builder()({ endpoint: "some-endpoint" });
 
       expect(middleware instanceof FetchMiddleware).toBeTruthy();
+    });
+
+    describe("When using Builder methods", () => {
+      it("should trigger onRequest method before making request", async () => {
+        const methodFn = jest.fn();
+
+        interceptBase(200);
+
+        const builder = new FetchBuilder({ baseUrl, options })
+          .onRequest((middleware) => {
+            methodFn();
+            return middleware;
+          })
+          .build();
+
+        const middleware = builder()({
+          endpoint: "/",
+        });
+
+        await middleware.send();
+
+        expect(methodFn).toBeCalled();
+      });
+
+      it("should throw onRequest method when middleware is not returned", async () => {
+        const methodFn = jest.fn();
+
+        interceptBase(200);
+
+        const builder = new FetchBuilder({ baseUrl, options })
+          .onRequest((middleware) => {
+            methodFn();
+            return undefined as unknown as typeof middleware;
+          })
+          .build();
+
+        const middleware = builder()({
+          endpoint: "/",
+        });
+
+        expect(middleware.send()).rejects.toThrow();
+      });
+
+      it("should trigger onResponse method after making request", async () => {
+        const methodFn = jest.fn();
+
+        interceptBase(200);
+
+        const builder = new FetchBuilder({ baseUrl, options })
+          .onResponse((response) => {
+            methodFn();
+            return response;
+          })
+          .build();
+
+        const middleware = builder()({
+          endpoint: "/",
+        });
+
+        await middleware.send();
+
+        expect(methodFn).toBeCalled();
+      });
+
+      it("should throw onResponse method when middleware is not returned", async () => {
+        const methodFn = jest.fn();
+
+        interceptBase(200);
+
+        const builder = new FetchBuilder({ baseUrl, options })
+          .onRequest((middleware) => {
+            methodFn();
+            return undefined as unknown as typeof middleware;
+          })
+          .build();
+
+        const middleware = builder()({
+          endpoint: "/",
+        });
+
+        expect(middleware.send()).rejects.toThrow();
+      });
     });
   });
 });

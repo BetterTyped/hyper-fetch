@@ -114,7 +114,7 @@ export const handleClientError = async <T extends FetchMiddlewareInstance>(
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
-  await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
+  await middleware.builderConfig.onResponseCallbacks(responseData, middleware);
   middleware.onErrorCallback?.(responseData, middleware);
   middleware.onFinishedCallback?.(responseData, middleware);
   resolve(responseData);
@@ -133,7 +133,7 @@ export const handleClientSuccess = async <T extends FetchMiddlewareInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
-  await middleware.builderConfig.onResponseCallbacks(middleware, responseData);
+  await middleware.builderConfig.onResponseCallbacks(responseData, middleware);
   middleware.onSuccessCallback?.(responseData, middleware);
   middleware.onFinishedCallback?.(responseData, middleware);
   resolve(responseData);

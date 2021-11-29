@@ -7,7 +7,7 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ["<rootDir>/tests/jest.setup.ts"],
   coverageProvider: "v8",
   collectCoverageFrom: ["<rootDir>/src/**/*{ts,tsx}"],
-  coveragePathIgnorePatterns: [".spec", "test", "tests"],
+  coveragePathIgnorePatterns: [".spec", "test", "tests", "src/types", "src/constants"],
   moduleDirectories: ["node_modules", "src"],
   globals: {
     "ts-jest": {

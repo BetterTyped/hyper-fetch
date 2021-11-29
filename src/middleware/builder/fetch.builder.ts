@@ -58,14 +58,14 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   };
 
   private handleResponseCallbacks = async <T extends FetchMiddlewareInstance>(
-    middleware: T,
     response: ClientResponseType<any, ErrorType>,
+    middleware: T,
   ) => {
     let newResponse = response;
     if (!middleware.apiConfig.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
       for await (const interceptor of this.onResponseCallbacks) {
-        newResponse = await interceptor(middleware, response);
+        newResponse = await interceptor(response, middleware);
       }
     }
     return newResponse;

@@ -13,17 +13,16 @@ export type FetchBuilderConfig<ErrorType, ClientOptions> = {
   options: ClientOptions | undefined;
   client: ClientType<ErrorType, ClientOptions>;
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
-  onRequestCallbacks: (middleware: FetchMiddlewareInstance) => Promise<FetchMiddlewareInstance>;
-  onResponseCallbacks: (
-    middleware: FetchMiddlewareInstance,
-    response: ClientResponseType<any, ErrorType>,
-  ) => Promise<ClientResponseType<any, ErrorType>>;
+  onRequestCallbacks: RequestInterceptorCallback;
+  onResponseCallbacks: ResponseInterceptorCallback;
 };
 
 // Interceptors
-export type ErrorMessageMapperCallback<ErrorType> = (error: any) => ErrorType;
-export type RequestInterceptorCallback = (middleware: FetchMiddlewareInstance) => FetchMiddlewareInstance;
-export type ResponseInterceptorCallback = (
+export type ErrorMessageMapperCallback<ErrorType> = (error: any) => Promise<ErrorType> | ErrorType;
+export type RequestInterceptorCallback = (
   middleware: FetchMiddlewareInstance,
+) => Promise<FetchMiddlewareInstance> | FetchMiddlewareInstance;
+export type ResponseInterceptorCallback = (
   response: ClientResponseType<any, any>,
-) => ClientResponseType<any, any>;
+  middleware: FetchMiddlewareInstance,
+) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;

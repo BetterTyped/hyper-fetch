@@ -95,7 +95,7 @@ describe("Basic useFetch hook usage", () => {
 
   // Write smaller tests
   it("should allow to use reducer actions to override the state, and emit it for other hooks and propagate state around hooks", async () => {
-    const mock = interceptGetMany(200);
+    const mock = interceptGetMany(200, 0);
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
 
@@ -159,7 +159,7 @@ describe("Basic useFetch hook usage", () => {
 
   // Write smaller tests
   it("should allow to use reducer actions to override only the local state and not affect other related hooks", async () => {
-    const mock = interceptGetMany(200);
+    const mock = interceptGetMany(200, 0);
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
 

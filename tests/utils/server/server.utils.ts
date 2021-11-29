@@ -17,7 +17,7 @@ export const getMethod = (
   method: string,
   status: number,
   response: Record<string, any>,
-  delay = 0,
+  delay?: number,
 ): RestHandler => {
   function callback(
     _req: RestRequest<DefaultRequestBody, RequestParams>,
@@ -25,6 +25,10 @@ export const getMethod = (
     ctx: RestContext,
   ) {
     const args = [ctx.delay(), ctx.status(status), ctx.json(response || {})];
+
+    if (delay === 0) {
+      args.shift();
+    }
 
     if (!delay) {
       return res(...args);

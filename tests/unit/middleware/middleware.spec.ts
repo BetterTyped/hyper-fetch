@@ -1,6 +1,6 @@
 import { FetchBuilder, FetchMiddlewareOptions } from "middleware";
 import { ClientResponseType, ClientType } from "client";
-import { startServer, stopServer } from "../../utils/server";
+import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
 
 const options = {
@@ -8,6 +8,18 @@ const options = {
 };
 
 describe("Basic FetchMiddleware usage", () => {
+  beforeAll(() => {
+    startServer();
+  });
+
+  afterEach(() => {
+    resetMocks();
+  });
+
+  afterAll(() => {
+    stopServer();
+  });
+
   it("should assign provided props", async () => {
     const props: FetchMiddlewareOptions<any, any> = {
       method: "POST",
@@ -126,8 +138,6 @@ describe("Basic FetchMiddleware usage", () => {
   });
 
   it("should allow to track response and request progress", async () => {
-    startServer();
-
     interceptGetMany(200);
 
     let reqProgress = 0;
@@ -144,13 +154,9 @@ describe("Basic FetchMiddleware usage", () => {
 
     expect(reqProgress).toBe(100);
     expect(resProgress).toBe(100);
-
-    stopServer();
   });
 
   it("should trigger onRequestStart and onResponseStart callback when response and request starts", async () => {
-    startServer();
-
     interceptGetMany(200);
 
     const startReqFn = jest.fn();
@@ -160,12 +166,9 @@ describe("Basic FetchMiddleware usage", () => {
 
     expect(startReqFn).toBeCalledTimes(1);
     expect(startResFn).toBeCalledTimes(1);
-    stopServer();
   });
 
   it("should trigger onError callback once error occurs", async () => {
-    startServer();
-
     interceptGetMany(400);
 
     const errorFn = jest.fn();
@@ -173,13 +176,9 @@ describe("Basic FetchMiddleware usage", () => {
     await getManyRequest.onError(errorFn).send();
 
     expect(errorFn).toBeCalledTimes(1);
-
-    stopServer();
   });
 
   it("should trigger onSuccess callback once request is successful", async () => {
-    startServer();
-
     interceptGetMany(200);
 
     const successFn = jest.fn();
@@ -187,13 +186,9 @@ describe("Basic FetchMiddleware usage", () => {
     await getManyRequest.onSuccess(successFn).send();
 
     expect(successFn).toBeCalledTimes(1);
-
-    stopServer();
   });
 
   it("should trigger onFinished callback once request is successful or failed", async () => {
-    startServer();
-
     interceptGetMany(200);
 
     const finishedFn = jest.fn();
@@ -205,7 +200,33 @@ describe("Basic FetchMiddleware usage", () => {
     await getManyRequest.onFinished(finishedFn).send();
 
     expect(finishedFn).toBeCalledTimes(2);
+  });
 
-    stopServer();
+  it("should map params with the endpoint", async () => {
+    const endpoint = "/some-endpoint/:someParam/:someId";
+    const params = { someParam: 1, someId: 2 };
+
+    const expectedEndpoint = "/some-endpoint/1/2";
+
+    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
+    const middleware = builder<any, any>()({
+      endpoint,
+    }).setParams(params);
+
+    expect(middleware.endpoint).toBe(expectedEndpoint);
+  });
+
+  it("should map params with the endpoint", async () => {
+    const endpoint = "/some-endpoint/:someParam/:someId";
+    const params = { someParam: 1, someId: 2 };
+
+    const expectedEndpoint = "/some-endpoint/1/2";
+
+    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
+    const middleware = builder<any, any>()({
+      endpoint,
+    }).setParams(params);
+
+    expect(middleware.endpoint).toBe(expectedEndpoint);
   });
 });
