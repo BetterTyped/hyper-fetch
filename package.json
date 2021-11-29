@@ -129,7 +129,7 @@
     "*.{js,jsx,ts,tsx}": [
       "yarn format",
       "yarn lint",
-      "yarn test --bail --findRelatedTests"
+      "yarn jest --bail --findRelatedTests"
     ]
   }
 }
