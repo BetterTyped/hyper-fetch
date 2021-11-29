@@ -28,8 +28,8 @@
     "prepublishOnly": "yarn build",
     "predeploy": "yarn build:docs",
     "deploy": "gh-pages -d documentation/build",
-    "test": "jest",
-    "coverage": "jest --coverage",
+    "test": "jest --watchAll",
+    "coverage": "jest --coverage --watchAll",
     "format": "prettier --write",
     "lint": "eslint --ext .js,.jsx,.tsx,.ts --fix"
   },

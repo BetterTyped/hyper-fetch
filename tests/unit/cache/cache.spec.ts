@@ -1,12 +1,12 @@
 import { ClientResponseSuccessType } from "client";
-import { CacheStore, Cache, getCacheInstanceKey, CACHE_EVENTS, cacheEventEmitter } from "cache";
+import { CacheStore, Cache, getCacheKey, CACHE_EVENTS, cacheEventEmitter } from "cache";
 
 import { getManyRequest, getManyMock, GetManyResponseType } from "../../utils/mocks/get-many.mock";
 
-const endpointKey = getCacheInstanceKey(getManyRequest);
+const endpointKey = getCacheKey(getManyRequest);
 const requestKey = "custom-key";
 const response = {
-  key: requestKey,
+  key: endpointKey,
   response: [getManyMock().fixture, null, 0] as ClientResponseSuccessType<GetManyResponseType>,
   retries: 0,
   isRefreshed: false,
@@ -28,7 +28,8 @@ describe("Cache", () => {
       expect(cacheInstance.get(endpointKey)).not.toBeDefined();
 
       cacheInstance.set(response);
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
     });
 
     it("should delete cache and send signal", async () => {
@@ -39,12 +40,12 @@ describe("Cache", () => {
       });
 
       cacheInstance.set(response);
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
 
       cacheInstance.delete();
 
       expect(trigger).toBeCalled();
-      expect(cacheInstance.get(requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
     });
   });
 
@@ -52,7 +53,7 @@ describe("Cache", () => {
     it("should not overwrite the same data", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(requestKey, () => {
+      CACHE_EVENTS.get(endpointKey, () => {
         trigger();
       });
 
@@ -61,26 +62,26 @@ describe("Cache", () => {
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(1);
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
     });
 
     it("should write data when cache is empty or gets deleted", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(requestKey, () => {
+      CACHE_EVENTS.get(endpointKey, () => {
         trigger();
       });
 
       cacheInstance.set(response);
       cacheInstance.delete();
-      expect(cacheInstance.get(requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
       cacheInstance.set(response);
       cacheInstance.delete();
-      expect(cacheInstance.get(requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(3);
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
     });
 
     it("should allow to use own deep compare function when saving data", async () => {
@@ -89,13 +90,13 @@ describe("Cache", () => {
       cacheInstance.set({ ...response, deepCompareFn: deepCompare });
 
       expect(deepCompare).toBeCalledTimes(1);
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
     });
 
     it("should allow to disable deep comparison when saving data", async () => {
       cacheInstance.set({ ...response, deepCompareFn: null });
 
-      expect(cacheInstance.get(requestKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey)).toBeDefined();
     });
   });
 
@@ -111,7 +112,7 @@ describe("Cache", () => {
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
     });
 
     it("should not remove already removed cache entity", async () => {
@@ -125,7 +126,7 @@ describe("Cache", () => {
       cacheInstance.delete();
 
       expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
     });
   });
 });

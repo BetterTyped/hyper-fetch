@@ -177,6 +177,13 @@ export class FetchMiddleware<
     return this;
   };
 
+  public abort = () => {
+    this.abortController.abort();
+    this.abortController = new AbortController();
+
+    return this;
+  };
+
   private paramsMapper = (params: ParamsType | null | undefined): string => {
     let endpoint = this.apiConfig.endpoint as string;
     if (params) {

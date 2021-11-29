@@ -46,7 +46,7 @@ describe("Client - XHR", () => {
 
     const request = fetchClient(requestInstance);
 
-    requestInstance.abortController.abort();
+    requestInstance.abort();
 
     const [response, error, status] = await request;
 

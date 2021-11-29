@@ -1,18 +1,16 @@
 import { Cache, isEqual } from "cache";
 import { FetchMiddlewareInstance } from "middleware";
 import { FetchQueueOptionsType } from "queues";
-import { FetchQueueStoreKeyType, FetchQueueStoreValueType, FetchQueueValueType } from "./fetch-queue.types";
+import { FetchQueueValueType } from "./fetch-queue.types";
 import { FETCH_QUEUE_EVENTS } from "./fetch-queue.events";
-import { initialFetchQueueOptions } from "./fetch-queue.constants";
-
-export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>();
+import { FetchQueueStore, initialFetchQueueOptions } from "./fetch-queue.constants";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
 export class FetchQueue<T extends FetchMiddlewareInstance> {
-  constructor(private requestKey: string, private cache: Cache<T>) {}
+  constructor(private endpointKey: string, private cache: Cache<T>) {}
 
   add = async (queueElement: FetchQueueValueType, options?: FetchQueueOptionsType): Promise<void> => {
     const {
@@ -25,19 +23,18 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
     const queueEntity = this.get();
 
     // Prevent to send many equal request from different sources in the same timestamp
-    const isEqualTimestamp = queueEntity ? queueEntity.timestamp.getTime() !== +new Date() : true;
-    const canRevalidate = isRevalidated && isEqualTimestamp;
+    const isEqualTimestamp = queueEntity?.timestamp.getTime() === +queueElement.timestamp;
+    const canRevalidate = isRevalidated && !isEqualTimestamp;
 
     // If no concurrent requests found or the previous request can be canceled
     if (!queueEntity || cancelable || canRevalidate) {
-      // Make sure to delete/cancel running request
-      this.delete();
-      queueEntity?.request?.abortController.abort();
+      // Make sure to delete & cancel running request
+      this.delete(true);
       // Propagate the loading to all connected hooks
-      FETCH_QUEUE_EVENTS.setLoading(this.requestKey, true);
+      FETCH_QUEUE_EVENTS.setLoading(this.endpointKey, true);
 
       // 1. Add to queue
-      FetchQueueStore.set(this.requestKey, queueElement);
+      FetchQueueStore.set(this.endpointKey, queueElement);
       // 2. Start request
       const response = await queueElement.request.send();
 
@@ -52,19 +49,31 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
         this.delete();
         // 5. Save response to cache
         if (response) {
-          this.cache.set({ key: this.requestKey, response, retries: queueElement.retries, deepCompareFn, isRefreshed });
+          this.cache.set({
+            key: this.endpointKey,
+            response,
+            retries: queueElement.retries,
+            deepCompareFn,
+            isRefreshed,
+          });
         }
       }
     }
   };
 
   get = (): FetchQueueValueType | undefined => {
-    const storedEntity = FetchQueueStore.get(this.requestKey);
+    const storedEntity = FetchQueueStore.get(this.endpointKey);
 
     return storedEntity;
   };
 
-  delete = (): void => {
-    FetchQueueStore.delete(this.requestKey);
+  delete = (cancelable = false): void => {
+    const queueEntity = this.get();
+    if (queueEntity) {
+      if (cancelable) {
+        queueEntity.request.abort();
+      }
+      FetchQueueStore.delete(this.endpointKey);
+    }
   };
 }
