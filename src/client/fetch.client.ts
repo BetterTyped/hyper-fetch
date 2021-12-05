@@ -7,12 +7,13 @@ import {
   setClientOptions,
   setRequestProgress,
   setResponseProgress,
+  stringifyQueryParams,
 } from "./fetch.client.utils";
-import { ClientResponseType, ClientType } from "./fetch.client.types";
+import { ClientResponseType, ClientType, ClientQueryParamsType } from "./fetch.client.types";
 
-export const fetchClient: ClientType<any, any> = async (middleware) => {
-  if (!window.XMLHttpRequest) {
-    throw new Error("There is no window.XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
+export const fetchClient: ClientType<any, any, ClientQueryParamsType> = async (middleware, options) => {
+  if (!XMLHttpRequest) {
+    throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
   const xhr = new XMLHttpRequest();
@@ -23,9 +24,9 @@ export const fetchClient: ClientType<any, any> = async (middleware) => {
   let responseStartTimestamp: null | number = null;
 
   const middlewareInstance = await middleware.builderConfig.onRequestCallbacks(middleware);
-  const { builderConfig, endpoint, queryParams = "", data, method } = middlewareInstance;
+  const { builderConfig, endpoint, queryParams, data, method } = middlewareInstance;
 
-  const url = builderConfig.baseUrl + endpoint + queryParams;
+  const url = builderConfig.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
 
   return new Promise<ClientResponseType<any, any>>((resolve) => {
     requestStartTimestamp = +new Date();

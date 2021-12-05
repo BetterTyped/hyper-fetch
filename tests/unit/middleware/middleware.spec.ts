@@ -1,5 +1,5 @@
 import { FetchBuilder, FetchMiddlewareOptions } from "middleware";
-import { ClientResponseType, ClientType } from "client";
+import { ClientQueryParamsType, ClientResponseType, ClientType } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
 
@@ -95,8 +95,8 @@ describe("Basic FetchMiddleware usage", () => {
   });
 
   it("should allow to set query params using setQueryParams method", async () => {
-    const customQueryParamsOne = "?some-query=true";
-    const customQueryParamsTwo = "?some-query-changed=false";
+    const customQueryParamsOne = { "some-query": true };
+    const customQueryParamsTwo = { "some-query-changed": false };
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const middleware = builder<any, any>()(options).setQueryParams(customQueryParamsOne);
@@ -123,7 +123,7 @@ describe("Basic FetchMiddleware usage", () => {
     let triggered = false;
     const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
 
-    const customHttpClient: ClientType<any, any> = () => {
+    const customHttpClient: ClientType<any, any, ClientQueryParamsType> = () => {
       triggered = true;
       return Promise.resolve(mockData);
     };

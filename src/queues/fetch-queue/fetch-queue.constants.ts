@@ -6,6 +6,7 @@ export const FetchQueueStore = new Map<FetchQueueStoreKeyType, FetchQueueStoreVa
 export const initialFetchQueueOptions = {
   cancelable: false,
   deepCompareFn: isEqual,
+  isRetry: false,
   isRefreshed: false,
   isRevalidated: false,
 };

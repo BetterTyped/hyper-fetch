@@ -2,6 +2,7 @@ import { FetchMiddlewareInstance } from "middleware";
 import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
 import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
+import { FetchLoadingEventType } from "queues";
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
@@ -39,6 +40,7 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  onRequest: (callback: OnRequestCallbackType) => void;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
@@ -48,6 +50,7 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
   refresh: (invalidateKey?: string | FetchMiddlewareInstance) => void;
 };
 
+export type OnRequestCallbackType = (options: Omit<FetchLoadingEventType, "isLoading">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;

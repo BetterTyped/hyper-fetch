@@ -1,11 +1,13 @@
-import { ClientResponseErrorType, ClientResponseSuccessType } from "client";
+import {
+  ClientQueryParamsType,
+  ClientQueryParamValues,
+  ClientResponseErrorType,
+  ClientResponseSuccessType,
+  QueryStringifyOptions,
+  stringifyDefaultOptions,
+} from "client";
 import { ClientProgressEvent, FetchMiddlewareInstance, getProgressData } from "middleware";
-import { ExtractError, ExtractMappedError, ExtractResponse } from "types";
-
-export type ClientHeadersProps = {
-  isFormData: boolean;
-  headers: HeadersInit | undefined;
-};
+import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
 
 export const parseResponse = (response: string | unknown) => {
   try {
@@ -32,6 +34,100 @@ export const getResponseError = (errorCase?: "timeout" | "abort") => {
     return new Error("Request cancelled");
   }
   return new Error("Something went wrong");
+};
+
+// Stringify
+
+export const encodeQuery = (
+  value: string,
+  { encode, strict }: Pick<QueryStringifyOptions, "encode" | "strict">,
+): string => {
+  if (encode && strict) {
+    return encodeURIComponent(value).replace(/[!'()*]/g, (s) => `%${s.charCodeAt(0).toString(16).toUpperCase()}`);
+  }
+  if (encode) {
+    return encodeURIComponent(value);
+  }
+  return value;
+};
+
+export const encodeArray = (
+  key: string,
+  array: Array<ClientQueryParamValues>,
+  options: QueryStringifyOptions,
+): string => {
+  const { arrayFormat, arraySeparator, skipNull, skipEmptyString } = options;
+
+  function isValidValue(value: ClientQueryParamValues) {
+    if (skipEmptyString && value === undefined) {
+      return false;
+    }
+    if (skipEmptyString && value === "") {
+      return false;
+    }
+    if (skipNull && value === null) {
+      return false;
+    }
+    return true;
+  }
+
+  return array
+    .filter(isValidValue)
+    .reduce<string[]>((acc, curr, index) => {
+      const value = curr === null ? "" : curr;
+
+      if (arrayFormat === "index") {
+        const keyValue = `${encodeQuery(key, options)}[${encodeQuery(String(index), options)}]=`;
+        acc.push(`${keyValue}${encodeQuery(String(value), options)}`);
+      } else if (arrayFormat === "bracket") {
+        const keyValue = `${encodeQuery(key, options)}[]=`;
+        acc.push(`${keyValue}${encodeQuery(String(value), options)}`);
+      } else if (arrayFormat === "comma") {
+        const keyValue = (!acc.length && `${encodeQuery(key, options)}=`) || "";
+        return [[...acc, `${keyValue}${encodeQuery(String(value), options)}`].join(",")];
+      } else if (arrayFormat === "separator") {
+        const keyValue = (!acc.length && `${encodeQuery(key, options)}=`) || "";
+        return [[...acc, `${keyValue}${encodeQuery(String(value), options)}`].join(arraySeparator || "|")];
+      } else if (arrayFormat === "bracket-separator") {
+        const keyValue = (!acc.length && `${encodeQuery(key, options)}[]=`) || "";
+        return [[...acc, `${keyValue}${encodeQuery(String(value), options)}`].join(arraySeparator || "|")];
+      } else {
+        const keyValue = `${encodeQuery(key, options)}=`;
+        acc.push(`${keyValue}${encodeQuery(String(value), options)}`);
+      }
+
+      return acc;
+    }, [])
+    .join("&");
+};
+
+export const stringifyQueryParams = (
+  queryParams: ClientQueryParamsType | NegativeTypes,
+  options: QueryStringifyOptions = stringifyDefaultOptions,
+): string => {
+  if (!queryParams || !Object.keys(queryParams)?.length) {
+    return "";
+  }
+
+  const stringified = Object.entries(queryParams)
+    .map(([key, value]): string => {
+      if (!value) {
+        return "";
+      }
+
+      if (Array.isArray(value)) {
+        return encodeArray(key, value, options);
+      }
+
+      return `${encodeQuery(key, options)}=${encodeQuery(String(value), options)}`;
+    })
+    .filter(Boolean)
+    .join("&");
+
+  if (stringified) {
+    return `?${stringified}`;
+  }
+  return "";
 };
 
 // Client data handlers

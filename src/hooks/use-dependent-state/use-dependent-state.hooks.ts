@@ -87,7 +87,12 @@ export const useDependentState = <T extends FetchMiddlewareInstance>(
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        FETCH_QUEUE_EVENTS.setLoading(key, loading);
+        FETCH_QUEUE_EVENTS.setLoading(key, {
+          isLoading: loading,
+          isRetry: false,
+          isRefreshed: false,
+          isRevalidated: false,
+        });
       } else {
         state.current.loading = loading;
         renderOnKeyTrigger(["loading"]);

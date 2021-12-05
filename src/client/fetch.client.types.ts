@@ -1,17 +1,49 @@
 import { FetchMiddleware } from "middleware/middleware/fetch.middleware";
 
-export type FetchClientOptions = Partial<XMLHttpRequest>;
+// Client
 
-export type ClientType<ErrorType, ClientOptions> = (
-  middleware: FetchMiddleware<any, any, ErrorType, any, ClientOptions, any, any, any>,
+export type ClientType<ErrorType, ClientOptions, QueryParamsType extends ClientQueryParamsType> = (
+  middleware: FetchMiddleware<any, any, QueryParamsType, ErrorType, any, ClientOptions, any, any, any>,
+  options?: FetchClientOptions,
 ) => Promise<ClientResponseType<any, ErrorType>>;
+
+export type FetchClientXHR = Partial<XMLHttpRequest>;
+export type FetchClientOptions = { queryParams: QueryStringifyOptions };
+
+// Responses
 
 export type ClientResponseType<GenericDataType, GenericErrorType> = [
   GenericDataType | null,
   GenericErrorType | null,
   number | null,
 ];
-
 export type ClientResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
-
 export type ClientResponseErrorType<GenericErrorType> = [null, GenericErrorType, number | null];
+
+// QueryParams
+
+export type ClientQueryParamValues = number | string | boolean | null | undefined;
+export type ClientQueryParam =
+  | ClientQueryParamValues
+  | Array<ClientQueryParamValues>
+  | Record<string, ClientQueryParamValues>;
+
+export type ClientQueryParamsType = Record<string, ClientQueryParam>;
+
+// Headers
+
+export type ClientHeadersProps = {
+  isFormData: boolean;
+  headers: HeadersInit | undefined;
+};
+
+// Stringify
+
+export type QueryStringifyOptions = {
+  strict?: boolean;
+  encode?: boolean;
+  arrayFormat?: "bracket" | "index" | "comma" | "separator" | "bracket-separator" | "none";
+  arraySeparator?: string;
+  skipNull?: boolean;
+  skipEmptyString?: boolean;
+};

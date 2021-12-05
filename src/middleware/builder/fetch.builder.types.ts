@@ -1,4 +1,4 @@
-import { ClientResponseType, ClientType } from "client";
+import { ClientQueryParamsType, ClientResponseType, ClientType } from "client";
 import { FetchMiddlewareInstance } from "../middleware/fetch.middleware.types";
 
 export type FetchBuilderProps<ClientOptions> = {
@@ -11,7 +11,7 @@ export type FetchBuilderConfig<ErrorType, ClientOptions> = {
   baseUrl: string;
   debug: boolean;
   options: ClientOptions | undefined;
-  client: ClientType<ErrorType, ClientOptions>;
+  client: ClientType<ErrorType, ClientOptions, ClientQueryParamsType>;
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
   onRequestCallbacks: RequestInterceptorCallback;
   onResponseCallbacks: ResponseInterceptorCallback;

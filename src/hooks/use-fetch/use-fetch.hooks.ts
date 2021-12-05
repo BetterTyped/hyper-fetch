@@ -11,7 +11,7 @@ import {
   getRevalidateKey,
 } from "cache";
 import { FetchMiddlewareInstance, FetchMiddleware } from "middleware";
-import { FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
+import { FetchLoadingEventType, FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
 import { useDependentState } from "hooks/use-dependent-state/use-dependent-state.hooks";
@@ -20,6 +20,7 @@ import { useInterval } from "hooks/use-interval/use-interval.hooks";
 import { useWindowEvent } from "hooks/use-window-event/use-window-event.hooks";
 
 import {
+  OnRequestCallbackType,
   OnErrorCallbackType,
   OnFinishedCallbackType,
   OnSuccessCallbackType,
@@ -67,6 +68,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const initState = useRef(initialData || initCacheState.current);
   const [state, actions, setRenderKey] = useDependentState<T>(key, cache, initState.current);
 
+  const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
   const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
@@ -104,6 +106,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
         deepCompareFn: deepCompareFn as typeof isEqual,
         isRefreshed,
         isRevalidated,
+        isRetry: Boolean(retries),
       });
     }
   };
@@ -160,8 +163,9 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleCallbacks(cacheData.response, cacheData.retries);
   };
 
-  const handleGetLoadingEvent = (isLoading: boolean) => {
+  const handleGetLoadingEvent = ({ isLoading, isRefreshed, isRetry, isRevalidated }: FetchLoadingEventType) => {
     actions.setLoading(isLoading, false);
+    onRequestCallback.current?.({ isRefreshed, isRetry, isRevalidated });
   };
 
   const handleInitialCacheState = () => {
@@ -322,6 +326,9 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
       return state.timestamp;
     },
     actions,
+    onRequest: (callback: OnRequestCallbackType) => {
+      onRequestCallback.current = callback;
+    },
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
       onSuccessCallback.current = callback;
     },

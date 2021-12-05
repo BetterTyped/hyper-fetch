@@ -16,6 +16,7 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
     const {
       cancelable = false,
       deepCompareFn = isEqual,
+      isRetry = false,
       isRefreshed = false,
       isRevalidated = false,
     } = options || initialFetchQueueOptions;
@@ -31,7 +32,12 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
       // Make sure to delete & cancel running request
       this.delete(true);
       // Propagate the loading to all connected hooks
-      FETCH_QUEUE_EVENTS.setLoading(this.endpointKey, true);
+      FETCH_QUEUE_EVENTS.setLoading(this.endpointKey, {
+        isLoading: true,
+        isRefreshed,
+        isRevalidated,
+        isRetry,
+      });
 
       // 1. Add to queue
       FetchQueueStore.set(this.endpointKey, queueElement);

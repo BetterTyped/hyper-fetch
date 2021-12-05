@@ -1,4 +1,4 @@
-import { ClientType, FetchClientOptions, fetchClient, ClientResponseType } from "client";
+import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
 import {
   FetchMiddleware,
   FetchMiddlewareOptions,
@@ -10,11 +10,11 @@ import {
 } from "middleware";
 import { FetchBuilderConfig } from "./fetch.builder.types";
 
-export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientOptions> {
+export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientXHR> {
   baseUrl: string;
   debug: boolean;
   options: ClientOptions | undefined;
-  client: ClientType<ErrorType, ClientOptions> = fetchClient;
+  client: ClientType<ErrorType, ClientOptions, ClientQueryParamsType> = fetchClient;
 
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
   onRequestCallbacks: RequestInterceptorCallback[] = [];
@@ -26,7 +26,9 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.options = options;
   }
 
-  setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
+  setClient = (
+    callback: ClientType<ErrorType, ClientOptions, ClientQueryParamsType>,
+  ): FetchBuilder<ErrorType, ClientOptions> => {
     this.client = callback;
     return this;
   };
@@ -82,11 +84,15 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   });
 
   build() {
-    return <ResponseType, PayloadType = undefined>() =>
+    return <
+        ResponseType,
+        PayloadType = undefined,
+        QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
+      >() =>
       <EndpointType extends string>(
         params: FetchMiddlewareOptions<EndpointType, ClientOptions>,
-      ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions> =>
-        new FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions>(
+      ): FetchMiddleware<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions> =>
+        new FetchMiddleware<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>(
           this.getBuilderConfig(),
           params,
         );

@@ -1,4 +1,4 @@
-import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType } from "client/fetch.client.types";
+import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType, ClientQueryParamsType } from "client";
 import { HttpMethodsType, NegativeTypes, ExtractResponse, ExtractError } from "types";
 import { FetchMiddleware } from "./fetch.middleware";
 
@@ -36,7 +36,7 @@ export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions
 export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndpoint extends string> = {
   endpoint?: GenericEndpoint | NegativeTypes;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
-  queryParams?: string | NegativeTypes;
+  queryParams?: ClientQueryParamsType | NegativeTypes;
   data?: PayloadType | NegativeTypes;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   abortController?: AbortController;
@@ -56,7 +56,7 @@ export type ExtractRouteParams<T extends string> = string extends T
 export type FetchQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
-      queryParams?: string;
+      queryParams?: ClientQueryParamsType;
     };
 
 export type FetchParamsType<
@@ -108,4 +108,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, any, any, any>;
+export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, any, any, any, any>;

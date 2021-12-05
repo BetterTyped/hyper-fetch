@@ -1,6 +1,6 @@
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
-import { ClientResponseType } from "client";
+import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 import {
   ClientProgressCallback,
@@ -20,6 +20,7 @@ import {
 export class FetchMiddleware<
   ResponseType,
   PayloadType,
+  QueryParamsType extends ClientQueryParamsType,
   ErrorType,
   EndpointType extends string,
   ClientOptions,
@@ -33,7 +34,7 @@ export class FetchMiddleware<
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: PayloadType | NegativeTypes;
-  queryParams: string | NegativeTypes;
+  queryParams: ClientQueryParamsType | NegativeTypes;
   options: ClientOptions | undefined;
 
   abortController = new AbortController();
@@ -118,10 +119,21 @@ export class FetchMiddleware<
 
   public setData = (
     data: PayloadType,
-  ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, true, HasParams, HasQuery> => {
+  ): FetchMiddleware<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    ClientOptions,
+    true,
+    HasParams,
+    HasQuery
+  > => {
     return this.clone({ data }) as FetchMiddleware<
       ResponseType,
       PayloadType,
+      QueryParamsType,
       ErrorType,
       EndpointType,
       ClientOptions,
@@ -133,10 +145,21 @@ export class FetchMiddleware<
 
   public setParams = (
     params: ExtractRouteParams<EndpointType>,
-  ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, true, HasQuery> => {
+  ): FetchMiddleware<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    ClientOptions,
+    HasData,
+    true,
+    HasQuery
+  > => {
     return this.clone({ params }) as FetchMiddleware<
       ResponseType,
       PayloadType,
+      QueryParamsType,
       ErrorType,
       EndpointType,
       ClientOptions,
@@ -147,11 +170,22 @@ export class FetchMiddleware<
   };
 
   public setQueryParams = (
-    queryParams: string,
-  ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, HasParams, true> => {
+    queryParams: QueryParamsType,
+  ): FetchMiddleware<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    ClientOptions,
+    HasData,
+    HasParams,
+    true
+  > => {
     return this.clone({ queryParams }) as FetchMiddleware<
       ResponseType,
       PayloadType,
+      QueryParamsType,
       ErrorType,
       EndpointType,
       ClientOptions,
@@ -196,7 +230,17 @@ export class FetchMiddleware<
 
   public clone(
     options?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
-  ): FetchMiddleware<ResponseType, PayloadType, ErrorType, EndpointType, ClientOptions, HasData, HasParams, HasQuery> {
+  ): FetchMiddleware<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    ClientOptions,
+    HasData,
+    HasParams,
+    HasQuery
+  > {
     const currentOptions: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
@@ -209,6 +253,7 @@ export class FetchMiddleware<
     const cloned = new FetchMiddleware<
       ResponseType,
       PayloadType,
+      QueryParamsType,
       ErrorType,
       EndpointType,
       ClientOptions,
