@@ -14,8 +14,8 @@ import { isEqual } from "./cache.utils";
  * Example structure:
  *
  * CacheStore:
- *   endpoint => "GET_/users/:userId" (cacheKey) :
- *        caches => ["/users/1", {...}], ["/users/3", {...}], ["/users/6", {...}]
+ *   endpoint => "GET_/users/1" (cacheKey) :
+ *        caches => ["/users/1", {...}], ["/users/1?something=true", {...}], ["/users/1?something=false", {...}]
  *   endpoint => "GET_/users" :
  *        caches => ["/users" (key), {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
  */

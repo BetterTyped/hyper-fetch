@@ -34,7 +34,7 @@ export class FetchMiddleware<
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: PayloadType | NegativeTypes;
-  queryParams: ClientQueryParamsType | NegativeTypes;
+  queryParams: QueryParamsType | string | NegativeTypes;
   options: ClientOptions | undefined;
 
   abortController = new AbortController();
@@ -42,10 +42,10 @@ export class FetchMiddleware<
   constructor(
     readonly builderConfig: FetchBuilderConfig<ErrorType, ClientOptions>,
     readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
-    readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
+    readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
   ) {
     this.endpoint = defaultOptions?.endpoint || apiConfig.endpoint;
-    this.headers = apiConfig.headers;
+    this.headers = defaultOptions?.headers || apiConfig.headers;
     this.method = apiConfig.method || HttpMethodsEnum.get;
     this.params = defaultOptions?.params;
     this.data = defaultOptions?.data;
@@ -117,82 +117,20 @@ export class FetchMiddleware<
     return cloned;
   };
 
-  public setData = (
-    data: PayloadType,
-  ): FetchMiddleware<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    ErrorType,
-    EndpointType,
-    ClientOptions,
-    true,
-    HasParams,
-    HasQuery
-  > => {
-    return this.clone({ data }) as FetchMiddleware<
-      ResponseType,
-      PayloadType,
-      QueryParamsType,
-      ErrorType,
-      EndpointType,
-      ClientOptions,
-      true,
-      HasParams,
-      HasQuery
-    >;
+  public setData = (data: PayloadType) => {
+    return this.clone<true>({ data });
   };
 
-  public setParams = (
-    params: ExtractRouteParams<EndpointType>,
-  ): FetchMiddleware<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    ErrorType,
-    EndpointType,
-    ClientOptions,
-    HasData,
-    true,
-    HasQuery
-  > => {
-    return this.clone({ params }) as FetchMiddleware<
-      ResponseType,
-      PayloadType,
-      QueryParamsType,
-      ErrorType,
-      EndpointType,
-      ClientOptions,
-      HasData,
-      true,
-      HasQuery
-    >;
+  public setParams = (params: ExtractRouteParams<EndpointType>) => {
+    return this.clone<HasData, true, HasQuery>({ params });
   };
 
-  public setQueryParams = (
-    queryParams: QueryParamsType,
-  ): FetchMiddleware<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    ErrorType,
-    EndpointType,
-    ClientOptions,
-    HasData,
-    HasParams,
-    true
-  > => {
-    return this.clone({ queryParams }) as FetchMiddleware<
-      ResponseType,
-      PayloadType,
-      QueryParamsType,
-      ErrorType,
-      EndpointType,
-      ClientOptions,
-      HasData,
-      HasParams,
-      true
-    >;
+  public setQueryParams = (queryParams: QueryParamsType | string) => {
+    return this.clone<HasData, HasParams, true>({ queryParams });
+  };
+
+  public setHeaders = (headers: HeadersInit) => {
+    return this.clone({ headers });
   };
 
   public mock = (mockCallback: (data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) => {
@@ -228,25 +166,16 @@ export class FetchMiddleware<
     return endpoint;
   };
 
-  public clone(
-    options?: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType>,
-  ): FetchMiddleware<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    ErrorType,
-    EndpointType,
-    ClientOptions,
-    HasData,
-    HasParams,
-    HasQuery
-  > {
-    const currentOptions: DefaultOptionsType<ResponseType, PayloadType, ErrorType, EndpointType> = {
+  public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
+    options?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
+  ): FetchMiddleware<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions, D, P, Q> {
+    const currentOptions: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
       mockCallback: options?.mockCallback || this.mockCallback,
+      headers: options?.headers || this.headers,
       abortController: this.abortController,
     };
 
@@ -257,9 +186,9 @@ export class FetchMiddleware<
       ErrorType,
       EndpointType,
       ClientOptions,
-      HasData,
-      HasParams,
-      HasQuery
+      D,
+      P,
+      Q
     >(this.builderConfig, this.apiConfig, currentOptions);
 
     return Object.assign(cloned, {
@@ -273,16 +202,24 @@ export class FetchMiddleware<
     });
   }
 
-  public send: FetchMethodType<ResponseType, PayloadType, ErrorType, EndpointType, HasData, HasParams, HasQuery> =
-    async (setup?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>) => {
-      if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
+  public send: FetchMethodType<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    HasData,
+    HasParams,
+    HasQuery
+  > = async (setup?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
+    if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
 
-      const middleware = this.clone(setup);
+    const middleware = this.clone(setup);
 
-      const { client } = this.builderConfig;
+    const { client } = this.builderConfig;
 
-      return client(middleware);
-    };
+    return client(middleware);
+  };
 }
 // Typescript test cases
 

@@ -1,5 +1,5 @@
 import { FetchBuilder, FetchMiddlewareOptions } from "middleware";
-import { ClientQueryParamsType, ClientResponseType, ClientType } from "client";
+import { ClientResponseType, ClientType } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
 
@@ -123,7 +123,7 @@ describe("Basic FetchMiddleware usage", () => {
     let triggered = false;
     const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
 
-    const customHttpClient: ClientType<any, any, ClientQueryParamsType> = () => {
+    const customHttpClient: ClientType<any, any> = () => {
       triggered = true;
       return Promise.resolve(mockData);
     };

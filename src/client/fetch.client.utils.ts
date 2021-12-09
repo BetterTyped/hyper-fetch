@@ -102,11 +102,15 @@ export const encodeArray = (
 };
 
 export const stringifyQueryParams = (
-  queryParams: ClientQueryParamsType | NegativeTypes,
+  queryParams: ClientQueryParamsType | string | NegativeTypes,
   options: QueryStringifyOptions = stringifyDefaultOptions,
 ): string => {
   if (!queryParams || !Object.keys(queryParams)?.length) {
     return "";
+  }
+
+  if (typeof queryParams === "string") {
+    return `?${queryParams}`;
   }
 
   const stringified = Object.entries(queryParams)

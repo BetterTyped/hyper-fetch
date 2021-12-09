@@ -18,14 +18,16 @@ export type ExtractParams<T> = T extends FetchMiddleware<any, any, any, any, inf
   ? ExtractRouteParams<P>
   : never;
 
-export type ExtractEndpoint<T> = T extends FetchMiddleware<any, any, any, any, infer P, any> ? P : never;
+export type ExtractEndpoint<T> = T extends FetchMiddleware<any, any, any, any, infer E, any> ? E : never;
+
+export type ExtractClientOptions<T> = T extends FetchMiddleware<any, any, any, any, any, infer O> ? O : never;
 
 export type ExtractHasData<T> = T extends FetchMiddleware<any, any, any, any, any, any, infer D> ? D : never;
 
-export type ExtractHasParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, any, infer D> ? D : never;
+export type ExtractHasParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, any, infer P> ? P : never;
 
-export type ExtractHasQueryParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, any, any, infer D>
-  ? D
+export type ExtractHasQueryParams<T> = T extends FetchMiddleware<any, any, any, any, any, any, any, any, infer Q>
+  ? Q
   : never;
 
 export type ExtractMappedError<T> = T extends FetchMiddleware<any, any, any, infer E, any, any>

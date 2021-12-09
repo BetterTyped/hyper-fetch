@@ -2,8 +2,8 @@ import { FetchMiddleware } from "middleware/middleware/fetch.middleware";
 
 // Client
 
-export type ClientType<ErrorType, ClientOptions, QueryParamsType extends ClientQueryParamsType> = (
-  middleware: FetchMiddleware<any, any, QueryParamsType, ErrorType, any, ClientOptions, any, any, any>,
+export type ClientType<ErrorType, ClientOptions> = (
+  middleware: FetchMiddleware<any, any, any, ErrorType, any, ClientOptions, any, any, any>,
   options?: FetchClientOptions,
 ) => Promise<ClientResponseType<any, ErrorType>>;
 

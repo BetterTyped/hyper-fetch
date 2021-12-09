@@ -1,4 +1,4 @@
-import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType, ClientQueryParamsType } from "client";
+import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType } from "client";
 import { HttpMethodsType, NegativeTypes, ExtractResponse, ExtractError } from "types";
 import { FetchMiddleware } from "./fetch.middleware";
 
@@ -33,13 +33,20 @@ export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions
   disableRequestInterceptors?: boolean;
 };
 
-export type DefaultOptionsType<ResponseType, PayloadType, ErrorType, GenericEndpoint extends string> = {
+export type DefaultOptionsType<
+  ResponseType,
+  PayloadType,
+  QueryParamsType,
+  ErrorType,
+  GenericEndpoint extends string,
+> = {
   endpoint?: GenericEndpoint | NegativeTypes;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
-  queryParams?: ClientQueryParamsType | NegativeTypes;
+  queryParams?: QueryParamsType | string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   abortController?: AbortController;
+  headers?: HeadersInit;
 };
 
 export type ParamType = string | number;
@@ -53,10 +60,10 @@ export type ExtractRouteParams<T extends string> = string extends T
   ? { [k in Param]: ParamType }
   : NegativeTypes;
 
-export type FetchQueryParamsType<HasQuery extends true | false = false> = HasQuery extends true
+export type FetchQueryParamsType<QueryParamsType, HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
-      queryParams?: ClientQueryParamsType;
+      queryParams?: QueryParamsType | string;
     };
 
 export type FetchParamsType<
@@ -76,36 +83,38 @@ export type FetchRequestDataType<PayloadType, HasData extends true | false = fal
 
 export type FetchType<
   PayloadType,
+  QueryParamsType,
   EndpointType extends string,
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
-> = FetchQueryParamsType<HasQuery> &
+> = FetchQueryParamsType<QueryParamsType, HasQuery> &
   FetchParamsType<EndpointType, HasParams> &
   FetchRequestDataType<PayloadType, HasData>;
 
 export type FetchMethodType<
   ResponseType,
   PayloadType,
+  QueryParamsType,
   ErrorType,
   EndpointType extends string,
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
-> = FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends any
+> = FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["data"] extends any
   ? (
-      options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+      options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>
-  : FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
-  ? FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>["params"] extends NegativeTypes
+  : FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
+  ? FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["params"] extends NegativeTypes
     ? (
-        options?: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+        options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
       ) => Promise<ClientResponseType<ResponseType, ErrorType>>
     : (
-        options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+        options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
       ) => Promise<ClientResponseType<ResponseType, ErrorType>>
   : (
-      options: FetchType<PayloadType, EndpointType, HasData, HasParams, HasQuery>,
+      options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
 export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, any, any, any, any>;

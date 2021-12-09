@@ -9,9 +9,9 @@ import {
   setResponseProgress,
   stringifyQueryParams,
 } from "./fetch.client.utils";
-import { ClientResponseType, ClientType, ClientQueryParamsType } from "./fetch.client.types";
+import { ClientResponseType, ClientType } from "./fetch.client.types";
 
-export const fetchClient: ClientType<any, any, ClientQueryParamsType> = async (middleware, options) => {
+export const fetchClient: ClientType<any, any> = async (middleware, options) => {
   if (!XMLHttpRequest) {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }

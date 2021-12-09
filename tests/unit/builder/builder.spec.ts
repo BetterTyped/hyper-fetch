@@ -1,4 +1,4 @@
-import { ClientQueryParamsType, ClientType, FetchClientXHR } from "client";
+import { ClientType, FetchClientXHR } from "client";
 import { FetchBuilder, FetchMiddleware } from "middleware";
 import { interceptBase } from "../../utils/mocks";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
@@ -44,7 +44,7 @@ describe("FetchBuilder", () => {
 
   describe("When using built in methods", () => {
     it("should apply custom client", async () => {
-      const customHttpClient: ClientType<any, any, ClientQueryParamsType> = () => Promise.resolve([null, null, 0]);
+      const customHttpClient: ClientType<any, any> = () => Promise.resolve([null, null, 0]);
 
       const builder = new FetchBuilder({ baseUrl, options }).setClient(customHttpClient);
 

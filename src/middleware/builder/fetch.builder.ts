@@ -14,7 +14,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   baseUrl: string;
   debug: boolean;
   options: ClientOptions | undefined;
-  client: ClientType<ErrorType, ClientOptions, ClientQueryParamsType> = fetchClient;
+  client: ClientType<ErrorType, ClientOptions> = fetchClient;
 
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
   onRequestCallbacks: RequestInterceptorCallback[] = [];
@@ -26,9 +26,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.options = options;
   }
 
-  setClient = (
-    callback: ClientType<ErrorType, ClientOptions, ClientQueryParamsType>,
-  ): FetchBuilder<ErrorType, ClientOptions> => {
+  setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
     this.client = callback;
     return this;
   };
