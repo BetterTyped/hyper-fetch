@@ -1,10 +1,10 @@
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandDump } from "command";
 import { isEqual } from "cache";
 
 export type FetchQueueStoreKeyType = string;
 export type FetchQueueStoreValueType = FetchQueueValueType;
 export type FetchQueueValueType = {
-  request: FetchMiddlewareInstance;
+  request: FetchCommandDump<unknown>;
   retries: number;
   timestamp: Date;
 };

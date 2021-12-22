@@ -1,4 +1,4 @@
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 import { SubmitQueueStore } from "./submit-queue.constants";
 import { SubmitQueueValueType } from "./submit-queue.types";
 
@@ -19,7 +19,7 @@ export class SubmitQueue {
     this.initialize();
   }
 
-  add = <T extends FetchMiddlewareInstance>(request: T): void => {
+  add = <T extends FetchCommandInstance>(request: T): void => {
     const queueEntity = SubmitQueueStore.get(this.queueName);
 
     if (queueEntity) {
@@ -34,7 +34,7 @@ export class SubmitQueue {
     return storedEntity;
   };
 
-  stop = () => {}; // freezes the queue
+  // stop = () => {}; // freezes the queue
 
   delete = (value: SubmitQueueValueType): void => {
     SubmitQueueStore.get(this.queueName)?.delete(value);

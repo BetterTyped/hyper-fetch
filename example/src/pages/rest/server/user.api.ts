@@ -1,35 +1,35 @@
-import { FetchMiddlewareInstance } from "@better-typed/react-fetch";
+import { FetchCommandInstance } from "@better-typed/react-fetch";
 import { rest, setupWorker } from "msw";
 
 import { getRandomUser, getRandomUsers } from "utils/users.utils";
-import { restMiddleware } from "pages/rest/server/middleware";
+import { builder } from "pages/rest/server/builder";
 import { PostUserModel, UserModel } from "models";
 
-export const getUser = restMiddleware<UserModel>()({
+export const getUser = builder.create<UserModel>()({
   endpoint: "/api/user/:userId",
 });
 
-export const getUsers = restMiddleware<UserModel[]>()({
+export const getUsers = builder.create<UserModel[]>()({
   endpoint: "/api/users",
 });
 
-export const postUser = restMiddleware<UserModel, PostUserModel>()({
+export const postUser = builder.create<UserModel, PostUserModel>()({
   endpoint: "/api/user",
   method: "POST",
 });
 
-export const patchUser = restMiddleware<UserModel, PostUserModel>()({
+export const patchUser = builder.create<UserModel, PostUserModel>()({
   endpoint: "/api/user/:userId",
   method: "PATCH",
 });
 
-export const deleteUser = restMiddleware()({
+export const deleteUser = builder.create()({
   endpoint: "/api/user/:userId",
   method: "DELETE",
 });
 
 // Mocks setup
-const getMock = (request: FetchMiddlewareInstance, response: Record<string, any> | null) => {
+const getMock = (request: FetchCommandInstance, response: Record<string, any> | null) => {
   const { method, endpoint, builderConfig } = request;
 
   const url = builderConfig.baseUrl + endpoint;

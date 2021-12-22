@@ -1,9 +1,9 @@
-import { FetchMiddleware } from "middleware/middleware/fetch.middleware";
+import { FetchCommand } from "command";
 
 // Client
 
 export type ClientType<ErrorType, ClientOptions> = (
-  middleware: FetchMiddleware<any, any, any, ErrorType, any, ClientOptions, any, any, any>,
+  command: FetchCommand<any, any, any, ErrorType, any, ClientOptions, any, any, any>,
   options?: FetchClientOptions,
 ) => Promise<ClientResponseType<any, ErrorType>>;
 

@@ -1,7 +1,7 @@
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 import { ExtractError, ExtractFetchReturn } from "types";
 
-export const getCacheData = <T extends FetchMiddlewareInstance>(
+export const getCacheData = <T extends FetchCommandInstance>(
   previousResponse: ExtractFetchReturn<T> | undefined,
   response: ExtractFetchReturn<T>,
   refreshError: ExtractError<T> | null,
@@ -30,22 +30,22 @@ export const getRevalidateKey = (key: string): string => {
 };
 
 /**
- * Cache instance for individual middleware that collects individual requests responses from
+ * Cache instance for individual command that collects individual requests responses from
  * the same endpoint (they may differ base on the custom key, endpoint params etc)
- * @param fetchMiddleware
+ * @param fetchCommand
  * @returns
  */
-export const getCacheInstanceKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey?: string): string => {
-  return customCacheKey || `${fetchMiddleware.method}_${fetchMiddleware.apiConfig.endpoint}`;
+export const getCacheInstanceKey = (fetchCommand: FetchCommandInstance, customCacheKey?: string): string => {
+  return customCacheKey || `${fetchCommand.method}_${fetchCommand.commandOptions.endpoint}`;
 };
 
 /**
  * Individual request cache that is packed with the group of cached responses from the same endpoint instance
- * @param fetchMiddleware
+ * @param fetchCommand
  * @param customCacheKey
  * @returns
  */
-export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCacheKey = ""): string => {
+export const getCacheKey = (fetchCommand: FetchCommandInstance, customCacheKey = ""): string => {
   /**
    * Below stringified values allow to match the response family *paste random Vin Diesel meme here*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
@@ -61,10 +61,10 @@ export const getCacheKey = (fetchMiddleware: FetchMiddlewareInstance, customCach
   let cacheKey = customCacheKey;
 
   if (!customCacheKey) {
-    const methodKey = stringify(fetchMiddleware.method);
-    const endpointKey = stringify(fetchMiddleware.endpoint);
-    const queryParamsKey = stringify(fetchMiddleware.queryParams);
-    const paramsKey = stringify(fetchMiddleware.params);
+    const methodKey = stringify(fetchCommand.method);
+    const endpointKey = stringify(fetchCommand.endpoint);
+    const queryParamsKey = stringify(fetchCommand.queryParams);
+    const paramsKey = stringify(fetchCommand.params);
 
     cacheKey = `${methodKey}_${endpointKey}_${queryParamsKey}_${paramsKey}`;
   }

@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 
 import { Cache, CacheValueType } from "cache";
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 import { ExtractResponse, ExtractError } from "types";
 import { FETCH_QUEUE_EVENTS } from "queues";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
 import { getInitialDependentStateData } from "./use-dependent-state.utils";
 
-export const useDependentState = <T extends FetchMiddlewareInstance>(
+export const useDependentState = <T extends FetchCommandInstance>(
   key: string,
   cache: Cache<T>,
   initialData: CacheValueType | undefined,

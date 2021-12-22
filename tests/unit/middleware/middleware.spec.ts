@@ -1,4 +1,5 @@
-import { FetchBuilder, FetchMiddlewareOptions } from "middleware";
+import { FetchBuilder } from "builder";
+import { FetchCommandOptions } from "command";
 import { ClientResponseType, ClientType } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
@@ -7,7 +8,7 @@ const options = {
   endpoint: "/some-endpoint",
 };
 
-describe("Basic FetchMiddleware usage", () => {
+describe("Basic FetchCommand usage", () => {
   beforeAll(() => {
     startServer();
   });
@@ -21,7 +22,7 @@ describe("Basic FetchMiddleware usage", () => {
   });
 
   it("should assign provided props", async () => {
-    const props: FetchMiddlewareOptions<any, any> = {
+    const props: FetchCommandOptions<any, any> = {
       method: "POST",
       endpoint: "/some-endpoint",
       headers: { "Content-Type": "custom" },
@@ -30,21 +31,22 @@ describe("Basic FetchMiddleware usage", () => {
       disableRequestInterceptors: true,
     };
 
-    const middleware = new FetchBuilder({ baseUrl: "/some-url" }).build()()(props);
+    const command = new FetchBuilder({ baseUrl: "/some-url" }).create()(props);
 
-    expect(middleware.method).toBe(props.method);
-    expect(middleware.endpoint).toBe(props.endpoint);
-    expect(middleware.headers).toStrictEqual(props.headers);
-    expect(middleware.apiConfig.options).toStrictEqual(props.options);
-    expect(middleware.apiConfig.disableResponseInterceptors).toBe(props.disableResponseInterceptors);
-    expect(middleware.apiConfig.disableRequestInterceptors).toBe(props.disableRequestInterceptors);
+    expect(command.method).toBe(props.method);
+    expect(command.endpoint).toBe(props.endpoint);
+    expect(command.headers).toStrictEqual(props.headers);
+    expect(command.commandOptions.options).toStrictEqual(props.options);
+    expect(command.commandOptions.disableResponseInterceptors).toBe(props.disableResponseInterceptors);
+    expect(command.commandOptions.disableRequestInterceptors).toBe(props.disableRequestInterceptors);
   });
 
   it("should initialize with applied methods", async () => {
     const callback: any = () => null;
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder()(options)
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder
+      .create()(options)
       .onRequestStart(callback)
       .onResponseStart(callback)
       .onRequestProgress(callback)
@@ -53,25 +55,25 @@ describe("Basic FetchMiddleware usage", () => {
       .onSuccess(callback)
       .onFinished(callback);
 
-    expect(middleware.requestStartCallback).toBeDefined();
-    expect(middleware.responseStartCallback).toBeDefined();
-    expect(middleware.requestProgressCallback).toBeDefined();
-    expect(middleware.responseProgressCallback).toBeDefined();
-    expect(middleware.onErrorCallback).toBeDefined();
-    expect(middleware.onSuccessCallback).toBeDefined();
-    expect(middleware.onFinishedCallback).toBeDefined();
+    expect(command.requestStartCallback).toBeDefined();
+    expect(command.responseStartCallback).toBeDefined();
+    expect(command.requestProgressCallback).toBeDefined();
+    expect(command.responseProgressCallback).toBeDefined();
+    expect(command.onErrorCallback).toBeDefined();
+    expect(command.onSuccessCallback).toBeDefined();
+    expect(command.onFinishedCallback).toBeDefined();
   });
 
   it("should allow to set data using setData method", async () => {
     const customDataOne = { someData: 1 };
     const customDataTwo = { someData: 2 };
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()(options).setData(customDataOne);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder.create<any, any>()(options).setData(customDataOne);
 
-    expect(middleware.data).toStrictEqual(customDataOne);
+    expect(command.data).toStrictEqual(customDataOne);
 
-    const updated = middleware.setData(customDataTwo);
+    const updated = command.setData(customDataTwo);
 
     expect(updated.data).toStrictEqual(customDataTwo);
   });
@@ -82,13 +84,15 @@ describe("Basic FetchMiddleware usage", () => {
     const customParamsOne = { someKey: 1, userId: 2 };
     const customParamsTwo = { someKey: 3, userId: 4 };
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()({ ...options, endpoint }).setParams(customParamsOne);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder
+      .create<any, any>()({ ...options, endpoint })
+      .setParams(customParamsOne);
 
-    expect(middleware.params).toStrictEqual(customParamsOne);
-    expect(middleware.endpoint).toBe(`/params-endpoint/${customParamsOne.someKey}/${customParamsOne.userId}`);
+    expect(command.params).toStrictEqual(customParamsOne);
+    expect(command.endpoint).toBe(`/params-endpoint/${customParamsOne.someKey}/${customParamsOne.userId}`);
 
-    const updated = middleware.setParams(customParamsTwo);
+    const updated = command.setParams(customParamsTwo);
 
     expect(updated.params).toStrictEqual(customParamsTwo);
     expect(updated.endpoint).toBe(`/params-endpoint/${customParamsTwo.someKey}/${customParamsTwo.userId}`);
@@ -98,12 +102,12 @@ describe("Basic FetchMiddleware usage", () => {
     const customQueryParamsOne = { "some-query": true };
     const customQueryParamsTwo = { "some-query-changed": false };
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()(options).setQueryParams(customQueryParamsOne);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder.create<any, any>()(options).setQueryParams(customQueryParamsOne);
 
-    expect(middleware.queryParams).toStrictEqual(customQueryParamsOne);
+    expect(command.queryParams).toStrictEqual(customQueryParamsOne);
 
-    const updated = middleware.setQueryParams(customQueryParamsTwo);
+    const updated = command.setQueryParams(customQueryParamsTwo);
 
     expect(updated.queryParams).toStrictEqual(customQueryParamsTwo);
   });
@@ -111,10 +115,12 @@ describe("Basic FetchMiddleware usage", () => {
   it("should allow to mock response using mock method", async () => {
     const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()(options).mock(() => mockData);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder
+      .create<any, any>()(options)
+      .mock(() => mockData);
 
-    const data = await middleware.send();
+    const data = await command.send();
 
     expect(data).toStrictEqual(mockData);
   });
@@ -128,10 +134,10 @@ describe("Basic FetchMiddleware usage", () => {
       return Promise.resolve(mockData);
     };
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).setClient(customHttpClient).build();
-    const middleware = builder<any, any>()(options);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" }).setClient(customHttpClient);
+    const command = builder.create<any, any>()(options);
 
-    const data = await middleware.send();
+    const data = await command.send();
 
     expect(triggered).toBeTruthy();
     expect(data).toStrictEqual(mockData);
@@ -208,12 +214,14 @@ describe("Basic FetchMiddleware usage", () => {
 
     const expectedEndpoint = "/some-endpoint/1/2";
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()({
-      endpoint,
-    }).setParams(params);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder
+      .create<any, any>()({
+        endpoint,
+      })
+      .setParams(params);
 
-    expect(middleware.endpoint).toBe(expectedEndpoint);
+    expect(command.endpoint).toBe(expectedEndpoint);
   });
 
   it("should map params with the endpoint", async () => {
@@ -222,11 +230,13 @@ describe("Basic FetchMiddleware usage", () => {
 
     const expectedEndpoint = "/some-endpoint/1/2";
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const middleware = builder<any, any>()({
-      endpoint,
-    }).setParams(params);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" });
+    const command = builder
+      .create<any, any>()({
+        endpoint,
+      })
+      .setParams(params);
 
-    expect(middleware.endpoint).toBe(expectedEndpoint);
+    expect(command.endpoint).toBe(expectedEndpoint);
   });
 });

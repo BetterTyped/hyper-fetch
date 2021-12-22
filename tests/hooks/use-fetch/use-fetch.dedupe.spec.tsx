@@ -2,8 +2,8 @@ import { waitFor } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks/dom";
 
 import { useFetch } from "hooks";
-import { CacheStore, Cache, getCacheKey } from "cache";
-import { startServer, resetMocks, stopServer } from "../../utils/server";
+import { Cache, getCacheKey } from "cache";
+import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
 import { getManyMock, getManyRequest } from "../../utils/mocks";
 import { interceptGetMany } from "../../utils/mocks/get-many.mock";
 
@@ -23,8 +23,8 @@ describe("useFetch hook deduplicate logic", () => {
   });
 
   beforeEach(async () => {
-    jest.spyOn(getManyRequest, "send");
-    CacheStore.clear();
+    jest.spyOn(getManyRequest.builderConfig, "client");
+    testBuilder.clear();
   });
 
   it("should initialize with cache values without making any request", async () => {
@@ -41,7 +41,7 @@ describe("useFetch hook deduplicate logic", () => {
 
     renderHook(() => useFetch(getManyRequest));
 
-    expect(getManyRequest.send).toHaveBeenCalledTimes(0);
+    expect(getManyRequest.builderConfig.client).toHaveBeenCalledTimes(0);
   });
 
   it("should deduplicate 2 fetches into one request", async () => {
@@ -50,10 +50,10 @@ describe("useFetch hook deduplicate logic", () => {
     renderHook(() => useFetch(getManyRequest));
 
     await waitFor(() => {
-      expect(getManyRequest.send).toHaveBeenCalledTimes(1);
+      expect(getManyRequest.builderConfig.client).toHaveBeenCalledTimes(1);
     });
     await waitFor(() => {
-      expect(getManyRequest.send).not.toHaveBeenCalledTimes(2);
+      expect(getManyRequest.builderConfig.client).not.toHaveBeenCalledTimes(2);
     });
   });
 });

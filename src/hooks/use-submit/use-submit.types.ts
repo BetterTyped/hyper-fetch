@@ -1,4 +1,4 @@
-import { FetchMethodType, FetchMiddlewareInstance } from "middleware";
+import { FetchMethodType, FetchCommandInstance } from "command";
 import {
   ExtractFetchReturn,
   ExtractResponse,
@@ -13,10 +13,10 @@ import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
-export type UseSubmitOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
+export type UseSubmitOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   disabled?: boolean;
   queueKey: string;
-  invalidate: (string | FetchMiddlewareInstance)[];
+  invalidate: (string | FetchCommandInstance)[];
   dependencies?: any[];
   retry?: boolean | number;
   retryTime?: number;
@@ -40,7 +40,7 @@ export type UseSubmitOptionsType<T extends FetchMiddlewareInstance, MapperRespon
     | null;
 };
 
-export type UseSubmitReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
+export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
@@ -56,6 +56,7 @@ export type UseSubmitReturnType<T extends FetchMiddlewareInstance, MapperRespons
   submit: FetchMethodType<
     MapperResponse extends never ? ExtractResponse<T> : MapperResponse,
     ExtractRequest<T>,
+    any,
     ExtractError<T>,
     ExtractEndpoint<T>,
     ExtractHasData<T>,

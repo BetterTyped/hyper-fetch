@@ -1,8 +1,8 @@
 import { DateInterval } from "constants/time.constants";
-import { createInterceptor, ErrorCodesType, testMiddleware } from "../server";
+import { createInterceptor, ErrorCodesType, testBuilder } from "../server";
 import { buildMock } from ".";
 
-export const postFile = testMiddleware<number, FormData>()({
+export const postFile = testBuilder.create<number, FormData>()({
   endpoint: "/",
   options: {
     timeout: DateInterval.second * 1,

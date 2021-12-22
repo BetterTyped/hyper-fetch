@@ -1,3 +1,4 @@
+import { getAbortController } from "command";
 import { DateInterval } from "constants/time.constants";
 import {
   setClientHeaders,
@@ -11,7 +12,7 @@ import {
 } from "./fetch.client.utils";
 import { ClientResponseType, ClientType } from "./fetch.client.types";
 
-export const fetchClient: ClientType<any, any> = async (middleware, options) => {
+export const fetchClient: ClientType<any, any> = async (command, options) => {
   if (!XMLHttpRequest) {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
@@ -23,8 +24,8 @@ export const fetchClient: ClientType<any, any> = async (middleware, options) => 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  const middlewareInstance = await middleware.builderConfig.onRequestCallbacks(middleware);
-  const { builderConfig, endpoint, queryParams, data, method } = middlewareInstance;
+  const commandInstance = await command.builderConfig.onRequestCallbacks(command);
+  const { builderConfig, endpoint, queryParams, data, method } = commandInstance;
 
   const url = builderConfig.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
 
@@ -33,49 +34,45 @@ export const fetchClient: ClientType<any, any> = async (middleware, options) => 
     responseStartTimestamp = null;
 
     // Setup Request
-    setClientOptions(middlewareInstance, xhr);
+    setClientOptions(commandInstance, xhr);
 
     xhr.open(method, url, true);
 
-    setClientHeaders(middlewareInstance, xhr);
-    middleware.abortController?.signal?.addEventListener("abort", xhr.abort);
+    setClientHeaders(commandInstance, xhr);
+    getAbortController(command.abortKey)?.signal?.addEventListener("abort", xhr.abort);
 
     // Request listeners
-    middlewareInstance.requestStartCallback?.();
-    setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
+    commandInstance.requestStartCallback?.();
+    setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
 
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), e);
+        setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), e);
       };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
       requestStartTimestamp = null;
-      setRequestProgress(middlewareInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 1 });
+      setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 1 });
 
-      setResponseProgress(
-        middlewareInstance,
-        responseStartTimestamp || +new Date(),
-        e as ProgressEvent<XMLHttpRequest>,
-      );
+      setResponseProgress(commandInstance, responseStartTimestamp || +new Date(), e as ProgressEvent<XMLHttpRequest>);
     };
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      middlewareInstance.responseStartCallback?.();
+      commandInstance.responseStartCallback?.();
     };
 
     // Error listeners
     xhr.onabort = (e): void => {
-      handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
+      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
     };
     xhr.ontimeout = (e): void => {
-      handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
+      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
     };
     xhr.onerror = (e): void => {
-      handleClientError(middlewareInstance, resolve, e as ProgressEvent<XMLHttpRequest>);
+      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>);
     };
 
     // State listeners
@@ -97,11 +94,11 @@ export const fetchClient: ClientType<any, any> = async (middleware, options) => 
       const isSuccess = status.startsWith("2") || status.startsWith("3");
 
       if (isSuccess) {
-        handleClientSuccess(middlewareInstance, event, resolve);
+        handleClientSuccess(commandInstance, event, resolve);
       } else {
-        handleClientError(middlewareInstance, resolve, event);
+        handleClientError(commandInstance, resolve, event);
       }
-      middleware.abortController?.signal?.removeEventListener("abort", xhr.abort);
+      getAbortController(command.abortKey)?.signal?.removeEventListener("abort", xhr.abort);
     };
 
     // Send request

@@ -1,11 +1,11 @@
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 
 import { useFetch } from "hooks";
-import { CacheStore } from "cache";
 import { startServer, resetMocks, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
 import { getCurrentState } from "../utils/state.utils";
 import { testFetchSuccessState, testRefreshFetchErrorState, testRefreshFetchSuccessState } from "../shared/fetch.tests";
+import { testBuilder } from "../../utils/server/server.constants";
 
 const renderGetManyHook = () =>
   renderHook(() =>
@@ -42,7 +42,7 @@ describe("useFetch hook refresh logic", () => {
   });
 
   beforeEach(async () => {
-    CacheStore.clear();
+    testBuilder.clear();
   });
 
   it("should refetch data after refresh time of 200ms", async () => {

@@ -1,12 +1,13 @@
-import { FetchMiddlewareInstance } from "middleware";
-import { CacheStore, getCacheData, getCacheInstanceKey } from "cache";
+import { FetchCommandInstance } from "command";
+import { getCacheData, getCacheInstanceKey } from "cache";
 import { ExtractResponse } from "types";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
 import { CACHE_EVENTS } from "./cache.events";
 import { isEqual } from "./cache.utils";
+import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 
 /**
- * Cache class should be initialized per every middleware instance(not modified with params or queryParams).
+ * Cache class should be initialized per every command instance(not modified with params or queryParams).
  * This way we create container which contains different requests to the same endpoint.
  * With this segregation of data we can keep paginated data, filtered data, without overriding it between not related fetches.
  * Key for interactions should be generated later in the hooks with getCacheKey util function, which joins the stringified values to create isolated space.
@@ -19,11 +20,13 @@ import { isEqual } from "./cache.utils";
  *   endpoint => "GET_/users" :
  *        caches => ["/users" (key), {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
  */
-export class Cache<T extends FetchMiddlewareInstance> {
+export class Cache<T extends FetchCommandInstance> {
+  builderConfig: FetchBuilderConfig<unknown, unknown>;
   private readonly cacheKey: CacheStoreKeyType;
 
-  constructor(private fetchMiddleware: T, private customCacheKey?: string) {
-    this.cacheKey = getCacheInstanceKey(this.fetchMiddleware, this.customCacheKey);
+  constructor(private fetchCommand: T, private customCacheKey?: string) {
+    this.builderConfig = this.fetchCommand.builderConfig;
+    this.cacheKey = getCacheInstanceKey(this.fetchCommand, this.customCacheKey);
     this.mount();
   }
 
@@ -35,7 +38,7 @@ export class Cache<T extends FetchMiddlewareInstance> {
     isRefreshed,
     timestamp = new Date(),
   }: CacheSetDataType<T>): void => {
-    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
     const cachedData = cacheEntity?.get(key);
     // We have to compare stored data with deepCompare, this will allow us to limit rerendering
     const equal = !!deepCompareFn?.(cachedData?.response, response);
@@ -57,13 +60,13 @@ export class Cache<T extends FetchMiddlewareInstance> {
   };
 
   get = (key: string): CacheValueType<ExtractResponse<T>> | undefined => {
-    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
     const cachedData = cacheEntity?.get(key);
     return cachedData;
   };
 
   delete = (): void => {
-    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
     if (cacheEntity) {
       CACHE_EVENTS.revalidate(this.cacheKey);
       cacheEntity.clear();
@@ -71,10 +74,10 @@ export class Cache<T extends FetchMiddlewareInstance> {
   };
 
   mount = (): void => {
-    const cacheEntity = CacheStore.get(this.cacheKey);
+    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
     if (!cacheEntity) {
       const newCacheData: CacheStoreValueType = new Map();
-      CacheStore.set(this.cacheKey, newCacheData);
+      this.builderConfig.cache.set(this.cacheKey, newCacheData);
     }
   };
 }

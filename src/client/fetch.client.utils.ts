@@ -6,7 +6,7 @@ import {
   QueryStringifyOptions,
   stringifyDefaultOptions,
 } from "client";
-import { ClientProgressEvent, FetchMiddlewareInstance, getProgressData } from "middleware";
+import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
 
 export const parseResponse = (response: string | unknown) => {
@@ -136,18 +136,18 @@ export const stringifyQueryParams = (
 
 // Client data handlers
 
-export const setClientHeaders = <T extends FetchMiddlewareInstance>(middleware: T, xhr: XMLHttpRequest): void => {
-  const isFormData = middleware.data instanceof FormData;
+export const setClientHeaders = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
+  const isFormData = command.data instanceof FormData;
   const headers: HeadersInit = {};
 
   if (!isFormData) headers["Content-Type"] = "application/json";
 
-  Object.assign(headers, middleware.headers);
+  Object.assign(headers, command.headers);
   Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
 };
 
-export const setClientOptions = <T extends FetchMiddlewareInstance>(middleware: T, xhr: XMLHttpRequest): void => {
-  const requestOptions = { ...middleware.builderConfig.options, ...middleware.apiConfig.options };
+export const setClientOptions = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
+  const requestOptions = { ...command.builderConfig.options, ...command.commandOptions.options };
 
   Object.entries(requestOptions).forEach(([name, value]) => {
     // eslint-disable-next-line no-param-reassign
@@ -162,39 +162,39 @@ export const getClientPayload = (data: unknown): string | FormData => {
   return data;
 };
 
-export const getErrorResponse = <T extends FetchMiddlewareInstance>(
-  middleware: T,
+export const getErrorResponse = <T extends FetchCommandInstance>(
+  command: T,
   response: unknown,
 ): ExtractError<T> | ExtractMappedError<T> => {
   const error: ExtractError<T> = parseResponse(response) || { message: "Request failed" };
 
-  return middleware.builderConfig?.onErrorCallback?.(error) || error;
+  return command.builderConfig?.onErrorCallback?.(error) || error;
 };
 
-export const setResponseProgress = <T extends FetchMiddlewareInstance>(
-  middleware: T,
+export const setResponseProgress = <T extends FetchCommandInstance>(
+  command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  middleware.responseProgressCallback?.(progress);
+  command.responseProgressCallback?.(progress);
 };
 
-export const setRequestProgress = <T extends FetchMiddlewareInstance>(
-  middleware: T,
+export const setRequestProgress = <T extends FetchCommandInstance>(
+  command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  middleware.requestProgressCallback?.(progress);
+  command.requestProgressCallback?.(progress);
 };
 
 // Client response handlers
 
-export const handleClientError = async <T extends FetchMiddlewareInstance>(
-  middleware: T,
+export const handleClientError = async <T extends FetchCommandInstance>(
+  command: T,
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
   event?: ProgressEvent<XMLHttpRequest>,
   errorCase?: "timeout" | "abort",
@@ -209,19 +209,19 @@ export const handleClientError = async <T extends FetchMiddlewareInstance>(
   if (event?.target && !errorCase) {
     status = event.target.status;
     const { response } = event.target;
-    error = getErrorResponse(middleware, response);
+    error = getErrorResponse(command, response);
   }
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
-  await middleware.builderConfig.onResponseCallbacks(responseData, middleware);
-  middleware.onErrorCallback?.(responseData, middleware);
-  middleware.onFinishedCallback?.(responseData, middleware);
+  await command.builderConfig.onResponseCallbacks(responseData, command);
+  command.onErrorCallback?.(responseData, command);
+  command.onFinishedCallback?.(responseData, command);
   resolve(responseData);
 };
 
-export const handleClientSuccess = async <T extends FetchMiddlewareInstance>(
-  middleware: T,
+export const handleClientSuccess = async <T extends FetchCommandInstance>(
+  command: T,
   event: ProgressEvent<XMLHttpRequest>,
   resolve: (data: ClientResponseSuccessType<ExtractResponse<T>>) => void,
 ): Promise<void> => {
@@ -233,8 +233,8 @@ export const handleClientSuccess = async <T extends FetchMiddlewareInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
-  await middleware.builderConfig.onResponseCallbacks(responseData, middleware);
-  middleware.onSuccessCallback?.(responseData, middleware);
-  middleware.onFinishedCallback?.(responseData, middleware);
+  await command.builderConfig.onResponseCallbacks(responseData, command);
+  command.onSuccessCallback?.(responseData, command);
+  command.onFinishedCallback?.(responseData, command);
   resolve(responseData);
 };

@@ -1,5 +1,7 @@
 // rollup builder entry point
 
 export * from "./constants/time.constants";
-export * from "./middleware";
+export * from "./command";
+export * from "./builder";
+export * from "./client";
 export * from "./hooks";

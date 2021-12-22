@@ -1,7 +1,8 @@
 import { ClientResponseSuccessType } from "client";
-import { CacheStore, Cache, getCacheKey, CACHE_EVENTS, cacheEventEmitter } from "cache";
+import { Cache, getCacheKey, CACHE_EVENTS, cacheEventEmitter } from "cache";
 
 import { getManyRequest, getManyMock, GetManyResponseType } from "../../utils/mocks/get-many.mock";
+import { testBuilder } from "../../utils/server/server.constants";
 
 const endpointKey = getCacheKey(getManyRequest);
 const requestKey = "custom-key";
@@ -18,13 +19,13 @@ let cacheInstance = new Cache(getManyRequest, requestKey);
 describe("Cache", () => {
   beforeEach(async () => {
     cacheEventEmitter.removeAllListeners();
-    CacheStore.clear();
+    testBuilder.clear();
     cacheInstance = new Cache(getManyRequest, requestKey);
   });
 
   describe("When lifecycle events get triggered", () => {
     it("should initialize cache", async () => {
-      expect(CacheStore.get(requestKey)).toBeDefined();
+      expect(testBuilder.cache.get(requestKey)).toBeDefined();
       expect(cacheInstance.get(endpointKey)).not.toBeDefined();
 
       cacheInstance.set(response);
@@ -108,7 +109,7 @@ describe("Cache", () => {
         trigger();
       });
 
-      CacheStore.clear();
+      testBuilder.clear();
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(0);
@@ -122,7 +123,7 @@ describe("Cache", () => {
         trigger();
       });
 
-      CacheStore.clear();
+      testBuilder.clear();
       cacheInstance.delete();
 
       expect(trigger).toBeCalledTimes(0);
@@ -136,7 +137,7 @@ describe("Cache", () => {
         trigger();
       });
 
-      CacheStore.clear();
+      testBuilder.clear();
 
       expect(trigger).toBeCalledTimes(0);
       expect(cacheInstance.get(endpointKey)).not.toBeDefined();

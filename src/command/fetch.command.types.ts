@@ -1,6 +1,6 @@
-import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType } from "client";
+import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType, ClientQueryParamsType } from "client";
 import { HttpMethodsType, NegativeTypes, ExtractResponse, ExtractError } from "types";
-import { FetchMiddleware } from "./fetch.middleware";
+import { FetchCommand } from "./fetch.command";
 
 // Progress
 export type ClientProgressEvent = { total: number; loaded: number };
@@ -10,21 +10,29 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 export type ClientStartCallback = () => void;
 export type ClientResponseStartCallback = () => void;
 export type ClientProgressCallback = ({ progress, timeLeft, sizeLeft }: ClientProgressResponse) => void;
-export type ClientErrorCallback = <T extends FetchMiddlewareInstance>(
+export type ClientErrorCallback = <T extends FetchCommandInstance>(
   response: ClientResponseErrorType<ExtractError<T>>,
-  middleware: T,
+  command: T,
 ) => void;
-export type ClientSuccessCallback = <T extends FetchMiddlewareInstance>(
+export type ClientSuccessCallback = <T extends FetchCommandInstance>(
   response: ClientResponseSuccessType<ExtractResponse<T>>,
-  middleware: T,
+  command: T,
 ) => void;
-export type ClientFinishedCallback = <T extends FetchMiddlewareInstance>(
+export type ClientFinishedCallback = <T extends FetchCommandInstance>(
   response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-  middleware: T,
+  command: T,
 ) => void;
 
-// Middleware
-export type FetchMiddlewareOptions<GenericEndpoint extends string, ClientOptions> = {
+// Dump
+
+export type FetchCommandDump<ClientOptions> = Omit<FetchCommandOptions<string, ClientOptions>, "method"> & {
+  method: HttpMethodsType;
+  data?: unknown;
+  queryParams: ClientQueryParamsType | string | NegativeTypes;
+};
+
+// Command
+export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
   headers?: HeadersInit;
   method?: HttpMethodsType;
@@ -45,7 +53,6 @@ export type DefaultOptionsType<
   queryParams?: QueryParamsType | string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
-  abortController?: AbortController;
   headers?: HeadersInit;
 };
 
@@ -117,4 +124,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchMiddlewareInstance = FetchMiddleware<any, any, any, any, any, any, any, any, any>;
+export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any>;

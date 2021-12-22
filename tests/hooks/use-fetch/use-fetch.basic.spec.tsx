@@ -2,10 +2,9 @@ import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { waitFor } from "@testing-library/react";
 
 import { useFetch } from "hooks";
-import { CacheStore } from "cache";
 import { startServer, resetMocks, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
-import { ErrorMockType } from "../../utils/server/server.constants";
+import { ErrorMockType, testBuilder } from "../../utils/server/server.constants";
 import { getCurrentState } from "../utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../shared/fetch.tests";
 
@@ -25,7 +24,7 @@ describe("Basic useFetch hook usage", () => {
   });
 
   beforeEach(async () => {
-    CacheStore.clear();
+    testBuilder.clear();
   });
 
   it("should initialize in loading state", () => {

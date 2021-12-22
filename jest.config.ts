@@ -1,6 +1,7 @@
 import type { Config } from "@jest/types";
 
 const config: Config.InitialOptions = {
+  cacheDirectory: "node_modules/.cache/jest",
   testEnvironment: "jsdom",
   preset: "ts-jest",
   roots: ["<rootDir>/tests", "<rootDir>/src"],

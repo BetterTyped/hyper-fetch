@@ -1,4 +1,4 @@
-import { createInterceptor, testMiddleware } from "../server";
+import { createInterceptor, testBuilder } from "../server";
 import { ErrorCodesType } from "../server/server.constants";
 import { buildMock } from "./mocking";
 
@@ -7,7 +7,7 @@ export type GetOneResponseType = {
   age: number;
 };
 
-export const getOneRequest = testMiddleware<GetOneResponseType>()({ endpoint: "/get-one" });
+export const getOneRequest = testBuilder.create<GetOneResponseType>()({ endpoint: "/get-one" });
 
 export const getOneMock = buildMock(getOneRequest, { name: "Kacper", age: 321 });
 

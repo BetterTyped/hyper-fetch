@@ -1,8 +1,8 @@
-// import { FetchMiddlewareInstance } from "middleware";
+// import { FetchCommandInstance } from "middleware";
 // import { useSubmitDefaultOptions } from "./use-submit.constants";
 // import { UseSubmitOptionsType } from "./use-submit.types";
 
-// export const useSubmit = <T extends FetchMiddlewareInstance, MapperResponse>(
+// export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
 //   middleware: T,
 //   {
 //     disabled = useSubmitDefaultOptions.disabled,

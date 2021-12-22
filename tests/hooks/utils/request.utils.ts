@@ -1,10 +1,7 @@
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 
-export const mockMiddleware = (
-  middleware: FetchMiddlewareInstance,
-  fetchMock: VoidFunction,
-): FetchMiddlewareInstance => {
-  const newMiddleware = middleware.clone();
-  newMiddleware.send = fetchMock as any;
-  return newMiddleware;
+export const mockCommand = (command: FetchCommandInstance, fetchMock: VoidFunction): FetchCommandInstance => {
+  const newCommand = command.clone();
+  newCommand.send = fetchMock as any;
+  return newCommand;
 };

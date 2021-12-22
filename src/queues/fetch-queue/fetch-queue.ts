@@ -1,15 +1,15 @@
 import { Cache, isEqual } from "cache";
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType } from "queues";
 import { FetchQueueValueType } from "./fetch-queue.types";
 import { FETCH_QUEUE_EVENTS } from "./fetch-queue.events";
-import { FetchQueueStore, initialFetchQueueOptions } from "./fetch-queue.constants";
+import { initialFetchQueueOptions } from "./fetch-queue.constants";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
-export class FetchQueue<T extends FetchMiddlewareInstance> {
+export class FetchQueue<T extends FetchCommandInstance> {
   constructor(private endpointKey: string, private cache: Cache<T>) {}
 
   add = async (queueElement: FetchQueueValueType, options?: FetchQueueOptionsType): Promise<void> => {
@@ -40,9 +40,10 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
       });
 
       // 1. Add to queue
-      FetchQueueStore.set(this.endpointKey, queueElement);
+      this.cache.builderConfig.fetchQueue.set(this.endpointKey, queueElement);
       // 2. Start request
-      const response = await queueElement.request.send();
+      const command = new FetchCommand(this.cache.builderConfig, queueElement.request) as T;
+      const response = await command.send();
 
       // Request can run for some time, once it's done, we have to check if it's the one that was initially requested
       // It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
@@ -68,18 +69,18 @@ export class FetchQueue<T extends FetchMiddlewareInstance> {
   };
 
   get = (): FetchQueueValueType | undefined => {
-    const storedEntity = FetchQueueStore.get(this.endpointKey);
+    const storedEntity = this.cache.builderConfig.fetchQueue.get(this.endpointKey);
 
     return storedEntity;
   };
 
   delete = (cancelable = false): void => {
-    const queueEntity = this.get();
-    if (queueEntity) {
+    const queueElement = this.get();
+    if (queueElement) {
       if (cancelable) {
-        queueEntity.request.abort();
+        new FetchCommand(this.cache.builderConfig, queueElement.request).abort();
       }
-      FetchQueueStore.delete(this.endpointKey);
+      this.cache.builderConfig.fetchQueue.delete(this.endpointKey);
     }
   };
 }

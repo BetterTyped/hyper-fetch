@@ -1,5 +1,6 @@
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
+import { FetchCommandDump, getAbortKey, addAbortController, abortCommand } from "command";
 import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 import {
@@ -7,7 +8,7 @@ import {
   DefaultOptionsType,
   ExtractRouteParams,
   FetchMethodType,
-  FetchMiddlewareOptions,
+  FetchCommandOptions,
   FetchType,
   ParamsType,
   ClientErrorCallback,
@@ -15,9 +16,9 @@ import {
   ClientSuccessCallback,
   ClientStartCallback,
   ClientResponseStartCallback,
-} from "./fetch.middleware.types";
+} from "./fetch.command.types";
 
-export class FetchMiddleware<
+export class FetchCommand<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType,
@@ -36,21 +37,23 @@ export class FetchMiddleware<
   data: PayloadType | NegativeTypes;
   queryParams: QueryParamsType | string | NegativeTypes;
   options: ClientOptions | undefined;
-
-  abortController = new AbortController();
+  abortKey: string;
 
   constructor(
     readonly builderConfig: FetchBuilderConfig<ErrorType, ClientOptions>,
-    readonly apiConfig: FetchMiddlewareOptions<EndpointType, ClientOptions>,
+    readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
     readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
   ) {
-    this.endpoint = defaultOptions?.endpoint || apiConfig.endpoint;
-    this.headers = defaultOptions?.headers || apiConfig.headers;
-    this.method = apiConfig.method || HttpMethodsEnum.get;
+    this.endpoint = defaultOptions?.endpoint || commandOptions.endpoint;
+    this.headers = defaultOptions?.headers || commandOptions.headers;
+    this.method = commandOptions.method || HttpMethodsEnum.get;
     this.params = defaultOptions?.params;
     this.data = defaultOptions?.data;
     this.queryParams = defaultOptions?.queryParams;
     this.mockCallback = defaultOptions?.mockCallback;
+    this.abortKey = getAbortKey(this.method, this.builderConfig.baseUrl, this.endpoint);
+
+    addAbortController(this.abortKey);
   }
 
   requestStartCallback: ClientStartCallback | undefined;
@@ -150,14 +153,13 @@ export class FetchMiddleware<
   };
 
   public abort = () => {
-    this.abortController.abort();
-    this.abortController = new AbortController();
+    abortCommand(this.abortKey);
 
-    return this;
+    return this.clone();
   };
 
   private paramsMapper = (params: ParamsType | null | undefined): string => {
-    let endpoint = this.apiConfig.endpoint as string;
+    let endpoint = this.commandOptions.endpoint as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
@@ -166,9 +168,22 @@ export class FetchMiddleware<
     return endpoint;
   };
 
+  public dump(): FetchCommandDump<ClientOptions> {
+    return {
+      endpoint: this.endpoint,
+      headers: this.headers,
+      method: this.method,
+      queryParams: this.queryParams,
+      data: this.data,
+      options: this.commandOptions.options,
+      disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,
+      disableRequestInterceptors: this.commandOptions.disableRequestInterceptors,
+    };
+  }
+
   public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
     options?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
-  ): FetchMiddleware<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions, D, P, Q> {
+  ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions, D, P, Q> {
     const currentOptions: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType> = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
@@ -176,10 +191,9 @@ export class FetchMiddleware<
       data: options?.data || this.data,
       mockCallback: options?.mockCallback || this.mockCallback,
       headers: options?.headers || this.headers,
-      abortController: this.abortController,
     };
 
-    const cloned = new FetchMiddleware<
+    const cloned = new FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -189,7 +203,7 @@ export class FetchMiddleware<
       D,
       P,
       Q
-    >(this.builderConfig, this.apiConfig, currentOptions);
+    >(this.builderConfig, this.commandOptions, currentOptions);
 
     return Object.assign(cloned, {
       requestStartCallback: this.requestStartCallback,
@@ -214,37 +228,37 @@ export class FetchMiddleware<
   > = async (setup?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
     if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
 
-    const middleware = this.clone(setup);
+    const command = this.clone(setup);
 
     const { client } = this.builderConfig;
 
-    return client(middleware);
+    return client(command);
   };
 }
 // Typescript test cases
 
-// import { FetchBuilder } from "middleware";
+// import { FetchBuilder } from "builder";
 
-// const fetchMiddleware = new FetchBuilder({
+// const builder = new FetchBuilder({
 //   baseUrl: "http://localhost:3000",
-// }).build();
+// });
 
-// const getUsers = fetchMiddleware<{ id: string }[]>()({
+// const getUsers = fetchCommand.create<{ id: string }[]>()({
 //   method: "GET",
 //   endpoint: "/users",
 // });
 
-// const getUser = fetchMiddleware<{ id: string }>()({
+// const getUser = fetchCommand.create<{ id: string }>()({
 //   method: "GET",
 //   endpoint: "/users/:id",
 // });
 
-// const postUser = fetchMiddleware<{ id: string }, { name: string }>()({
+// const postUser = fetchCommand.create<{ id: string }, { name: string }>()({
 //   method: "POST",
 //   endpoint: "/users",
 // });
 
-// const patchUser = fetchMiddleware<{ id: string }, { name: string }>()({
+// const patchUser = fetchCommand.create<{ id: string }, { name: string }>()({
 //   method: "PATCH",
 //   endpoint: "/users/:id",
 // });

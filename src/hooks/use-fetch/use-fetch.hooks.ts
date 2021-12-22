@@ -10,7 +10,7 @@ import {
   getCacheInstanceKey,
   getRevalidateKey,
 } from "cache";
-import { FetchMiddlewareInstance, FetchMiddleware } from "middleware";
+import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchLoadingEventType, FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
@@ -33,8 +33,8 @@ import { useFetchDefaultOptions } from "./use-fetch.constants";
 // TBD - suspense in general
 // suspense = false,
 
-export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
-  middleware: T,
+export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
+  command: T,
   {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
@@ -62,8 +62,8 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
   const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
 
-  const cache = new Cache<T>(middleware, cacheKey);
-  const key = getCacheKey(middleware);
+  const cache = new Cache<T>(command, cacheKey);
+  const key = getCacheKey(command);
   const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime));
   const initState = useRef(initialData || initCacheState.current);
   const [state, actions, setRenderKey] = useDependentState<T>(key, cache, initState.current);
@@ -96,18 +96,20 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
      */
     if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
       const request = {
-        request: middleware,
+        request: command.dump(),
         retries,
         timestamp: new Date(),
       };
 
-      queue.add(request, {
+      const options = {
         cancelable,
         deepCompareFn: deepCompareFn as typeof isEqual,
         isRefreshed,
         isRevalidated,
         isRetry: Boolean(retries),
-      });
+      };
+
+      queue.add(request, options);
     }
   };
 
@@ -181,10 +183,10 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
     handleFetch(0, true, true);
   };
 
-  const refreshFn = (invalidateKey?: string | FetchMiddlewareInstance) => {
+  const refreshFn = (invalidateKey?: string | FetchCommandInstance) => {
     if (invalidateKey && typeof invalidateKey === "string") {
       CACHE_EVENTS.revalidate(invalidateKey);
-    } else if (invalidateKey && invalidateKey instanceof FetchMiddleware) {
+    } else if (invalidateKey && invalidateKey instanceof FetchCommand) {
       CACHE_EVENTS.revalidate(getCacheInstanceKey(invalidateKey));
     } else {
       handleRevalidate();
@@ -251,7 +253,7 @@ export const useFetch = <T extends FetchMiddlewareInstance, MapperResponse>(
    */
   useWillUnmount(() => {
     handleUnMountEvents();
-    middleware.clean();
+    command.clean();
   });
 
   useWindowEvent(

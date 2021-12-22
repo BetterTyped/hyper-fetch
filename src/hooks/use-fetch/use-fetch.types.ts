@@ -1,11 +1,11 @@
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
 import { CacheValueType } from "cache";
 import { ClientResponseType } from "client";
 import { FetchLoadingEventType } from "queues";
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
-export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperResponse> = {
+export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   dependencies?: any[];
   disabled?: boolean;
   retry?: boolean | number;
@@ -34,7 +34,7 @@ export type UseFetchOptionsType<T extends FetchMiddlewareInstance, MapperRespons
     | undefined;
 };
 
-export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse = unknown> = Omit<
+export type UseFetchReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
@@ -47,7 +47,7 @@ export type UseFetchReturnType<T extends FetchMiddlewareInstance, MapperResponse
   isRefreshed: boolean;
   isRefreshingError: boolean;
   isDebouncing: boolean;
-  refresh: (invalidateKey?: string | FetchMiddlewareInstance) => void;
+  refresh: (invalidateKey?: string | FetchCommandInstance) => void;
 };
 
 export type OnRequestCallbackType = (options: Omit<FetchLoadingEventType, "isLoading">) => void;

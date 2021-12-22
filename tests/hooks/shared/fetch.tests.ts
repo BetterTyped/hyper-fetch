@@ -1,7 +1,7 @@
 import { RenderHookResult } from "@testing-library/react-hooks/dom";
 
 import { UseFetchReturnType } from "hooks";
-import { FetchMiddlewareInstance } from "middleware";
+import { FetchCommandInstance } from "command";
 import { getCurrentState } from "../utils";
 
 export const testFetchInitialState = <H extends RenderHookResult<any, any, any>>(render: H): void => {
@@ -14,7 +14,7 @@ export const testFetchInitialState = <H extends RenderHookResult<any, any, any>>
 };
 
 export const testFetchSuccessState = <
-  T extends UseFetchReturnType<FetchMiddlewareInstance>,
+  T extends UseFetchReturnType<FetchCommandInstance>,
   H extends RenderHookResult<any, any, any>,
 >(
   mock: T["data"],
@@ -30,7 +30,7 @@ export const testFetchSuccessState = <
 };
 
 export const testFetchErrorState = <
-  T extends UseFetchReturnType<FetchMiddlewareInstance>,
+  T extends UseFetchReturnType<FetchCommandInstance>,
   H extends RenderHookResult<any, any, any>,
 >(
   mock: T["error"],
@@ -46,7 +46,7 @@ export const testFetchErrorState = <
 };
 
 export const testRefreshFetchSuccessState = <
-  T extends UseFetchReturnType<FetchMiddlewareInstance>,
+  T extends UseFetchReturnType<FetchCommandInstance>,
   H extends RenderHookResult<any, any, any>,
 >(
   mock: T["data"],
@@ -63,7 +63,7 @@ export const testRefreshFetchSuccessState = <
 };
 
 export const testRefreshFetchErrorState = <
-  T extends UseFetchReturnType<FetchMiddlewareInstance>,
+  T extends UseFetchReturnType<FetchCommandInstance>,
   H extends RenderHookResult<any, any, any>,
 >(
   mock: T["data"],
