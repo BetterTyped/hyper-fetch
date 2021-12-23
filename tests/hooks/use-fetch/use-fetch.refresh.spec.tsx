@@ -125,8 +125,8 @@ describe("useFetch hook refresh logic", () => {
 
     testFetchSuccessState(mock, responseOne);
     testFetchSuccessState(mock, responseTwo);
-    resetMocks();
 
+    resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
     act(() => {
@@ -153,8 +153,8 @@ describe("useFetch hook refresh logic", () => {
 
     testFetchSuccessState(mock, responseOne);
     testFetchSuccessState(mock, responseTwo);
-    resetMocks();
 
+    resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
     act(() => {
@@ -181,8 +181,8 @@ describe("useFetch hook refresh logic", () => {
 
     testFetchSuccessState(mock, responseOne);
     testFetchSuccessState(mock, responseTwo);
-    resetMocks();
 
+    resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
     act(() => {

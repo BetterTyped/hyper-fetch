@@ -1,24 +1,33 @@
 import { ClientResponseType } from "client";
-import { ExtractResponse, ExtractError } from "types";
 
 export type CacheStoreKeyType = string;
-export type CacheStoreValueType = Map<CacheKeyType, CacheValueType>;
+export type CacheStoreValueType<T = unknown> = Record<CacheKeyType, CacheValueType<T>>;
 
 export type CacheKeyType = string;
 export type CacheValueType<DataType = any, ErrorType = any> = {
   response: ClientResponseType<DataType, ErrorType>;
   retries: number;
-  timestamp: Date;
+  timestamp: number;
   refreshError: ErrorType;
   retryError: ErrorType;
   isRefreshed: boolean;
 };
 
-export type CacheSetDataType<T> = {
-  key: CacheKeyType;
-  response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
+export type CacheSetDataType<Response, ErrorType> = {
+  endpointKey: CacheKeyType;
+  requestKey: CacheKeyType;
+  response: ClientResponseType<Response, ErrorType>;
   retries: number;
   isRefreshed: boolean;
-  timestamp?: Date;
+  timestamp?: number;
   deepCompareFn?: null | ((value: unknown, valueToCompare: unknown) => boolean);
 };
+
+export type CacheStorageType = {
+  set: (key: string, data: CacheStoreValueType) => void;
+  get: (key: string) => CacheStoreValueType | undefined;
+  delete: (key: string) => void;
+  clear: () => void;
+};
+
+export type CacheInitialData = Record<CacheStoreKeyType, CacheStoreValueType>;

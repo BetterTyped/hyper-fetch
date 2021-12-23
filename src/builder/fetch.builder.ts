@@ -6,13 +6,8 @@ import {
   FetchBuilderProps,
   ErrorMessageMapperCallback,
 } from "builder";
-import { CacheStoreKeyType, CacheStoreValueType } from "cache";
-import {
-  FetchQueueStoreKeyType,
-  FetchQueueStoreValueType,
-  SubmitQueueStoreKeyType,
-  SubmitQueueStoreValueType,
-} from "queues";
+import { Cache } from "cache";
+import { FetchQueue, SubmitQueueStoreKeyType, SubmitQueueStoreValueType } from "queues";
 import { FetchBuilderConfig } from "./fetch.builder.types";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientXHR> {
@@ -26,20 +21,27 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
 
   // Config
   client: ClientType<ErrorType, ClientOptions> = fetchClient;
-  cache: Map<CacheStoreKeyType, CacheStoreValueType>;
-  fetchQueue: Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>;
-  submitQueue: Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>;
+  cache: Cache<ErrorType>;
+  fetchQueue: FetchQueue<ErrorType, ClientOptions>;
+  submitQueue: Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>; // todo change
 
   // Offline
   isOnline = true;
   actions = [];
 
-  constructor({ baseUrl, debug = false, options, cache, fetchQueue, submitQueue }: FetchBuilderProps<ClientOptions>) {
+  constructor({
+    baseUrl,
+    debug = false,
+    options,
+    cache,
+    fetchQueue,
+    submitQueue,
+  }: FetchBuilderProps<ErrorType, ClientOptions>) {
     this.baseUrl = baseUrl;
     this.debug = debug;
     this.options = options;
-    this.cache = cache || new Map<CacheStoreKeyType, CacheStoreValueType>();
-    this.fetchQueue = fetchQueue || new Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>();
+    this.cache = cache || new Cache();
+    this.fetchQueue = fetchQueue || new FetchQueue<ErrorType, ClientOptions>(this);
     this.submitQueue = submitQueue || new Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>();
 
     /**
@@ -49,6 +51,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
      * Challenge: Trigger it with debounce after all methods got applied?
      * EG. new Builder().onResponse().onRequest()...
      * ----flush starts-----methods added later may change the way it works, but will not get applied
+     * Persistence will get rid of any effects applied to the command :(
      */
   }
 
@@ -103,7 +106,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newResponse;
   };
 
-  private getBuilderConfig = (): FetchBuilderConfig<ErrorType, ClientOptions> => ({
+  public getBuilderConfig = (): FetchBuilderConfig<ErrorType, ClientOptions> => ({
     baseUrl: this.baseUrl,
     debug: this.debug,
     options: this.options,
@@ -113,7 +116,6 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     client: this.client,
     cache: this.cache,
     fetchQueue: this.fetchQueue,
-    submitQueue: this.submitQueue,
     isOnline: this.isOnline,
     actions: this.actions,
   });

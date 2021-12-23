@@ -64,6 +64,7 @@ export class FetchCommand<
   onErrorCallback: ClientErrorCallback | undefined;
   onSuccessCallback: ClientSuccessCallback | undefined;
 
+  // TBR - use hook events instead as this may be confusing with persist
   public onRequestStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
@@ -72,6 +73,7 @@ export class FetchCommand<
     return cloned;
   };
 
+  // TBR - use hook events instead as this may be confusing with persist
   public onResponseStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
@@ -96,6 +98,7 @@ export class FetchCommand<
     return cloned;
   };
 
+  // TBR - use hook events instead as this may be confusing with persist
   public onError = (callback: ClientErrorCallback) => {
     const cloned = this.clone();
 
@@ -104,6 +107,7 @@ export class FetchCommand<
     return cloned;
   };
 
+  // TBR - use hook events instead as this may be confusing with persist
   public onSuccess = (callback: ClientSuccessCallback) => {
     const cloned = this.clone();
 
@@ -112,6 +116,7 @@ export class FetchCommand<
     return cloned;
   };
 
+  // TBR - use hook events instead as this may be confusing with persist
   public onFinished = (callback: ClientFinishedCallback) => {
     const cloned = this.clone();
 

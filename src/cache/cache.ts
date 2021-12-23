@@ -1,10 +1,7 @@
-import { FetchCommandInstance } from "command";
-import { getCacheData, getCacheInstanceKey } from "cache";
-import { ExtractResponse } from "types";
+import { CacheInitialData, CacheStorageType, getCacheData } from "cache";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
 import { CACHE_EVENTS } from "./cache.events";
 import { isEqual } from "./cache.utils";
-import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 
 /**
  * Cache class should be initialized per every command instance(not modified with params or queryParams).
@@ -19,27 +16,35 @@ import { FetchBuilderConfig } from "../builder/fetch.builder.types";
  *        caches => ["/users/1", {...}], ["/users/1?something=true", {...}], ["/users/1?something=false", {...}]
  *   endpoint => "GET_/users" :
  *        caches => ["/users" (key), {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
+ *
+ * Why this structure?
+ * To allow for easier optimistic approach realization - this way we will have the mapper function that will update, add or remove elements from the same endpoint
  */
-export class Cache<T extends FetchCommandInstance> {
-  builderConfig: FetchBuilderConfig<unknown, unknown>;
-  private readonly cacheKey: CacheStoreKeyType;
-
-  constructor(private fetchCommand: T, private customCacheKey?: string) {
-    this.builderConfig = this.fetchCommand.builderConfig;
-    this.cacheKey = getCacheInstanceKey(this.fetchCommand, this.customCacheKey);
-    this.mount();
+export class Cache<ErrorType> {
+  constructor(
+    private storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>(),
+    private initialData?: CacheInitialData,
+  ) {
+    if (this.initialData) {
+      Object.keys(this.initialData).forEach((key) => {
+        if (!storage.get(key) && this.initialData?.[key]) {
+          storage.set(key, this.initialData[key]);
+        }
+      });
+    }
   }
 
-  set = ({
-    key,
+  set = <Response>({
+    endpointKey,
+    requestKey,
     response,
     retries,
     deepCompareFn = isEqual,
     isRefreshed,
-    timestamp = new Date(),
-  }: CacheSetDataType<T>): void => {
-    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
-    const cachedData = cacheEntity?.get(key);
+    timestamp = +new Date(),
+  }: CacheSetDataType<Response, ErrorType>): void => {
+    const cacheEntity = this.storage.get(endpointKey) || {};
+    const cachedData = cacheEntity?.[requestKey];
     // We have to compare stored data with deepCompare, this will allow us to limit rerendering
     const equal = !!deepCompareFn?.(cachedData?.response, response);
 
@@ -53,31 +58,38 @@ export class Cache<T extends FetchCommandInstance> {
 
     const newData: CacheValueType = { response: dataToSave, retries, refreshError, retryError, isRefreshed, timestamp };
 
-    if (cacheEntity && !equal) {
-      cacheEntity.set(key, newData);
-      CACHE_EVENTS.set<T>(key, newData);
+    if (!equal) {
+      cacheEntity[requestKey] = newData;
+      this.storage.set(endpointKey, cacheEntity);
+      CACHE_EVENTS.set<Response>(requestKey, newData);
     }
   };
 
-  get = (key: string): CacheValueType<ExtractResponse<T>> | undefined => {
-    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
-    const cachedData = cacheEntity?.get(key);
-    return cachedData;
+  get = <Response>(endpointKey: string, requestKey: string): CacheValueType<Response> | undefined => {
+    const cacheEntity = this.storage.get(endpointKey);
+    const cachedData = cacheEntity?.[requestKey];
+    return cachedData as CacheValueType<Response>;
   };
 
-  delete = (): void => {
-    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
+  getResponses = <Response>(endpointKey: string): CacheStoreValueType<Response> | undefined => {
+    return this.storage.get(endpointKey) as CacheStoreValueType<Response>;
+  };
+
+  deleteEndpoint = (endpointKey: string): void => {
+    CACHE_EVENTS.revalidate(endpointKey);
+    this.storage.delete(endpointKey);
+  };
+
+  deleteResponse = (endpointKey: string, requestKey: string): void => {
+    CACHE_EVENTS.revalidate(requestKey);
+    const cacheEntity = this.storage.get(endpointKey);
     if (cacheEntity) {
-      CACHE_EVENTS.revalidate(this.cacheKey);
-      cacheEntity.clear();
+      delete cacheEntity[requestKey];
+      this.storage.set(endpointKey, cacheEntity);
     }
   };
 
-  mount = (): void => {
-    const cacheEntity = this.builderConfig.cache.get(this.cacheKey);
-    if (!cacheEntity) {
-      const newCacheData: CacheStoreValueType = new Map();
-      this.builderConfig.cache.set(this.cacheKey, newCacheData);
-    }
+  clear = (): void => {
+    this.storage.clear();
   };
 }

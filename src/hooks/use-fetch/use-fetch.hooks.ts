@@ -1,17 +1,9 @@
 import { useRef } from "react";
 import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
-import {
-  Cache,
-  isEqual,
-  getCacheKey,
-  CACHE_EVENTS,
-  CacheValueType,
-  getCacheInstanceKey,
-  getRevalidateKey,
-} from "cache";
+import { isEqual, getCacheKey, CACHE_EVENTS, CacheValueType, getCacheEndpointKey, getRevalidateKey } from "cache";
 import { FetchCommandInstance, FetchCommand } from "command";
-import { FetchLoadingEventType, FetchQueue, FETCH_QUEUE_EVENTS } from "queues";
+import { FetchLoadingEventType, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
 import { useDependentState } from "hooks/use-dependent-state/use-dependent-state.hooks";
@@ -62,11 +54,12 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
 
-  const cache = new Cache<T>(command, cacheKey);
-  const key = getCacheKey(command);
-  const initCacheState = useRef(getCacheState(cache.get(key), cacheOnMount, cacheTime));
+  const { cache, fetchQueue } = command.builderConfig;
+  const endpointKey = getCacheEndpointKey(command, cacheKey);
+  const requestKey = getCacheKey(command);
+  const initCacheState = useRef(getCacheState(cache.get(endpointKey, requestKey), cacheOnMount, cacheTime));
   const initState = useRef(initialData || initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(key, cache, initState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(endpointKey, requestKey, cache, initState.current);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -84,8 +77,6 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleFetch = (retries = 0, isRefreshed = state.isRefreshed, isRevalidated = false) => {
-    const queue = new FetchQueue(key, cache);
-
     const isStale = isStaleCacheData();
     const hasData = hasStateData();
 
@@ -95,8 +86,8 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
     if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
-      const request = {
-        request: command.dump(),
+      const queueElement = {
+        request: command,
         retries,
         timestamp: new Date(),
       };
@@ -109,7 +100,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
         isRetry: Boolean(retries),
       };
 
-      queue.add(request, options);
+      fetchQueue.add(endpointKey, requestKey, queueElement, options);
     }
   };
 
@@ -130,8 +121,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
     if (refresh) {
       refreshInterval.interval(() => {
-        const queue = new FetchQueue(key, cache);
-        const currentRequest = queue.get();
+        const currentRequest = fetchQueue.get(endpointKey);
 
         if (!currentRequest) {
           handleFetch(0, true);
@@ -172,7 +162,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
   const handleInitialCacheState = () => {
     if (!initCacheState && initialCacheData) {
-      cache.set({ key, response: initialCacheData, retries: 0, isRefreshed: false });
+      cache.set({ endpointKey, requestKey, response: initialCacheData, retries: 0, isRefreshed: false });
     }
     if (initCacheState.current) {
       actions.setCacheData(initCacheState.current, false);
@@ -187,22 +177,22 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     if (invalidateKey && typeof invalidateKey === "string") {
       CACHE_EVENTS.revalidate(invalidateKey);
     } else if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      CACHE_EVENTS.revalidate(getCacheInstanceKey(invalidateKey));
+      CACHE_EVENTS.revalidate(getCacheEndpointKey(invalidateKey));
     } else {
       handleRevalidate();
     }
   };
 
   const handleMountEvents = () => {
-    FETCH_QUEUE_EVENTS.getLoading(key, handleGetLoadingEvent);
-    CACHE_EVENTS.get<T>(key, handleGetUpdatedCache);
-    CACHE_EVENTS.onRevalidate(key, handleRevalidate);
+    FETCH_QUEUE_EVENTS.getLoading(requestKey, handleGetLoadingEvent);
+    CACHE_EVENTS.get<T>(requestKey, handleGetUpdatedCache);
+    CACHE_EVENTS.onRevalidate(requestKey, handleRevalidate);
   };
 
   const handleUnMountEvents = () => {
-    FETCH_QUEUE_EVENTS.umount(key, handleGetLoadingEvent);
-    CACHE_EVENTS.umount(key, handleGetUpdatedCache);
-    CACHE_EVENTS.umount(getRevalidateKey(key), handleRevalidate);
+    FETCH_QUEUE_EVENTS.umount(requestKey, handleGetLoadingEvent);
+    CACHE_EVENTS.umount(requestKey, handleGetUpdatedCache);
+    CACHE_EVENTS.umount(getRevalidateKey(requestKey), handleRevalidate);
   };
 
   const handleData = () => {

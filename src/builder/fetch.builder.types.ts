@@ -1,19 +1,14 @@
-import {
-  FetchQueueStoreKeyType,
-  FetchQueueStoreValueType,
-  SubmitQueueStoreKeyType,
-  SubmitQueueStoreValueType,
-} from "queues";
-import { CacheStoreKeyType, CacheStoreValueType } from "cache";
+import { FetchQueue, SubmitQueueStoreKeyType, SubmitQueueStoreValueType } from "queues";
+import { Cache } from "cache";
 import { ClientResponseType, ClientType } from "client";
 import { FetchCommandInstance } from "../command/fetch.command.types";
 
-export type FetchBuilderProps<ClientOptions> = {
+export type FetchBuilderProps<ErrorType, ClientOptions> = {
   baseUrl: string;
   debug?: boolean;
   options?: ClientOptions;
-  cache?: Map<CacheStoreKeyType, CacheStoreValueType>; // TODO change type
-  fetchQueue?: Map<FetchQueueStoreKeyType, FetchQueueStoreValueType>; // TODO change type
+  cache?: Cache<ErrorType>;
+  fetchQueue?: FetchQueue<ErrorType, ClientOptions>;
   submitQueue?: Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>; // TODO change type
 };
 
@@ -25,11 +20,10 @@ export type FetchBuilderConfig<ErrorType, ClientOptions> = {
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
   onRequestCallbacks: RequestInterceptorCallback;
   onResponseCallbacks: ResponseInterceptorCallback;
-  cache: any;
-  fetchQueue: any;
-  submitQueue: any;
+  cache: Cache<ErrorType>;
+  fetchQueue: FetchQueue<ErrorType, ClientOptions>;
   isOnline: boolean;
-  actions: any[];
+  actions: FetchAction[];
 };
 
 // Interceptors
@@ -41,3 +35,9 @@ export type ResponseInterceptorCallback = (
   response: ClientResponseType<any, any>,
   command: FetchCommandInstance,
 ) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;
+
+// Actions
+export type FetchAction = {
+  name: string;
+  callback: () => void;
+};

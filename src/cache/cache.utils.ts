@@ -35,7 +35,7 @@ export const getRevalidateKey = (key: string): string => {
  * @param fetchCommand
  * @returns
  */
-export const getCacheInstanceKey = (fetchCommand: FetchCommandInstance, customCacheKey?: string): string => {
+export const getCacheEndpointKey = (fetchCommand: FetchCommandInstance, customCacheKey?: string): string => {
   return customCacheKey || `${fetchCommand.method}_${fetchCommand.commandOptions.endpoint}`;
 };
 

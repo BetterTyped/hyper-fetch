@@ -7,30 +7,30 @@ import { testBuilder } from "../../utils/server/server.constants";
 const endpointKey = getCacheKey(getManyRequest);
 const requestKey = "custom-key";
 const response = {
-  key: endpointKey,
+  endpointKey,
+  requestKey,
   response: [getManyMock().fixture, null, 0] as ClientResponseSuccessType<GetManyResponseType>,
   retries: 0,
   isRefreshed: false,
-  timestamp: new Date(),
+  timestamp: +new Date(),
 };
 
-let cacheInstance = new Cache(getManyRequest, requestKey);
+let cacheInstance = new Cache();
 
 describe("Cache", () => {
   beforeEach(async () => {
     cacheEventEmitter.removeAllListeners();
     testBuilder.clear();
-    cacheInstance = new Cache(getManyRequest, requestKey);
+    cacheInstance = new Cache();
   });
 
   describe("When lifecycle events get triggered", () => {
     it("should initialize cache", async () => {
-      expect(testBuilder.cache.get(requestKey)).toBeDefined();
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).not.toBeDefined();
 
       cacheInstance.set(response);
 
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
 
     it("should delete cache and send signal", async () => {
@@ -41,12 +41,12 @@ describe("Cache", () => {
       });
 
       cacheInstance.set(response);
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
 
-      cacheInstance.delete();
+      cacheInstance.deleteResponse(endpointKey, requestKey);
 
       expect(trigger).toBeCalled();
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).not.toBeDefined();
     });
   });
 
@@ -54,7 +54,7 @@ describe("Cache", () => {
     it("should not overwrite the same data", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(endpointKey, () => {
+      CACHE_EVENTS.get(requestKey, () => {
         trigger();
       });
 
@@ -63,26 +63,26 @@ describe("Cache", () => {
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(1);
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
 
     it("should write data when cache is empty or gets deleted", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(endpointKey, () => {
+      CACHE_EVENTS.get(requestKey, () => {
         trigger();
       });
 
       cacheInstance.set(response);
-      cacheInstance.delete();
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+      cacheInstance.deleteResponse(endpointKey, requestKey);
+      expect(cacheInstance.get(endpointKey, requestKey)).not.toBeDefined();
       cacheInstance.set(response);
-      cacheInstance.delete();
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+      cacheInstance.deleteResponse(endpointKey, requestKey);
+      expect(cacheInstance.get(endpointKey, requestKey)).not.toBeDefined();
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(3);
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
 
     it("should allow to use own deep compare function when saving data", async () => {
@@ -91,45 +91,17 @@ describe("Cache", () => {
       cacheInstance.set({ ...response, deepCompareFn: deepCompare });
 
       expect(deepCompare).toBeCalledTimes(1);
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
 
     it("should allow to disable deep comparison when saving data", async () => {
       cacheInstance.set({ ...response, deepCompareFn: null });
 
-      expect(cacheInstance.get(endpointKey)).toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
   });
 
   describe("When CacheStore gets cleared before triggering cache actions", () => {
-    it("should not save data when cache store gets cleared", async () => {
-      const trigger = jest.fn();
-
-      CACHE_EVENTS.get(requestKey, () => {
-        trigger();
-      });
-
-      testBuilder.clear();
-      cacheInstance.set(response);
-
-      expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
-    });
-
-    it("should not remove already removed cache entity", async () => {
-      const trigger = jest.fn();
-
-      CACHE_EVENTS.onRevalidate(requestKey, () => {
-        trigger();
-      });
-
-      testBuilder.clear();
-      cacheInstance.delete();
-
-      expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
-    });
-
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
@@ -137,10 +109,10 @@ describe("Cache", () => {
         trigger();
       });
 
-      testBuilder.clear();
+      cacheInstance.clear();
 
       expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(endpointKey)).not.toBeDefined();
+      expect(cacheInstance.get(endpointKey, requestKey)).not.toBeDefined();
     });
   });
 });
