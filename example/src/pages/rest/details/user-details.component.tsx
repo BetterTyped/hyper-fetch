@@ -14,6 +14,7 @@ export const UserDetails: React.FC = () => {
       setFetched(true);
     }),
     {
+      cacheTime: refreshTime,
       refresh: true,
       refreshTime,
     },
