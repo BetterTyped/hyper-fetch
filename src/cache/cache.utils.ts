@@ -29,6 +29,10 @@ export const getRevalidateKey = (key: string): string => {
   return `${key}_revalidate`;
 };
 
+export const getRefreshedKey = (key: string): string => {
+  return `${key}_refreshed`;
+};
+
 /**
  * Cache instance for individual command that collects individual requests responses from
  * the same endpoint (they may differ base on the custom key, endpoint params etc)

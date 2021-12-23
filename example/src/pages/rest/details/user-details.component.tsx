@@ -21,7 +21,7 @@ export const UserDetails: React.FC = () => {
 
   return (
     <div>
-      <button onClick={refresh}>Refresh</button>
+      <button onClick={() => refresh()}>Refresh</button>
       <h3>User Request Details:</h3>
       <div>
         <b>fetched:</b> {String(fetched)}
@@ -40,7 +40,10 @@ export const UserDetails: React.FC = () => {
       </div>
       <div>
         <b>refresh in:</b>{" "}
-        <Countdown date={timestamp ? +timestamp + refreshTime : Date.now() + refreshTime} key={String(loading)} />
+        <Countdown
+          date={timestamp ? +timestamp + refreshTime : Date.now() + refreshTime}
+          key={String(timestamp?.getTime())}
+        />
       </div>
     </div>
   );

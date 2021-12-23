@@ -62,6 +62,8 @@ export class Cache<ErrorType> {
       cacheEntity[requestKey] = newData;
       this.storage.set(endpointKey, cacheEntity);
       CACHE_EVENTS.set<Response>(requestKey, newData);
+    } else {
+      CACHE_EVENTS.setRefreshed(requestKey);
     }
   };
 

@@ -1,7 +1,15 @@
 import { useRef } from "react";
 import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
-import { isEqual, getCacheKey, CACHE_EVENTS, CacheValueType, getCacheEndpointKey, getRevalidateKey } from "cache";
+import {
+  isEqual,
+  getCacheKey,
+  CACHE_EVENTS,
+  CacheValueType,
+  getCacheEndpointKey,
+  getRevalidateKey,
+  getRefreshedKey,
+} from "cache";
 import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchLoadingEventType, FETCH_QUEUE_EVENTS } from "queues";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
@@ -155,6 +163,12 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     handleCallbacks(cacheData.response, cacheData.retries);
   };
 
+  const handleGetRefreshedCache = () => {
+    actions.setRefreshed(true, false);
+    actions.setTimestamp(new Date(), false);
+    handleCallbacks([state.data, state.error, state.status], state.retries);
+  };
+
   const handleGetLoadingEvent = ({ isLoading, isRefreshed, isRetry, isRevalidated }: FetchLoadingEventType) => {
     actions.setLoading(isLoading, false);
     onRequestCallback.current?.({ isRefreshed, isRetry, isRevalidated });
@@ -186,12 +200,14 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const handleMountEvents = () => {
     FETCH_QUEUE_EVENTS.getLoading(requestKey, handleGetLoadingEvent);
     CACHE_EVENTS.get<T>(requestKey, handleGetUpdatedCache);
+    CACHE_EVENTS.getRefreshed(requestKey, handleGetRefreshedCache);
     CACHE_EVENTS.onRevalidate(requestKey, handleRevalidate);
   };
 
   const handleUnMountEvents = () => {
     FETCH_QUEUE_EVENTS.umount(requestKey, handleGetLoadingEvent);
     CACHE_EVENTS.umount(requestKey, handleGetUpdatedCache);
+    CACHE_EVENTS.umount(getRefreshedKey(requestKey), handleGetRefreshedCache);
     CACHE_EVENTS.umount(getRevalidateKey(requestKey), handleRevalidate);
   };
 
