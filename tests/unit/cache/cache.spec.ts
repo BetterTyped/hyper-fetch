@@ -85,17 +85,8 @@ describe("Cache", () => {
       expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });
 
-    it("should allow to use own deep compare function when saving data", async () => {
-      const deepCompare = jest.fn();
-
-      cacheInstance.set({ ...response, deepCompareFn: deepCompare });
-
-      expect(deepCompare).toBeCalledTimes(1);
-      expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
-    });
-
     it("should allow to disable deep comparison when saving data", async () => {
-      cacheInstance.set({ ...response, deepCompareFn: null });
+      cacheInstance.set({ ...response });
 
       expect(cacheInstance.get(endpointKey, requestKey)).toBeDefined();
     });

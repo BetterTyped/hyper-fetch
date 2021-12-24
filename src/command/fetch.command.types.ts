@@ -41,7 +41,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   retryTime?: number;
   cacheTime?: number;
   cacheKey?: string;
-  queue?: boolean;
+  queued?: boolean;
   deepEqual?: boolean;
   disableResponseInterceptors?: boolean;
   disableRequestInterceptors?: boolean;

@@ -39,7 +39,7 @@ export class Cache<ErrorType> {
     requestKey,
     response,
     retries,
-    deepEqual,
+    deepEqual = true,
     isRefreshed,
     timestamp = +new Date(),
   }: CacheSetDataType<Response, ErrorType>): void => {

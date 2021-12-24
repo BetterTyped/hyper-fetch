@@ -1,5 +1,4 @@
 import { FetchCommandDump, FetchCommandInstance } from "command";
-import { isEqual } from "cache";
 
 // Values
 export type FetchQueueStoreKeyType = string;
@@ -11,21 +10,19 @@ export type FetchQueueValueType = {
   retries: number;
   timestamp: Date;
 };
-export type FetchQueueDumpValueType = {
+export type FetchQueueDumpValueType<ClientOptions> = {
   endpointKey: string;
   requestKey: string;
-  request: FetchCommandDump<unknown>;
+  request: FetchCommandDump<ClientOptions>;
   retries: number;
   timestamp: number;
 };
 
 // Options
 export type FetchQueueOptionsType = {
-  cancelable?: boolean;
   isRetry?: boolean;
   isRefreshed?: boolean;
   isRevalidated?: boolean;
-  deepCompareFn?: typeof isEqual | undefined;
 };
 
 // Events
@@ -37,9 +34,9 @@ export type FetchLoadingEventType = {
 };
 
 // Storage
-export type FetchQueueStorageType = {
-  set: (key: string, data: FetchQueueDumpValueType) => void;
-  get: (key: string) => FetchQueueDumpValueType | undefined;
+export type FetchQueueStorageType<ClientOptions> = {
+  set: (key: string, data: FetchQueueDumpValueType<ClientOptions>) => void;
+  get: (key: string) => FetchQueueDumpValueType<ClientOptions> | undefined;
   delete: (key: string) => void;
   clear: () => void;
 };

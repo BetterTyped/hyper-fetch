@@ -3,7 +3,6 @@ import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType, FetchQueueStorageType, FetchQueueStoreKeyType, FetchQueueDumpValueType } from "queues";
 import { FetchQueueValueType } from "./fetch-queue.types";
 import { FETCH_QUEUE_EVENTS } from "./fetch-queue.events";
-import { initialFetchQueueOptions } from "./fetch-queue.constants";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -12,18 +11,21 @@ import { initialFetchQueueOptions } from "./fetch-queue.constants";
 export class FetchQueue<ErrorType, ClientOptions> {
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private storage: FetchQueueStorageType = new Map<FetchQueueStoreKeyType, FetchQueueDumpValueType>(),
+    private storage: FetchQueueStorageType<ClientOptions> = new Map<
+      FetchQueueStoreKeyType,
+      FetchQueueDumpValueType<ClientOptions>
+    >(),
   ) {}
 
   private runningRequests = new Map<string, FetchCommandInstance>();
 
   add = async (queueElement: FetchQueueValueType, options?: FetchQueueOptionsType) => {
-    const {
-      cancelable = false,
-      isRetry = false,
-      isRefreshed = false,
-      isRevalidated = false,
-    } = options || initialFetchQueueOptions;
+    const defaultOptions = {
+      isRetry: false,
+      isRefreshed: false,
+      isRevalidated: false,
+    };
+    const { isRetry, isRefreshed, isRevalidated } = { ...defaultOptions, ...options };
     const { endpointKey, requestKey } = queueElement;
 
     const queueEntity = this.get(endpointKey);
@@ -33,7 +35,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     const canRevalidate = isRevalidated && !isEqualTimestamp;
 
     // If no concurrent requests found or the previous request can be canceled
-    if (!queueEntity || cancelable || canRevalidate) {
+    if (!queueEntity || queueElement.request.cancelable || canRevalidate) {
       // Make sure to delete & cancel running request
       this.deleteRequest(endpointKey, true);
       // Propagate the loading to all connected hooks
@@ -57,7 +59,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
       // 1. Add to queue
       this.storage.set(endpointKey, queueElementDump);
       // 2. Start request
-      const requestCommand = new FetchCommand(this.builder.getBuilderConfig(), request) as FetchCommandInstance;
+      const requestCommand = new FetchCommand(this.builder.getBuilderConfig(), request);
       // Additionally keep the running request to abort it later
       this.runningRequests.set(endpointKey, requestCommand);
       const response = await requestCommand.send();
@@ -86,7 +88,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     }
   };
 
-  get = (endpointKey: string): FetchQueueDumpValueType | undefined => {
+  get = (endpointKey: string) => {
     const storedEntity = this.storage.get(endpointKey);
 
     return storedEntity;

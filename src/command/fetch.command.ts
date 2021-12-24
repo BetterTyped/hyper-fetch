@@ -44,7 +44,7 @@ export class FetchCommand<
   retryTime?: number;
   cacheTime?: number;
   cacheKey?: string;
-  queue?: boolean;
+  queued?: boolean;
   deepEqual?: boolean;
 
   constructor(
@@ -66,7 +66,7 @@ export class FetchCommand<
     this.retryTime = commandOptions.retryTime;
     this.cacheTime = commandOptions.cacheTime;
     this.cacheKey = commandOptions.cacheKey;
-    this.queue = commandOptions.queue;
+    this.queued = commandOptions.queued;
     this.deepEqual = commandOptions.deepEqual;
 
     addAbortController(this.abortKey);
@@ -196,7 +196,7 @@ export class FetchCommand<
       retryTime: this.retryTime,
       cacheTime: this.cacheTime,
       cacheKey: this.cacheKey,
-      queue: this.queue,
+      queued: this.queued,
       deepEqual: this.deepEqual,
       options: this.commandOptions.options,
       disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,

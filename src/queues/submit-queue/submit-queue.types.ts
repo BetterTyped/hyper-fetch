@@ -11,16 +11,18 @@ export type SubmitQueueValueType = {
   retries: number;
   timestamp: Date;
 };
-export type SubmitQueueDumpValueType = {
+export type SubmitQueueDumpValueType<ClientOptions> = {
   endpointKey: string;
   requestKey: string;
-  request: FetchCommandDump<unknown>;
+  request: FetchCommandDump<ClientOptions>;
   retries: number;
   timestamp: number;
 };
-export type SubmitQueueData = {
+export type SubmitQueueData<ClientOptions> = {
   stopped: boolean;
-  requests: SubmitQueueDumpValueType[];
+  cancelable: boolean;
+  queued: boolean;
+  requests: SubmitQueueDumpValueType<ClientOptions>[];
 };
 
 // Options
@@ -40,9 +42,9 @@ export type SubmitLoadingEventType = {
 };
 
 // Storage
-export type SubmitQueueStorageType = {
-  set: (key: string, data: SubmitQueueData) => void;
-  get: (key: string) => SubmitQueueData | undefined;
+export type SubmitQueueStorageType<ClientOptions> = {
+  set: (key: string, data: SubmitQueueData<ClientOptions>) => void;
+  get: (key: string) => SubmitQueueData<ClientOptions> | undefined;
   delete: (key: string) => void;
   clear: () => void;
 };

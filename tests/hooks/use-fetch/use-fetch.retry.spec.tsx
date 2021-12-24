@@ -6,7 +6,12 @@ import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from ".
 import { getCurrentState } from "../utils/state.utils";
 import { testFetchErrorState, testFetchSuccessState } from "../shared/fetch.tests";
 
-const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest, { retry: 1, retryTime: 200 }));
+const request = getManyRequest.clone();
+
+request.retry = 1;
+request.retryTime = 200;
+
+const renderGetManyHook = () => renderHook(() => useFetch(request));
 
 describe("useFetch hook retry logic", () => {
   beforeAll(() => {
