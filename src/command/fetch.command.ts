@@ -29,7 +29,8 @@ export class FetchCommand<
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
-  mockCallback: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
+  protected mockCallback: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
+
   endpoint: EndpointType;
   headers?: HeadersInit;
   method: HttpMethodsType;
@@ -38,6 +39,13 @@ export class FetchCommand<
   queryParams: QueryParamsType | string | NegativeTypes;
   options: ClientOptions | undefined;
   abortKey: string;
+  cancelable?: boolean;
+  retry?: boolean | number;
+  retryTime?: number;
+  cacheTime?: number;
+  cacheKey?: string;
+  queue?: boolean;
+  deepEqual?: boolean;
 
   constructor(
     readonly builderConfig: FetchBuilderConfig<ErrorType, ClientOptions>,
@@ -53,6 +61,14 @@ export class FetchCommand<
     this.mockCallback = defaultOptions?.mockCallback;
     this.abortKey = getAbortKey(this.method, this.builderConfig.baseUrl, this.endpoint);
 
+    this.cancelable = commandOptions.cancelable;
+    this.retry = commandOptions.retry;
+    this.retryTime = commandOptions.retryTime;
+    this.cacheTime = commandOptions.cacheTime;
+    this.cacheKey = commandOptions.cacheKey;
+    this.queue = commandOptions.queue;
+    this.deepEqual = commandOptions.deepEqual;
+
     addAbortController(this.abortKey);
   }
 
@@ -64,7 +80,6 @@ export class FetchCommand<
   onErrorCallback: ClientErrorCallback | undefined;
   onSuccessCallback: ClientSuccessCallback | undefined;
 
-  // TBR - use hook events instead as this may be confusing with persist
   public onRequestStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
@@ -73,7 +88,6 @@ export class FetchCommand<
     return cloned;
   };
 
-  // TBR - use hook events instead as this may be confusing with persist
   public onResponseStart = (callback: ClientStartCallback) => {
     const cloned = this.clone();
 
@@ -98,7 +112,6 @@ export class FetchCommand<
     return cloned;
   };
 
-  // TBR - use hook events instead as this may be confusing with persist
   public onError = (callback: ClientErrorCallback) => {
     const cloned = this.clone();
 
@@ -107,7 +120,6 @@ export class FetchCommand<
     return cloned;
   };
 
-  // TBR - use hook events instead as this may be confusing with persist
   public onSuccess = (callback: ClientSuccessCallback) => {
     const cloned = this.clone();
 
@@ -116,7 +128,6 @@ export class FetchCommand<
     return cloned;
   };
 
-  // TBR - use hook events instead as this may be confusing with persist
   public onFinished = (callback: ClientFinishedCallback) => {
     const cloned = this.clone();
 
@@ -180,6 +191,13 @@ export class FetchCommand<
       method: this.method,
       queryParams: this.queryParams,
       data: this.data,
+      cancelable: this.cancelable,
+      retry: this.retry,
+      retryTime: this.retryTime,
+      cacheTime: this.cacheTime,
+      cacheKey: this.cacheKey,
+      queue: this.queue,
+      deepEqual: this.deepEqual,
       options: this.commandOptions.options,
       disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,
       disableRequestInterceptors: this.commandOptions.disableRequestInterceptors,

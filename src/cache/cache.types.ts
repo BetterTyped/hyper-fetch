@@ -20,7 +20,7 @@ export type CacheSetDataType<Response, ErrorType> = {
   retries: number;
   isRefreshed: boolean;
   timestamp?: number;
-  deepCompareFn?: null | ((value: unknown, valueToCompare: unknown) => boolean);
+  deepEqual?: boolean;
 };
 
 export type CacheStorageType = {

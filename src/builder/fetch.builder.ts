@@ -7,7 +7,7 @@ import {
   ErrorMessageMapperCallback,
 } from "builder";
 import { Cache } from "cache";
-import { FetchQueue, SubmitQueueStoreKeyType, SubmitQueueStoreValueType } from "queues";
+import { FetchQueue, SubmitQueue } from "queues";
 import { FetchBuilderConfig } from "./fetch.builder.types";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientXHR> {
@@ -23,7 +23,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   client: ClientType<ErrorType, ClientOptions> = fetchClient;
   cache: Cache<ErrorType>;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
-  submitQueue: Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>; // todo change
+  submitQueue: SubmitQueue<ErrorType, ClientOptions>;
 
   // Offline
   isOnline = true;
@@ -42,7 +42,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.options = options;
     this.cache = cache || new Cache();
     this.fetchQueue = fetchQueue || new FetchQueue<ErrorType, ClientOptions>(this);
-    this.submitQueue = submitQueue || new Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>();
+    this.submitQueue = submitQueue || new SubmitQueue<ErrorType, ClientOptions>(this);
 
     /**
      * TODO Persist queue renew
@@ -116,6 +116,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     client: this.client,
     cache: this.cache,
     fetchQueue: this.fetchQueue,
+    submitQueue: this.submitQueue,
     isOnline: this.isOnline,
     actions: this.actions,
   });

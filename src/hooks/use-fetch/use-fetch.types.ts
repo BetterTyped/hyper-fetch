@@ -1,18 +1,15 @@
 import { FetchCommandInstance } from "command";
 import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
 import { CacheValueType } from "cache";
-import { ClientResponseType } from "client";
 import { FetchLoadingEventType } from "queues";
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   dependencies?: any[];
   disabled?: boolean;
-  retry?: boolean | number;
-  retryTime?: number;
-  cacheTime?: number;
-  cacheKey?: string;
+  revalidateOnMount?: boolean;
   cacheOnMount?: boolean;
+  cacheKey?: string;
   initialCacheData?: ExtractFetchReturn<T> | null;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
   refresh?: boolean;
@@ -24,14 +21,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
-  cancelable?: boolean;
   mapperFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
-  deepCompareFn?:
-    | ((
-        previousValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-        newValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-      ) => boolean)
-    | undefined;
 };
 
 export type UseFetchReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<

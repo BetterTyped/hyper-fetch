@@ -5,11 +5,15 @@ import { isEqual } from "cache";
 export type FetchQueueStoreKeyType = string;
 export type FetchQueueStoreValueType = FetchQueueValueType;
 export type FetchQueueValueType = {
+  endpointKey: string;
+  requestKey: string;
   request: FetchCommandInstance;
   retries: number;
   timestamp: Date;
 };
 export type FetchQueueDumpValueType = {
+  endpointKey: string;
+  requestKey: string;
   request: FetchCommandDump<unknown>;
   retries: number;
   timestamp: number;

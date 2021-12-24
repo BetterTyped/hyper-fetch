@@ -39,14 +39,14 @@ export class Cache<ErrorType> {
     requestKey,
     response,
     retries,
-    deepCompareFn = isEqual,
+    deepEqual,
     isRefreshed,
     timestamp = +new Date(),
   }: CacheSetDataType<Response, ErrorType>): void => {
     const cacheEntity = this.storage.get(endpointKey) || {};
     const cachedData = cacheEntity?.[requestKey];
     // We have to compare stored data with deepCompare, this will allow us to limit rerendering
-    const equal = !!deepCompareFn?.(cachedData?.response, response);
+    const equal = deepEqual && isEqual(cachedData?.response, response);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
     // Keeping it in separate location let us to handle refreshing errors in different ways

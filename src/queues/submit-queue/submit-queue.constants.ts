@@ -1,3 +1,6 @@
-import { SubmitQueueStoreKeyType, SubmitQueueStoreValueType } from "./submit-queue.types";
+import { SubmitQueueData } from "./submit-queue.types";
 
-export const SubmitQueueStore = new Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>();
+export const initialSubmitQueue: SubmitQueueData = {
+  stopped: false,
+  requests: [],
+};

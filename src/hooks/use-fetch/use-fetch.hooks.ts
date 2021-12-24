@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import {
-  isEqual,
   getCacheKey,
   CACHE_EVENTS,
   CacheValueType,
@@ -38,9 +37,6 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
-    retry = useFetchDefaultOptions.retry,
-    retryTime = useFetchDefaultOptions.retryTime,
-    cacheTime = useFetchDefaultOptions.cacheTime,
     cacheKey = useFetchDefaultOptions.cacheKey,
     cacheOnMount = useFetchDefaultOptions.cacheOnMount,
     initialCacheData = useFetchDefaultOptions.initialCacheData,
@@ -52,12 +48,17 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
-    cancelable = useFetchDefaultOptions.cancelable,
-    deepCompareFn = useFetchDefaultOptions.deepCompareFn,
     mapperFn = useFetchDefaultOptions.mapperFn,
     shouldThrow = useFetchDefaultOptions.shouldThrow,
   }: UseFetchOptionsType<T, MapperResponse> = useFetchDefaultOptions,
 ): UseFetchReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
+  const {
+    cancelable = useFetchDefaultOptions.cancelable,
+    cacheTime = useFetchDefaultOptions.cacheTime,
+    retryTime = useFetchDefaultOptions.retryTime,
+    retry = useFetchDefaultOptions.retry,
+  } = command;
+
   const requestDebounce = useDebounce(debounceTime);
   const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
@@ -94,21 +95,16 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
     if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
-      const queueElement = {
-        request: command,
-        retries,
-        timestamp: new Date(),
-      };
+      const queueElement = { endpointKey, requestKey, request: command, retries, timestamp: new Date() };
 
       const options = {
         cancelable,
-        deepCompareFn: deepCompareFn as typeof isEqual,
         isRefreshed,
         isRevalidated,
         isRetry: Boolean(retries),
       };
 
-      fetchQueue.add(endpointKey, requestKey, queueElement, options);
+      fetchQueue.add(queueElement, options);
     }
   };
 

@@ -1,4 +1,3 @@
-import { isEqual } from "cache";
 import { FetchBuilder } from "builder";
 import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType, FetchQueueStorageType, FetchQueueStoreKeyType, FetchQueueDumpValueType } from "queues";
@@ -18,19 +17,14 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
   private runningRequests = new Map<string, FetchCommandInstance>();
 
-  add = async (
-    endpointKey: string,
-    requestKey: string,
-    queueElement: FetchQueueValueType,
-    options?: FetchQueueOptionsType,
-  ) => {
+  add = async (queueElement: FetchQueueValueType, options?: FetchQueueOptionsType) => {
     const {
       cancelable = false,
-      deepCompareFn = isEqual,
       isRetry = false,
       isRefreshed = false,
       isRevalidated = false,
     } = options || initialFetchQueueOptions;
+    const { endpointKey, requestKey } = queueElement;
 
     const queueEntity = this.get(endpointKey);
 
@@ -84,7 +78,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
             requestKey,
             response,
             retries: queueElement.retries,
-            deepCompareFn,
+            deepEqual: queueElementDump.request.deepEqual,
             isRefreshed,
           });
         }

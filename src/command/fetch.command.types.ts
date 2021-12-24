@@ -36,9 +36,16 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   endpoint: GenericEndpoint;
   headers?: HeadersInit;
   method?: HttpMethodsType;
-  options?: ClientOptions;
+  cancelable?: boolean;
+  retry?: boolean | number;
+  retryTime?: number;
+  cacheTime?: number;
+  cacheKey?: string;
+  queue?: boolean;
+  deepEqual?: boolean;
   disableResponseInterceptors?: boolean;
   disableRequestInterceptors?: boolean;
+  options?: ClientOptions;
 };
 
 export type DefaultOptionsType<

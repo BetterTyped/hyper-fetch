@@ -1,3 +1,3 @@
-export const getLoadingEventKey = (key: string): string => {
-  return `${key}-loading-event`;
+export const getFetchLoadingEventKey = (key: string): string => {
+  return `${key}-fetch-loading-event`;
 };

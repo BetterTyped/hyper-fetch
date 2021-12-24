@@ -1,4 +1,4 @@
-import { FetchQueue, SubmitQueueStoreKeyType, SubmitQueueStoreValueType } from "queues";
+import { FetchQueue, SubmitQueue } from "queues";
 import { Cache } from "cache";
 import { ClientResponseType, ClientType } from "client";
 import { FetchCommandInstance } from "../command/fetch.command.types";
@@ -9,7 +9,7 @@ export type FetchBuilderProps<ErrorType, ClientOptions> = {
   options?: ClientOptions;
   cache?: Cache<ErrorType>;
   fetchQueue?: FetchQueue<ErrorType, ClientOptions>;
-  submitQueue?: Map<SubmitQueueStoreKeyType, SubmitQueueStoreValueType>; // TODO change type
+  submitQueue?: SubmitQueue<ErrorType, ClientOptions>;
 };
 
 export type FetchBuilderConfig<ErrorType, ClientOptions> = {
@@ -22,6 +22,7 @@ export type FetchBuilderConfig<ErrorType, ClientOptions> = {
   onResponseCallbacks: ResponseInterceptorCallback;
   cache: Cache<ErrorType>;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
+  submitQueue: SubmitQueue<ErrorType, ClientOptions>;
   isOnline: boolean;
   actions: FetchAction[];
 };
