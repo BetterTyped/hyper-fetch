@@ -1,5 +1,5 @@
 import { ClientResponseSuccessType } from "client";
-import { Cache, getCacheKey, CACHE_EVENTS, cacheEventEmitter } from "cache";
+import { Cache, getCacheKey } from "cache";
 
 import { getManyRequest, getManyMock, GetManyResponseType } from "../../utils/mocks/get-many.mock";
 import { testBuilder } from "../../utils/server/server.constants";
@@ -19,7 +19,6 @@ let cacheInstance = new Cache();
 
 describe("Cache", () => {
   beforeEach(async () => {
-    cacheEventEmitter.removeAllListeners();
     testBuilder.clear();
     cacheInstance = new Cache();
   });
@@ -36,7 +35,7 @@ describe("Cache", () => {
     it("should delete cache and send signal", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.onRevalidate(requestKey, () => {
+      cacheInstance.events.onRevalidate(requestKey, () => {
         trigger();
       });
 
@@ -54,7 +53,7 @@ describe("Cache", () => {
     it("should not overwrite the same data", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(requestKey, () => {
+      cacheInstance.events.get(requestKey, () => {
         trigger();
       });
 
@@ -69,7 +68,7 @@ describe("Cache", () => {
     it("should write data when cache is empty or gets deleted", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.get(requestKey, () => {
+      cacheInstance.events.get(requestKey, () => {
         trigger();
       });
 
@@ -96,7 +95,7 @@ describe("Cache", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      CACHE_EVENTS.onRevalidate(requestKey, () => {
+      cacheInstance.events.onRevalidate(requestKey, () => {
         trigger();
       });
 

@@ -1,6 +1,7 @@
-import { CacheInitialData, CacheStorageType, getCacheData } from "cache";
+import EventEmitter from "events";
+
+import { CacheInitialData, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
-import { CACHE_EVENTS } from "./cache.events";
 import { isEqual } from "./cache.utils";
 
 /**
@@ -21,6 +22,9 @@ import { isEqual } from "./cache.utils";
  * To allow for easier optimistic approach realization - this way we will have the mapper function that will update, add or remove elements from the same endpoint
  */
 export class Cache<ErrorType> {
+  emitter = new EventEmitter();
+  events = getCacheEvents(this.emitter);
+
   constructor(
     private storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>(),
     private initialData?: CacheInitialData,
@@ -61,9 +65,9 @@ export class Cache<ErrorType> {
     if (!equal) {
       cacheEntity[requestKey] = newData;
       this.storage.set(endpointKey, cacheEntity);
-      CACHE_EVENTS.set<Response>(requestKey, newData);
+      this.events.set<Response>(requestKey, newData);
     } else {
-      CACHE_EVENTS.setRefreshed(requestKey);
+      this.events.setRefreshed(requestKey);
     }
   };
 
@@ -78,12 +82,12 @@ export class Cache<ErrorType> {
   };
 
   deleteEndpoint = (endpointKey: string): void => {
-    CACHE_EVENTS.revalidate(endpointKey);
+    this.events.revalidate(endpointKey);
     this.storage.delete(endpointKey);
   };
 
   deleteResponse = (endpointKey: string, requestKey: string): void => {
-    CACHE_EVENTS.revalidate(requestKey);
+    this.events.revalidate(requestKey);
     const cacheEntity = this.storage.get(endpointKey);
     if (cacheEntity) {
       delete cacheEntity[requestKey];

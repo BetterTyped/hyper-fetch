@@ -1,22 +1,16 @@
 import { useRef } from "react";
-import { useDidMount, useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
+import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
-import {
-  getCacheKey,
-  CACHE_EVENTS,
-  CacheValueType,
-  getCacheEndpointKey,
-  getRevalidateKey,
-  getRefreshedKey,
-} from "cache";
+import { FetchProgressType } from "client";
+import { FetchLoadingEventType } from "queues";
 import { FetchCommandInstance, FetchCommand } from "command";
-import { FetchLoadingEventType, FETCH_QUEUE_EVENTS } from "queues";
+import { OnProgressCallbackType, OnStartCallbackType } from "hooks";
+import { getCacheKey, CacheValueType, getCacheEndpointKey } from "cache";
 import { ExtractResponse, ExtractError, ExtractFetchReturn } from "types";
 
 import { useDependentState } from "hooks/use-dependent-state/use-dependent-state.hooks";
 import { useDebounce } from "hooks/use-debounce/use-debounce.hooks";
 import { useInterval } from "hooks/use-interval/use-interval.hooks";
-import { useWindowEvent } from "hooks/use-window-event/use-window-event.hooks";
 
 import {
   OnRequestCallbackType,
@@ -43,6 +37,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
+    refreshBlurred = useFetchDefaultOptions.refreshBlurred,
     refreshOnTabBlur = useFetchDefaultOptions.refreshOnTabBlur,
     refreshOnTabFocus = useFetchDefaultOptions.refreshOnTabFocus,
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
@@ -52,28 +47,31 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     shouldThrow = useFetchDefaultOptions.shouldThrow,
   }: UseFetchOptionsType<T, MapperResponse> = useFetchDefaultOptions,
 ): UseFetchReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
-  const {
-    cancelable = useFetchDefaultOptions.cancelable,
-    cacheTime = useFetchDefaultOptions.cacheTime,
-    retryTime = useFetchDefaultOptions.retryTime,
-    retry = useFetchDefaultOptions.retry,
-  } = command;
+  const { cacheTime = useFetchDefaultOptions.cacheTime } = command;
 
   const requestDebounce = useDebounce(debounceTime);
-  const retryDebounce = useDebounce(retryTime);
   const refreshInterval = useInterval(refreshTime);
 
-  const { cache, fetchQueue } = command.builderConfig;
+  const { cache, fetchQueue, manager, commandManager } = command.builder;
   const endpointKey = getCacheEndpointKey(command, cacheKey);
   const requestKey = getCacheKey(command);
   const initCacheState = useRef(getCacheState(cache.get(endpointKey, requestKey), cacheOnMount, cacheTime));
   const initState = useRef(initialData || initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(endpointKey, requestKey, cache, initState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(
+    endpointKey,
+    requestKey,
+    command.builder,
+    initState.current,
+  );
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
   const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
+  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
+  const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
+  const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
+  const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
 
   const isStaleCacheData = () => {
     const { timestamp, data } = state;
@@ -85,7 +83,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     return !!state.data || !!state.error;
   };
 
-  const handleFetch = (retries = 0, isRefreshed = state.isRefreshed, isRevalidated = false) => {
+  const handleFetch = (isRefreshed = state.isRefreshed, isRevalidated = false) => {
     const isStale = isStaleCacheData();
     const hasData = hasStateData();
 
@@ -95,24 +93,17 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
     if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
-      const queueElement = { endpointKey, requestKey, request: command, retries, timestamp: new Date() };
-
-      const options = {
-        cancelable,
+      const queueElement = {
+        endpointKey,
+        requestKey,
+        request: command,
+        retries: 0,
+        timestamp: new Date(),
         isRefreshed,
         isRevalidated,
-        isRetry: Boolean(retries),
       };
 
-      fetchQueue.add(queueElement, options);
-    }
-  };
-
-  const handleRetry = (retries: number) => {
-    if (retry === true || (typeof retry === "number" && retries < retry)) {
-      retryDebounce.debounce(() => handleFetch(retries + 1));
-    } else {
-      retryDebounce.resetDebounce();
+      fetchQueue.add(queueElement);
     }
   };
 
@@ -126,23 +117,26 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     if (refresh) {
       refreshInterval.interval(() => {
         const currentRequest = fetchQueue.get(endpointKey);
+        const isBlur = command.builder.manager.isFocused;
 
-        if (!currentRequest) {
-          handleFetch(0, true);
+        // If window tab is not active should we refresh the cache
+        const canBlurredRefresh = isBlur && refreshBlurred;
+
+        if (!currentRequest && canBlurredRefresh) {
+          handleFetch(true);
           refreshInterval.resetInterval();
         }
       }, timeLeft);
     }
   };
 
-  const handleCallbacks = (response: ExtractFetchReturn<T> | undefined, retries = 0) => {
+  const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
     if (response) {
       if (response[0]) {
         onSuccessCallback?.current?.(response[0]);
       }
       if (response[1]) {
         onErrorCallback?.current?.(response[1]);
-        handleRetry(retries);
         if (shouldThrow) {
           throw {
             message: "Fetching Error.",
@@ -156,13 +150,13 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
   const handleGetUpdatedCache = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     actions.setCacheData(cacheData, false);
-    handleCallbacks(cacheData.response, cacheData.retries);
+    handleCallbacks(cacheData.response);
   };
 
   const handleGetRefreshedCache = () => {
     actions.setRefreshed(true, false);
     actions.setTimestamp(new Date(), false);
-    handleCallbacks([state.data, state.error, state.status], state.retries);
+    handleCallbacks([state.data, state.error, state.status]);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRefreshed, isRetry, isRevalidated }: FetchLoadingEventType) => {
@@ -180,31 +174,66 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleRevalidate = () => {
-    handleFetch(0, true, true);
+    handleFetch(true, true);
   };
 
   const refreshFn = (invalidateKey?: string | FetchCommandInstance) => {
     if (invalidateKey && typeof invalidateKey === "string") {
-      CACHE_EVENTS.revalidate(invalidateKey);
+      command.builder.cache.events.revalidate(invalidateKey);
     } else if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      CACHE_EVENTS.revalidate(getCacheEndpointKey(invalidateKey));
+      command.builder.cache.events.revalidate(getCacheEndpointKey(invalidateKey));
     } else {
       handleRevalidate();
     }
   };
 
-  const handleMountEvents = () => {
-    FETCH_QUEUE_EVENTS.getLoading(requestKey, handleGetLoadingEvent);
-    CACHE_EVENTS.get<T>(requestKey, handleGetUpdatedCache);
-    CACHE_EVENTS.getRefreshed(requestKey, handleGetRefreshedCache);
-    CACHE_EVENTS.onRevalidate(requestKey, handleRevalidate);
+  const handleDownloadProgress = (progress: FetchProgressType) => {
+    onDownloadProgressCallback?.current?.(progress);
   };
 
-  const handleUnMountEvents = () => {
-    FETCH_QUEUE_EVENTS.umount(requestKey, handleGetLoadingEvent);
-    CACHE_EVENTS.umount(requestKey, handleGetUpdatedCache);
-    CACHE_EVENTS.umount(getRefreshedKey(requestKey), handleGetRefreshedCache);
-    CACHE_EVENTS.umount(getRevalidateKey(requestKey), handleRevalidate);
+  const handleUploadProgress = (progress: FetchProgressType) => {
+    onUploadProgressCallback?.current?.(progress);
+  };
+
+  const handleRequestStart = (middleware: T) => {
+    onRequestStartCallback?.current?.(middleware);
+  };
+
+  const handleResponseStart = (middleware: T) => {
+    onRequestStartCallback?.current?.(middleware);
+  };
+
+  const handleMountEvents = () => {
+    const focusUnmount = manager.events.onFocus(() => refreshOnTabFocus && handleFetch(true));
+    const blurUnmount = manager.events.onBlur(() => refreshOnTabBlur && handleFetch(true));
+    const onlineUnmount = manager.events.onOnline(() => refreshOnReconnect && handleFetch(true));
+
+    const downloadUnmount = commandManager.events.onDownloadProgress(endpointKey, handleDownloadProgress);
+    const uploadUnmount = commandManager.events.onUploadProgress(endpointKey, handleUploadProgress);
+    const requestStartUnmount = commandManager.events.onRequestStart(endpointKey, handleRequestStart);
+    const responseStartUnmount = commandManager.events.onResponseStart(endpointKey, handleResponseStart);
+
+    const loadingUnmount = fetchQueue.events.getLoading(requestKey, handleGetLoadingEvent);
+
+    const getUnmount = cache.events.get<T>(requestKey, handleGetUpdatedCache);
+    const getRefreshedUnmount = cache.events.getRefreshed(requestKey, handleGetRefreshedCache);
+    const revalidateUnmount = cache.events.onRevalidate(requestKey, handleRevalidate);
+
+    return () => {
+      focusUnmount();
+      blurUnmount();
+      onlineUnmount();
+
+      downloadUnmount();
+      uploadUnmount();
+      requestStartUnmount();
+      responseStartUnmount();
+      loadingUnmount();
+
+      getUnmount();
+      getRefreshedUnmount();
+      revalidateUnmount();
+    };
   };
 
   const handleData = () => {
@@ -218,7 +247,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   useDidMount(() => {
     handleCallbacks(initState.current?.response);
     handleInitialCacheState();
-    handleMountEvents();
+    return handleMountEvents();
   });
 
   /**
@@ -235,7 +264,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
       if (hasData && debounce) {
         requestDebounce.debounce(handleFetch);
       } else {
-        handleFetch(0);
+        handleFetch();
       }
     },
     [...dependencies, disabled],
@@ -248,38 +277,6 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     },
     [refresh, refreshTime, state.timestamp],
     true,
-  );
-
-  /**
-   * Unmount all events to prevent updates of unmounted state
-   */
-  useWillUnmount(() => {
-    handleUnMountEvents();
-    command.clean();
-  });
-
-  useWindowEvent(
-    "online",
-    () => {
-      handleFetch(0, true);
-    },
-    !refreshOnReconnect,
-  );
-
-  useWindowEvent(
-    "focus",
-    () => {
-      handleFetch(0, true);
-    },
-    !refreshOnTabFocus,
-  );
-
-  useWindowEvent(
-    "blur",
-    () => {
-      handleFetch(0, true);
-    },
-    !refreshOnTabBlur,
   );
 
   return {
@@ -329,6 +326,17 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
       setRenderKey("timestamp");
       return state.timestamp;
     },
+    get isOnline() {
+      setRenderKey("isOnline");
+      return state.isOnline;
+    },
+    get isFocused() {
+      setRenderKey("isFocused");
+      return state.isFocused;
+    },
+    get isStale() {
+      return isStaleCacheData();
+    },
     actions,
     onRequest: (callback: OnRequestCallbackType) => {
       onRequestCallback.current = callback;
@@ -341,6 +349,18 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     },
     onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
       onFinishedCallback.current = callback;
+    },
+    onRequestStart: (callback: OnStartCallbackType<T>) => {
+      onRequestStartCallback.current = callback;
+    },
+    onResponseStart: (callback: OnStartCallbackType<T>) => {
+      onResponseStartCallback.current = callback;
+    },
+    onDownloadProgress: (callback: OnProgressCallbackType) => {
+      onDownloadProgressCallback.current = callback;
+    },
+    onUploadProgress: (callback: OnProgressCallbackType) => {
+      onUploadProgressCallback.current = callback;
     },
     isRefreshingError: !!state.error && state.isRefreshed,
     isDebouncing: requestDebounce.active,

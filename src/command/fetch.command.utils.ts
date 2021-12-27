@@ -1,4 +1,6 @@
-import { ClientProgressEvent } from "./fetch.command.types";
+import { FetchBuilderInstance } from "builder";
+import { FetchProgressType } from "client";
+import { ClientProgressEvent, FetchCommandInstance } from "command";
 
 export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
   return Number(((total * 100) / loaded).toFixed(0));
@@ -15,7 +17,7 @@ export const fetchEtaUtils = (
   return { timeLeft, sizeLeft };
 };
 
-export const getProgressData = (requestStartTime: Date, progressEvent: ClientProgressEvent) => {
+export const getProgressData = (requestStartTime: Date, progressEvent: ClientProgressEvent): FetchProgressType => {
   const { total, loaded } = progressEvent;
   if (!total || !loaded) {
     return {
@@ -35,25 +37,27 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ClientPro
 };
 
 // Abort
-
-export const abortControllers = new Map<string, AbortController>();
-
 export const getAbortKey = (method: string, baseUrl: string, endpoint: string): string => {
   return `${method}_${baseUrl}${endpoint}`;
 };
 
-export const addAbortController = (key: string) => {
+export const addAbortController = (builder: FetchBuilderInstance, key: string) => {
+  const { abortControllers } = builder.commandManager;
+
   const existingController = abortControllers.get(key);
   if (!existingController || existingController?.signal?.aborted) {
     abortControllers.set(key, new AbortController());
   }
 };
 
-export const abortCommand = (key: string) => {
+export const abortCommand = (builder: FetchBuilderInstance, key: string, command: FetchCommandInstance) => {
+  const { abortControllers } = builder.commandManager;
   abortControllers.get(key)?.abort();
-  addAbortController(key);
+  builder.commandManager.events.emitAbort(key, command);
+  addAbortController(builder, key);
 };
 
-export const getAbortController = (key: string) => {
+export const getAbortController = (builder: FetchBuilderInstance, key: string) => {
+  const { abortControllers } = builder.commandManager;
   return abortControllers.get(key);
 };

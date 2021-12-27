@@ -40,7 +40,7 @@ export const getRefreshedKey = (key: string): string => {
  * @returns
  */
 export const getCacheEndpointKey = (fetchCommand: FetchCommandInstance, customCacheKey?: string): string => {
-  return customCacheKey || `${fetchCommand.method}_${fetchCommand.commandOptions.endpoint}`;
+  return customCacheKey || `${fetchCommand.method}_${fetchCommand.endpoint}`;
 };
 
 /**

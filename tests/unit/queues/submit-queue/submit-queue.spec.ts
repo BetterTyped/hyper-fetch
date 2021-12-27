@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
 
-import { CACHE_EVENTS, cacheEventEmitter, getCacheKey } from "cache";
+import { getCacheKey } from "cache";
 import { getAbortController } from "command";
 
 import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
@@ -20,7 +20,6 @@ describe("Basic submitQueue usage", () => {
 
   afterEach(() => {
     resetMocks();
-    cacheEventEmitter.removeAllListeners();
   });
 
   afterAll(() => {
@@ -31,7 +30,7 @@ describe("Basic submitQueue usage", () => {
     it("should add request to queue and trigger it", async () => {
       const trigger = jest.fn();
       interceptGetMany(200, 0);
-      CACHE_EVENTS.get(requestKey, trigger);
+      testBuilder.cache.events.get(requestKey, trigger);
       const request = {
         endpointKey,
         requestKey,
@@ -57,7 +56,7 @@ describe("Basic submitQueue usage", () => {
       const trigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200, 0);
-      CACHE_EVENTS.get(requestKey, trigger);
+      testBuilder.cache.events.get(requestKey, trigger);
       const request = {
         endpointKey,
         requestKey,
@@ -67,14 +66,14 @@ describe("Basic submitQueue usage", () => {
       };
       request.request.cancelable = true;
 
-      getAbortController(getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
+      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.submitQueue.add(endpointKey, request);
       testBuilder.submitQueue.add(endpointKey, request);
       expect(cancelTrigger).toBeCalled();
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
       });
-      getAbortController(getManyRequest.abortKey)?.signal.removeEventListener("abort", cancelTrigger);
+      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should queue requests", async () => {

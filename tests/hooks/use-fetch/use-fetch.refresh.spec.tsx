@@ -12,6 +12,7 @@ const renderGetManyHook = () =>
     useFetch(getManyRequest, {
       refresh: true,
       refreshTime: 200,
+      refreshBlurred: true,
       refreshOnReconnect: true,
       refreshOnTabBlur: true,
       refreshOnTabFocus: true,
@@ -22,6 +23,7 @@ const renderEventsHook = () =>
   renderHook(() =>
     useFetch(getManyRequest, {
       refresh: false,
+      refreshBlurred: true,
       refreshOnReconnect: true,
       refreshOnTabBlur: true,
       refreshOnTabFocus: true,
@@ -176,7 +178,7 @@ describe("useFetch hook refresh logic", () => {
     const responseTwo = renderEventsHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+      return getCurrentState(responseOne).loading;
     });
 
     testFetchSuccessState(mock, responseOne);

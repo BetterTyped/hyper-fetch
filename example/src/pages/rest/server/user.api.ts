@@ -30,9 +30,9 @@ export const deleteUser = builder.create()({
 
 // Mocks setup
 const getMock = (request: FetchCommandInstance, response: Record<string, any> | null) => {
-  const { method, endpoint, builderConfig } = request;
+  const { method, endpoint, builder } = request;
 
-  const url = builderConfig.baseUrl + endpoint;
+  const url = builder.baseUrl + endpoint;
 
   function callback(_req: any, res: any, ctx: any) {
     return res(ctx.delay(), ctx.status(200), ctx.json(response || {}));

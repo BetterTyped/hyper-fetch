@@ -8,6 +8,7 @@ import {
 } from "client";
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
+import { getCacheKey } from "cache";
 
 export const parseResponse = (response: string | unknown) => {
   try {
@@ -136,7 +137,15 @@ export const stringifyQueryParams = (
 
 // Client data handlers
 
-export const setClientHeaders = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
+export const setClientHeaders = <T extends FetchCommandInstance>(
+  command: T,
+  xhr: XMLHttpRequest,
+  mapper?: (command: T, xhr: XMLHttpRequest) => void,
+): void => {
+  if (mapper) {
+    return mapper(command, xhr);
+  }
+
   const isFormData = command.data instanceof FormData;
   const headers: HeadersInit = {};
 
@@ -147,7 +156,7 @@ export const setClientHeaders = <T extends FetchCommandInstance>(command: T, xhr
 };
 
 export const setClientOptions = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
-  const requestOptions = { ...command.builderConfig.options, ...command.commandOptions.options };
+  const requestOptions = { ...command.builder.options, ...command.commandOptions.options };
 
   Object.entries(requestOptions).forEach(([name, value]) => {
     // eslint-disable-next-line no-param-reassign
@@ -168,7 +177,7 @@ export const getErrorResponse = <T extends FetchCommandInstance>(
 ): ExtractError<T> | ExtractMappedError<T> => {
   const error: ExtractError<T> = parseResponse(response) || { message: "Request failed" };
 
-  return command.builderConfig?.onErrorCallback?.(error) || error;
+  return command.builder?.onErrorCallback?.(error) || error;
 };
 
 export const setResponseProgress = <T extends FetchCommandInstance>(
@@ -178,7 +187,7 @@ export const setResponseProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.responseProgressCallback?.(progress);
+  command.builder.commandManager.events.emitDownloadProgress(getCacheKey(command), progress);
 };
 
 export const setRequestProgress = <T extends FetchCommandInstance>(
@@ -188,7 +197,7 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.requestProgressCallback?.(progress);
+  command.builder.commandManager.events.emitUploadProgress(getCacheKey(command), progress);
 };
 
 // Client response handlers
@@ -214,9 +223,7 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
-  await command.builderConfig.onResponseCallbacks(responseData, command);
-  command.onErrorCallback?.(responseData, command);
-  command.onFinishedCallback?.(responseData, command);
+  await command.builder.modifyResponseCallbacks(responseData, command);
   resolve(responseData);
 };
 
@@ -233,8 +240,6 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
-  await command.builderConfig.onResponseCallbacks(responseData, command);
-  command.onSuccessCallback?.(responseData, command);
-  command.onFinishedCallback?.(responseData, command);
+  await command.builder.modifyResponseCallbacks(responseData, command);
   resolve(responseData);
 };

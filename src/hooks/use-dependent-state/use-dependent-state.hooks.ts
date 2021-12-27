@@ -1,16 +1,17 @@
 import { useRef, useState } from "react";
+import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
-import { Cache, CacheValueType } from "cache";
+import { FetchBuilder } from "builder";
+import { CacheValueType } from "cache";
 import { FetchCommandInstance } from "command";
-import { ExtractResponse, ExtractError, NullableType } from "types";
-import { FETCH_QUEUE_EVENTS } from "queues";
+import { ExtractResponse, ExtractError, ExtractClientOptions, NullableType } from "types";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
 import { getInitialDependentStateData } from "./use-dependent-state.utils";
 
 export const useDependentState = <T extends FetchCommandInstance>(
   endpointKey: string,
   requestKey: string,
-  cache: Cache<ExtractError<T>>,
+  builder: FetchBuilder<ExtractError<T>, ExtractClientOptions<T>>,
   initialData: NullableType<CacheValueType>,
 ): [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
@@ -19,7 +20,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
 ] => {
   const [, rerender] = useState(+new Date());
   const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(
-    getInitialDependentStateData(initialData),
+    getInitialDependentStateData(initialData, builder),
   );
   const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
 
@@ -32,10 +33,36 @@ export const useDependentState = <T extends FetchCommandInstance>(
     renderKeys.current.push(renderKey);
   };
 
+  useDidMount(() => {
+    const focusUnmount = builder.manager.events.onFocus(() => {
+      state.current.isFocused = true;
+      renderOnKeyTrigger(["isFocused"]);
+    });
+    const blurUnmount = builder.manager.events.onBlur(() => {
+      state.current.isFocused = false;
+      renderOnKeyTrigger(["isFocused"]);
+    });
+    const onlineUnmount = builder.manager.events.onOnline(() => {
+      state.current.isOnline = true;
+      renderOnKeyTrigger(["isOnline"]);
+    });
+    const offlineUnmount = builder.manager.events.onOffline(() => {
+      state.current.isOnline = false;
+      renderOnKeyTrigger(["isOnline"]);
+    });
+
+    return () => {
+      focusUnmount();
+      blurUnmount();
+      onlineUnmount();
+      offlineUnmount();
+    };
+  });
+
   const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
     setCacheData: (cacheData, emitToCache = true) => {
       if (emitToCache) {
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           ...cacheData,
@@ -62,7 +89,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setData: (data, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [data, currentState.error, currentState.status],
@@ -77,7 +104,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setError: (error, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, error, currentState.status],
@@ -91,7 +118,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        FETCH_QUEUE_EVENTS.setLoading(requestKey, {
+        builder.fetchQueue.events.setLoading(requestKey, {
           isLoading: loading,
           isRetry: false,
           isRefreshed: false,
@@ -105,7 +132,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setStatus: (status, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, currentState.error, status],
@@ -120,7 +147,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setRefreshed: (isRefreshed, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],
@@ -135,7 +162,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setRefreshError: (refreshError, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, refreshError, currentState.status],
@@ -150,7 +177,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setRetryError: (retryError, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, retryError, currentState.status],
@@ -165,7 +192,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setRetries: (retries, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],
@@ -180,7 +207,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setTimestamp: (timestamp, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set({
+        builder.cache.set({
           endpointKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],

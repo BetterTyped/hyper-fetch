@@ -1,3 +1,4 @@
+import { getCacheKey } from "cache";
 import { getAbortController } from "command";
 import { DateInterval } from "constants/time.constants";
 import {
@@ -24,12 +25,12 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  const commandInstance = await command.builderConfig.onRequestCallbacks(command);
-  const { builderConfig, endpoint, queryParams, data, method } = commandInstance;
+  const commandInstance = await command.builder.modifyRequestCallbacks(command);
+  const { builder, endpoint, queryParams, data, method } = commandInstance;
 
-  const url = builderConfig.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
+  const url = builder.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
 
-  return new Promise<ClientResponseType<any, any>>((resolve) => {
+  return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
     requestStartTimestamp = +new Date();
     responseStartTimestamp = null;
 
@@ -38,11 +39,11 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     xhr.open(method, url, true);
 
-    setClientHeaders(commandInstance, xhr);
-    getAbortController(command.abortKey)?.signal?.addEventListener("abort", xhr.abort);
+    setClientHeaders(commandInstance, xhr, options?.headerMapper);
+    getAbortController(command.builder, command.abortKey)?.signal?.addEventListener("abort", xhr.abort);
 
     // Request listeners
-    commandInstance.requestStartCallback?.();
+    command.builder.commandManager.events.emitRequestStart(getCacheKey(command), command);
     setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
 
     if (xhr.upload) {
@@ -61,7 +62,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      commandInstance.responseStartCallback?.();
+      command.builder.commandManager.events.emitResponseStart(getCacheKey(command), command);
     };
 
     // Error listeners
@@ -98,7 +99,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       } else {
         handleClientError(commandInstance, resolve, event);
       }
-      getAbortController(command.abortKey)?.signal?.removeEventListener("abort", xhr.abort);
+      getAbortController(command.builder, command.abortKey)?.signal?.removeEventListener("abort", xhr.abort);
     };
 
     // Send request

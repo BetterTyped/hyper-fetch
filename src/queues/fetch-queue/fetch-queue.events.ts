@@ -4,16 +4,15 @@ import { CacheKeyType } from "cache";
 import { FetchLoadingEventType } from "queues";
 import { getFetchLoadingEventKey } from "./fetch-queue.utils";
 
-export const fetchQueueEventEmitter = new EventEmitter();
-
-export const FETCH_QUEUE_EVENTS = {
+export const getFetchQueueEvents = (emitter: EventEmitter) => ({
   setLoading: (key: CacheKeyType, values: FetchLoadingEventType): void => {
-    fetchQueueEventEmitter.emit(getFetchLoadingEventKey(key), values);
+    emitter.emit(getFetchLoadingEventKey(key), values);
   },
-  getLoading: (key: CacheKeyType, callback: (values: FetchLoadingEventType) => void): void => {
-    fetchQueueEventEmitter.on(getFetchLoadingEventKey(key), callback);
+  getLoading: (key: CacheKeyType, callback: (values: FetchLoadingEventType) => void): VoidFunction => {
+    emitter.on(getFetchLoadingEventKey(key), callback);
+    return () => emitter.removeListener(getFetchLoadingEventKey(key), callback);
   },
   umount: <T extends (...args: any[]) => void>(key: CacheKeyType, callback: T): void => {
-    fetchQueueEventEmitter.removeListener(getFetchLoadingEventKey(key), callback);
+    emitter.removeListener(key, callback);
   },
-};
+});

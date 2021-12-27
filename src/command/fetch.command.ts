@@ -1,22 +1,19 @@
-import { HttpMethodsEnum } from "constants/http.constants";
-import { HttpMethodsType, NegativeTypes } from "types";
-import { FetchCommandDump, getAbortKey, addAbortController, abortCommand } from "command";
-import { ClientQueryParamsType, ClientResponseType } from "client";
-import { FetchBuilderConfig } from "../builder/fetch.builder.types";
 import {
-  ClientProgressCallback,
+  FetchCommandDump,
+  getAbortKey,
+  addAbortController,
+  abortCommand,
   DefaultOptionsType,
   ExtractRouteParams,
   FetchMethodType,
   FetchCommandOptions,
   FetchType,
   ParamsType,
-  ClientErrorCallback,
-  ClientFinishedCallback,
-  ClientSuccessCallback,
-  ClientStartCallback,
-  ClientResponseStartCallback,
-} from "./fetch.command.types";
+} from "command";
+import { HttpMethodsEnum } from "constants/http.constants";
+import { HttpMethodsType, NegativeTypes } from "types";
+import { ClientQueryParamsType, ClientResponseType } from "client";
+import { FetchBuilder } from "builder";
 
 export class FetchCommand<
   ResponseType,
@@ -48,7 +45,7 @@ export class FetchCommand<
   deepEqual?: boolean;
 
   constructor(
-    readonly builderConfig: FetchBuilderConfig<ErrorType, ClientOptions>,
+    readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
     readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
   ) {
@@ -59,7 +56,7 @@ export class FetchCommand<
     this.data = defaultOptions?.data;
     this.queryParams = defaultOptions?.queryParams;
     this.mockCallback = defaultOptions?.mockCallback;
-    this.abortKey = getAbortKey(this.method, this.builderConfig.baseUrl, this.endpoint);
+    this.abortKey = getAbortKey(this.method, this.builder.baseUrl, this.endpoint);
 
     this.cancelable = commandOptions.cancelable;
     this.retry = commandOptions.retry;
@@ -69,72 +66,8 @@ export class FetchCommand<
     this.queued = commandOptions.queued;
     this.deepEqual = commandOptions.deepEqual;
 
-    addAbortController(this.abortKey);
+    addAbortController(this.builder, this.abortKey);
   }
-
-  requestStartCallback: ClientStartCallback | undefined;
-  responseStartCallback: ClientResponseStartCallback | undefined;
-  requestProgressCallback: ClientProgressCallback | undefined;
-  responseProgressCallback: ClientProgressCallback | undefined;
-  onFinishedCallback: ClientFinishedCallback | undefined;
-  onErrorCallback: ClientErrorCallback | undefined;
-  onSuccessCallback: ClientSuccessCallback | undefined;
-
-  public onRequestStart = (callback: ClientStartCallback) => {
-    const cloned = this.clone();
-
-    cloned.requestStartCallback = callback;
-
-    return cloned;
-  };
-
-  public onResponseStart = (callback: ClientStartCallback) => {
-    const cloned = this.clone();
-
-    cloned.responseStartCallback = callback;
-
-    return cloned;
-  };
-
-  public onRequestProgress = (callback: ClientProgressCallback) => {
-    const cloned = this.clone();
-
-    cloned.requestProgressCallback = callback;
-
-    return cloned;
-  };
-
-  public onResponseProgress = (callback: ClientProgressCallback) => {
-    const cloned = this.clone();
-
-    cloned.responseProgressCallback = callback;
-
-    return cloned;
-  };
-
-  public onError = (callback: ClientErrorCallback) => {
-    const cloned = this.clone();
-
-    cloned.onErrorCallback = callback;
-
-    return cloned;
-  };
-
-  public onSuccess = (callback: ClientSuccessCallback) => {
-    const cloned = this.clone();
-
-    cloned.onSuccessCallback = callback;
-
-    return cloned;
-  };
-
-  public onFinished = (callback: ClientFinishedCallback) => {
-    const cloned = this.clone();
-
-    cloned.onFinishedCallback = callback;
-
-    return cloned;
-  };
 
   public setData = (data: PayloadType) => {
     return this.clone<true>({ data });
@@ -156,20 +89,8 @@ export class FetchCommand<
     return this.clone({ mockCallback });
   };
 
-  public clean = () => {
-    delete this.requestStartCallback;
-    delete this.responseStartCallback;
-    delete this.requestProgressCallback;
-    delete this.responseProgressCallback;
-    delete this.onFinishedCallback;
-    delete this.onErrorCallback;
-    delete this.onSuccessCallback;
-
-    return this;
-  };
-
   public abort = () => {
-    abortCommand(this.abortKey);
+    abortCommand(this.builder, this.abortKey, this);
 
     return this.clone();
   };
@@ -226,17 +147,9 @@ export class FetchCommand<
       D,
       P,
       Q
-    >(this.builderConfig, this.commandOptions, currentOptions);
+    >(this.builder, this.commandOptions, currentOptions);
 
-    return Object.assign(cloned, {
-      requestStartCallback: this.requestStartCallback,
-      responseStartCallback: this.responseStartCallback,
-      requestProgressCallback: this.requestProgressCallback,
-      responseProgressCallback: this.responseProgressCallback,
-      onFinishedCallback: this.onFinishedCallback,
-      onErrorCallback: this.onErrorCallback,
-      onSuccessCallback: this.onSuccessCallback,
-    });
+    return cloned;
   }
 
   public send: FetchMethodType<
@@ -253,7 +166,7 @@ export class FetchCommand<
 
     const command = this.clone(setup);
 
-    const { client } = this.builderConfig;
+    const { client } = this.builder;
 
     return client(command);
   };

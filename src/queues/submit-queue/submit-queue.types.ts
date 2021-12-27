@@ -36,15 +36,17 @@ export type SubmitQueueOptionsType = {
 // Events
 export type SubmitLoadingEventType = {
   isLoading: boolean;
-  isRefreshed: boolean;
-  isRevalidated: boolean;
   isRetry: boolean;
+};
+export type SubmitQueueStatusEventType = {
+  stopped: boolean;
 };
 
 // Storage
 export type SubmitQueueStorageType<ClientOptions> = {
   set: (key: string, data: SubmitQueueData<ClientOptions>) => void;
   get: (key: string) => SubmitQueueData<ClientOptions> | undefined;
+  keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
 };

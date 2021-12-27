@@ -2,6 +2,7 @@ import { FetchCommandInstance } from "command";
 import { ExtractFetchReturn, ExtractResponse, ExtractError } from "types";
 import { CacheValueType } from "cache";
 import { FetchLoadingEventType } from "queues";
+import { FetchProgressType } from "client";
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> = {
@@ -14,6 +15,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
   refresh?: boolean;
   refreshTime?: number;
+  refreshBlurred?: boolean;
   refreshOnTabBlur?: boolean;
   refreshOnTabFocus?: boolean;
   refreshOnReconnect?: boolean;
@@ -34,9 +36,14 @@ export type UseFetchReturnType<T extends FetchCommandInstance, MapperResponse = 
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
   isRefreshed: boolean;
   isRefreshingError: boolean;
   isDebouncing: boolean;
+  isStale: boolean;
   refresh: (invalidateKey?: string | FetchCommandInstance) => void;
 };
 
@@ -44,3 +51,5 @@ export type OnRequestCallbackType = (options: Omit<FetchLoadingEventType, "isLoa
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
+export type OnStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
+export type OnProgressCallbackType = (progress: FetchProgressType) => void;

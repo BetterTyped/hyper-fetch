@@ -12,6 +12,7 @@ export const useFetchDefaultOptions = {
   initialData: null,
   refresh: false,
   refreshTime: DateInterval.hour,
+  refreshBlurred: false,
   refreshOnTabBlur: false,
   refreshOnTabFocus: false,
   refreshOnReconnect: false,

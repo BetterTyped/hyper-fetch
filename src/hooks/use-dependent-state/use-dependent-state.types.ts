@@ -10,6 +10,8 @@ export type UseDependentStateType<DataType = any, ErrorType = any> = {
   isRefreshed: boolean;
   retries: number;
   timestamp: null | Date;
+  isOnline: boolean;
+  isFocused: boolean;
 };
 
 export type UseDependentStateActions<DataType, ErrorType> = {

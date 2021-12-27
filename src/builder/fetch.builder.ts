@@ -1,14 +1,15 @@
-import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
-import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import {
   RequestInterceptorCallback,
   ResponseInterceptorCallback,
-  FetchBuilderProps,
   ErrorMessageMapperCallback,
+  FetchBuilderProps,
+  CommandManager,
 } from "builder";
 import { Cache } from "cache";
+import { Manager } from "manager";
 import { FetchQueue, SubmitQueue } from "queues";
-import { FetchBuilderConfig } from "./fetch.builder.types";
+import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
+import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
 
 export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientXHR> {
   readonly baseUrl: string;
@@ -20,13 +21,14 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   onResponseCallbacks: ResponseInterceptorCallback[] = [];
 
   // Config
+  commandManager: CommandManager = new CommandManager();
   client: ClientType<ErrorType, ClientOptions> = fetchClient;
   cache: Cache<ErrorType>;
+  manager: Manager;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
   submitQueue: SubmitQueue<ErrorType, ClientOptions>;
 
-  // Offline
-  isOnline = true;
+  // Persisting actions
   actions = [];
 
   constructor({
@@ -34,6 +36,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     debug = false,
     options,
     cache,
+    manager,
     fetchQueue,
     submitQueue,
   }: FetchBuilderProps<ErrorType, ClientOptions>) {
@@ -41,18 +44,9 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.debug = debug;
     this.options = options;
     this.cache = cache || new Cache();
+    this.manager = manager || new Manager();
     this.fetchQueue = fetchQueue || new FetchQueue<ErrorType, ClientOptions>(this);
     this.submitQueue = submitQueue || new SubmitQueue<ErrorType, ClientOptions>(this);
-
-    /**
-     * TODO Persist queue renew
-     * When application mounts, we need to start persisting queue elements
-     * as they did not finished their previous life cycle
-     * Challenge: Trigger it with debounce after all methods got applied?
-     * EG. new Builder().onResponse().onRequest()...
-     * ----flush starts-----methods added later may change the way it works, but will not get applied
-     * Persistence will get rid of any effects applied to the command :(
-     */
   }
 
   setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
@@ -79,9 +73,15 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.cache.clear();
     this.fetchQueue.clear();
     this.submitQueue.clear();
+    this.commandManager.abortControllers.clear();
+
+    this.cache.emitter.removeAllListeners();
+    this.fetchQueue.emitter.removeAllListeners();
+    this.submitQueue.emitter.removeAllListeners();
+    this.commandManager.emitter.removeAllListeners();
   };
 
-  private handleRequestCallbacks = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
+  modifyRequestCallbacks = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
@@ -92,7 +92,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newCommand;
   };
 
-  private handleResponseCallbacks = async <T extends FetchCommandInstance>(
+  modifyResponseCallbacks = async <T extends FetchCommandInstance>(
     response: ClientResponseType<any, ErrorType>,
     command: T,
   ) => {
@@ -106,28 +106,13 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newResponse;
   };
 
-  public getBuilderConfig = (): FetchBuilderConfig<ErrorType, ClientOptions> => ({
-    baseUrl: this.baseUrl,
-    debug: this.debug,
-    options: this.options,
-    onErrorCallback: this.onErrorCallback,
-    onRequestCallbacks: this.handleRequestCallbacks,
-    onResponseCallbacks: this.handleResponseCallbacks,
-    client: this.client,
-    cache: this.cache,
-    fetchQueue: this.fetchQueue,
-    submitQueue: this.submitQueue,
-    isOnline: this.isOnline,
-    actions: this.actions,
-  });
-
   public create =
     <ResponseType, PayloadType = undefined, QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType>() =>
     <EndpointType extends string>(
       params: FetchCommandOptions<EndpointType, ClientOptions>,
     ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions> =>
       new FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>(
-        this.getBuilderConfig(),
+        this,
         params,
       );
 }

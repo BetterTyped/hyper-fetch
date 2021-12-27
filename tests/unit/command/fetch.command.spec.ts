@@ -1,8 +1,10 @@
+import { getCacheKey } from "cache";
 import { FetchBuilder } from "builder";
-import { FetchCommandOptions } from "command";
 import { ClientResponseType, ClientType } from "client";
+import { FetchCommandOptions } from "command";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
+import { testBuilder } from "../../utils/server/server.constants";
 
 const options = {
   endpoint: "/some-endpoint",
@@ -19,6 +21,7 @@ describe("Basic FetchCommand usage", () => {
 
   afterAll(() => {
     stopServer();
+    testBuilder.clear();
   });
 
   it("should assign provided props", async () => {
@@ -39,29 +42,6 @@ describe("Basic FetchCommand usage", () => {
     expect(command.commandOptions.options).toStrictEqual(props.options);
     expect(command.commandOptions.disableResponseInterceptors).toBe(props.disableResponseInterceptors);
     expect(command.commandOptions.disableRequestInterceptors).toBe(props.disableRequestInterceptors);
-  });
-
-  it("should initialize with applied methods", async () => {
-    const callback: any = () => null;
-
-    const builder = new FetchBuilder({ baseUrl: "/some-url" });
-    const command = builder
-      .create()(options)
-      .onRequestStart(callback)
-      .onResponseStart(callback)
-      .onRequestProgress(callback)
-      .onResponseProgress(callback)
-      .onError(callback)
-      .onSuccess(callback)
-      .onFinished(callback);
-
-    expect(command.requestStartCallback).toBeDefined();
-    expect(command.responseStartCallback).toBeDefined();
-    expect(command.requestProgressCallback).toBeDefined();
-    expect(command.responseProgressCallback).toBeDefined();
-    expect(command.onErrorCallback).toBeDefined();
-    expect(command.onSuccessCallback).toBeDefined();
-    expect(command.onFinishedCallback).toBeDefined();
   });
 
   it("should allow to set data using setData method", async () => {
@@ -149,14 +129,15 @@ describe("Basic FetchCommand usage", () => {
     let reqProgress = 0;
     let resProgress = 0;
 
-    await getManyRequest
-      .onRequestProgress(({ progress }) => {
-        reqProgress = progress;
-      })
-      .onResponseProgress(({ progress }) => {
-        resProgress = progress;
-      })
-      .send();
+    testBuilder.commandManager.events.onDownloadProgress(getCacheKey(getManyRequest), ({ progress }) => {
+      resProgress = progress;
+    });
+
+    testBuilder.commandManager.events.onUploadProgress(getCacheKey(getManyRequest), ({ progress }) => {
+      reqProgress = progress;
+    });
+
+    await getManyRequest.send();
 
     expect(reqProgress).toBe(100);
     expect(resProgress).toBe(100);
@@ -168,44 +149,13 @@ describe("Basic FetchCommand usage", () => {
     const startReqFn = jest.fn();
     const startResFn = jest.fn();
 
-    await getManyRequest.onRequestStart(startReqFn).onResponseStart(startResFn).send();
+    testBuilder.commandManager.events.onRequestStart(getCacheKey(getManyRequest), startReqFn);
+    testBuilder.commandManager.events.onResponseStart(getCacheKey(getManyRequest), startResFn);
+
+    await getManyRequest.send();
 
     expect(startReqFn).toBeCalledTimes(1);
     expect(startResFn).toBeCalledTimes(1);
-  });
-
-  it("should trigger onError callback once error occurs", async () => {
-    interceptGetMany(400);
-
-    const errorFn = jest.fn();
-
-    await getManyRequest.onError(errorFn).send();
-
-    expect(errorFn).toBeCalledTimes(1);
-  });
-
-  it("should trigger onSuccess callback once request is successful", async () => {
-    interceptGetMany(200);
-
-    const successFn = jest.fn();
-
-    await getManyRequest.onSuccess(successFn).send();
-
-    expect(successFn).toBeCalledTimes(1);
-  });
-
-  it("should trigger onFinished callback once request is successful or failed", async () => {
-    interceptGetMany(200);
-
-    const finishedFn = jest.fn();
-
-    await getManyRequest.onFinished(finishedFn).send();
-
-    interceptGetMany(400);
-
-    await getManyRequest.onFinished(finishedFn).send();
-
-    expect(finishedFn).toBeCalledTimes(2);
   });
 
   it("should map params with the endpoint", async () => {

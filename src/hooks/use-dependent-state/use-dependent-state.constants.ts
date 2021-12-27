@@ -10,4 +10,6 @@ export const initialState: UseDependentStateType = {
   isRefreshed: false,
   retries: 0,
   timestamp: null,
+  isOnline: true,
+  isFocused: true,
 };

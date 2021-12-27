@@ -1,6 +1,14 @@
+import EventEmitter from "events";
+
+import {
+  SubmitQueueStorageType,
+  SubmitQueueStoreKeyType,
+  SubmitQueueData,
+  SubmitQueueDumpValueType,
+  getSubmitQueueEvents,
+} from "queues";
 import { FetchBuilder } from "builder";
 import { FetchCommandInstance, FetchCommand } from "command";
-import { SubmitQueueStorageType, SubmitQueueStoreKeyType, SubmitQueueData, SubmitQueueDumpValueType } from "queues";
 import { SubmitQueueValueType } from "./submit-queue.types";
 
 /**
@@ -8,13 +16,23 @@ import { SubmitQueueValueType } from "./submit-queue.types";
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
 export class SubmitQueue<ErrorType, ClientOptions> {
+  emitter = new EventEmitter();
+  events = getSubmitQueueEvents(this.emitter);
+
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
     private storage: SubmitQueueStorageType<ClientOptions> = new Map<
       SubmitQueueStoreKeyType,
       SubmitQueueData<ClientOptions>
     >(),
-  ) {}
+  ) {
+    // Start all persisting requests
+    this.flushAll();
+    // Start all pending requests that were disabled since going offline
+    builder.manager.events.onOnline(() => {
+      this.flushAll();
+    });
+  }
 
   private runningRequests = new Map<string, FetchCommandInstance[]>();
 
@@ -31,7 +49,25 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     this.flush(queueKey);
   };
 
+  /**
+   * Pause request queue, but not cancel already started requests
+   * @param queueKey
+   */
   pauseQueue = (queueKey: string) => {
+    // Change state to stopped
+    const queue = this.storage.get(queueKey);
+
+    if (queue) {
+      queue.stopped = true;
+      this.storage.set(queueKey, queue);
+    }
+  };
+
+  /**
+   * Stop request queue and cancel all started requests - those will be treated like not started
+   * @param queueKey
+   */
+  stopQueue = (queueKey: string) => {
     // Change state to stopped
     const queue = this.storage.get(queueKey);
 
@@ -54,6 +90,10 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     const { endpointKey, requestKey } = queueElement;
     const { retry, retryTime } = queueElement.request;
 
+    this.events.setLoading(endpointKey, {
+      isLoading: true,
+      isRetry: !!retry,
+    });
     const response = await requestCommand.send();
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -104,13 +144,26 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     if (!queueElement || !queue?.stopped || !queue?.requests || runningRequests?.length) return;
 
     // 1. Start request
-    const requestCommand = new FetchCommand(this.builder.getBuilderConfig(), queueElement.request);
+    const requestCommand = new FetchCommand(this.builder, queueElement.request);
     // 2. Add single running request
     this.runningRequests.set(queueKey, [requestCommand]);
     // 3. Trigger Request
     await this.performRequest(queueKey, requestCommand, queueElement, true);
     // 4. Take another task
     this.flush(queueKey);
+  };
+
+  flushAll = () => {
+    const keys = this.storage.keys();
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key of keys) {
+      const queueElementDump = this.storage.get(key);
+
+      if (queueElementDump) {
+        this.flush(key);
+      }
+    }
   };
 
   add = async (queueKey: string, queueElement: SubmitQueueValueType) => {
@@ -146,10 +199,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       // Request will be performed in 3. step
     }
     // 3. All at once
-    const requestCommand = new FetchCommand(
-      this.builder.getBuilderConfig(),
-      queueElement.request,
-    ) as FetchCommandInstance;
+    const requestCommand = new FetchCommand(this.builder, queueElement.request) as FetchCommandInstance;
     queue.requests.push(queueElementDump);
     this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
     this.storage.set(queueKey, queue);

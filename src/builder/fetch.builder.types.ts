@@ -1,31 +1,21 @@
-import { FetchQueue, SubmitQueue } from "queues";
 import { Cache } from "cache";
-import { ClientResponseType, ClientType } from "client";
-import { FetchCommandInstance } from "../command/fetch.command.types";
+import { FetchCommandInstance } from "command";
+import { FetchQueue, SubmitQueue } from "queues";
+import { ClientResponseType } from "client";
+import { FetchBuilder } from "builder";
+import { Manager } from "manager";
 
 export type FetchBuilderProps<ErrorType, ClientOptions> = {
   baseUrl: string;
   debug?: boolean;
   options?: ClientOptions;
   cache?: Cache<ErrorType>;
+  manager?: Manager;
   fetchQueue?: FetchQueue<ErrorType, ClientOptions>;
   submitQueue?: SubmitQueue<ErrorType, ClientOptions>;
 };
 
-export type FetchBuilderConfig<ErrorType, ClientOptions> = {
-  baseUrl: string;
-  debug: boolean;
-  options: ClientOptions | undefined;
-  client: ClientType<ErrorType, ClientOptions>;
-  onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
-  onRequestCallbacks: RequestInterceptorCallback;
-  onResponseCallbacks: ResponseInterceptorCallback;
-  cache: Cache<ErrorType>;
-  fetchQueue: FetchQueue<ErrorType, ClientOptions>;
-  submitQueue: SubmitQueue<ErrorType, ClientOptions>;
-  isOnline: boolean;
-  actions: FetchAction[];
-};
+export type FetchBuilderInstance = FetchBuilder<any, any>;
 
 // Interceptors
 export type ErrorMessageMapperCallback<ErrorType> = (error: any) => Promise<ErrorType> | ErrorType;

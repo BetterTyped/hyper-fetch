@@ -1,4 +1,4 @@
-import { FetchCommand } from "command";
+import { FetchCommand, FetchCommandInstance } from "command";
 
 // Client
 
@@ -8,7 +8,10 @@ export type ClientType<ErrorType, ClientOptions> = (
 ) => Promise<ClientResponseType<any, ErrorType>>;
 
 export type FetchClientXHR = Partial<XMLHttpRequest>;
-export type FetchClientOptions = { queryParams: QueryStringifyOptions };
+export type FetchClientOptions = {
+  queryParams: QueryStringifyOptions;
+  headerMapper: <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest) => void;
+};
 
 // Responses
 
@@ -46,4 +49,12 @@ export type QueryStringifyOptions = {
   arraySeparator?: string;
   skipNull?: boolean;
   skipEmptyString?: boolean;
+};
+
+// Progress
+
+export type FetchProgressType = {
+  progress: number;
+  timeLeft: number;
+  sizeLeft: number;
 };

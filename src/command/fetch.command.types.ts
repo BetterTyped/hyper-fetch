@@ -1,27 +1,10 @@
-import { ClientResponseType, ClientResponseSuccessType, ClientResponseErrorType, ClientQueryParamsType } from "client";
-import { HttpMethodsType, NegativeTypes, ExtractResponse, ExtractError } from "types";
+import { ClientResponseType, ClientQueryParamsType } from "client";
+import { HttpMethodsType, NegativeTypes } from "types";
 import { FetchCommand } from "./fetch.command";
 
 // Progress
 export type ClientProgressEvent = { total: number; loaded: number };
 export type ClientProgressResponse = { progress: number; timeLeft: number; sizeLeft: number };
-
-// Callbacks
-export type ClientStartCallback = () => void;
-export type ClientResponseStartCallback = () => void;
-export type ClientProgressCallback = ({ progress, timeLeft, sizeLeft }: ClientProgressResponse) => void;
-export type ClientErrorCallback = <T extends FetchCommandInstance>(
-  response: ClientResponseErrorType<ExtractError<T>>,
-  command: T,
-) => void;
-export type ClientSuccessCallback = <T extends FetchCommandInstance>(
-  response: ClientResponseSuccessType<ExtractResponse<T>>,
-  command: T,
-) => void;
-export type ClientFinishedCallback = <T extends FetchCommandInstance>(
-  response: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-  command: T,
-) => void;
 
 // Dump
 
