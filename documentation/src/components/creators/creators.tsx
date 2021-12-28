@@ -13,22 +13,15 @@ export function Creators(): JSX.Element {
             <h2 className={clsx(styles.image)}>
               <img alt="" src="" />
             </h2>
-            <h2 className={clsx(styles.title)}>Name</h2>
-            <div className={clsx(styles.description)}>Description</div>
+            <h2 className={clsx(styles.title)}>Maciej</h2>
+            <div className={clsx(styles.description)}>The man, the myth, the ultimate coding machine</div>
           </div>
           <div className={clsx(styles.block)}>
             <h2 className={clsx(styles.image)}>
               <img alt="" src="" />
             </h2>
-            <h2 className={clsx(styles.title)}>Name</h2>
-            <div className={clsx(styles.description)}>Description</div>
-          </div>
-          <div className={clsx(styles.block)}>
-            <h2 className={clsx(styles.image)}>
-              <img alt="" src="" />
-            </h2>
-            <h2 className={clsx(styles.title)}>Name</h2>
-            <div className={clsx(styles.description)}>Description</div>
+            <h2 className={clsx(styles.title)}>Kacper</h2>
+            <div className={clsx(styles.description)}>Found edge case in General Theory Of Relativity</div>
           </div>
         </div>
       </div>

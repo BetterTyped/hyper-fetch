@@ -5,16 +5,16 @@
  */
 
 /* You can override the default Infima variables here. */
-@import url("https://fonts.googleapis.com/css2?family=Teko:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Viga&display=swap");
 
 :root {
-  --ifm-color-primary: rgb(204, 168, 2); /* Links */
-  --ifm-color-primary-dark: #e9e613;
-  --ifm-color-primary-darker: rgb(165, 145, 31);
-  --ifm-color-primary-darkest: rgb(136, 119, 26);
-  --ifm-color-primary-light: rgb(194, 203, 70);
-  --ifm-color-primary-lighter: rgb(201, 212, 102);
-  --ifm-color-primary-lightest: rgb(219, 224, 146);
+  --ifm-color-primary: rgb(223, 188, 13); /* Links */
+  --ifm-color-primary-dark: rgb(241, 204, 14); /* Hover */
+  --ifm-color-primary-darker: rgb(185, 161, 25);
+  --ifm-color-primary-darkest: rgb(156, 136, 19);
+  --ifm-color-primary-light: rgb(236, 204, 43);
+  --ifm-color-primary-lighter: rgb(243, 213, 64);
+  --ifm-color-primary-lightest: rgb(247, 219, 78);
   --ifm-code-font-size: 95%;
 }
 
@@ -77,8 +77,8 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
 /* Navigation */
 
 .navbar__title {
-  font-size: 28px;
-  font-family: "Teko", sans-serif;
+  font-size: 22px;
+  font-family: "Viga", sans-serif;
 }
 
 .navbar__items--right {
@@ -170,4 +170,11 @@ html[data-theme="dark"] .navbar-sidebar .github {
 
 .navbar-sidebar .github span {
   display: initial;
+}
+
+/* Footer */
+
+.footer__copyright {
+  margin-top: 60px;
+  color: var(--ifm-color-emphasis-400);
 }
