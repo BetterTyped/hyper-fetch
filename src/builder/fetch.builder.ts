@@ -33,7 +33,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
 
   constructor({
     baseUrl,
-    debug = false,
+    debug,
     options,
     cache,
     manager,
@@ -41,7 +41,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     submitQueue,
   }: FetchBuilderProps<ErrorType, ClientOptions>) {
     this.baseUrl = baseUrl;
-    this.debug = debug;
+    this.debug = debug || false;
     this.options = options;
     this.cache = cache || new Cache();
     this.manager = manager || new Manager();
@@ -81,7 +81,8 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.commandManager.emitter.removeAllListeners();
   };
 
-  modifyRequestCallbacks = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
+  // TODO - move to the client method -> should not be accessible for user.
+  modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
@@ -92,10 +93,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newCommand;
   };
 
-  modifyResponseCallbacks = async <T extends FetchCommandInstance>(
-    response: ClientResponseType<any, ErrorType>,
-    command: T,
-  ) => {
+  modifyResponse = async <T extends FetchCommandInstance>(response: ClientResponseType<any, ErrorType>, command: T) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax

@@ -223,7 +223,7 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
-  await command.builder.modifyResponseCallbacks(responseData, command);
+  await command.builder.modifyResponse(responseData, command);
   resolve(responseData);
 };
 
@@ -240,6 +240,6 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
-  await command.builder.modifyResponseCallbacks(responseData, command);
+  await command.builder.modifyResponse(responseData, command);
   resolve(responseData);
 };

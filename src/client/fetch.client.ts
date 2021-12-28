@@ -25,7 +25,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  const commandInstance = await command.builder.modifyRequestCallbacks(command);
+  const commandInstance = await command.builder.modifyRequest(command);
   const { builder, endpoint, queryParams, data, method } = commandInstance;
 
   const url = builder.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
