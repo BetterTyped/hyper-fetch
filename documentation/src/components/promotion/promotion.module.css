@@ -1,0 +1,16 @@
+.container {
+  padding: 80px 0;
+  background: var(--section-background);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.title span {
+  color: var(--ifm-color-primary);
+}

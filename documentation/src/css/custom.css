@@ -5,15 +5,31 @@
  */
 
 /* You can override the default Infima variables here. */
+@import url("https://fonts.googleapis.com/css2?family=Teko:wght@500&display=swap");
+
 :root {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
+  --ifm-color-primary: rgb(204, 168, 2); /* Links */
+  --ifm-color-primary-dark: #e9e613;
+  --ifm-color-primary-darker: rgb(165, 145, 31);
+  --ifm-color-primary-darkest: rgb(136, 119, 26);
+  --ifm-color-primary-light: rgb(194, 203, 70);
+  --ifm-color-primary-lighter: rgb(201, 212, 102);
+  --ifm-color-primary-lightest: rgb(219, 224, 146);
   --ifm-code-font-size: 95%;
+}
+
+html[data-theme="dark"] .footer--dark {
+  --ifm-footer-background-color: #0c0d0e;
+  --section-background: var(--ifm-background-surface-color);
+}
+
+html[data-theme="dark"] {
+  --ifm-footer-background-color: #0c0d0e;
+  --section-background: var(--ifm-background-surface-color);
+}
+
+html[data-theme="light"] {
+  --section-background: #e9e9e9;
 }
 
 .docusaurus-highlight-code-line {
@@ -25,4 +41,133 @@
 
 html[data-theme="dark"] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Headings */
+
+.page-section-title,
+.page-section-title-center {
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 40px;
+}
+
+.page-section-title::before,
+.page-section-title-center::before {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 12px;
+  width: 50px;
+  height: 1px;
+  content: "";
+  display: block;
+  background: var(--ifm-color-primary);
+}
+
+.page-section-title-center {
+  text-align: center;
+}
+
+.page-section-title-center::before {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Navigation */
+
+.navbar__title {
+  font-size: 28px;
+  font-family: "Teko", sans-serif;
+}
+
+.navbar__items--right {
+  flex-direction: row-reverse;
+  gap: 10px;
+}
+
+/* Search */
+
+.aa-Autocomplete .aa-DetachedSearchButton {
+  height: 32px;
+  border-radius: 2rem;
+  font-size: 0.9rem;
+  width: 160px;
+  color: var(--ifm-navbar-search-input-color);
+  background: var(--ifm-navbar-search-input-background-color);
+  border-color: var(--ifm-navbar-search-input-background-color);
+}
+.aa-Autocomplete .aa-DetachedSearchButton:focus {
+  border-color: var(--ifm-color-primary);
+  box-shadow: rgba(204, 168, 2, 0.1) 0 0 0 3px, inset rgba(204, 168, 2, 0.1) 0 0 0 2px;
+}
+.aa-Autocomplete svg {
+  fill: var(--ifm-navbar-link-color);
+}
+.aa-Autocomplete .aa-DetachedSearchButtonPlaceholder {
+  color: var(--ifm-navbar-search-input-placeholder-color);
+}
+
+/* Search content */
+.aa-DetachedOverlay .aa-Form:focus-within {
+  border-color: var(--ifm-color-primary);
+  box-shadow: rgba(204, 168, 2, 0.1) 0 0 0 3px, inset rgba(204, 168, 2, 0.1) 0 0 0 2px;
+}
+.aa-DetachedOverlay svg {
+  fill: var(--ifm-navbar-link-color);
+}
+.aa-DetachedOverlay svg.aa-SubmitIcon {
+  margin-top: 2px;
+}
+.aa-DetachedOverlay .aa-Input::placeholder {
+  color: var(--ifm-navbar-search-input-placeholder-color);
+}
+
+@media (max-width: 500px) {
+  .aa-Autocomplete .aa-DetachedSearchButton {
+    width: 34px;
+  }
+  .aa-Autocomplete .aa-DetachedSearchButtonPlaceholder {
+    display: none;
+  }
+}
+
+/* Github icon */
+
+.github {
+  padding: var(--ifm-navbar-item-padding-vertical);
+}
+
+.github::before {
+  display: block;
+  background-image: url("/img/github.svg");
+  background-size: contain;
+  content: "";
+  width: 24px;
+  height: 24px;
+}
+
+.github span {
+  display: none;
+}
+
+.github:hover {
+  opacity: 0.7;
+}
+
+html[data-theme="dark"] .github {
+  filter: invert(100%);
+}
+
+html[data-theme="dark"] .navbar-sidebar .github {
+  filter: invert(0%);
+  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
+}
+
+.navbar-sidebar .github::before {
+  display: none;
+}
+
+.navbar-sidebar .github span {
+  display: initial;
 }

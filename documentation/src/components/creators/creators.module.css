@@ -1,0 +1,17 @@
+.container {
+  margin: 0 0 80px;
+  padding: 80px 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.title {
+  text-align: center;
+}
+
+.description {
+  text-align: center;
+}

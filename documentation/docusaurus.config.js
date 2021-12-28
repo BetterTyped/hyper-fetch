@@ -6,15 +6,37 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "My Site",
-  tagline: "Dinosaurs are cool",
+  title: "Hyper Fetch - Ultimate fetching solution",
+  tagline: "One tool to cover your fetching requirements",
   url: "https://your-docusaurus-test-site.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  organizationName: "BetterTyped", // Usually your GitHub org/user name.
+  projectName: "Hyper Fetch", // Usually your repo name.
+
+  plugins: [
+    require.resolve("@cmfcmf/docusaurus-search-local"),
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "examples",
+        path: "examples",
+        routeBasePath: "examples",
+        sidebarPath: require.resolve("./sidebars.js"),
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "resources",
+        path: "resources",
+        routeBasePath: "resources",
+        sidebarPath: require.resolve("./sidebars.js"),
+      },
+    ],
+  ],
 
   presets: [
     [
@@ -22,9 +44,17 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl: "https://github.com/facebook/docusaurus/edit/main/website/",
+          lastVersion: "current",
+          versions: {
+            current: {
+              label: "next",
+              path: "next",
+            },
+          },
         },
         blog: {
           showReadingTime: true,
@@ -33,6 +63,9 @@ const config = {
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
+          colorMode: {
+            defaultMode: "dark",
+          },
         },
       }),
     ],
@@ -42,7 +75,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "My Site",
+        title: "Hyper Fetch",
         logo: {
           alt: "My Site Logo",
           src: "img/logo.svg",
@@ -50,15 +83,32 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "intro",
+            docId: "Getting Started/Overview",
             position: "left",
-            label: "Tutorial",
+            label: "Docs",
+            activeBaseRegex: `/docs/`,
           },
-          { to: "/blog", label: "Blog", position: "left" },
           {
-            href: "https://github.com/facebook/docusaurus",
-            label: "GitHub",
+            to: "/examples/Setup",
+            label: "Examples",
+            position: "left",
+            activeBaseRegex: `/examples/`,
+          },
+          {
+            to: "/resources/Community",
+            label: "Resources",
+            position: "left",
+            activeBaseRegex: `/resources/`,
+          },
+          // {
+          //   type: "docsVersionDropdown",
+          //   position: "right",
+          // },
+          {
+            href: "https://github.com/graphql-go/graphql",
+            label: "Github",
             position: "right",
+            className: "github",
           },
         ],
       },
