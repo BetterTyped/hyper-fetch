@@ -1,5 +1,5 @@
 import { ClientResponseType, ClientQueryParamsType } from "client";
-import { HttpMethodsType, NegativeTypes } from "types";
+import { HttpMethodsType, NegativeTypes, NullableKeys } from "types";
 import { FetchCommand } from "./fetch.command";
 
 // Progress
@@ -8,10 +8,16 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 
 // Dump
 
-export type FetchCommandDump<ClientOptions> = Omit<FetchCommandOptions<string, ClientOptions>, "method"> & {
+export type FetchCommandDump<ClientOptions> = Omit<
+  FetchCommandOptions<string, ClientOptions>,
+  "method" | "abortKey" | "cacheKey" | "queueKey"
+> & {
   method: HttpMethodsType;
   data?: unknown;
   queryParams: ClientQueryParamsType | string | NegativeTypes;
+  abortKey: string;
+  cacheKey: string;
+  queueKey: string;
 };
 
 // Command
@@ -23,12 +29,14 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   retry?: boolean | number;
   retryTime?: number;
   cacheTime?: number;
-  cacheKey?: string;
   queued?: boolean;
   deepEqual?: boolean;
   disableResponseInterceptors?: boolean;
   disableRequestInterceptors?: boolean;
   options?: ClientOptions;
+  abortKey?: string;
+  cacheKey?: string;
+  queueKey?: string;
 };
 
 export type DefaultOptionsType<
@@ -37,14 +45,14 @@ export type DefaultOptionsType<
   QueryParamsType,
   ErrorType,
   GenericEndpoint extends string,
+  ClientOptions,
 > = {
-  endpoint?: GenericEndpoint | NegativeTypes;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParamsType | string | NegativeTypes;
   data?: PayloadType | NegativeTypes;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
-};
+} & Partial<NullableKeys<FetchCommandOptions<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;

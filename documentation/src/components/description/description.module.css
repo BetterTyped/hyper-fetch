@@ -1,11 +1,29 @@
 .container {
-  margin-top: 80px;
   padding: 80px 0;
   background: var(--section-background);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 50px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 50px 30px;
+}
+
+@media (max-width: 992px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 1.2em;
+  }
+  .description {
+    font-size: 1em;
+  }
 }

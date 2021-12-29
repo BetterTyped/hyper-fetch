@@ -9,7 +9,11 @@ export function Promotion(): JSX.Element {
       <div className="container">
         <div className={clsx(styles.row)}>
           <h1 className={clsx(styles.title)}>
-            Check out <span>BetterTyped</span> projects!
+            Check out{" "}
+            <a href="https://bettertyped.com/" target="_blank">
+              BetterTyped
+            </a>{" "}
+            projects!
           </h1>
 
           <a className="button button--primary button--lg" href="https://github.com/BetterTyped" target="_blank">

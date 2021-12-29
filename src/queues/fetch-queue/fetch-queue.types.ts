@@ -2,18 +2,17 @@ import { FetchCommandDump, FetchCommandInstance } from "command";
 
 // Values
 export type FetchQueueStoreKeyType = string;
-export type FetchQueueStoreValueType = FetchQueueValueType;
-export type FetchQueueValueType = {
+export type FetchQueueStoreValueType = FetchCommandInstance;
+export type FetchQueueValueOptionsType = {
+  isRefreshed?: boolean;
+  isRevalidated?: boolean;
+};
+
+export type FetchQueueDumpValueType<ClientOptions> = {
   isRefreshed: boolean;
   isRevalidated: boolean;
-  endpointKey: string;
-  requestKey: string;
-  request: FetchCommandInstance;
+  commandDump: FetchCommandDump<ClientOptions>;
   retries: number;
-  timestamp: Date;
-};
-export type FetchQueueDumpValueType<ClientOptions> = Omit<FetchQueueValueType, "request" | "timestamp"> & {
-  request: FetchCommandDump<ClientOptions>;
   timestamp: number;
 };
 

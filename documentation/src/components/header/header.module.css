@@ -1,6 +1,7 @@
 .container {
   position: relative;
   min-height: 400px;
+  padding: 80px 0 100px;
 }
 
 .wrapper {
@@ -9,12 +10,13 @@
 }
 
 .title {
-  margin: 80px auto 120px;
+  margin: 0px auto 120px;
   text-align: center;
+  font-family: "Viga", sans-serif;
 }
 
 .tagline {
-  font-size: 60px;
+  font-size: 3.8em;
   max-width: 700px;
   margin: 0 auto 100px;
   text-align: center;
@@ -25,23 +27,52 @@ html[data-theme="dark"] .tagline {
   text-shadow: 0px 0px 3px var(--ifm-color-emphasis-200);
 }
 
-.description {
-  max-width: 800px;
-  margin: 0 auto 20px;
-  text-align: center;
-}
-
 .buttons {
   display: flex;
   gap: 20px;
   justify-content: center;
 }
 
+.powered {
+  display: flex;
+  white-space: nowrap;
+  position: absolute;
+  bottom: 0;
+  font-family: "Viga", sans-serif;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.powered a {
+  margin-left: 5px;
+}
+
+@media (max-width: 650px) {
+  .tagline {
+    font-size: 3em;
+  }
+}
+
+@media (max-width: 450px) {
+  .tagline {
+    font-size: 2.2em;
+  }
+  .buttons {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 350px) {
+  .tagline {
+    font-size: 1.8em;
+  }
+}
+
 /* Animation */
 .animation {
   position: absolute;
   z-index: 1;
-  top: 40px;
+  top: 120px;
   left: 0;
   right: 0;
   overflow: hidden;

@@ -15,3 +15,9 @@
 .description {
   text-align: center;
 }
+
+@media (max-width: 650px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

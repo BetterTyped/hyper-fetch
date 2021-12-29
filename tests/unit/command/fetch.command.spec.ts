@@ -1,4 +1,4 @@
-import { getCacheKey } from "cache";
+import { getCacheRequestKey } from "cache";
 import { FetchBuilder } from "builder";
 import { ClientResponseType, ClientType } from "client";
 import { FetchCommandOptions } from "command";
@@ -129,11 +129,11 @@ describe("Basic FetchCommand usage", () => {
     let reqProgress = 0;
     let resProgress = 0;
 
-    testBuilder.commandManager.events.onDownloadProgress(getCacheKey(getManyRequest), ({ progress }) => {
+    testBuilder.commandManager.events.onDownloadProgress(getCacheRequestKey(getManyRequest), ({ progress }) => {
       resProgress = progress;
     });
 
-    testBuilder.commandManager.events.onUploadProgress(getCacheKey(getManyRequest), ({ progress }) => {
+    testBuilder.commandManager.events.onUploadProgress(getCacheRequestKey(getManyRequest), ({ progress }) => {
       reqProgress = progress;
     });
 
@@ -149,8 +149,8 @@ describe("Basic FetchCommand usage", () => {
     const startReqFn = jest.fn();
     const startResFn = jest.fn();
 
-    testBuilder.commandManager.events.onRequestStart(getCacheKey(getManyRequest), startReqFn);
-    testBuilder.commandManager.events.onResponseStart(getCacheKey(getManyRequest), startResFn);
+    testBuilder.commandManager.events.onRequestStart(getCacheRequestKey(getManyRequest), startReqFn);
+    testBuilder.commandManager.events.onResponseStart(getCacheRequestKey(getManyRequest), startResFn);
 
     await getManyRequest.send();
 

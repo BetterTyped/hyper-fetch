@@ -5,7 +5,7 @@ import {
   FetchBuilderProps,
   CommandManager,
 } from "builder";
-import { Cache } from "cache";
+import { Cache, isEqual } from "cache";
 import { Manager } from "manager";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
@@ -27,6 +27,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   manager: Manager;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
   submitQueue: SubmitQueue<ErrorType, ClientOptions>;
+  deepEqual: typeof isEqual;
 
   // Persisting actions
   actions = [];
@@ -39,6 +40,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     manager,
     fetchQueue,
     submitQueue,
+    deepEqual,
   }: FetchBuilderProps<ErrorType, ClientOptions>) {
     this.baseUrl = baseUrl;
     this.debug = debug || false;
@@ -47,6 +49,7 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.manager = manager || new Manager();
     this.fetchQueue = fetchQueue || new FetchQueue<ErrorType, ClientOptions>(this);
     this.submitQueue = submitQueue || new SubmitQueue<ErrorType, ClientOptions>(this);
+    this.deepEqual = deepEqual || isEqual;
   }
 
   setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
@@ -81,7 +84,6 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.commandManager.emitter.removeAllListeners();
   };
 
-  // TODO - move to the client method -> should not be accessible for user.
   modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {

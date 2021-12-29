@@ -9,7 +9,7 @@ import { UseDependentStateActions, UseDependentStateType } from "./use-dependent
 import { getInitialDependentStateData } from "./use-dependent-state.utils";
 
 export const useDependentState = <T extends FetchCommandInstance>(
-  endpointKey: string,
+  cacheKey: string,
   requestKey: string,
   builder: FetchBuilder<ExtractError<T>, ExtractClientOptions<T>>,
   initialData: NullableType<CacheValueType>,
@@ -63,7 +63,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     setCacheData: (cacheData, emitToCache = true) => {
       if (emitToCache) {
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           ...cacheData,
         });
@@ -90,7 +90,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [data, currentState.error, currentState.status],
           retries: currentState.retries,
@@ -105,7 +105,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, error, currentState.status],
           retries: currentState.retries,
@@ -133,7 +133,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, currentState.error, status],
           retries: currentState.retries,
@@ -148,7 +148,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],
           retries: currentState.retries,
@@ -163,7 +163,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, refreshError, currentState.status],
           retries: currentState.retries,
@@ -178,7 +178,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, retryError, currentState.status],
           retries: currentState.retries,
@@ -193,7 +193,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],
           retries,
@@ -208,7 +208,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
       if (emitToCache) {
         const currentState = state.current;
         builder.cache.set({
-          endpointKey,
+          cacheKey,
           requestKey,
           response: [currentState.data, currentState.error, currentState.status],
           retries: currentState.retries,

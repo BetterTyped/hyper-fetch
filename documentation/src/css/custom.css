@@ -43,6 +43,20 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+html[data-theme="light"] .main-wrapper {
+  background-image: radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px),
+    radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px);
+  background-position: 0 0, 50px 50px;
+  background-size: 100px 100px;
+}
+
+html[data-theme="dark"] .main-wrapper {
+  background-image: radial-gradient(var(--section-background) 1px, transparent 1px),
+    radial-gradient(var(--section-background) 1px, transparent 1px);
+  background-position: 0 0, 50px 50px;
+  background-size: 100px 100px;
+}
+
 /* Headings */
 
 .page-section-title,
@@ -76,6 +90,13 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
 
 /* Navigation */
 
+.navbar__logo img {
+  height: 100%;
+  max-width: 22px;
+  margin-right: -4px;
+  animation: wiggle 2s infinite;
+}
+
 .navbar__title {
   font-size: 22px;
   font-family: "Viga", sans-serif;
@@ -84,6 +105,24 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
 .navbar__items--right {
   flex-direction: row-reverse;
   gap: 10px;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(-1deg) scale(0.95);
+  }
+  85% {
+    transform: rotate(7deg) scale(1.05);
+  }
+  95% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 /* Search */
@@ -177,4 +216,16 @@ html[data-theme="dark"] .navbar-sidebar .github {
 .footer__copyright {
   margin-top: 60px;
   color: var(--ifm-color-emphasis-400);
+}
+
+@media (max-width: 996px) {
+  .footer__link-item {
+    text-align: center;
+  }
+  .footer__title {
+    text-align: center;
+  }
+  .footer__item {
+    text-align: center;
+  }
 }

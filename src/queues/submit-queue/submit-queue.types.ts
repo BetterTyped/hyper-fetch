@@ -3,18 +3,10 @@ import { isEqual } from "cache";
 
 // Values
 export type SubmitQueueStoreKeyType = string;
-export type SubmitQueueStoreValueType = SubmitQueueValueType;
-export type SubmitQueueValueType = {
-  endpointKey: string;
-  requestKey: string;
-  request: FetchCommandInstance;
-  retries: number;
-  timestamp: Date;
-};
+export type SubmitQueueStoreValueType = FetchCommandInstance;
+
 export type SubmitQueueDumpValueType<ClientOptions> = {
-  endpointKey: string;
-  requestKey: string;
-  request: FetchCommandDump<ClientOptions>;
+  commandDump: FetchCommandDump<ClientOptions>;
   retries: number;
   timestamp: number;
 };

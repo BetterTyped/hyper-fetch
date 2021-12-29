@@ -1,4 +1,4 @@
-import { getCacheKey } from "cache";
+import { getCacheRequestKey } from "cache";
 import { getAbortController } from "command";
 import { DateInterval } from "constants/time.constants";
 import {
@@ -43,7 +43,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     getAbortController(command.builder, command.abortKey)?.signal?.addEventListener("abort", xhr.abort);
 
     // Request listeners
-    command.builder.commandManager.events.emitRequestStart(getCacheKey(command), command);
+    command.builder.commandManager.events.emitRequestStart(getCacheRequestKey(command), command);
     setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
 
     if (xhr.upload) {
@@ -62,7 +62,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      command.builder.commandManager.events.emitResponseStart(getCacheKey(command), command);
+      command.builder.commandManager.events.emitResponseStart(getCacheRequestKey(command), command);
     };
 
     // Error listeners

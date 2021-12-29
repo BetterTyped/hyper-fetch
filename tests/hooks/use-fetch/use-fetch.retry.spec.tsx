@@ -37,7 +37,7 @@ describe("useFetch hook retry logic", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading;
+      return getCurrentState(responseOne).error;
     });
 
     testFetchErrorState(mock, responseOne);

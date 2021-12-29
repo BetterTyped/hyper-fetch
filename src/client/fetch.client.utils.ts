@@ -8,7 +8,7 @@ import {
 } from "client";
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
-import { getCacheKey } from "cache";
+import { getCacheRequestKey } from "cache";
 
 export const parseResponse = (response: string | unknown) => {
   try {
@@ -187,7 +187,7 @@ export const setResponseProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitDownloadProgress(getCacheKey(command), progress);
+  command.builder.commandManager.events.emitDownloadProgress(getCacheRequestKey(command), progress);
 };
 
 export const setRequestProgress = <T extends FetchCommandInstance>(
@@ -197,7 +197,7 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitUploadProgress(getCacheKey(command), progress);
+  command.builder.commandManager.events.emitUploadProgress(getCacheRequestKey(command), progress);
 };
 
 // Client response handlers

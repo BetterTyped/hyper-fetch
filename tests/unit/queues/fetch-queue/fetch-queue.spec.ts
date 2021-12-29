@@ -1,14 +1,12 @@
 import { waitFor } from "@testing-library/react";
 import { act } from "@testing-library/react-hooks/dom";
 
-import { getCacheKey } from "cache";
 import { getAbortController } from "command";
 
 import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
 
-const endpointKey = getCacheKey(getManyRequest);
-const requestKey = "custom-key";
+const { queueKey } = getManyRequest;
 
 describe("Basic FetchQueue usage", () => {
   beforeAll(() => {
@@ -31,27 +29,15 @@ describe("Basic FetchQueue usage", () => {
     it("should add request to queue and trigger it", async () => {
       const trigger = jest.fn();
       interceptGetMany(200, 0);
-      testBuilder.cache.events.get(requestKey, trigger);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest,
-        retries: 0,
-        timestamp: new Date(),
-        isRevalidated: false,
-        isRefreshed: false,
-      };
+      testBuilder.cache.events.get(queueKey, trigger);
+
       const requestDump = {
-        endpointKey,
-        requestKey,
         request: getManyRequest.dump(),
         retries: 0,
-        timestamp: +request.timestamp,
-        isRevalidated: false,
-        isRefreshed: false,
+        timestamp: +new Date(),
       };
-      testBuilder.fetchQueue.add(request);
-      expect(testBuilder.fetchQueue.get(endpointKey)).toEqual(requestDump);
+      testBuilder.fetchQueue.add(getManyRequest);
+      expect(testBuilder.fetchQueue.get(queueKey)).toEqual(requestDump);
       await waitFor(() => {
         expect(trigger).toBeCalled();
       });
@@ -61,17 +47,9 @@ describe("Basic FetchQueue usage", () => {
       const trigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200, 0);
-      testBuilder.cache.events.get(requestKey, trigger);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest.clone(),
-        retries: 0,
-        timestamp: new Date(),
-        isRevalidated: false,
-        isRefreshed: false,
-      };
-      request.request.cancelable = true;
+      testBuilder.cache.events.get(queueKey, trigger);
+
+      const request = getManyRequest.setCancelable(true);
 
       getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
@@ -87,41 +65,17 @@ describe("Basic FetchQueue usage", () => {
       const trigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200);
-      testBuilder.cache.events.get(requestKey, trigger);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest,
-        retries: 0,
-        timestamp: new Date(),
-        isRevalidated: false,
-        isRefreshed: false,
-      };
-      testBuilder.fetchQueue.add(request);
+      testBuilder.cache.events.get(queueKey, trigger);
+      testBuilder.fetchQueue.add(getManyRequest);
       getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
-      const requestRevalidate = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest,
-        retries: 0,
-        timestamp: new Date(+new Date() + 100),
-        isRevalidated: true,
-        isRefreshed: false,
-      };
-      testBuilder.fetchQueue.add(requestRevalidate);
-      testBuilder.fetchQueue.add(requestRevalidate);
+      await new Promise((r) => setTimeout(r, 100));
+      testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+      testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       expect(cancelTrigger).toBeCalledTimes(1);
       getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
-      const requestReRevalidate = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest,
-        retries: 0,
-        timestamp: new Date(+new Date() + 200),
-        isRevalidated: true,
-        isRefreshed: false,
-      };
-      testBuilder.fetchQueue.add(requestReRevalidate);
+      await new Promise((r) => setTimeout(r, 200));
+      testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+      testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       expect(cancelTrigger).toBeCalledTimes(2);
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
@@ -132,43 +86,16 @@ describe("Basic FetchQueue usage", () => {
     it("should deduplicate simultaneous revalidation requests at the same time", async () => {
       const trigger = jest.fn();
       interceptGetMany(200, 0);
-      testBuilder.fetchQueue.events.getLoading(endpointKey, trigger);
+      testBuilder.fetchQueue.events.getLoading(queueKey, trigger);
       await act(async () => {
-        const request = {
-          endpointKey,
-          requestKey,
-          request: getManyRequest,
-          retries: 0,
-          timestamp: new Date(),
-          isRevalidated: false,
-          isRefreshed: false,
-        };
-        testBuilder.fetchQueue.add(request);
-        await new Promise((r) => setTimeout(r, 1));
-        const requestRevalidate = {
-          endpointKey,
-          requestKey,
-          request: getManyRequest,
-          retries: 0,
-          timestamp: new Date(+new Date() + 100),
-          isRevalidated: true,
-          isRefreshed: false,
-        };
-        testBuilder.fetchQueue.add(requestRevalidate);
-        testBuilder.fetchQueue.add(requestRevalidate);
-        testBuilder.fetchQueue.add(requestRevalidate);
-        await new Promise((r) => setTimeout(r, 1));
-        const requestReRevalidate = {
-          endpointKey,
-          requestKey,
-          request: getManyRequest,
-          retries: 0,
-          timestamp: new Date(+new Date() + 200),
-          isRevalidated: true,
-          isRefreshed: false,
-        };
-        testBuilder.fetchQueue.add(requestReRevalidate);
-        testBuilder.fetchQueue.add(requestReRevalidate);
+        testBuilder.fetchQueue.add(getManyRequest);
+        await new Promise((r) => setTimeout(r, 100));
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+        await new Promise((r) => setTimeout(r, 100));
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       });
       expect(trigger).toBeCalledTimes(3);
     });

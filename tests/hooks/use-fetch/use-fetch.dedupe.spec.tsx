@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 
 import { useFetch } from "hooks";
-import { getCacheKey, getCacheEndpointKey } from "cache";
+import { getCacheRequestKey, getCacheKey } from "cache";
 import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
 import { getManyMock, getManyRequest } from "../../utils/mocks";
 import { interceptGetMany, GetManyResponseType } from "../../utils/mocks/get-many.mock";
@@ -30,12 +30,12 @@ describe("useFetch hook deduplicate logic", () => {
   it("should initialize with cache values without making any request", async () => {
     interceptGetMany(200);
 
-    const endpointKey = getCacheEndpointKey(getManyRequest);
-    const requestKey = getCacheKey(getManyRequest);
+    const cacheKey = getCacheKey(getManyRequest);
+    const requestKey = getCacheRequestKey(getManyRequest);
 
     act(() => {
       testBuilder.cache.set<GetManyResponseType>({
-        endpointKey,
+        cacheKey,
         requestKey,
         response: [fixture, null, 200],
         retries: 0,

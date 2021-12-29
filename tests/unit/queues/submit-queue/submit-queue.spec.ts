@@ -1,13 +1,11 @@
 import { waitFor } from "@testing-library/react";
 
-import { getCacheKey } from "cache";
 import { getAbortController } from "command";
 
 import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
 
-const endpointKey = getCacheKey(getManyRequest);
-const requestKey = "custom-key";
+const { queueKey } = getManyRequest;
 
 describe("Basic submitQueue usage", () => {
   beforeAll(() => {
@@ -30,23 +28,15 @@ describe("Basic submitQueue usage", () => {
     it("should add request to queue and trigger it", async () => {
       const trigger = jest.fn();
       interceptGetMany(200, 0);
-      testBuilder.cache.events.get(requestKey, trigger);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest,
-        retries: 0,
-        timestamp: new Date(),
-      };
+      testBuilder.cache.events.get(queueKey, trigger);
+
       const requestDump = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest.dump(),
+        commandDump: getManyRequest.dump(),
         retries: 0,
-        timestamp: +request.timestamp,
+        timestamp: +new Date(),
       };
-      testBuilder.submitQueue.add(endpointKey, request);
-      expect(testBuilder.submitQueue.getQueue(endpointKey)).toEqual([requestDump]);
+      testBuilder.submitQueue.add(getManyRequest);
+      expect(testBuilder.submitQueue.getQueue(queueKey)).toEqual([requestDump]);
       await waitFor(() => {
         expect(trigger).toBeCalled();
       });
@@ -56,19 +46,12 @@ describe("Basic submitQueue usage", () => {
       const trigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200, 0);
-      testBuilder.cache.events.get(requestKey, trigger);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest.clone(),
-        retries: 0,
-        timestamp: new Date(),
-      };
-      request.request.cancelable = true;
+      testBuilder.cache.events.get(queueKey, trigger);
+      const request = getManyRequest.setCancelable(true);
 
       getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
-      testBuilder.submitQueue.add(endpointKey, request);
-      testBuilder.submitQueue.add(endpointKey, request);
+      testBuilder.submitQueue.add(request);
+      testBuilder.submitQueue.add(request);
       expect(cancelTrigger).toBeCalled();
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
@@ -78,27 +61,18 @@ describe("Basic submitQueue usage", () => {
 
     it("should queue requests", async () => {
       interceptGetMany(200, 0);
-      const request = {
-        endpointKey,
-        requestKey,
-        request: getManyRequest.clone(),
-        retries: 0,
-        timestamp: new Date(),
-      };
-      request.request.queued = true;
+      const request = getManyRequest.setQueued(true);
 
       const requestDump = {
-        endpointKey,
-        requestKey,
-        request: request.request.dump(),
+        commandDump: request.dump(),
         retries: 0,
-        timestamp: +request.timestamp,
+        timestamp: +new Date(),
       };
 
-      testBuilder.submitQueue.add(endpointKey, request);
-      testBuilder.submitQueue.add(endpointKey, request);
+      testBuilder.submitQueue.add(request);
+      testBuilder.submitQueue.add(request);
 
-      expect(testBuilder.submitQueue.getQueue(endpointKey)).toEqual([requestDump, requestDump]);
+      expect(testBuilder.submitQueue.getQueue(queueKey)).toEqual([requestDump, requestDump]);
     });
   });
 });

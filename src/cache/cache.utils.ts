@@ -1,4 +1,4 @@
-import { FetchCommandInstance } from "command";
+import { FetchCommandDump, FetchCommandInstance } from "command";
 import { ExtractError, ExtractFetchReturn } from "types";
 
 export const getCacheData = <T extends FetchCommandInstance>(
@@ -39,7 +39,10 @@ export const getRefreshedKey = (key: string): string => {
  * @param fetchCommand
  * @returns
  */
-export const getCacheEndpointKey = (fetchCommand: FetchCommandInstance, customCacheKey?: string): string => {
+export const getCacheKey = (
+  fetchCommand: FetchCommandInstance | FetchCommandDump<any>,
+  customCacheKey?: string,
+): string => {
   return customCacheKey || `${fetchCommand.method}_${fetchCommand.endpoint}`;
 };
 
@@ -49,7 +52,7 @@ export const getCacheEndpointKey = (fetchCommand: FetchCommandInstance, customCa
  * @param customCacheKey
  * @returns
  */
-export const getCacheKey = (fetchCommand: FetchCommandInstance, customCacheKey = ""): string => {
+export const getCacheRequestKey = (fetchCommand: FetchCommandInstance | FetchCommandDump<any>): string => {
   /**
    * Below stringified values allow to match the response family *paste random Vin Diesel meme here*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
@@ -62,18 +65,11 @@ export const getCacheKey = (fetchCommand: FetchCommandInstance, customCacheKey =
    * params: string;
    */
 
-  let cacheKey = customCacheKey;
+  const methodKey = stringify(fetchCommand.method);
+  const endpointKey = stringify(fetchCommand.endpoint);
+  const queryParamsKey = stringify(fetchCommand.queryParams);
 
-  if (!customCacheKey) {
-    const methodKey = stringify(fetchCommand.method);
-    const endpointKey = stringify(fetchCommand.endpoint);
-    const queryParamsKey = stringify(fetchCommand.queryParams);
-    const paramsKey = stringify(fetchCommand.params);
-
-    cacheKey = `${methodKey}_${endpointKey}_${queryParamsKey}_${paramsKey}`;
-  }
-
-  return cacheKey;
+  return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };
 
 // Deep compare

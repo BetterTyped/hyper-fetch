@@ -4,12 +4,12 @@ import {
   SubmitQueueStorageType,
   SubmitQueueStoreKeyType,
   SubmitQueueData,
-  SubmitQueueDumpValueType,
   getSubmitQueueEvents,
+  SubmitQueueDumpValueType,
 } from "queues";
+import { getCacheRequestKey } from "cache";
 import { FetchBuilder } from "builder";
 import { FetchCommandInstance, FetchCommand } from "command";
-import { SubmitQueueValueType } from "./submit-queue.types";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -87,10 +87,10 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     queueElement: SubmitQueueDumpValueType<ClientOptions>,
     flush = false,
   ) => {
-    const { endpointKey, requestKey } = queueElement;
-    const { retry, retryTime } = queueElement.request;
+    const requestKey = getCacheRequestKey(requestCommand);
+    const { cacheKey, retry, retryTime } = requestCommand;
 
-    this.events.setLoading(endpointKey, {
+    this.events.setLoading(queueKey, {
       isLoading: true,
       isRetry: !!retry,
     });
@@ -103,11 +103,11 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     if ((!response[0] && queue?.stopped) || isCanceled) return;
 
     this.builder.cache.set({
-      endpointKey,
+      cacheKey,
       requestKey,
       response,
       retries: queueElement.retries,
-      deepEqual: queueElement.request.deepEqual,
+      deepEqual: requestCommand.deepEqual,
       isRefreshed: false,
     });
 
@@ -144,7 +144,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     if (!queueElement || !queue?.stopped || !queue?.requests || runningRequests?.length) return;
 
     // 1. Start request
-    const requestCommand = new FetchCommand(this.builder, queueElement.request);
+    const requestCommand = new FetchCommand(this.builder, queueElement.commandDump);
     // 2. Add single running request
     this.runningRequests.set(queueKey, [requestCommand]);
     // 3. Trigger Request
@@ -166,22 +166,24 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     }
   };
 
-  add = async (queueKey: string, queueElement: SubmitQueueValueType) => {
+  add = async (command: FetchCommandInstance) => {
+    const { queueKey, queued, cancelable } = command;
+
     const defaultQueue: SubmitQueueData<ClientOptions> = {
       stopped: false,
       requests: [],
-      queued: queueElement.request.queued || false,
-      cancelable: queueElement.request.cancelable || false,
+      queued: queued || false,
+      cancelable: cancelable || false,
     };
     const queue = this.storage.get(queueKey) || defaultQueue;
     const runningRequests = this.runningRequests.get(queueKey) || [];
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
-    const queueElementDump = {
-      ...queueElement,
-      timestamp: +queueElement.timestamp,
-      request: queueElement.request.dump(),
+    const queueElementDump: SubmitQueueDumpValueType<ClientOptions> = {
+      timestamp: +new Date(),
+      commandDump: command.dump(),
+      retries: 0,
     };
 
     // 1. One-by-one: if we setup request as one-by-one queue use queueing system
@@ -199,7 +201,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       // Request will be performed in 3. step
     }
     // 3. All at once
-    const requestCommand = new FetchCommand(this.builder, queueElement.request) as FetchCommandInstance;
+    const requestCommand = new FetchCommand(this.builder, command) as FetchCommandInstance;
     queue.requests.push(queueElementDump);
     this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
     this.storage.set(queueKey, queue);

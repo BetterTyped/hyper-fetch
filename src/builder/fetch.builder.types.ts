@@ -1,4 +1,4 @@
-import { Cache } from "cache";
+import { Cache, isEqual } from "cache";
 import { FetchCommandInstance } from "command";
 import { FetchQueue, SubmitQueue } from "queues";
 import { ClientResponseType } from "client";
@@ -13,6 +13,7 @@ export type FetchBuilderProps<ErrorType, ClientOptions> = {
   manager?: Manager;
   fetchQueue?: FetchQueue<ErrorType, ClientOptions>;
   submitQueue?: SubmitQueue<ErrorType, ClientOptions>;
+  deepEqual?: typeof isEqual;
 };
 
 export type FetchBuilderInstance = FetchBuilder<any, any>;

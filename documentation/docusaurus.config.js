@@ -138,32 +138,27 @@ const config = {
             ],
           },
           {
-            title: "Community",
+            title: "More",
             items: [
               {
                 label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/docusaurus",
+                href: "https://stackoverflow.com/questions/tagged/hyper-fetch",
               },
-              {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/docusaurus",
-              },
-            ],
-          },
-          {
-            title: "More",
-            items: [
               {
                 label: "Blog",
                 to: "/blog",
               },
               {
                 label: "GitHub",
-                href: "https://github.com/BetterTyped",
+                href: "https://github.com/BetterTyped/hyper-fetch",
+              },
+            ],
+          },
+          {
+            title: "Join our newsletter",
+            items: [
+              {
+                html: "HERE NEWSLETTER",
               },
             ],
           },

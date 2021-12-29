@@ -14,7 +14,7 @@ export type CacheValueType<DataType = any, ErrorType = any> = {
 };
 
 export type CacheSetDataType<Response, ErrorType> = {
-  endpointKey: CacheKeyType;
+  cacheKey: CacheKeyType;
   requestKey: CacheKeyType;
   response: ClientResponseType<Response, ErrorType>;
   retries: number;

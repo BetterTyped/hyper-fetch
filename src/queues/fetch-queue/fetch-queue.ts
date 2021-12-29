@@ -1,9 +1,15 @@
 import EventEmitter from "events";
 
-import { FetchQueueStorageType, FetchQueueStoreKeyType, FetchQueueDumpValueType, getFetchQueueEvents } from "queues";
+import {
+  FetchQueueStorageType,
+  FetchQueueStoreKeyType,
+  FetchQueueDumpValueType,
+  getFetchQueueEvents,
+  FetchQueueValueOptionsType,
+} from "queues";
 import { FetchBuilder } from "builder";
+import { getCacheRequestKey } from "cache";
 import { FetchCommandInstance, FetchCommand } from "command";
-import { FetchQueueValueType } from "./fetch-queue.types";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -30,23 +36,26 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
   private runningRequests = new Map<string, FetchCommandInstance>();
 
-  add = async (queueElement: FetchQueueValueType) => {
-    const { endpointKey } = queueElement;
+  add = async (command: FetchCommandInstance, options?: FetchQueueValueOptionsType) => {
+    const { queueKey } = command;
 
-    const queueEntity = this.get(endpointKey);
+    const queueEntity = this.get(queueKey);
+    const timestamp = +new Date();
 
     // Prevent to send many equal request from different sources in the same timestamp
-    const isEqualTimestamp = queueEntity?.timestamp === +queueElement.timestamp;
-    const canRevalidate = queueElement.isRevalidated && !isEqualTimestamp;
+    const isEqualTimestamp = queueEntity?.timestamp === timestamp;
+    const canRevalidate = options?.isRevalidated && !isEqualTimestamp;
 
     // If no concurrent requests found or the previous request can be canceled
-    if (!queueEntity || queueElement.request.cancelable || canRevalidate) {
+    if (!queueEntity || command.cancelable || canRevalidate) {
       // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
       // This way we don't save the Class but the instruction of the request to be done
-      const queueElementDump = {
-        ...queueElement,
-        timestamp: +queueElement.timestamp,
-        request: queueElement.request.dump(),
+      const queueElementDump: FetchQueueDumpValueType<ClientOptions> = {
+        isRevalidated: options?.isRevalidated || false,
+        isRefreshed: options?.isRefreshed || false,
+        timestamp,
+        commandDump: command.dump(),
+        retries: 0,
       };
 
       // Trigger request
@@ -59,25 +68,25 @@ export class FetchQueue<ErrorType, ClientOptions> {
   // ----->req1------->cancel-------------->done (this response can't be saved, even if abort doesn't catch it)
   // ----------------->req2---------------->done
   performRequest = async (queueElement: FetchQueueDumpValueType<ClientOptions>) => {
-    const { endpointKey, requestKey } = queueElement;
-    const { request, isRefreshed, isRevalidated } = queueElement;
-    const { retry, retryTime } = request;
+    const { commandDump, isRefreshed, isRevalidated } = queueElement;
+    const { retry, retryTime, queueKey, cacheKey } = commandDump;
+    const requestKey = getCacheRequestKey(commandDump);
 
     // 1. Add to queue
-    this.storage.set(endpointKey, queueElement);
+    this.storage.set(queueKey, queueElement);
     // 2. Start request
-    const requestCommand = new FetchCommand(this.builder, request);
+    const requestCommand = new FetchCommand(this.builder, commandDump);
     // Additionally keep the running request to possibly abort it later
-    this.runningRequests.set(endpointKey, requestCommand);
+    this.runningRequests.set(queueKey, requestCommand);
 
     // Make sure to delete & cancel running request
-    this.deleteRequest(endpointKey, true);
+    this.deleteRequest(queueKey, true);
 
     // When offline not perform any request
     if (!requestCommand.builder.manager.isOnline) return;
 
     // Propagate the loading to all connected hooks
-    this.events.setLoading(endpointKey, {
+    this.events.setLoading(queueKey, {
       isLoading: true,
       isRefreshed,
       isRevalidated,
@@ -87,26 +96,26 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
-    const isCanceled = this.runningRequests.get(endpointKey) !== requestCommand;
+    const isCanceled = this.runningRequests.get(queueKey) !== requestCommand;
     const failed = !!response[1];
     const canRefresh = (typeof retry === "number" && queueElement.retries <= retry) || retry === true;
 
-    this.deleteRequest(endpointKey);
+    this.deleteRequest(queueKey);
 
     if (!response[0] && isCanceled && !requestCommand.builder.manager.isOnline) return;
 
     this.builder.cache.set({
-      endpointKey,
+      cacheKey,
       requestKey,
       response,
       retries: queueElement.retries,
-      deepEqual: queueElement.request.deepEqual,
+      deepEqual: queueElement.commandDump.deepEqual,
       isRefreshed: isRefreshed || isRevalidated,
     });
 
     // When Successful remove it from running requests
     if (!canRefresh || !failed || isRevalidated) {
-      this.delete(endpointKey);
+      this.delete(queueKey);
     }
     // Perform retry once request is failed
     else if (failed && canRefresh) {
@@ -129,22 +138,22 @@ export class FetchQueue<ErrorType, ClientOptions> {
     }
   };
 
-  get = (endpointKey: string) => {
-    return this.storage.get(endpointKey);
+  get = (queueKey: string) => {
+    return this.storage.get(queueKey);
   };
 
-  deleteRequest = (endpointKey: string, cancelable = false) => {
+  deleteRequest = (queueKey: string, cancelable = false) => {
     if (cancelable) {
-      this.runningRequests.get(endpointKey)?.abort();
+      this.runningRequests.get(queueKey)?.abort();
     }
-    this.runningRequests.delete(endpointKey);
+    this.runningRequests.delete(queueKey);
   };
 
-  delete = (endpointKey: string, cancelable = false) => {
+  delete = (queueKey: string, cancelable = false) => {
     if (cancelable) {
-      this.runningRequests.get(endpointKey)?.abort();
+      this.runningRequests.get(queueKey)?.abort();
     }
-    this.storage.delete(endpointKey);
+    this.storage.delete(queueKey);
   };
 
   clear = () => {

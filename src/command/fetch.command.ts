@@ -14,6 +14,7 @@ import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
+import { getCacheRequestKey } from "cache";
 
 export class FetchCommand<
   ResponseType,
@@ -35,19 +36,28 @@ export class FetchCommand<
   data: PayloadType | NegativeTypes;
   queryParams: QueryParamsType | string | NegativeTypes;
   options: ClientOptions | undefined;
-  abortKey: string;
   cancelable?: boolean;
   retry?: boolean | number;
   retryTime?: number;
   cacheTime?: number;
-  cacheKey?: string;
   queued?: boolean;
   deepEqual?: boolean;
+
+  abortKey: string;
+  cacheKey: string;
+  queueKey: string;
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
-    readonly defaultOptions?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
+    readonly defaultOptions?: DefaultOptionsType<
+      ResponseType,
+      PayloadType,
+      QueryParamsType,
+      ErrorType,
+      EndpointType,
+      ClientOptions
+    >,
   ) {
     this.endpoint = defaultOptions?.endpoint || commandOptions.endpoint;
     this.headers = defaultOptions?.headers || commandOptions.headers;
@@ -56,15 +66,17 @@ export class FetchCommand<
     this.data = defaultOptions?.data;
     this.queryParams = defaultOptions?.queryParams;
     this.mockCallback = defaultOptions?.mockCallback;
-    this.abortKey = getAbortKey(this.method, this.builder.baseUrl, this.endpoint);
 
     this.cancelable = commandOptions.cancelable;
     this.retry = commandOptions.retry;
     this.retryTime = commandOptions.retryTime;
     this.cacheTime = commandOptions.cacheTime;
-    this.cacheKey = commandOptions.cacheKey;
     this.queued = commandOptions.queued;
     this.deepEqual = commandOptions.deepEqual;
+
+    this.abortKey = commandOptions.abortKey || getAbortKey(this.method, this.builder.baseUrl, this.endpoint);
+    this.cacheKey = commandOptions.cacheKey || getCacheRequestKey(this);
+    this.queueKey = commandOptions.queueKey || getCacheRequestKey(this);
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -83,6 +95,26 @@ export class FetchCommand<
 
   public setHeaders = (headers: HeadersInit) => {
     return this.clone({ headers });
+  };
+
+  public setCancelable = (cancelable: boolean) => {
+    return this.clone({ cancelable });
+  };
+
+  public setQueued = (queued: boolean) => {
+    return this.clone({ queued });
+  };
+
+  public setAbortKey = (abortKey: string) => {
+    return this.clone({ abortKey });
+  };
+
+  public setCacheKey = (cacheKey: string) => {
+    return this.clone({ cacheKey });
+  };
+
+  public setQueueKey = (queueKey: string) => {
+    return this.clone({ queueKey });
   };
 
   public mock = (mockCallback: (data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) => {
@@ -116,19 +148,28 @@ export class FetchCommand<
       retry: this.retry,
       retryTime: this.retryTime,
       cacheTime: this.cacheTime,
-      cacheKey: this.cacheKey,
       queued: this.queued,
       deepEqual: this.deepEqual,
       options: this.commandOptions.options,
       disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,
       disableRequestInterceptors: this.commandOptions.disableRequestInterceptors,
+      abortKey: this.abortKey,
+      cacheKey: this.cacheKey,
+      queueKey: this.queueKey,
     };
   }
 
   public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
-    options?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType>,
+    options?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
   ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions, D, P, Q> {
-    const currentOptions: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType> = {
+    const currentOptions: DefaultOptionsType<
+      ResponseType,
+      PayloadType,
+      QueryParamsType,
+      ErrorType,
+      EndpointType,
+      ClientOptions
+    > = {
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       params: options?.params || this.params,
       queryParams: options?.queryParams || this.queryParams,
@@ -164,7 +205,9 @@ export class FetchCommand<
   > = async (setup?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
     if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
 
-    const command = this.clone(setup);
+    const command = this.clone(
+      setup as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
+    );
 
     const { client } = this.builder;
 
