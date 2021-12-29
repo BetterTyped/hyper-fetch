@@ -21,7 +21,7 @@ export function Creators(): JSX.Element {
               <img alt="" src="" />
             </h2>
             <h2 className={clsx(styles.title)}>Kacper</h2>
-            <div className={clsx(styles.description)}>Found edge case in General Theory Of Relativity</div>
+            <div className={clsx(styles.description)}>Found edge cases in General Theory Of Relativity</div>
           </div>
         </div>
       </div>

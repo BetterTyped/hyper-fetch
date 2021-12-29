@@ -13,7 +13,7 @@ export function Header(): JSX.Element {
         <svg
           className={styles.waves}
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 960 214.5"
+          viewBox="0 0 1260 214.5"
           preserveAspectRatio="xMin meet"
         >
           <defs>

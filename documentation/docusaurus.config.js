@@ -100,10 +100,11 @@ const config = {
             position: "left",
             activeBaseRegex: `/resources/`,
           },
-          // {
-          //   type: "docsVersionDropdown",
-          //   position: "right",
-          // },
+          {
+            to: "/blog",
+            label: "Blog",
+            position: "left",
+          },
           {
             href: "https://github.com/graphql-go/graphql",
             label: "Github",
@@ -162,7 +163,7 @@ const config = {
               },
               {
                 label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
+                href: "https://github.com/BetterTyped",
               },
             ],
           },
