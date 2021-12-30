@@ -1,6 +1,9 @@
 ---
-sidebar_position: 2
+sidebar_position: 5
 ---
 
-- czym czyścić test cases
-- jak najlepiej testować - msw
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
