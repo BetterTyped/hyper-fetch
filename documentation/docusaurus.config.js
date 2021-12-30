@@ -74,10 +74,16 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      announcementBar: {
+        content: "This is <b>ALPHA</b> version, please do not use it in the production",
+        backgroundColor: "var(--ifm-color-danger)",
+        textColor: "black",
+        isCloseable: false,
+      },
       navbar: {
         title: "Hyper Fetch",
         logo: {
-          alt: "My Site Logo",
+          alt: "Hyper Fetch",
           src: "img/logo.svg",
         },
         items: [

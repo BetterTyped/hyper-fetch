@@ -2,6 +2,12 @@
 sidebar_position: 2
 ---
 
-- yarn / npm - główny pakiet można używać niezależnie od frameworków!!! to trzeba dodać
+:::note
 
-- instalacja paczek poszczególnych np pod react/react native - angular/ionic itd warto dodać sekcje nawet coming soon
+This section is currently **Worki in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+- yarn / npm - main package can be used regardless of any framework
+
+- add packages links for installation of react/react native hooks + in the future angular/ionic + vue?

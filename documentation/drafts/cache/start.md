@@ -12,3 +12,6 @@ eventy. Cache dzieje się automatycznie. <- można setować przy tworzeniu build
 - test jak się zachowuje refresh error i retry -error w momencie gdy jakieś poprawne dane są w cache
 
 - persist / offline
+
+- pagination
+- cache namespaces

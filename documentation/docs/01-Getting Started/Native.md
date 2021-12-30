@@ -1,6 +1,7 @@
 React Native & Ionic
 
-- dodać odnośnik do offline first / persistence
+:::note
 
-- wsparcie dla react native jest
-- wsparcie dla ionic oczekuje
+This section is currently **Worki in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::

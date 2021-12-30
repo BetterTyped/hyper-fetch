@@ -2,6 +2,8 @@
 sidebar_position: 2
 ---
 
-- używanie developerskiego setupu - czyli stwórz wszystko na podstawie tego co już funkcjonuje
-- dzielenie setupu developerskiego i testowego pozwala uniknąć wielu drobnych błędów trudnych w znalezieniu - zmiany
-  url, metod i innych
+:::note
+
+This section is currently **Worki in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
