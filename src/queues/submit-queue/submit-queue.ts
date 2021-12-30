@@ -6,6 +6,7 @@ import {
   SubmitQueueData,
   getSubmitQueueEvents,
   SubmitQueueDumpValueType,
+  SubmitQueueOptionsType,
 } from "queues";
 import { getCacheRequestKey } from "cache";
 import { FetchBuilder } from "builder";
@@ -19,15 +20,18 @@ export class SubmitQueue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getSubmitQueueEvents(this.emitter);
 
+  storage: SubmitQueueStorageType<ClientOptions> = new Map<SubmitQueueStoreKeyType, SubmitQueueData<ClientOptions>>();
+
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private storage: SubmitQueueStorageType<ClientOptions> = new Map<
-      SubmitQueueStoreKeyType,
-      SubmitQueueData<ClientOptions>
-    >(),
+    private options?: SubmitQueueOptionsType<ErrorType, ClientOptions>,
   ) {
-    // Start all persisting requests
-    this.flushAll();
+    if (this.options?.storage) {
+      this.storage = this.options.storage;
+    }
+
+    this.options?.onInitialization(this);
+
     // Start all pending requests that were disabled since going offline
     builder.manager.events.onOnline(() => {
       this.flushAll();

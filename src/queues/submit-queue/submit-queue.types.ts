@@ -1,5 +1,10 @@
 import { FetchCommandDump, FetchCommandInstance } from "command";
-import { isEqual } from "cache";
+import { SubmitQueue } from "queues";
+
+export type SubmitQueueOptionsType<ErrorType, ClientOptions> = {
+  storage: SubmitQueueStorageType<ClientOptions>;
+  onInitialization: (submitQueue: SubmitQueue<ErrorType, ClientOptions>) => void;
+};
 
 // Values
 export type SubmitQueueStoreKeyType = string;
@@ -15,14 +20,6 @@ export type SubmitQueueData<ClientOptions> = {
   cancelable: boolean;
   queued: boolean;
   requests: SubmitQueueDumpValueType<ClientOptions>[];
-};
-
-// Options
-export type SubmitQueueOptionsType = {
-  cancelable?: boolean;
-  queue?: boolean;
-  queueName?: boolean;
-  deepCompareFn?: typeof isEqual | undefined;
 };
 
 // Events

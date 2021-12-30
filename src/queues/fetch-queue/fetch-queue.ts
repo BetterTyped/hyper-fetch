@@ -1,15 +1,16 @@
 import EventEmitter from "events";
 
 import {
-  FetchQueueStorageType,
   FetchQueueStoreKeyType,
   FetchQueueDumpValueType,
   getFetchQueueEvents,
   FetchQueueAddOptionsType,
+  FetchQueueStorageType,
 } from "queues";
 import { FetchBuilder } from "builder";
 import { getCacheRequestKey } from "cache";
 import { FetchCommandInstance, FetchCommand } from "command";
+import { FetchQueueOptionsType } from "./fetch-queue.types";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -19,15 +20,21 @@ export class FetchQueue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getFetchQueueEvents(this.emitter);
 
+  storage: FetchQueueStorageType<ClientOptions> = new Map<
+    FetchQueueStoreKeyType,
+    FetchQueueDumpValueType<ClientOptions>
+  >();
+
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private storage: FetchQueueStorageType<ClientOptions> = new Map<
-      FetchQueueStoreKeyType,
-      FetchQueueDumpValueType<ClientOptions>
-    >(),
+    private options?: FetchQueueOptionsType<ErrorType, ClientOptions>,
   ) {
-    // Start all persisting requests
-    this.flushAll();
+    if (this.options?.storage) {
+      this.storage = this.options.storage;
+    }
+
+    this.options?.onInitialization(this);
+
     // Start all pending requests that were disabled since going offline
     builder.manager.events.onOnline(() => {
       this.flushAll();

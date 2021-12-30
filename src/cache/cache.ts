@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { FetchBuilder } from "builder";
-import { CacheInitialData, CacheStorageType, getCacheData, getCacheEvents } from "cache";
+import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
 
 /**
@@ -25,15 +25,22 @@ export class Cache<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getCacheEvents(this.emitter);
 
+  storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>();
+
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>(),
-    private initialData?: CacheInitialData,
+    private options?: CacheOptionsType<ErrorType, ClientOptions>,
   ) {
-    if (this.initialData) {
-      Object.keys(this.initialData).forEach((key) => {
-        if (!storage.get(key) && this.initialData?.[key]) {
-          storage.set(key, this.initialData[key]);
+    if (this.options?.storage) {
+      this.storage = this.options.storage;
+    }
+
+    this.options?.onInitialization(this);
+
+    if (this.options?.initialData) {
+      Object.keys(this.options.initialData).forEach((key) => {
+        if (!this.storage.get(key) && this.options?.initialData?.[key]) {
+          this.storage.set(key, this.options?.initialData[key]);
         }
       });
     }
@@ -43,9 +50,9 @@ export class Cache<ErrorType, ClientOptions> {
     cacheKey,
     requestKey,
     response,
-    retries,
+    retries = 0,
     deepEqual = true,
-    isRefreshed,
+    isRefreshed = false,
     timestamp = +new Date(),
   }: CacheSetDataType<Response, ErrorType>): void => {
     const cacheEntity = this.storage.get(cacheKey) || {};

@@ -1,4 +1,10 @@
 import { FetchCommandDump, FetchCommandInstance } from "command";
+import { FetchQueue } from "queues";
+
+export type FetchQueueOptionsType<ErrorType, ClientOptions> = {
+  storage: FetchQueueStorageType<ClientOptions>;
+  onInitialization: (fetchQueue: FetchQueue<ErrorType, ClientOptions>) => void;
+};
 
 // Values
 export type FetchQueueStoreKeyType = string;
