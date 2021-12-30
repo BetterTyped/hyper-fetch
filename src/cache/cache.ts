@@ -1,8 +1,8 @@
 import EventEmitter from "events";
 
+import { FetchBuilder } from "builder";
 import { CacheInitialData, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
-import { isEqual } from "./cache.utils";
 
 /**
  * Cache class should be initialized per every command instance(not modified with params or queryParams).
@@ -21,11 +21,12 @@ import { isEqual } from "./cache.utils";
  * Why this structure?
  * To allow for easier optimistic approach realization - this way we will have the mapper function that will update, add or remove elements from the same endpoint
  */
-export class Cache<ErrorType> {
+export class Cache<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getCacheEvents(this.emitter);
 
   constructor(
+    private builder: FetchBuilder<ErrorType, ClientOptions>,
     private storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>(),
     private initialData?: CacheInitialData,
   ) {
@@ -50,8 +51,7 @@ export class Cache<ErrorType> {
     const cacheEntity = this.storage.get(cacheKey) || {};
     const cachedData = cacheEntity?.[requestKey];
     // We have to compare stored data with deepCompare, this will allow us to limit rerendering
-    // Todo: connect the builder isEqual
-    const equal = deepEqual && isEqual(cachedData?.response, response);
+    const equal = deepEqual && this.builder.deepEqual(cachedData?.response, response);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
     // Keeping it in separate location let us to handle refreshing errors in different ways

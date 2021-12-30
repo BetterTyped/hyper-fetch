@@ -9,14 +9,16 @@ export type FetchBuilderProps<ErrorType, ClientOptions> = {
   baseUrl: string;
   debug?: boolean;
   options?: ClientOptions;
-  cache?: Cache<ErrorType>;
-  manager?: Manager;
-  fetchQueue?: FetchQueue<ErrorType, ClientOptions>;
-  submitQueue?: SubmitQueue<ErrorType, ClientOptions>;
+  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, ClientOptions>;
+  manager?: <B extends FetchBuilderInstance>(builder: B) => Manager;
+  fetchQueue?: <B extends FetchBuilderInstance>(builder: B) => FetchQueue<ErrorType, ClientOptions>;
+  submitQueue?: <B extends FetchBuilderInstance>(builder: B) => SubmitQueue<ErrorType, ClientOptions>;
   deepEqual?: typeof isEqual;
 };
 
 export type FetchBuilderInstance = FetchBuilder<any, any>;
+
+export type FetchBuilderErrorType = Record<string, any> | string;
 
 // Interceptors
 export type ErrorMessageMapperCallback<ErrorType> = (error: any) => Promise<ErrorType> | ErrorType;

@@ -43,7 +43,7 @@ describe("Basic useFetch hook usage", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -56,7 +56,7 @@ describe("Basic useFetch hook usage", () => {
     const responseTwo = renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+      return getCurrentState(responseOne).error && getCurrentState(responseTwo).error;
     });
 
     testFetchErrorState(mock, responseOne);
@@ -72,7 +72,7 @@ describe("Basic useFetch hook usage", () => {
     testFetchInitialState(responseTwo);
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -85,7 +85,7 @@ describe("Basic useFetch hook usage", () => {
     });
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
     });
 
     testFetchSuccessState(newMock, responseOne);
@@ -102,7 +102,7 @@ describe("Basic useFetch hook usage", () => {
     testFetchInitialState(responseTwo);
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
     });
 
     const successStateOne = getCurrentState(responseOne);
@@ -166,7 +166,7 @@ describe("Basic useFetch hook usage", () => {
     testFetchInitialState(responseTwo);
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
     });
 
     const successStateOne = getCurrentState(responseOne);

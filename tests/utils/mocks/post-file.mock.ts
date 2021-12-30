@@ -2,7 +2,7 @@ import { DateInterval } from "constants/time.constants";
 import { createInterceptor, ErrorCodesType, testBuilder } from "../server";
 import { buildMock } from ".";
 
-export const postFile = testBuilder.create<number, FormData>()({
+export const postFile = testBuilder.createCommand<number, FormData>()({
   endpoint: "/",
   options: {
     timeout: DateInterval.second * 1,

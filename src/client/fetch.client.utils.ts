@@ -9,6 +9,7 @@ import {
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
 import { getCacheRequestKey } from "cache";
+import { FetchActionInstance } from "action";
 
 export const parseResponse = (response: string | unknown) => {
   try {
@@ -204,6 +205,7 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
 
 export const handleClientError = async <T extends FetchCommandInstance>(
   command: T,
+  actions: FetchActionInstance[],
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
   event?: ProgressEvent<XMLHttpRequest>,
   errorCase?: "timeout" | "abort",
@@ -223,12 +225,15 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
 
+  actions.forEach((action) => action.onError(responseData, command));
+  actions.forEach((action) => action.onFinished(responseData, command));
   await command.builder.modifyResponse(responseData, command);
   resolve(responseData);
 };
 
 export const handleClientSuccess = async <T extends FetchCommandInstance>(
   command: T,
+  actions: FetchActionInstance[],
   event: ProgressEvent<XMLHttpRequest>,
   resolve: (data: ClientResponseSuccessType<ExtractResponse<T>>) => void,
 ): Promise<void> => {
@@ -240,6 +245,8 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
 
+  actions.forEach((action) => action.onSuccess(responseData, command));
+  actions.forEach((action) => action.onFinished(responseData, command));
   await command.builder.modifyResponse(responseData, command);
   resolve(responseData);
 };

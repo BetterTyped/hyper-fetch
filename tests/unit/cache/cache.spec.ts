@@ -15,12 +15,12 @@ const response = {
   timestamp: +new Date(),
 };
 
-let cacheInstance = new Cache();
+let cacheInstance = new Cache(testBuilder);
 
 describe("Cache", () => {
   beforeEach(async () => {
     testBuilder.clear();
-    cacheInstance = new Cache();
+    cacheInstance = new Cache(testBuilder);
   });
 
   describe("When lifecycle events get triggered", () => {

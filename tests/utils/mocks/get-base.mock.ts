@@ -2,7 +2,7 @@ import { DateInterval } from "index";
 import { createInterceptor, ErrorCodesType, testBuilder } from "../server";
 import { buildMock } from ".";
 
-export const getBase = testBuilder.create()({
+export const getBase = testBuilder.createCommand()({
   endpoint: "/",
   options: {
     timeout: DateInterval.second * 1,

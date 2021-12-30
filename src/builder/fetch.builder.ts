@@ -4,14 +4,16 @@ import {
   ErrorMessageMapperCallback,
   FetchBuilderProps,
   CommandManager,
+  FetchBuilderErrorType,
 } from "builder";
 import { Cache, isEqual } from "cache";
 import { Manager } from "manager";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
+import { FetchActionInstance } from "action";
 
-export class FetchBuilder<ErrorType extends Record<string, any> | string, ClientOptions = FetchClientXHR> {
+export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, ClientOptions = FetchClientXHR> {
   readonly baseUrl: string;
   readonly debug: boolean;
   readonly options: ClientOptions | undefined;
@@ -25,14 +27,14 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   // Config
   commandManager: CommandManager = new CommandManager();
   client: ClientType<ErrorType, ClientOptions> = fetchClient;
-  cache: Cache<ErrorType>;
+  cache: Cache<ErrorType, ClientOptions>;
   manager: Manager;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
   submitQueue: SubmitQueue<ErrorType, ClientOptions>;
   deepEqual: typeof isEqual;
 
-  // Persisting actions
-  actions = [];
+  // Registered requests Actions
+  actions: FetchActionInstance[] = [];
 
   constructor({
     baseUrl,
@@ -47,11 +49,13 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.baseUrl = baseUrl;
     this.debug = debug || false;
     this.options = options;
-    this.cache = cache || new Cache();
-    this.manager = manager || new Manager();
-    this.fetchQueue = fetchQueue || new FetchQueue<ErrorType, ClientOptions>(this);
-    this.submitQueue = submitQueue || new SubmitQueue<ErrorType, ClientOptions>(this);
+
+    // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.deepEqual = deepEqual || isEqual;
+    this.manager = manager?.(this) || new Manager();
+    this.cache = cache?.(this) || new Cache(this);
+    this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, ClientOptions>(this);
+    this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, ClientOptions>(this);
   }
 
   setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
@@ -86,6 +90,11 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     this.commandManager.emitter.removeAllListeners();
   };
 
+  /**
+   * Helper used by http client to apply the modifications of request command
+   * @param command
+   * @returns
+   */
   modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
@@ -97,6 +106,11 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newCommand;
   };
 
+  /**
+   * Helper used by http client to apply the modifications of response from command
+   * @param command
+   * @returns
+   */
   modifyResponse = async <T extends FetchCommandInstance>(response: ClientResponseType<any, ErrorType>, command: T) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
@@ -108,13 +122,14 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newResponse;
   };
 
-  public create = <
+  public createCommand = <
     ResponseType,
     PayloadType = undefined,
     QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
   >() => {
     if (!this.builded) {
-      throw new Error("To create new commands you have to first use the build method on FetchBuilder class");
+      throw new Error(`To create new commands you have to first use the build method on FetchBuilder class.
+      Build method indicates the ended setup and prevents synchronization/registration issues.`);
     }
 
     return <EndpointType extends string>(
@@ -126,9 +141,39 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
       );
   };
 
+  public addActions = (actions: FetchActionInstance[]) => {
+    if (this.builded) {
+      throw new Error(`Actions can be applied only before usage of build method on FetchBuilder class.
+      Build method indicates the ended setup and prevents synchronization/registration issues.`);
+    }
+
+    // Check for duplicated names of actions
+    this.actions.forEach((currentAction) => {
+      const hasDuplicate = actions.some((action) => action.getName() === currentAction.getName());
+
+      if (hasDuplicate) {
+        throw new Error("Fetch action names must be unique.");
+      }
+    });
+
+    this.actions = this.actions.concat(actions);
+
+    return this;
+  };
+
+  public removeAction = (action: FetchActionInstance | string) => {
+    const name = typeof action === "string" ? action : action?.getName();
+    this.actions = this.actions.filter((currentAction) => currentAction.getName() !== name);
+
+    return this;
+  };
+
   build = () => {
     this.builded = true;
 
+    /**
+     * Start flushing persistent queues
+     */
     this.fetchQueue.flushAll();
     this.submitQueue.flushAll();
 

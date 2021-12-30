@@ -87,11 +87,12 @@ describe("Basic FetchQueue usage", () => {
       testBuilder.fetchQueue.events.getLoading(queueKey, trigger);
       await act(async () => {
         testBuilder.fetchQueue.add(getManyRequest);
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 10));
         testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
         testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
         testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
-        await new Promise((r) => setTimeout(r, 100));
+        await new Promise((r) => setTimeout(r, 10));
+        testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
         testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
         testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       });

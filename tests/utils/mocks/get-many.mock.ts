@@ -7,7 +7,7 @@ export type GetManyResponseType = {
   age: number;
 }[];
 
-export const getManyRequest = testBuilder.create<GetManyResponseType>()({ endpoint: "/get-many" });
+export const getManyRequest = testBuilder.createCommand<GetManyResponseType>()({ endpoint: "/get-many" });
 
 export const getManyMock = buildMock(getManyRequest, [
   { name: "Maciej", age: 123 },

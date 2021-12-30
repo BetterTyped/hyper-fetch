@@ -7,7 +7,7 @@ export type GetOneResponseType = {
   age: number;
 };
 
-export const getOneRequest = testBuilder.create<GetOneResponseType>()({ endpoint: "/get-one" });
+export const getOneRequest = testBuilder.createCommand<GetOneResponseType>()({ endpoint: "/get-one" });
 
 export const getOneMock = buildMock(getOneRequest, { name: "Kacper", age: 321 });
 

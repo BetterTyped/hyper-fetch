@@ -30,6 +30,11 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
   const url = builder.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
 
+  const actions = command.builder.actions.filter((action) => command.actions.includes(action.getName()));
+
+  // "Trigger" Action lifecycle
+  actions.forEach((action) => action.onTrigger(command));
+
   return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
     requestStartTimestamp = +new Date();
     responseStartTimestamp = null;
@@ -67,13 +72,13 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     // Error listeners
     xhr.onabort = (e): void => {
-      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
     };
     xhr.ontimeout = (e): void => {
-      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
     };
     xhr.onerror = (e): void => {
-      handleClientError(commandInstance, resolve, e as ProgressEvent<XMLHttpRequest>);
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
     };
 
     // State listeners
@@ -95,14 +100,17 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       const isSuccess = status.startsWith("2") || status.startsWith("3");
 
       if (isSuccess) {
-        handleClientSuccess(commandInstance, event, resolve);
+        handleClientSuccess(commandInstance, actions, event, resolve);
       } else {
-        handleClientError(commandInstance, resolve, event);
+        handleClientError(commandInstance, actions, resolve, event);
       }
       getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
     };
 
     // Send request
     xhr.send(getClientPayload(data));
+
+    // "Start" Action lifecycle
+    actions.forEach((action) => action.onStart(command));
   });
 };

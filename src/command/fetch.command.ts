@@ -15,6 +15,7 @@ import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
 import { getCacheRequestKey } from "cache";
+import { FetchAction } from "action";
 
 export class FetchCommand<
   ResponseType,
@@ -46,6 +47,8 @@ export class FetchCommand<
   abortKey: string;
   cacheKey: string;
   queueKey: string;
+
+  actions: string[] = [];
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
@@ -131,6 +134,38 @@ export class FetchCommand<
     return this.clone({ queueKey });
   };
 
+  public addAction = (
+    action:
+      | FetchAction<
+          ResponseType,
+          PayloadType | unknown,
+          ErrorType | Error,
+          QueryParamsType | ClientQueryParamsType,
+          ClientOptions | unknown
+        >
+      | string,
+  ) => {
+    const actionName = typeof action === "string" ? action : action?.getName();
+    const actions = [...this.actions, actionName];
+    return this.clone({ actions: [...new Set(actions)] });
+  };
+
+  public removeAction = (
+    action:
+      | FetchAction<
+          ResponseType,
+          PayloadType | unknown,
+          ErrorType | Error,
+          QueryParamsType | ClientQueryParamsType,
+          ClientOptions | unknown
+        >
+      | string,
+  ) => {
+    const actionName = typeof action === "string" ? action : action?.getName();
+    const actions = this.actions.filter((currentAction) => currentAction !== actionName);
+    return this.clone({ actions });
+  };
+
   public mock = (mockCallback: (data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) => {
     return this.clone({ mockCallback });
   };
@@ -170,6 +205,7 @@ export class FetchCommand<
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
       queueKey: this.queueKey,
+      actions: this.actions,
     };
   }
 

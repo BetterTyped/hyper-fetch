@@ -34,7 +34,7 @@ describe("Basic FetchCommand usage", () => {
       disableRequestInterceptors: true,
     };
 
-    const command = new FetchBuilder({ baseUrl: "/some-url" }).build().create()(props);
+    const command = new FetchBuilder({ baseUrl: "/some-url" }).build().createCommand()(props);
 
     expect(command.method).toBe(props.method);
     expect(command.endpoint).toBe(props.endpoint);
@@ -49,7 +49,7 @@ describe("Basic FetchCommand usage", () => {
     const customDataTwo = { someData: 2 };
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const command = builder.create<any, any>()(options).setData(customDataOne);
+    const command = builder.createCommand<any, any>()(options).setData(customDataOne);
 
     expect(command.data).toStrictEqual(customDataOne);
 
@@ -66,7 +66,7 @@ describe("Basic FetchCommand usage", () => {
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const command = builder
-      .create<any, any>()({ ...options, endpoint })
+      .createCommand<any, any>()({ ...options, endpoint })
       .setParams(customParamsOne);
 
     expect(command.params).toStrictEqual(customParamsOne);
@@ -83,7 +83,7 @@ describe("Basic FetchCommand usage", () => {
     const customQueryParamsTwo = { "some-query-changed": false };
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const command = builder.create<any, any>()(options).setQueryParams(customQueryParamsOne);
+    const command = builder.createCommand<any, any>()(options).setQueryParams(customQueryParamsOne);
 
     expect(command.queryParams).toStrictEqual(customQueryParamsOne);
 
@@ -97,7 +97,7 @@ describe("Basic FetchCommand usage", () => {
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const command = builder
-      .create<any, any>()(options)
+      .createCommand<any, any>()(options)
       .mock(() => mockData);
 
     const data = await command.send();
@@ -115,7 +115,7 @@ describe("Basic FetchCommand usage", () => {
     };
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build().setClient(customHttpClient);
-    const command = builder.create<any, any>()(options);
+    const command = builder.createCommand<any, any>()(options);
 
     const data = await command.send();
 
@@ -166,7 +166,7 @@ describe("Basic FetchCommand usage", () => {
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const command = builder
-      .create<any, any>()({
+      .createCommand<any, any>()({
         endpoint,
       })
       .setParams(params);
@@ -182,7 +182,7 @@ describe("Basic FetchCommand usage", () => {
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
     const command = builder
-      .create<any, any>()({
+      .createCommand<any, any>()({
         endpoint,
       })
       .setParams(params);

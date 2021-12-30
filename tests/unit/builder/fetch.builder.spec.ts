@@ -73,7 +73,7 @@ describe("FetchBuilder", () => {
         })
         .build();
 
-      const command = builder.create()({
+      const command = builder.createCommand()({
         endpoint: "/",
       });
 
@@ -92,7 +92,7 @@ describe("FetchBuilder", () => {
     it("should allow to create FetchCommand", async () => {
       const builder = new FetchBuilder({ baseUrl, options }).build();
 
-      const command = builder.create()({ endpoint: "some-endpoint" });
+      const command = builder.createCommand()({ endpoint: "some-endpoint" });
 
       expect(command instanceof FetchCommand).toBeTruthy();
       expect(command instanceof FetchCommand).toBeTruthy();
@@ -112,7 +112,7 @@ describe("FetchBuilder", () => {
         })
         .build();
 
-      const command = builder.create()({
+      const command = builder.createCommand()({
         endpoint: "/",
       });
 
@@ -133,7 +133,7 @@ describe("FetchBuilder", () => {
         })
         .build();
 
-      const command = builder.create()({
+      const command = builder.createCommand()({
         endpoint: "/",
       });
 
@@ -152,7 +152,7 @@ describe("FetchBuilder", () => {
         })
         .build();
 
-      const command = builder.create()({
+      const command = builder.createCommand()({
         endpoint: "/",
       });
 
@@ -173,7 +173,7 @@ describe("FetchBuilder", () => {
         })
         .build();
 
-      const command = builder.create()({
+      const command = builder.createCommand()({
         endpoint: "/",
       });
 
