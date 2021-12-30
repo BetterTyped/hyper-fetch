@@ -16,8 +16,8 @@ export type CacheValueType<DataType = any, ErrorType = any> = {
   response: ClientResponseType<DataType, ErrorType>;
   retries: number;
   timestamp: number;
-  refreshError: ErrorType;
-  retryError: ErrorType;
+  refreshError?: ErrorType;
+  retryError?: ErrorType;
   isRefreshed: boolean;
 };
 

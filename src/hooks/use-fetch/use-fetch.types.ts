@@ -12,8 +12,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   revalidateOnMount?: boolean;
   cacheOnMount?: boolean;
   cacheKey?: string;
-  initialCacheData?: ExtractFetchReturn<T> | null;
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
+  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
   refresh?: boolean;
   refreshTime?: number;
   refreshBlurred?: boolean;

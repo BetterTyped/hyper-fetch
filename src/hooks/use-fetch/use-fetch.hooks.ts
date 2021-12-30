@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { FetchProgressType } from "client";
@@ -20,11 +20,10 @@ import {
   UseFetchOptionsType,
   UseFetchReturnType,
 } from "./use-fetch.types";
-import { getCacheState } from "./use-fetch.utils";
+import { getCacheState, getUseFetchInitialData, isStaleCacheData } from "./use-fetch.utils";
 import { useFetchDefaultOptions } from "./use-fetch.constants";
 
-// TBD - suspense in general
-// suspense = false,
+// TBD - suspense
 export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   command: T,
   {
@@ -54,8 +53,10 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const { cache, fetchQueue, manager, commandManager } = command.builder;
   const requestKey = getCacheRequestKey(command);
   const initCacheState = useRef(getCacheState(cache.get(cacheKey, requestKey), cacheOnMount, cacheTime));
-  const initState = useRef(initialData || initCacheState.current);
+  const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
+  const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
   const [state, actions, setRenderKey] = useDependentState<T>(cacheKey, requestKey, command.builder, initState.current);
+  const [hasCacheData, setHasCacheData] = useState(!initialStale.current);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -66,27 +67,15 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
 
-  const isStaleCacheData = () => {
-    const { timestamp, data } = state;
-    if (!timestamp || !data) return true;
-    if (!cacheTime) return false;
-    return +new Date() > +timestamp + cacheTime;
-  };
-
-  const hasStateData = () => {
-    return !!state.data || !!state.error;
-  };
-
   const handleFetch = (isRefreshed = state.isRefreshed, isRevalidated = false) => {
-    const isStale = isStaleCacheData();
-    const hasData = hasStateData();
+    const isStale = isStaleCacheData(cacheTime, state.timestamp);
 
     /**
      * We can fetch when data is not stale or we don't have data at all
      * The exception is made for refreshing which should be triggered no matter if data is fresh or not
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
-    if (!disabled && (isStale || !hasData || isRefreshed || isRevalidated)) {
+    if (!disabled && (isStale || !hasCacheData || isRefreshed || isRevalidated)) {
       fetchQueue.add(command, { isRefreshed, isRevalidated });
     }
   };
@@ -101,12 +90,13 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     if (refresh) {
       refreshInterval.interval(() => {
         const currentRequest = fetchQueue.get(queueKey);
-        const isBlur = command.builder.manager.isFocused;
+        const isBlur = !command.builder.manager.isFocused;
 
         // If window tab is not active should we refresh the cache
-        const canBlurredRefresh = isBlur && refreshBlurred;
+        const canRefreshBlurred = isBlur && refreshBlurred;
+        const canRefresh = canRefreshBlurred || command.builder.manager.isFocused;
 
-        if (!currentRequest && canBlurredRefresh) {
+        if (!currentRequest && canRefresh) {
           handleFetch(true);
           refreshInterval.resetInterval();
         }
@@ -138,6 +128,14 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleGetRefreshedCache = () => {
+    if (!hasCacheData) {
+      const data = cache.get(cacheKey, requestKey);
+      if (data) {
+        actions.setCacheData(data, false);
+        setHasCacheData(true);
+      }
+    }
+
     actions.setRefreshed(true, false);
     actions.setTimestamp(new Date(), false);
     handleCallbacks([state.data, state.error, state.status]);
@@ -236,13 +234,11 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
    */
   useDidUpdate(
     () => {
-      const hasData = hasStateData();
-
       /**
        * While debouncing we need to make sure that first request is not debounced when the cache is not available
        * This way it will not wait for debouncing but fetch data right away
        */
-      if (hasData && debounce) {
+      if (hasCacheData && debounce) {
         requestDebounce.debounce(handleFetch);
       } else {
         handleFetch(false, revalidateOnMount);
@@ -315,7 +311,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
       return state.isFocused;
     },
     get isStale() {
-      return isStaleCacheData();
+      return isStaleCacheData(cacheTime, state.timestamp);
     },
     actions,
     onRequest: (callback: OnRequestCallbackType) => {

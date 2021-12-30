@@ -9,16 +9,14 @@ const refreshTime = DateInterval.second * 10;
 export const UserDetails: React.FC = () => {
   const [fetched, setFetched] = useState(false);
 
-  const { data, loading, error, refresh, timestamp } = useFetch(
-    getUser.onRequestStart(() => {
-      setFetched(true);
-    }),
-    {
-      cacheTime: refreshTime,
-      refresh: true,
-      refreshTime,
-    },
-  );
+  const { data, loading, error, refresh, timestamp, onRequestStart } = useFetch(getUser, {
+    refresh: true,
+    refreshTime,
+  });
+
+  onRequestStart(() => {
+    setFetched(true);
+  });
 
   return (
     <div>

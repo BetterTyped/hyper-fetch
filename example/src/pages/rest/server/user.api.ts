@@ -1,29 +1,31 @@
-import { FetchCommandInstance } from "@better-typed/react-fetch";
+import { FetchCommandInstance, DateInterval } from "@better-typed/react-fetch";
 import { rest, setupWorker } from "msw";
 
 import { getRandomUser, getRandomUsers } from "utils/users.utils";
 import { builder } from "pages/rest/server/builder";
 import { PostUserModel, UserModel } from "models";
 
-export const getUser = builder.create<UserModel>()({
+export const getUser = builder.createCommand<UserModel>()({
   endpoint: "/api/user/:userId",
+  cacheTime: DateInterval.second * 10,
 });
 
-export const getUsers = builder.create<UserModel[]>()({
+export const getUsers = builder.createCommand<UserModel[]>()({
   endpoint: "/api/users",
+  cacheTime: DateInterval.second * 10,
 });
 
-export const postUser = builder.create<UserModel, PostUserModel>()({
+export const postUser = builder.createCommand<UserModel, PostUserModel>()({
   endpoint: "/api/user",
   method: "POST",
 });
 
-export const patchUser = builder.create<UserModel, PostUserModel>()({
+export const patchUser = builder.createCommand<UserModel, PostUserModel>()({
   endpoint: "/api/user/:userId",
   method: "PATCH",
 });
 
-export const deleteUser = builder.create()({
+export const deleteUser = builder.createCommand()({
   endpoint: "/api/user/:userId",
   method: "DELETE",
 });
