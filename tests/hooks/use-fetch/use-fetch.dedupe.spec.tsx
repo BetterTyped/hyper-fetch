@@ -2,12 +2,16 @@ import { waitFor } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 
 import { useFetch } from "hooks";
-import { getCacheRequestKey, getCacheKey } from "cache";
+import { getCacheRequestKey } from "cache";
+import { DateInterval } from "constants/time.constants";
 import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
 import { getManyMock, getManyRequest } from "../../utils/mocks";
 import { interceptGetMany, GetManyResponseType } from "../../utils/mocks/get-many.mock";
 
+const request = getManyRequest.setCacheTime(DateInterval.second * 10);
+const renderGetManyHook = () => renderHook(() => useFetch(request, { dependencyTracking: false }));
 const { fixture } = getManyMock();
+
 describe("useFetch hook deduplicate logic", () => {
   beforeAll(() => {
     startServer();
@@ -30,12 +34,11 @@ describe("useFetch hook deduplicate logic", () => {
   it("should initialize with cache values without making any request", async () => {
     interceptGetMany(200);
 
-    const cacheKey = getCacheKey(getManyRequest);
-    const requestKey = getCacheRequestKey(getManyRequest);
+    const requestKey = getCacheRequestKey(request);
 
     act(() => {
       testBuilder.cache.set<GetManyResponseType>({
-        cacheKey,
+        cacheKey: request.cacheKey,
         requestKey,
         response: [fixture, null, 200],
         retries: 0,
@@ -43,15 +46,15 @@ describe("useFetch hook deduplicate logic", () => {
       });
     });
 
-    renderHook(() => useFetch(getManyRequest));
+    renderGetManyHook();
 
     expect(testBuilder.client).toHaveBeenCalledTimes(0);
   });
 
   it("should deduplicate 2 fetches into one request", async () => {
     interceptGetMany(200);
-    renderHook(() => useFetch(getManyRequest));
-    renderHook(() => useFetch(getManyRequest));
+    renderGetManyHook();
+    renderGetManyHook();
     await waitFor(() => {
       expect(testBuilder.client).toHaveBeenCalledTimes(1);
     });

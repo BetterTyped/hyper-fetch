@@ -3,6 +3,7 @@ import { DateInterval } from "constants/time.constants";
 export const useFetchDefaultOptions = {
   dependencies: [],
   disabled: false,
+  dependencyTracking: true,
   cacheOnMount: true,
   revalidateOnMount: false,
   initialData: null,

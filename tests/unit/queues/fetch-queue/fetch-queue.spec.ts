@@ -31,13 +31,11 @@ describe("Basic FetchQueue usage", () => {
       interceptGetMany(200, 0);
       testBuilder.cache.events.get(queueKey, trigger);
 
-      const requestDump = {
-        request: getManyRequest.dump(),
-        retries: 0,
-        timestamp: +new Date(),
-      };
       testBuilder.fetchQueue.add(getManyRequest);
-      expect(testBuilder.fetchQueue.get(queueKey)).toEqual(requestDump);
+      const queueElement = testBuilder.fetchQueue.get(queueKey);
+
+      expect(queueElement?.commandDump).toEqual(getManyRequest.dump());
+      expect(queueElement?.retries).toBe(0);
       await waitFor(() => {
         expect(trigger).toBeCalled();
       });
@@ -51,14 +49,14 @@ describe("Basic FetchQueue usage", () => {
 
       const request = getManyRequest.setCancelable(true);
 
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
+      getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
       testBuilder.fetchQueue.add(request);
       expect(cancelTrigger).toBeCalled();
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
       });
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.removeEventListener("abort", cancelTrigger);
+      getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should allow to revalidate request and cancel previous", async () => {
@@ -67,12 +65,12 @@ describe("Basic FetchQueue usage", () => {
       interceptGetMany(200);
       testBuilder.cache.events.get(queueKey, trigger);
       testBuilder.fetchQueue.add(getManyRequest);
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
+      getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
       await new Promise((r) => setTimeout(r, 100));
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       expect(cancelTrigger).toBeCalledTimes(1);
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
+      getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
       await new Promise((r) => setTimeout(r, 200));
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
@@ -80,7 +78,7 @@ describe("Basic FetchQueue usage", () => {
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
       });
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.removeEventListener("abort", cancelTrigger);
+      getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should deduplicate simultaneous revalidation requests at the same time", async () => {

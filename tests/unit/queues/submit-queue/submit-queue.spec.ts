@@ -27,16 +27,18 @@ describe("Basic submitQueue usage", () => {
   describe("When adding request to queue", () => {
     it("should add request to queue and trigger it", async () => {
       const trigger = jest.fn();
-      interceptGetMany(200, 0);
+      interceptGetMany(200);
       testBuilder.cache.events.get(queueKey, trigger);
 
-      const requestDump = {
-        commandDump: getManyRequest.dump(),
-        retries: 0,
-        timestamp: +new Date(),
-      };
       testBuilder.submitQueue.add(getManyRequest);
-      expect(testBuilder.submitQueue.getQueue(queueKey)).toEqual([requestDump]);
+
+      const queue = testBuilder.submitQueue.getQueue(queueKey);
+      const queueElement = queue?.[0];
+
+      expect(queueElement?.commandDump).toEqual(getManyRequest.dump());
+      expect(queueElement?.retries).toBe(0);
+      expect(queue?.length).toBe(1);
+
       await waitFor(() => {
         expect(trigger).toBeCalled();
       });
@@ -45,34 +47,40 @@ describe("Basic submitQueue usage", () => {
     it("should cancel already submitted request", async () => {
       const trigger = jest.fn();
       const cancelTrigger = jest.fn();
-      interceptGetMany(200, 0);
-      testBuilder.cache.events.get(queueKey, trigger);
+      interceptGetMany(200);
       const request = getManyRequest.setCancelable(true);
+      testBuilder.cache.events.get(request.cacheKey, trigger);
 
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.addEventListener("abort", cancelTrigger);
+      const controller = getAbortController(request) as AbortController;
+
+      controller.signal.addEventListener("abort", cancelTrigger);
+      controller.abort();
+
       testBuilder.submitQueue.add(request);
       testBuilder.submitQueue.add(request);
       expect(cancelTrigger).toBeCalled();
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
       });
-      getAbortController(testBuilder, getManyRequest.abortKey)?.signal.removeEventListener("abort", cancelTrigger);
+      controller.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should queue requests", async () => {
-      interceptGetMany(200, 0);
+      interceptGetMany(200);
       const request = getManyRequest.setQueued(true);
 
-      const requestDump = {
-        commandDump: request.dump(),
-        retries: 0,
-        timestamp: +new Date(),
-      };
-
       testBuilder.submitQueue.add(request);
       testBuilder.submitQueue.add(request);
 
-      expect(testBuilder.submitQueue.getQueue(queueKey)).toEqual([requestDump, requestDump]);
+      const queue = testBuilder.submitQueue.getQueue(queueKey);
+      const firstQueueElement = queue?.[0];
+      const secondQueueElement = queue?.[1];
+
+      expect(firstQueueElement?.commandDump).toEqual(request.dump());
+      expect(firstQueueElement?.retries).toBe(0);
+      expect(secondQueueElement?.commandDump).toEqual(request.dump());
+      expect(secondQueueElement?.retries).toBe(0);
+      expect(queue?.length).toBe(2);
     });
   });
 });

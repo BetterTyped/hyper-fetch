@@ -8,7 +8,7 @@ import { ErrorMockType, testBuilder } from "../../utils/server/server.constants"
 import { getCurrentState } from "../utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../shared/fetch.tests";
 
-const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest));
+const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest, { dependencyTracking: false }));
 
 describe("Basic useFetch hook usage", () => {
   beforeAll(() => {

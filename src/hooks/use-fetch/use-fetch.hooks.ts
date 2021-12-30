@@ -30,6 +30,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
+    dependencyTracking = useFetchDefaultOptions.dependencyTracking,
     cacheOnMount = useFetchDefaultOptions.cacheOnMount,
     revalidateOnMount = useFetchDefaultOptions.revalidateOnMount,
     initialData = useFetchDefaultOptions.initialData,
@@ -214,12 +215,19 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     return mapperFn && state.data ? mapperFn(state.data) : state.data;
   };
 
+  const handleDependencyTracking = () => {
+    if (!dependencyTracking) {
+      Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
+    }
+  };
+
   /**
    * Initialization of the events related to data exchange with cache and queue
    * This allow to share the state with other hooks and keep it related
    */
   useDidMount(() => {
     handleCallbacks(initState.current?.response);
+    handleDependencyTracking();
     return handleMountEvents();
   });
 

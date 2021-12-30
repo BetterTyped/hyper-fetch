@@ -5,7 +5,7 @@ import {
   FetchQueueStoreKeyType,
   FetchQueueDumpValueType,
   getFetchQueueEvents,
-  FetchQueueValueOptionsType,
+  FetchQueueAddOptionsType,
 } from "queues";
 import { FetchBuilder } from "builder";
 import { getCacheRequestKey } from "cache";
@@ -36,7 +36,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
   private runningRequests = new Map<string, FetchCommandInstance>();
 
-  add = async (command: FetchCommandInstance, options?: FetchQueueValueOptionsType) => {
+  add = async (command: FetchCommandInstance, options?: FetchQueueAddOptionsType) => {
     const { queueKey } = command;
 
     const queueEntity = this.get(queueKey);
@@ -86,7 +86,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     if (!requestCommand.builder.manager.isOnline) return;
 
     // Propagate the loading to all connected hooks
-    this.events.setLoading(queueKey, {
+    this.events.setLoading(requestKey, {
       isLoading: true,
       isRefreshed,
       isRevalidated,
@@ -115,12 +115,12 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
     // When Successful remove it from running requests
     if (!canRefresh || !failed || isRevalidated) {
-      this.delete(queueKey);
+      return this.delete(queueKey);
     }
     // Perform retry once request is failed
-    else if (failed && canRefresh) {
-      setTimeout(async () => {
-        await this.performRequest({ ...queueElement, retries: queueElement.retries + 1 });
+    if (failed && canRefresh) {
+      setTimeout(() => {
+        this.performRequest({ ...queueElement, retries: queueElement.retries + 1 });
       }, retryTime || 0);
     }
   };

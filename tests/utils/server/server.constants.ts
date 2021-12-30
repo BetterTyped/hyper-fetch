@@ -18,4 +18,4 @@ export const errorResponses: Record<ErrorCodesType, ErrorMockType> = {
   },
 };
 
-export const testBuilder = new FetchBuilder<ErrorMockType>({ baseUrl: "http://localhost:3000" });
+export const testBuilder = new FetchBuilder<ErrorMockType>({ baseUrl: "http://localhost:3000" }).build();

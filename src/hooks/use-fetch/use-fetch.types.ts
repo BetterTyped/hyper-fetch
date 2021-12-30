@@ -8,6 +8,7 @@ import { UseDependentStateActions, UseDependentStateType } from "../use-dependen
 export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   dependencies?: any[];
   disabled?: boolean;
+  dependencyTracking?: boolean;
   revalidateOnMount?: boolean;
   cacheOnMount?: boolean;
   cacheKey?: string;

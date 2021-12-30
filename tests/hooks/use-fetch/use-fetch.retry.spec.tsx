@@ -6,12 +6,9 @@ import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from ".
 import { getCurrentState } from "../utils/state.utils";
 import { testFetchErrorState, testFetchSuccessState } from "../shared/fetch.tests";
 
-const request = getManyRequest.clone();
+const request = getManyRequest.setRetry(1).setRetryTime(200);
 
-request.retry = 1;
-request.retryTime = 200;
-
-const renderGetManyHook = () => renderHook(() => useFetch(request));
+const renderGetManyHook = () => renderHook(() => useFetch(request, { dependencyTracking: false }));
 
 describe("useFetch hook retry logic", () => {
   beforeAll(() => {
@@ -47,7 +44,7 @@ describe("useFetch hook retry logic", () => {
     const refreshMock = interceptGetManyAlternative(200);
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+      return Boolean(getCurrentState(responseOne).data);
     });
 
     testFetchSuccessState(refreshMock, responseOne);

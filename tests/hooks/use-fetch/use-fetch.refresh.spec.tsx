@@ -10,6 +10,7 @@ import { testBuilder } from "../../utils/server/server.constants";
 const renderGetManyHook = () =>
   renderHook(() =>
     useFetch(getManyRequest, {
+      dependencyTracking: false,
       refresh: true,
       refreshTime: 200,
       refreshBlurred: true,
@@ -22,6 +23,7 @@ const renderGetManyHook = () =>
 const renderEventsHook = () =>
   renderHook(() =>
     useFetch(getManyRequest, {
+      dependencyTracking: false,
       refresh: false,
       refreshBlurred: true,
       refreshOnReconnect: true,

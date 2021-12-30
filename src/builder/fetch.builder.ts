@@ -16,6 +16,8 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
   readonly debug: boolean;
   readonly options: ClientOptions | undefined;
 
+  builded = false;
+
   onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
   onRequestCallbacks: RequestInterceptorCallback[] = [];
   onResponseCallbacks: ResponseInterceptorCallback[] = [];
@@ -106,13 +108,30 @@ export class FetchBuilder<ErrorType extends Record<string, any> | string, Client
     return newResponse;
   };
 
-  public create =
-    <ResponseType, PayloadType = undefined, QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType>() =>
-    <EndpointType extends string>(
+  public create = <
+    ResponseType,
+    PayloadType = undefined,
+    QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
+  >() => {
+    if (!this.builded) {
+      throw new Error("To create new commands you have to first use the build method on FetchBuilder class");
+    }
+
+    return <EndpointType extends string>(
       params: FetchCommandOptions<EndpointType, ClientOptions>,
     ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions> =>
       new FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>(
         this,
         params,
       );
+  };
+
+  build = () => {
+    this.builded = true;
+
+    this.fetchQueue.flushAll();
+    this.submitQueue.flushAll();
+
+    return this;
+  };
 }

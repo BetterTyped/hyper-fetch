@@ -3,7 +3,7 @@ import { FetchCommandDump, FetchCommandInstance } from "command";
 // Values
 export type FetchQueueStoreKeyType = string;
 export type FetchQueueStoreValueType = FetchCommandInstance;
-export type FetchQueueValueOptionsType = {
+export type FetchQueueAddOptionsType = {
   isRefreshed?: boolean;
   isRevalidated?: boolean;
 };

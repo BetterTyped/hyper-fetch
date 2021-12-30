@@ -40,7 +40,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     xhr.open(method, url, true);
 
     setClientHeaders(commandInstance, xhr, options?.headerMapper);
-    getAbortController(command.builder, command.abortKey)?.signal?.addEventListener("abort", xhr.abort);
+    getAbortController(command)?.signal.addEventListener("abort", xhr.abort);
 
     // Request listeners
     command.builder.commandManager.events.emitRequestStart(getCacheRequestKey(command), command);
@@ -99,7 +99,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       } else {
         handleClientError(commandInstance, resolve, event);
       }
-      getAbortController(command.builder, command.abortKey)?.signal?.removeEventListener("abort", xhr.abort);
+      getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
     };
 
     // Send request

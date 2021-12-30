@@ -50,7 +50,7 @@ export class FetchCommand<
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
-    readonly defaultOptions?: DefaultOptionsType<
+    readonly current?: DefaultOptionsType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -59,24 +59,26 @@ export class FetchCommand<
       ClientOptions
     >,
   ) {
-    this.endpoint = defaultOptions?.endpoint || commandOptions.endpoint;
-    this.headers = defaultOptions?.headers || commandOptions.headers;
+    const { baseUrl } = builder;
+
+    this.endpoint = current?.endpoint || commandOptions.endpoint;
+    this.headers = current?.headers || commandOptions.headers;
     this.method = commandOptions.method || HttpMethodsEnum.get;
-    this.params = defaultOptions?.params;
-    this.data = defaultOptions?.data;
-    this.queryParams = defaultOptions?.queryParams;
-    this.mockCallback = defaultOptions?.mockCallback;
+    this.params = current?.params;
+    this.data = current?.data;
+    this.queryParams = current?.queryParams;
+    this.mockCallback = current?.mockCallback;
 
-    this.cancelable = commandOptions.cancelable;
-    this.retry = commandOptions.retry;
-    this.retryTime = commandOptions.retryTime;
-    this.cacheTime = commandOptions.cacheTime;
-    this.queued = commandOptions.queued;
-    this.deepEqual = commandOptions.deepEqual;
+    this.cancelable = current?.cancelable || commandOptions.cancelable;
+    this.retry = current?.retry || commandOptions.retry;
+    this.retryTime = current?.retryTime || commandOptions.retryTime;
+    this.cacheTime = current?.cacheTime || commandOptions.cacheTime;
+    this.queued = current?.queued || commandOptions.queued;
+    this.deepEqual = current?.deepEqual || commandOptions.deepEqual;
 
-    this.abortKey = commandOptions.abortKey || getAbortKey(this.method, this.builder.baseUrl, this.endpoint);
-    this.cacheKey = commandOptions.cacheKey || getCacheRequestKey(this);
-    this.queueKey = commandOptions.queueKey || getCacheRequestKey(this);
+    this.abortKey = current?.abortKey || commandOptions.abortKey || getAbortKey(this.method, baseUrl, this.endpoint);
+    this.cacheKey = current?.cacheKey || commandOptions.cacheKey || getCacheRequestKey(this);
+    this.queueKey = current?.queueKey || commandOptions.queueKey || getCacheRequestKey(this);
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -101,6 +103,18 @@ export class FetchCommand<
     return this.clone({ cancelable });
   };
 
+  public setRetry = (retry: FetchCommandOptions<EndpointType, ClientOptions>["retry"]) => {
+    return this.clone({ retry });
+  };
+
+  public setRetryTime = (retryTime: FetchCommandOptions<EndpointType, ClientOptions>["retryTime"]) => {
+    return this.clone({ retryTime });
+  };
+
+  public setCacheTime = (cacheTime: FetchCommandOptions<EndpointType, ClientOptions>["cacheTime"]) => {
+    return this.clone({ cacheTime });
+  };
+
   public setQueued = (queued: boolean) => {
     return this.clone({ queued });
   };
@@ -122,7 +136,7 @@ export class FetchCommand<
   };
 
   public abort = () => {
-    abortCommand(this.builder, this.abortKey, this);
+    abortCommand(this);
 
     return this.clone();
   };
@@ -170,12 +184,12 @@ export class FetchCommand<
       EndpointType,
       ClientOptions
     > = {
+      ...this.dump(),
+      ...options,
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
-      params: options?.params || this.params,
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
       mockCallback: options?.mockCallback || this.mockCallback,
-      headers: options?.headers || this.headers,
     };
 
     const cloned = new FetchCommand<

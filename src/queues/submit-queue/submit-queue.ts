@@ -191,21 +191,21 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       queue.requests.push(queueElementDump);
       this.storage.set(queueKey, queue);
       this.flush(queueKey);
-      return;
+    } else {
+      // 2. Only last request
+      if (queue.cancelable) {
+        // Cancel all previous requests
+        runningRequests.forEach((request) => request.abort());
+        this.runningRequests.set(queueKey, []);
+        // Request will be performed in 3. step
+      }
+      // 3. All at once
+      const requestCommand = new FetchCommand(this.builder, command) as FetchCommandInstance;
+      queue.requests.push(queueElementDump);
+      this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
+      this.storage.set(queueKey, queue);
+      this.performRequest(queueKey, requestCommand, queueElementDump);
     }
-    // 2. Only last request
-    if (queue.cancelable) {
-      // Cancel all previous requests
-      runningRequests?.forEach((request) => request.abort());
-      this.runningRequests.set(queueKey, []);
-      // Request will be performed in 3. step
-    }
-    // 3. All at once
-    const requestCommand = new FetchCommand(this.builder, command) as FetchCommandInstance;
-    queue.requests.push(queueElementDump);
-    this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
-    this.storage.set(queueKey, queue);
-    this.performRequest(queueKey, requestCommand, queueElementDump);
   };
 
   shift = (queueKey: string) => {

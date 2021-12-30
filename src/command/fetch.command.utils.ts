@@ -41,23 +41,27 @@ export const getAbortKey = (method: string, baseUrl: string, endpoint: string): 
   return `${method}_${baseUrl}${endpoint}`;
 };
 
-export const addAbortController = (builder: FetchBuilderInstance, key: string) => {
+export const addAbortController = (builder: FetchBuilderInstance, abortKey: string) => {
   const { abortControllers } = builder.commandManager;
 
-  const existingController = abortControllers.get(key);
+  const existingController = abortControllers.get(abortKey);
   if (!existingController || existingController?.signal?.aborted) {
-    abortControllers.set(key, new AbortController());
+    abortControllers.set(abortKey, new AbortController());
   }
 };
 
-export const abortCommand = (builder: FetchBuilderInstance, key: string, command: FetchCommandInstance) => {
-  const { abortControllers } = builder.commandManager;
-  abortControllers.get(key)?.abort();
-  builder.commandManager.events.emitAbort(key, command);
-  addAbortController(builder, key);
+export const abortCommand = (command: FetchCommandInstance) => {
+  const { abortControllers } = command.builder.commandManager;
+  const controller = abortControllers.get(command.abortKey);
+
+  if (controller) {
+    controller.abort();
+    command.builder.commandManager.events.emitAbort(command.abortKey, command);
+  }
+  addAbortController(command.builder, command.abortKey);
 };
 
-export const getAbortController = (builder: FetchBuilderInstance, key: string) => {
-  const { abortControllers } = builder.commandManager;
-  return abortControllers.get(key);
+export const getAbortController = (command: FetchCommandInstance) => {
+  const { abortControllers } = command.builder.commandManager;
+  return abortControllers.get(command.abortKey);
 };
