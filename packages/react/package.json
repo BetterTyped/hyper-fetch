@@ -33,7 +33,8 @@
     "test-pipeline": "jest --watchAll=false",
     "coverage": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "precommit": "yarn lint-staged"
   },
   "peerDependencies": {
     "@better-typed/hyper-fetch": "0.0.0",

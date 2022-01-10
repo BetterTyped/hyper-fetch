@@ -8,11 +8,10 @@
     },
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["babel.config.js"],
   "settings": {
     "import/resolver": {
       "node": {
-        "moduleDirectory": ["node_modules", "src/"]
+        "moduleDirectory": ["node_modules", "lib/"]
       }
     },
     "react": {

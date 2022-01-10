@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "baseUrl": "lib"
+    "baseUrl": "./lib"
   },
   "include": ["./lib", "./__tests__"],
   "paths": {

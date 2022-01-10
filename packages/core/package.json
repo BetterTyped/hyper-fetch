@@ -33,7 +33,8 @@
     "test-pipeline": "jest --watchAll=false",
     "coverage": "jest --coverage --watchAll",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "precommit": "yarn lint-staged"
   },
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^1.0.2"

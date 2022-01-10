@@ -3,21 +3,13 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 11,
-    "ecmaFeatures": {
-      "jsx": true
-    },
     "project": "./tsconfig.json"
   },
-  "ignorePatterns": ["babel.config.js"],
   "settings": {
     "import/resolver": {
       "node": {
-        "moduleDirectory": ["node_modules", "src/"]
+        "moduleDirectory": ["node_modules", "lib/"]
       }
-    },
-    "react": {
-      "pragma": "React",
-      "version": "detect"
     }
   },
   "plugins": ["react", "react-hooks"],
