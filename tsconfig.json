@@ -15,17 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "downlevelIteration": true,
-    "jsx": "react-jsx",
-    "baseUrl": "src",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noImplicitReturns": false,
     "strictPropertyInitialization": false
-  },
-  "include": ["./src", "./tests"],
-  "plugins": [
-    {
-      "transform": "@zerollup/ts-transform-paths"
-    }
-  ]
+  }
 }
