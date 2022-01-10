@@ -14,6 +14,7 @@ import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType } from "./fetch-queue.types";
 
 /**
+ * test
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */

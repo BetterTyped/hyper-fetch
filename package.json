@@ -78,10 +78,5 @@
     "commitizen": {
       "path": "git-cz"
     }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "echo ”[Husky] applypatch-msg”"
-    }
   }
 }
