@@ -15,7 +15,8 @@
     "format": "lerna run format",
     "lint": "lerna run lint",
     "publish": "lerna publish from-package --y --no-verify-access",
-    "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'"
+    "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'",
+    "pre-commit": ""
   },
   "dependencies": {
     "lerna": "^4.0.0",
@@ -80,7 +81,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lerna run --concurrency 1 --stream precommit --since HEAD --exclude-dependents"
+      "pre-commit": "echo ”[Husky] applypatch-msg”"
     }
   }
 }
