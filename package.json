@@ -75,7 +75,7 @@
   },
   "config": {
     "commitizen": {
-      "path": "git-cz"
+      "path": "git-cz test"
     }
   },
   "husky": {
