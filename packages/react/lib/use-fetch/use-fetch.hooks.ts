@@ -120,7 +120,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
         onErrorCallback?.current?.(response[1]);
         if (shouldThrow) {
           throw {
-            message: "Fetching Error. test",
+            message: "Fetching Error.",
             error: response[1],
           };
         }
