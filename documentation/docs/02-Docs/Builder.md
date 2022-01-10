@@ -8,7 +8,7 @@ This section is currently **Work in Progress**. It will be ready for version 1.0
 
 :::
 
-## General Flow
+<!-- ## General Flow
 
 ## Props
 
@@ -38,4 +38,4 @@ This section is currently **Work in Progress**. It will be ready for version 1.0
 - TODO - subsection for Builder -> providing own client (other than XHR) + options
 - TODO - subsection for Builder -> providing own cache.
 - TODO - subsection for Builder -> section for providing own Manager implementation.
-- TODO - subsection for Builder -> section for providing own queues implementation.
+- TODO - subsection for Builder -> section for providing own queues implementation. -->

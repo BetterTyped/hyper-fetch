@@ -9,6 +9,10 @@
   gap: 50px 30px;
 }
 
+.description {
+  font-size: 0.9rem;
+}
+
 @media (max-width: 992px) {
   .row {
     grid-template-columns: 1fr 1fr;

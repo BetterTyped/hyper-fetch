@@ -12,15 +12,10 @@
   --ifm-color-primary-dark: rgb(241, 204, 14); /* Hover */
   --ifm-color-primary-darker: rgb(185, 161, 25);
   --ifm-color-primary-darkest: rgb(156, 136, 19);
-  --ifm-color-primary-light: rgb(236, 204, 43);
-  --ifm-color-primary-lighter: rgb(243, 213, 64);
-  --ifm-color-primary-lightest: rgb(247, 219, 78);
+  --ifm-color-primary-light: rgb(255, 225, 75);
+  --ifm-color-primary-lighter: rgb(255, 237, 145);
+  --ifm-color-primary-lightest: rgb(255, 242, 180);
   --ifm-code-font-size: 95%;
-}
-
-html[data-theme="dark"] .footer--dark {
-  --ifm-footer-background-color: #0c0d0e;
-  --section-background: var(--ifm-background-surface-color);
 }
 
 html[data-theme="dark"] {
@@ -29,6 +24,7 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="light"] {
+  --ifm-background-color: #fff;
   --section-background: #e9e9e9;
 }
 
@@ -211,11 +207,39 @@ html[data-theme="dark"] .navbar-sidebar .github {
   display: initial;
 }
 
+/* Docs */
+
+aside {
+  background: var(--ifm-background-color);
+}
+
 /* Footer */
+
+html[data-theme="light"] footer {
+  --ifm-footer-background-color: #e2e3e5;
+  --section-background: var(--ifm-background-surface-color);
+}
+
+html[data-theme="dark"] footer {
+  --ifm-footer-background-color: #141414;
+  --section-background: var(--ifm-background-surface-color);
+}
 
 .footer__copyright {
   margin-top: 60px;
+  font-size: 12px;
+}
+
+html[data-theme="light"] .footer__copyright {
+  color: var(--ifm-color-emphasis-600);
+}
+
+html[data-theme="dark"] .footer__copyright {
   color: var(--ifm-color-emphasis-400);
+}
+
+.footer__item {
+  font-size: 14px;
 }
 
 @media (max-width: 996px) {
@@ -228,4 +252,70 @@ html[data-theme="dark"] .navbar-sidebar .github {
   .footer__item {
     text-align: center;
   }
+}
+
+/* Newsletter */
+
+footer #mc_embed_signup {
+  background: transparent;
+}
+
+footer #mc_embed_signup .foot {
+  text-align: left;
+}
+
+footer form #mc_embed_signup_scroll {
+  display: flex;
+}
+
+footer form p {
+  display: flex;
+  padding-top: 20px;
+}
+
+footer form p a {
+  display: flex;
+  padding-top: 20px;
+}
+
+footer form * {
+  font-family: "Lato", sans-serif !important;
+}
+
+footer #mc_embed_signup input.email {
+  padding: 4px 14px;
+  border-radius: 12px;
+  height: 40px;
+  margin-right: 5px;
+  background: var(--ifm-background-color);
+  border-color: var(--ifm-color-secondary-light);
+}
+
+html[data-theme="dark"] footer #mc_embed_signup input.email {
+  color: white;
+}
+
+html[data-theme="dark"] footer #mc_embed_signup input.email::placeholder {
+  color: rgb(204, 204, 204);
+}
+
+footer #mc_embed_signup .button {
+  color: white;
+  background: var(--ifm-color-primary);
+  font-weight: 600;
+  box-shadow: 0px 2px 12px var(--box-shadow-primary-light);
+  transition: all 150ms ease-in-out;
+  padding: 4px 26px !important;
+  border-radius: 12px;
+  height: 40px !important;
+  width: fit-content !important;
+}
+
+footer #mc_embed_signup .button:hover {
+  background: var(--ifm-color-primary-dark);
+  box-shadow: 0px 4px 16px var(--box-shadow-primary-strong);
+}
+
+footer #mc_embed_signup .button:hover {
+  background: var(--ifm-color-primary-darker);
 }

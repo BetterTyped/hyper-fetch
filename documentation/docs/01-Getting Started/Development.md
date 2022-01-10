@@ -8,7 +8,7 @@ This section is currently **Work in Progress**. It will be ready for version 1.0
 
 :::
 
-## General Flow
+<!-- ## General Flow
 
 - Here we should explain the general flow of the package:
   1. Builder creation
@@ -23,4 +23,4 @@ This section is currently **Work in Progress**. It will be ready for version 1.0
 
 ## Mock
 
-- mockowanie out of the box - chociaż warto się zastanowić nad tym jeszcze pod kątem jak najlepiej używać
+- mockowanie out of the box - chociaż warto się zastanowić nad tym jeszcze pod kątem jak najlepiej używać -->
