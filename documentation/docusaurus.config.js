@@ -8,7 +8,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Hyper Fetch - Ultimate fetching solution",
   tagline: "One tool to cover your fetching requirements",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -46,8 +46,7 @@ const config = {
         docs: {
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
-          editUrl: "https://github.com/facebook/docusaurus/edit/main/website/",
+          editUrl: "https://github.com/BetterTyped/hyper-fetch/documentation/docs",
           lastVersion: "current",
           versions: {
             current: {
@@ -58,8 +57,7 @@ const config = {
         },
         blog: {
           showReadingTime: true,
-          // Please change this to your repo.
-          editUrl: "https://github.com/facebook/docusaurus/edit/main/website/blog/",
+          editUrl: "https://github.com/BetterTyped/hyper-fetch/documentation/blog",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -75,8 +73,8 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       announcementBar: {
-        content: "This is <b>ALPHA</b> version, please do not use it in the production",
-        backgroundColor: "var(--ifm-color-danger)",
+        content: "This package is in <b>ALPHA VERSION</b>, please do not use it in the production!",
+        backgroundColor: "#e5ad41",
         textColor: "black",
         isCloseable: false,
       },
@@ -112,7 +110,7 @@ const config = {
             position: "left",
           },
           {
-            href: "https://github.com/graphql-go/graphql",
+            href: "https://github.com/BetterTyped/hyper-fetch",
             label: "Github",
             position: "right",
             className: "github",
@@ -120,7 +118,7 @@ const config = {
         ],
       },
       footer: {
-        style: "dark",
+        style: "light",
         links: [
           {
             title: "Docs",
@@ -147,12 +145,16 @@ const config = {
             title: "More",
             items: [
               {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/hyper-fetch",
-              },
-              {
                 label: "Blog",
                 to: "/blog",
+              },
+              {
+                label: "Better stack",
+                href: "https://bettertyped.com/docs/Overview",
+              },
+              {
+                label: "Stack Overflow",
+                href: "https://stackoverflow.com/questions/tagged/hyper-fetch",
               },
               {
                 label: "GitHub",
@@ -161,10 +163,31 @@ const config = {
             ],
           },
           {
-            title: "Join our newsletter",
+            title: "Join Our Newsletter!",
             items: [
               {
-                html: "HERE NEWSLETTER",
+                html: `<!-- Begin Mailchimp Signup Form -->
+                <link href="//cdn-images.mailchimp.com/embedcode/horizontal-slim-10_7_dtp.css" rel="stylesheet" type="text/css">
+                <style type="text/css">
+                  #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; width:100%;}
+                  /* Add your own Mailchimp form style overrides in your site stylesheet or in this style block.
+                     We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+                </style>
+                <div id="mc_embed_signup">
+                <form action="https://bettertyped.us20.list-manage.com/subscribe/post?u=9e9db92577fea9aafe98a36f1&amp;id=3ef31dfb17" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+                    <div id="mc_embed_signup_scroll">
+                  <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="Email address" required>
+                    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_9e9db92577fea9aafe98a36f1_3ef31dfb17" tabindex="-1" value=""></div>
+                        <div class="clear foot">
+                           <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+                        </div>
+                    </div>
+                    <p><a href="http://eepurl.com/hRCynH" title="Mailchimp - email marketing made easy and fun"><img class="referralBadge" src="https://eep.io/mc-cdn-images/template_images/branding_logo_text_dark_dtp.svg"></a></p>
+                </form>
+                </div>
+
+                <!--End mc_embed_signup-->`,
               },
             ],
           },

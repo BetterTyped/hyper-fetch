@@ -15,16 +15,18 @@ The idea for Hyper Fetch was shaped over the years of work on many projects in w
 the subject of fetching, request queueing, persistence, offline and data caching. This project was created to solve most
 of them, and the most problematic or seemingly inaccessible - due to the level of complexity.
 
+<!--truncate-->
+
 ## What is Hyper Fetch?
 
 Hyper Fetch is a response to the needs related to all types of interaction with the server and maintaining high
-maintainability thanks to architectural patterns. You don't need fetch or axios to use our library, but if you want to
-do this - do it! Creation of logic based on class patterns crystallized from my observations about the requests
-interactions in systems that need offline or even persistent cache and request queues. It was obvious for me to keep the
-logic around classes for those purposes but it also suited my philosophy of writing interceptors in tests, where the
-functional approach requires copying part of the setup or extracting it significantly around files. As one of the lazy
-type of developers, the most pleasant thing was to write a class based shared setup, where the tester or developer could
-connect to such a builder or a specific command, thanks to which he based everything on the current setup running in the
+maintainability thanks to architectural patterns. You don't need fetch or axios to use our library, but if you want to -
+just do it! Creation of logic based on class patterns crystallized from my observations about the requests interactions
+in systems that need offline or even persistent cache and request queues. It was obvious for me to keep the logic around
+classes for those purposes but it also suited my philosophy of writing interceptors in tests, where the functional
+approach requires copying part of the setup or extracting it significantly around files. As one of the lazy type of
+developers, the most pleasant thing was to write a class based shared setup, where the tester or developer could connect
+to such a builder or a specific command, thanks to which he based everything on the current setup running in the
 application. Thanks to this approach, the tests were more maintainable, any changes in the structure were visible
 immediately thanks to typescript and the smaller config values were updated automatically, e.g. adding change to the
 name of the endpoint did not have to be corrected in the tests because it uses actual app setup. It is simply a
@@ -81,7 +83,8 @@ so it may change, as well as a large part of the other features.
 
 This is not our last word, and many, many more will come in the course of the year. However, many of the problems
 resolved here require time and observation, so we encourage you to help and share ideas - add an issue in the Hyper
-Fetch repository. Help us to grow and to build the best fetching ecosystem out there.
+Fetch repository. Help us to grow and to build the best fetching ecosystem out there. Soon we will start to add
+documentation along with examples to get you into our vision of how modern fetching library should work and look!
 
 :::danger
 

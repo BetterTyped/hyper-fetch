@@ -11,17 +11,39 @@ export function Creators(): JSX.Element {
         <div className={clsx(styles.row)}>
           <div className={clsx(styles.block)}>
             <h2 className={clsx(styles.image)}>
-              <img alt="" src="" />
+              <img alt="" src="https://github.com/prc5.png" />
             </h2>
-            <h2 className={clsx(styles.title)}>Maciej</h2>
-            <div className={clsx(styles.description)}>The man, the myth, the ultimate coding machine</div>
+            <h2 className={clsx(styles.title)}>Maciej Pyrc</h2>
+            <a className={clsx(styles.description)} href="https://github.com/prc5" target="_blank">
+              Read more
+            </a>
           </div>
           <div className={clsx(styles.block)}>
             <h2 className={clsx(styles.image)}>
-              <img alt="" src="" />
+              <img alt="" src="https://github.com/GerasNyx.png" />
             </h2>
-            <h2 className={clsx(styles.title)}>Kacper</h2>
-            <div className={clsx(styles.description)}>Found edge cases in General Theory Of Relativity</div>
+            <h2 className={clsx(styles.title)}>Kacper Skawina</h2>
+            <a className={clsx(styles.description)} href="https://github.com/GerasNyx" target="_blank">
+              Read more
+            </a>
+          </div>
+          <div className={clsx(styles.block)}>
+            <h2 className={clsx(styles.image)}>
+              <img alt="" src="https://github.com/jkosior.png" />
+            </h2>
+            <h2 className={clsx(styles.title)}>Jakub Kosior</h2>
+            <a className={clsx(styles.description)} href="https://github.com/jkosior" target="_blank">
+              Read more
+            </a>
+          </div>
+          <div className={clsx(styles.block)}>
+            <h2 className={clsx(styles.image)}>
+              <img alt="" src="https://github.com/albelewandowski.png" />
+            </h2>
+            <h2 className={clsx(styles.title)}>Albert Lewandowski</h2>
+            <a className={clsx(styles.description)} href="https://github.com/albelewandowski" target="_blank">
+              Read more
+            </a>
           </div>
         </div>
       </div>
