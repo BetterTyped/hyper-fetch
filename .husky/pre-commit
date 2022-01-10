@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+yarn commitlint --edit "$1"
 yarn lerna run precommit --concurrency 1 --stream --since HEAD --exclude-dependents
