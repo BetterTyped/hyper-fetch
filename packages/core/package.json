@@ -37,9 +37,7 @@
     "precommit": "yarn lint-staged"
   },
   "peerDependencies": {},
-  "dependencies": {
-    "@better-typed/react-lifecycle-hooks": "^1.0.2"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

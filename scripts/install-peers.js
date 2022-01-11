@@ -80,6 +80,10 @@ if (yarnBin && process.env[envLabel] !== "1") {
         ignoreWorkspaceRootCheck: "",
       };
 
+      if (!packages.length) {
+        return status("No packages to install.\n");
+      }
+
       executioner(
         '"${node}" "${yarn}" add ${ignoreWorkspaceRootCheck} --peer --pure-lockfile -W ${packages}',
         options,
