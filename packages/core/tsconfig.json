@@ -5,6 +5,7 @@
   },
   "include": ["./lib", "./__tests__"],
   "paths": {
-    "*": ["src/*"]
+    "tests": ["./__tests__/*"],
+    "lib": ["./lib/*"]
   }
 }
