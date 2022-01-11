@@ -4,3 +4,5 @@ jest.config.ts
 babel.config.js
 rollup.config.js
 jest.config.js
+tsconfig.json
+coverage

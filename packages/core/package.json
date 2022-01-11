@@ -31,17 +31,16 @@
     "build": "rollup -c",
     "test": "jest --watchAll",
     "test-pipeline": "jest --watchAll=false",
-    "coverage": "jest --coverage --watchAll",
+    "coverage": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"
   },
+  "peerDependencies": {},
   "dependencies": {
     "@better-typed/react-lifecycle-hooks": "^1.0.2"
   },
-  "devDependencies": {
-    "rollup-plugin-ts": "^2.0.5"
-  },
+  "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn format",
