@@ -251,7 +251,7 @@ aside {
 /* Footer */
 
 html[data-theme="light"] footer {
-  --ifm-footer-background-color: #e2e3e5;
+  --ifm-footer-background-color: #f5f5f5;
   --section-background: var(--ifm-background-surface-color);
 }
 
