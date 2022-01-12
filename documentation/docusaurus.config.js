@@ -149,7 +149,7 @@ const config = {
                 to: "/blog",
               },
               {
-                label: "Better stack",
+                label: "BetterTyped stack",
                 href: "https://bettertyped.com/docs/Overview",
               },
               {
