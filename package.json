@@ -4,7 +4,7 @@
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
     "build": "lerna run build",
-    "build:docs": "cd documentation && yarn build",
+    "build:docs": "cd documentation && yarn install && yarn build",
     "start": "lerna run start",
     "storybook": "start-storybook -p 6006",
     "commit": "npx git-cz",
