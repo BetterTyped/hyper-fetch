@@ -7,7 +7,7 @@ export const getRandomUser = (): UserModel => {
   return {
     id: Math.round(Math.random() * 10000),
     name,
-    email: name + "@local.local",
+    email: `${name}@local.local`,
     age: Math.round(Math.random() * 100),
   };
 };

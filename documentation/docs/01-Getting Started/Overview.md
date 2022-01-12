@@ -9,8 +9,34 @@ like. Currently we do not recommend using it in production.
 
 :::
 
-:::note
+**Hyper Fetch** is a library for a very wide range of uses - it provides the logic necessary to **perform requests,
+caching, queuing, offline support, presistence possibilities of the queued requests and cache**. By offering the above
+solutions, we have the ambition to become one of the greatest fetching tools - this is certainly not our last word, but
+there are still many challenges ahead of us.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+### Motivation
+
+The idea for Hyper Fetch came from observing many projects in the Reactjs environment where there are many great fetch
+libraries, but each of them is based only on providing hooks and the rest of the `fetcher` implementation is up to the
+developers. However, we believe you can provide much more functionality that will run in a predictable manner in whole
+application server interactions. For this reason, the work began only on building integration around Reactjs, but over
+time it allowed us to understand that we can separate the library into two smaller ones - Hyper Fetch offering the logic
+needed to operate all functionalities, written in vanilla javascript and React Hyper Fetch, i.e. a set of hooks to
+handle commands from the main library. This allows other developers to create extensions and plugins and use the
+underlying logic in any JavaScript environment!
+
+### Main Goals
+
+- Caching - to limit the requests to the server
+- Queues - for deduplication, cancelation and chaining requests (one for fetching another for submitting)
+- Easy upload/download progress tracking
+- Offline and persistance - to make it possible to recreate previous session with pending requests and cache no matter
+  of connection status
+-
+- Performance and optimization for pagination, infinity
+
+:::tip
+
+Some **content** with _markdown_ `syntax`. Check [this `api`](#).
 
 :::

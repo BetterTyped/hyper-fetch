@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Countdown from "react-countdown";
-import { useFetch, DateInterval } from "@better-typed/react-fetch";
+import { DateInterval } from "@better-typed/hyper-fetch";
+import { useFetch } from "@better-typed/react-hyper-fetch";
 
 import { getUser } from "../server/user.api";
 
@@ -20,7 +21,9 @@ export const UserDetails: React.FC = () => {
 
   return (
     <div>
-      <button onClick={() => refresh()}>Refresh</button>
+      <button type="button" onClick={() => refresh()}>
+        Refresh
+      </button>
       <h3>User Request Details:</h3>
       <div>
         <b>fetched:</b> {String(fetched)}
