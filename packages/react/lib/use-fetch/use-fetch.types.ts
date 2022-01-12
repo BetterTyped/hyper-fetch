@@ -16,7 +16,6 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   dependencyTracking?: boolean;
   revalidateOnMount?: boolean;
   cacheOnMount?: boolean;
-  cacheKey?: string;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
   refresh?: boolean;
   refreshTime?: number;
