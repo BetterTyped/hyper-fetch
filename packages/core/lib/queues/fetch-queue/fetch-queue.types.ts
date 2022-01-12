@@ -3,7 +3,7 @@ import { FetchQueue } from "queues";
 
 export type FetchQueueOptionsType<ErrorType, ClientOptions> = {
   storage: FetchQueueStorageType<ClientOptions>;
-  threshold: number;
+  poolingTime: number;
   onInitialization: (fetchQueue: FetchQueue<ErrorType, ClientOptions>) => void;
 };
 

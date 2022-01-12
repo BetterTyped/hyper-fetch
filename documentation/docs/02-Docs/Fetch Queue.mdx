@@ -7,3 +7,14 @@ sidebar_position: 5
 This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
 
 :::
+
+### Deduplication
+
+```mermaid
+graph TD;
+    Component_1-->|Add request to queue|Queue;
+    Component_2-->|Add request to queue|Queue;
+    Queue-->Request;
+    Request-->Response;
+    Response-->Distribution;
+```

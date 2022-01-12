@@ -37,7 +37,7 @@
     "precommit": "yarn lint-staged"
   },
   "peerDependencies": {
-    "@better-typed/hyper-fetch": "0.0.0",
+    "@better-typed/hyper-fetch": "*",
     "react": "^17.0.2"
   },
   "dependencies": {

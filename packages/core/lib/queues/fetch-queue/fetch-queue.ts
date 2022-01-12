@@ -49,11 +49,12 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
     const queueEntity = this.get(queueKey);
     const timestamp = +new Date();
+    const defaultPoolingTime = 3;
 
     // Prevent to send many equal request from different sources in the same timestamp
     // Checks if it's under or equal to threshold to eliminate basic pooling issues
-    const threshold = (this.options?.threshold ?? this.options?.threshold) || 2;
-    const isEqualTimestamp = getIsEqualTimestamp(timestamp, threshold, queueEntity?.timestamp);
+    const poolingTime = this.options?.poolingTime ?? defaultPoolingTime;
+    const isEqualTimestamp = getIsEqualTimestamp(timestamp, poolingTime, queueEntity?.timestamp);
     const canRevalidate = options?.isRevalidated && !isEqualTimestamp;
 
     // If no concurrent requests found or the previous request can be canceled
