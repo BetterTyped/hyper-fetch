@@ -1,24 +1,25 @@
-name: Release npm packages
+name: Release packages
 
 on:
   push:
     branches:
       - main
+      - beta
+      - alpha
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-node@v1
         with:
           node-version: "14.x"
       - run: yarn install
-      - run: yarn build
+      - run: yarn bootstrap
       - run: yarn test
-      - run: yarn publish
       - run: yarn release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
