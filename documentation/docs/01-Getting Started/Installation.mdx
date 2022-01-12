@@ -1,0 +1,63 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Installation of hyper fetch can be run `clean` or for a specific environment - we only support React at the moment.
+
+:::info
+
+The main `@better-typed/hyper-fetch` package is required for other sub packages to work.
+
+:::
+
+## Clean installation
+
+Used especially when we want to use pure hyper fetch logic, without an additional layer of abstraction for a specific
+environment / library / framework. This way we have access to base features.
+
+<Tabs>
+  <TabItem value="Npm" label="Npm" default>
+
+```bash npm2yarn
+npm install --save @better-typed/hyper-fetch
+```
+
+  </TabItem>
+  <TabItem value="Yarn" label="Yarn">
+
+```bash npm2yarn
+yarn add @better-typed/hyper-fetch
+```
+
+  </TabItem>
+</Tabs>
+
+## React installation
+
+Installation of the base library with hooks offering interfaces that facilitate the use of the library and supporting
+the lifecycle of the application.
+
+<Tabs>
+  <TabItem value="Npm" label="Npm" default>
+
+```bash npm2yarn
+npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
+```
+
+  </TabItem>
+  <TabItem value="Yarn" label="Yarn">
+
+```bash npm2yarn
+yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
+```
+
+  </TabItem>
+</Tabs>
+
+<!--
+- yarn / npm - main package can be used regardless of any framework
+
+- add packages links for installation of react/react native hooks + in the future angular/ionic + vue? -->
