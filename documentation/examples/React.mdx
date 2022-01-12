@@ -1,0 +1,69 @@
+---
+sidebar_position: 5
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+## useFetch
+
+For fetching data use the `useFetch` hook that automates command handling. There are tons of options to adjust this hook
+so check out the documentation.
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
+
+const { data, error, isLoading } = useFetch(getUsers)
+
+const { data, error, isLoading } = useFetch(getUser.setParams({ userId: 1 }))
+
+
+...
+
+
+```
+
+## useSubmit
+
+For submitting and mutating data on server use the `useSubmit` hook that automates command handling. There are tons of
+options to adjust this hook so check out the documentation.
+
+```tsx
+import { postUser, patchUser, deleteUser } from "server/user";
+
+...
+
+const { submit: submitPost, isSubmitting } = useSubmit(postUser)
+
+const { submit: submitPatch, isSubmitting } = useSubmit(patchUser.setParams({ userId: 1 }))
+
+const { submit: submitDelete, isSubmitting: isSubmittingDelete } = useSubmit(patchUser)
+
+
+...
+
+
+const handlePost = (values: { email: string, password: string }) => {
+  submitPost({ data: values })
+}
+
+const handlePatch = (values: { email: string }) => {
+  submitPatch({ data: values })
+}
+
+
+
+return (
+  <button type="button" onClick={() => submitDelete({ params: { userId: 1 } })} disabled={isSubmittingDelete}>Delete</button>
+)
+
+
+```

@@ -1,0 +1,192 @@
+---
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+## 1. Initialize Builder
+
+The first step in implementing Hyper Fetch is to initialize the FetchBuilder.
+
+```tsx title="/src/server/builder.ts"
+import { FetchBuilder } from "hyper-fetch";
+
+export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" }).build();
+```
+
+## 2. Create Command
+
+Then, having already prepared connection to the server, we use the Builder method to create commands and assign types to
+them.
+
+:::caution
+
+Pay attention that we are using currying to achieve auto generated types for the endpoint string. <br /> This solution
+will be removed once
+[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
+resolved.
+
+:::
+
+<Tabs>
+  <TabItem value="Auth" label="Auth" default>
+
+```tsx title="/src/server/auth/auth.ts"
+import { builder } from "../builder.ts";
+
+type ResponseType = { token: string; refreshToken: string };
+type RequestType = { email: string; password: string };
+
+const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
+
+type LoggedUserResponseType = { name: string; email: string };
+
+const getLoggedUser = builder.createCommand<LoggedUserResponseType>()({ endpoint: "/auth/login" });
+```
+
+  </TabItem>
+  <TabItem value="CRUD" label="CRUD">
+
+```tsx title="/src/server/users/users.ts"
+import { builder } from "../builder.ts";
+
+type UserResponseType = { name: string; email: string };
+type UserRequestType = { name: string; email: string };
+type UsersQueryParamsType = { offset: number; limit: number };
+
+const getUsers = builder.createCommand<UserResponseType, void, UsersQueryParamsType>()({
+  endpoint: "/users",
+});
+
+const getUser = builder.createCommand<UserResponseType>()({
+  endpoint: "/users/:userId",
+});
+
+const postUser = builder.createCommand<UserResponseType, UserRequestType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+
+const patchUser = builder.createCommand<UserResponseType, Partial<UserRequestType>()({
+  method: "PATCH",
+  endpoint: "/users/:userId",
+});
+
+const deleteUser = builder.createCommand()({
+  method: "DELETE",
+  endpoint: "/users/:userId",
+});
+```
+
+  </TabItem>
+</Tabs>
+
+## 3. Use the command
+
+<Tabs>
+  <TabItem value="Login" label="Login" default>
+
+```tsx
+import { postLogin } from "server/auth";
+
+
+...
+
+const handleLogin = async (values: {email: string, password: string}) => {
+  const [data, error, status] = await postLogin.send({data: values})
+
+  if(data) {
+    // perform login
+    ...
+  } else {
+    // handle error
+    ...
+  }
+
+}
+
+...
+
+
+```
+
+  </TabItem>
+  <TabItem value="CRUD" label="CRUD">
+
+```tsx title="/src/server/users/users.ts"
+import { getUser, getUsers, postUser, patchUser, deleteUser  } from "server/users";
+
+
+...
+
+  const [data, error, status] = await getUser.send()
+
+  if(data) {
+    ...
+  } else {
+    ...
+  }
+
+
+
+...
+
+
+  const [data, error, status] = await getUsers.send({queryParams: {limit: 10, offset: 0}})
+
+  if(data) {
+    ...
+  } else {
+    ...
+  }
+
+
+...
+
+
+  const [data, error, status] = await postUser.send({ data: values })
+
+  if(data) {
+    ...
+  } else {
+    ...
+  }
+
+
+...
+
+
+  const [data, error, status] = await patchUser.send({ data: values, params: { userId: 1 } })
+
+  if(data) {
+    ...
+  } else {
+    ...
+  }
+
+
+...
+
+
+  const [data, error, status] = await deleteUser.send({ params: { userId: 1 } })
+
+  if(!error) {
+    ...
+  } else {
+    ...
+  }
+
+...
+
+
+```
+
+  </TabItem>
+</Tabs>
