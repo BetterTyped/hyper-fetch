@@ -40,6 +40,7 @@
     "@typescript-eslint/lines-between-class-members": "off",
     "prettier/prettier": ["error"],
     "consistent-return": 0,
-    "@typescript-eslint/no-throw-literal": 0
+    "@typescript-eslint/no-throw-literal": 0,
+    "import/extensions": 0
   }
 }

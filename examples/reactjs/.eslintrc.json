@@ -3,6 +3,9 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 11,
+    "ecmaFeatures": {
+      "jsx": true
+    },
     "project": "./tsconfig.json"
   },
   "settings": {
@@ -10,6 +13,10 @@
       "node": {
         "moduleDirectory": ["node_modules", "lib/"]
       }
+    },
+    "react": {
+      "pragma": "React",
+      "version": "detect"
     }
   },
   "plugins": ["react", "react-hooks"],
@@ -25,6 +32,7 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
+    "react/function-component-definition": 0,
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/prop-types": "off",

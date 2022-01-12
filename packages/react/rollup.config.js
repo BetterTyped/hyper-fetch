@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable import/no-unresolved */
 /* eslint-disable import/extensions */
 import configure from "../../rollup-config";

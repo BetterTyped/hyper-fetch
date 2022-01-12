@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useFetch, DateInterval, FetchCommand, ClientQueryParamsType } from "@better-typed/react-fetch";
+import { DateInterval, FetchCommand, ClientQueryParamsType } from "@better-typed/hyper-fetch";
+import { useFetch } from "@better-typed/react-hyper-fetch";
 
 import { getUsers } from "../server/user.api";
 import { UserModel } from "../../../models";

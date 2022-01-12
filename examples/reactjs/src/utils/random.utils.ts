@@ -1,5 +1,5 @@
 const arrayOf = <T>(length: number, mapFunc: (index: number) => T): T[] =>
-  Array.from({ length: length }, (_, index) => mapFunc(index));
+  Array.from({ length }, (_, index) => mapFunc(index));
 
 const lerp = (min: number, max: number, t: number): number => {
   return min * (1 - t) + max * t;
@@ -10,7 +10,7 @@ const round = (value: number, decimalPoint = 0): number => {
     return Math.round(value * 10 ** decimalPoint) / 10 ** decimalPoint;
   }
 
-  const exp = Number("10e" + (decimalPoint - 1));
+  const exp = Number(`10e${decimalPoint - 1}`);
   return Math.round(value * exp) * 10 ** Math.abs(decimalPoint);
 };
 
