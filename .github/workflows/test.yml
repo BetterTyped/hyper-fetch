@@ -10,5 +10,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: yarn bootstrap
-      - run: find / -name "*hyper-fetch*"
+      - run: yarn build
       - run: yarn test
