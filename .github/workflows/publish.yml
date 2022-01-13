@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: "14.x"
       - run: yarn bootstrap
+      - run: yarn build
       - run: yarn test
       - run: yarn release
         env:
