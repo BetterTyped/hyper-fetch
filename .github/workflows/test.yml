@@ -6,8 +6,8 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
-    container: 'node:14-alpine'
+    container: "node:14-alpine"
     steps:
       - uses: actions/checkout@v2
-      - run: yarn install && yarn lerna link && npx lerna bootstrap
+      - run: yarn bootstrap
       - run: yarn test
