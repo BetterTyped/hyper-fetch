@@ -18,7 +18,6 @@ jobs:
           node-version: "14.x"
       - run: yarn bootstrap
       - run: yarn build
-      - run: yarn test
       - run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.PROD_GITHUB_SECRET }}
