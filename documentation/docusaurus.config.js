@@ -44,9 +44,10 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          remarkPlugins: [require("mdx-mermaid")],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/BetterTyped/hyper-fetch/documentation/docs",
+          editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
           lastVersion: "current",
           versions: {
             current: {
@@ -57,7 +58,7 @@ const config = {
         },
         blog: {
           showReadingTime: true,
-          editUrl: "https://github.com/BetterTyped/hyper-fetch/documentation/blog",
+          editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),

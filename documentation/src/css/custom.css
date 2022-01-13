@@ -7,11 +7,22 @@
 /* You can override the default Infima variables here. */
 @import url("https://fonts.googleapis.com/css2?family=Viga&display=swap");
 
-:root {
-  --ifm-color-primary: rgb(223, 188, 13); /* Links */
+html[data-theme="dark"] {
+  --ifm-color-primary: rgb(227, 187, 46); /* Links */
   --ifm-color-primary-dark: rgb(241, 204, 14); /* Hover */
-  --ifm-color-primary-darker: rgb(185, 161, 25);
-  --ifm-color-primary-darkest: rgb(156, 136, 19);
+  --ifm-color-primary-darker: rgb(206, 177, 17);
+  --ifm-color-primary-darkest: rgb(196, 169, 21);
+  --ifm-color-primary-light: rgb(255, 225, 75);
+  --ifm-color-primary-lighter: rgb(255, 237, 145);
+  --ifm-color-primary-lightest: rgb(255, 242, 180);
+  --ifm-code-font-size: 95%;
+}
+
+html[data-theme="light"] {
+  --ifm-color-primary: rgb(216 173 12); /* Links */
+  --ifm-color-primary-dark: rgb(241, 204, 14); /* Hover */
+  --ifm-color-primary-darker: rgb(206, 177, 17);
+  --ifm-color-primary-darkest: rgb(196, 169, 21);
   --ifm-color-primary-light: rgb(255, 225, 75);
   --ifm-color-primary-lighter: rgb(255, 237, 145);
   --ifm-color-primary-lightest: rgb(255, 242, 180);
@@ -39,6 +50,10 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
+html[data-theme="light"] .alert--secondary {
+  background: #f7f7f7;
+}
+
 html[data-theme="light"] .main-wrapper {
   background-image: radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px),
     radial-gradient(var(--ifm-color-emphasis-300) 1px, transparent 1px);
@@ -51,6 +66,22 @@ html[data-theme="dark"] .main-wrapper {
     radial-gradient(var(--section-background) 1px, transparent 1px);
   background-position: 0 0, 50px 50px;
   background-size: 100px 100px;
+}
+
+.pagination-nav__link {
+  background: var(--ifm-background-color);
+}
+
+.navbar__item {
+  font-weight: 700;
+}
+
+.menu__link--active {
+  font-weight: 600;
+}
+
+html[data-theme="light"] .menu__link--active {
+  text-shadow: 0px 0px 9px rgba(255, 255, 255, 1);
 }
 
 /* Headings */
@@ -207,6 +238,10 @@ html[data-theme="dark"] .navbar-sidebar .github {
   display: initial;
 }
 
+.navbar-sidebar--show .github {
+  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
+}
+
 /* Docs */
 
 aside {
@@ -216,7 +251,7 @@ aside {
 /* Footer */
 
 html[data-theme="light"] footer {
-  --ifm-footer-background-color: #e2e3e5;
+  --ifm-footer-background-color: #f5f5f5;
   --section-background: var(--ifm-background-surface-color);
 }
 

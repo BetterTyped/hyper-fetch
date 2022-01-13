@@ -1,0 +1,59 @@
+---
+sidebar_position: 4
+---
+
+## Structure
+
+1. Structure is one of the most important things, so we're going to bring this topic closer and present how we approach
+   it. First of all, we create a directory called `server`, inside which we keep the file `builder.ts` from which we
+   export the prepared builder or more.
+
+2. The next step is to create a directory for each entity in our system (i.e. users, todos, categories, products, groups
+   ...) in which we will keep the prepared commands to be called (getUser, postUser, deleteUser) and types for query
+   params, payloads, etc.
+
+3. During such setup, we maintain maximum reusability - thanks to the class approach in the builder or commands, we have
+   access to the configuration values stored by them. In this case, we can reuse the previously prepared commands,
+   testers have open access to the developer configuration without the need for duplication - they use the currently
+   used settings.
+
+## Debugging
+
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+## Mocking
+
+There are two possibilities for mocking.
+
+1. Builtin method. If you need fast simulation of server data for development, we recommend using the built-in method on
+   the `.mock ()` command. It allows you to return a previously prepared mock, and it's very handy once you have to wait
+   for some endpoint to be created.
+
+2. [MSW library](https://mswjs.io/) for intercepting of the requests. It takes more time to prepare configuration with
+   this library, however this is one of the best libraries in it's category and allow you to inspect all the requests in
+   browser network dev tools.
+
+## Testing
+
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+## Plugins and extensions
+
+Hyper Fetch has been prepared for easy extension and addition of new functionalities. Any additions to the ecosystem are
+welcome!
+
+:::note
+
+This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+
+:::
+
+<!-- Add tutorial for events handling and the flow -->
