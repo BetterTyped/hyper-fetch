@@ -9,7 +9,7 @@
     "storybook": "start-storybook -p 6006",
     "commit": "npx git-cz",
     "postinstall": "yarn install-peers && yarn husky install",
-    "bootstrap": "yarn install && yarn lerna link && npx lerna bootstrap",
+    "bootstrap": "yarn install && yarn lerna link --force-local && yarn lerna bootstrap --force-local",
     "test": "lerna run test-pipeline --stream",
     "coverage": "lerna run coverage --stream",
     "format": "lerna run format",
