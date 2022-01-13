@@ -1,0 +1,24 @@
+name: Deploy docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.PROD_AWS_REGION }}
+      - name: Build docs
+        run: yarn build:docs
+      - name: Deploy to S3 bucket
+        run: aws s3 sync ./documentation/build/ s3://${{ secrets.PROD_AWS_S3 }} --delete
+      - name: Clear cache after deploy
+        run: aws cloudfront create-invalidation --distribution-id=${{ secrets.PROD_AWS_CLOUDFRONT_ID }} --paths "/*"
