@@ -134,11 +134,11 @@ const config = {
               },
               {
                 label: "Testing",
-                to: "/docs/next/Testing/Setup",
+                to: "/docs/next/Testing/Overview",
               },
               {
                 label: "React",
-                to: "/docs/next/React/Installation",
+                to: "/docs/next/React/Overview",
               },
             ],
           },

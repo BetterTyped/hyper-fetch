@@ -55,7 +55,7 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/049-messenger.svg",
     description: "React hooks with amazing features",
-    link: <Link to="/docs/next/React/Installation">Docs for React</Link>,
+    link: <Link to="/docs/next/React/Overview">Docs for React</Link>,
   },
   {
     image: "/img/features/070-file hosting.svg",
