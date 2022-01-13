@@ -14,7 +14,7 @@
     "coverage": "lerna run coverage --stream",
     "format": "lerna run format",
     "lint": "lerna run lint --stream",
-    "publish": "lerna publish from-package --y --no-verify-access",
+    "publish": "lerna publish from-git --y --no-verify-access",
     "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'",
     "semantic-release": "semantic-release"
   },
