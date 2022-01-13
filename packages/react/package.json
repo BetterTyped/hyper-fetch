@@ -19,7 +19,7 @@
   ],
   "publishConfig": {
     "access": "public",
-    "registry": "https://registry.npmjs.com/"
+    "registry": "https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",
