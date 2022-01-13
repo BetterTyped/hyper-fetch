@@ -14,7 +14,7 @@
     "coverage": "lerna run coverage --stream",
     "format": "lerna run format",
     "lint": "lerna run lint --stream",
-    "release": "lerna exec --concurrency 1 -- semantic-release -e semantic-release-monorepo --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'",
+    "release": "lerna exec --concurrency 1 -- semantic-release --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'",
     "semantic-release": "semantic-release"
   },
   "dependencies": {
