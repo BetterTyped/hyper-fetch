@@ -9,5 +9,5 @@ jobs:
     container: "node:14-alpine"
     steps:
       - uses: actions/checkout@v2
-      - run: yarn bootstrap
+      - run: yarn bootstrap && yarn build
       - run: yarn test
