@@ -20,6 +20,7 @@ jobs:
       - run: yarn build
       - run: yarn test
       - run: yarn release
+      - run: yarn publish-libs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
