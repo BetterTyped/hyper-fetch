@@ -27,7 +27,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
-  mapperFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
+  responseDataModifierFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
 };
 
 export type UseFetchReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
