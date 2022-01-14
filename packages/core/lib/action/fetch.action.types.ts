@@ -10,7 +10,7 @@ export type FetchActionConfig<
   ResponseType,
   PayloadType,
   ErrorType,
-  QueryParamsType extends ClientQueryParamsType,
+  QueryParamsType extends ClientQueryParamsType | string,
   ClientOptions,
 > = {
   name: string;

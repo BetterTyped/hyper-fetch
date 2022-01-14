@@ -48,7 +48,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
-    mapperFn = useFetchDefaultOptions.mapperFn,
+    responseDataModifierFn = useFetchDefaultOptions.responseDataModifierFn,
     shouldThrow = useFetchDefaultOptions.shouldThrow,
   }: UseFetchOptionsType<T, MapperResponse> = useFetchDefaultOptions,
 ): UseFetchReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
@@ -217,7 +217,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleData = () => {
-    return mapperFn && state.data ? mapperFn(state.data) : state.data;
+    return responseDataModifierFn && state.data ? responseDataModifierFn(state.data) : state.data;
   };
 
   const handleDependencyTracking = () => {
@@ -264,12 +264,8 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   );
 
   return {
-    // ts bug somehow multiplies the typings required here
-    get data(): (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
-      ? ExtractResponse<T>
-      : MapperResponse extends never
-      ? ExtractResponse<T>
-      : MapperResponse {
+    // necessary due to TS 4.5 restrictions on assignability of conditional types
+    get data() {
       setRenderKey("data");
       return handleData() as (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
         ? ExtractResponse<T>

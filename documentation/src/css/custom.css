@@ -354,3 +354,15 @@ footer #mc_embed_signup .button:hover {
 footer #mc_embed_signup .button:hover {
   background: var(--ifm-color-primary-darker);
 }
+
+@media (max-width: 992px) {
+  footer #mc_embed_signup .foot {
+    width: 0;
+  }
+  footer form #mc_embed_signup_scroll {
+    display: block;
+  }
+  footer form p {
+    justify-content: center;
+  }
+}

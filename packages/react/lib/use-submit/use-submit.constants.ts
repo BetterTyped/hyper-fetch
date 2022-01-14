@@ -1,21 +1,13 @@
-import { DateInterval } from "@better-typed/hyper-fetch";
-
+// TODO - check whether cache should me settable from Command or useSubmit
 export const useSubmitDefaultOptions = {
-  disabled: false,
-  queueKey: "",
-  invalidate: [],
-  retry: false,
-  retryTime: DateInterval.second,
-  cacheTime: DateInterval.hour,
-  cacheKey: "",
-  cacheOnMount: true,
-  initialCacheData: null,
+  disabled: false, // disables submitting possibility
+  dependencyTracking: true, // if true -> accessors rerender only when used. If false -> rerenders on every change
+  cacheOnMount: true, // should use data from cache (?) on initialization - to be checked whether is useful
   initialData: null,
   debounce: false,
-  cancelable: false,
-  debounceTime: DateInterval.second * 200,
-  deepCompareFn: null,
-  mapperFn: null,
-  shouldThrow: false,
-  offline: false,
+  debounceTime: 400, // milliseconds
+  suspense: false, // TBD
+  shouldThrow: false, // TBD
+  responseDataModifierFn: null,
+  invalidate: [],
 };

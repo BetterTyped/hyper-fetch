@@ -81,7 +81,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
       };
 
       if (!packages.length) {
-        return status("No packages to install.\n");
+        return status(`No packages to install for ${dir}.\n`);
       }
 
       executioner(
