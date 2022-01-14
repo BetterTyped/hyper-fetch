@@ -7,7 +7,7 @@ export class FetchAction<
   ResponseType,
   PayloadType = unknown,
   ErrorType extends FetchBuilderErrorType = Error,
-  QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
+  QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType,
   ClientOptions = unknown,
 > {
   constructor(public config: FetchActionConfig<ResponseType, PayloadType, ErrorType, QueryParamsType, ClientOptions>) {}

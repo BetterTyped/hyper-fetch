@@ -5,7 +5,7 @@
     "install-peers": "node ./scripts/install-peers",
     "build": "lerna run build --concurrency 1",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "start": "lerna run start",
+    "start": "lerna run start --stream",
     "storybook": "start-storybook -p 6006",
     "commit": "npx git-cz",
     "postinstall": "yarn install-peers && yarn husky install",

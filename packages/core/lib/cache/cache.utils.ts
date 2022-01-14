@@ -52,7 +52,9 @@ export const getCacheKey = (
  * @param customCacheKey
  * @returns
  */
-export const getCacheRequestKey = (fetchCommand: FetchCommandInstance | FetchCommandDump<any>): string => {
+export const getCacheRequestKey = (
+  fetchCommand: Pick<FetchCommandInstance | FetchCommandDump<any>, "method" | "endpoint" | "queryParams">,
+): string => {
   /**
    * Below stringified values allow to match the response family *paste random Vin Diesel meme here*
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.

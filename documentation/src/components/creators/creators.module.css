@@ -38,11 +38,19 @@
 }
 
 @media (max-width: 992px) {
+  .container {
+    margin: 0 0 60px;
+    padding: 40px 0;
+  }
   .row {
     grid-template-columns: 1fr 1fr;
   }
 }
 @media (max-width: 650px) {
+  .container {
+    margin: 0 0 40px;
+    padding: 40px 0;
+  }
   .row {
     grid-template-columns: 1fr;
   }

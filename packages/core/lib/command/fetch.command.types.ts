@@ -12,8 +12,10 @@ export type FetchCommandDump<ClientOptions> = Omit<
   FetchCommandOptions<string, ClientOptions>,
   "method" | "abortKey" | "cacheKey" | "queueKey"
 > & {
+  commandOptions: FetchCommandOptions<string, ClientOptions>;
   method: HttpMethodsType;
   data?: unknown;
+  params?: any;
   queryParams: ClientQueryParamsType | string | NegativeTypes;
   abortKey: string;
   cacheKey: string;

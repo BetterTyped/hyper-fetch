@@ -1,71 +1,51 @@
 import {
-  FetchMethodType,
+  FetchProgressType,
+  SubmitLoadingEventType,
+  CacheValueType,
+  ExtractError,
+  ExtractResponse,
   FetchCommandInstance,
   ExtractFetchReturn,
-  ExtractResponse,
-  ExtractError,
-  ExtractRequest,
-  ExtractEndpoint,
-  ExtractHasData,
-  ExtractHasParams,
-  ExtractHasQueryParams,
-  CacheValueType,
-  ClientResponseType,
 } from "@better-typed/hyper-fetch";
-import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
+
+import { UseDependentStateType, UseDependentStateActions } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseSubmitOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   disabled?: boolean;
-  queueKey: string;
   invalidate: (string | FetchCommandInstance)[];
-  dependencies?: any[];
-  retry?: boolean | number;
-  retryTime?: number;
-  cacheTime?: number;
-  cacheKey?: string;
   cacheOnMount?: boolean;
-  initialCacheData?: ExtractFetchReturn<T> | null;
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>> | null;
+  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
   debounce?: boolean;
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
-  cancelable?: boolean;
-  offline?: boolean;
-  mapperFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
-  deepCompareFn?:
-    | ((
-        previousValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-        newValues: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-      ) => boolean)
-    | null;
+  responseDataModifierFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
+  dependencyTracking?: boolean;
 };
 
 export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "data"
+  "data" | "refreshError" | "loading"
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  onRequest: (callback: OnRequestCallbackType) => void;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  isRefreshed: boolean;
-  isRefreshingError: boolean;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
+  isSubmitting: boolean;
+  isStale: boolean;
   isDebouncing: boolean;
-  refresh: () => void;
-  submit: FetchMethodType<
-    MapperResponse extends never ? ExtractResponse<T> : MapperResponse,
-    ExtractRequest<T>,
-    any,
-    ExtractError<T>,
-    ExtractEndpoint<T>,
-    ExtractHasData<T>,
-    ExtractHasParams<T>,
-    ExtractHasQueryParams<T>
-  >;
+  submit: () => void;
 };
 
+export type OnRequestCallbackType = (options: Omit<SubmitLoadingEventType, "isLoading">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
+export type OnStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
+export type OnProgressCallbackType = (progress: FetchProgressType) => void;
