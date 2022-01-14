@@ -1,11 +1,22 @@
-# `hyper-fetch`
+# Hyper Fetch
 
-> TODO: description
+[![NPM](https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/@better-typed/hyper-fetch)
+![npm type definitions](https://img.shields.io/npm/types/@better-typed/hyper-fetch)
+![NPM](https://img.shields.io/npm/l/@better-typed/hyper-fetch)
+![npm](https://img.shields.io/npm/dm/@better-typed/hyper-fetch)
+![GitHub stars](https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=social)
 
-## Usage
+> Library for handling request in any JS/TS environment
 
-```
-const hyperFetch = require('hyper-fetch');
+### [Docs](https://hyperfetch.bettertyped.com/)
 
-// TODO: DEMONSTRATE API
+### [Better Typed](https://bettertyped.com/docs/Overview)
+
+## Installation
+
+```bash
+npm install --save @better-typed/hyper-fetch
+or
+yarn add @better-typed/hyper-fetch
 ```

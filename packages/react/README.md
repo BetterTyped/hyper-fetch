@@ -1,11 +1,22 @@
-# `react-hyper-fetch`
+# React Hyper Fetch
 
-> TODO: description
+[![NPM](https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/@better-typed/react-hyper-fetch)
+![npm type definitions](https://img.shields.io/npm/types/@better-typed/react-hyper-fetch)
+![NPM](https://img.shields.io/npm/l/@better-typed/react-hyper-fetch)
+![npm](https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch)
+![GitHub stars](https://img.shields.io/github/stars/BetterTyped/react-hyper-fetch?style=social)
 
-## Usage
+> React hooks for [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
 
-```
-const reactHyperFetch = require('react-hyper-fetch');
+### [Docs](https://hyperfetch.bettertyped.com/)
 
-// TODO: DEMONSTRATE API
+### [Better Typed](https://bettertyped.com/docs/Overview)
+
+## Installation
+
+```bash
+npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
+or
+yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 ```
