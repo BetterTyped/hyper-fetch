@@ -1,5 +1,14 @@
-import { CacheValueType, ExtractError, ExtractResponse, FetchCommandInstance } from "@better-typed/hyper-fetch";
-import { UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
+import {
+  FetchProgressType,
+  SubmitLoadingEventType,
+  CacheValueType,
+  ExtractError,
+  ExtractResponse,
+  FetchCommandInstance,
+  ExtractFetchReturn,
+} from "@better-typed/hyper-fetch";
+
+import { UseDependentStateType, UseDependentStateActions } from "../use-dependent-state/use-dependent-state.types";
 
 export type UseSubmitOptionsType<T extends FetchCommandInstance, MapperResponse> = {
   disabled?: boolean;
@@ -16,19 +25,27 @@ export type UseSubmitOptionsType<T extends FetchCommandInstance, MapperResponse>
 
 export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "data" | "refreshError"
+  "data" | "refreshError" | "loading"
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
-  // actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
-  // onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  // onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  // onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  onRequest: (callback: OnRequestCallbackType) => void;
+  onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
+  onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
+  onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
+  isSubmitting: boolean;
   isStale: boolean;
   isDebouncing: boolean;
-  refresh: () => void;
   submit: () => void;
 };
 
+export type OnRequestCallbackType = (options: Omit<SubmitLoadingEventType, "isLoading">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
+export type OnStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
+export type OnProgressCallbackType = (progress: FetchProgressType) => void;

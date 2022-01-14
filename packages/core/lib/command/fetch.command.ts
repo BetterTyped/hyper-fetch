@@ -20,7 +20,7 @@ import { FetchAction } from "action";
 export class FetchCommand<
   ResponseType,
   PayloadType,
-  QueryParamsType extends ClientQueryParamsType,
+  QueryParamsType extends ClientQueryParamsType | string,
   ErrorType,
   EndpointType extends string,
   ClientOptions,
@@ -64,14 +64,15 @@ export class FetchCommand<
   ) {
     const { baseUrl } = builder;
 
+    this.mockCallback = current?.mockCallback;
+
     this.endpoint = current?.endpoint || commandOptions.endpoint;
     this.headers = current?.headers || commandOptions.headers;
     this.method = commandOptions.method || HttpMethodsEnum.get;
     this.params = current?.params;
     this.data = current?.data;
     this.queryParams = current?.queryParams;
-    this.mockCallback = current?.mockCallback;
-
+    this.options = current?.options || commandOptions.options;
     this.cancelable = current?.cancelable || commandOptions.cancelable;
     this.retry = current?.retry || commandOptions.retry;
     this.retryTime = current?.retryTime || commandOptions.retryTime;
@@ -82,6 +83,8 @@ export class FetchCommand<
     this.abortKey = current?.abortKey || commandOptions.abortKey || getAbortKey(this.method, baseUrl, this.endpoint);
     this.cacheKey = current?.cacheKey || commandOptions.cacheKey || getCacheRequestKey(this);
     this.queueKey = current?.queueKey || commandOptions.queueKey || getCacheRequestKey(this);
+
+    this.actions = current?.actions || [];
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -188,20 +191,22 @@ export class FetchCommand<
 
   public dump(): FetchCommandDump<ClientOptions> {
     return {
+      commandOptions: this.commandOptions,
+
       endpoint: this.endpoint,
       headers: this.headers,
       method: this.method,
-      queryParams: this.queryParams,
+      params: this.params,
       data: this.data,
+      queryParams: this.queryParams,
+      options: this.options,
       cancelable: this.cancelable,
       retry: this.retry,
       retryTime: this.retryTime,
       cacheTime: this.cacheTime,
       queued: this.queued,
       deepEqual: this.deepEqual,
-      options: this.commandOptions.options,
-      disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,
-      disableRequestInterceptors: this.commandOptions.disableRequestInterceptors,
+
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
       queueKey: this.queueKey,

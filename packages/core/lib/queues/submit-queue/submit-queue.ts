@@ -148,7 +148,11 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     if (!queueElement || !queue?.stopped || !queue?.requests || runningRequests?.length) return;
 
     // 1. Start request
-    const requestCommand = new FetchCommand(this.builder, queueElement.commandDump);
+    const requestCommand = new FetchCommand(
+      this.builder,
+      queueElement.commandDump.commandOptions,
+      queueElement.commandDump,
+    );
     // 2. Add single running request
     this.runningRequests.set(queueKey, [requestCommand]);
     // 3. Trigger Request
@@ -204,7 +208,11 @@ export class SubmitQueue<ErrorType, ClientOptions> {
         // Request will be performed in 3. step
       }
       // 3. All at once
-      const requestCommand = new FetchCommand(this.builder, command) as FetchCommandInstance;
+      const requestCommand = new FetchCommand(
+        this.builder,
+        queueElementDump.commandDump.commandOptions,
+        queueElementDump.commandDump,
+      ) as FetchCommandInstance;
       queue.requests.push(queueElementDump);
       this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
       this.storage.set(queueKey, queue);
