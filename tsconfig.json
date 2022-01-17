@@ -19,6 +19,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noImplicitReturns": false,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "declaration": true
   }
 }

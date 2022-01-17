@@ -4,25 +4,24 @@ import del from "rollup-plugin-delete";
 import typescript from "rollup-plugin-ts";
 import commonjs from "@rollup/plugin-commonjs";
 import dts from "rollup-plugin-dts";
-import copy from "rollup-plugin-copy";
 import { terser } from "rollup-plugin-terser";
 
-const { LERNA_ROOT_PATH } = process.env;
+// const { LERNA_ROOT_PATH } = process.env;
 
-export default (pkg, tsconfig) => [
+export default (pkg) => [
   {
     input: pkg.source,
     output: [
-      { file: pkg.main.replace("dist", "temp"), format: "cjs", exports: "named", sourcemap: true },
+      { file: pkg.main, format: "cjs", exports: "named", sourcemap: true },
       {
-        file: pkg.module.replace("dist", "temp"),
+        file: pkg.module,
         format: "esm",
         exports: "named",
         sourcemap: true,
       },
     ],
     plugins: [
-      del({ targets: ["temp/*"] }),
+      del({ targets: ["dist/*"] }),
       external({
         includeDependencies: true,
       }),
@@ -59,11 +58,6 @@ export default (pkg, tsconfig) => [
         },
         hook: "options",
       }),
-      copy({
-        targets: [{ src: "temp/*", dest: "dist" }],
-        hook: "buildEnd",
-      }),
-      del({ targets: ["temp"], hook: "closeBundle" }),
     ],
   },
 ];
