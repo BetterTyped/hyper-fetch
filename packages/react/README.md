@@ -5,7 +5,7 @@
 ![npm type definitions](https://img.shields.io/npm/types/@better-typed/hyper-fetch)
 ![NPM](https://img.shields.io/npm/l/@better-typed/hyper-fetch)
 ![npm](https://img.shields.io/npm/dm/@better-typed/hyper-fetch)
-![GitHub stars](https://img.shields.io/github/stars/BetterTyped/react-hyper-fetch?style=social)
+![GitHub stars](https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=social)
 
 > React hooks for [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
 

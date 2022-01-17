@@ -37,7 +37,7 @@ export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse =
   onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
   onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
-  isSubmitting: boolean;
+  submitting: boolean;
   isStale: boolean;
   isDebouncing: boolean;
   submit: (...parameters: Parameters<T["send"]>) => void;
