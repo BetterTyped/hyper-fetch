@@ -184,7 +184,7 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
       setRenderKey("error");
       return state.error;
     },
-    get isSubmitting() {
+    get submitting() {
       setRenderKey("loading");
       return state.loading;
     },
