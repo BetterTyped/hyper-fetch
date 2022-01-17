@@ -29,18 +29,18 @@ export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse =
 > & {
   data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
-  onRequest: (callback: OnRequestCallbackType) => void;
-  onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  onRequestStart: (callback: OnStartCallbackType<T>) => void;
-  onResponseStart: (callback: OnStartCallbackType<T>) => void;
-  onDownloadProgress: (callback: OnProgressCallbackType) => void;
-  onUploadProgress: (callback: OnProgressCallbackType) => void;
+  onSubmitRequest: (callback: OnRequestCallbackType) => void;
+  onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
+  onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
+  onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onSubmitRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
   isSubmitting: boolean;
   isStale: boolean;
   isDebouncing: boolean;
-  submit: () => void;
+  submit: (...parameters: Parameters<T["send"]>) => void;
 };
 
 export type OnRequestCallbackType = (options: Omit<SubmitLoadingEventType, "isLoading">) => void;

@@ -218,28 +218,28 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     actions,
     isDebouncing: false,
     isRefreshed: false,
-    onRequest: (callback: OnRequestCallbackType) => {
+    onSubmitRequest: (callback: OnRequestCallbackType) => {
       onRequestCallback.current = callback;
     },
-    onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
+    onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
       onSuccessCallback.current = callback;
     },
-    onError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+    onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
       onErrorCallback.current = callback;
     },
-    onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
+    onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
       onFinishedCallback.current = callback;
     },
-    onRequestStart: (callback: OnStartCallbackType<T>) => {
+    onSubmitRequestStart: (callback: OnStartCallbackType<T>) => {
       onRequestStartCallback.current = callback;
     },
-    onResponseStart: (callback: OnStartCallbackType<T>) => {
+    onSubmitResponseStart: (callback: OnStartCallbackType<T>) => {
       onResponseStartCallback.current = callback;
     },
-    onDownloadProgress: (callback: OnProgressCallbackType) => {
+    onSubmitDownloadProgress: (callback: OnProgressCallbackType) => {
       onDownloadProgressCallback.current = callback;
     },
-    onUploadProgress: (callback: OnProgressCallbackType) => {
+    onSubmitUploadProgress: (callback: OnProgressCallbackType) => {
       onUploadProgressCallback.current = callback;
     },
   };
