@@ -129,7 +129,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     // Or when the request was aborted/canceled
     const isCanceled = runningRequest && runningRequest.id !== requestId;
     const failed = !!response[1];
-    const canRefresh = retry === true || queueElement.retries <= (retry || 0);
+    const canRetry = retry === true || queueElement.retries <= (retry || 0);
 
     this.deleteRunningRequest(queueKey);
 
@@ -155,15 +155,26 @@ export class FetchQueue<ErrorType, ClientOptions> {
       isRefreshed: isRefreshed || isRevalidated,
     });
 
-    if (failed && canRefresh) {
-      this.builder.logger.http("Fetch Queue", `Performing retry`, { requestId, queueKey });
+    if (failed && canRetry) {
+      this.builder.logger.http("Fetch Queue", `Performing retry`, {
+        requestId,
+        queueKey,
+        queueElement,
+        retry,
+        retryTime,
+      });
 
       // Perform retry once request is failed
       setTimeout(() => {
         this.performRequest({ ...queueElement, retries: queueElement.retries + 1 });
       }, retryTime || 0);
     } else {
-      this.builder.logger.debug("Fetch Queue", `Clearing request from fetch-queue`, { requestId, queueKey, response });
+      this.builder.logger.debug("Fetch Queue", `Clearing request from fetch-queue`, {
+        requestId,
+        queueKey,
+        response,
+        queueElement,
+      });
 
       this.delete(queueKey);
     }

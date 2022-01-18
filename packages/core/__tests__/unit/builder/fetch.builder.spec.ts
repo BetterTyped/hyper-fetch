@@ -23,7 +23,8 @@ describe("FetchBuilder", () => {
 
   describe("When initializing the builder", () => {
     it("should assign provided props", async () => {
-      const builder = new FetchBuilder({ baseUrl, debug: true, options })
+      const builder = new FetchBuilder({ baseUrl, options })
+        .setDebug(true)
         .setLogger((b) => new Logger(b, { logger: () => null }))
         .build();
 
@@ -34,7 +35,12 @@ describe("FetchBuilder", () => {
 
     it("should initialize with applied methods", async () => {
       const builder = new FetchBuilder({ baseUrl, options })
-        .onError((error) => error)
+        .onError(() => [null, null, 0])
+        .onError(() => [null, null, 0])
+        .onSuccess(() => [null, null, 0])
+        .onSuccess(() => [null, null, 0])
+        .onAuth((command) => command)
+        .onAuth((command) => command)
         .onRequest((command) => command)
         .onRequest((command) => command)
         .onResponse(() => [null, null, 0])
@@ -43,7 +49,9 @@ describe("FetchBuilder", () => {
 
       expect(builder.__onRequestCallbacks).toHaveLength(2);
       expect(builder.__onResponseCallbacks).toHaveLength(2);
-      expect(builder.__onErrorCallback).toBeDefined();
+      expect(builder.__onErrorCallbacks).toHaveLength(2);
+      expect(builder.__onSuccessCallbacks).toHaveLength(2);
+      expect(builder.__onAuthCallbacks).toHaveLength(2);
     });
   });
 
@@ -84,7 +92,8 @@ describe("FetchBuilder", () => {
 
       await command.send();
 
-      expect(errorCall.mock.calls[0][0]).toEqual({ message: "Error" });
+      expect(errorCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);
+      expect(errorCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);
       expect(requestCall.mock.calls[0][0] instanceof FetchCommand).toBeTruthy();
       expect(requestCall.mock.calls[0][0] instanceof FetchCommand).toBeTruthy();
       expect(responseCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);

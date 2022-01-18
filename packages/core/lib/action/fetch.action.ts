@@ -1,43 +1,28 @@
-import { FetchBuilderErrorType } from "builder";
 import { FetchActionConfig } from "action";
-import { FetchCommand } from "command";
-import { ClientQueryParamsType, ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
+import { ExtractError, ExtractRequestError } from "types";
+import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
+import { FetchCommandInstance } from "../command/fetch.command.types";
 
-export class FetchAction<
-  ResponseType,
-  PayloadType = unknown,
-  ErrorType extends FetchBuilderErrorType = Error,
-  QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType,
-  ClientOptions = unknown,
-> {
-  constructor(public config: FetchActionConfig<ResponseType, PayloadType, ErrorType, QueryParamsType, ClientOptions>) {}
+export class FetchAction<T extends FetchCommandInstance> {
+  constructor(public config: FetchActionConfig<T>) {}
 
   getName = () => {
     return this.config.name;
   };
 
-  onTrigger = (command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>) => {
+  onTrigger = (command: T) => {
     this.config.on.trigger?.(command);
   };
-  onStart = (command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>) => {
+  onStart = (command: T) => {
     this.config.on.start?.(command);
   };
-  onSuccess = (
-    response: ClientResponseSuccessType<ResponseType>,
-    command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-  ) => {
+  onSuccess = (response: ClientResponseSuccessType<ResponseType>, command: T) => {
     this.config.on.success?.(response, command);
   };
-  onError = (
-    response: ClientResponseErrorType<ErrorType>,
-    command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-  ) => {
+  onError = (response: ClientResponseErrorType<ExtractError<T> & ExtractRequestError<T>>, command: T) => {
     this.config.on.error?.(response, command);
   };
-  onFinished = (
-    response: ClientResponseType<ResponseType, ErrorType>,
-    command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-  ) => {
+  onFinished = (response: ClientResponseType<ResponseType, ExtractError<T> & ExtractRequestError<T>>, command: T) => {
     this.config.on.finished?.(response, command);
   };
 }

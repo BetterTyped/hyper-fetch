@@ -23,17 +23,17 @@ export class FetchCommand<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType | string,
-  ErrorType,
+  ErrorType, // Global Error Type
+  RequestErrorType, // Additional Error for specific endpoint
   EndpointType extends string,
   ClientOptions,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
-  protected mockCallback: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
-
   endpoint: EndpointType;
   headers?: HeadersInit;
+  auth?: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: PayloadType | NegativeTypes;
@@ -60,7 +60,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      ErrorType & RequestErrorType,
       EndpointType,
       ClientOptions
     >,
@@ -69,6 +69,7 @@ export class FetchCommand<
     const {
       endpoint,
       headers,
+      auth,
       method = HttpMethodsEnum.get,
       options,
       cancelable = false,
@@ -85,6 +86,7 @@ export class FetchCommand<
 
     this.endpoint = current?.endpoint || endpoint;
     this.headers = current?.headers || headers;
+    this.auth = current?.auth || auth;
     this.method = method;
     this.params = current?.params;
     this.data = current?.data;
@@ -109,6 +111,10 @@ export class FetchCommand<
 
   public setHeaders = (headers: HeadersInit) => {
     return this.clone({ headers });
+  };
+
+  public setAuth = (auth: boolean) => {
+    return this.clone({ auth });
   };
 
   public setParams = (params: ExtractRouteParams<EndpointType>) => {
@@ -163,33 +169,13 @@ export class FetchCommand<
     return this.clone({ queueKey });
   };
 
-  public addAction = (
-    action:
-      | FetchAction<
-          ResponseType,
-          PayloadType | unknown,
-          ErrorType | Error,
-          QueryParamsType | ClientQueryParamsType,
-          ClientOptions | unknown
-        >
-      | string,
-  ) => {
+  public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
     const actionName = typeof action === "string" ? action : action?.getName();
     const actions = [...this.actions, actionName];
     return this.clone({ actions: [...new Set(actions)] });
   };
 
-  public removeAction = (
-    action:
-      | FetchAction<
-          ResponseType,
-          PayloadType | unknown,
-          ErrorType | Error,
-          QueryParamsType | ClientQueryParamsType,
-          ClientOptions | unknown
-        >
-      | string,
-  ) => {
+  public removeAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
     const actionName = typeof action === "string" ? action : action?.getName();
     const actions = this.actions.filter((currentAction) => currentAction !== actionName);
     return this.clone({ actions });
@@ -217,6 +203,7 @@ export class FetchCommand<
 
       endpoint: this.endpoint,
       headers: this.headers,
+      auth: this.auth,
       method: this.method,
       params: this.params,
       data: this.data,
@@ -238,13 +225,31 @@ export class FetchCommand<
   }
 
   public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
-    options?: DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
-  ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions, D, P, Q> {
+    options?: DefaultOptionsType<
+      ResponseType,
+      PayloadType,
+      QueryParamsType,
+      ErrorType & RequestErrorType,
+      EndpointType,
+      ClientOptions
+    >,
+  ): FetchCommand<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    RequestErrorType,
+    EndpointType,
+    ClientOptions,
+    D,
+    P,
+    Q
+  > {
     const currentOptions: DefaultOptionsType<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      ErrorType & RequestErrorType,
       EndpointType,
       ClientOptions
     > = {
@@ -253,7 +258,6 @@ export class FetchCommand<
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
-      mockCallback: options?.mockCallback || this.mockCallback,
     };
 
     const cloned = new FetchCommand<
@@ -261,6 +265,7 @@ export class FetchCommand<
       PayloadType,
       QueryParamsType,
       ErrorType,
+      RequestErrorType,
       EndpointType,
       ClientOptions,
       D,
@@ -280,7 +285,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType,
+    ErrorType & RequestErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -288,7 +293,14 @@ export class FetchCommand<
   > = async (options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
     const { client } = this.builder;
     const command = this.clone(
-      options as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
+      options as DefaultOptionsType<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType & RequestErrorType,
+        EndpointType,
+        ClientOptions
+      >,
     );
 
     return client(command);
@@ -302,7 +314,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType,
+    ErrorType & RequestErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -321,7 +333,14 @@ export class FetchCommand<
   ) => {
     const { fetchQueue, submitQueue } = this.builder;
     const command = this.clone(
-      options as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
+      options as DefaultOptionsType<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType & RequestErrorType,
+        EndpointType,
+        ClientOptions
+      >,
     );
 
     const isGet = command.method === HttpMethodsEnum.get;
@@ -330,8 +349,8 @@ export class FetchCommand<
     const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
     const queue = isFetchQueue ? fetchQueue : submitQueue;
 
-    return new Promise<ClientResponseType<ResponseType, ErrorType>>((resolve) => {
-      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType>(
+    return new Promise<ClientResponseType<ResponseType, ErrorType & RequestErrorType>>((resolve) => {
+      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType & RequestErrorType>(
         command.cacheKey,
         (response) => {
           unmount();

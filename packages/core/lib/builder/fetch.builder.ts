@@ -1,7 +1,6 @@
 import {
   RequestInterceptorCallback,
   ResponseInterceptorCallback,
-  ErrorMessageMapperCallback,
   FetchBuilderProps,
   FetchBuilderErrorType,
   FetchBuilderInstance,
@@ -15,14 +14,18 @@ import { FetchActionInstance } from "action";
 
 export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, ClientOptions = FetchClientXHR> {
   readonly baseUrl: string;
-  readonly debug: boolean;
-  readonly options: ClientOptions | undefined;
+  debug: boolean;
+  options: ClientOptions | undefined;
 
   builded = false;
 
-  __onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
-  __onRequestCallbacks: RequestInterceptorCallback[] = [];
+  // Private
+  __onErrorCallbacks: ResponseInterceptorCallback[] = [];
+  __onSuccessCallbacks: ResponseInterceptorCallback[] = [];
   __onResponseCallbacks: ResponseInterceptorCallback[] = [];
+
+  __onAuthCallbacks: RequestInterceptorCallback[] = [];
+  __onRequestCallbacks: RequestInterceptorCallback[] = [];
 
   // Managers
   commandManager: CommandManager = new CommandManager();
@@ -41,7 +44,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
 
   constructor({
     baseUrl,
-    debug,
     options,
     client,
     appManager,
@@ -51,7 +53,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     deepEqual,
   }: FetchBuilderProps<ErrorType, ClientOptions>) {
     this.baseUrl = baseUrl;
-    this.debug = debug ?? false;
     this.options = options;
     this.client = client || fetchClient;
 
@@ -62,6 +63,11 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, ClientOptions>(this);
     this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, ClientOptions>(this);
   }
+
+  setDebug = (debug: boolean): FetchBuilder<ErrorType, ClientOptions> => {
+    this.debug = debug;
+    return this;
+  };
 
   setLogger = (callback: (builder: FetchBuilderInstance) => Logger): FetchBuilder<ErrorType, ClientOptions> => {
     this.logger = callback(this);
@@ -75,8 +81,18 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     return this;
   };
 
-  onError = (callback: ErrorMessageMapperCallback<ErrorType>): FetchBuilder<ErrorType, ClientOptions> => {
-    this.__onErrorCallback = callback;
+  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+    this.__onAuthCallbacks.push(callback);
+    return this;
+  };
+
+  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+    this.__onErrorCallbacks.push(callback);
+    return this;
+  };
+
+  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+    this.__onSuccessCallbacks.push(callback);
     return this;
   };
 
@@ -104,31 +120,63 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   };
 
   /**
-   * Helper used by http client to apply the modifications of request command
+   * Helper used by http client to apply the modifications on response error
    * @param command
    * @returns
    */
-  __modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
+  __modifyAuth = async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
       for await (const interceptor of this.__onRequestCallbacks) {
-        newCommand = (await interceptor(command)) as T;
+        newCommand = (await interceptor(command)) as FetchCommandInstance;
+        if (!newCommand) throw new Error("Auth request modifier must return command");
+      }
+    }
+    return newCommand;
+  };
+  /**
+   * Helper used by http client to apply the modifications of request command
+   * @param command
+   * @returns
+   */
+  __modifyRequest = async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
+    let newCommand = command;
+    if (!command.commandOptions.disableRequestInterceptors) {
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const interceptor of this.__onRequestCallbacks) {
+        newCommand = (await interceptor(command)) as FetchCommandInstance;
         if (!newCommand) throw new Error("Request modifier must return command");
       }
     }
     return newCommand;
   };
 
-  /**
-   * Helper used by http client to apply the modifications of response from command
-   * @param command
-   * @returns
-   */
-  __modifyResponse = async <T extends FetchCommandInstance>(
-    response: ClientResponseType<any, ErrorType>,
-    command: T,
-  ) => {
+  __modifyErrorResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
+    let newResponse = response;
+    if (!command.commandOptions.disableResponseInterceptors) {
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const interceptor of this.__onErrorCallbacks) {
+        newResponse = await interceptor(response, command);
+        if (!newResponse) throw new Error("Response modifier must return data");
+      }
+    }
+    return newResponse;
+  };
+
+  __modifySuccessResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
+    let newResponse = response;
+    if (!command.commandOptions.disableResponseInterceptors) {
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const interceptor of this.__onSuccessCallbacks) {
+        newResponse = await interceptor(response, command);
+        if (!newResponse) throw new Error("Response modifier must return data");
+      }
+    }
+    return newResponse;
+  };
+
+  __modifyResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
@@ -143,6 +191,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   public createCommand = <
     ResponseType,
     PayloadType = undefined,
+    RequestErrorType = undefined,
     QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
   >() => {
     if (!this.builded) {
@@ -150,13 +199,16 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
       Build method indicates the ended setup and prevents synchronization/registration issues.`);
     }
 
-    return <EndpointType extends string>(
-      params: FetchCommandOptions<EndpointType, ClientOptions>,
-    ): FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions> =>
-      new FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>(
-        this,
-        params,
-      );
+    return <EndpointType extends string>(params: FetchCommandOptions<EndpointType, ClientOptions>) =>
+      new FetchCommand<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType,
+        RequestErrorType,
+        EndpointType,
+        ClientOptions
+      >(this, params);
   };
 
   public addActions = (actions: FetchActionInstance[]) => {

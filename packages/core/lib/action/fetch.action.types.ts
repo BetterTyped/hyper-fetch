@@ -1,37 +1,25 @@
-import { FetchCommand } from "command";
-import { ClientQueryParamsType, ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
+import { FetchCommandInstance } from "command";
+import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 import { FetchAction } from "action";
+import { ExtractError, ExtractRequestError } from "types";
 
 export type FetchActionLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 
-export type FetchActionInstance = FetchAction<any, any, any, any, any>;
+export type FetchActionInstance = FetchAction<FetchCommandInstance>;
 
-export type FetchActionConfig<
-  ResponseType,
-  PayloadType,
-  ErrorType,
-  QueryParamsType extends ClientQueryParamsType | string,
-  ClientOptions,
-> = {
+export type FetchActionConfig<T extends FetchCommandInstance> = {
   name: string;
   on: {
-    trigger?: (
-      command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-    ) => void;
-    start?: (
-      command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-    ) => void;
-    success?: (
-      response: ClientResponseSuccessType<ResponseType>,
-      command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
-    ) => void;
+    trigger?: (command: FetchCommandInstance) => void;
+    start?: (command: FetchCommandInstance) => void;
+    success?: (response: ClientResponseSuccessType<ResponseType>, command: FetchCommandInstance) => void;
     error?: (
-      response: ClientResponseErrorType<ErrorType>,
-      command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
+      response: ClientResponseErrorType<ExtractError<T> & ExtractRequestError<T>>,
+      command: FetchCommandInstance,
     ) => void;
     finished?: (
-      response: ClientResponseType<ResponseType, ErrorType>,
-      command: FetchCommand<ResponseType, PayloadType, QueryParamsType, ErrorType, string, ClientOptions>,
+      response: ClientResponseType<ResponseType, ExtractError<T> & ExtractRequestError<T>>,
+      command: FetchCommandInstance,
     ) => void;
   };
 };

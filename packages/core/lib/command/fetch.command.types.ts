@@ -27,6 +27,7 @@ export type FetchCommandDump<ClientOptions> = Omit<
 export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
   headers?: HeadersInit;
+  auth?: boolean;
   method?: HttpMethodsType;
   cancelable?: boolean;
   retry?: boolean | number;
@@ -166,4 +167,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any>;
+export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any, any>;

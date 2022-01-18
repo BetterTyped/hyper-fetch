@@ -7,7 +7,6 @@ import { AppManager } from "managers";
 
 export type FetchBuilderProps<ErrorType, ClientOptions> = {
   baseUrl: string;
-  debug?: boolean;
   options?: ClientOptions;
   client?: ClientType<ErrorType, ClientOptions>;
   cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, ClientOptions>;
@@ -22,7 +21,7 @@ export type FetchBuilderInstance = FetchBuilder<any, any>;
 export type FetchBuilderErrorType = Record<string, any> | string;
 
 // Interceptors
-export type ErrorMessageMapperCallback<ErrorType> = (error: any) => Promise<ErrorType> | ErrorType;
+
 export type RequestInterceptorCallback = (
   command: FetchCommandInstance,
 ) => Promise<FetchCommandInstance> | FetchCommandInstance;

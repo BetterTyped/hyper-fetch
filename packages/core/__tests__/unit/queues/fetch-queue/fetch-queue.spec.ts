@@ -8,7 +8,7 @@ import { sleep } from "../../../utils/utils/sleep";
 
 const { queueKey } = getManyRequest;
 
-describe("Basic FetchQueue usage", () => {
+describe("[Basic] FetchQueue", () => {
   beforeAll(() => {
     startServer();
   });
