@@ -340,6 +340,11 @@ export class FetchCommand<
       );
 
       queue.add(command);
+
+      this.builder.logger.http(
+        `[Command] Performing send method and adding command to ${isFetchQueue ? "fetch" : "submit"} queue`,
+        Object.entries({ command: command.dump() }),
+      );
     });
   };
 }

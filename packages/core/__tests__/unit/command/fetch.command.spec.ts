@@ -113,7 +113,7 @@ describe("Basic FetchCommand usage", () => {
       return Promise.resolve(mockData);
     };
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build().setClient(customHttpClient);
+    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build().setClient(() => customHttpClient);
     const command = builder.createCommand<any, any>()(options);
 
     const data = await command.send();

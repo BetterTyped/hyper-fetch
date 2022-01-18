@@ -94,14 +94,14 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     }
   };
 
-  const handleGetUpdatedCache = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     actions.setCacheData(cacheData, false);
     handleCallbacks(cacheData.response);
   };
 
-  const handleGetRefreshedCache = () => {
-    actions.setRefreshed(true, false);
-    actions.setTimestamp(new Date(), false);
+  const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
+    actions.setRefreshed(isRefreshed, false);
+    actions.setTimestamp(new Date(timestamp), false);
     handleCallbacks([state.data, state.error, state.status]);
   };
 
@@ -134,8 +134,8 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
 
     const loadingUnmount = submitQueue.events.getLoading(queueKey, handleGetLoadingEvent);
 
-    const getDataUnmount = cache.events.get<T>(queueKey, handleGetUpdatedCache);
-    const getRefreshedUnmount = cache.events.getRefreshed(cacheKey, handleGetRefreshedCache);
+    const getDataUnmount = cache.events.get<T>(queueKey, handleGetCacheData);
+    const getEqualDataUnmount = cache.events.getEqualData(cacheKey, handleGetEqualCacheUpdate);
 
     return () => {
       downloadUnmount();
@@ -145,7 +145,7 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
       loadingUnmount();
 
       getDataUnmount();
-      getRefreshedUnmount();
+      getEqualDataUnmount();
     };
   };
 

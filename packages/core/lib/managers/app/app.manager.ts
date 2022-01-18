@@ -1,16 +1,17 @@
 import EventEmitter from "events";
 
-import { managerInitialOptions, ManagerOptionsType, getManagerEvents } from "manager";
+import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } from "managers";
 
-export class Manager {
+export class AppManager {
   emitter = new EventEmitter();
-  events = getManagerEvents(this.emitter);
+  events = getAppManagerEvents(this.emitter);
 
   isOnline: boolean;
   isFocused: boolean;
 
-  constructor(options?: ManagerOptionsType) {
-    const { focusEvent, blurEvent, onlineEvent, initiallyFocused, initiallyOnline } = options || managerInitialOptions;
+  constructor(options?: AppManagerOptionsType) {
+    const { focusEvent, blurEvent, onlineEvent, initiallyFocused, initiallyOnline } =
+      options || appManagerInitialOptions;
 
     this.isFocused = initiallyFocused;
     this.isOnline = initiallyOnline;

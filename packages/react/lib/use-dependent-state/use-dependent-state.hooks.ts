@@ -37,19 +37,19 @@ export const useDependentState = <T extends FetchCommandInstance>(
   };
 
   useDidMount(() => {
-    const focusUnmount = builder.manager.events.onFocus(() => {
+    const focusUnmount = builder.appManager.events.onFocus(() => {
       state.current.isFocused = true;
       renderOnKeyTrigger(["isFocused"]);
     });
-    const blurUnmount = builder.manager.events.onBlur(() => {
+    const blurUnmount = builder.appManager.events.onBlur(() => {
       state.current.isFocused = false;
       renderOnKeyTrigger(["isFocused"]);
     });
-    const onlineUnmount = builder.manager.events.onOnline(() => {
+    const onlineUnmount = builder.appManager.events.onOnline(() => {
       state.current.isOnline = true;
       renderOnKeyTrigger(["isOnline"]);
     });
-    const offlineUnmount = builder.manager.events.onOffline(() => {
+    const offlineUnmount = builder.appManager.events.onOffline(() => {
       state.current.isOnline = false;
       renderOnKeyTrigger(["isOnline"]);
     });

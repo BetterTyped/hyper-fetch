@@ -1,6 +1,7 @@
 import { ClientType, FetchClientXHR } from "client";
 import { FetchBuilder } from "builder";
 import { FetchCommand } from "command";
+import { Logger } from "managers";
 import { interceptBase } from "../../utils/mocks";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 
@@ -22,7 +23,9 @@ describe("FetchBuilder", () => {
 
   describe("When initializing the builder", () => {
     it("should assign provided props", async () => {
-      const builder = new FetchBuilder({ baseUrl, debug: true, options }).build();
+      const builder = new FetchBuilder({ baseUrl, debug: true, options })
+        .setLogger((b) => new Logger(b, { logger: () => null }))
+        .build();
 
       expect(builder.options).toStrictEqual(options);
       expect(builder.baseUrl).toBe(baseUrl);
@@ -48,7 +51,7 @@ describe("FetchBuilder", () => {
     it("should apply custom client", async () => {
       const customHttpClient: ClientType<any, any> = () => Promise.resolve([null, null, 0]);
 
-      const builder = new FetchBuilder({ baseUrl, options }).setClient(customHttpClient).build();
+      const builder = new FetchBuilder({ baseUrl, options }).setClient(() => customHttpClient).build();
 
       expect(builder.client).toBe(customHttpClient);
     });

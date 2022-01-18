@@ -205,7 +205,6 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
 // Client response handlers
 
 export const handleClientError = async <T extends FetchCommandInstance>(
-  queueKey: string,
   command: T,
   actions: FetchActionInstance[],
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
@@ -226,6 +225,7 @@ export const handleClientError = async <T extends FetchCommandInstance>(
   }
 
   const responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
+  command.builder.logger.http(`[client] Received error response`, responseData);
 
   actions.forEach((action) => action.onError(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));
@@ -235,7 +235,6 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 };
 
 export const handleClientSuccess = async <T extends FetchCommandInstance>(
-  queueKey: string,
   command: T,
   actions: FetchActionInstance[],
   event: ProgressEvent<XMLHttpRequest>,
@@ -248,6 +247,7 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
   const data = parseResponse(event.target?.response);
 
   const responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
+  command.builder.logger.http(`[client] Received success response`, responseData);
 
   actions.forEach((action) => action.onSuccess(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));

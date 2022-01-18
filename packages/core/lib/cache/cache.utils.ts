@@ -25,11 +25,11 @@ export const stringify = (value: unknown): string => {
   }
 };
 
-export const getRevalidateKey = (key: string): string => {
+export const getRevalidateEventKey = (key: string): string => {
   return `${key}_revalidate`;
 };
 
-export const getRefreshedKey = (key: string): string => {
+export const getEqualEventKey = (key: string): string => {
   return `${key}_refreshed`;
 };
 

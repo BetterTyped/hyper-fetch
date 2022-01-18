@@ -3,7 +3,7 @@ import { FetchCommandInstance } from "command";
 import { FetchQueue, SubmitQueue } from "queues";
 import { ClientResponseType, ClientType } from "client";
 import { FetchBuilder } from "builder";
-import { Manager } from "manager";
+import { AppManager } from "managers";
 
 export type FetchBuilderProps<ErrorType, ClientOptions> = {
   baseUrl: string;
@@ -11,7 +11,7 @@ export type FetchBuilderProps<ErrorType, ClientOptions> = {
   options?: ClientOptions;
   client?: ClientType<ErrorType, ClientOptions>;
   cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, ClientOptions>;
-  manager?: <B extends FetchBuilderInstance>(builder: B) => Manager;
+  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager;
   fetchQueue?: <B extends FetchBuilderInstance>(builder: B) => FetchQueue<ErrorType, ClientOptions>;
   submitQueue?: <B extends FetchBuilderInstance>(builder: B) => SubmitQueue<ErrorType, ClientOptions>;
   deepEqual?: typeof isEqual;

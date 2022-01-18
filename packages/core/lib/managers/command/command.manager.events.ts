@@ -7,12 +7,12 @@ import {
   getUploadProgressEventKey,
   getAbortEventKey,
   getResponseEventKey,
-} from "builder";
+} from "managers";
 import { CacheKeyType } from "cache";
 import { FetchProgressType, ClientResponseType } from "client";
 import { FetchCommandInstance } from "command";
 
-export const getFetchEvents = (emitter: EventEmitter) => ({
+export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   /**
    * Emiters
    */

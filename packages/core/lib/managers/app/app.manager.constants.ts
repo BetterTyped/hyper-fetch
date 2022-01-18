@@ -1,12 +1,12 @@
-import { ManagerOptionsType } from "manager";
-import { onWindowEvent, onDocumentEvent } from "./manager.utils";
+import { AppManagerOptionsType } from "managers";
+import { onWindowEvent, onDocumentEvent } from "./app.manager.utils";
 
 export const focusEventKey = "focus";
 export const blurEventKey = "blur";
 export const onlineEventKey = "online";
 export const offlineEventKey = "offline";
 
-export const managerInitialOptions: ManagerOptionsType = {
+export const appManagerInitialOptions: AppManagerOptionsType = {
   initiallyFocused: true,
   initiallyOnline: true,
   focusEvent: (setFocused) => {

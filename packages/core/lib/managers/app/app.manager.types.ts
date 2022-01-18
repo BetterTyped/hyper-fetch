@@ -1,4 +1,4 @@
-export type ManagerOptionsType = {
+export type AppManagerOptionsType = {
   initiallyFocused: boolean;
   initiallyOnline: boolean;
   focusEvent: (setFocused: () => void) => void;

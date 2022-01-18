@@ -24,6 +24,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
+  command.builder.logger.debug(`[Client] Starting request modification`);
   const commandInstance = await command.builder.__modifyRequest(command);
 
   const { builder, endpoint, queryParams, data, method } = commandInstance;
@@ -46,6 +47,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     setClientHeaders(commandInstance, xhr, options?.headerMapper);
     getAbortController(command)?.signal.addEventListener("abort", xhr.abort);
+    command.builder.logger.debug(`[Client] Request setup finished`);
 
     // Request listeners
     command.builder.commandManager.events.emitRequestStart(command.queueKey, command);
@@ -83,27 +85,13 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     // Error listeners
     xhr.onabort = (e): void => {
-      handleClientError(
-        command.queueKey,
-        commandInstance,
-        actions,
-        resolve,
-        e as ProgressEvent<XMLHttpRequest>,
-        "abort",
-      );
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
     };
     xhr.ontimeout = (e): void => {
-      handleClientError(
-        command.queueKey,
-        commandInstance,
-        actions,
-        resolve,
-        e as ProgressEvent<XMLHttpRequest>,
-        "timeout",
-      );
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
     };
     xhr.onerror = (e): void => {
-      handleClientError(command.queueKey, commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
+      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
     };
 
     // State listeners
@@ -125,13 +113,14 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       const isSuccess = status.startsWith("2") || status.startsWith("3");
 
       if (isSuccess) {
-        handleClientSuccess(command.queueKey, commandInstance, actions, event, resolve);
+        handleClientSuccess(commandInstance, actions, event, resolve);
       } else {
-        handleClientError(command.queueKey, commandInstance, actions, resolve, event);
+        handleClientError(commandInstance, actions, resolve, event);
       }
       getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
     };
 
+    command.builder.logger.debug(`[Client] Starting request`);
     // Send request
     xhr.send(getClientPayload(data));
 

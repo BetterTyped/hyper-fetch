@@ -1,7 +1,7 @@
 import EventEmitter from "events";
-import { blurEventKey, focusEventKey, offlineEventKey, onlineEventKey } from "manager";
+import { blurEventKey, focusEventKey, offlineEventKey, onlineEventKey } from "managers";
 
-export const getManagerEvents = (emitter: EventEmitter) => ({
+export const getAppManagerEvents = (emitter: EventEmitter) => ({
   emitFocus: (): void => {
     emitter.emit(focusEventKey);
   },

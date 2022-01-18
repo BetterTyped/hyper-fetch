@@ -3,11 +3,11 @@ import {
   ResponseInterceptorCallback,
   ErrorMessageMapperCallback,
   FetchBuilderProps,
-  CommandManager,
   FetchBuilderErrorType,
+  FetchBuilderInstance,
 } from "builder";
 import { Cache, isEqual } from "cache";
-import { Manager } from "manager";
+import { AppManager, CommandManager, Logger } from "managers";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
@@ -24,11 +24,14 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   __onRequestCallbacks: RequestInterceptorCallback[] = [];
   __onResponseCallbacks: ResponseInterceptorCallback[] = [];
 
-  // Config
+  // Managers
   commandManager: CommandManager = new CommandManager();
+  appManager: AppManager;
+  logger: Logger = new Logger(this);
+
+  // Config
   client: ClientType<ErrorType, ClientOptions>;
   cache: Cache<ErrorType, ClientOptions>;
-  manager: Manager;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
   submitQueue: SubmitQueue<ErrorType, ClientOptions>;
   deepEqual: typeof isEqual;
@@ -41,27 +44,34 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     debug,
     options,
     client,
+    appManager,
     cache,
-    manager,
     fetchQueue,
     submitQueue,
     deepEqual,
   }: FetchBuilderProps<ErrorType, ClientOptions>) {
     this.baseUrl = baseUrl;
-    this.debug = debug || false;
+    this.debug = debug ?? false;
     this.options = options;
     this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.deepEqual = deepEqual || isEqual;
-    this.manager = manager?.(this) || new Manager();
     this.cache = cache?.(this) || new Cache(this);
+    this.appManager = appManager?.(this) || new AppManager();
     this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, ClientOptions>(this);
     this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, ClientOptions>(this);
   }
 
-  setClient = (callback: ClientType<ErrorType, ClientOptions>): FetchBuilder<ErrorType, ClientOptions> => {
-    this.client = callback;
+  setLogger = (callback: (builder: FetchBuilderInstance) => Logger): FetchBuilder<ErrorType, ClientOptions> => {
+    this.logger = callback(this);
+    return this;
+  };
+
+  setClient = (
+    callback: (builder: FetchBuilderInstance) => ClientType<ErrorType, ClientOptions>,
+  ): FetchBuilder<ErrorType, ClientOptions> => {
+    this.client = callback(this);
     return this;
   };
 
@@ -84,8 +94,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.cache.clear();
     this.fetchQueue.clear();
     this.submitQueue.clear();
-
     this.commandManager.abortControllers.clear();
+
     this.commandManager.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
     this.fetchQueue.emitter.removeAllListeners();
@@ -184,6 +194,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
      */
     this.fetchQueue.flushAll();
     this.submitQueue.flushAll();
+
+    this.logger.info("[Builder] Initialized Builder");
 
     return this;
   };
