@@ -1,4 +1,4 @@
-import { FetchBuilderInstance, CacheValueType, NullableType } from "@better-typed/hyper-fetch";
+import { CacheValueType, NullableType, FetchCommandInstance } from "@better-typed/hyper-fetch";
 
 import { initialState } from "./use-dependent-state.constants";
 
@@ -7,8 +7,8 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
 };
 
 export const getInitialDependentStateData = (
+  command: FetchCommandInstance,
   initialData: NullableType<CacheValueType>,
-  builder: FetchBuilderInstance,
 ) => ({
   ...initialState,
   data: initialData?.response?.[0] || initialState.data,
@@ -16,6 +16,7 @@ export const getInitialDependentStateData = (
   status: initialData?.response?.[2] || initialState.status,
   retries: initialData?.retries || initialState.retries,
   timestamp: getTimestamp(initialData?.timestamp || initialState.timestamp),
-  isOnline: builder.manager.isOnline,
-  isFocused: builder.manager.isFocused,
+  isOnline: command.builder.manager.isOnline,
+  isFocused: command.builder.manager.isFocused,
+  loading: !!command.builder.fetchQueue.get(command.queueKey) || initialState.loading,
 });

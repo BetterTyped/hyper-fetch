@@ -31,6 +31,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   cancelable?: boolean;
   retry?: boolean | number;
   retryTime?: number;
+  cache?: boolean;
   cacheTime?: number;
   queued?: boolean;
   deepEqual?: boolean;
@@ -90,6 +91,10 @@ export type FetchRequestDataType<PayloadType, HasData extends true | false = fal
   ? { data?: NegativeTypes }
   : { data: PayloadType };
 
+export type FetchCommandQueueOptions = {
+  queueType: "auto" | "fetch" | "submit";
+};
+
 export type FetchType<
   PayloadType,
   QueryParamsType,
@@ -97,9 +102,11 @@ export type FetchType<
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
+  AdditionalOptions = unknown,
 > = FetchQueryParamsType<QueryParamsType, HasQuery> &
   FetchParamsType<EndpointType, HasParams> &
-  FetchRequestDataType<PayloadType, HasData>;
+  FetchRequestDataType<PayloadType, HasData> &
+  AdditionalOptions;
 
 export type FetchMethodType<
   ResponseType,
@@ -110,17 +117,50 @@ export type FetchMethodType<
   HasData extends true | false,
   HasParams extends true | false,
   HasQuery extends true | false,
-> = FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["data"] extends any
+  AdditionalOptions = unknown,
+> = FetchType<
+  PayloadType,
+  QueryParamsType,
+  EndpointType,
+  HasData,
+  HasParams,
+  HasQuery,
+  AdditionalOptions
+>["data"] extends any
   ? (
-      options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
+      options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, AdditionalOptions>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>
-  : FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["data"] extends NegativeTypes
-  ? FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>["params"] extends NegativeTypes
+  : FetchType<
+      PayloadType,
+      QueryParamsType,
+      EndpointType,
+      HasData,
+      HasParams,
+      HasQuery,
+      AdditionalOptions
+    >["data"] extends NegativeTypes
+  ? FetchType<
+      PayloadType,
+      QueryParamsType,
+      EndpointType,
+      HasData,
+      HasParams,
+      HasQuery,
+      AdditionalOptions
+    >["params"] extends NegativeTypes
     ? (
-        options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
+        options?: FetchType<
+          PayloadType,
+          QueryParamsType,
+          EndpointType,
+          HasData,
+          HasParams,
+          HasQuery,
+          AdditionalOptions
+        >,
       ) => Promise<ClientResponseType<ResponseType, ErrorType>>
     : (
-        options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
+        options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, AdditionalOptions>,
       ) => Promise<ClientResponseType<ResponseType, ErrorType>>
   : (
       options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,

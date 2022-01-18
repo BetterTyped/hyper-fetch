@@ -1,14 +1,14 @@
 import { ClientResponseSuccessType } from "client";
-import { Cache, getCacheRequestKey } from "cache";
+import { Cache } from "cache";
+import { getCommandKey } from "command";
 
 import { getManyRequest, getManyMock, GetManyResponseType } from "../../utils/mocks/get-many.mock";
 import { testBuilder } from "../../utils/server/server.constants";
 
-const cacheKey = getCacheRequestKey(getManyRequest);
-const requestKey = "custom-key";
+const cacheKey = getCommandKey(getManyRequest);
 const response = {
+  cache: true,
   cacheKey,
-  requestKey,
   response: [getManyMock().fixture, null, 0] as ClientResponseSuccessType<GetManyResponseType>,
   retries: 0,
   isRefreshed: false,
@@ -25,27 +25,27 @@ describe("Cache", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should initialize cache", async () => {
-      expect(cacheInstance.get(cacheKey, requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
 
       cacheInstance.set(response);
 
-      expect(cacheInstance.get(cacheKey, requestKey)).toBeDefined();
+      expect(cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should delete cache and send signal", async () => {
       const trigger = jest.fn();
 
-      cacheInstance.events.onRevalidate(requestKey, () => {
+      cacheInstance.events.onRevalidate(cacheKey, () => {
         trigger();
       });
 
       cacheInstance.set(response);
-      expect(cacheInstance.get(cacheKey, requestKey)).toBeDefined();
+      expect(cacheInstance.get(cacheKey)).toBeDefined();
 
-      cacheInstance.deleteResponse(cacheKey, requestKey);
+      cacheInstance.delete(cacheKey);
 
       expect(trigger).toBeCalled();
-      expect(cacheInstance.get(cacheKey, requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
     });
   });
 
@@ -53,7 +53,7 @@ describe("Cache", () => {
     it("should not overwrite the same data", async () => {
       const trigger = jest.fn();
 
-      cacheInstance.events.get(requestKey, () => {
+      cacheInstance.events.get(cacheKey, () => {
         trigger();
       });
 
@@ -62,32 +62,32 @@ describe("Cache", () => {
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(1);
-      expect(cacheInstance.get(cacheKey, requestKey)).toBeDefined();
+      expect(cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should write data when cache is empty or gets deleted", async () => {
       const trigger = jest.fn();
 
-      cacheInstance.events.get(requestKey, () => {
+      cacheInstance.events.get(cacheKey, () => {
         trigger();
       });
 
       cacheInstance.set(response);
-      cacheInstance.deleteResponse(cacheKey, requestKey);
-      expect(cacheInstance.get(cacheKey, requestKey)).not.toBeDefined();
+      cacheInstance.delete(cacheKey);
+      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
       cacheInstance.set(response);
-      cacheInstance.deleteResponse(cacheKey, requestKey);
-      expect(cacheInstance.get(cacheKey, requestKey)).not.toBeDefined();
+      cacheInstance.delete(cacheKey);
+      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
       cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(3);
-      expect(cacheInstance.get(cacheKey, requestKey)).toBeDefined();
+      expect(cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should allow to disable deep comparison when saving data", async () => {
       cacheInstance.set({ ...response });
 
-      expect(cacheInstance.get(cacheKey, requestKey)).toBeDefined();
+      expect(cacheInstance.get(cacheKey)).toBeDefined();
     });
   });
 
@@ -95,14 +95,14 @@ describe("Cache", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      cacheInstance.events.onRevalidate(requestKey, () => {
+      cacheInstance.events.onRevalidate(cacheKey, () => {
         trigger();
       });
 
       cacheInstance.clear();
 
       expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(cacheKey, requestKey)).not.toBeDefined();
+      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
     });
   });
 });

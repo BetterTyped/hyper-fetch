@@ -9,7 +9,7 @@ export type CacheOptionsType<ErrorType, ClientOptions> = {
 
 // Values
 export type CacheStoreKeyType = string;
-export type CacheStoreValueType<T = unknown> = Record<CacheKeyType, CacheValueType<T>>;
+export type CacheStoreValueType<T = any> = CacheValueType<T>;
 
 export type CacheKeyType = string;
 export type CacheValueType<DataType = any, ErrorType = any> = {
@@ -23,8 +23,8 @@ export type CacheValueType<DataType = any, ErrorType = any> = {
 
 // Events
 export type CacheSetDataType<Response, ErrorType> = {
+  cache: boolean;
   cacheKey: CacheKeyType;
-  requestKey: CacheKeyType;
   response: ClientResponseType<Response, ErrorType>;
   retries?: number;
   isRefreshed?: boolean;
@@ -34,8 +34,8 @@ export type CacheSetDataType<Response, ErrorType> = {
 
 // Storage
 export type CacheStorageType = {
-  set: (key: string, data: CacheStoreValueType) => void;
-  get: (key: string) => CacheStoreValueType | undefined;
+  set: <DataType>(key: string, data: CacheValueType<DataType>) => void;
+  get: <DataType>(key: string) => CacheStoreValueType<DataType> | undefined;
   delete: (key: string) => void;
   clear: () => void;
 };

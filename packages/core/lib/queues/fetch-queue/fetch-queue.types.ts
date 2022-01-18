@@ -39,3 +39,10 @@ export type FetchQueueStorageType<ClientOptions> = {
   delete: (key: string) => void;
   clear: () => void;
 };
+
+// Running
+
+export type RunningFetchRequestValueType = {
+  id: string;
+  command: FetchCommandInstance;
+};

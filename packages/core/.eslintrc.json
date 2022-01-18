@@ -41,6 +41,7 @@
     "prettier/prettier": ["error"],
     "consistent-return": 0,
     "@typescript-eslint/no-throw-literal": 0,
-    "import/extensions": 0
+    "import/extensions": 0,
+    "no-underscore-dangle": 0
   }
 }

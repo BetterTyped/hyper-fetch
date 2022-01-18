@@ -7,11 +7,12 @@ import {
   FetchQueueAddOptionsType,
   FetchQueueStorageType,
   getIsEqualTimestamp,
+  RunningFetchRequestValueType,
 } from "queues";
 import { FetchBuilder } from "builder";
-import { getCacheRequestKey } from "cache";
 import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType } from "./fetch-queue.types";
+import { getUniqueRequestId } from "../../utils/uuid.utils";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -42,7 +43,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     });
   }
 
-  private runningRequests = new Map<string, FetchCommandInstance>();
+  private runningRequests = new Map<string, RunningFetchRequestValueType>();
 
   add = async (command: FetchCommandInstance, options?: FetchQueueAddOptionsType) => {
     const { queueKey } = command;
@@ -80,59 +81,62 @@ export class FetchQueue<ErrorType, ClientOptions> {
   // ----------------->req2---------------->done
   performRequest = async (queueElement: FetchQueueDumpValueType<ClientOptions>) => {
     const { commandDump, isRefreshed, isRevalidated } = queueElement;
-    const { retry, retryTime, queueKey, cacheKey } = commandDump;
-    const requestKey = getCacheRequestKey(commandDump);
+    const { retry, retryTime, queueKey, cacheKey, cache } = commandDump;
+    const { client } = this.builder;
+
+    const requestId = getUniqueRequestId(queueKey);
+
+    // Make sure to delete & cancel running request
+    this.deleteRunningRequest(queueKey, true);
 
     // 1. Add to queue
     this.storage.set(queueKey, queueElement);
     // 2. Start request
-    const requestCommand = new FetchCommand(this.builder, commandDump);
-    // Additionally keep the running request to possibly abort it later
-    this.runningRequests.set(queueKey, requestCommand);
-
-    // Make sure to delete & cancel running request
-    this.deleteRunningRequest(queueKey, commandDump.cancelable);
+    const requestCommand = new FetchCommand(this.builder, commandDump.commandOptions, commandDump);
 
     // When offline not perform any request
     if (!requestCommand.builder.manager.isOnline) return;
 
+    // Additionally keep the running request to possibly abort it later
+    this.runningRequests.set(queueKey, { id: requestId, command: requestCommand });
+
     // Propagate the loading to all connected hooks
-    this.events.setLoading(requestKey, {
+    this.events.setLoading(queueKey, {
       isLoading: true,
       isRefreshed,
       isRevalidated,
       isRetry: !!retry,
     });
-    const response = await requestCommand.send();
 
+    const response = await client(requestCommand);
+
+    const runningRequest = this.runningRequests.get(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
-    const isCanceled = this.runningRequests.get(queueKey) !== requestCommand;
+    const isCanceled = runningRequest && runningRequest.id !== requestId;
     const failed = !!response[1];
-    const canRefresh = (typeof retry === "number" && queueElement.retries <= retry) || retry === true;
+    const canRefresh = retry === true || queueElement.retries <= (retry || 0);
 
     this.deleteRunningRequest(queueKey);
 
-    if (!response[0] && isCanceled && !requestCommand.builder.manager.isOnline) return;
+    if (isCanceled || (!response[0] && !requestCommand.builder.manager.isOnline)) return;
 
     this.builder.cache.set({
+      cache: cache ?? true,
       cacheKey,
-      requestKey,
       response,
       retries: queueElement.retries,
       deepEqual: queueElement.commandDump.deepEqual,
       isRefreshed: isRefreshed || isRevalidated,
     });
 
-    // When Successful remove it from running requests
-    if (!canRefresh || !failed || isRevalidated) {
-      return this.delete(queueKey);
-    }
-    // Perform retry once request is failed
     if (failed && canRefresh) {
+      // Perform retry once request is failed
       setTimeout(() => {
         this.performRequest({ ...queueElement, retries: queueElement.retries + 1 });
       }, retryTime || 0);
+    } else {
+      this.delete(queueKey);
     }
   };
 
@@ -155,20 +159,21 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
   deleteRunningRequest = (queueKey: string, cancel = false) => {
     if (cancel) {
-      this.runningRequests.get(queueKey)?.abort();
+      this.runningRequests.get(queueKey)?.command.abort();
     }
     this.runningRequests.delete(queueKey);
   };
 
   delete = (queueKey: string, cancel = false) => {
     if (cancel) {
-      this.runningRequests.get(queueKey)?.abort();
+      this.runningRequests.get(queueKey)?.command.abort();
     }
     this.storage.delete(queueKey);
   };
 
   clear = () => {
-    this.runningRequests.forEach((request) => request.abort());
+    this.runningRequests.forEach((request) => request.command.abort());
+    this.runningRequests.clear();
     this.storage.clear();
   };
 }

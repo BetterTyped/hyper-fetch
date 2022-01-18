@@ -38,9 +38,9 @@ describe("FetchBuilder", () => {
         .onResponse(() => [null, null, 0])
         .build();
 
-      expect(builder.onRequestCallbacks).toHaveLength(2);
-      expect(builder.onResponseCallbacks).toHaveLength(2);
-      expect(builder.onErrorCallback).toBeDefined();
+      expect(builder.__onRequestCallbacks).toHaveLength(2);
+      expect(builder.__onResponseCallbacks).toHaveLength(2);
+      expect(builder.__onErrorCallback).toBeDefined();
     });
   });
 
@@ -137,7 +137,7 @@ describe("FetchBuilder", () => {
         endpoint: "/",
       });
 
-      expect(command.send()).rejects.toThrow();
+      expect(builder.__modifyRequest(command)).rejects.toThrow();
     });
 
     it("should trigger onResponse method after making request", async () => {
@@ -167,7 +167,7 @@ describe("FetchBuilder", () => {
       interceptBase(200);
 
       const builder = new FetchBuilder({ baseUrl, options })
-        .onRequest((command) => {
+        .onResponse((command) => {
           methodFn();
           return undefined as unknown as typeof command;
         })
@@ -177,7 +177,7 @@ describe("FetchBuilder", () => {
         endpoint: "/",
       });
 
-      expect(command.send()).rejects.toThrow();
+      expect(builder.__modifyResponse([undefined, null, 200], command)).rejects.toThrow();
     });
   });
 });

@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
-import { getCacheRequestKey, DateInterval } from "@better-typed/hyper-fetch";
+import { DateInterval } from "@better-typed/hyper-fetch";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
@@ -9,7 +9,8 @@ import { interceptGetMany, GetManyResponseType } from "../../utils/mocks/get-man
 import { sleep } from "../../utils/utils";
 
 const request = getManyRequest.setCacheTime(DateInterval.second * 10);
-const renderGetManyHook = () => renderHook(() => useFetch(request, { dependencyTracking: false }));
+const renderGetManyHook = () =>
+  renderHook(() => useFetch(request, { dependencyTracking: false, revalidateOnMount: false }));
 const { fixture } = getManyMock();
 
 describe("useFetch hook deduplicate logic", () => {
@@ -34,15 +35,14 @@ describe("useFetch hook deduplicate logic", () => {
   it("should initialize with cache values without making any request", async () => {
     interceptGetMany(200);
 
-    const requestKey = getCacheRequestKey(request);
-
     act(() => {
       testBuilder.cache.set<GetManyResponseType>({
+        cache: request.cache,
         cacheKey: request.cacheKey,
-        requestKey,
         response: [fixture, null, 200],
         retries: 0,
         isRefreshed: false,
+        timestamp: +new Date(),
       });
     });
 

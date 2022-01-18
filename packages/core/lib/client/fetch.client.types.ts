@@ -9,8 +9,8 @@ export type ClientType<ErrorType, ClientOptions> = (
 
 export type FetchClientXHR = Partial<XMLHttpRequest>;
 export type FetchClientOptions = {
-  queryParams: QueryStringifyOptions;
-  headerMapper: <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest) => void;
+  queryParams?: QueryStringifyOptions;
+  headerMapper?: <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest) => void;
 };
 
 // Responses

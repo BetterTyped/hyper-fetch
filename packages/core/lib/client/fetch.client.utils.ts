@@ -8,7 +8,6 @@ import {
 } from "client";
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractMappedError, ExtractResponse, NegativeTypes } from "types";
-import { getCacheRequestKey } from "cache";
 import { FetchActionInstance } from "action";
 
 export const parseResponse = (response: string | unknown) => {
@@ -178,32 +177,35 @@ export const getErrorResponse = <T extends FetchCommandInstance>(
 ): ExtractError<T> | ExtractMappedError<T> => {
   const error: ExtractError<T> = parseResponse(response) || { message: "Request failed" };
 
-  return command.builder?.onErrorCallback?.(error) || error;
+  return command.builder?.__onErrorCallback?.(error) || error;
 };
 
 export const setResponseProgress = <T extends FetchCommandInstance>(
+  queueKey: string,
   command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitDownloadProgress(getCacheRequestKey(command), progress);
+  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress);
 };
 
 export const setRequestProgress = <T extends FetchCommandInstance>(
+  queueKey: string,
   command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitUploadProgress(getCacheRequestKey(command), progress);
+  command.builder.commandManager.events.emitUploadProgress(queueKey, progress);
 };
 
 // Client response handlers
 
 export const handleClientError = async <T extends FetchCommandInstance>(
+  queueKey: string,
   command: T,
   actions: FetchActionInstance[],
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
@@ -227,11 +229,13 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 
   actions.forEach((action) => action.onError(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));
-  await command.builder.modifyResponse(responseData, command);
+
+  await command.builder.__modifyResponse(responseData, command);
   resolve(responseData);
 };
 
 export const handleClientSuccess = async <T extends FetchCommandInstance>(
+  queueKey: string,
   command: T,
   actions: FetchActionInstance[],
   event: ProgressEvent<XMLHttpRequest>,
@@ -247,6 +251,7 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
 
   actions.forEach((action) => action.onSuccess(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));
-  await command.builder.modifyResponse(responseData, command);
+
+  await command.builder.__modifyResponse(responseData, command);
   resolve(responseData);
 };

@@ -9,7 +9,6 @@ export const testFetchInitialState = <H extends RenderHookResult<any, any, any>>
 
   expect(response.data).toEqual(null);
   expect(response.status).toEqual(null);
-  expect(response.loading).toEqual(true);
   expect(response.error).toEqual(null);
 };
 

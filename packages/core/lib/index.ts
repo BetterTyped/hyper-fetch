@@ -9,4 +9,3 @@ export * from "./constants/time.constants";
 export * from "./manager";
 export * from "./queues";
 export * from "./types";
-export * from "./utils";

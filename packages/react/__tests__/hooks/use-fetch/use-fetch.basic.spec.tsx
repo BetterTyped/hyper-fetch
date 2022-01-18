@@ -8,7 +8,8 @@ import { ErrorMockType, testBuilder } from "../../utils/server/server.constants"
 import { getCurrentState } from "../../utils/utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../../shared/fetch.tests";
 
-const renderGetManyHook = () => renderHook(() => useFetch(getManyRequest, { dependencyTracking: false }));
+const renderGetManyHook = () =>
+  renderHook(() => useFetch(getManyRequest, { dependencyTracking: false, revalidateOnMount: false }));
 
 describe("Basic useFetch hook usage", () => {
   beforeAll(() => {
@@ -27,7 +28,7 @@ describe("Basic useFetch hook usage", () => {
     testBuilder.clear();
   });
 
-  it("should initialize in loading state", () => {
+  it("should initialize loading state", async () => {
     interceptGetMany(200);
 
     const responseOne = renderGetManyHook();
@@ -35,6 +36,9 @@ describe("Basic useFetch hook usage", () => {
 
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
+
+    expect(getCurrentState(responseOne).loading).toBe(true);
+    expect(getCurrentState(responseTwo).loading).toBe(true);
   });
 
   it("should change state once data is fetched", async () => {
@@ -150,6 +154,7 @@ describe("Basic useFetch hook usage", () => {
     });
     const errorStateOne = getCurrentState(responseOne);
     const errorStateTwo = getCurrentState(responseTwo);
+
     await waitFor(() => {
       expect(errorStateOne.error).toBe(customError);
       expect(errorStateTwo.error).toBe(customError);

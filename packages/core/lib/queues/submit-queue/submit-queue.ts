@@ -7,10 +7,11 @@ import {
   getSubmitQueueEvents,
   SubmitQueueDumpValueType,
   SubmitQueueOptionsType,
+  RunningSubmitRequestValueType,
 } from "queues";
-import { getCacheRequestKey } from "cache";
-import { FetchBuilder } from "builder";
 import { FetchCommandInstance, FetchCommand } from "command";
+import { FetchBuilder } from "builder";
+import { getUniqueRequestId } from "../../utils/uuid.utils";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -38,7 +39,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     });
   }
 
-  private runningRequests = new Map<string, FetchCommandInstance[]>();
+  private runningRequests = new Map<string, RunningSubmitRequestValueType[]>();
 
   startQueue = async (queueKey: string) => {
     // Change status to running
@@ -80,8 +81,50 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       this.storage.set(queueKey, queue);
 
       // Cancel running requests
-      this.runningRequests.get(queueKey)?.forEach((request) => request.abort());
+      this.runningRequests.get(queueKey)?.forEach((request) => request.command.abort());
       this.runningRequests.set(queueKey, []);
+    }
+  };
+
+  add = async (command: FetchCommandInstance) => {
+    const { cancelable, queueKey, queued } = command;
+
+    const initialQueue: SubmitQueueData<ClientOptions> = {
+      stopped: false,
+      requests: [],
+    };
+    const queue = this.storage.get(queueKey) || initialQueue;
+    const runningRequests = this.runningRequests.get(queueKey) || [];
+
+    // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
+    // This way we don't save the Class but the instruction of the request to be done
+    const queueElementDump: SubmitQueueDumpValueType<ClientOptions> = {
+      timestamp: +new Date(),
+      commandDump: command.dump(),
+      retries: 0,
+    };
+
+    // 1. One-by-one: if we setup request as one-by-one queue use queueing system
+    queue.requests.push(queueElementDump);
+    this.storage.set(queueKey, queue);
+
+    if (queued) {
+      this.flush(queueKey);
+    } else {
+      // 2. Only last request
+      if (cancelable) {
+        // Cancel all previous requests
+        runningRequests.forEach((request) => request.command.abort());
+        this.runningRequests.set(queueKey, []);
+        // Request will be performed in 3. step
+      }
+      // 3. All at once
+      const requestCommand = new FetchCommand(
+        this.builder,
+        queueElementDump.commandDump.commandOptions,
+        queueElementDump.commandDump,
+      ) as FetchCommandInstance;
+      this.performRequest(queueKey, requestCommand, queueElementDump);
     }
   };
 
@@ -91,24 +134,29 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     queueElement: SubmitQueueDumpValueType<ClientOptions>,
     flush = false,
   ) => {
-    const requestKey = getCacheRequestKey(requestCommand);
-    const { cacheKey, retry, retryTime } = requestCommand;
+    const { cacheKey, retry, retryTime, cache } = requestCommand;
+    const { client } = this.builder;
+
+    const requestId = getUniqueRequestId(queueKey);
+
+    this.addRunningRequest(queueKey, requestId, requestCommand);
 
     this.events.setLoading(queueKey, {
       isLoading: true,
       isRetry: !!retry,
     });
-    const response = await requestCommand.send();
+    const response = await client(requestCommand);
 
+    const runningRequests = this.runningRequests.get(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
-    const isCanceled = !this.runningRequests.get(queueKey)?.includes(requestCommand);
+    const isCanceled = runningRequests && !runningRequests.find((req) => req.id === requestId);
     const queue = this.storage.get(queueKey);
     if ((!response[0] && queue?.stopped) || isCanceled) return;
 
     this.builder.cache.set({
+      cache: cache ?? true,
       cacheKey,
-      requestKey,
       response,
       retries: queueElement.retries,
       deepEqual: requestCommand.deepEqual,
@@ -121,13 +169,16 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       this.storage.delete(queueKey);
       this.runningRequests.set(
         queueKey,
-        requests.filter((req) => req !== requestCommand),
+        requests.filter((req) => req.id !== requestId),
       );
     }
     // Perform retry once request is failed
     else if ((typeof retry === "number" && queueElement.retries <= retry) || retry === true) {
       setTimeout(async () => {
-        await this.performRequest(queueKey, requestCommand, { ...queueElement, retries: queueElement.retries + 1 });
+        await this.performRequest(queueKey, requestCommand, {
+          ...queueElement,
+          retries: queueElement.retries + 1,
+        });
         if (flush) this.flush(queueKey);
       }, retryTime || 0);
     }
@@ -143,9 +194,11 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     const runningRequests = this.runningRequests.get(queueKey);
     const queueElement = queue?.requests[0];
 
+    const isStopped = queue && queue.stopped;
+
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
-    if (!queueElement || !queue?.stopped || !queue?.requests || runningRequests?.length) return;
+    if (!queueElement || isStopped || runningRequests?.length) return;
 
     // 1. Start request
     const requestCommand = new FetchCommand(
@@ -153,11 +206,9 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       queueElement.commandDump.commandOptions,
       queueElement.commandDump,
     );
-    // 2. Add single running request
-    this.runningRequests.set(queueKey, [requestCommand]);
-    // 3. Trigger Request
+    // 2. Trigger Request
     await this.performRequest(queueKey, requestCommand, queueElement, true);
-    // 4. Take another task
+    // 3. Take another task
     this.flush(queueKey);
   };
 
@@ -171,52 +222,6 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       if (queueElementDump) {
         this.flush(key);
       }
-    }
-  };
-
-  add = async (command: FetchCommandInstance) => {
-    const { queueKey, queued, cancelable } = command;
-
-    const defaultQueue: SubmitQueueData<ClientOptions> = {
-      stopped: false,
-      requests: [],
-      queued: queued || false,
-      cancelable: cancelable || false,
-    };
-    const queue = this.storage.get(queueKey) || defaultQueue;
-    const runningRequests = this.runningRequests.get(queueKey) || [];
-
-    // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
-    // This way we don't save the Class but the instruction of the request to be done
-    const queueElementDump: SubmitQueueDumpValueType<ClientOptions> = {
-      timestamp: +new Date(),
-      commandDump: command.dump(),
-      retries: 0,
-    };
-
-    // 1. One-by-one: if we setup request as one-by-one queue use queueing system
-    if (queue.queued) {
-      queue.requests.push(queueElementDump);
-      this.storage.set(queueKey, queue);
-      this.flush(queueKey);
-    } else {
-      // 2. Only last request
-      if (queue.cancelable) {
-        // Cancel all previous requests
-        runningRequests.forEach((request) => request.abort());
-        this.runningRequests.set(queueKey, []);
-        // Request will be performed in 3. step
-      }
-      // 3. All at once
-      const requestCommand = new FetchCommand(
-        this.builder,
-        queueElementDump.commandDump.commandOptions,
-        queueElementDump.commandDump,
-      ) as FetchCommandInstance;
-      queue.requests.push(queueElementDump);
-      this.runningRequests.set(queueKey, [...runningRequests, requestCommand]);
-      this.storage.set(queueKey, queue);
-      this.performRequest(queueKey, requestCommand, queueElementDump);
     }
   };
 
@@ -236,12 +241,18 @@ export class SubmitQueue<ErrorType, ClientOptions> {
 
   getQueue = (queueKey: string) => {
     const storedEntity = this.storage.get(queueKey);
-    return storedEntity?.requests;
+    return storedEntity?.requests || [];
   };
 
   clear = () => {
-    this.runningRequests.forEach((requests) => requests.forEach((request) => request.abort()));
+    this.runningRequests.forEach((requests) => requests.forEach((request) => request.command.abort()));
+    this.runningRequests.clear();
     this.storage.clear();
+  };
+
+  private addRunningRequest = (queueKey: string, id: string, command: FetchCommandInstance) => {
+    const runningRequests = this.runningRequests.get(queueKey) || [];
+    this.runningRequests.set(queueKey, [...runningRequests, { id, command }]);
   };
 }
 

@@ -1,4 +1,3 @@
-import { getCacheRequestKey } from "cache";
 import { getAbortController } from "command";
 import { DateInterval } from "constants/time.constants";
 import {
@@ -25,7 +24,8 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  const commandInstance = await command.builder.modifyRequest(command);
+  const commandInstance = await command.builder.__modifyRequest(command);
+
   const { builder, endpoint, queryParams, data, method } = commandInstance;
 
   const url = builder.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
@@ -48,37 +48,62 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     getAbortController(command)?.signal.addEventListener("abort", xhr.abort);
 
     // Request listeners
-    command.builder.commandManager.events.emitRequestStart(getCacheRequestKey(command), command);
-    setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 0 });
+    command.builder.commandManager.events.emitRequestStart(command.queueKey, command);
+    setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), {
+      total: 1,
+      loaded: 0,
+    });
 
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), e);
+        setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), e);
       };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
       requestStartTimestamp = null;
-      setRequestProgress(commandInstance, requestStartTimestamp || +new Date(), { total: 1, loaded: 1 });
+      setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), {
+        total: 1,
+        loaded: 1,
+      });
 
-      setResponseProgress(commandInstance, responseStartTimestamp || +new Date(), e as ProgressEvent<XMLHttpRequest>);
+      setResponseProgress(
+        command.queueKey,
+        commandInstance,
+        responseStartTimestamp || +new Date(),
+        e as ProgressEvent<XMLHttpRequest>,
+      );
     };
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      command.builder.commandManager.events.emitResponseStart(getCacheRequestKey(command), command);
+      command.builder.commandManager.events.emitResponseStart(command.queueKey, command);
     };
 
     // Error listeners
     xhr.onabort = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
+      handleClientError(
+        command.queueKey,
+        commandInstance,
+        actions,
+        resolve,
+        e as ProgressEvent<XMLHttpRequest>,
+        "abort",
+      );
     };
     xhr.ontimeout = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
+      handleClientError(
+        command.queueKey,
+        commandInstance,
+        actions,
+        resolve,
+        e as ProgressEvent<XMLHttpRequest>,
+        "timeout",
+      );
     };
     xhr.onerror = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
+      handleClientError(command.queueKey, commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
     };
 
     // State listeners
@@ -100,9 +125,9 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       const isSuccess = status.startsWith("2") || status.startsWith("3");
 
       if (isSuccess) {
-        handleClientSuccess(commandInstance, actions, event, resolve);
+        handleClientSuccess(command.queueKey, commandInstance, actions, event, resolve);
       } else {
-        handleClientError(commandInstance, actions, resolve, event);
+        handleClientError(command.queueKey, commandInstance, actions, resolve, event);
       }
       getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
     };

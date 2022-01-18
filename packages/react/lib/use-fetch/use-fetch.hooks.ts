@@ -6,9 +6,8 @@ import {
   FetchLoadingEventType,
   FetchCommandInstance,
   FetchCommand,
-  getCacheRequestKey,
+  getCommandKey,
   CacheValueType,
-  getCacheKey,
   ExtractResponse,
   ExtractError,
   ExtractFetchReturn,
@@ -37,7 +36,6 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    cacheOnMount = useFetchDefaultOptions.cacheOnMount,
     revalidateOnMount = useFetchDefaultOptions.revalidateOnMount,
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
@@ -58,11 +56,10 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const refreshInterval = useInterval(refreshTime);
 
   const { cache, fetchQueue, manager, commandManager } = command.builder;
-  const requestKey = getCacheRequestKey(command);
-  const initCacheState = useRef(getCacheState(cache.get(cacheKey, requestKey), cacheOnMount, cacheTime));
+  const initCacheState = useRef(getCacheState(cache.get(cacheKey), command.cache, cacheTime));
   const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
   const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(cacheKey, requestKey, command.builder, initState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(command, initState.current);
   const [hasCacheData, setHasCacheData] = useState(!initialStale.current);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
@@ -104,7 +101,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
         const canRefresh = canRefreshBlurred || command.builder.manager.isFocused;
 
         if (!currentRequest && canRefresh) {
-          handleFetch(true);
+          handleFetch(true, false);
           refreshInterval.resetInterval();
         }
       }, timeLeft);
@@ -136,7 +133,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
   const handleGetRefreshedCache = () => {
     if (!hasCacheData) {
-      const data = cache.get(cacheKey, requestKey);
+      const data = cache.get(cacheKey);
       if (data) {
         actions.setCacheData(data, false);
         setHasCacheData(true);
@@ -161,7 +158,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     if (invalidateKey && typeof invalidateKey === "string") {
       command.builder.cache.events.revalidate(invalidateKey);
     } else if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      command.builder.cache.events.revalidate(getCacheKey(invalidateKey));
+      command.builder.cache.events.revalidate(getCommandKey(invalidateKey));
     } else {
       handleRevalidate();
     }
@@ -193,11 +190,11 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
     const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
 
-    const loadingUnmount = fetchQueue.events.getLoading(requestKey, handleGetLoadingEvent);
+    const loadingUnmount = fetchQueue.events.getLoading(queueKey, handleGetLoadingEvent);
 
-    const getUnmount = cache.events.get<T>(requestKey, handleGetUpdatedCache);
-    const getRefreshedUnmount = cache.events.getRefreshed(requestKey, handleGetRefreshedCache);
-    const revalidateUnmount = cache.events.onRevalidate(requestKey, handleRevalidate);
+    const getUnmount = cache.events.get<T>(cacheKey, handleGetUpdatedCache);
+    const getRefreshedUnmount = cache.events.getRefreshed(cacheKey, handleGetRefreshedCache);
+    const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleRevalidate);
 
     return () => {
       focusUnmount();
@@ -246,7 +243,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
        * This way it will not wait for debouncing but fetch data right away
        */
       if (hasCacheData && debounce) {
-        requestDebounce.debounce(handleFetch);
+        requestDebounce.debounce(() => handleFetch(false, revalidateOnMount));
       } else {
         handleFetch(false, revalidateOnMount);
       }

@@ -27,9 +27,9 @@ describe("Basic FetchQueue usage", () => {
 
   describe("When adding request to queue", () => {
     it("should add request to queue and trigger it", async () => {
-      const trigger = jest.fn();
-      interceptGetMany(200, 0);
-      testBuilder.cache.events.get(queueKey, trigger);
+      const cacheTrigger = jest.fn();
+      interceptGetMany(200);
+      testBuilder.cache.events.get(queueKey, cacheTrigger);
 
       testBuilder.fetchQueue.add(getManyRequest);
       const queueElement = testBuilder.fetchQueue.get(queueKey);
@@ -37,15 +37,15 @@ describe("Basic FetchQueue usage", () => {
       expect(queueElement?.commandDump).toEqual(getManyRequest.dump());
       expect(queueElement?.retries).toBe(0);
       await waitFor(() => {
-        expect(trigger).toBeCalled();
+        expect(cacheTrigger).toBeCalled();
       });
     });
 
     it("should cancel already submitted request", async () => {
-      const trigger = jest.fn();
+      const cacheTrigger = jest.fn();
       const cancelTrigger = jest.fn();
-      interceptGetMany(200, 0);
-      testBuilder.cache.events.get(queueKey, trigger);
+      interceptGetMany(200);
+      testBuilder.cache.events.get(queueKey, cacheTrigger);
 
       const request = getManyRequest.setCancelable(true);
 
@@ -54,19 +54,20 @@ describe("Basic FetchQueue usage", () => {
       testBuilder.fetchQueue.add(request);
       expect(cancelTrigger).toBeCalled();
       await waitFor(() => {
-        expect(trigger).toBeCalledTimes(1);
+        expect(cacheTrigger).toBeCalledTimes(1);
       });
       getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should allow to revalidate request and cancel previous", async () => {
-      const trigger = jest.fn();
+      const cacheTrigger = jest.fn();
       const cancelTrigger = jest.fn();
 
       const request = getManyRequest.setCancelable(true);
 
-      interceptGetMany(200, 0);
-      testBuilder.cache.events.get(queueKey, trigger);
+      testBuilder.cache.events.get(queueKey, cacheTrigger);
+
+      interceptGetMany(200);
       testBuilder.fetchQueue.add(request);
       getAbortController(request)?.signal.addEventListener("abort", cancelTrigger);
       await sleep(20);
@@ -80,15 +81,15 @@ describe("Basic FetchQueue usage", () => {
       testBuilder.fetchQueue.add(request, { isRevalidated: true });
       expect(cancelTrigger).toBeCalledTimes(2);
       await waitFor(() => {
-        expect(trigger).toBeCalledTimes(1);
+        expect(cacheTrigger).toBeCalledTimes(1);
       });
       getAbortController(request)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should deduplicate simultaneous revalidation requests at the same time", async () => {
-      const trigger = jest.fn();
-      interceptGetMany(200, 0);
-      testBuilder.fetchQueue.events.getLoading(queueKey, trigger);
+      const loadingTrigger = jest.fn();
+      interceptGetMany(200);
+      testBuilder.fetchQueue.events.getLoading(queueKey, loadingTrigger);
       testBuilder.fetchQueue.add(getManyRequest);
       await sleep(20);
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
@@ -98,7 +99,7 @@ describe("Basic FetchQueue usage", () => {
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
       testBuilder.fetchQueue.add(getManyRequest, { isRevalidated: true });
-      expect(trigger).toBeCalledTimes(3);
+      expect(loadingTrigger).toBeCalledTimes(3);
     });
   });
 });

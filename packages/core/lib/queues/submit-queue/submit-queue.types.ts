@@ -17,8 +17,6 @@ export type SubmitQueueDumpValueType<ClientOptions> = {
 };
 export type SubmitQueueData<ClientOptions> = {
   stopped: boolean;
-  cancelable: boolean;
-  queued: boolean;
   requests: SubmitQueueDumpValueType<ClientOptions>[];
 };
 
@@ -38,4 +36,11 @@ export type SubmitQueueStorageType<ClientOptions> = {
   keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
+};
+
+// Running
+
+export type RunningSubmitRequestValueType = {
+  id: string;
+  command: FetchCommandInstance;
 };

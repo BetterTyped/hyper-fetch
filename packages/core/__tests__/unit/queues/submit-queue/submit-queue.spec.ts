@@ -5,7 +5,7 @@ import { getAbortController } from "command";
 import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
 
-const { queueKey } = getManyRequest;
+const { queueKey, cacheKey } = getManyRequest;
 
 describe("Basic submitQueue usage", () => {
   beforeAll(() => {
@@ -26,9 +26,9 @@ describe("Basic submitQueue usage", () => {
 
   describe("When adding request to queue", () => {
     it("should add request to queue and trigger it", async () => {
-      const trigger = jest.fn();
+      const cacheTrigger = jest.fn();
       interceptGetMany(200);
-      testBuilder.cache.events.get(queueKey, trigger);
+      testBuilder.cache.events.get(cacheKey, cacheTrigger);
 
       testBuilder.submitQueue.add(getManyRequest);
 
@@ -40,7 +40,7 @@ describe("Basic submitQueue usage", () => {
       expect(queue?.length).toBe(1);
 
       await waitFor(() => {
-        expect(trigger).toBeCalled();
+        expect(cacheTrigger).toBeCalledTimes(1);
       });
     });
 

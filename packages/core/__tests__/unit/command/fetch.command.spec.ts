@@ -1,4 +1,3 @@
-import { getCacheRequestKey } from "cache";
 import { FetchBuilder } from "builder";
 import { ClientResponseType, ClientType } from "client";
 import { FetchCommandOptions } from "command";
@@ -92,18 +91,18 @@ describe("Basic FetchCommand usage", () => {
     expect(updated.queryParams).toStrictEqual(customQueryParamsTwo);
   });
 
-  it("should allow to mock response using mock method", async () => {
-    const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
+  // it("should allow to mock response using mock method", async () => {
+  //   const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
 
-    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
-    const command = builder
-      .createCommand<any, any>()(options)
-      .mock(() => mockData);
+  //   const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
+  //   const command = builder
+  //     .createCommand<any, any>()(options)
+  //     .mock(() => mockData);
 
-    const data = await command.send();
+  //   const data = await command.send();
 
-    expect(data).toStrictEqual(mockData);
-  });
+  //   expect(data).toStrictEqual(mockData);
+  // });
 
   it("should allow to trigger http client request using send method", async () => {
     let triggered = false;
@@ -129,11 +128,11 @@ describe("Basic FetchCommand usage", () => {
     let reqProgress = 0;
     let resProgress = 0;
 
-    testBuilder.commandManager.events.onDownloadProgress(getCacheRequestKey(getManyRequest), ({ progress }) => {
+    testBuilder.commandManager.events.onDownloadProgress(getManyRequest.queueKey, ({ progress }) => {
       resProgress = progress;
     });
 
-    testBuilder.commandManager.events.onUploadProgress(getCacheRequestKey(getManyRequest), ({ progress }) => {
+    testBuilder.commandManager.events.onUploadProgress(getManyRequest.queueKey, ({ progress }) => {
       reqProgress = progress;
     });
 
@@ -149,8 +148,8 @@ describe("Basic FetchCommand usage", () => {
     const startReqFn = jest.fn();
     const startResFn = jest.fn();
 
-    testBuilder.commandManager.events.onRequestStart(getCacheRequestKey(getManyRequest), startReqFn);
-    testBuilder.commandManager.events.onResponseStart(getCacheRequestKey(getManyRequest), startResFn);
+    testBuilder.commandManager.events.onRequestStart(getManyRequest.queueKey, startReqFn);
+    testBuilder.commandManager.events.onResponseStart(getManyRequest.queueKey, startResFn);
 
     await getManyRequest.send();
 

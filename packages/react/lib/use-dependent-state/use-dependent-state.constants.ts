@@ -3,7 +3,7 @@ import { UseDependentStateType } from "./use-dependent-state.types";
 export const initialState: UseDependentStateType = {
   data: null,
   error: null,
-  loading: true,
+  loading: false,
   status: null,
   refreshError: null,
   retryError: null,

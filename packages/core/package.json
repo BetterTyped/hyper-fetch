@@ -30,6 +30,7 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "scripts": {
+    "prepublishOnly": "yarn build",
     "start": "rollup -c -w",
     "build": "rollup -c",
     "test": "jest --watchAll",

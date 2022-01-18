@@ -9,12 +9,14 @@ import {
   FetchCommandOptions,
   FetchType,
   ParamsType,
+  getCommandKey,
+  FetchCommandQueueOptions,
 } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
-import { getCacheRequestKey } from "cache";
+import { DateInterval } from "constants/time.constants";
 import { FetchAction } from "action";
 
 export class FetchCommand<
@@ -36,13 +38,14 @@ export class FetchCommand<
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: PayloadType | NegativeTypes;
   queryParams: QueryParamsType | string | NegativeTypes;
-  options: ClientOptions | undefined;
-  cancelable?: boolean;
-  retry?: boolean | number;
-  retryTime?: number;
-  cacheTime?: number;
-  queued?: boolean;
-  deepEqual?: boolean;
+  options?: ClientOptions | undefined;
+  cancelable: boolean;
+  retry: boolean | number;
+  retryTime: number;
+  cache: boolean;
+  cacheTime: number;
+  queued: boolean;
+  deepEqual: boolean;
 
   abortKey: string;
   cacheKey: string;
@@ -63,46 +66,65 @@ export class FetchCommand<
     >,
   ) {
     const { baseUrl } = builder;
+    const {
+      endpoint,
+      headers,
+      method = HttpMethodsEnum.get,
+      options,
+      cancelable = false,
+      retry = false,
+      retryTime = 500,
+      cache = true,
+      cacheTime = DateInterval.minute * 5,
+      queued = true,
+      deepEqual = true,
+      abortKey,
+      cacheKey,
+      queueKey,
+    } = commandOptions;
 
-    this.mockCallback = current?.mockCallback;
-
-    this.endpoint = current?.endpoint || commandOptions.endpoint;
-    this.headers = current?.headers || commandOptions.headers;
-    this.method = commandOptions.method || HttpMethodsEnum.get;
+    this.endpoint = current?.endpoint || endpoint;
+    this.headers = current?.headers || headers;
+    this.method = method;
     this.params = current?.params;
     this.data = current?.data;
     this.queryParams = current?.queryParams;
-    this.options = current?.options || commandOptions.options;
-    this.cancelable = current?.cancelable || commandOptions.cancelable;
-    this.retry = current?.retry || commandOptions.retry;
-    this.retryTime = current?.retryTime || commandOptions.retryTime;
-    this.cacheTime = current?.cacheTime || commandOptions.cacheTime;
-    this.queued = current?.queued || commandOptions.queued;
-    this.deepEqual = current?.deepEqual || commandOptions.deepEqual;
+    this.options = current?.options || options;
+    this.cancelable = current?.cancelable || cancelable;
+    this.retry = current?.retry || retry;
+    this.retryTime = current?.retryTime || retryTime;
+    this.cache = current?.cache || cache;
+    this.cacheTime = current?.cacheTime || cacheTime;
+    this.queued = current?.queued || queued;
+    this.deepEqual = current?.deepEqual || deepEqual;
 
-    this.abortKey = current?.abortKey || commandOptions.abortKey || getAbortKey(this.method, baseUrl, this.endpoint);
-    this.cacheKey = current?.cacheKey || commandOptions.cacheKey || getCacheRequestKey(this);
-    this.queueKey = current?.queueKey || commandOptions.queueKey || getCacheRequestKey(this);
+    this.abortKey = current?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint);
+    this.cacheKey = current?.cacheKey || cacheKey || getCommandKey(this);
+    this.queueKey = current?.queueKey || queueKey || getCommandKey(this);
 
     this.actions = current?.actions || [];
 
     addAbortController(this.builder, this.abortKey);
   }
 
-  public setData = (data: PayloadType) => {
-    return this.clone<true>({ data });
+  public setHeaders = (headers: HeadersInit) => {
+    return this.clone({ headers });
   };
 
   public setParams = (params: ExtractRouteParams<EndpointType>) => {
     return this.clone<HasData, true, HasQuery>({ params });
   };
 
+  public setData = (data: PayloadType) => {
+    return this.clone<true>({ data });
+  };
+
   public setQueryParams = (queryParams: QueryParamsType | string) => {
     return this.clone<HasData, HasParams, true>({ queryParams });
   };
 
-  public setHeaders = (headers: HeadersInit) => {
-    return this.clone({ headers });
+  public setOptions = (options: ClientOptions) => {
+    return this.clone<HasData, HasParams, true>({ options });
   };
 
   public setCancelable = (cancelable: boolean) => {
@@ -115,6 +137,10 @@ export class FetchCommand<
 
   public setRetryTime = (retryTime: FetchCommandOptions<EndpointType, ClientOptions>["retryTime"]) => {
     return this.clone({ retryTime });
+  };
+
+  public setCache = (cache: FetchCommandOptions<EndpointType, ClientOptions>["cache"]) => {
+    return this.clone({ cache });
   };
 
   public setCacheTime = (cacheTime: FetchCommandOptions<EndpointType, ClientOptions>["cacheTime"]) => {
@@ -169,10 +195,6 @@ export class FetchCommand<
     return this.clone({ actions });
   };
 
-  public mock = (mockCallback: (data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) => {
-    return this.clone({ mockCallback });
-  };
-
   public abort = () => {
     abortCommand(this);
 
@@ -203,6 +225,7 @@ export class FetchCommand<
       cancelable: this.cancelable,
       retry: this.retry,
       retryTime: this.retryTime,
+      cache: this.cache,
       cacheTime: this.cacheTime,
       queued: this.queued,
       deepEqual: this.deepEqual,
@@ -248,7 +271,12 @@ export class FetchCommand<
     return cloned;
   }
 
-  public send: FetchMethodType<
+  /**
+   * Method to use the command WITHOUT adding it to cache and queues - just pure request
+   * @param options
+   * @returns
+   */
+  public exec: FetchMethodType<
     ResponseType,
     PayloadType,
     QueryParamsType,
@@ -257,16 +285,62 @@ export class FetchCommand<
     HasData,
     HasParams,
     HasQuery
-  > = async (setup?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
-    if (this.mockCallback) return Promise.resolve(this.mockCallback(this.data as PayloadType));
-
+  > = async (options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
+    const { client } = this.builder;
     const command = this.clone(
-      setup as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
+      options as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
     );
 
-    const { client } = this.builder;
-
     return client(command);
+  };
+
+  /**
+   * Method used to perform requests with usage of cache and queues
+   * @param options
+   */
+  public send: FetchMethodType<
+    ResponseType,
+    PayloadType,
+    QueryParamsType,
+    ErrorType,
+    EndpointType,
+    HasData,
+    HasParams,
+    HasQuery,
+    FetchCommandQueueOptions
+  > = async (
+    options?: FetchType<
+      PayloadType,
+      QueryParamsType,
+      EndpointType,
+      HasData,
+      HasParams,
+      HasQuery,
+      FetchCommandQueueOptions
+    >,
+  ) => {
+    const { fetchQueue, submitQueue } = this.builder;
+    const command = this.clone(
+      options as DefaultOptionsType<ResponseType, PayloadType, QueryParamsType, ErrorType, EndpointType, ClientOptions>,
+    );
+
+    const isGet = command.method === HttpMethodsEnum.get;
+
+    const queueType = options?.queueType || "auto";
+    const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
+    const queue = isFetchQueue ? fetchQueue : submitQueue;
+
+    return new Promise<ClientResponseType<ResponseType, ErrorType>>((resolve) => {
+      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType>(
+        command.cacheKey,
+        (response) => {
+          unmount();
+          resolve(response);
+        },
+      );
+
+      queue.add(command);
+    });
   };
 }
 // Typescript test cases

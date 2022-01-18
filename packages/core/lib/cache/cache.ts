@@ -8,18 +8,15 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * Cache class should be initialized per every command instance(not modified with params or queryParams).
  * This way we create container which contains different requests to the same endpoint.
  * With this segregation of data we can keep paginated data, filtered data, without overriding it between not related fetches.
- * Key for interactions should be generated later in the hooks with getCacheRequestKey util function, which joins the stringified values to create isolated space.
+ * Key for interactions should be generated later in the hooks with getCommandKey util function, which joins the stringified values to create isolated space.
  *
  * Example structure:
  *
  * CacheStore:
- *   endpoint => "GET_/users/1" (cacheKey) :
- *        caches => ["/users/1", {...}], ["/users/1?something=true", {...}], ["/users/1?something=false", {...}]
- *   endpoint => "GET_/users" :
- *        caches => ["/users" (key), {...}], ["/users?page=1", {...}], ["/users?page=2", {...}], ["/users?search=mac", {...}]
+ *   endpoint => "GET_/users/1" (cacheKey) : {...}
+ *   endpoint => "GET_/users" : {...}
+ *   endpoint => "GET_/users?page=1" : {...}
  *
- * Why this structure?
- * To allow for easier optimistic approach realization - this way we will have the mapper function that will update, add or remove elements from the same endpoint
  */
 export class Cache<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
@@ -47,18 +44,15 @@ export class Cache<ErrorType, ClientOptions> {
   }
 
   set = <Response>({
+    cache,
     cacheKey,
-    requestKey,
     response,
     retries = 0,
     deepEqual = true,
     isRefreshed = false,
     timestamp = +new Date(),
   }: CacheSetDataType<Response, ErrorType>): void => {
-    const cacheEntity = this.storage.get(cacheKey) || {};
-    const cachedData = cacheEntity?.[requestKey];
-    // We have to compare stored data with deepCompare, this will allow us to limit rerendering
-    const equal = deepEqual && this.builder.deepEqual(cachedData?.response, response);
+    const cachedData = this.storage.get(cacheKey);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
     // Keeping it in separate location let us to handle refreshing errors in different ways
@@ -70,37 +64,38 @@ export class Cache<ErrorType, ClientOptions> {
 
     const newData: CacheValueType = { response: dataToSave, retries, refreshError, retryError, isRefreshed, timestamp };
 
+    // If request should not use cache - just emit response data
+    if (!cache) {
+      return this.events.set<Response>(cacheKey, newData);
+    }
+
+    // We have to compare stored data with deepCompare, this will allow us to limit rerendering
+    const equal = deepEqual && this.builder.deepEqual(cachedData?.response, response);
+
+    // Global response emitter to handle command execution
+    this.builder.commandManager.events.emitResponse(cacheKey, response);
+
+    // Cache response emitter to provide optimization for libs(re-rendering)
     if (!equal) {
-      cacheEntity[requestKey] = newData;
-      this.storage.set(cacheKey, cacheEntity);
-      this.events.set<Response>(requestKey, newData);
+      this.storage.set(cacheKey, newData);
+      this.events.set<Response>(cacheKey, newData);
     } else {
-      this.events.setRefreshed(requestKey);
+      this.events.setRefreshed(cacheKey);
     }
   };
 
-  get = <Response>(cacheKey: string, requestKey: string): CacheValueType<Response> | undefined => {
-    const cacheEntity = this.storage.get(cacheKey);
-    const cachedData = cacheEntity?.[requestKey];
-    return cachedData as CacheValueType<Response>;
+  get = <Response>(cacheKey: string): CacheValueType<Response> | undefined => {
+    const cachedData = this.storage.get<Response>(cacheKey);
+    return cachedData;
   };
 
   getResponses = <Response>(cacheKey: string): CacheStoreValueType<Response> | undefined => {
     return this.storage.get(cacheKey) as CacheStoreValueType<Response>;
   };
 
-  deleteEndpoint = (cacheKey: string): void => {
+  delete = (cacheKey: string): void => {
     this.events.revalidate(cacheKey);
     this.storage.delete(cacheKey);
-  };
-
-  deleteResponse = (cacheKey: string, requestKey: string): void => {
-    this.events.revalidate(requestKey);
-    const cacheEntity = this.storage.get(cacheKey);
-    if (cacheEntity) {
-      delete cacheEntity[requestKey];
-      this.storage.set(cacheKey, cacheEntity);
-    }
   };
 
   clear = (): void => {

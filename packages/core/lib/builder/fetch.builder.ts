@@ -20,13 +20,13 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
 
   builded = false;
 
-  onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
-  onRequestCallbacks: RequestInterceptorCallback[] = [];
-  onResponseCallbacks: ResponseInterceptorCallback[] = [];
+  __onErrorCallback: ErrorMessageMapperCallback<ErrorType> | undefined;
+  __onRequestCallbacks: RequestInterceptorCallback[] = [];
+  __onResponseCallbacks: ResponseInterceptorCallback[] = [];
 
   // Config
   commandManager: CommandManager = new CommandManager();
-  client: ClientType<ErrorType, ClientOptions> = fetchClient;
+  client: ClientType<ErrorType, ClientOptions>;
   cache: Cache<ErrorType, ClientOptions>;
   manager: Manager;
   fetchQueue: FetchQueue<ErrorType, ClientOptions>;
@@ -40,6 +40,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     baseUrl,
     debug,
     options,
+    client,
     cache,
     manager,
     fetchQueue,
@@ -49,6 +50,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.baseUrl = baseUrl;
     this.debug = debug || false;
     this.options = options;
+    this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.deepEqual = deepEqual || isEqual;
@@ -64,17 +66,17 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   };
 
   onError = (callback: ErrorMessageMapperCallback<ErrorType>): FetchBuilder<ErrorType, ClientOptions> => {
-    this.onErrorCallback = callback;
+    this.__onErrorCallback = callback;
     return this;
   };
 
   onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
-    this.onRequestCallbacks.push(callback);
+    this.__onRequestCallbacks.push(callback);
     return this;
   };
 
   onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
-    this.onResponseCallbacks.push(callback);
+    this.__onResponseCallbacks.push(callback);
     return this;
   };
 
@@ -82,8 +84,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.cache.clear();
     this.fetchQueue.clear();
     this.submitQueue.clear();
-    this.commandManager.abortControllers.clear();
 
+    this.commandManager.abortControllers.clear();
+    this.commandManager.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
     this.fetchQueue.emitter.removeAllListeners();
     this.submitQueue.emitter.removeAllListeners();
@@ -95,12 +98,13 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
    * @param command
    * @returns
    */
-  modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
+  __modifyRequest = async <T extends FetchCommandInstance>(command: T): Promise<T> => {
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
-      for await (const interceptor of this.onRequestCallbacks) {
+      for await (const interceptor of this.__onRequestCallbacks) {
         newCommand = (await interceptor(command)) as T;
+        if (!newCommand) throw new Error("Request modifier must return command");
       }
     }
     return newCommand;
@@ -111,12 +115,16 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
    * @param command
    * @returns
    */
-  modifyResponse = async <T extends FetchCommandInstance>(response: ClientResponseType<any, ErrorType>, command: T) => {
+  __modifyResponse = async <T extends FetchCommandInstance>(
+    response: ClientResponseType<any, ErrorType>,
+    command: T,
+  ) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
-      for await (const interceptor of this.onResponseCallbacks) {
+      for await (const interceptor of this.__onResponseCallbacks) {
         newResponse = await interceptor(response, command);
+        if (!newResponse) throw new Error("Response modifier must return data");
       }
     }
     return newResponse;

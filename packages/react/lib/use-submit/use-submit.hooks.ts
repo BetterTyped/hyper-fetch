@@ -2,7 +2,6 @@ import { useRef } from "react";
 import {
   ExtractResponse,
   FetchCommandInstance,
-  getCacheRequestKey,
   FetchProgressType,
   ExtractError,
   ExtractFetchReturn,
@@ -43,11 +42,10 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
   const { cacheTime, cacheKey, queueKey } = command;
   // const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, commandManager } = command.builder;
-  const requestKey = getCacheRequestKey(command);
-  const initCacheState = useRef(getCacheState(cache.get(cacheKey, requestKey), cacheOnMount, cacheTime));
+  const initCacheState = useRef(getCacheState(cache.get(cacheKey), cacheOnMount, cacheTime));
   const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
   const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(cacheKey, requestKey, command.builder, initState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(command, initState.current);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -136,8 +134,8 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
 
     const loadingUnmount = submitQueue.events.getLoading(queueKey, handleGetLoadingEvent);
 
-    const getDataUnmount = cache.events.get<T>(requestKey, handleGetUpdatedCache);
-    const getRefreshedUnmount = cache.events.getRefreshed(requestKey, handleGetRefreshedCache);
+    const getDataUnmount = cache.events.get<T>(queueKey, handleGetUpdatedCache);
+    const getRefreshedUnmount = cache.events.getRefreshed(cacheKey, handleGetRefreshedCache);
 
     return () => {
       downloadUnmount();
