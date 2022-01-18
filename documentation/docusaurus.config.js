@@ -100,7 +100,7 @@ const config = {
             activeBaseRegex: `/examples/`,
           },
           {
-            to: "/resources/Community",
+            to: "/resources/Overview",
             label: "Resources",
             position: "left",
             activeBaseRegex: `/resources/`,
