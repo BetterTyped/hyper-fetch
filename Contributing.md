@@ -178,10 +178,9 @@ be rejected and closed immediately.
 
 ### Commit Messages
 
-https://www.conventionalcommits.org/en/v1.0.0/ Commit messages must follow the
-[conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard and present the best possible
-description of the changes made, which will later be automatically placed in the release notes. They must not contain
-curses or offensive sentences.
+Commit messages must follow the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) standard and
+present the best possible description of the changes made, which will later be automatically placed in the release
+notes. They must not contain curses or offensive sentences.
 
 ## Join The Project Team
 
