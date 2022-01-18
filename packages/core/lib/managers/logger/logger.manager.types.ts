@@ -7,7 +7,7 @@ export type LogType = {
   module: string;
   level: LoggerLevelType;
   message: LoggerMessageType;
-  additionalData?: LoggerMessageType;
+  additionalData?: LoggerMessageType[];
 };
 
 export type LoggerLevelType = "error" | "warning" | "http" | "info" | "debug";
