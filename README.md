@@ -12,14 +12,12 @@
 
 ### [Docs](https://hyperfetch.bettertyped.com/)
 
-### [Better Typed](https://bettertyped.com/docs/Overview)
-
 <br />
 
 ## Packages
 
-[Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-[React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)
+- [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
+- [React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)
 
 ## Installation
 
@@ -39,4 +37,6 @@ or
 yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 ```
 
-## Packages
+## Checkout our page!
+
+### [Better Typed](https://bettertyped.com/docs/Overview)

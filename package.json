@@ -82,9 +82,22 @@
       "path": "git-cz"
     }
   },
-  "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "https://github.com/BetterTyped/hyper-fetch.git"
-  }
+  },
+  "keywords": [
+    "fetch",
+    "xhr",
+    "requests",
+    "js",
+    "graphql",
+    "fetcher",
+    "queue",
+    "offline",
+    "persistence",
+    "cache",
+    "builder",
+    "command"
+  ]
 }
