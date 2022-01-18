@@ -80,10 +80,10 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
     if (!disabled && (isStale || !hasCacheData || isRefreshed || isRevalidated)) {
-      logger.debug(`Adding request to queue`, { isRefreshed, isRevalidated });
+      logger.debug("useFetch", `Adding request to queue`, { isRefreshed, isRevalidated });
       fetchQueue.add(command, { isRefreshed, isRevalidated });
     } else {
-      logger.debug(`Cannot add to queue`, { isRefreshed, isRevalidated, disabled, isStale, hasCacheData });
+      logger.debug("useFetch", `Cannot add to queue`, { isRefreshed, isRevalidated, disabled, isStale, hasCacheData });
     }
   };
 
@@ -95,7 +95,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     const timeLeft = timestamp ? Math.max(+timestamp + refreshTime - +new Date()) : 0;
 
     if (refresh) {
-      logger.debug(`Starting refresh counter, request will be send in ${timeLeft}ms`);
+      logger.debug("useFetch", `Starting refresh counter, request will be send in ${timeLeft}ms`);
       refreshInterval.interval(() => {
         const currentRequest = fetchQueue.get(queueKey);
         const isBlur = !command.builder.appManager.isFocused;
@@ -105,7 +105,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
         const canRefresh = canRefreshBlurred || command.builder.appManager.isFocused;
 
         if (!currentRequest && canRefresh) {
-          logger.debug(`Performing refresh request`);
+          logger.debug("useFetch", `Performing refresh request`);
           handleFetch(true, false);
           refreshInterval.resetInterval();
         }

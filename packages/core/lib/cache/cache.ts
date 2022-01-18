@@ -66,7 +66,7 @@ export class Cache<ErrorType, ClientOptions> {
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      this.builder.logger.debug(`Only emitting payload as command was not for save to cache`, {
+      this.builder.logger.debug("Cache", `Only emitting payload as command was not for save to cache`, {
         cache,
         cacheKey,
         response,
@@ -87,11 +87,11 @@ export class Cache<ErrorType, ClientOptions> {
 
     // Cache response emitter to provide optimization for libs(re-rendering)
     if (!equal) {
-      this.builder.logger.debug(`Setting new data to cache, emitting setter event...`);
+      this.builder.logger.debug("Cache", `Setting new data to cache, emitting setter event...`);
       this.storage.set(cacheKey, newData);
       this.events.set<Response>(cacheKey, newData);
     } else {
-      this.builder.logger.debug(`Cached data was equal to previous values, emitting update event...`);
+      this.builder.logger.debug("Cache", `Cached data was equal to previous values, emitting update event...`);
       this.events.setEqualData(cacheKey, isRefreshed, timestamp);
     }
   };

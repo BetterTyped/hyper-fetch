@@ -53,7 +53,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
 
     this.flush(queueKey);
 
-    this.builder.logger.http(`Started queue`, { queueKey });
+    this.builder.logger.http("Submit Queue", `Started queue`, { queueKey });
   };
 
   /**
@@ -68,7 +68,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       queue.stopped = true;
       this.storage.set(queueKey, queue);
 
-      this.builder.logger.http(`Paused queue`, { queueKey });
+      this.builder.logger.http("Submit Queue", `Paused queue`, { queueKey });
     }
   };
 
@@ -88,7 +88,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       this.runningRequests.get(queueKey)?.forEach((request) => request.command.abort());
       this.runningRequests.set(queueKey, []);
 
-      this.builder.logger.http(`Stopped queue`, { queueKey });
+      this.builder.logger.http("Submit Queue", `Stopped queue`, { queueKey });
     }
   };
 
@@ -113,22 +113,22 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     queue.requests.push(queueElementDump);
     this.storage.set(queueKey, queue);
 
-    this.builder.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
+    this.builder.logger.debug("Submit Queue", `Adding request to queue`, { queueKey, queueElementDump });
 
     if (queued) {
-      this.builder.logger.debug(`Performing one-by-one request`, { queueKey });
+      this.builder.logger.debug("Submit Queue", `Performing one-by-one request`, { queueKey });
       // 1. One-by-one: if we setup request as one-by-one queue use queueing system
       this.flush(queueKey);
     } else {
       // 2. Only last request
       if (cancelable) {
-        this.builder.logger.debug(`Performing cancelable request`, { queueKey });
+        this.builder.logger.debug("Submit Queue", `Performing cancelable request`, { queueKey });
         // Cancel all previous requests
         runningRequests.forEach((request) => request.command.abort());
         this.runningRequests.set(queueKey, []);
         // Request will be performed in 3. step
       } else {
-        this.builder.logger.debug(`Performing all-at-once request`, { queueKey });
+        this.builder.logger.debug("Submit Queue", `Performing all-at-once request`, { queueKey });
       }
       // 3. All at once
       const requestCommand = new FetchCommand(
@@ -158,11 +158,11 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       isRetry: !!retry,
     });
 
-    this.builder.logger.http(`Start request`, { requestId, queueKey });
+    this.builder.logger.http("Submit Queue", `Start request`, { requestId, queueKey });
 
     const response = await client(requestCommand);
 
-    this.builder.logger.http(`Finished request`, { requestId, queueKey });
+    this.builder.logger.http("Submit Queue", `Finished request`, { requestId, queueKey });
 
     const runningRequests = this.runningRequests.get(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -171,15 +171,19 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     const queue = this.storage.get(queueKey);
     if ((!response[0] && queue?.stopped) || isCanceled) {
       if (isCanceled) {
-        return this.builder.logger.error(`Request canceled`, { requestId, queueKey });
+        return this.builder.logger.error("Submit Queue", `Request canceled`, { requestId, queueKey });
       }
-      return this.builder.logger.error(`Request failed in stopped queue submit-queue`, {
+      return this.builder.logger.error("Submit Queue", `Request failed in stopped queue submit-queue`, {
         requestId,
         queueKey,
       });
     }
 
-    this.builder.logger.debug(`Response send to cache from submit-queue`, { requestId, queueKey, response });
+    this.builder.logger.debug("Submit Queue", `Response send to cache from submit-queue`, {
+      requestId,
+      queueKey,
+      response,
+    });
 
     this.builder.cache.set({
       cache: cache ?? true,
@@ -192,7 +196,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
 
     // When Successful remove it from running requests
     if (!response[1]) {
-      this.builder.logger.debug(`Clearing request from fetch-queue`, { requestId, queueKey });
+      this.builder.logger.debug("Submit Queue", `Clearing request from fetch-queue`, { requestId, queueKey });
 
       const requests = this.runningRequests.get(queueKey) || [];
       this.storage.delete(queueKey);
@@ -203,7 +207,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     }
     // Perform retry once request is failed
     else if ((typeof retry === "number" && queueElement.retries <= retry) || retry === true) {
-      this.builder.logger.http(`Performing retry`, { requestId, queueKey });
+      this.builder.logger.http("Submit Queue", `Performing retry`, { requestId, queueKey });
 
       setTimeout(async () => {
         await this.performRequest(queueKey, requestCommand, {
@@ -231,12 +235,12 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     // or there is no request to trigger - we don't want to perform actions
     if (!queueElement || isStopped || runningRequests?.length) {
       if (isStopped) {
-        return this.builder.logger.debug(`Cannot flush stopped queue`, { queueKey });
+        return this.builder.logger.debug("Submit Queue", `Cannot flush stopped queue`, { queueKey });
       }
       if (runningRequests?.length) {
-        return this.builder.logger.debug(`Cannot flush when there is ongoing request`, { queueKey });
+        return this.builder.logger.debug("Submit Queue", `Cannot flush when there is ongoing request`, { queueKey });
       }
-      return this.builder.logger.info(`Queue is empty`, { queueKey });
+      return this.builder.logger.info("Submit Queue", `Queue is empty`, { queueKey });
     }
 
     // 1. Start request
@@ -252,7 +256,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
   };
 
   flushAll = () => {
-    this.builder.logger.debug(`Flushing all queues`);
+    this.builder.logger.debug("Submit Queue", `Flushing all queues`);
 
     const keys = this.storage.keys();
 

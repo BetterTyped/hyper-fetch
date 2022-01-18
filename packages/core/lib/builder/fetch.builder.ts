@@ -195,7 +195,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.fetchQueue.flushAll();
     this.submitQueue.flushAll();
 
-    this.logger.info("[Builder] Initialized Builder");
+    this.logger.info("Builder", "Initialized Builder");
 
     return this;
   };

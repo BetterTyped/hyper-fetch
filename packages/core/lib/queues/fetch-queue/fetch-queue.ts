@@ -58,7 +58,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
     const isEqualTimestamp = getIsEqualTimestamp(timestamp, poolingTime, queueEntity?.timestamp);
     const canRevalidate = options?.isRevalidated && !isEqualTimestamp;
 
-    this.builder.logger.debug(`Adding request to fetch-queue (queueKey: ${queueKey})`, {
+    this.builder.logger.debug("Fetch Queue", `Adding request to fetch-queue (queueKey: ${queueKey})`, {
       queueEntity,
       cancelable: command.cancelable,
       canRevalidate,
@@ -76,7 +76,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
         retries: 0,
       };
 
-      this.builder.logger.debug(`Request set to trigger (queueKey: ${queueKey})`, queueElementDump);
+      this.builder.logger.debug("Fetch Queue", `Request set to trigger (queueKey: ${queueKey})`, queueElementDump);
 
       // Trigger request
       this.performRequest(queueElementDump);
@@ -104,7 +104,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
     // When offline not perform any request
     if (!requestCommand.builder.appManager.isOnline) {
-      return this.builder.logger.error("Cannot perform fetch-queue request, app is offline");
+      return this.builder.logger.error("Fetch Queue", "Cannot perform fetch-queue request, app is offline");
     }
 
     // Additionally keep the running request to possibly abort it later
@@ -118,11 +118,11 @@ export class FetchQueue<ErrorType, ClientOptions> {
       isRetry: !!retry,
     });
 
-    this.builder.logger.http(`Start request`, { requestId, queueKey });
+    this.builder.logger.http("Fetch Queue", `Start request`, { requestId, queueKey });
 
     const response = await client(requestCommand);
 
-    this.builder.logger.http(`Finished request`, { requestId, queueKey, ...response });
+    this.builder.logger.http("Fetch Queue", `Finished request`, { requestId, queueKey, ...response });
 
     const runningRequest = this.runningRequests.get(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -135,12 +135,12 @@ export class FetchQueue<ErrorType, ClientOptions> {
 
     if (isCanceled || (!response[0] && !requestCommand.builder.appManager.isOnline)) {
       if (isCanceled) {
-        return this.builder.logger.error(`Request canceled`, { requestId, queueKey });
+        return this.builder.logger.error("Fetch Queue", `Request canceled`, { requestId, queueKey });
       }
-      return this.builder.logger.error(`Request failed because of going offline`, response);
+      return this.builder.logger.error("Fetch Queue", `Request failed because of going offline`, response);
     }
 
-    this.builder.logger.debug(`Response send to cache from fetch-queue`, {
+    this.builder.logger.debug("Fetch Queue", `Response send to cache from fetch-queue`, {
       requestId,
       queueKey,
       response,
@@ -156,14 +156,14 @@ export class FetchQueue<ErrorType, ClientOptions> {
     });
 
     if (failed && canRefresh) {
-      this.builder.logger.http(`Performing retry`, { requestId, queueKey });
+      this.builder.logger.http("Fetch Queue", `Performing retry`, { requestId, queueKey });
 
       // Perform retry once request is failed
       setTimeout(() => {
         this.performRequest({ ...queueElement, retries: queueElement.retries + 1 });
       }, retryTime || 0);
     } else {
-      this.builder.logger.debug(`Clearing request from fetch-queue`, { requestId, queueKey, response });
+      this.builder.logger.debug("Fetch Queue", `Clearing request from fetch-queue`, { requestId, queueKey, response });
 
       this.delete(queueKey);
     }

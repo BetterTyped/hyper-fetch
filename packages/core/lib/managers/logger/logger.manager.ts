@@ -1,4 +1,4 @@
-import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, getLoggerCaller } from "managers";
+import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger } from "managers";
 import { FetchBuilderInstance } from "builder";
 
 export class Logger {
@@ -10,33 +10,33 @@ export class Logger {
     this.levels = this.options?.levels || ["error", "warning", "http", "http", "info", "debug"];
   }
 
-  error = (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+  error = (module: string, message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
     if (!this.builder.debug || !this.levels.includes("error")) return;
 
-    this.logger({ level: "error", module: getLoggerCaller(), message, additionalData });
+    this.logger({ level: "error", module, message, additionalData });
   };
 
-  warning = (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+  warning = (module: string, message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
     if (!this.builder.debug || !this.levels.includes("warning")) return;
 
-    this.logger({ level: "warning", module: getLoggerCaller(), message, additionalData });
+    this.logger({ level: "warning", module, message, additionalData });
   };
 
-  http = (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+  http = (module: string, message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
     if (!this.builder.debug || !this.levels.includes("http")) return;
 
-    this.logger({ level: "http", module: getLoggerCaller(), message, additionalData });
+    this.logger({ level: "http", module, message, additionalData });
   };
 
-  info = (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+  info = (module: string, message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
     if (!this.builder.debug || !this.levels.includes("info")) return;
 
-    this.logger({ level: "info", module: getLoggerCaller(), message, additionalData });
+    this.logger({ level: "info", module, message, additionalData });
   };
 
-  debug = (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+  debug = (module: string, message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
     if (!this.builder.debug || !this.levels.includes("debug")) return;
 
-    this.logger({ level: "debug", module: getLoggerCaller(), message, additionalData });
+    this.logger({ level: "debug", module, message, additionalData });
   };
 }
