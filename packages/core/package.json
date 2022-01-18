@@ -34,11 +34,11 @@
     "start": "rollup -c -w",
     "build": "rollup -c",
     "test": "jest --watchAll",
-    "test-pipeline": "jest --watchAll=false",
     "coverage": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "precommit": "yarn lint-staged"
+    "precommit": "yarn lint-staged",
+    "test-pipeline": "jest --watchAll=false"
   },
   "peerDependencies": {},
   "dependencies": {},
