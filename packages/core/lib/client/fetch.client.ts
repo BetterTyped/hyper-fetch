@@ -17,7 +17,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
-  const logger = command.builder.logger.init("Client");
+  const logger = command.builder.loggerManager.init("Client");
 
   const xhr = new XMLHttpRequest();
 

@@ -6,7 +6,7 @@ import {
   FetchBuilderInstance,
 } from "builder";
 import { Cache, isEqual } from "cache";
-import { AppManager, CommandManager, Logger } from "managers";
+import { AppManager, CommandManager, LoggerManager } from "managers";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
@@ -30,7 +30,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   // Managers
   commandManager: CommandManager = new CommandManager();
   appManager: AppManager;
-  logger: Logger = new Logger(this);
+  loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
   client: ClientType<ErrorType, ClientOptions>;
@@ -41,6 +41,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
 
   // Registered requests Actions
   actions: FetchActionInstance[] = [];
+
+  // Logger
+  private logger = this.loggerManager.init("Builder");
 
   constructor({
     baseUrl,
@@ -69,8 +72,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     return this;
   };
 
-  setLogger = (callback: (builder: FetchBuilderInstance) => Logger): FetchBuilder<ErrorType, ClientOptions> => {
-    this.logger = callback(this);
+  setLogger = (callback: (builder: FetchBuilderInstance) => LoggerManager): FetchBuilder<ErrorType, ClientOptions> => {
+    this.loggerManager = callback(this);
     return this;
   };
 
@@ -247,7 +250,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     this.fetchQueue.flushAll();
     this.submitQueue.flushAll();
 
-    this.logger.init("Builder").info("Initialized Builder");
+    this.logger.info("Initialized Builder");
 
     return this;
   };

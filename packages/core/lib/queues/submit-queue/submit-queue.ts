@@ -9,9 +9,10 @@ import {
   SubmitQueueOptionsType,
   RunningSubmitRequestValueType,
 } from "queues";
-import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchBuilder } from "builder";
-import { getUniqueRequestId } from "../../utils/uuid.utils";
+import { getUniqueRequestId } from "utils";
+import { LoggerMethodsType } from "managers";
+import { FetchCommandInstance, FetchCommand } from "command";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -21,7 +22,7 @@ export class SubmitQueue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getSubmitQueueEvents(this.emitter);
 
-  logger = this.builder.logger.init("Submit Queue");
+  logger: LoggerMethodsType;
 
   storage: SubmitQueueStorageType<ClientOptions> = new Map<SubmitQueueStoreKeyType, SubmitQueueData<ClientOptions>>();
 
@@ -29,6 +30,8 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     private builder: FetchBuilder<ErrorType, ClientOptions>,
     private options?: SubmitQueueOptionsType<ErrorType, ClientOptions>,
   ) {
+    this.logger = this.builder.loggerManager.init("Submit Queue");
+
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }

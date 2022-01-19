@@ -11,9 +11,10 @@ import {
   canRetryRequest,
 } from "queues";
 import { FetchBuilder } from "builder";
+import { getUniqueRequestId } from "utils";
+import { LoggerMethodsType } from "managers";
 import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchQueueOptionsType } from "./fetch-queue.types";
-import { getUniqueRequestId } from "../../utils/uuid.utils";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
@@ -23,7 +24,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getFetchQueueEvents(this.emitter);
 
-  logger = this.builder.logger.init("Fetch Queue");
+  logger: LoggerMethodsType;
 
   storage: FetchQueueStorageType<ClientOptions> = new Map<
     FetchQueueStoreKeyType,
@@ -34,6 +35,8 @@ export class FetchQueue<ErrorType, ClientOptions> {
     private builder: FetchBuilder<ErrorType, ClientOptions>,
     private options?: FetchQueueOptionsType<ErrorType, ClientOptions>,
   ) {
+    this.logger = this.builder.loggerManager.init("Fetch Queue");
+
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }

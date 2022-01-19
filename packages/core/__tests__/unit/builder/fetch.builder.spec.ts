@@ -1,7 +1,7 @@
 import { ClientType, FetchClientXHR } from "client";
 import { FetchBuilder } from "builder";
 import { FetchCommand } from "command";
-import { Logger } from "managers";
+import { LoggerManager } from "managers";
 import { interceptBase } from "../../utils/mocks";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 
@@ -25,7 +25,7 @@ describe("FetchBuilder", () => {
     it("should assign provided props", async () => {
       const builder = new FetchBuilder({ baseUrl, options })
         .setDebug(true)
-        .setLogger((b) => new Logger(b, { logger: () => null }))
+        .setLogger((b) => new LoggerManager(b, { logger: () => null }))
         .build();
 
       expect(builder.options).toStrictEqual(options);

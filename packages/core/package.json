@@ -1,6 +1,6 @@
 {
   "name": "@better-typed/hyper-fetch",
-  "version": "0.0.0-development",
+  "version": "0.0.16",
   "private": false,
   "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",

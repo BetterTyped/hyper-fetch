@@ -1,5 +1,6 @@
 import EventEmitter from "events";
 
+import { LoggerMethodsType } from "managers";
 import { FetchBuilder } from "builder";
 import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
@@ -21,14 +22,17 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
 export class Cache<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getCacheEvents(this.emitter);
-  logger = this.builder.logger.init("Cache");
 
   storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>();
+
+  private logger: LoggerMethodsType;
 
   constructor(
     private builder: FetchBuilder<ErrorType, ClientOptions>,
     private options?: CacheOptionsType<ErrorType, ClientOptions>,
   ) {
+    this.logger = this.builder.loggerManager.init("Cache");
+
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }

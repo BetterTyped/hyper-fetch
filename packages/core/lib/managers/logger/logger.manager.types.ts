@@ -1,4 +1,8 @@
 // Logger
+export type LoggerMethodsType = Record<
+  LoggerLevelType,
+  (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void
+>;
 export type LoggerType = (log: LogType) => void;
 export type LoggerOptionsType = { logger?: LoggerType; levels?: LoggerLevelType[] };
 

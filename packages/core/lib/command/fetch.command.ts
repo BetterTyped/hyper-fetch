@@ -16,6 +16,7 @@ import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
+import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
 import { FetchAction } from "action";
 
@@ -53,7 +54,7 @@ export class FetchCommand<
 
   actions: string[] = [];
 
-  logger = this.builder.logger.init("Command");
+  private logger: LoggerMethodsType;
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
@@ -67,6 +68,8 @@ export class FetchCommand<
       ClientOptions
     >,
   ) {
+    this.logger = this.builder.loggerManager.init("Command");
+
     const { baseUrl } = builder;
     const {
       endpoint,

@@ -1,7 +1,7 @@
-import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger } from "managers";
+import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, LoggerMethodsType } from "managers";
 import { FetchBuilderInstance } from "builder";
 
-export class Logger {
+export class LoggerManager {
   logger: LoggerType;
   levels: LoggerLevelType[];
 
@@ -10,7 +10,7 @@ export class Logger {
     this.levels = this.options?.levels || ["error", "warning", "http", "http", "info", "debug"];
   }
 
-  init = (module: string) => {
+  init = (module: string): LoggerMethodsType => {
     return {
       error: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
         if (!this.builder.debug || !this.levels.includes("error")) return;

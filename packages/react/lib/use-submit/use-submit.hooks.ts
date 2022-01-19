@@ -41,7 +41,8 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
 ): UseSubmitReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
   const { cacheTime, cacheKey, queueKey, builder } = command;
   // const requestDebounce = useDebounce(debounceTime);
-  const { cache, submitQueue, commandManager, logger } = builder;
+  const { cache, submitQueue, commandManager, loggerManager } = builder;
+  const logger = useRef(loggerManager.init("useSubmit")).current;
   const initCacheState = useRef(getCacheState(cache.get(cacheKey), cacheOnMount, cacheTime));
   const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
   const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
@@ -72,10 +73,10 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     }
 
     if (!disabled) {
-      logger.debug("useSubmit", `Adding request to queue`, { disabled, options });
+      logger.debug(`Adding request to submit queue`, { disabled, options });
       submitQueue.add(request);
     } else {
-      logger.debug("useSubmit", `Cannot add to queue`, { disabled, options });
+      logger.debug(`Cannot add to submit queue`, { disabled, options });
     }
   };
 
