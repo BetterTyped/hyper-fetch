@@ -29,8 +29,11 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   logger.debug(`Starting request modification`);
 
   let commandInstance = command;
-  commandInstance = await command.builder.__modifyAuth(commandInstance);
   commandInstance = await command.builder.__modifyRequest(commandInstance);
+
+  if (command.auth) {
+    commandInstance = await command.builder.__modifyAuth(commandInstance);
+  }
 
   const { builder, endpoint, queryParams, data, method } = commandInstance;
 
