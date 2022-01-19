@@ -11,11 +11,11 @@ const getTime = () => {
 export const logger: LoggerType = (log) => {
   const styles = loggerStyles[log.level];
   const emoji = emojiLevel[log.level];
-  const module = `%c[${emoji} ${log.module}]:[${getTime()}]:`;
-  const message = `${module} ${log.message}`;
+  const module = `%c[${log.module}]:[${getTime()}]:`;
+  const message = `${emoji}${module} ${log.message}`;
   console.log(message, styles);
-  if (log.additionalData) {
-    console.groupCollapsed(`${module}Details`, "font-weight: bold");
+  if (log.additionalData?.length) {
+    console.groupCollapsed(`${module} Inspect Details`, "font-weight: bold");
     log.additionalData.forEach((data) => {
       console.log(data);
     });
