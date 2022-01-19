@@ -53,6 +53,8 @@ export class FetchCommand<
 
   actions: string[] = [];
 
+  logger = this.builder.logger.init("Command");
+
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
@@ -360,11 +362,9 @@ export class FetchCommand<
 
       queue.add(command);
 
-      this.builder.logger.http(
-        "Command",
-        `Performing send method and adding command to ${isFetchQueue ? "fetch" : "submit"} queue`,
-        { command },
-      );
+      this.logger.http(`Performing send method and adding command to ${isFetchQueue ? "fetch" : "submit"} queue`, {
+        command,
+      });
     });
   };
 }

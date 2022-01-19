@@ -220,7 +220,7 @@ export const handleClientError = async <T extends FetchCommandInstance>(
   }
 
   let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
-  command.builder.logger.http("Client", `Received error response`, responseData);
+  command.builder.logger.init("Client").http(`Received error response`, responseData);
 
   actions.forEach((action) => action.onError(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));
@@ -243,7 +243,7 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
   const data = parseResponse(event.target?.response);
 
   let responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
-  command.builder.logger.http("Client", `Received success response`, responseData);
+  command.builder.logger.init("Client").http(`Received success response`, responseData);
 
   actions.forEach((action) => action.onSuccess(responseData, command));
   actions.forEach((action) => action.onFinished(responseData, command));

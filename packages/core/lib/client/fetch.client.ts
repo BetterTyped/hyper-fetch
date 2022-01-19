@@ -17,6 +17,8 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
+  const logger = command.builder.logger.init("Client");
+
   const xhr = new XMLHttpRequest();
 
   xhr.timeout = DateInterval.second * 4;
@@ -24,7 +26,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
 
-  command.builder.logger.debug("Client", `Starting request modification`);
+  logger.debug(`Starting request modification`);
 
   let commandInstance = command;
   commandInstance = await command.builder.__modifyAuth(commandInstance);
@@ -50,7 +52,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
 
     setClientHeaders(commandInstance, xhr, options?.headerMapper);
     getAbortController(command)?.signal.addEventListener("abort", xhr.abort);
-    command.builder.logger.debug("Client", `Request setup finished`);
+    logger.debug(`Request setup finished`);
 
     // Request listeners
     command.builder.commandManager.events.emitRequestStart(command.queueKey, command);
@@ -123,7 +125,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
     };
 
-    command.builder.logger.debug("Client", `Starting request`);
+    logger.debug(`Starting request`);
     // Send request
     xhr.send(getClientPayload(data));
 
