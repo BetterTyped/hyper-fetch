@@ -19,6 +19,7 @@ export type FetchCommandDump<ClientOptions> = {
     cacheKey: string;
     queueKey: string;
     actions: string[];
+    disabled: boolean;
   };
 };
 
@@ -41,6 +42,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   abortKey?: string;
   cacheKey?: string;
   queueKey?: string;
+  disabled?: boolean;
 };
 
 export type DefaultOptionsType<
@@ -57,6 +59,7 @@ export type DefaultOptionsType<
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
   actions?: string[];
+  disabled?: boolean;
 } & Partial<NullableKeys<FetchCommandOptions<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;

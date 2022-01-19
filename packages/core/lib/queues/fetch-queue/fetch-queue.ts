@@ -18,7 +18,12 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
   }
 
   add = async (command: FetchCommandInstance) => {
-    const { cancelable, queueKey, concurrent } = command;
+    const { cancelable, queueKey, concurrent, disabled } = command;
+
+    if (disabled) {
+      return this.logger.warning(`Request disabled, exiting...`);
+    }
+
     const requestId = getUniqueRequestId(queueKey);
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other

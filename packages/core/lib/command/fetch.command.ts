@@ -51,8 +51,8 @@ export class FetchCommand<
   abortKey: string;
   cacheKey: string;
   queueKey: string;
-
   actions: string[] = [];
+  disabled: boolean;
 
   private logger: LoggerMethodsType;
 
@@ -110,6 +110,7 @@ export class FetchCommand<
     this.queueKey = current?.queueKey || queueKey || getCommandKey(this);
 
     this.actions = current?.actions || [];
+    this.disabled = current?.disabled || false;
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -174,6 +175,10 @@ export class FetchCommand<
     return this.clone({ queueKey });
   };
 
+  public setDisabled = (disabled: boolean) => {
+    return this.clone({ disabled });
+  };
+
   public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
     const actionName = typeof action === "string" ? action : action?.getName();
     const actions = [...this.actions, actionName];
@@ -226,6 +231,7 @@ export class FetchCommand<
         cacheKey: this.cacheKey,
         queueKey: this.queueKey,
         actions: this.actions,
+        disabled: this.disabled,
       },
     };
   }

@@ -18,8 +18,12 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
   }
 
   add = async (command: FetchCommandInstance) => {
-    const { cancelable, queueKey, concurrent } = command;
+    const { cancelable, queueKey, concurrent, disabled } = command;
     const requestId = getUniqueRequestId(queueKey);
+
+    if (disabled) {
+      return this.logger.warning(`Request disabled, exiting...`);
+    }
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
