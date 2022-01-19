@@ -3,9 +3,9 @@ import { Route, Routes } from "react-router";
 import { BrowserRouter } from "react-router-dom";
 
 import { DashboardPage } from "pages/dashboard/dashboard.page";
-import { RestDetailsPage } from "pages/rest/details/rest-details.page";
-import { RestListPage } from "pages/rest/list/rest-list.page";
-import { RestFormPage } from "pages/rest/form/rest-form.page";
+import { RestDetailsPage } from "pages/details/rest-details.page";
+import { RestListPage } from "pages/list/rest-list.page";
+import { RestFormPage } from "pages/form/rest-form.page";
 
 export const App: React.FC = () => {
   return (

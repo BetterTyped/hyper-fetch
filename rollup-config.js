@@ -22,7 +22,6 @@ export default (pkg) => [
       },
     ],
     plugins: [
-      del({ targets: ["dist/*"] }),
       external({
         includeDependencies: true,
       }),
@@ -53,7 +52,6 @@ export default (pkg) => [
     output: [{ file: pkg.types, format: "es" }],
     external: [/\.scss$/, /\.css$/],
     plugins: [
-      del({ targets: ["dist/*"] }),
       dts({
         compilerOptions: {
           baseUrl: "./lib",

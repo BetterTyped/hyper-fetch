@@ -14,7 +14,7 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
   if (retry === true) {
     return true;
   }
-  if (typeof retry === "number" && retries <= retry) {
+  if (retry && retries <= retry) {
     return true;
   }
   return false;

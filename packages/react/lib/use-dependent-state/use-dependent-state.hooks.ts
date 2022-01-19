@@ -1,29 +1,26 @@
 import { useRef, useState } from "react";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import {
-  CacheValueType,
-  FetchCommandInstance,
-  ExtractResponse,
-  ExtractError,
-  NullableType,
-} from "@better-typed/hyper-fetch";
+import { ClientResponseType, FetchCommandInstance, ExtractResponse, ExtractError } from "@better-typed/hyper-fetch";
 
+import { getCacheState, getUseFetchInitialData, isStaleCacheData } from "use-fetch/use-fetch.utils";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
-import { getInitialDependentStateData } from "./use-dependent-state.utils";
+import { getInitialDependentStateData, transformDataToCacheValue } from "./use-dependent-state.utils";
 
 export const useDependentState = <T extends FetchCommandInstance>(
   command: FetchCommandInstance,
-  initialData: NullableType<CacheValueType>,
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
 ): [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
   (renderKey: keyof UseDependentStateType) => void,
+  boolean,
 ] => {
-  const { builder, cache, cacheKey } = command;
+  const { builder, cache, cacheKey, cacheTime } = command;
 
+  const [initialized, setInitialized] = useState(false);
   const [, rerender] = useState(+new Date());
   const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(
-    getInitialDependentStateData(command, initialData),
+    getInitialDependentStateData(command, transformDataToCacheValue(initialData)),
   );
   const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
 
@@ -35,6 +32,21 @@ export const useDependentState = <T extends FetchCommandInstance>(
   const setRenderKeys = (renderKey: keyof UseDependentStateType) => {
     renderKeys.current.push(renderKey);
   };
+
+  useDidMount(() => {
+    const getInitialData = async () => {
+      const cacheData = await builder.cache.get(cacheKey);
+      const initCacheState = getCacheState(cacheData, cache, cacheTime);
+      const isStale = isStaleCacheData(cacheTime, initCacheState?.timestamp);
+      const cacheValue = isStale ? getUseFetchInitialData<T>(initialData) : initCacheState;
+
+      state.current = getInitialDependentStateData(command, cacheValue);
+      setInitialized(true);
+      rerender(+new Date());
+    };
+
+    getInitialData();
+  });
 
   useDidMount(() => {
     const focusUnmount = builder.appManager.events.onFocus(() => {
@@ -63,9 +75,9 @@ export const useDependentState = <T extends FetchCommandInstance>(
   });
 
   const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
-    setCacheData: (cacheData, emitToCache = true) => {
+    setCacheData: async (cacheData, emitToCache = true) => {
       if (emitToCache) {
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           ...cacheData,
@@ -89,10 +101,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(Object.keys(newStateValues) as Array<keyof UseDependentStateType>);
       }
     },
-    setData: (data, emitToCache = true) => {
+    setData: async (data, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [data, currentState.error, currentState.status],
@@ -104,10 +116,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["data"]);
       }
     },
-    setError: (error, emitToCache = true) => {
+    setError: async (error, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, error, currentState.status],
@@ -119,23 +131,21 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["error"]);
       }
     },
-    setLoading: (loading, emitToHooks = true) => {
+    setLoading: async (loading, emitToHooks = true) => {
       if (emitToHooks) {
         builder.fetchQueue.events.setLoading(cacheKey, {
           isLoading: loading,
           isRetry: false,
-          isRefreshed: false,
-          isRevalidated: false,
         });
       } else {
         state.current.loading = loading;
         renderOnKeyTrigger(["loading"]);
       }
     },
-    setStatus: (status, emitToCache = true) => {
+    setStatus: async (status, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, currentState.error, status],
@@ -147,10 +157,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["status"]);
       }
     },
-    setRefreshed: (isRefreshed, emitToCache = true) => {
+    setRefreshed: async (isRefreshed, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, currentState.error, currentState.status],
@@ -162,10 +172,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["isRefreshed"]);
       }
     },
-    setRefreshError: (refreshError, emitToCache = true) => {
+    setRefreshError: async (refreshError, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, refreshError, currentState.status],
@@ -177,10 +187,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["refreshError"]);
       }
     },
-    setRetryError: (retryError, emitToCache = true) => {
+    setRetryError: async (retryError, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, retryError, currentState.status],
@@ -192,10 +202,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["retryError"]);
       }
     },
-    setRetries: (retries, emitToCache = true) => {
+    setRetries: async (retries, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, currentState.error, currentState.status],
@@ -207,10 +217,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["retries"]);
       }
     },
-    setTimestamp: (timestamp, emitToCache = true) => {
+    setTimestamp: async (timestamp, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
-        builder.cache.set({
+        await builder.cache.set({
           cache,
           cacheKey,
           response: [currentState.data, currentState.error, currentState.status],
@@ -225,5 +235,5 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
   };
 
-  return [state.current, actions, setRenderKeys];
+  return [state.current, actions, setRenderKeys, initialized];
 };

@@ -1,17 +1,24 @@
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { waitFor } from "@testing-library/react";
+import { FetchBuilder, FetchCommand } from "@better-typed/hyper-fetch";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetMocks, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
-import { ErrorMockType, testBuilder } from "../../utils/server/server.constants";
+import { ErrorMockType } from "../../utils/server/server.constants";
 import { getCurrentState } from "../../utils/utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../../shared/fetch.tests";
+import { sleep } from "../../utils/utils/sleep";
+
+const dump = getManyRequest.dump();
+
+let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+let command = new FetchCommand(builder, dump.commandOptions, dump.values);
 
 const renderGetManyHook = () =>
-  renderHook(() => useFetch(getManyRequest, { dependencyTracking: false, revalidateOnMount: false }));
+  renderHook(() => useFetch(command, { dependencyTracking: false, revalidateOnMount: false }));
 
-describe("Basic useFetch hook usage", () => {
+describe("[Basic] useFetch hook", () => {
   beforeAll(() => {
     startServer();
   });
@@ -25,7 +32,9 @@ describe("Basic useFetch hook usage", () => {
   });
 
   beforeEach(async () => {
-    testBuilder.clear();
+    builder.clear();
+    builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+    command = new FetchCommand(builder, dump.commandOptions, dump.values);
   });
 
   it("should initialize loading state", async () => {
@@ -46,8 +55,8 @@ describe("Basic useFetch hook usage", () => {
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data && getCurrentState(responseTwo).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).not.toBe(null);
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -97,7 +106,7 @@ describe("Basic useFetch hook usage", () => {
   });
 
   // Write smaller tests
-  it("should allow to use reducer actions to override the state, and emit it for other hooks and propagate state around hooks", async () => {
+  it("should allow to use reducer actions to override the state, and emit it to other hooks", async () => {
     const mock = interceptGetMany(200, 0);
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
@@ -119,8 +128,8 @@ describe("Basic useFetch hook usage", () => {
     const customStatus = 666;
     const customError: ErrorMockType = { message: "custom error" };
 
-    act(() => {
-      successStateOne.actions.setLoading(customLoading);
+    await act(async () => {
+      await successStateOne.actions.setLoading(customLoading);
     });
     const loadingStateOne = getCurrentState(responseOne);
     const loadingStateTwo = getCurrentState(responseTwo);
@@ -129,8 +138,8 @@ describe("Basic useFetch hook usage", () => {
       expect(loadingStateTwo.loading).toBe(customLoading);
     });
 
-    act(() => {
-      successStateOne.actions.setData(customData);
+    await act(async () => {
+      await successStateOne.actions.setData(customData);
     });
     const dataStateOne = getCurrentState(responseOne);
     const dataStateTwo = getCurrentState(responseTwo);
@@ -139,8 +148,8 @@ describe("Basic useFetch hook usage", () => {
       expect(dataStateTwo.data).toEqual(customData);
     });
 
-    act(() => {
-      successStateOne.actions.setStatus(customStatus);
+    await act(async () => {
+      await successStateOne.actions.setStatus(customStatus);
     });
     const statusStateOne = getCurrentState(responseOne);
     const statusStateTwo = getCurrentState(responseTwo);
@@ -149,9 +158,11 @@ describe("Basic useFetch hook usage", () => {
       expect(statusStateTwo.status).toBe(customStatus);
     });
 
-    act(() => {
-      successStateOne.actions.setError(customError);
+    await act(async () => {
+      await sleep(400);
+      await successStateOne.actions.setError(customError);
     });
+
     const errorStateOne = getCurrentState(responseOne);
     const errorStateTwo = getCurrentState(responseTwo);
 
@@ -162,7 +173,7 @@ describe("Basic useFetch hook usage", () => {
   });
 
   // Write smaller tests
-  it("should allow to use reducer actions to override only the local state and not affect other related hooks", async () => {
+  it("should allow to use reducer actions to override only the local state and not affect related hooks", async () => {
     const mock = interceptGetMany(200, 0);
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
@@ -185,8 +196,8 @@ describe("Basic useFetch hook usage", () => {
     const customStatus = 666;
     const customError: ErrorMockType = { message: "custom error" };
 
-    act(() => {
-      successStateOne.actions.setLoading(customLoading, false);
+    await act(async () => {
+      await successStateOne.actions.setLoading(customLoading, false);
     });
     const loadingStateOne = getCurrentState(responseOne);
     const loadingStateTwo = getCurrentState(responseTwo);
@@ -195,8 +206,8 @@ describe("Basic useFetch hook usage", () => {
       expect(loadingStateTwo.loading).toBe(successStateTwo.loading);
     });
 
-    act(() => {
-      successStateOne.actions.setData(customData, false);
+    await act(async () => {
+      await successStateOne.actions.setData(customData, false);
     });
     const dataStateOne = getCurrentState(responseOne);
     const dataStateTwo = getCurrentState(responseTwo);
@@ -205,8 +216,8 @@ describe("Basic useFetch hook usage", () => {
       expect(dataStateTwo.data).toBe(successStateTwo.data);
     });
 
-    act(() => {
-      successStateOne.actions.setStatus(customStatus, false);
+    await act(async () => {
+      await successStateOne.actions.setStatus(customStatus, false);
     });
     const statusStateOne = getCurrentState(responseOne);
     const statusStateTwo = getCurrentState(responseTwo);
@@ -215,8 +226,8 @@ describe("Basic useFetch hook usage", () => {
       expect(statusStateTwo.status).toBe(successStateTwo.status);
     });
 
-    act(() => {
-      successStateOne.actions.setError(customError, false);
+    await act(async () => {
+      await successStateOne.actions.setError(customError, false);
     });
     const errorStateOne = getCurrentState(responseOne);
     const errorStateTwo = getCurrentState(responseTwo);

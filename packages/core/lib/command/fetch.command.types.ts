@@ -8,19 +8,18 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 
 // Dump
 
-export type FetchCommandDump<ClientOptions> = Omit<
-  FetchCommandOptions<string, ClientOptions>,
-  "method" | "abortKey" | "cacheKey" | "queueKey"
-> & {
+export type FetchCommandDump<ClientOptions> = {
   commandOptions: FetchCommandOptions<string, ClientOptions>;
-  method: HttpMethodsType;
-  data?: unknown;
-  params?: any;
-  queryParams: ClientQueryParamsType | string | NegativeTypes;
-  abortKey: string;
-  cacheKey: string;
-  queueKey: string;
-  actions: string[];
+  values: Omit<FetchCommandOptions<string, ClientOptions>, "method" | "abortKey" | "cacheKey" | "queueKey"> & {
+    method: HttpMethodsType;
+    data?: unknown;
+    params?: any;
+    queryParams: ClientQueryParamsType | string | NegativeTypes;
+    abortKey: string;
+    cacheKey: string;
+    queueKey: string;
+    actions: string[];
+  };
 };
 
 // Command
@@ -34,7 +33,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   retryTime?: number;
   cache?: boolean;
   cacheTime?: number;
-  queued?: boolean;
+  concurrent?: boolean;
   deepEqual?: boolean;
   disableResponseInterceptors?: boolean;
   disableRequestInterceptors?: boolean;

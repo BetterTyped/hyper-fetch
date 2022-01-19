@@ -33,11 +33,19 @@ export type CacheSetDataType<Response, ErrorType> = {
 };
 
 // Storage
-export type CacheStorageType = {
+export type CacheStorageSyncType = {
   set: <DataType>(key: string, data: CacheValueType<DataType>) => void;
   get: <DataType>(key: string) => CacheStoreValueType<DataType> | undefined;
   delete: (key: string) => void;
   clear: () => void;
 };
+export type CacheStorageAsyncType = {
+  set: <DataType>(key: string, data: CacheValueType<DataType>) => Promise<void>;
+  get: <DataType>(key: string) => Promise<CacheStoreValueType<DataType> | undefined>;
+  delete: (key: string) => Promise<void>;
+  clear: () => Promise<void>;
+};
+
+export type CacheStorageType = CacheStorageSyncType | CacheStorageAsyncType;
 
 export type CacheInitialData = Record<CacheStoreKeyType, CacheStoreValueType>;

@@ -14,11 +14,11 @@ export type FetchActionConfig<T extends FetchCommandInstance> = {
     start?: (command: FetchCommandInstance) => void;
     success?: (response: ClientResponseSuccessType<ResponseType>, command: FetchCommandInstance) => void;
     error?: (
-      response: ClientResponseErrorType<ExtractError<T> & ExtractRequestError<T>>,
+      response: ClientResponseErrorType<ExtractError<T> | ExtractRequestError<T>>,
       command: FetchCommandInstance,
     ) => void;
     finished?: (
-      response: ClientResponseType<ResponseType, ExtractError<T> & ExtractRequestError<T>>,
+      response: ClientResponseType<ResponseType, ExtractError<T> | ExtractRequestError<T>>,
       command: FetchCommandInstance,
     ) => void;
   };

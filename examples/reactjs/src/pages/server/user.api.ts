@@ -1,5 +1,5 @@
 import { DateInterval, FetchCommandInstance } from "@better-typed/hyper-fetch";
-import { builder } from "pages/rest/server/builder";
+import { builder } from "pages/server/builder";
 import { PostUserModel, UserModel } from "models";
 import { rest, setupWorker } from "msw";
 import { getRandomUser, getRandomUsers } from "utils/users.utils";
@@ -22,6 +22,7 @@ export const postUser = builder.createCommand<UserModel, PostUserModel>()({
 export const patchUser = builder.createCommand<UserModel, PostUserModel>()({
   endpoint: "/api/user/:userId",
   method: "PATCH",
+  cancelable: true,
 });
 
 export const deleteUser = builder.createCommand()({
@@ -29,14 +30,20 @@ export const deleteUser = builder.createCommand()({
   method: "DELETE",
 });
 
+export const postQueue = builder.createCommand<{ response: string }, { id: number; name: string }>()({
+  endpoint: "/api/queue",
+  method: "POST",
+  concurrent: false,
+});
+
 // Mocks setup
-const getMock = (request: FetchCommandInstance, response: Record<string, any> | null) => {
+const getMock = (request: FetchCommandInstance, response: Record<string, any> | null, delay?: number) => {
   const { method, endpoint, builder } = request;
 
   const url = builder.baseUrl + endpoint;
 
   function callback(_req: any, res: any, ctx: any) {
-    return res(ctx.delay(), ctx.status(200), ctx.json(response || {}));
+    return res(ctx.delay(delay), ctx.status(200), ctx.json(response || {}));
   }
 
   if (method.toUpperCase() === "POST") {
@@ -55,11 +62,12 @@ const getMock = (request: FetchCommandInstance, response: Record<string, any> | 
 };
 
 const handlers = [
-  getMock(getUser, getRandomUser()),
-  getMock(getUsers, getRandomUsers()),
-  getMock(postUser, getRandomUser()),
-  getMock(patchUser, getRandomUser()),
+  getMock(getUser, getRandomUser(), DateInterval.second),
+  getMock(getUsers, getRandomUsers(), DateInterval.second),
+  getMock(postUser, getRandomUser(), DateInterval.second),
+  getMock(patchUser, getRandomUser(), DateInterval.second * 3),
   getMock(deleteUser, null),
+  getMock(postQueue, { response: "FROM QUEUE!" }, DateInterval.second),
 ];
 
 const restServer = setupWorker(...handlers);

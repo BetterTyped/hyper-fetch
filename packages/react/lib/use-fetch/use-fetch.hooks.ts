@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import {
@@ -26,7 +26,7 @@ import {
   UseFetchOptionsType,
   UseFetchReturnType,
 } from "./use-fetch.types";
-import { getCacheState, getUseFetchInitialData, isStaleCacheData } from "./use-fetch.utils";
+import { isStaleCacheData } from "./use-fetch.utils";
 import { useFetchDefaultOptions } from "./use-fetch.constants";
 
 // TBD - suspense
@@ -57,11 +57,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
   const { cache, fetchQueue, appManager, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useFetch")).current;
-  const initCacheState = useRef(getCacheState(cache.get(cacheKey), command.cache, cacheTime));
-  const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
-  const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(command, initState.current);
-  const [hasCacheData, setHasCacheData] = useState(!initialStale.current);
+  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -72,19 +68,17 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
 
-  const handleFetch = (isRefreshed = state.isRefreshed, isRevalidated = false) => {
-    const isStale = isStaleCacheData(cacheTime, state.timestamp);
-
+  const handleFetch = () => {
     /**
      * We can fetch when data is not stale or we don't have data at all
      * The exception is made for refreshing which should be triggered no matter if data is fresh or not
      * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
      */
-    if (!disabled && (isStale || !hasCacheData || isRefreshed || isRevalidated)) {
-      logger.debug(`Adding request to fetch queue`, { isRefreshed, isRevalidated });
-      fetchQueue.add(command, { isRefreshed, isRevalidated });
+    if (!disabled) {
+      logger.debug(`Adding request to fetch queue`);
+      fetchQueue.add(command);
     } else {
-      logger.debug(`Cannot add to fetch queue`, { isRefreshed, isRevalidated, disabled, isStale, hasCacheData });
+      logger.debug(`Cannot add to fetch queue`, { disabled });
     }
   };
 
@@ -93,21 +87,22 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
     const { timestamp } = state;
 
-    const timeLeft = timestamp ? Math.max(+timestamp + refreshTime - +new Date()) : 0;
+    const timeLeft = timestamp ? Math.max(+timestamp + refreshTime - +new Date(), refreshTime) : refreshTime;
 
     if (refresh) {
       logger.debug(`Starting refresh counter, request will be send in ${timeLeft}ms`);
-      refreshInterval.interval(() => {
-        const currentRequest = fetchQueue.get(queueKey);
+      refreshInterval.interval(async () => {
+        const currentRequest = await fetchQueue.get(queueKey);
         const isBlur = !command.builder.appManager.isFocused;
 
         // If window tab is not active should we refresh the cache
         const canRefreshBlurred = isBlur && refreshBlurred;
         const canRefresh = canRefreshBlurred || command.builder.appManager.isFocused;
+        const hasQueueElements = !!currentRequest.requests.length;
 
-        if (!currentRequest && canRefresh) {
-          logger.debug(`Performing refresh request`);
-          handleFetch(true, false);
+        if (!hasQueueElements && canRefresh) {
+          logger.info(`Performing refresh request`);
+          handleFetch();
           refreshInterval.resetInterval();
         }
       }, timeLeft);
@@ -138,27 +133,18 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
-    // When no initial data
-    if (!hasCacheData) {
-      const data = cache.get(cacheKey);
-      if (data) {
-        actions.setCacheData(data, false);
-        setHasCacheData(true);
-      }
-    }
-
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
     handleCallbacks([state.data, state.error, state.status]);
   };
 
-  const handleGetLoadingEvent = ({ isLoading, isRefreshed, isRetry, isRevalidated }: FetchLoadingEventType) => {
+  const handleGetLoadingEvent = ({ isLoading, isRetry }: FetchLoadingEventType) => {
     actions.setLoading(isLoading, false);
-    onRequestCallback.current?.({ isRefreshed, isRetry, isRevalidated });
+    onRequestCallback.current?.({ isRetry });
   };
 
   const handleRevalidate = () => {
-    handleFetch(false, true);
+    handleFetch();
   };
 
   const refreshFn = (invalidateKey?: string | FetchCommandInstance) => {
@@ -188,9 +174,9 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleMountEvents = () => {
-    const focusUnmount = appManager.events.onFocus(() => refreshOnTabFocus && handleFetch(true));
-    const blurUnmount = appManager.events.onBlur(() => refreshOnTabBlur && handleFetch(true));
-    const onlineUnmount = appManager.events.onOnline(() => refreshOnReconnect && handleFetch(true));
+    const focusUnmount = appManager.events.onFocus(() => refreshOnTabFocus && handleFetch());
+    const blurUnmount = appManager.events.onBlur(() => refreshOnTabBlur && handleFetch());
+    const onlineUnmount = appManager.events.onOnline(() => refreshOnReconnect && handleFetch());
 
     const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
     const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
@@ -235,29 +221,41 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
    * This allow to share the state with other hooks and keep it related
    */
   useDidMount(() => {
-    handleCallbacks(initState.current?.response);
+    if (revalidateOnMount || isStaleCacheData(cacheTime, state.timestamp)) {
+      handleFetch();
+    }
+
     handleDependencyTracking();
     return handleMountEvents();
   });
+  /**
+   * Initialization of the events related to data exchange with cache and queue
+   * This allow to share the state with other hooks and keep it related
+   */
+  useDidUpdate(
+    () => {
+      if (initialized) {
+        handleCallbacks([state.data, state.error, state.status]);
+      }
+    },
+    [initialized],
+    true,
+  );
 
   /**
    * Main fetching logic for mounting and updates handling
    */
-  useDidUpdate(
-    () => {
-      /**
-       * While debouncing we need to make sure that first request is not debounced when the cache is not available
-       * This way it will not wait for debouncing but fetch data right away
-       */
-      if (hasCacheData && debounce) {
-        requestDebounce.debounce(() => handleFetch(false, revalidateOnMount));
-      } else {
-        handleFetch(false, revalidateOnMount);
-      }
-    },
-    [...dependencies, disabled],
-    true,
-  );
+  useDidUpdate(() => {
+    /**
+     * While debouncing we need to make sure that first request is not debounced when the cache is not available
+     * This way it will not wait for debouncing but fetch data right away
+     */
+    if (!fetchQueue.requestCount && debounce) {
+      requestDebounce.debounce(() => handleFetch());
+    } else {
+      handleFetch();
+    }
+  }, [...dependencies, disabled]);
 
   useDidUpdate(
     () => {

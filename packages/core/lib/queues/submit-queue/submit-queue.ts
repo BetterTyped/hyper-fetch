@@ -1,160 +1,72 @@
 import EventEmitter from "events";
 
-import {
-  SubmitQueueStorageType,
-  SubmitQueueStoreKeyType,
-  SubmitQueueData,
-  getSubmitQueueEvents,
-  SubmitQueueDumpValueType,
-  SubmitQueueOptionsType,
-  RunningSubmitRequestValueType,
-} from "queues";
+import { getSubmitQueueEvents, QueueDumpValueType, QueueOptionsType, Queue } from "queues";
 import { FetchBuilder } from "builder";
 import { getUniqueRequestId } from "utils";
-import { LoggerMethodsType } from "managers";
 import { FetchCommandInstance, FetchCommand } from "command";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
-export class SubmitQueue<ErrorType, ClientOptions> {
+export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
   events = getSubmitQueueEvents(this.emitter);
 
-  logger: LoggerMethodsType;
-
-  storage: SubmitQueueStorageType<ClientOptions> = new Map<SubmitQueueStoreKeyType, SubmitQueueData<ClientOptions>>();
-
-  constructor(
-    private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private options?: SubmitQueueOptionsType<ErrorType, ClientOptions>,
-  ) {
-    this.logger = this.builder.loggerManager.init("Submit Queue");
-
-    if (this.options?.storage) {
-      this.storage = this.options.storage;
-    }
-
-    this.options?.onInitialization(this);
-
-    // Start all pending requests that were disabled since going offline
-    builder.appManager.events.onOnline(() => {
-      this.flushAll();
-    });
+  constructor(builder: FetchBuilder<ErrorType, ClientOptions>, options?: QueueOptionsType<ErrorType, ClientOptions>) {
+    super("Submit Queue", builder, options);
   }
 
-  private runningRequests = new Map<string, RunningSubmitRequestValueType[]>();
-
-  startQueue = async (queueKey: string) => {
-    // Change status to running
-    const queue = this.storage.get(queueKey);
-
-    // Start the queue when its stopped
-    if (queue) {
-      queue.stopped = false;
-      this.storage.set(queueKey, queue);
-    }
-
-    this.flush(queueKey);
-
-    this.logger.http(`Started queue`, { queueKey });
-  };
-
-  /**
-   * Pause request queue, but not cancel already started requests
-   * @param queueKey
-   */
-  pauseQueue = (queueKey: string) => {
-    // Change state to stopped
-    const queue = this.storage.get(queueKey);
-
-    if (queue) {
-      queue.stopped = true;
-      this.storage.set(queueKey, queue);
-
-      this.logger.http(`Paused queue`, { queueKey });
-    }
-  };
-
-  /**
-   * Stop request queue and cancel all started requests - those will be treated like not started
-   * @param queueKey
-   */
-  stopQueue = (queueKey: string) => {
-    // Change state to stopped
-    const queue = this.storage.get(queueKey);
-
-    if (queue) {
-      queue.stopped = true;
-      this.storage.set(queueKey, queue);
-
-      // Cancel running requests
-      this.runningRequests.get(queueKey)?.forEach((request) => request.command.abort());
-      this.runningRequests.set(queueKey, []);
-
-      this.logger.http(`Stopped queue`, { queueKey });
-    }
-  };
-
   add = async (command: FetchCommandInstance) => {
-    const { cancelable, queueKey, queued } = command;
-
-    const initialQueue: SubmitQueueData<ClientOptions> = {
-      stopped: false,
-      requests: [],
-    };
-    const queue = this.storage.get(queueKey) || initialQueue;
-    const runningRequests = this.runningRequests.get(queueKey) || [];
+    const { cancelable, queueKey, concurrent } = command;
+    const requestId = getUniqueRequestId(queueKey);
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
-    const queueElementDump: SubmitQueueDumpValueType<ClientOptions> = {
+    const queueElementDump: QueueDumpValueType<ClientOptions> = {
+      requestId,
       timestamp: +new Date(),
       commandDump: command.dump(),
       retries: 0,
     };
 
+    // Add to cache
+    const queue = await this.get(queueKey);
     queue.requests.push(queueElementDump);
-    this.storage.set(queueKey, queue);
+    this.set(queueKey, queue);
 
     this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
 
-    if (queued) {
-      this.logger.debug(`Performing one-by-one request`, { queueKey });
+    if (!concurrent) {
+      this.logger.info(`Performing one-by-one request`, { queueKey });
       // 1. One-by-one: if we setup request as one-by-one queue use queueing system
       this.flush(queueKey);
     } else {
-      // 2. Only last request
-      if (cancelable) {
-        this.logger.debug(`Performing cancelable request`, { queueKey });
-        // Cancel all previous requests
-        runningRequests.forEach((request) => request.command.abort());
-        this.runningRequests.set(queueKey, []);
-        // Request will be performed in 3. step
-      } else {
-        this.logger.debug(`Performing all-at-once request`, { queueKey });
-      }
-      // 3. All at once
       const requestCommand = new FetchCommand(
         this.builder,
         queueElementDump.commandDump.commandOptions,
-        queueElementDump.commandDump,
+        queueElementDump.commandDump.values,
       ) as FetchCommandInstance;
-      this.performRequest(queueKey, requestCommand, queueElementDump);
+      // 2. Only last request
+      if (cancelable) {
+        this.logger.info(`Performing cancelable request`, { queueKey });
+        // Cancel all previous requests
+        this.clearRunningRequests(queueKey);
+        // Request will be performed in 3. step
+        this.performRequest(requestCommand, queueElementDump);
+      }
+      // 3. All at once
+      else {
+        this.logger.info(`Performing all-at-once request`, { queueKey });
+        this.performRequest(requestCommand, queueElementDump);
+      }
     }
   };
 
-  performRequest = async (
-    queueKey: string,
-    requestCommand: FetchCommandInstance,
-    queueElement: SubmitQueueDumpValueType<ClientOptions>,
-    flush = false,
-  ) => {
-    const { cacheKey, retry, retryTime, cache } = requestCommand;
+  performRequest = async (requestCommand: FetchCommandInstance, queueElement: QueueDumpValueType<ClientOptions>) => {
+    const { cacheKey, retry, retryTime, cache, queueKey } = requestCommand;
     const { client } = this.builder;
-
-    const requestId = getUniqueRequestId(queueKey);
+    const { requestId } = queueElement;
 
     this.addRunningRequest(queueKey, requestId, requestCommand);
 
@@ -163,28 +75,29 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       isRetry: !!retry,
     });
 
-    this.logger.http(`Start request`, { requestId, queueKey });
+    this.logger.info(`Start request`, { requestId, queueKey });
 
+    this.incrementRequestCount(cacheKey);
     const response = await client(requestCommand);
 
-    this.logger.http(`Finished request`, { requestId, queueKey });
+    this.logger.info(`Finished request`, { response, requestId, queueKey });
 
-    const runningRequests = this.runningRequests.get(queueKey);
+    const runningRequests = this.getRunningRequests(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isCanceled = runningRequests && !runningRequests.find((req) => req.id === requestId);
-    const queue = this.storage.get(queueKey);
+    const queue = await this.get(queueKey);
     if ((!response[0] && queue?.stopped) || isCanceled) {
       if (isCanceled) {
         return this.logger.error(`Request canceled`, { requestId, queueKey });
       }
-      return this.logger.error(`Request failed in stopped queue submit-queue`, {
+      return this.logger.error(`Request failed in stopped queue`, {
         requestId,
         queueKey,
       });
     }
 
-    this.logger.debug(`Response send to cache from submit-queue`, {
+    this.logger.debug(`Response send to cache`, {
       requestId,
       queueKey,
       response,
@@ -196,30 +109,26 @@ export class SubmitQueue<ErrorType, ClientOptions> {
       response,
       retries: queueElement.retries,
       deepEqual: requestCommand.deepEqual,
-      isRefreshed: false,
+      isRefreshed: this.getRequestCount(cacheKey) > 1,
     });
+
+    this.deleteRunningRequest(queueKey, requestId);
 
     // When Successful remove it from running requests
     if (!response[1]) {
-      this.logger.debug(`Clearing request from fetch-queue`, { requestId, queueKey });
+      this.logger.debug(`Clearing request from queue`, { requestId, queueKey });
 
-      const requests = this.runningRequests.get(queueKey) || [];
-      this.storage.delete(queueKey);
-      this.runningRequests.set(
-        queueKey,
-        requests.filter((req) => req.id !== requestId),
-      );
+      this.deleteRequest(queueKey, requestId);
     }
     // Perform retry once request is failed
     else if ((typeof retry === "number" && queueElement.retries <= retry) || retry === true) {
-      this.logger.http(`Performing retry`, { requestId, queueKey });
+      this.logger.warning(`Performing retry`, { requestId, queueKey });
 
       setTimeout(async () => {
-        await this.performRequest(queueKey, requestCommand, {
+        await this.performRequest(requestCommand, {
           ...queueElement,
           retries: queueElement.retries + 1,
         });
-        if (flush) this.flush(queueKey);
       }, retryTime || 0);
     }
   };
@@ -230,8 +139,8 @@ export class SubmitQueue<ErrorType, ClientOptions> {
    * @returns
    */
   flush = async (queueKey: string) => {
-    const queue = this.storage.get(queueKey);
-    const runningRequests = this.runningRequests.get(queueKey);
+    const queue = await this.get(queueKey);
+    const runningRequests = this.getRunningRequests(queueKey);
     const queueElement = queue?.requests[0];
 
     const isStopped = queue && queue.stopped;
@@ -252,57 +161,27 @@ export class SubmitQueue<ErrorType, ClientOptions> {
     const requestCommand = new FetchCommand(
       this.builder,
       queueElement.commandDump.commandOptions,
-      queueElement.commandDump,
+      queueElement.commandDump.values,
     );
     // 2. Trigger Request
-    await this.performRequest(queueKey, requestCommand, queueElement, true);
+    await this.performRequest(requestCommand, queueElement);
     // 3. Take another task
     this.flush(queueKey);
   };
 
-  flushAll = () => {
+  flushAll = async () => {
     this.logger.debug(`Flushing all queues`);
 
-    const keys = this.storage.keys();
+    const keys = await this.getKeys();
 
     // eslint-disable-next-line no-restricted-syntax
-    for (const key of keys) {
-      const queueElementDump = this.storage.get(key);
+    for await (const key of keys) {
+      const queueElementDump = await this.get(key);
 
       if (queueElementDump) {
         this.flush(key);
       }
     }
-  };
-
-  shift = (queueKey: string) => {
-    const storedEntity = this.storage.get(queueKey);
-    if (storedEntity) {
-      storedEntity.requests.shift();
-      this.storage.set(queueKey, storedEntity);
-    }
-  };
-
-  get = (queueKey: string) => {
-    const storedEntity = this.storage.get(queueKey);
-
-    return storedEntity;
-  };
-
-  getQueue = (queueKey: string) => {
-    const storedEntity = this.storage.get(queueKey);
-    return storedEntity?.requests || [];
-  };
-
-  clear = () => {
-    this.runningRequests.forEach((requests) => requests.forEach((request) => request.command.abort()));
-    this.runningRequests.clear();
-    this.storage.clear();
-  };
-
-  private addRunningRequest = (queueKey: string, id: string, command: FetchCommandInstance) => {
-    const runningRequests = this.runningRequests.get(queueKey) || [];
-    this.runningRequests.set(queueKey, [...runningRequests, { id, command }]);
   };
 }
 

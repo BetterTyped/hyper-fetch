@@ -6,7 +6,7 @@ import {
   FetchBuilderInstance,
 } from "builder";
 import { Cache, isEqual } from "cache";
-import { AppManager, CommandManager, LoggerManager } from "managers";
+import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
@@ -72,6 +72,11 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     return this;
   };
 
+  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, ClientOptions> => {
+    this.loggerManager.setLevels(levels);
+    return this;
+  };
+
   setLogger = (callback: (builder: FetchBuilderInstance) => LoggerManager): FetchBuilder<ErrorType, ClientOptions> => {
     this.loggerManager = callback(this);
     return this;
@@ -110,10 +115,10 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   };
 
   clear = () => {
+    this.commandManager.abortControllers.clear();
     this.cache.clear();
     this.fetchQueue.clear();
     this.submitQueue.clear();
-    this.commandManager.abortControllers.clear();
 
     this.commandManager.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();

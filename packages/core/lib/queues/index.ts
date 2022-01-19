@@ -1,3 +1,6 @@
+export * from "./__queue/queue";
+export * from "./__queue/queue.types";
+
 export * from "./submit-queue/submit-queue";
 export * from "./submit-queue/submit-queue.events";
 export * from "./submit-queue/submit-queue.types";

@@ -10,6 +10,10 @@ export class LoggerManager {
     this.levels = this.options?.levels || ["error", "warning", "http", "http", "info", "debug"];
   }
 
+  setLevels = (levels: LoggerLevelType[]) => {
+    this.levels = levels;
+  };
+
   init = (module: string): LoggerMethodsType => {
     return {
       error: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {

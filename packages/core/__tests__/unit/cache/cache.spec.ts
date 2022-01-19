@@ -25,11 +25,11 @@ describe("Cache", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should initialize cache", async () => {
-      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
 
-      cacheInstance.set(response);
+      await cacheInstance.set(response);
 
-      expect(cacheInstance.get(cacheKey)).toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should delete cache and send signal", async () => {
@@ -39,13 +39,13 @@ describe("Cache", () => {
         trigger();
       });
 
-      cacheInstance.set(response);
-      expect(cacheInstance.get(cacheKey)).toBeDefined();
+      await cacheInstance.set(response);
+      expect(await cacheInstance.get(cacheKey)).toBeDefined();
 
-      cacheInstance.delete(cacheKey);
+      await cacheInstance.delete(cacheKey);
 
       expect(trigger).toBeCalled();
-      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
     });
   });
 
@@ -57,12 +57,12 @@ describe("Cache", () => {
         trigger();
       });
 
-      cacheInstance.set(response);
-      cacheInstance.set(response);
-      cacheInstance.set(response);
+      await cacheInstance.set(response);
+      await cacheInstance.set(response);
+      await cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(1);
-      expect(cacheInstance.get(cacheKey)).toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should write data when cache is empty or gets deleted", async () => {
@@ -72,22 +72,22 @@ describe("Cache", () => {
         trigger();
       });
 
-      cacheInstance.set(response);
-      cacheInstance.delete(cacheKey);
-      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
-      cacheInstance.set(response);
-      cacheInstance.delete(cacheKey);
-      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
-      cacheInstance.set(response);
+      await cacheInstance.set(response);
+      await cacheInstance.delete(cacheKey);
+      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
+      await cacheInstance.set(response);
+      await cacheInstance.delete(cacheKey);
+      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
+      await cacheInstance.set(response);
 
       expect(trigger).toBeCalledTimes(3);
-      expect(cacheInstance.get(cacheKey)).toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).toBeDefined();
     });
 
     it("should allow to disable deep comparison when saving data", async () => {
-      cacheInstance.set({ ...response });
+      await cacheInstance.set({ ...response });
 
-      expect(cacheInstance.get(cacheKey)).toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).toBeDefined();
     });
   });
 
@@ -99,10 +99,10 @@ describe("Cache", () => {
         trigger();
       });
 
-      cacheInstance.clear();
+      await cacheInstance.clear();
 
       expect(trigger).toBeCalledTimes(0);
-      expect(cacheInstance.get(cacheKey)).not.toBeDefined();
+      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
     });
   });
 });

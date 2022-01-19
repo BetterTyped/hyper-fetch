@@ -40,24 +40,26 @@ export class Cache<ErrorType, ClientOptions> {
     this.options?.onInitialization(this);
 
     if (this.options?.initialData) {
-      Object.keys(this.options.initialData).forEach((key) => {
-        if (!this.storage.get(key) && this.options?.initialData?.[key]) {
-          this.storage.set(key, this.options?.initialData[key]);
+      Object.keys(this.options.initialData).forEach(async (key) => {
+        const value = await this.storage.get(key);
+        if (!value && this.options?.initialData?.[key]) {
+          await this.storage.set(key, this.options?.initialData[key]);
         }
       });
     }
   }
 
-  set = <Response>({
-    cache,
-    cacheKey,
-    response,
-    retries = 0,
-    deepEqual = true,
-    isRefreshed = false,
-    timestamp = +new Date(),
-  }: CacheSetDataType<Response, ErrorType>): void => {
-    const cachedData = this.storage.get(cacheKey);
+  set = async <Response>(data: CacheSetDataType<Response, ErrorType>): Promise<void> => {
+    const {
+      cache,
+      cacheKey,
+      response,
+      retries = 0,
+      deepEqual = true,
+      isRefreshed = false,
+      timestamp = +new Date(),
+    } = data;
+    const cachedData = await this.storage.get(cacheKey);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
     // Keeping it in separate location let us to handle refreshing errors in different ways
@@ -71,15 +73,7 @@ export class Cache<ErrorType, ClientOptions> {
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      this.logger.debug(`Only emitting payload as command was not for save to cache`, {
-        cache,
-        cacheKey,
-        response,
-        isRefreshed,
-        retries,
-        timestamp,
-        deepEqual,
-      });
+      this.logger.debug(`Only emitting payload as command was not for save to cache`, data);
 
       return this.events.set<Response>(cacheKey, newData);
     }
@@ -92,22 +86,23 @@ export class Cache<ErrorType, ClientOptions> {
 
     // Cache response emitter to provide optimization for libs(re-rendering)
     if (!equal) {
-      this.logger.debug(`Setting new data to cache, emitting setter event...`);
-      this.storage.set(cacheKey, newData);
+      this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
+      await this.storage.set(cacheKey, newData);
       this.events.set<Response>(cacheKey, newData);
     } else {
-      this.logger.debug(`Cached data was equal to previous values, emitting update event...`);
+      this.logger.debug(`Cached data was equal to previous values, emitting update event...`, data);
       this.events.setEqualData(cacheKey, isRefreshed, timestamp);
     }
   };
 
-  get = <Response>(cacheKey: string): CacheValueType<Response> | undefined => {
+  get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {
     const cachedData = this.storage.get<Response>(cacheKey);
     return cachedData;
   };
 
-  getResponses = <Response>(cacheKey: string): CacheStoreValueType<Response> | undefined => {
-    return this.storage.get(cacheKey) as CacheStoreValueType<Response>;
+  getResponses = async <Response>(cacheKey: string): Promise<CacheStoreValueType<Response> | undefined> => {
+    const responses = await this.storage.get(cacheKey);
+    return responses as CacheStoreValueType<Response>;
   };
 
   delete = (cacheKey: string): void => {

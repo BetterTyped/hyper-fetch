@@ -5,7 +5,7 @@ import { FetchCommand, FetchCommandInstance } from "command";
 export type ClientType<ErrorType, ClientOptions> = <RequestErrorType = undefined>(
   command: FetchCommand<any, any, any, ErrorType, RequestErrorType, any, ClientOptions, any, any, any>,
   options?: FetchClientOptions,
-) => Promise<ClientResponseType<any, ErrorType & RequestErrorType>>;
+) => Promise<ClientResponseType<any, ErrorType | RequestErrorType>>;
 
 export type FetchClientXHR = Partial<XMLHttpRequest>;
 export type FetchClientOptions = {

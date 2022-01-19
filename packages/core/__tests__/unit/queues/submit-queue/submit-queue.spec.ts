@@ -5,7 +5,7 @@ import { getAbortController } from "command";
 import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
 
-const { queueKey, cacheKey } = getManyRequest;
+const { cacheKey } = getManyRequest;
 
 describe("Basic submitQueue usage", () => {
   beforeAll(() => {
@@ -32,13 +32,6 @@ describe("Basic submitQueue usage", () => {
 
       testBuilder.submitQueue.add(getManyRequest);
 
-      const queue = testBuilder.submitQueue.getQueue(queueKey);
-      const queueElement = queue?.[0];
-
-      expect(queueElement?.commandDump).toEqual(getManyRequest.dump());
-      expect(queueElement?.retries).toBe(0);
-      expect(queue?.length).toBe(1);
-
       await waitFor(() => {
         expect(cacheTrigger).toBeCalledTimes(1);
       });
@@ -63,24 +56,6 @@ describe("Basic submitQueue usage", () => {
         expect(trigger).toBeCalledTimes(1);
       });
       controller.signal.removeEventListener("abort", cancelTrigger);
-    });
-
-    it("should queue requests", async () => {
-      interceptGetMany(200);
-      const request = getManyRequest.setQueued(true);
-
-      testBuilder.submitQueue.add(request);
-      testBuilder.submitQueue.add(request);
-
-      const queue = testBuilder.submitQueue.getQueue(queueKey);
-      const firstQueueElement = queue?.[0];
-      const secondQueueElement = queue?.[1];
-
-      expect(firstQueueElement?.commandDump).toEqual(request.dump());
-      expect(firstQueueElement?.retries).toBe(0);
-      expect(secondQueueElement?.commandDump).toEqual(request.dump());
-      expect(secondQueueElement?.retries).toBe(0);
-      expect(queue?.length).toBe(2);
     });
   });
 });

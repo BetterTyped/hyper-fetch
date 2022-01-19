@@ -41,6 +41,8 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   // "Trigger" Action lifecycle
   actions.forEach((action) => action.onTrigger(command));
 
+  const abort = () => xhr.abort();
+
   return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
     requestStartTimestamp = +new Date();
     responseStartTimestamp = null;
@@ -51,7 +53,7 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
     xhr.open(method, url, true);
 
     setClientHeaders(commandInstance, xhr, options?.headerMapper);
-    getAbortController(command)?.signal.addEventListener("abort", xhr.abort);
+    getAbortController(command)?.signal.addEventListener("abort", abort);
     logger.debug(`Request setup finished`);
 
     // Request listeners
@@ -122,11 +124,11 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
       } else {
         handleClientError(commandInstance, actions, resolve, event);
       }
-      getAbortController(command)?.signal.removeEventListener("abort", xhr.abort);
+      getAbortController(command)?.signal.removeEventListener("abort", abort);
     };
 
-    logger.debug(`Starting request`);
     // Send request
+    logger.debug(`Starting request`);
     xhr.send(getClientPayload(data));
 
     // "Start" Action lifecycle

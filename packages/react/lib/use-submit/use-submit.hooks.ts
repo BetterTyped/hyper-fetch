@@ -21,7 +21,7 @@ import {
   OnProgressCallbackType,
 } from "./use-submit.types";
 import { useSubmitDefaultOptions } from "./use-submit.constants";
-import { getCacheState, getUseFetchInitialData, isStaleCacheData } from "../use-fetch/use-fetch.utils";
+import { isStaleCacheData } from "../use-fetch/use-fetch.utils";
 import { useDependentState } from "../use-dependent-state/use-dependent-state.hooks";
 
 export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
@@ -29,7 +29,6 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
   {
     disabled = useSubmitDefaultOptions.disabled,
     dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
-    cacheOnMount = useSubmitDefaultOptions.cacheOnMount,
     initialData = useSubmitDefaultOptions.initialData,
     // debounce = useSubmitDefaultOptions.debounce,
     // debounceTime = useSubmitDefaultOptions.debounceTime,
@@ -43,10 +42,7 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
   // const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const initCacheState = useRef(getCacheState(cache.get(cacheKey), cacheOnMount, cacheTime));
-  const initialStale = useRef(isStaleCacheData(cacheTime, initCacheState.current?.timestamp));
-  const initState = useRef(initialStale.current ? getUseFetchInitialData<T>(initialData) : initCacheState.current);
-  const [state, actions, setRenderKey] = useDependentState<T>(command, initState.current);
+  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);

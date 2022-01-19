@@ -45,7 +45,7 @@ export class FetchCommand<
   retryTime: number;
   cache: boolean;
   cacheTime: number;
-  queued: boolean;
+  concurrent: boolean;
   deepEqual: boolean;
 
   abortKey: string;
@@ -63,7 +63,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType & RequestErrorType,
+      ErrorType | RequestErrorType,
       EndpointType,
       ClientOptions
     >,
@@ -74,7 +74,7 @@ export class FetchCommand<
     const {
       endpoint,
       headers,
-      auth,
+      auth = false,
       method = HttpMethodsEnum.get,
       options,
       cancelable = false,
@@ -82,7 +82,7 @@ export class FetchCommand<
       retryTime = 500,
       cache = true,
       cacheTime = DateInterval.minute * 5,
-      queued = true,
+      concurrent = true,
       deepEqual = true,
       abortKey,
       cacheKey,
@@ -102,10 +102,10 @@ export class FetchCommand<
     this.retryTime = current?.retryTime || retryTime;
     this.cache = current?.cache || cache;
     this.cacheTime = current?.cacheTime || cacheTime;
-    this.queued = current?.queued || queued;
+    this.concurrent = current?.concurrent || concurrent;
     this.deepEqual = current?.deepEqual || deepEqual;
 
-    this.abortKey = current?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint);
+    this.abortKey = current?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
     this.cacheKey = current?.cacheKey || cacheKey || getCommandKey(this);
     this.queueKey = current?.queueKey || queueKey || getCommandKey(this);
 
@@ -158,8 +158,8 @@ export class FetchCommand<
     return this.clone({ cacheTime });
   };
 
-  public setQueued = (queued: boolean) => {
-    return this.clone({ queued });
+  public setConcurrent = (concurrent: boolean) => {
+    return this.clone({ concurrent });
   };
 
   public setAbortKey = (abortKey: string) => {
@@ -205,27 +205,28 @@ export class FetchCommand<
   public dump(): FetchCommandDump<ClientOptions> {
     return {
       commandOptions: this.commandOptions,
+      values: {
+        endpoint: this.endpoint,
+        headers: this.headers,
+        auth: this.auth,
+        method: this.method,
+        params: this.params,
+        data: this.data,
+        queryParams: this.queryParams,
+        options: this.options,
+        cancelable: this.cancelable,
+        retry: this.retry,
+        retryTime: this.retryTime,
+        cache: this.cache,
+        cacheTime: this.cacheTime,
+        concurrent: this.concurrent,
+        deepEqual: this.deepEqual,
 
-      endpoint: this.endpoint,
-      headers: this.headers,
-      auth: this.auth,
-      method: this.method,
-      params: this.params,
-      data: this.data,
-      queryParams: this.queryParams,
-      options: this.options,
-      cancelable: this.cancelable,
-      retry: this.retry,
-      retryTime: this.retryTime,
-      cache: this.cache,
-      cacheTime: this.cacheTime,
-      queued: this.queued,
-      deepEqual: this.deepEqual,
-
-      abortKey: this.abortKey,
-      cacheKey: this.cacheKey,
-      queueKey: this.queueKey,
-      actions: this.actions,
+        abortKey: this.abortKey,
+        cacheKey: this.cacheKey,
+        queueKey: this.queueKey,
+        actions: this.actions,
+      },
     };
   }
 
@@ -234,7 +235,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType & RequestErrorType,
+      ErrorType | RequestErrorType,
       EndpointType,
       ClientOptions
     >,
@@ -250,15 +251,16 @@ export class FetchCommand<
     P,
     Q
   > {
+    const dump = this.dump();
     const currentOptions: DefaultOptionsType<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType & RequestErrorType,
+      ErrorType | RequestErrorType,
       EndpointType,
       ClientOptions
     > = {
-      ...this.dump(),
+      ...dump.values,
       ...options,
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
@@ -290,7 +292,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType & RequestErrorType,
+    ErrorType | RequestErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -302,7 +304,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType & RequestErrorType,
+        ErrorType | RequestErrorType,
         EndpointType,
         ClientOptions
       >,
@@ -319,7 +321,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType & RequestErrorType,
+    ErrorType | RequestErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -342,7 +344,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType & RequestErrorType,
+        ErrorType | RequestErrorType,
         EndpointType,
         ClientOptions
       >,
@@ -354,8 +356,8 @@ export class FetchCommand<
     const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
     const queue = isFetchQueue ? fetchQueue : submitQueue;
 
-    return new Promise<ClientResponseType<ResponseType, ErrorType & RequestErrorType>>((resolve) => {
-      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType & RequestErrorType>(
+    return new Promise<ClientResponseType<ResponseType, ErrorType | RequestErrorType>>((resolve) => {
+      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType | RequestErrorType>(
         command.cacheKey,
         (response) => {
           unmount();

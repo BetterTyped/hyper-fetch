@@ -1,14 +1,15 @@
 import { renderHook } from "@testing-library/react-hooks/dom";
+import { FetchCommandInstance } from "@better-typed/hyper-fetch";
+import { waitFor } from "@testing-library/react";
 
 import { useFetch } from "use-fetch";
-import { FetchCommandInstance } from "@better-typed/hyper-fetch";
 import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
 import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
 import { getCurrentState } from "../../utils/utils/state.utils";
 import { testFetchErrorState, testFetchSuccessState } from "../../shared/fetch.tests";
 import { sleep } from "../../utils/utils";
 
-const request = getManyRequest.setRetry(1).setRetryTime(200);
+const request = getManyRequest.setRetry(1).setRetryTime(100);
 const requestNoRetry = getManyRequest.setRetry(false);
 
 const renderGetManyHook = (req: FetchCommandInstance = request) =>
@@ -53,7 +54,9 @@ describe("useFetch hook retry logic", () => {
     testFetchErrorState(mock, responseTwo);
   });
 
-  it("should retry request after 200ms", async () => {
+  it("should retry request after 100ms", async () => {
+    testBuilder.setDebug(true);
+
     const mock = interceptGetMany(400);
 
     const responseOne = renderGetManyHook();
@@ -69,8 +72,8 @@ describe("useFetch hook retry logic", () => {
     resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
-    await responseOne.waitForValueToChange(() => {
-      return Boolean(getCurrentState(responseOne).data);
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(refreshMock, responseOne);

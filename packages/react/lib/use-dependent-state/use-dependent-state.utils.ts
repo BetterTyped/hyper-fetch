@@ -1,4 +1,11 @@
-import { CacheValueType, NullableType, FetchCommandInstance } from "@better-typed/hyper-fetch";
+import {
+  CacheValueType,
+  NullableType,
+  FetchCommandInstance,
+  ClientResponseType,
+  ExtractResponse,
+  ExtractError,
+} from "@better-typed/hyper-fetch";
 
 import { initialState } from "./use-dependent-state.constants";
 
@@ -20,3 +27,15 @@ export const getInitialDependentStateData = (
   isFocused: command.builder.appManager.isFocused,
   loading: !!command.builder.fetchQueue.get(command.queueKey) || initialState.loading,
 });
+
+export const transformDataToCacheValue = <T>(
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+): NullableType<CacheValueType> => {
+  if (!initialData) return null;
+  return {
+    response: initialData,
+    retries: 0,
+    timestamp: +new Date(),
+    isRefreshed: false,
+  };
+};

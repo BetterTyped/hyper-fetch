@@ -64,8 +64,8 @@ export const getAbortController = (command: FetchCommandInstance) => {
 };
 
 // Keys
-export const getAbortKey = (method: string, baseUrl: string, endpoint: string): string => {
-  return `${method}_${baseUrl}${endpoint}`;
+export const getAbortKey = (method: string, baseUrl: string, endpoint: string, cancelable: boolean): string => {
+  return `${method}_${baseUrl}${endpoint}_${cancelable}`;
 };
 
 /**
@@ -92,6 +92,13 @@ export const getCommandKey = (
    * params: string;
    */
 
+  if ("values" in command) {
+    const methodKey = stringify(command.values.method);
+    const endpointKey = stringify(command.values.endpoint);
+    const queryParamsKey = stringify(command.values.queryParams);
+
+    return `${methodKey}_${endpointKey}_${queryParamsKey}`;
+  }
   const methodKey = stringify(command.method);
   const endpointKey = stringify(command.endpoint);
   const queryParamsKey = stringify(command.queryParams);

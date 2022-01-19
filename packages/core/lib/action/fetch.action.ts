@@ -19,10 +19,10 @@ export class FetchAction<T extends FetchCommandInstance> {
   onSuccess = (response: ClientResponseSuccessType<ResponseType>, command: T) => {
     this.config.on.success?.(response, command);
   };
-  onError = (response: ClientResponseErrorType<ExtractError<T> & ExtractRequestError<T>>, command: T) => {
+  onError = (response: ClientResponseErrorType<ExtractError<T> | ExtractRequestError<T>>, command: T) => {
     this.config.on.error?.(response, command);
   };
-  onFinished = (response: ClientResponseType<ResponseType, ExtractError<T> & ExtractRequestError<T>>, command: T) => {
+  onFinished = (response: ClientResponseType<ResponseType, ExtractError<T> | ExtractRequestError<T>>, command: T) => {
     this.config.on.finished?.(response, command);
   };
 }
