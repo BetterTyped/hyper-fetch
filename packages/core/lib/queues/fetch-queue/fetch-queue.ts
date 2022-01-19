@@ -8,6 +8,7 @@ import {
   FetchQueueStorageType,
   getIsEqualTimestamp,
   RunningFetchRequestValueType,
+  canRetryRequest,
 } from "queues";
 import { FetchBuilder } from "builder";
 import { FetchCommandInstance, FetchCommand } from "command";
@@ -129,7 +130,6 @@ export class FetchQueue<ErrorType, ClientOptions> {
     // Or when the request was aborted/canceled
     const isCanceled = runningRequest && runningRequest.id !== requestId;
     const failed = !!response[1];
-    const canRetry = retry === true || queueElement.retries <= (retry || 0);
 
     this.deleteRunningRequest(queueKey);
 
@@ -155,7 +155,7 @@ export class FetchQueue<ErrorType, ClientOptions> {
       isRefreshed: isRefreshed || isRevalidated,
     });
 
-    if (failed && canRetry) {
+    if (failed && canRetryRequest(queueElement.retries, retry)) {
       this.builder.logger.http("Fetch Queue", `Performing retry`, {
         requestId,
         queueKey,
