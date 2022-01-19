@@ -53,6 +53,7 @@ export class FetchCommand<
   queueKey: string;
   actions: string[] = [];
   disabled: boolean;
+  used: boolean;
 
   private logger: LoggerMethodsType;
 
@@ -111,6 +112,7 @@ export class FetchCommand<
 
     this.actions = current?.actions || [];
     this.disabled = current?.disabled || false;
+    this.used = current?.used || false;
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -179,6 +181,10 @@ export class FetchCommand<
     return this.clone({ disabled });
   };
 
+  public setUsed = (used: boolean) => {
+    return this.clone({ used });
+  };
+
   public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
     const actionName = typeof action === "string" ? action : action?.getName();
     const actions = [...this.actions, actionName];
@@ -232,6 +238,7 @@ export class FetchCommand<
         queueKey: this.queueKey,
         actions: this.actions,
         disabled: this.disabled,
+        used: this.used,
       },
     };
   }

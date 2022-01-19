@@ -20,6 +20,7 @@ export type FetchCommandDump<ClientOptions> = {
     queueKey: string;
     actions: string[];
     disabled: boolean;
+    used: boolean;
   };
 };
 
@@ -43,6 +44,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   cacheKey?: string;
   queueKey?: string;
   disabled?: boolean;
+  used?: boolean;
 };
 
 export type DefaultOptionsType<
