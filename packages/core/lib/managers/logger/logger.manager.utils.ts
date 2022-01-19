@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { loggerStyles, LoggerType } from "managers";
+import { loggerStyles, emojiLevel, LoggerType } from "managers";
 
 const getTime = () => {
   const d = new Date();
@@ -10,10 +10,12 @@ const getTime = () => {
 // Logger
 export const logger: LoggerType = (log) => {
   const styles = loggerStyles[log.level];
-  const module = `%c[${log.module}]:[${getTime()}]:`;
-  console.log(module, styles, log.message);
+  const emoji = emojiLevel[log.level];
+  const module = `%c[${emoji} ${log.module}]:[${getTime()}]:`;
+  const message = `${module} ${log.message}`;
+  console.log(message, styles);
   if (log.additionalData) {
-    console.groupCollapsed(`${module}Details`);
+    console.groupCollapsed(`${module}Details`, "font-weight: bold");
     log.additionalData.forEach((data) => {
       console.log(data);
     });

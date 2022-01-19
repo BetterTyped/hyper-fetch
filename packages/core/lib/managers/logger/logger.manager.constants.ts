@@ -9,3 +9,11 @@ export const loggerStyles: Record<LoggerLevelType, string> = {
   info: `${defaultStyles}color:#1e74e1`,
   debug: `${defaultStyles}color:#adadad`,
 };
+
+export const emojiLevel: Record<LoggerLevelType, string> = {
+  error: `🚨`,
+  warning: `🚧`,
+  http: `🚀`,
+  info: `ℹ️`,
+  debug: `🛩️`,
+};
