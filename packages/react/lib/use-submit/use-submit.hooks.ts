@@ -95,14 +95,14 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+    handleCallbacks(cacheData.response); // Must be first
     actions.setCacheData(cacheData, false);
-    handleCallbacks(cacheData.response);
   };
 
   const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
+    handleCallbacks([state.data, state.error, state.status]); // Must be first
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
-    handleCallbacks([state.data, state.error, state.status]);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: SubmitLoadingEventType) => {
