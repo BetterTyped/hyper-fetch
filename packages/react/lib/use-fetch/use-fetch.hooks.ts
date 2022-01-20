@@ -128,14 +128,14 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
   };
 
   const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    actions.setCacheData(cacheData, false);
     handleCallbacks(cacheData.response);
+    actions.setCacheData(cacheData, false);
   };
 
   const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
+    handleCallbacks([state.data, state.error, state.status]);
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
-    handleCallbacks([state.data, state.error, state.status]);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: FetchLoadingEventType) => {
