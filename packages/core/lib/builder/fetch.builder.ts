@@ -136,7 +136,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
     let newCommand = command;
     if (!command.commandOptions.disableRequestInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
-      for await (const interceptor of this.__onRequestCallbacks) {
+      for await (const interceptor of this.__onAuthCallbacks) {
         newCommand = (await interceptor(command)) as FetchCommandInstance;
         if (!newCommand) throw new Error("Auth request modifier must return command");
       }

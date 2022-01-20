@@ -188,4 +188,19 @@ describe("Basic FetchCommand usage", () => {
 
     expect(command.endpoint).toBe(expectedEndpoint);
   });
+
+  it("should set headers to command", async () => {
+    const headers = { Authorization: "123" };
+
+    const endpoint = "/some-endpoint/1/2";
+
+    const builder = new FetchBuilder({ baseUrl: "/some-url" }).build();
+    const command = builder
+      .createCommand<any, any>()({
+        endpoint,
+      })
+      .setHeaders(headers);
+
+    expect(command.headers).toBe(headers);
+  });
 });

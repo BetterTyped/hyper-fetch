@@ -65,11 +65,18 @@ describe("FetchBuilder", () => {
     });
 
     it("should call the methods", async () => {
+      const headersCall = jest.fn();
       const errorCall = jest.fn();
       const requestCall = jest.fn();
       const responseCall = jest.fn();
 
+      const testHeaders = { Auth: "test" };
+
       const builder = new FetchBuilder({ baseUrl })
+        .onAuth((command) => {
+          headersCall(command);
+          return command.setHeaders(testHeaders);
+        })
         .onError((error) => {
           errorCall(error);
           return error;
@@ -92,6 +99,9 @@ describe("FetchBuilder", () => {
 
       await command.send();
 
+      expect((await builder.__modifyAuth(command)).headers).toBe(testHeaders);
+      expect(headersCall.mock.calls[0][0] instanceof FetchCommand).toBeTruthy();
+      expect(headersCall.mock.calls[0][0] instanceof FetchCommand).toBeTruthy();
       expect(errorCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);
       expect(errorCall.mock.calls[0][0]).toEqual([null, { message: "Error" }, 400]);
       expect(requestCall.mock.calls[0][0] instanceof FetchCommand).toBeTruthy();
