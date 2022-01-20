@@ -7,7 +7,7 @@ export class LoggerManager {
 
   constructor(private builder: FetchBuilderInstance, private options?: LoggerOptionsType) {
     this.logger = this.options?.logger || logger;
-    this.levels = this.options?.levels || ["error", "warning", "http", "http", "info", "debug"];
+    this.levels = this.options?.levels || ["error", "warning", "http", "info"];
   }
 
   setLevels = (levels: LoggerLevelType[]) => {

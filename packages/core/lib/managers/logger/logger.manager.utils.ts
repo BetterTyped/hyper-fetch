@@ -13,12 +13,14 @@ export const logger: LoggerType = (log) => {
   const emoji = emojiLevel[log.level];
   const module = `%c[${log.module}]:[${getTime()}]:`;
   const message = `${emoji}${module} ${log.message}`;
-  console.log(message, styles);
+
   if (log.additionalData?.length) {
-    console.groupCollapsed(`${module} Inspect Details`, "font-weight: bold");
+    console.groupCollapsed(message, styles);
     log.additionalData.forEach((data) => {
       console.log(data);
     });
     console.groupEnd();
+  } else {
+    console.log(message, styles);
   }
 };
