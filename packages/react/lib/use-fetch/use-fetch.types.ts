@@ -10,7 +10,7 @@ import {
 
 import { UseDependentStateActions, UseDependentStateType } from "../use-dependent-state/use-dependent-state.types";
 
-export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> = {
+export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   dependencies?: any[];
   disabled?: boolean;
   dependencyTracking?: boolean;
@@ -26,14 +26,13 @@ export type UseFetchOptionsType<T extends FetchCommandInstance, MapperResponse> 
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
-  responseDataModifierFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
 };
 
-export type UseFetchReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
+export type UseFetchReturnType<T extends FetchCommandInstance> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data"
 > & {
-  data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
+  data: null | ExtractResponse<T>;
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
   onRequest: (callback: OnRequestCallbackType) => void;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;

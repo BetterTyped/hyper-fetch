@@ -7,6 +7,13 @@
   "include": ["./lib", "./__tests__"],
   "paths": {
     "tests": ["./__tests__/*"],
-    "lib": ["./lib/*"]
+    "lib": ["./lib/*"],
+    "use-cache/*": ["use-cache/*"],
+    "use-debounce/*": ["use-debounce/*"],
+    "use-dependent-state/*": ["use-dependent-state/*"],
+    "use-fetch/*": ["use-fetch/*"],
+    "use-interval/*": ["use-interval/*"],
+    "use-queue/*": ["use-queue/*"],
+    "use-submit/*": ["use-submit/*"]
   }
 }

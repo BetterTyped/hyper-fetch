@@ -10,6 +10,7 @@ import {
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
+import { useDebounce } from "use-debounce/use-debounce.hooks";
 import {
   UseSubmitOptionsType,
   UseSubmitReturnType,
@@ -24,25 +25,24 @@ import { useSubmitDefaultOptions } from "./use-submit.constants";
 import { isStaleCacheData } from "../use-fetch/use-fetch.utils";
 import { useDependentState } from "../use-dependent-state/use-dependent-state.hooks";
 
-export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
+export const useSubmit = <T extends FetchCommandInstance>(
   command: T,
   {
     disabled = useSubmitDefaultOptions.disabled,
     dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
     initialData = useSubmitDefaultOptions.initialData,
-    // debounce = useSubmitDefaultOptions.debounce,
-    // debounceTime = useSubmitDefaultOptions.debounceTime,
+    debounce = useSubmitDefaultOptions.debounce,
+    debounceTime = useSubmitDefaultOptions.debounceTime,
     // suspense = useSubmitDefaultOptions.suspense,
     // invalidate = useSubmitDefaultOptions.invalidate,
     shouldThrow = useSubmitDefaultOptions.shouldThrow,
-    responseDataModifierFn = useSubmitDefaultOptions.responseDataModifierFn,
-  }: UseSubmitOptionsType<T, MapperResponse> = useSubmitDefaultOptions,
-): UseSubmitReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
+  }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
+): UseSubmitReturnType<T> => {
   const { cacheTime, cacheKey, queueKey, builder } = command;
-  // const requestDebounce = useDebounce(debounceTime);
+  const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData);
+  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData, submitQueue);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -70,7 +70,12 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
 
     if (!disabled) {
       logger.debug(`Adding request to submit queue`, { disabled, options });
-      submitQueue.add(request);
+
+      if (debounce) {
+        requestDebounce.debounce(() => submitQueue.add(request));
+      } else {
+        submitQueue.add(request);
+      }
     } else {
       logger.debug(`Cannot add to submit queue`, { disabled, options });
     }
@@ -94,15 +99,17 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     }
   };
 
-  const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     handleCallbacks(cacheData.response); // Must be first
     actions.setCacheData(cacheData, false);
+    actions.setLoading(false, false);
   };
 
   const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
     handleCallbacks([state.data, state.error, state.status]); // Must be first
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
+    actions.setLoading(false, false);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: SubmitLoadingEventType) => {
@@ -149,10 +156,6 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     };
   };
 
-  const handleData = () => {
-    return responseDataModifierFn && state.data ? responseDataModifierFn(state.data) : state.data;
-  };
-
   const handleDependencyTracking = () => {
     if (!dependencyTracking) {
       Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
@@ -172,11 +175,7 @@ export const useSubmit = <T extends FetchCommandInstance, MapperResponse>(
     submit: handleSubmit,
     get data() {
       setRenderKey("data");
-      return handleData() as (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
-        ? ExtractResponse<T>
-        : MapperResponse extends never
-        ? ExtractResponse<T>
-        : MapperResponse;
+      return state.data;
     },
     get error() {
       setRenderKey("error");

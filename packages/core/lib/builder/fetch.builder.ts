@@ -1,21 +1,36 @@
 import {
+  ClientType,
+  fetchClient,
+  encodeParams,
+  FetchClientXHR,
+  FetchClientOptions,
+  ClientResponseType,
+  ClientQueryParamsType,
+  QueryStringifyOptions,
+} from "client";
+import {
+  FetchBuilderProps,
+  FetchBuilderInstance,
+  FetchBuilderErrorType,
+  StringifyCallbackType,
   RequestInterceptorCallback,
   ResponseInterceptorCallback,
-  FetchBuilderProps,
-  FetchBuilderErrorType,
-  FetchBuilderInstance,
 } from "builder";
 import { Cache, isEqual } from "cache";
-import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
+import { FetchActionInstance } from "action";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
-import { ClientType, FetchClientXHR, fetchClient, ClientResponseType, ClientQueryParamsType } from "client";
-import { FetchActionInstance } from "action";
+import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
-export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, ClientOptions = FetchClientXHR> {
+/**
+ * A quite wonderful function.
+ * @param {object} - Privacy gown
+ * @param {object} - Security
+ * @returns {survival}
+ */
+export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpOptions = FetchClientXHR> {
   readonly baseUrl: string;
   debug: boolean;
-  options: ClientOptions | undefined;
 
   builded = false;
 
@@ -33,83 +48,118 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
-  client: ClientType<ErrorType, ClientOptions>;
-  cache: Cache<ErrorType, ClientOptions>;
-  fetchQueue: FetchQueue<ErrorType, ClientOptions>;
-  submitQueue: SubmitQueue<ErrorType, ClientOptions>;
-  deepEqual: typeof isEqual;
+  client: ClientType;
+  cache: Cache<ErrorType, HttpOptions>;
+  fetchQueue: FetchQueue<ErrorType, HttpOptions>;
+  submitQueue: SubmitQueue<ErrorType, HttpOptions>;
+
+  // Utils
+  deepEqual: typeof isEqual = isEqual;
+  stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsOptions);
 
   // Registered requests Actions
   actions: FetchActionInstance[] = [];
+
+  // Options
+  httpOptions?: HttpOptions;
+  clientOptions?: FetchClientOptions;
+  commandOptions?: FetchCommandOptions<string, HttpOptions>;
+  queryParamsOptions?: QueryStringifyOptions;
 
   // Logger
   private logger = this.loggerManager.init("Builder");
 
   constructor({
     baseUrl,
-    options,
     client,
     appManager,
     cache,
     fetchQueue,
     submitQueue,
-    deepEqual,
-  }: FetchBuilderProps<ErrorType, ClientOptions>) {
+  }: FetchBuilderProps<ErrorType, HttpOptions>) {
     this.baseUrl = baseUrl;
-    this.options = options;
     this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
-    this.deepEqual = deepEqual || isEqual;
     this.cache = cache?.(this) || new Cache(this);
     this.appManager = appManager?.(this) || new AppManager();
-    this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, ClientOptions>(this);
-    this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, ClientOptions>(this);
+    this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, HttpOptions>(this);
+    this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, HttpOptions>(this);
   }
 
-  setDebug = (debug: boolean): FetchBuilder<ErrorType, ClientOptions> => {
+  setHttpOptions = (httpOptions: HttpOptions): FetchBuilder<ErrorType, HttpOptions> => {
+    this.httpOptions = httpOptions;
+    return this;
+  };
+
+  setClientOptions = (clientOptions: FetchClientOptions): FetchBuilder<ErrorType, HttpOptions> => {
+    this.clientOptions = clientOptions;
+    return this;
+  };
+
+  setCommandDefaultOptions = (
+    commandOptions: FetchCommandOptions<string, HttpOptions>,
+  ): FetchBuilder<ErrorType, HttpOptions> => {
+    this.commandOptions = commandOptions;
+    return this;
+  };
+
+  setQueryParamsOptions = (queryParamsOptions: QueryStringifyOptions): FetchBuilder<ErrorType, HttpOptions> => {
+    this.queryParamsOptions = queryParamsOptions;
+    return this;
+  };
+
+  setDebug = (debug: boolean): FetchBuilder<ErrorType, HttpOptions> => {
     this.debug = debug;
     return this;
   };
 
-  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, ClientOptions> => {
+  setDeepEqual = (deepEqual: typeof isEqual): FetchBuilder<ErrorType, HttpOptions> => {
+    this.deepEqual = deepEqual;
+    return this;
+  };
+
+  setStringifyQueryParams = (stringify: StringifyCallbackType): FetchBuilder<ErrorType, HttpOptions> => {
+    this.stringifyQueryParams = stringify;
+    return this;
+  };
+
+  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, HttpOptions> => {
     this.loggerManager.setLevels(levels);
     return this;
   };
 
-  setLogger = (callback: (builder: FetchBuilderInstance) => LoggerManager): FetchBuilder<ErrorType, ClientOptions> => {
+  setLogger = (callback: (builder: FetchBuilderInstance) => LoggerManager): FetchBuilder<ErrorType, HttpOptions> => {
     this.loggerManager = callback(this);
     return this;
   };
 
-  setClient = (
-    callback: (builder: FetchBuilderInstance) => ClientType<ErrorType, ClientOptions>,
-  ): FetchBuilder<ErrorType, ClientOptions> => {
+  setClient = (callback: (builder: FetchBuilderInstance) => ClientType): FetchBuilder<ErrorType, HttpOptions> => {
     this.client = callback(this);
     return this;
   };
 
-  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
     this.__onAuthCallbacks.push(callback);
     return this;
   };
 
-  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
 
-  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
 
-  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
     this.__onRequestCallbacks.push(callback);
     return this;
   };
 
-  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, ClientOptions> => {
+  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
@@ -207,7 +257,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
       Build method indicates the ended setup and prevents synchronization/registration issues.`);
     }
 
-    return <EndpointType extends string>(params: FetchCommandOptions<EndpointType, ClientOptions>) =>
+    return <EndpointType extends string>(params: FetchCommandOptions<EndpointType, HttpOptions>) =>
       new FetchCommand<
         ResponseType,
         PayloadType,
@@ -215,7 +265,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Clien
         ErrorType,
         RequestErrorType,
         EndpointType,
-        ClientOptions
+        HttpOptions
       >(this, params);
   };
 

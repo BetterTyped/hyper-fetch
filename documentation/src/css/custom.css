@@ -360,9 +360,22 @@ footer #mc_embed_signup .button:hover {
     width: 0;
   }
   footer form #mc_embed_signup_scroll {
-    display: block;
+    max-width: calc(100vw - 30px);
+    margin: auto;
+    justify-content: center;
+  }
+  footer form p a {
+    display: flex;
+    justify-content: center;
   }
   footer form p {
     justify-content: center;
+  }
+}
+
+@media (max-width: 400px) {
+  footer form #mc_embed_signup_scroll {
+    flex-direction: column;
+    max-width: calc(100vw - 30px);
   }
 }

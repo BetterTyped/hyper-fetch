@@ -23,18 +23,20 @@ describe("FetchBuilder", () => {
 
   describe("When initializing the builder", () => {
     it("should assign provided props", async () => {
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .setDebug(true)
         .setLogger((b) => new LoggerManager(b, { logger: () => null }))
         .build();
 
-      expect(builder.options).toStrictEqual(options);
+      expect(builder.httpOptions).toStrictEqual(options);
       expect(builder.baseUrl).toBe(baseUrl);
       expect(builder.debug).toBe(true);
     });
 
     it("should initialize with applied methods", async () => {
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .onError(() => [null, null, 0])
         .onError(() => [null, null, 0])
         .onSuccess(() => [null, null, 0])
@@ -57,9 +59,12 @@ describe("FetchBuilder", () => {
 
   describe("When using built in methods", () => {
     it("should apply custom client", async () => {
-      const customHttpClient: ClientType<any, any> = () => Promise.resolve([null, null, 0]);
+      const customHttpClient: ClientType = () => Promise.resolve([null, null, 0]);
 
-      const builder = new FetchBuilder({ baseUrl, options }).setClient(() => customHttpClient).build();
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
+        .setClient(() => customHttpClient)
+        .build();
 
       expect(builder.client).toBe(customHttpClient);
     });
@@ -112,7 +117,7 @@ describe("FetchBuilder", () => {
     });
 
     it("should allow to create FetchCommand", async () => {
-      const builder = new FetchBuilder({ baseUrl, options }).build();
+      const builder = new FetchBuilder({ baseUrl }).setHttpOptions(options).build();
 
       const command = builder.createCommand()({ endpoint: "some-endpoint" });
 
@@ -127,7 +132,8 @@ describe("FetchBuilder", () => {
 
       interceptBase(200);
 
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .onRequest((command) => {
           methodFn();
           return command;
@@ -148,7 +154,8 @@ describe("FetchBuilder", () => {
 
       interceptBase(200);
 
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .onRequest((command) => {
           methodFn();
           return undefined as unknown as typeof command;
@@ -167,7 +174,8 @@ describe("FetchBuilder", () => {
 
       interceptBase(200);
 
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .onResponse((response) => {
           methodFn();
           return response;
@@ -188,7 +196,8 @@ describe("FetchBuilder", () => {
 
       interceptBase(200);
 
-      const builder = new FetchBuilder({ baseUrl, options })
+      const builder = new FetchBuilder({ baseUrl })
+        .setHttpOptions(options)
         .onResponse((command) => {
           methodFn();
           return undefined as unknown as typeof command;

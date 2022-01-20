@@ -1,4 +1,5 @@
 import { renderHook, act } from "@testing-library/react-hooks/dom";
+import { waitFor } from "@testing-library/react";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetMocks, stopServer } from "../../utils/server";
@@ -59,8 +60,8 @@ describe("useFetch hook refresh logic", () => {
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -69,8 +70,8 @@ describe("useFetch hook refresh logic", () => {
     resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toEqual(refreshMock);
     });
 
     testRefreshFetchSuccessState(refreshMock, responseOne);
@@ -93,8 +94,8 @@ describe("useFetch hook refresh logic", () => {
     const responseOne = renderGetManyHook();
     const responseTwo = renderGetManyHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -103,8 +104,8 @@ describe("useFetch hook refresh logic", () => {
     resetMocks();
     const refreshMock = interceptGetManyAlternative(200);
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toEqual(refreshMock);
     });
 
     testRefreshFetchSuccessState(refreshMock, responseOne);
@@ -127,8 +128,8 @@ describe("useFetch hook refresh logic", () => {
     const responseOne = renderEventsHook();
     const responseTwo = renderEventsHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -141,8 +142,8 @@ describe("useFetch hook refresh logic", () => {
       window.dispatchEvent(new Event("focus"));
     });
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toEqual(refreshMock);
     });
 
     testRefreshFetchSuccessState(refreshMock, responseOne);
@@ -155,8 +156,8 @@ describe("useFetch hook refresh logic", () => {
     const responseOne = renderEventsHook();
     const responseTwo = renderEventsHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading && getCurrentState(responseTwo).loading;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -169,8 +170,8 @@ describe("useFetch hook refresh logic", () => {
       window.dispatchEvent(new Event("blur"));
     });
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toEqual(refreshMock);
     });
 
     testRefreshFetchSuccessState(refreshMock, responseOne);
@@ -183,8 +184,8 @@ describe("useFetch hook refresh logic", () => {
     const responseOne = renderEventsHook();
     const responseTwo = renderEventsHook();
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).loading;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toBeTruthy();
     });
 
     testFetchSuccessState(mock, responseOne);
@@ -197,8 +198,8 @@ describe("useFetch hook refresh logic", () => {
       window.dispatchEvent(new Event("online"));
     });
 
-    await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).data;
+    await waitFor(() => {
+      expect(getCurrentState(responseOne).data).toEqual(refreshMock);
     });
 
     testRefreshFetchSuccessState(refreshMock, responseOne);

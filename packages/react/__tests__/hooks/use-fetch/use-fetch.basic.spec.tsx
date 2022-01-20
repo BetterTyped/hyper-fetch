@@ -18,7 +18,7 @@ let command = new FetchCommand(builder, dump.commandOptions, dump.values);
 const renderGetManyHook = () =>
   renderHook(() => useFetch(command, { dependencyTracking: false, revalidateOnMount: false }));
 
-describe("[Basic] useFetch hook", () => {
+describe("[Basic] UseFetch hook", () => {
   beforeAll(() => {
     startServer();
   });
@@ -37,7 +37,7 @@ describe("[Basic] useFetch hook", () => {
     command = new FetchCommand(builder, dump.commandOptions, dump.values);
   });
 
-  it("should initialize loading state", async () => {
+  it("should initialize without loading state", async () => {
     interceptGetMany(200);
 
     const responseOne = renderGetManyHook();
@@ -46,8 +46,8 @@ describe("[Basic] useFetch hook", () => {
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
 
-    expect(getCurrentState(responseOne).loading).toBe(true);
-    expect(getCurrentState(responseTwo).loading).toBe(true);
+    expect(getCurrentState(responseOne).loading).toBe(false);
+    expect(getCurrentState(responseTwo).loading).toBe(false);
   });
 
   it("should change state once data is fetched", async () => {

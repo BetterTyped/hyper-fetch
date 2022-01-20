@@ -108,7 +108,7 @@ describe("Basic FetchCommand usage", () => {
     let triggered = false;
     const mockData: ClientResponseType<any, any> = [{ myData: 123 }, null, 200];
 
-    const customHttpClient: ClientType<any, any> = () => {
+    const customHttpClient: ClientType = () => {
       triggered = true;
       return Promise.resolve(mockData);
     };

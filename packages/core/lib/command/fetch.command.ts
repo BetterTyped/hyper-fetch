@@ -75,7 +75,7 @@ export class FetchCommand<
     const {
       endpoint,
       headers,
-      auth = false,
+      auth = true,
       method = HttpMethodsEnum.get,
       options,
       cancelable = false,
@@ -88,7 +88,7 @@ export class FetchCommand<
       abortKey,
       cacheKey,
       queueKey,
-    } = commandOptions;
+    } = { ...this.builder.commandOptions, ...commandOptions };
 
     this.endpoint = current?.endpoint || endpoint;
     this.headers = current?.headers || headers;
@@ -386,30 +386,29 @@ export class FetchCommand<
     });
   };
 }
-// Typescript test cases
 
-// import { FetchBuilder } from "builder";
+// Typescript test cases
 
 // const builder = new FetchBuilder({
 //   baseUrl: "http://localhost:3000",
-// });
+// }).build();
 
-// const getUsers = fetchCommand.create<{ id: string }[]>()({
+// const getUsers = builder.createCommand<{ id: string }[]>()({
 //   method: "GET",
 //   endpoint: "/users",
 // });
 
-// const getUser = fetchCommand.create<{ id: string }>()({
+// const getUser = builder.createCommand<{ id: string }>()({
 //   method: "GET",
 //   endpoint: "/users/:id",
 // });
 
-// const postUser = fetchCommand.create<{ id: string }, { name: string }>()({
+// const postUser = builder.createCommand<{ id: string }, { name: string }>()({
 //   method: "POST",
 //   endpoint: "/users",
 // });
 
-// const patchUser = fetchCommand.create<{ id: string }, { name: string }>()({
+// const patchUser = builder.createCommand<{ id: string }, { name: string }>()({
 //   method: "PATCH",
 //   endpoint: "/users/:id",
 // });

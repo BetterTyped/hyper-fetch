@@ -16,6 +16,7 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
 export const getInitialDependentStateData = (
   command: FetchCommandInstance,
   initialData: NullableType<CacheValueType>,
+  initialLoading?: boolean,
 ) => ({
   ...initialState,
   data: initialData?.response?.[0] || initialState.data,
@@ -25,15 +26,15 @@ export const getInitialDependentStateData = (
   timestamp: getTimestamp(initialData?.timestamp || initialState.timestamp),
   isOnline: command.builder.appManager.isOnline,
   isFocused: command.builder.appManager.isFocused,
-  loading: !!command.builder.fetchQueue.get(command.queueKey) || initialState.loading,
+  loading: initialLoading ?? initialState.loading,
 });
 
 export const transformDataToCacheValue = <T>(
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+  response: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
 ): NullableType<CacheValueType> => {
-  if (!initialData) return null;
+  if (!response) return null;
   return {
-    response: initialData,
+    response,
     retries: 0,
     timestamp: +new Date(),
     isRefreshed: false,

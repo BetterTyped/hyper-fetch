@@ -102,7 +102,7 @@ export const encodeArray = (
     .join("&");
 };
 
-export const stringifyQueryParams = (
+export const encodeParams = (
   queryParams: ClientQueryParamsType | string | NegativeTypes,
   options: QueryStringifyOptions = stringifyDefaultOptions,
 ): string => {
@@ -116,10 +116,6 @@ export const stringifyQueryParams = (
 
   const stringified = Object.entries(queryParams)
     .map(([key, value]): string => {
-      if (!value) {
-        return "";
-      }
-
       if (Array.isArray(value)) {
         return encodeArray(key, value, options);
       }
@@ -156,7 +152,7 @@ export const setClientHeaders = <T extends FetchCommandInstance>(
 };
 
 export const setClientOptions = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
-  const requestOptions = { ...command.builder.options, ...command.commandOptions.options };
+  const requestOptions = { ...command.builder.httpOptions, ...command.commandOptions.options };
 
   Object.entries(requestOptions).forEach(([name, value]) => {
     // eslint-disable-next-line no-param-reassign

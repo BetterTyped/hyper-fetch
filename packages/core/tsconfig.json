@@ -6,6 +6,16 @@
   "include": ["./lib", "./__tests__"],
   "paths": {
     "tests": ["./__tests__/*"],
-    "lib": ["./lib/*"]
+    "lib": ["./lib/*"],
+    "action/*": ["action/*"],
+    "builder/*": ["builder/*"],
+    "cache/*": ["cache/*"],
+    "client/*": ["client/*"],
+    "command/*": ["command/*"],
+    "constants/*": ["constants/*"],
+    "managers/*": ["managers/*"],
+    "queues/*": ["queues/*"],
+    "types/*": ["types/*"],
+    "utils/*": ["utils/*"]
   }
 }

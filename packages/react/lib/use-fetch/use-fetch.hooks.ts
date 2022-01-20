@@ -30,7 +30,7 @@ import { isStaleCacheData } from "./use-fetch.utils";
 import { useFetchDefaultOptions } from "./use-fetch.constants";
 
 // TBD - suspense
-export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
+export const useFetch = <T extends FetchCommandInstance>(
   command: T,
   {
     dependencies = useFetchDefaultOptions.dependencies,
@@ -46,10 +46,10 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
-    responseDataModifierFn = useFetchDefaultOptions.responseDataModifierFn,
+    // suspense = useFetchDefaultOptions.suspense
     shouldThrow = useFetchDefaultOptions.shouldThrow,
-  }: UseFetchOptionsType<T, MapperResponse> = useFetchDefaultOptions,
-): UseFetchReturnType<T, MapperResponse extends never ? ExtractResponse<T> : MapperResponse> => {
+  }: UseFetchOptionsType<T> = useFetchDefaultOptions,
+): UseFetchReturnType<T> => {
   const { cacheTime, cacheKey, queueKey, builder } = command;
 
   const requestDebounce = useDebounce(debounceTime);
@@ -57,7 +57,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
 
   const { cache, fetchQueue, appManager, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useFetch")).current;
-  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData);
+  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData, fetchQueue);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -127,15 +127,17 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     }
   };
 
-  const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     handleCallbacks(cacheData.response); // Must be first
     actions.setCacheData(cacheData, false);
+    actions.setLoading(false, false);
   };
 
   const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
     handleCallbacks([state.data, state.error, state.status]); // Must be first
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
+    actions.setLoading(false, false);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: FetchLoadingEventType) => {
@@ -206,10 +208,6 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     };
   };
 
-  const handleData = () => {
-    return responseDataModifierFn && state.data ? responseDataModifierFn(state.data) : state.data;
-  };
-
   const handleDependencyTracking = () => {
     if (!dependencyTracking) {
       Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
@@ -269,11 +267,7 @@ export const useFetch = <T extends FetchCommandInstance, MapperResponse>(
     // necessary due to TS 4.5 restrictions on assignability of conditional types
     get data() {
       setRenderKey("data");
-      return handleData() as (MapperResponse extends never ? ExtractResponse<T> : MapperResponse) extends never
-        ? ExtractResponse<T>
-        : MapperResponse extends never
-        ? ExtractResponse<T>
-        : MapperResponse;
+      return state.data;
     },
     get error() {
       setRenderKey("error");

@@ -8,20 +8,22 @@ import {
   setClientOptions,
   setRequestProgress,
   setResponseProgress,
-  stringifyQueryParams,
 } from "./fetch.client.utils";
 import { ClientResponseType, ClientType } from "./fetch.client.types";
 
-export const fetchClient: ClientType<any, any> = async (command, options) => {
+export const fetchClient: ClientType = async (command) => {
   if (!XMLHttpRequest) {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
-  const logger = command.builder.loggerManager.init("Client");
+  const { builder } = command;
+
+  const logger = builder.loggerManager.init("Client");
+  const options = builder.clientOptions;
 
   const xhr = new XMLHttpRequest();
 
-  xhr.timeout = DateInterval.second * 4;
+  xhr.timeout = DateInterval.second * 5;
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
@@ -29,15 +31,15 @@ export const fetchClient: ClientType<any, any> = async (command, options) => {
   logger.debug(`Starting request modification`);
 
   let commandInstance = command;
-  commandInstance = await command.builder.__modifyRequest(commandInstance);
+  commandInstance = await builder.__modifyRequest(commandInstance);
 
-  if (command.auth) {
-    commandInstance = await command.builder.__modifyAuth(commandInstance);
+  if (commandInstance.auth) {
+    commandInstance = await builder.__modifyAuth(commandInstance);
   }
 
-  const { builder, endpoint, queryParams, data, method } = commandInstance;
+  const { endpoint, queryParams, data, method } = commandInstance;
 
-  const url = builder.baseUrl + endpoint + stringifyQueryParams(queryParams, options?.queryParams);
+  const url = builder.baseUrl + endpoint + builder.stringifyQueryParams(queryParams);
 
   const actions = command.builder.actions.filter((action) => command.actions.includes(action.getName()));
 

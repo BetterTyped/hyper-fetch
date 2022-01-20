@@ -1,6 +1,12 @@
 import { useRef, useState } from "react";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { ClientResponseType, FetchCommandInstance, ExtractResponse, ExtractError } from "@better-typed/hyper-fetch";
+import {
+  ClientResponseType,
+  FetchCommandInstance,
+  ExtractResponse,
+  ExtractError,
+  FetchBuilderInstance,
+} from "@better-typed/hyper-fetch";
 
 import { getCacheState, getUseFetchInitialData, isStaleCacheData } from "use-fetch/use-fetch.utils";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
@@ -9,13 +15,14 @@ import { getInitialDependentStateData, transformDataToCacheValue } from "./use-d
 export const useDependentState = <T extends FetchCommandInstance>(
   command: FetchCommandInstance,
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+  queue: FetchBuilderInstance["fetchQueue"] | FetchBuilderInstance["submitQueue"],
 ): [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
   (renderKey: keyof UseDependentStateType) => void,
   boolean,
 ] => {
-  const { builder, cache, cacheKey, cacheTime } = command;
+  const { builder, cache, cacheKey, cacheTime, queueKey } = command;
 
   const [initialized, setInitialized] = useState(false);
   const [, rerender] = useState(+new Date());
@@ -39,8 +46,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
       const initCacheState = getCacheState(cacheData, cache, cacheTime);
       const isStale = isStaleCacheData(cacheTime, initCacheState?.timestamp);
       const cacheValue = isStale ? getUseFetchInitialData<T>(initialData) : initCacheState;
+      const queueElement = await queue.get(queueKey);
 
-      state.current = getInitialDependentStateData(command, cacheValue);
+      state.current = getInitialDependentStateData(
+        command,
+        cacheValue,
+        state.current.loading || !!queueElement.requests.length,
+      );
       setInitialized(true);
       rerender(+new Date());
     };

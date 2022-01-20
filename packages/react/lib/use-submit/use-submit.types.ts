@@ -10,24 +10,23 @@ import {
 
 import { UseDependentStateType, UseDependentStateActions } from "../use-dependent-state/use-dependent-state.types";
 
-export type UseSubmitOptionsType<T extends FetchCommandInstance, MapperResponse> = {
+export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
-  invalidate: (string | FetchCommandInstance)[];
+  invalidate?: (string | FetchCommandInstance)[];
   cacheOnMount?: boolean;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
   debounce?: boolean;
   debounceTime?: number;
   suspense?: boolean;
   shouldThrow?: boolean;
-  responseDataModifierFn?: ((data: ExtractResponse<T>) => MapperResponse) | null;
   dependencyTracking?: boolean;
 };
 
-export type UseSubmitReturnType<T extends FetchCommandInstance, MapperResponse = unknown> = Omit<
+export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "data" | "refreshError" | "loading"
 > & {
-  data: null | (MapperResponse extends never ? ExtractResponse<T> : MapperResponse);
+  data: null | ExtractResponse<T>;
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
   onSubmitRequest: (callback: OnRequestCallbackType) => void;
   onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;

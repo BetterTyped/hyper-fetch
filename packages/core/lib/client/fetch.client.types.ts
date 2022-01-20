@@ -1,15 +1,11 @@
-import { FetchCommand, FetchCommandInstance } from "command";
+import { FetchCommandInstance } from "command";
 
 // Client
 
-export type ClientType<ErrorType, ClientOptions> = <RequestErrorType = undefined>(
-  command: FetchCommand<any, any, any, ErrorType, RequestErrorType, any, ClientOptions, any, any, any>,
-  options?: FetchClientOptions,
-) => Promise<ClientResponseType<any, ErrorType | RequestErrorType>>;
+export type ClientType = (command: FetchCommandInstance) => Promise<ClientResponseType<any, any>>;
 
 export type FetchClientXHR = Partial<XMLHttpRequest>;
 export type FetchClientOptions = {
-  queryParams?: QueryStringifyOptions;
   headerMapper?: <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest) => void;
 };
 
