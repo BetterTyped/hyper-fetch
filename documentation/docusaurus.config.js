@@ -37,6 +37,19 @@ const config = {
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
+    [
+      "docusaurus-plugin-api",
+      {
+        rootPath: path.join(__dirname, ".."),
+        packages: [
+          {
+            name: "Hyper Fetch",
+            path: "packages/core",
+            entry: "lib/index.ts",
+          },
+        ],
+      },
+    ],
   ],
 
   presets: [
@@ -93,6 +106,11 @@ const config = {
             position: "left",
             label: "Docs",
             activeBaseRegex: `/docs/`,
+          },
+          {
+            to: "api",
+            label: "API",
+            position: "left",
           },
           {
             to: "/examples/Basic",
