@@ -40,11 +40,10 @@ const config = {
     [
       "docusaurus-plugin-api",
       {
-        rootPath: path.join(__dirname, ".."),
         packages: [
           {
             name: "Hyper Fetch",
-            path: "packages/core",
+            path: path.join(__dirname, "packages/core"),
             entry: "lib/index.ts",
           },
         ],

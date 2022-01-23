@@ -1,8 +1,8 @@
-import { getPath } from "./file.utils";
+import * as path from 'path';
 
-export const getPackageJson = (packageRoot: string) => {
+export const getPackageJson = (dir: string, name: string) => {
   try {
-    return require(getPath(packageRoot, "/package.json"));
+    return require(path.join(dir, name));
   } catch (err) {
     return;
   }

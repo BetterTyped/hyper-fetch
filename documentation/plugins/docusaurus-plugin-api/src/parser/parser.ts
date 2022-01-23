@@ -1,32 +1,18 @@
-// import * as fs from "fs";
-// import glob from "fast-glob";
-// import { TSDocParser, ParserContext, DocComment } from "@microsoft/tsdoc";
-// import { DocNode, DocExcerpt } from "@microsoft/tsdoc";
 import * as TypeDoc from 'typedoc';
-import {
-  prepareApiDirectory,
-  // writeFileAsync,
-  getPath,
-} from '../utils/file.utils';
 import { info, success } from '../utils/log.utils';
-// import { asyncForEach } from '../utils/loop.utils';
-// import ts from 'typescript';
 
-export const parser = async (
-  apiPath: string,
-  root: string,
-  entry: string,
-  tsconfig: string
+export const parseToJson = async (
+  apiDocsPath: string,
+  entryPath: string,
+  tsconfig: string,
+  options?: Partial<TypeDoc.TypeDocOptions>
 ) => {
   info('[docusaurus-plugin-api] Starting api docs generation.');
 
-  // 1. Prepare api directory to save output
-  prepareApiDirectory(apiPath);
-
-  // // 2. Look for all files to be parsed
+  // 1. Prepare typedoc application to render
   const app = new TypeDoc.Application();
 
-  // 2. Prepare parser
+  // 2. Prepare parser readers
   app.options.addReader(new TypeDoc.TSConfigReader());
   app.options.addReader(new TypeDoc.TypeDocReader());
 
@@ -38,18 +24,17 @@ export const parser = async (
     excludePrivate: true,
     excludeProtected: true,
     exclude: ['node_modules'],
-    // Custom options
-    // ...options,
+    ...options,
     entryPointStrategy: 'expand',
-    tsconfig: getPath(root, tsconfig),
-    entryPoints: [getPath(root, entry)],
+    tsconfig,
+    entryPoints: [entryPath],
     logLevel: 'Verbose',
   });
 
   // 4. Generate json output
   const project = app.convert();
   if (project) {
-    await app.generateJson(project, apiPath);
+    await app.generateJson(project, apiDocsPath);
   }
 
   success(`Finished parsing api files`);
