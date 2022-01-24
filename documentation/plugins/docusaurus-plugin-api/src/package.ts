@@ -20,8 +20,6 @@ const plugin = function (context: LoadContext, options: PluginOptions) {
   info("Extending docusaurus config.");
   preparePluginConfig(context, apiDir, sidebarPath);
 
-  console.log(context.siteConfig.plugins);
-
   return {
     name: "docusaurus-plugin-api",
 

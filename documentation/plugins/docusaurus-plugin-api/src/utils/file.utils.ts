@@ -29,14 +29,13 @@ export function prepareApiDirectory(filePath: string) {
   if (exists) {
     // empty
     info("Empty directory: ");
-    console.log(dirname);
     // fsExtra.emptyDirSync(dirname);
   } else {
     // create
     info("Creating directory: ");
-    console.log(dirname);
     fs.mkdirSync(dirname, { recursive: true });
   }
+  console.log(dirname);
 }
 
 export const cleanFileName = (name: string) => {
