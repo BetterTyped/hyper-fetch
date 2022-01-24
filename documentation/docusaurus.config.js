@@ -111,12 +111,12 @@ const config = {
             label: "Docs",
             activeBaseRegex: `/docs/`,
           },
-          {
-            to: "/api",
-            label: "API",
-            position: "left",
-            activeBaseRegex: `/api/`,
-          },
+          // {
+          //   to: "/api",
+          //   label: "API",
+          //   position: "left",
+          //   activeBaseRegex: `/api/`,
+          // },
           {
             to: "/examples/Basic",
             label: "Examples",
