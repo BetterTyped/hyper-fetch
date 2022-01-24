@@ -42,9 +42,14 @@ const config = {
       {
         packages: [
           {
-            name: "Hyper Fetch",
-            path: path.join(__dirname, "packages/core"),
-            entry: "lib/index.ts",
+            title: "Hyper Fetch",
+            dir: path.join(__dirname, "../packages/core"),
+            entryPath: "lib/index.ts",
+          },
+          {
+            title: "React Hyper Fetch",
+            dir: path.join(__dirname, "../packages/core"),
+            entryPath: "lib/index.ts",
           },
         ],
       },
@@ -107,9 +112,10 @@ const config = {
             activeBaseRegex: `/docs/`,
           },
           {
-            to: "api",
+            to: "/api",
             label: "API",
             position: "left",
+            activeBaseRegex: `/api/`,
           },
           {
             to: "/examples/Basic",

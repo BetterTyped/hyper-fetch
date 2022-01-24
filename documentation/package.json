@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build:plugin": "yarn build",
-    "prepare": "yarn build:plugin",
     "docusaurus": "docusaurus",
-    "start": "yarn build:plugin && docusaurus start",
+    "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",

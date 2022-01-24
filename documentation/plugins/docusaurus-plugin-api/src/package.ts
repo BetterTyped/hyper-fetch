@@ -6,17 +6,35 @@ import { asyncForEach } from "./utils/loop.utils";
 import { PluginOptions } from "./types/package.types";
 import { getPackageJson } from "./utils/package.utils";
 import { apiDocsPath } from "./constants/paths.constants";
-// import { prepareApiDirectory } from "./utils/file.utils";
+import { preparePluginConfig } from "./utils/docusaurus.utils";
+import { prepareApiDirectory } from "./utils/file.utils";
+import { info } from "./utils/log.utils";
+import { cleanFileName } from "./utils/file.utils";
 
 const plugin = function (context: LoadContext, options: PluginOptions) {
   const { generatedFilesDir } = context;
-  const { apiDir = "/api", packages } = options;
+  const { apiDir = "api", sidebarPath, packages } = options;
   const isMonorepo = packages.length > 1;
+
+  // inject configs
+  info("Extending docusaurus config.");
+  preparePluginConfig(context, apiDir, sidebarPath);
+
+  console.log(context.siteConfig.plugins);
 
   return {
     name: "docusaurus-plugin-api",
 
     async contentLoaded() {
+      info("Generate docs for each package");
+
+      const docusaurusDir = path.join(generatedFilesDir, "..");
+      const apiRootDir = path.join(docusaurusDir, apiDir);
+
+      // Prepare api directory
+      info(`Prepare api directory at /${apiDir}`);
+      await prepareApiDirectory(apiRootDir);
+
       // Generate docs for each package
       await asyncForEach(packages, async (element) => {
         const {
@@ -24,10 +42,12 @@ const plugin = function (context: LoadContext, options: PluginOptions) {
           title,
           entryPath,
           tsconfigName = "/tsconfig.json",
-          tsconfigDir = dir,
+          tsconfigDir = element.dir,
           packageJsonName = "/package.json",
-          packageJsonDir = dir,
+          packageJsonDir = element.dir,
         } = element;
+
+        info(`Starting setup for ${dir} directory`);
 
         // Package tsconfig file
         const tsconfigPath = path.join(tsconfigDir, tsconfigName);
@@ -39,23 +59,22 @@ const plugin = function (context: LoadContext, options: PluginOptions) {
         const packageJson = getPackageJson(packageJsonDir, packageJsonName);
 
         // Setup
-        const mainTitle = title || packageJson?.name || "-";
+        const mainTitle = cleanFileName(title || packageJson?.name || "default");
 
         // Output directory
-        const docusaurusDir = path.join(generatedFilesDir, "..");
-        const apiRootDir = path.join(docusaurusDir, apiDir);
+        info(`Setup directories for ${mainTitle || "default"}`);
         const packageApiDir = isMonorepo ? path.join(apiRootDir, mainTitle) : apiRootDir;
         const apiJsonDocsPath = path.join(packageApiDir, apiDocsPath);
 
-        // Prepare api directory
-        // await prepareApiDirectory(apiRootDir);
-
         // Scan and parse docs to json
+        info(`Parsing docs for ${mainTitle || "default"}`);
         await parseToJson(apiJsonDocsPath, entry, tsconfigPath);
 
         // Generate docs files
+        info(`Generate docs files for ${mainTitle || "default"}`);
       });
 
+      // For development to not close logs
       const sleep = () => new Promise((r) => setTimeout(r, 100000));
 
       await sleep();

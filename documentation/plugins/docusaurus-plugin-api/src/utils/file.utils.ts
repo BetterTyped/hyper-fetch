@@ -1,7 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import { info } from "./log.utils";
-import fsExtra from "fs-extra";
+// import fsExtra from "fs-extra";
 
 // export const writeFileAsync = async (filePath: string, arrayData: any[]) => {
 //   return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ export function prepareApiDirectory(filePath: string) {
     // empty
     info("Empty directory: ");
     console.log(dirname);
-    fsExtra.emptyDirSync(dirname);
+    // fsExtra.emptyDirSync(dirname);
   } else {
     // create
     info("Creating directory: ");
@@ -38,3 +38,8 @@ export function prepareApiDirectory(filePath: string) {
     fs.mkdirSync(dirname, { recursive: true });
   }
 }
+
+export const cleanFileName = (name: string) => {
+  name = name.replace(/\s+/gi, "-"); // Replace white space with dash
+  return name.replace(/[^a-zA-Z0-9\-]/gi, ""); // Strip any special charactere
+};
