@@ -37,23 +37,23 @@ const config = {
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
-    // [
-    //   "docusaurus-plugin-api",
-    //   {
-    //     packages: [
-    //       {
-    //         title: "Hyper Fetch",
-    //         dir: path.join(__dirname, "../packages/core"),
-    //         entryPath: "lib/index.ts",
-    //       },
-    //       {
-    //         title: "React Hyper Fetch",
-    //         dir: path.join(__dirname, "../packages/core"),
-    //         entryPath: "lib/index.ts",
-    //       },
-    //     ],
-    //   },
-    // ],
+    [
+      "docusaurus-plugin-api",
+      {
+        packages: [
+          {
+            title: "Hyper Fetch",
+            dir: path.join(__dirname, "../packages/core"),
+            entryPath: "lib/index.ts",
+          },
+          {
+            title: "React Hyper Fetch",
+            dir: path.join(__dirname, "../packages/core"),
+            entryPath: "lib/index.ts",
+          },
+        ],
+      },
+    ],
   ],
 
   presets: [
