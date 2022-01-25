@@ -1,36 +1,32 @@
 import * as path from "path";
-import { LoadContext } from "@docusaurus/types";
+import { LoadContext, Plugin } from "@docusaurus/types";
 
 import { parseToJson } from "./parser/parser";
 import { asyncForEach } from "./utils/loop.utils";
 import { PluginOptions } from "./types/package.types";
 import { getPackageJson } from "./utils/package.utils";
 import { apiDocsPath } from "./constants/paths.constants";
-import { preparePluginConfig } from "./utils/docusaurus.utils";
 import { prepareApiDirectory } from "./utils/file.utils";
-import { info } from "./utils/log.utils";
+import { info, success, trace } from "./utils/log.utils";
 import { cleanFileName } from "./utils/file.utils";
+import { apiGenerator } from "./generators/api.generator";
+import { name } from "./constants/name.constants";
 
-const plugin = function (context: LoadContext, options: PluginOptions) {
+const plugin = function (context: LoadContext, options: PluginOptions): Plugin<LoadContext, PluginOptions> {
   const { generatedFilesDir } = context;
-  const { apiDir = "api", sidebarPath, packages } = options;
+  const { apiDir = "api", packages } = options;
   const isMonorepo = packages.length > 1;
 
-  // inject configs
-  info("Extending docusaurus config.");
-  preparePluginConfig(context, apiDir, sidebarPath);
-
   return {
-    name: "docusaurus-plugin-api",
+    name,
 
-    async contentLoaded() {
-      info("Generate docs for each package");
+    async loadContent() {
+      info(`Generate docs for ${packages.length} package`);
 
-      const docusaurusDir = path.join(generatedFilesDir, "..");
-      const apiRootDir = path.join(docusaurusDir, apiDir);
+      const docsRoot = generatedFilesDir;
+      const apiRootDir = path.join(docsRoot, apiDir);
 
       // Prepare api directory
-      info(`Prepare api directory at /${apiDir}`);
       await prepareApiDirectory(apiRootDir);
 
       // Generate docs for each package
@@ -45,7 +41,11 @@ const plugin = function (context: LoadContext, options: PluginOptions) {
           packageJsonDir = element.dir,
         } = element;
 
-        info(`Starting setup for ${dir} directory`);
+        // Package.json file
+        const packageJson = getPackageJson(packageJsonDir, packageJsonName);
+
+        // Setup
+        const mainTitle = cleanFileName(title || packageJson?.name || "default");
 
         // Package tsconfig file
         const tsconfigPath = path.join(tsconfigDir, tsconfigName);
@@ -53,31 +53,25 @@ const plugin = function (context: LoadContext, options: PluginOptions) {
         // Package entry file
         const entry = path.join(dir, entryPath);
 
-        // Package.json file
-        const packageJson = getPackageJson(packageJsonDir, packageJsonName);
-
-        // Setup
-        const mainTitle = cleanFileName(title || packageJson?.name || "default");
-
         // Output directory
-        info(`Setup directories for ${mainTitle || "default"}`);
-        const packageApiDir = isMonorepo ? path.join(apiRootDir, mainTitle) : apiRootDir;
+        trace(`Setup directories for ${mainTitle || "default"}`, mainTitle);
+        const packageApiDir = isMonorepo ? path.join(apiRootDir, mainTitle) : apiRootDir; // -> /api/Hyper-Fetch(if monorepo) or /api
         const apiJsonDocsPath = path.join(packageApiDir, apiDocsPath);
 
         // Scan and parse docs to json
-        info(`Parsing docs for ${mainTitle || "default"}`);
+        info(`Starting project parsing.`, mainTitle);
         await parseToJson(apiJsonDocsPath, entry, tsconfigPath);
+        success(`Successfully parsed docs!`, mainTitle);
 
         // Generate docs files
-        info(`Generate docs files for ${mainTitle || "default"}`);
+        const json = await import(apiJsonDocsPath);
+        const packageRoute = isMonorepo ? path.join(apiDir, mainTitle) : apiDir;
+        info(`Generating docs files...`, mainTitle);
+        await apiGenerator(json, packageRoute, docsRoot);
       });
 
-      // For development to not close logs
-      const sleep = () => new Promise((r) => setTimeout(r, 100000));
-
-      await sleep();
+      return context;
     },
   };
 };
-
 export default plugin;

@@ -37,23 +37,23 @@ const config = {
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
-    [
-      "docusaurus-plugin-api",
-      {
-        packages: [
-          {
-            title: "Hyper Fetch",
-            dir: path.join(__dirname, "../packages/core"),
-            entryPath: "lib/index.ts",
-          },
-          {
-            title: "React Hyper Fetch",
-            dir: path.join(__dirname, "../packages/core"),
-            entryPath: "lib/index.ts",
-          },
-        ],
-      },
-    ],
+    // [
+    //   "docusaurus-plugin-api",
+    //   {
+    //     packages: [
+    //       {
+    //         title: "Hyper Fetch",
+    //         dir: path.join(__dirname, "../packages/core"),
+    //         entryPath: "lib/index.ts",
+    //       },
+    //       {
+    //         title: "React Hyper Fetch",
+    //         dir: path.join(__dirname, "../packages/core"),
+    //         entryPath: "lib/index.ts",
+    //       },
+    //     ],
+    //   },
+    // ],
   ],
 
   presets: [
@@ -86,6 +86,29 @@ const config = {
         },
       }),
     ],
+    // [
+    //   "docusaurus-plugin-api",
+    //   {
+    //     route: {
+    //       id: "api",
+    //       path: "./.docusaurus/docusaurus-plugin-api",
+    //       routeBasePath: "api",
+    //       sidebarPath: require.resolve("./sidebars.js"),
+    //     },
+    //     packages: [
+    //       {
+    //         title: "Hyper Fetch",
+    //         dir: path.join(__dirname, "../packages/core"),
+    //         entryPath: "lib/index.ts",
+    //       },
+    //       {
+    //         title: "React Hyper Fetch",
+    //         dir: path.join(__dirname, "../packages/core"),
+    //         entryPath: "lib/index.ts",
+    //       },
+    //     ],
+    //   },
+    // ],
   ],
 
   themeConfig:
@@ -111,12 +134,12 @@ const config = {
             label: "Docs",
             activeBaseRegex: `/docs/`,
           },
-          // {
-          //   to: "/api",
-          //   label: "API",
-          //   position: "left",
-          //   activeBaseRegex: `/api/`,
-          // },
+          {
+            to: "/api",
+            label: "API",
+            position: "left",
+            activeBaseRegex: `/api/`,
+          },
           {
             to: "/examples/Basic",
             label: "Examples",

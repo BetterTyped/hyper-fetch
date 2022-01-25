@@ -1,14 +1,12 @@
-import * as TypeDoc from 'typedoc';
-import { info, success } from '../utils/log.utils';
+import * as TypeDoc from "typedoc";
+import { error } from "../utils/log.utils";
 
 export const parseToJson = async (
   apiDocsPath: string,
   entryPath: string,
   tsconfig: string,
-  options?: Partial<TypeDoc.TypeDocOptions>
+  options?: Partial<TypeDoc.TypeDocOptions>,
 ) => {
-  info('[docusaurus-plugin-api] Starting api docs generation.');
-
   // 1. Prepare typedoc application to render
   const app = new TypeDoc.Application();
 
@@ -23,19 +21,19 @@ export const parseToJson = async (
     excludeInternal: true,
     excludePrivate: true,
     excludeProtected: true,
-    exclude: ['node_modules'],
+    exclude: ["node_modules"],
     ...options,
-    entryPointStrategy: 'expand',
+    entryPointStrategy: "expand",
     tsconfig,
     entryPoints: [entryPath],
-    logLevel: 'Verbose',
+    logLevel: "Error",
   });
 
   // 4. Generate json output
   const project = app.convert();
   if (project) {
     await app.generateJson(project, apiDocsPath);
+  } else {
+    error("Cannot generate project for dir: " + apiDocsPath);
   }
-
-  success(`Finished parsing api files`);
 };
