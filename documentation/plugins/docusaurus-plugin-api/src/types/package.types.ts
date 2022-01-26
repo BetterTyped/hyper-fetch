@@ -1,16 +1,15 @@
+import { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-docs/lib/types";
+
 export type PluginOptions = {
-  apiDir?: string;
-  sidebarPath?: string;
+  id: string;
+  docs: DocsPluginOptions;
   packages: PackageOption[];
 };
 
 export type PackageOption = {
   dir: string;
   entryPath: string;
-  title?: string;
-  sidebarPath?: string;
+  title: string;
   tsconfigName?: string;
   tsconfigDir?: string;
-  packageJsonName?: string;
-  packageJsonDir?: string;
 };

@@ -40,6 +40,7 @@ const config = {
     [
       "docusaurus-plugin-api",
       {
+        id: "api",
         packages: [
           {
             title: "Hyper Fetch",
@@ -52,6 +53,18 @@ const config = {
             entryPath: "lib/index.ts",
           },
         ],
+        docs: {
+          path: "api",
+          routeBasePath: "api",
+          sidebarPath: require.resolve("./sidebars.js"),
+          lastVersion: "current",
+          versions: {
+            current: {
+              label: "next",
+              path: "",
+            },
+          },
+        },
       },
     ],
   ],
@@ -70,7 +83,7 @@ const config = {
           versions: {
             current: {
               label: "next",
-              path: "next",
+              path: "",
             },
           },
         },
@@ -86,29 +99,6 @@ const config = {
         },
       }),
     ],
-    // [
-    //   "docusaurus-plugin-api",
-    //   {
-    //     route: {
-    //       id: "api",
-    //       path: "./.docusaurus/docusaurus-plugin-api",
-    //       routeBasePath: "api",
-    //       sidebarPath: require.resolve("./sidebars.js"),
-    //     },
-    //     packages: [
-    //       {
-    //         title: "Hyper Fetch",
-    //         dir: path.join(__dirname, "../packages/core"),
-    //         entryPath: "lib/index.ts",
-    //       },
-    //       {
-    //         title: "React Hyper Fetch",
-    //         dir: path.join(__dirname, "../packages/core"),
-    //         entryPath: "lib/index.ts",
-    //       },
-    //     ],
-    //   },
-    // ],
   ],
 
   themeConfig:
@@ -132,13 +122,13 @@ const config = {
             docId: "Getting Started/Overview",
             position: "left",
             label: "Docs",
-            activeBaseRegex: `/docs/`,
+            activeBaseRegex: `/docs`,
           },
           {
             to: "/api",
             label: "API",
             position: "left",
-            activeBaseRegex: `/api/`,
+            activeBaseRegex: `/api`,
           },
           {
             to: "/examples/Basic",
@@ -173,19 +163,19 @@ const config = {
             items: [
               {
                 label: "Getting Started",
-                to: "/docs/next/Getting Started/Overview",
+                to: "/docs/Getting Started/Overview",
               },
               {
                 label: "Documentation",
-                to: "/docs/next/Docs/Builder",
+                to: "/docs/Docs/Builder",
               },
               {
                 label: "Testing",
-                to: "/docs/next/Testing/Overview",
+                to: "/docs/Testing/Overview",
               },
               {
                 label: "React",
-                to: "/docs/next/React/Overview",
+                to: "/docs/React/Overview",
               },
             ],
           },

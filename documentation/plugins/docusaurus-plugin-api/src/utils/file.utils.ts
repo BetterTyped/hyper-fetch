@@ -1,6 +1,18 @@
 import * as fs from "fs";
+import * as path from "path";
 import { warning, info } from "./log.utils";
 // import fsExtra from "fs-extra";
+
+export const createFile = (filePath: string, data: string) => {
+  const dirname = path.dirname(filePath);
+  const exists = fs.existsSync(dirname);
+
+  if (!exists) {
+    fs.mkdirSync(dirname, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, data);
+};
 
 export function prepareApiDirectory(dirname: string) {
   const exists = fs.existsSync(dirname);

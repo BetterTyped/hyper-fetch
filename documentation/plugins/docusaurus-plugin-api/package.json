@@ -57,6 +57,8 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
+    "@docusaurus/plugin-content-docs": "^2.0.0-beta.14",
+    "@docusaurus/preset-classic": "^2.0.0-beta.14",
     "json2md": "^1.12.0"
   }
 }
