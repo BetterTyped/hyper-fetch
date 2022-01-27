@@ -6,8 +6,10 @@ import * as path from "path";
 import builder from "./builder/builder";
 import { prepareApiDirectory } from "./utils/file.utils";
 import { PluginOptions } from "./types/package.types";
-import { trace } from "./utils/log.utils";
+import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
+
+export let generated = false;
 
 function plugin(context: LoadContext, options: PluginOptions) {
   const { generatedFilesDir } = context;
@@ -15,10 +17,11 @@ function plugin(context: LoadContext, options: PluginOptions) {
   const apiRootDir = path.join(generatedFilesDir, "..", apiDir, options.docs.routeBasePath);
 
   // Prepare api directory to exist
-  prepareApiDirectory(apiRootDir);
+  if (!generated) {
+    prepareApiDirectory(apiRootDir);
+  }
 
   trace("Initializing content docs plugin");
-
   // @ts-ignore
   const pluginInstance = pluginBase(context, {
     ...DEFAULT_OPTIONS,
@@ -26,14 +29,16 @@ function plugin(context: LoadContext, options: PluginOptions) {
     path: path.join(apiDir, options.docs.routeBasePath),
     id: options.id,
   });
+  info("Successfully initialized plugin base");
 
   return {
     ...pluginInstance,
     loadContent: async function () {
-      trace(`Generate docs for ${options.packages.length} package`);
       await builder(apiRootDir, options);
+      generated = true;
 
       trace("Loading generated docs");
+      console.log("\n");
       const response = await pluginInstance.loadContent();
       return response;
     },

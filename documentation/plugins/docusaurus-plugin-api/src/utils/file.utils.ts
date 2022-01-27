@@ -1,7 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 import { warning, info } from "./log.utils";
-// import fsExtra from "fs-extra";
+import fsExtra from "fs-extra";
+
+export const readFile = (path: string): string | null => {
+  try {
+    return fs.readFileSync(path, "utf8");
+  } catch (err) {
+    return null;
+  }
+};
 
 export const createFile = (filePath: string, data: string) => {
   const dirname = path.dirname(filePath);
@@ -19,7 +27,7 @@ export function prepareApiDirectory(dirname: string) {
   if (exists) {
     // empty
     warning(`Empty api directory at ${dirname}`);
-    // fsExtra.emptyDirSync(dirname);
+    fsExtra.emptyDirSync(dirname);
   } else {
     // create
     info(`Creating api directory at ${dirname}`);

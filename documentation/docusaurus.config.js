@@ -43,11 +43,13 @@ const config = {
         id: "api",
         packages: [
           {
+            logo: "/img/logo.svg",
             title: "Hyper Fetch",
             dir: path.join(__dirname, "../packages/core"),
             entryPath: "lib/index.ts",
           },
           {
+            logo: "/img/react.svg",
             title: "React Hyper Fetch",
             dir: path.join(__dirname, "../packages/core"),
             entryPath: "lib/index.ts",
