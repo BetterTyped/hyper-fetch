@@ -11,9 +11,11 @@ export const classFormatter = (
   const transformer = new MdTransformer(value, options, pkg);
 
   return json2md([
-    ...transformer.getTitle(),
-    ...transformer.getDescription(),
+    ...transformer.getName(),
+    ...transformer.getBadges(),
+    ...transformer.getDescription(true),
     ...transformer.getImport(),
     ...transformer.getParams(),
+    ...transformer.getMethods(),
   ]);
 };

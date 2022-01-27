@@ -20,5 +20,6 @@ export const defaultTextsOptions: RequiredKeys<TextsOptions> = {
   example: "Example",
   additionalLinks: "Additional Links",
   import: "Import",
+  returns: "Returns a ",
   paramTableHeaders: ["Name", "Type", "Default Value", "Description"],
 };

@@ -3,20 +3,20 @@ import json2md from "json2md";
 import { error } from "../utils/log.utils";
 import { PluginOptions } from "../types/package.types";
 import { cleanFileName, createFile } from "../utils/file.utils";
-import { cardBlock, description, row } from "../md/md.styles";
+import { getMdCard, getMdDescription, getMdCopyright, getMdRow } from "../md/md.styles";
 import { defaultTextsOptions } from "../constants/options.constants";
 
 export const generateMonorepoPage = (apiDocsRoot: string, options: PluginOptions) => {
-  const monorepo = options.texts;
+  const monorepo = options?.texts;
 
   const data = json2md([
     { h1: monorepo?.monorepoTitle ?? defaultTextsOptions.monorepoTitle },
-    { p: description(monorepo?.monorepoDescription ?? defaultTextsOptions.monorepoDescription) },
+    { p: getMdDescription(monorepo?.monorepoDescription ?? defaultTextsOptions.monorepoDescription) },
     {
-      p: row(
+      p: getMdRow(
         options.packages
           .map((pkg) =>
-            cardBlock({
+            getMdCard({
               link: "/" + path.join(options.docs.routeBasePath, cleanFileName(pkg.title)),
               logo: pkg.logo,
               title: pkg.title,
@@ -28,7 +28,7 @@ export const generateMonorepoPage = (apiDocsRoot: string, options: PluginOptions
     },
     { p: "<br/>" },
     { p: "<br/>" },
-    { p: "Powered by @better-type/docusaurus-api-docs" },
+    { p: getMdCopyright("Powered by @better-type/docusaurus-api-docs") },
   ]);
 
   try {
