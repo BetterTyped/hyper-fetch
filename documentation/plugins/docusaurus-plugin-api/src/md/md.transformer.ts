@@ -2,7 +2,15 @@ import json2md from "json2md";
 import { JSONOutput } from "typedoc";
 import { defaultTextsOptions } from "../constants/options.constants";
 import { PluginOptions } from "../types/package.types";
-import { getMdDescription, getMdQuoteText, getMdTable, getMdTitle, getMdBadges } from "./md.styles";
+import {
+  getMdDescription,
+  getMdQuoteText,
+  getMdTable,
+  getMdTitle,
+  getMdBadges,
+  AdmonitionTypes,
+  getMdAdmonitions,
+} from "./md.styles";
 
 export class MdTransformer {
   constructor(private value: JSONOutput.DeclarationReflection, private options: PluginOptions, private pkg: string) {}
@@ -15,7 +23,7 @@ export class MdTransformer {
     const badges = getMdBadges(this.value);
 
     if (badges) {
-      return [{ p: getMdBadges(this.value) || "" }];
+      return [{ p: badges }];
     }
 
     return [];
@@ -36,7 +44,11 @@ export class MdTransformer {
     }
 
     if (!output.length && setDefaultDescription) {
-      output.push({ p: getMdDescription(`This ${this.value.kindString} doesn't have any description yet.`) });
+      output.push({
+        p: getMdDescription(
+          `This ${getMdQuoteText(this.value.kindString || "Element")} doesn't have any description yet.`,
+        ),
+      });
     }
 
     return output;
@@ -44,7 +56,7 @@ export class MdTransformer {
 
   getImport(): json2md.DataObject[] {
     return [
-      { h3: this.options.texts?.import ?? defaultTextsOptions.import },
+      { h2: this.options.texts?.import ?? defaultTextsOptions.import },
       {
         code: {
           language: this._getLanguage(this.value),
@@ -83,13 +95,16 @@ export class MdTransformer {
 
     if (signature && signature.parameters?.length) {
       const headers = this.options.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders;
-      const parameters = signature.parameters.map((parameter) => {
+      const parameters = signature.parameters.map((parameter, index) => {
+        const paramName = parameter.name || "-";
+        const name = paramName === "__namedParameters" ? `parameter${index + 1}` : paramName;
+
         return {
           value: [
-            parameter.name || "-",
-            this._getTypeObject(parameter) || "-",
-            parameter.defaultValue || "-",
-            parameter?.comment?.shortText || "-",
+            name,
+            this._getTypeObject(parameter) || "",
+            parameter.defaultValue || "",
+            parameter?.comment?.shortText || "",
           ],
         };
       });
@@ -111,25 +126,28 @@ export class MdTransformer {
 
     if (methods.length) {
       output.push({ h2: this.options.texts?.methods ?? defaultTextsOptions.methods });
-      const returnsText = this.options.texts?.methods ?? defaultTextsOptions.methods;
 
       methods.forEach((method, index) => {
         const methodTransformer = new MdTransformer(method, this.options, this.pkg);
         const description = methodTransformer.getDescription();
         const parameters = methodTransformer.getParams("h4");
         const returns = methodTransformer._getReturnType();
+        const preview = methodTransformer._getCallPreview();
         const isLast = methods.length === index + 1;
 
         output.push({ h3: getMdQuoteText(method.name + "()") });
-        output.push({
-          code: {
-            language: this._getLanguage(this.value),
-            content: [methodTransformer._getCallPreview()],
-          },
-        });
+
+        if (preview) {
+          output.push({
+            code: {
+              language: this._getLanguage(this.value),
+              content: [methodTransformer._getCallPreview()],
+            },
+          });
+        }
 
         if (returns) {
-          output.push({ p: `${returnsText}${getMdQuoteText(returns)}` });
+          output.push({ p: returns });
         }
         if (description?.length) {
           output = output.concat(description);
@@ -145,30 +163,77 @@ export class MdTransformer {
     return output;
   }
 
+  getAdmonitionsType(type: AdmonitionTypes): json2md.DataObject[] {
+    let output: Array<Record<string, unknown>> = [];
+
+    const tags = this._getTags();
+    const admonitions = getMdAdmonitions(tags, type, this.options);
+
+    if (admonitions.length) {
+      admonitions.forEach((admonition) => {
+        output.push({ p: admonition });
+      });
+    }
+
+    return output;
+  }
+
+  // Private methods
+
   _getMethods() {
     const methodKinds = ["Method"];
-    const methods = this.value.children?.filter((child) => methodKinds.includes(child.kindString || ""));
+    const methods = this.value.children
+      ?.sort((a, b) => {
+        const nameA = a.name.startsWith("_");
+        const nameB = b.name.startsWith("_");
+
+        if (nameA && nameB) {
+          return 0;
+        } else if (nameA) {
+          return 1;
+        }
+        return -1;
+      })
+      ?.filter((child) => methodKinds.includes(child.kindString || ""));
     return methods || [];
   }
 
   _getCallSignature() {
     const parametersKinds = ["Call", "Constructor"];
-    const signature = this.value.children
+
+    // Methods
+    if (this.value.signatures) {
+      return this.value.signatures?.find((signature) => !!signature);
+    }
+
+    // Class / Function
+    return this.value.children
       ?.find((child) => parametersKinds.includes(child.kindString || ""))
       ?.signatures?.find((signature) => !!signature);
-    return signature;
   }
 
   _getReturnType() {
     const signature = this._getCallSignature();
     const type = signature?.type;
     const args = type && "typeArguments" in type && type?.typeArguments;
+    const returnsText = this.options.texts?.returns ?? defaultTextsOptions.returns;
 
-    if (type?.type && args && args?.length) {
-      return `${type.type}<${args.join(", ")}>`;
+    const getReturnResponse = (value: string) => `${returnsText} ${getMdQuoteText(value)}`;
+
+    const tags = this._getTags();
+    const returnTag = tags?.find(({ tag }) => tag === "returns");
+
+    if (returnTag && returnTag.text) {
+      return getReturnResponse(returnTag.text);
     }
 
-    return type?.type;
+    if (type?.type && args && args?.length) {
+      // @ts-ignore "name" is not present in the types
+      return getReturnResponse(`${type.name}<${args.map((arg) => arg.name || arg.type).join(", ")}>`);
+    }
+
+    // @ts-ignore "name" is not present in the types
+    return getReturnResponse(type?.name || type?.type || "void");
   }
 
   _getCallPreview() {
@@ -187,6 +252,10 @@ export class MdTransformer {
     }
 
     return "";
+  }
+
+  _getTags() {
+    return this.value.comment?.tags;
   }
 
   _getTypeObject(parameter: JSONOutput.ParameterReflection) {

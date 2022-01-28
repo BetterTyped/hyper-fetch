@@ -1,6 +1,8 @@
 import { JSONOutput } from "typedoc";
 
 import { flattenText } from "./md.utils";
+import { defaultTextsOptions } from "../constants/options.constants";
+import { PluginOptions } from "../types/package.types";
 
 type CardBlockInputType = {
   link: string;
@@ -9,7 +11,8 @@ type CardBlockInputType = {
   logo?: string;
 };
 
-type LabelStates = "success" | "warning" | "danger";
+type LabelStates = "info" | "success" | "warning" | "danger";
+export type AdmonitionTypes = "note" | "tip" | "info" | "caution" | "danger" | "deprecated";
 
 export const getStatusIcon = (tags: string[]) => {
   if (tags.includes("alpha") || tags.includes("beta")) {
@@ -33,17 +36,23 @@ export const getMdTitle = (value: JSONOutput.DeclarationReflection) => {
 
 export const getMdBadges = (value: JSONOutput.DeclarationReflection) => {
   const tags = value.comment?.tags
-    ?.filter(({ tag }) => ["alpha", "beta"].includes(tag))
+    ?.filter(({ tag }) => ["alpha", "beta", "experimental"].includes(tag))
     .map(({ tag }) => {
       if (tag === "alpha") {
         return getMdLabel("danger", "Alpha", true);
+      } else if (tag === "beta") {
+        return getMdLabel("warning", "Beta", true);
       }
-      return getMdLabel("warning", "Beta", true);
+      return getMdLabel("info", "Experimental", true);
     });
+
+  if (!tags) {
+    return "";
+  }
 
   return flattenText(`
   <p className="row api-badges" style={{padding: "0 10px"}}>
-  ${tags?.join(" ")}
+  ${tags.join(" ")}
   </p>
   `);
 };
@@ -120,6 +129,35 @@ export const getMdCopyright = (text: string) => {
 `);
 };
 
+export const getMdAdmonitions = (
+  tags: JSONOutput.CommentTag[] | undefined,
+  type: AdmonitionTypes,
+  options?: PluginOptions,
+) => {
+  function capitalizeFirstLetter(value: string) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  const isDeprecated = type === "deprecated";
+  const admonitionType = isDeprecated ? "caution" : type;
+  const defaultText = isDeprecated ? options?.texts?.deprecated ?? defaultTextsOptions.deprecated : "";
+
+  if (tags?.length) {
+    return [
+      tags
+        .filter(({ tag, text }) => tag === type && (text || defaultTextsOptions))
+        .map(({ text }) =>
+          `
+:::${admonitionType} ${capitalizeFirstLetter(type)}
+${text || defaultText}
+:::`.trim(),
+        ),
+    ];
+  }
+
+  return [];
+};
+
 export const getMdLabel = (type: LabelStates, value = "Required", filled = false) => {
   const borderStyles = {
     border: "2px solid",
@@ -164,6 +202,11 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
       borderColor: "var(--ifm-color-danger)",
       color: "var(--ifm-color-danger)",
     },
+    info: {
+      ...borderStyles,
+      borderColor: "var(--ifm-color-info)",
+      color: "var(--ifm-color-info)",
+    },
   }[type];
 
   const fillStyle = {
@@ -180,6 +223,11 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
     danger: {
       ...fillStyles,
       background: "var(--ifm-color-danger)",
+      color: "#fff",
+    },
+    info: {
+      ...fillStyles,
+      background: "var(--ifm-color-info)",
       color: "#fff",
     },
   }[type];

@@ -13,7 +13,13 @@ export const classFormatter = (
   return json2md([
     ...transformer.getName(),
     ...transformer.getBadges(),
+    ...transformer.getAdmonitionsType("deprecated"),
+    ...transformer.getAdmonitionsType("danger"),
     ...transformer.getDescription(true),
+    ...transformer.getAdmonitionsType("info"),
+    ...transformer.getAdmonitionsType("tip"),
+    ...transformer.getAdmonitionsType("note"),
+    ...transformer.getAdmonitionsType("caution"),
     ...transformer.getImport(),
     ...transformer.getParams(),
     ...transformer.getMethods(),

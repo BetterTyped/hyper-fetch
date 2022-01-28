@@ -30,5 +30,6 @@ export type TextsOptions = {
   additionalLinks?: string;
   import?: string;
   returns?: string;
+  deprecated?: string;
   paramTableHeaders: [string, string, string, string];
 };

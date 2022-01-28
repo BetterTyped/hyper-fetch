@@ -20,6 +20,7 @@ export const defaultTextsOptions: RequiredKeys<TextsOptions> = {
   example: "Example",
   additionalLinks: "Additional Links",
   import: "Import",
-  returns: "Returns a ",
+  returns: "Returns a",
+  deprecated: "This feature is deprecated and might be removed in future releases.",
   paramTableHeaders: ["Name", "Type", "Default Value", "Description"],
 };
