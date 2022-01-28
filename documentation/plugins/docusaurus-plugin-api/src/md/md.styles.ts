@@ -1,8 +1,9 @@
 import { JSONOutput } from "typedoc";
 
-import { flattenText } from "./md.utils";
+import { flattenText, getStatusIcon } from "./md.utils";
 import { defaultTextsOptions } from "../constants/options.constants";
 import { PluginOptions } from "../types/package.types";
+import { KindTypes } from "./md.constants";
 
 type CardBlockInputType = {
   link: string;
@@ -14,17 +15,6 @@ type CardBlockInputType = {
 type LabelStates = "info" | "success" | "warning" | "danger";
 export type AdmonitionTypes = "note" | "tip" | "info" | "caution" | "danger" | "deprecated";
 
-export const getStatusIcon = (tags: string[]) => {
-  if (tags.includes("alpha") || tags.includes("beta")) {
-    return "🚧 ";
-  }
-  if (tags.includes("experimental")) {
-    return "🧪 ";
-  }
-
-  return ``;
-};
-
 export const getMdTitle = (value: JSONOutput.DeclarationReflection) => {
   const name = value.name;
   const tagsStatuses = value.comment?.tags?.map(({ tag }) => tag) || [];
@@ -35,30 +25,25 @@ export const getMdTitle = (value: JSONOutput.DeclarationReflection) => {
 };
 
 export const getMdBadges = (value: JSONOutput.DeclarationReflection) => {
-  const tags = value.comment?.tags
-    ?.filter(({ tag }) => ["alpha", "beta", "experimental"].includes(tag))
-    .map(({ tag }) => {
-      if (tag === "alpha") {
-        return getMdLabel("danger", "Alpha", true);
-      } else if (tag === "beta") {
-        return getMdLabel("warning", "Beta", true);
-      }
-      return getMdLabel("info", "Experimental", true);
-    });
+  const tags =
+    value.comment?.tags
+      ?.filter(({ tag }) => ["alpha", "beta", "experimental"].includes(tag || ""))
+      .map(({ tag }) => {
+        if (tag === "alpha") {
+          return getMdLabel("danger", "Alpha", true);
+        } else if (tag === "beta") {
+          return getMdLabel("warning", "Beta", true);
+        }
+        return getMdLabel("info", "Experimental", true);
+      }) || [];
 
-  if (!tags) {
-    return "";
-  }
+  tags.unshift(getMdLabel("success", value.kindString, true));
 
   return flattenText(`
   <p className="row api-badges" style={{padding: "0 10px"}}>
   ${tags.join(" ")}
   </p>
   `);
-};
-
-export const getMdQuoteText = (value: string) => {
-  return "`" + value + "`";
 };
 
 export const getMdCard = ({ link, logo, title, description }: CardBlockInputType) => {
@@ -81,39 +66,52 @@ export const getMdCard = ({ link, logo, title, description }: CardBlockInputType
 };
 
 export const getMdRow = (value: string): string => {
-  return `<div class="row api-row">${value}</div>`;
+  return `<div className="row api-row">${value}</div>`;
 };
 
 export const getMdDescription = (value?: string) => {
-  return !value ? "" : `<p class="api-description">${value}</p>`;
+  return !value ? "" : `<p className="api-description">${value}</p>`;
 };
 export const getMdTable = (
   headers: string[],
   rows: { value: string[]; tag?: { value?: string; type: LabelStates } }[],
 ) => {
+  const head = flattenText(
+    `<thead><tr>${headers.map((header) => `<th style={{textAlign: "left"}}>${header}</th>`).join("")}</tr></thead>`,
+  );
+
+  const body = flattenText(
+    `<tbody>${rows
+      .map(
+        (row) =>
+          `<tr>${row.value
+            .map(
+              (cell, index) =>
+                "<td>" +
+                `${flattenText(cell)} ${(!index && row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""}`.trim() +
+                "</td>",
+            )
+            .join("")}</tr>`,
+      )
+      .join("")}</tbody>`,
+  );
+
   return flattenText(`
     <div className="api-table-wrapper" style={{overflowX: "auto"}}>
-      <table className="api-table" style={{width: '100%', display: "table"}}>
-        <thead>
-          <tr>${headers.map((header) => `<th style={{textAlign: "left"}}>${header}</th>`).join("")}</tr>
-        </thead>
-        <tbody>
-          ${rows
-            .map(
-              (row) =>
-                `<tr>${row.value
-                  .map(
-                    (cell, index) =>
-                      `<td>${flattenText(cell)} ${
-                        (!index && row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""
-                      }</td>`,
-                  )
-                  .join("")}</tr>`,
-            )
-            .join("")}
-        </tbody>
-      </table>
+      <table className="api-table" style={{width: '100%', display: "table"}}>${head}${body}</table>
     </div>
+`);
+};
+
+export const getMdMainLine = () => {
+  return flattenText(`
+    <hr className="api-main-line" style={{borderColor: "var(--ifm-color-emphasis-200)"}} />
+`);
+};
+
+export const getMdLine = () => {
+  return flattenText(`
+    <hr className="api-line" style={{borderColor: "var(--ifm-color-emphasis-400)"}} />
 `);
 };
 
@@ -167,10 +165,7 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
     marginRight: "6px",
     padding: "0 6px",
     fontSize: ".7rem",
-    fontWeight: "bold",
     textTransform: "uppercase",
-    width: "fit-content",
-    maxWidth: "fit-content",
   };
   const fillStyles = {
     border: "0px",
@@ -180,10 +175,7 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
     marginRight: "6px",
     padding: "0 6px",
     fontSize: ".7rem",
-    fontWeight: "bold",
     textTransform: "uppercase",
-    width: "fit-content",
-    maxWidth: "fit-content",
   };
 
   const borderStyle = {
@@ -233,8 +225,44 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
   }[type];
 
   return flattenText(
-    `<div class="api-label api-label-${type}" style={${JSON.stringify(
+    `<b className="api-label api-label-${type}" style={${JSON.stringify(
       filled ? fillStyle : borderStyle,
-    )}}>${value}</div>`,
+    )}}>${value}</b>`,
   );
+};
+
+export const getVariablePreview = (
+  kind: KindTypes.enum | KindTypes.type | KindTypes.var,
+  name: string,
+  values: string | [string, string][],
+) => {
+  const keyword = {
+    [KindTypes.enum]: "enum",
+    [KindTypes.var]: "const",
+    [KindTypes.type]: "type",
+  }[kind];
+
+  const delimeter = {
+    [KindTypes.enum]: ";",
+    [KindTypes.var]: ",",
+    [KindTypes.type]: ";",
+  }[kind];
+
+  if (typeof values === "string") {
+    return flattenText(
+      `
+        ${keyword} ${name} = ${values};
+      `,
+    );
+  }
+
+  return `
+${keyword} ${name} = {
+${values
+  .map((value, index) => {
+    const isLast = index + 1 === values.length;
+    const end = kind === KindTypes.var && isLast ? "" : delimeter;
+    return `  ${value[0]}: ${value[1]}${end}\n`;
+  })
+  .join("")}}`.trim();
 };
