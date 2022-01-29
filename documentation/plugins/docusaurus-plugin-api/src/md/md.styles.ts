@@ -248,21 +248,33 @@ export const getVariablePreview = (
     [KindTypes.type]: ";",
   }[kind];
 
+  const separator = {
+    [KindTypes.enum]: " =",
+    [KindTypes.var]: ":",
+    [KindTypes.type]: ":",
+  }[kind];
+
+  const mainSeparator = {
+    [KindTypes.enum]: "",
+    [KindTypes.var]: " =",
+    [KindTypes.type]: " =",
+  }[kind];
+
   if (typeof values === "string") {
     return flattenText(
       `
-        ${keyword} ${name} = ${values};
+        ${keyword} ${name}${mainSeparator} ${values};
       `,
     );
   }
 
   return `
-${keyword} ${name} = {
+${keyword} ${name}${mainSeparator} {
 ${values
   .map((value, index) => {
     const isLast = index + 1 === values.length;
     const end = kind === KindTypes.var && isLast ? "" : delimeter;
-    return `  ${value[0]}: ${value[1]}${end}\n`;
+    return `  ${value[0]}${separator} ${value[1]}${end}\n`;
   })
   .join("")}}`.trim();
 };

@@ -11,6 +11,8 @@ import { PluginOptions } from "./types/package.types";
 import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
 
+let generated = false;
+
 function plugin(context: LoadContext, options: PluginOptions) {
   const { generatedFilesDir } = context;
 
@@ -33,7 +35,12 @@ function plugin(context: LoadContext, options: PluginOptions) {
   return {
     ...pluginInstance,
     loadContent: async function () {
-      await builder(apiRootDir, options);
+      if (!generated) {
+        await builder(apiRootDir, options);
+        generated = true;
+      } else {
+        trace("Using cached api files. If you want to see changes, please restart the command.");
+      }
 
       trace("Loading generated docs");
       console.log("\n");

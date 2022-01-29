@@ -14,7 +14,7 @@ import {
   getMdLine,
   getVariablePreview,
 } from "./md.styles";
-import { getMdBoldText, getMdQuoteText, getTypeName, sanitizeHtml } from "./md.utils";
+import { getMdBoldText, getMdQuoteText, getType, getTypeName, getParamName, getParamsNames } from "./md.utils";
 
 export class MdTransformer {
   constructor(private value: JSONOutput.DeclarationReflection, private options: PluginOptions, private pkg: string) {}
@@ -37,7 +37,7 @@ export class MdTransformer {
     return [];
   }
 
-  getDescription(setDefaultDescription = false) {
+  getDescription(hasHeader = true) {
     const shortDescription = this.value.comment?.shortText;
     const longDescription = this.value.comment?.text;
 
@@ -51,22 +51,14 @@ export class MdTransformer {
       output.push({ p: getMdDescription(longDescription || "") });
     }
 
-    if (!output.length && setDefaultDescription) {
-      output.push({
-        p: getMdDescription(
-          `This ${getMdQuoteText(this.value.kindString || "Element")} doesn't have any description yet.`,
-        ),
-      });
-    }
-
-    if (output.length) {
+    if (hasHeader && output.length) {
       output.unshift({ h2: "Description" });
     }
 
     return output;
   }
 
-  getAdmonitionsType(type: AdmonitionTypes): json2md.DataObject[] {
+  getAdmonitionsByType(type: AdmonitionTypes): json2md.DataObject[] {
     let output: Array<Record<string, unknown>> = [];
 
     const tags = this._getTags();
@@ -81,9 +73,8 @@ export class MdTransformer {
     return output;
   }
 
-  getImport(): json2md.DataObject[] {
-    return [
-      { h2: this.options.texts?.import ?? defaultTextsOptions.import },
+  getImport(hasHeader = true): json2md.DataObject[] {
+    const output: json2md.DataObject[] = [
       {
         code: {
           language: this._getLanguage(),
@@ -91,6 +82,12 @@ export class MdTransformer {
         },
       },
     ];
+
+    if (hasHeader) {
+      output.unshift({ h2: this.options.texts?.import ?? defaultTextsOptions.import });
+    }
+
+    return output;
   }
 
   getExample(): json2md.DataObject[] {
@@ -111,81 +108,109 @@ export class MdTransformer {
     return [];
   }
 
-  getPreview(): json2md.DataObject[] {
+  getPreview(hasHeader = true): json2md.DataObject[] {
     const signature = this._getCallSignature();
     const parameters = signature?.parameters;
     const kind = (this.value.kindString || "") as KindTypes;
 
     if (signature && parameters && [KindTypes.class, KindTypes.fn].includes(kind)) {
-      const params = this._getParamsNames(parameters);
-      return [
-        { h2: this.options.texts?.preview ?? defaultTextsOptions.preview },
-        {
-          code: {
-            language: this._getLanguage(),
-            content: [`${signature.name}(${params.join(", ")})`],
-          },
+      const params = getParamsNames(parameters);
+      const output: json2md.DataObject[] = [];
+
+      if (hasHeader) {
+        output.unshift({ h2: this.options.texts?.preview ?? defaultTextsOptions.preview });
+      }
+
+      output.push({
+        code: {
+          language: this._getLanguage(),
+          content: [`${getTypeName(signature, true)}(${params.join(", ")})`],
         },
-      ];
+      });
+
+      return output;
     }
 
     if ([KindTypes.type, KindTypes.enum, KindTypes.var].includes(kind)) {
-      return [
-        { h2: this.options.texts?.preview ?? defaultTextsOptions.preview },
-        {
-          code: {
-            language: this._getLanguage(),
-            content: [getVariablePreview(kind as any, this.value.name, this._getStructuredType())],
-          },
+      const output: json2md.DataObject[] = [];
+
+      if (hasHeader) {
+        output.unshift({ h2: this.options.texts?.preview ?? defaultTextsOptions.preview });
+      }
+
+      output.push({
+        code: {
+          language: this._getLanguage(),
+          content: [
+            getVariablePreview(
+              kind as KindTypes.enum | KindTypes.type | KindTypes.var,
+              getTypeName(this.value, true),
+              this._getStructureType(),
+            ),
+          ],
         },
-      ];
+      });
+
+      return output;
     }
 
     return [];
   }
 
-  getParameters(titleSize = "h2"): json2md.DataObject[] {
+  getParameters(hasHeader = true): json2md.DataObject[] {
     const signature = this._getCallSignature();
     const parameters = signature?.parameters;
 
     if (parameters?.length) {
+      const output: json2md.DataObject[] = [];
+
       const headers = this.options.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders;
-      const params = parameters.map((parameter, index) => {
-        const name = this._getParamName(parameter, index);
+      let namedParameterCount = 0;
+      const params = parameters.map((parameter) => {
+        const name = getParamName(parameter, namedParameterCount);
+
+        if (parameter.name === "__namedParameters") {
+          namedParameterCount++;
+        }
 
         return {
           value: [
             getMdBoldText(name),
-            getMdQuoteText(this._getType(parameter?.type)) || "-",
+            getMdQuoteText(getType(parameter?.type)) || "-",
             parameter.defaultValue || "-",
             parameter?.comment?.shortText || "-",
           ],
         };
       });
 
-      return [
-        { [titleSize]: this.options.texts?.parameters ?? defaultTextsOptions.parameters },
-        {
-          p: getMdTable(headers, params),
-        },
-      ];
+      if (hasHeader) {
+        output.unshift({ h2: this.options.texts?.parameters ?? defaultTextsOptions.parameters });
+      }
+
+      output.push({
+        p: getMdTable(headers, params),
+      });
+
+      return output;
     }
 
     return [];
   }
 
-  getMethods(): json2md.DataObject[] {
+  getMethods(hasHeader = true): json2md.DataObject[] {
     let output: Array<Record<string, unknown>> = [];
 
     const methods = this._getMethods();
 
     if (methods.length) {
-      output.push({ h2: this.options.texts?.methods ?? defaultTextsOptions.methods });
+      if (hasHeader) {
+        output.push({ h2: this.options.texts?.methods ?? defaultTextsOptions.methods });
+      }
 
       methods.forEach((method, index) => {
         const methodTransformer = new MdTransformer(method, this.options, this.pkg);
         const description = methodTransformer.getDescription();
-        const parameters = methodTransformer.getParameters("h4");
+        const parameters = methodTransformer.getParameters(false);
         const returns = methodTransformer._getReturnType();
         const preview = methodTransformer._getCallPreview();
         const isLast = methods.length === index + 1;
@@ -207,6 +232,7 @@ export class MdTransformer {
           output = output.concat(description);
         }
         if (parameters?.length) {
+          output.push({ h4: this.options.texts?.parameters ?? defaultTextsOptions.parameters });
           output = output.concat(parameters);
         }
 
@@ -244,26 +270,6 @@ export class MdTransformer {
     return methods;
   }
 
-  _getParamName(parameter: JSONOutput.ParameterReflection | undefined, index?: number) {
-    if (parameter) {
-      const paramName = parameter.name || "-";
-      const paramIndex = typeof index === "number" ? index + 1 : "";
-      return paramName === "__namedParameters" ? `param${paramIndex}` : paramName;
-    }
-
-    return "";
-  }
-
-  _getParamsNames(parameters: JSONOutput.ParameterReflection[] | undefined) {
-    if (parameters) {
-      return parameters.map((parameter, index) => {
-        return this._getParamName(parameter, index);
-      });
-    }
-
-    return [];
-  }
-
   _getCallSignature() {
     const parametersKinds = ["Call", "Constructor"];
 
@@ -289,7 +295,7 @@ export class MdTransformer {
     const signature = this._getCallSignature();
     const tags = this._getTags();
     const returnTag = tags?.find(({ tag }) => tag === "returns");
-    const type = this._getType(signature?.type);
+    const type = getType(signature?.type);
     const returnsText = this.options.texts?.returns ?? defaultTextsOptions.returns;
 
     const getReturnResponse = (value: string) => `${returnsText} ${getMdQuoteText(value)}`;
@@ -301,13 +307,22 @@ export class MdTransformer {
     return getReturnResponse(type);
   }
 
-  _getStructuredType() {
-    const type = this.value?.type as JSONOutput.ReflectionType;
-    const declaration = type?.declaration;
-    if (declaration?.children?.length) {
-      return declaration.children.map<[string, string]>((child) => [child.name, this._getType(child.type)]);
+  _getStructureType() {
+    const value = this.value;
+    const type = value?.type;
+    if (type && "declaration" in type && type.declaration?.children?.length) {
+      return type.declaration.children.map<[string, string]>((child) => {
+        const signature = child?.signatures?.[0];
+        return [`${child.name}: ${getType(child.type)}`, getType(signature || child.type)];
+      });
     }
-    return getTypeName(type);
+    if (value && "children" in value && value?.children?.length) {
+      return value.children.map<[string, string]>((child) => [
+        `${child.name}: ${getType(child.type)}`,
+        child.defaultValue || getType(child.type),
+      ]);
+    }
+    return getType(type);
   }
 
   _getCallPreview() {
@@ -330,29 +345,6 @@ export class MdTransformer {
 
   _getTags() {
     return this.value.comment?.tags;
-  }
-
-  _getType(
-    type: JSONOutput.ParameterReflection["type"] | JSONOutput.ReflectionType | JSONOutput.SomeType | undefined,
-  ): string {
-    const declaration = (type as JSONOutput.ReflectionType)?.declaration;
-
-    if (type?.type === "union" && type.types) {
-      return type.types.map((type) => getTypeName(type)).join(" | ") || "";
-    }
-
-    if (declaration?.children?.length) {
-      return `{ ${declaration.children.map<[string, string]>((child) => [child.name, this._getType(child.type)])} }`;
-    }
-
-    // @ts-ignore "typeArguments" is not present in the types
-    const args = type && ((type.typeArguments || type.types) as JSONOutput.SomeType[]);
-
-    if (type?.type && args && args?.length) {
-      return `${getTypeName(type)}<${args.map((arg) => this._getType(arg)).join(", ")}>`;
-    }
-
-    return getTypeName(type);
   }
 
   _getLanguage() {
