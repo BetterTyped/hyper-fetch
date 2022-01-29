@@ -37,8 +37,7 @@ function plugin(context: LoadContext, options: PluginOptions) {
 
       trace("Loading generated docs");
       console.log("\n");
-      const response = await pluginInstance.loadContent();
-      return response;
+      return pluginInstance.loadContent();
     },
   };
 }
