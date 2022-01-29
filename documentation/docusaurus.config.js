@@ -42,6 +42,7 @@ const config = {
       "docusaurus-plugin-api",
       {
         id: "api",
+        readOnce: true,
         packages: [
           {
             logo: "/img/logo.svg",

@@ -17,7 +17,12 @@ import {
 import { getMdBoldText, getMdQuoteText, getTypeName, sanitizeHtml } from "./md.utils";
 
 export class MdTransformer {
-  constructor(private value: JSONOutput.DeclarationReflection, private options: PluginOptions, private pkg: string) {}
+  constructor(
+    private value: JSONOutput.DeclarationReflection,
+    private options: PluginOptions,
+    private pkg: string,
+    private showHeaders: boolean = true,
+  ) {}
 
   getName(): json2md.DataObject[] {
     return [{ h1: getMdTitle(this.value) }];
@@ -59,7 +64,7 @@ export class MdTransformer {
       });
     }
 
-    if (output.length) {
+    if (output.length && this.showHeaders) {
       output.unshift({ h2: "Description" });
     }
 
@@ -83,7 +88,7 @@ export class MdTransformer {
 
   getImport(): json2md.DataObject[] {
     return [
-      { h2: this.options.texts?.import ?? defaultTextsOptions.import },
+      ...(this.showHeaders ? [{ h2: this.options.texts?.import ?? defaultTextsOptions.import }] : []),
       {
         code: {
           language: this._getLanguage(),
@@ -99,7 +104,7 @@ export class MdTransformer {
 
     if (example) {
       return [
-        { h2: this.options.texts?.example ?? defaultTextsOptions.example },
+        ...(this.showHeaders ? [{ h2: this.options.texts?.example ?? defaultTextsOptions.example }] : []),
         {
           code: {
             language: this._getLanguage(),
@@ -119,7 +124,7 @@ export class MdTransformer {
     if (signature && parameters && [KindTypes.class, KindTypes.fn].includes(kind)) {
       const params = this._getParamsNames(parameters);
       return [
-        { h2: this.options.texts?.preview ?? defaultTextsOptions.preview },
+        ...(this.showHeaders ? [{ h2: this.options.texts?.preview ?? defaultTextsOptions.preview }] : []),
         {
           code: {
             language: this._getLanguage(),
@@ -131,7 +136,7 @@ export class MdTransformer {
 
     if ([KindTypes.type, KindTypes.enum, KindTypes.var].includes(kind)) {
       return [
-        { h2: this.options.texts?.preview ?? defaultTextsOptions.preview },
+        ...(this.showHeaders ? [{ h2: this.options.texts?.preview ?? defaultTextsOptions.preview }] : []),
         {
           code: {
             language: this._getLanguage(),
@@ -164,7 +169,9 @@ export class MdTransformer {
       });
 
       return [
-        { [titleSize]: this.options.texts?.parameters ?? defaultTextsOptions.parameters },
+        ...(this.showHeaders
+          ? [{ [titleSize]: this.options.texts?.parameters ?? defaultTextsOptions.parameters }]
+          : []),
         {
           p: getMdTable(headers, params),
         },

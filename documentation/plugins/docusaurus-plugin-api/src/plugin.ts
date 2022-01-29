@@ -10,9 +10,11 @@ import { prepareApiDirectory } from "./utils/file.utils";
 import { PluginOptions } from "./types/package.types";
 import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
+import { assignPluginOpts } from "./globals";
 
 function plugin(context: LoadContext, options: PluginOptions) {
   const { generatedFilesDir } = context;
+  assignPluginOpts(options);
 
   const apiRootDir = path.join(generatedFilesDir, "..", apiDir, options.docs.routeBasePath);
 

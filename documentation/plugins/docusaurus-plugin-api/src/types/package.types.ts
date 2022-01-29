@@ -2,6 +2,7 @@ import { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-d
 
 export type PluginOptions = {
   id: string;
+  readOnce: boolean;
   docs: DocsPluginOptions;
   packages: PackageOption[];
   texts?: TextsOptions;
@@ -33,4 +34,9 @@ export type TextsOptions = {
   returns?: string;
   deprecated?: string;
   paramTableHeaders: [string, string, string, string];
+};
+
+export type PkgMeta = {
+  docPath: string;
+  file?: File;
 };
