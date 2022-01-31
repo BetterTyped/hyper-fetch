@@ -16,6 +16,8 @@ jobs:
           aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
+      - name: Install packages
+        run: yarn install
       - name: Build docs
         run: yarn build:docs
       - name: Deploy to S3 bucket
