@@ -1,11 +1,12 @@
 import * as TypeDoc from "typedoc";
-import { error } from "../utils/log.utils";
+import { PluginOptions } from "../types/package.types";
+import { getPackageJson } from "../utils/package.utils";
 
 export const parseToJson = async (
   apiDocsPath: string,
   entryPath: string,
   tsconfig: string,
-  options?: Partial<TypeDoc.TypeDocOptions>,
+  pluginOptions: PluginOptions,
 ) => {
   // 1. Prepare typedoc application to render
   const app = new TypeDoc.Application();
@@ -14,6 +15,13 @@ export const parseToJson = async (
   app.options.addReader(new TypeDoc.TSConfigReader());
   app.options.addReader(new TypeDoc.TypeDocReader());
 
+  const excludedPackages: string[] = pluginOptions.packages
+    .map((pkg) => {
+      const packageJson = getPackageJson(pkg.dir, "package.json");
+      return packageJson ? (packageJson.name as string) : "";
+    })
+    .filter(Boolean);
+
   // 3. Parser options to bootstrap project
   app.bootstrap({
     emit: true,
@@ -21,8 +29,8 @@ export const parseToJson = async (
     excludeInternal: true,
     excludePrivate: true,
     excludeProtected: true,
-    exclude: ["node_modules"],
-    ...options,
+    exclude: [...excludedPackages, "node_modules"],
+    ...pluginOptions.typeDocOptions,
     entryPointStrategy: "expand",
     tsconfig,
     entryPoints: [entryPath],

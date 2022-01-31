@@ -1,9 +1,11 @@
 import { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-docs/lib/types";
+import * as TypeDoc from "typedoc";
 
 export type PluginOptions = {
   id: string;
   docs: DocsPluginOptions;
   packages: PackageOption[];
+  typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
   texts?: TextsOptions;
 };
 

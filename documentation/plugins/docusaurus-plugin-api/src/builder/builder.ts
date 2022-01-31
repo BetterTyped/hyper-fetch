@@ -43,7 +43,7 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
 
     // Scan and parse docs to json
     trace(`Starting project parsing.`, mainTitle);
-    await parseToJson(apiJsonDocsPath, entry, tsconfigPath);
+    await parseToJson(apiJsonDocsPath, entry, tsconfigPath, options);
     success(`Successfully parsed docs!`, mainTitle);
 
     // Generate docs files
