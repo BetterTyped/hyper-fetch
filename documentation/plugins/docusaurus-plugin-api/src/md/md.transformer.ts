@@ -643,10 +643,6 @@ export class MdTransformer {
         child.defaultValue || unSanitizeHtml(getType(child.type, "", [], true, false)),
       ]);
     }
-    if (this.reflection.name === "ExtractError") {
-      console.log(1, value);
-      console.log(2, type);
-    }
 
     return unSanitizeHtml(getType(type, "", [], true, false));
   }
