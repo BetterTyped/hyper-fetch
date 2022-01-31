@@ -3,7 +3,7 @@ import {
   getAbortKey,
   addAbortController,
   abortCommand,
-  DefaultOptionsType,
+  FetchCommandCurrentType,
   ExtractRouteParams,
   FetchMethodType,
   FetchCommandOptions,
@@ -20,6 +20,17 @@ import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
 import { FetchAction } from "action";
 
+/**
+ * Fetch command it is designed to prepare the necessary setup to execute the request to the server.
+ * We can setup basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
+ * :::info Usage
+ * We should not use this class directly in the standard development flow. We can initialize it using the `createCommand` method on the **FetchBuilder** class.
+ * :::
+ *
+ * @attention
+ * The most important thing about the command is that it keeps data in the format that can be dumped. This is necessary for the persistance and different queue storage types.
+ * This class doesn't have any callback methods by design and communicate with queue and cache by events.
+ */
 export class FetchCommand<
   ResponseType,
   PayloadType,
@@ -47,20 +58,24 @@ export class FetchCommand<
   cacheTime: number;
   concurrent: boolean;
   deepEqual: boolean;
-
   abortKey: string;
   cacheKey: string;
   queueKey: string;
   actions: string[] = [];
   disabled: boolean;
   used: boolean;
+  invalidate: (string | RegExp)[];
 
   private logger: LoggerMethodsType;
+
+  private updatedAbortKey: boolean;
+  private updatedCacheKey: boolean;
+  private updatedQueueKey: boolean;
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
-    readonly current?: DefaultOptionsType<
+    readonly current?: FetchCommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -88,6 +103,7 @@ export class FetchCommand<
       abortKey,
       cacheKey,
       queueKey,
+      invalidate = [],
     } = { ...this.builder.commandOptions, ...commandOptions };
 
     this.endpoint = current?.endpoint || endpoint;
@@ -105,14 +121,17 @@ export class FetchCommand<
     this.cacheTime = current?.cacheTime || cacheTime;
     this.concurrent = current?.concurrent || concurrent;
     this.deepEqual = current?.deepEqual || deepEqual;
-
     this.abortKey = current?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
     this.cacheKey = current?.cacheKey || cacheKey || getCommandKey(this);
     this.queueKey = current?.queueKey || queueKey || getCommandKey(this);
-
     this.actions = current?.actions || [];
     this.disabled = current?.disabled || false;
     this.used = current?.used || false;
+    this.invalidate = current?.invalidate || invalidate;
+
+    this.updatedAbortKey = current?.updatedAbortKey || false;
+    this.updatedCacheKey = current?.updatedCacheKey || false;
+    this.updatedQueueKey = current?.updatedQueueKey || false;
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -166,14 +185,17 @@ export class FetchCommand<
   };
 
   public setAbortKey = (abortKey: string) => {
+    this.updatedAbortKey = true;
     return this.clone({ abortKey });
   };
 
   public setCacheKey = (cacheKey: string) => {
+    this.updatedCacheKey = true;
     return this.clone({ cacheKey });
   };
 
   public setQueueKey = (queueKey: string) => {
+    this.updatedQueueKey = true;
     return this.clone({ queueKey });
   };
 
@@ -232,19 +254,22 @@ export class FetchCommand<
         cacheTime: this.cacheTime,
         concurrent: this.concurrent,
         deepEqual: this.deepEqual,
-
         abortKey: this.abortKey,
         cacheKey: this.cacheKey,
         queueKey: this.queueKey,
         actions: this.actions,
         disabled: this.disabled,
         used: this.used,
+        invalidate: this.invalidate,
+        updatedAbortKey: this.updatedAbortKey,
+        updatedCacheKey: this.updatedCacheKey,
+        updatedQueueKey: this.updatedQueueKey,
       },
     };
   }
 
   public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
-    options?: DefaultOptionsType<
+    options?: FetchCommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -265,7 +290,7 @@ export class FetchCommand<
     Q
   > {
     const dump = this.dump();
-    const currentOptions: DefaultOptionsType<
+    const currentOptions: FetchCommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -275,6 +300,9 @@ export class FetchCommand<
     > = {
       ...dump.values,
       ...options,
+      abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
+      cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
+      queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
       data: options?.data || this.data,
@@ -313,7 +341,7 @@ export class FetchCommand<
   > = async (options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
     const { client } = this.builder;
     const command = this.clone(
-      options as DefaultOptionsType<
+      options as FetchCommandCurrentType<
         ResponseType,
         PayloadType,
         QueryParamsType,
@@ -353,7 +381,7 @@ export class FetchCommand<
   ) => {
     const { fetchQueue, submitQueue } = this.builder;
     const command = this.clone(
-      options as DefaultOptionsType<
+      options as FetchCommandCurrentType<
         ResponseType,
         PayloadType,
         QueryParamsType,

@@ -51,7 +51,7 @@ const config = {
           {
             logo: "/img/react.svg",
             title: "React Hyper Fetch",
-            dir: path.join(__dirname, "../packages/core"),
+            dir: path.join(__dirname, "../packages/react"),
             entryPath: "lib/index.ts",
           },
         ],

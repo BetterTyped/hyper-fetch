@@ -7,6 +7,8 @@ import {
   ExtractFetchReturn,
   SubmitLoadingEventType,
   CacheValueType,
+  getCommandKey,
+  FetchCommand,
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
@@ -34,7 +36,6 @@ export const useSubmit = <T extends FetchCommandInstance>(
     debounce = useSubmitDefaultOptions.debounce,
     debounceTime = useSubmitDefaultOptions.debounceTime,
     // suspense = useSubmitDefaultOptions.suspense,
-    // invalidate = useSubmitDefaultOptions.invalidate,
     shouldThrow = useSubmitDefaultOptions.shouldThrow,
   }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
@@ -72,9 +73,11 @@ export const useSubmit = <T extends FetchCommandInstance>(
       logger.debug(`Adding request to submit queue`, { disabled, options });
 
       if (debounce) {
-        requestDebounce.debounce(() => submitQueue.add(request));
+        requestDebounce.debounce(() => {
+          request.send({ queueType: "submit" });
+        });
       } else {
-        submitQueue.add(request);
+        return request.send({ queueType: "submit" });
       }
     } else {
       logger.debug(`Cannot add to submit queue`, { disabled, options });
@@ -96,17 +99,23 @@ export const useSubmit = <T extends FetchCommandInstance>(
         }
       }
       onFinishedCallback?.current?.(response);
+    } else {
+      logger.debug("No response to perform callbacks");
     }
   };
 
-  const handleGetCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     handleCallbacks(cacheData.response); // Must be first
-    actions.setCacheData(cacheData, false);
     actions.setLoading(false, false);
+    actions.setCacheData(cacheData, false);
   };
 
-  const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
-    handleCallbacks([state.data, state.error, state.status]); // Must be first
+  const handleGetEqualCacheUpdate = (
+    cacheData: CacheValueType<ExtractResponse<T>>,
+    isRefreshed: boolean,
+    timestamp: number,
+  ) => {
+    handleCallbacks(cacheData.response); // Must be first
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
     actions.setLoading(false, false);
@@ -142,7 +151,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     const loadingUnmount = submitQueue.events.getLoading(queueKey, handleGetLoadingEvent);
 
     const getDataUnmount = cache.events.get<T>(queueKey, handleGetCacheData);
-    const getEqualDataUnmount = cache.events.getEqualData(cacheKey, handleGetEqualCacheUpdate);
+    const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
 
     return () => {
       downloadUnmount();
@@ -159,6 +168,14 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const handleDependencyTracking = () => {
     if (!dependencyTracking) {
       Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
+    }
+  };
+
+  const invalidateFn = (invalidateKey: string | FetchCommandInstance | RegExp) => {
+    if (invalidateKey && invalidateKey instanceof FetchCommand) {
+      command.builder.cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+    } else {
+      command.builder.cache.events.revalidate(invalidateKey);
     }
   };
 
@@ -215,6 +232,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     actions,
     isDebouncing: false,
     isRefreshed: false,
+    invalidate: invalidateFn,
     onSubmitRequest: (callback: OnRequestCallbackType) => {
       onRequestCallback.current = callback;
     },

@@ -69,6 +69,7 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
         this.deleteRequest(queueKey, requestId);
       }
     }
+    return requestId;
   };
 
   // Request can run for some time, once it's done, we have to check if it's the one that was initially requested

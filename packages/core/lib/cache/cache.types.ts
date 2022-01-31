@@ -36,12 +36,14 @@ export type CacheSetDataType<Response, ErrorType> = {
 export type CacheStorageSyncType = {
   set: <DataType>(key: string, data: CacheValueType<DataType>) => void;
   get: <DataType>(key: string) => CacheStoreValueType<DataType> | undefined;
+  keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
 };
 export type CacheStorageAsyncType = {
   set: <DataType>(key: string, data: CacheValueType<DataType>) => Promise<void>;
   get: <DataType>(key: string) => Promise<CacheStoreValueType<DataType> | undefined>;
+  keys: () => Promise<string[] | IterableIterator<string>>;
   delete: (key: string) => Promise<void>;
   clear: () => Promise<void>;
 };

@@ -28,6 +28,7 @@ export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
 > & {
   data: null | ExtractResponse<T>;
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  invalidate: (invalidateKey: string | FetchCommandInstance | RegExp) => void;
   onSubmitRequest: (callback: OnRequestCallbackType) => void;
   onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;

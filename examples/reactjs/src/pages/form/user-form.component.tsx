@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useSubmit, QueueData } from "@better-typed/react-hyper-fetch";
+import { QueueDumpValueType } from "@better-typed/hyper-fetch";
+import { useSubmit } from "@better-typed/react-hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
 import { patchUser, postUser, postQueue } from "../server/user.api";
 
 export const UserForm: React.FC = () => {
-  const [queue, setQueue] = useState<QueueData<Partial<XMLHttpRequest>>>([]);
+  const [queue, setQueue] = useState<QueueDumpValueType<Partial<XMLHttpRequest>>[]>([]);
 
   const { timestamp, data, error, submitting, submit } = useSubmit(
     postUser.setData({ email: "test", age: 12, name: "name" }),
@@ -24,7 +25,12 @@ export const UserForm: React.FC = () => {
     error: errorQueue,
     submitting: submittingQueue,
     submit: submitQueue,
+    onSubmitSuccess,
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
+
+  onSubmitSuccess(() => {
+    alert("queue success");
+  });
 
   const updateQueue = async () => {
     const newQueue = await postQueue.builder.submitQueue.get(postQueue.queueKey);

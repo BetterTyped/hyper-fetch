@@ -41,16 +41,20 @@ describe("[Basic] FetchQueue", () => {
     it("should cancel already submitted request", async () => {
       const cacheTrigger = jest.fn();
       const cancelTrigger = jest.fn();
-      interceptGetMany(200);
+      interceptGetMany(200, 100);
       testBuilder.cache.events.get(queueKey, cacheTrigger);
 
-      const request = getManyRequest.setCancelable(true);
+      const request = getManyRequest.setCancelable(true).setConcurrent(true);
 
-      getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
+      await sleep(10);
+      getAbortController(request)?.signal.addEventListener("abort", cancelTrigger);
+      testBuilder.fetchQueue.add(request);
+      await sleep(10);
+      getAbortController(request)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
       await waitFor(() => {
-        expect(cancelTrigger).toBeCalled();
+        expect(cancelTrigger).toBeCalledTimes(2);
       });
       await waitFor(() => {
         expect(cacheTrigger).toBeCalledTimes(1);

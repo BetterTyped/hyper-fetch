@@ -25,7 +25,11 @@ export const getMethod = (
     if (!delay) {
       return res(...args);
     }
-    return setTimeout(() => res(...args), delay) as any;
+
+    args.shift();
+    args.unshift(ctx.delay(delay));
+
+    return res(...args);
   }
 
   if (method.toUpperCase() === "POST") {

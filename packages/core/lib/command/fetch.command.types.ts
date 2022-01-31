@@ -21,6 +21,10 @@ export type FetchCommandDump<ClientOptions> = {
     actions: string[];
     disabled: boolean;
     used: boolean;
+    updatedAbortKey: boolean;
+    updatedCacheKey: boolean;
+    updatedQueueKey: boolean;
+    invalidate: (string | RegExp)[];
   };
 };
 
@@ -44,10 +48,10 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   cacheKey?: string;
   queueKey?: string;
   disabled?: boolean;
-  used?: boolean;
+  invalidate?: (string | RegExp)[];
 };
 
-export type DefaultOptionsType<
+export type FetchCommandCurrentType<
   ResponseType,
   PayloadType,
   QueryParamsType,
@@ -62,6 +66,11 @@ export type DefaultOptionsType<
   headers?: HeadersInit;
   actions?: string[];
   disabled?: boolean;
+  used?: boolean;
+  updatedAbortKey?: boolean;
+  updatedCacheKey?: boolean;
+  updatedQueueKey?: boolean;
+  invalidate?: (string | RegExp)[];
 } & Partial<NullableKeys<FetchCommandOptions<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;

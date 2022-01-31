@@ -23,10 +23,7 @@ import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
 /**
- * A quite wonderful function.
- * @param {object} - Privacy gown
- * @param {object} - Security
- * @returns {survival}
+ * Fetch builder class is the orchestrator of the whole library, primary used to initialize connections with the server.
  */
 export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpOptions = FetchClientXHR> {
   readonly baseUrl: string;

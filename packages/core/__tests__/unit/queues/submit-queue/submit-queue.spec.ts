@@ -44,10 +44,10 @@ describe("Basic submitQueue usage", () => {
       const request = getManyRequest.setCancelable(true);
       testBuilder.cache.events.get(request.cacheKey, trigger);
 
-      const controller = getAbortController(request) as AbortController;
+      const controller = getAbortController(request);
 
-      controller.signal.addEventListener("abort", cancelTrigger);
-      controller.abort();
+      controller?.signal.addEventListener("abort", cancelTrigger);
+      controller?.abort();
 
       testBuilder.submitQueue.add(request);
       testBuilder.submitQueue.add(request);
@@ -55,7 +55,7 @@ describe("Basic submitQueue usage", () => {
       await waitFor(() => {
         expect(trigger).toBeCalledTimes(1);
       });
-      controller.signal.removeEventListener("abort", cancelTrigger);
+      controller?.signal.removeEventListener("abort", cancelTrigger);
     });
   });
 });

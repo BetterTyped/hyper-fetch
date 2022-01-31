@@ -65,6 +65,7 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
         this.performRequest(requestCommand, queueElementDump);
       }
     }
+    return requestId;
   };
 
   performRequest = async (requestCommand: FetchCommandInstance, queueElement: QueueDumpValueType<ClientOptions>) => {

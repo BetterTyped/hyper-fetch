@@ -47,20 +47,19 @@ export const addAbortController = (builder: FetchBuilderInstance, abortKey: stri
   }
 };
 
-export const abortCommand = (command: FetchCommandInstance) => {
+export const getAbortController = (command: FetchCommandInstance) => {
   const { abortControllers } = command.builder.commandManager;
-  const controller = abortControllers.get(command.abortKey);
+  return abortControllers.get(command.abortKey);
+};
+
+export const abortCommand = (command: FetchCommandInstance) => {
+  const controller = getAbortController(command);
 
   if (controller) {
     controller.abort();
     command.builder.commandManager.events.emitAbort(command.abortKey, command);
   }
   addAbortController(command.builder, command.abortKey);
-};
-
-export const getAbortController = (command: FetchCommandInstance) => {
-  const { abortControllers } = command.builder.commandManager;
-  return abortControllers.get(command.abortKey);
 };
 
 // Keys
@@ -76,10 +75,8 @@ export const getAbortKey = (method: string, baseUrl: string, endpoint: string, c
  */
 export const getCommandKey = (
   command: FetchCommandInstance | FetchCommandDump<any>,
-  customCacheKey?: string,
+  useInitialValues?: boolean,
 ): string => {
-  if (customCacheKey) return customCacheKey;
-
   /**
    * Below stringified values allow to match the response by method, endpoint and query params.
    * That's because we have shared endpoint, but data with queryParams '?user=1' will not match regular request without queries.
@@ -94,14 +91,14 @@ export const getCommandKey = (
 
   if ("values" in command) {
     const methodKey = stringify(command.values.method);
-    const endpointKey = stringify(command.values.endpoint);
-    const queryParamsKey = stringify(command.values.queryParams);
+    const endpointKey = useInitialValues ? command.commandOptions.endpoint : stringify(command.values.endpoint);
+    const queryParamsKey = useInitialValues ? "" : stringify(command.values.queryParams);
 
     return `${methodKey}_${endpointKey}_${queryParamsKey}`;
   }
   const methodKey = stringify(command.method);
-  const endpointKey = stringify(command.endpoint);
-  const queryParamsKey = stringify(command.queryParams);
+  const endpointKey = useInitialValues ? command.options.endpoint : stringify(command.endpoint);
+  const queryParamsKey = useInitialValues ? "" : stringify(command.queryParams);
 
   return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };

@@ -1,6 +1,6 @@
 import { fetchClient } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
-import { getBase, interceptBase, getManyRequest, interceptGetMany } from "../../utils/mocks";
+import { getManyRequest, interceptGetMany } from "../../utils/mocks";
 
 describe("[Client] - XHR", () => {
   beforeAll(() => {
@@ -39,19 +39,19 @@ describe("[Client] - XHR", () => {
     expect(error).toStrictEqual(mock);
   });
 
-  it("should allow to cancel request and return error", async () => {
-    const requestInstance = getBase.clone();
+  // it("should allow to cancel request and return error", async () => {
+  //   const requestInstance = getBase.clone();
 
-    interceptBase(200, 500);
+  //   interceptBase(200, 500);
 
-    const request = fetchClient(requestInstance);
+  //   const request = fetchClient(requestInstance);
 
-    requestInstance.abort();
+  //   requestInstance.abort();
 
-    const [response, error, status] = await request;
+  //   const [response, error, status] = await request;
 
-    expect(response).toBe(null);
-    expect(status).toBe(0);
-    expect(error?.message).toBe("Request cancelled");
-  });
+  //   expect(response).toBe(null);
+  //   expect(status).toBe(0);
+  //   expect(error?.message).toBe("Request cancelled");
+  // });
 });

@@ -187,6 +187,7 @@ export class Queue<ErrorType, ClientOptions> {
     this.runningRequests.get(queueKey)?.forEach((request) => {
       request.command.abort();
     });
+
     this.runningRequests.set(queueKey, []);
   };
 }

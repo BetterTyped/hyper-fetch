@@ -133,8 +133,12 @@ export const useFetch = <T extends FetchCommandInstance>(
     actions.setLoading(false, false);
   };
 
-  const handleGetEqualCacheUpdate = (isRefreshed: boolean, timestamp: number) => {
-    handleCallbacks([state.data, state.error, state.status]); // Must be first
+  const handleGetEqualCacheUpdate = (
+    cacheData: CacheValueType<ExtractResponse<T>>,
+    isRefreshed: boolean,
+    timestamp: number,
+  ) => {
+    handleCallbacks(cacheData.response); // Must be first
     actions.setRefreshed(isRefreshed, false);
     actions.setTimestamp(new Date(timestamp), false);
     actions.setLoading(false, false);
@@ -149,11 +153,11 @@ export const useFetch = <T extends FetchCommandInstance>(
     handleFetch();
   };
 
-  const refreshFn = (invalidateKey?: string | FetchCommandInstance) => {
-    if (invalidateKey && typeof invalidateKey === "string") {
+  const refreshFn = (invalidateKey?: string | FetchCommandInstance | RegExp) => {
+    if (invalidateKey && invalidateKey instanceof FetchCommand) {
+      command.builder.cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+    } else if (invalidateKey) {
       command.builder.cache.events.revalidate(invalidateKey);
-    } else if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      command.builder.cache.events.revalidate(getCommandKey(invalidateKey));
     } else {
       handleRevalidate();
     }
@@ -188,7 +192,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     const loadingUnmount = fetchQueue.events.getLoading(queueKey, handleGetLoadingEvent);
 
     const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
-    const getEqualDataUnmount = cache.events.getEqualData(cacheKey, handleGetEqualCacheUpdate);
+    const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
     const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleRevalidate);
 
     return () => {

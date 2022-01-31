@@ -1,17 +1,54 @@
 import EventEmitter from "events";
 
-import { CacheKeyType, CacheValueType, getEqualEventKey, getRevalidateEventKey } from "cache";
+import { CacheKeyType, CacheValueType, getEqualEventKey, getRevalidateEventKey, CacheStorageType } from "cache";
 import { ExtractResponse, ExtractError } from "types";
+import { matchPath } from "utils";
 
-export const getCacheEvents = (emitter: EventEmitter) => ({
+export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
   set: <T>(key: CacheKeyType, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
     emitter.emit(key, data);
   },
-  setEqualData: (key: CacheKeyType, isRefreshed: boolean, timestamp: number): void => {
-    emitter.emit(getEqualEventKey(key), isRefreshed, timestamp);
+  /**
+   * Event sent once data response is equal to the stored data
+   * @param key `cacheKey` used to match storage space
+   * @param isRefreshed
+   * @param timestamp
+   */
+  setEqualData: <T>(
+    key: CacheKeyType,
+    data: CacheValueType<ExtractResponse<T>, ExtractError<T>>,
+    isRefreshed: boolean,
+    timestamp: number,
+  ): void => {
+    emitter.emit(getEqualEventKey(key), data, isRefreshed, timestamp);
   },
-  revalidate: (key: CacheKeyType): void => {
-    emitter.emit(getRevalidateEventKey(key));
+  /**
+   * Revalidate cache values and trigger revalidate event
+   * @param pattern Allow to revalidate cache based on the `cacheKey`, `string pattern` or `regexp` pattern for matching
+   */
+  revalidate: async (pattern: CacheKeyType | RegExp): Promise<void> => {
+    const keys = await storage.keys();
+
+    if (typeof pattern === "string" && pattern.startsWith("/") && pattern.endsWith("/")) {
+      const [matcher] = matchPath(pattern);
+      emitter.emit(getRevalidateEventKey(pattern));
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const entityKey of keys) {
+        if (matcher.test(entityKey)) {
+          emitter.emit(getRevalidateEventKey(entityKey));
+        }
+      }
+    } else if (typeof pattern === "string") {
+      emitter.emit(getRevalidateEventKey(pattern));
+    } else {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const entityKey of keys) {
+        if (pattern.test(entityKey)) {
+          emitter.emit(getRevalidateEventKey(entityKey));
+        }
+      }
+    }
   },
   get: <T>(
     key: CacheKeyType,
@@ -20,7 +57,10 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.on(key, callback);
     return () => emitter.removeListener(key, callback);
   },
-  getEqualData: (key: CacheKeyType, callback: (isRefreshed: boolean, timestamp: number) => void): VoidFunction => {
+  getEqualData: <T>(
+    key: CacheKeyType,
+    callback: (data: CacheValueType<ExtractResponse<T>>, isRefreshed: boolean, timestamp: number) => void,
+  ): VoidFunction => {
     emitter.on(getEqualEventKey(key), callback);
     return () => emitter.removeListener(getEqualEventKey(key), callback);
   },

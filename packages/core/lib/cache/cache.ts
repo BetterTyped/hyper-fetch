@@ -11,19 +11,36 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * With this segregation of data we can keep paginated data, filtered data, without overriding it between not related fetches.
  * Key for interactions should be generated later in the hooks with getCommandKey util function, which joins the stringified values to create isolated space.
  *
- * Example structure:
  *
- * CacheStore:
- *   endpoint => "GET_/users/1" (cacheKey) : {...}
- *   endpoint => "GET_/users" : {...}
- *   endpoint => "GET_/users?page=1" : {...}
+ * ##### Data Store:
+ * ```mermaid
+ * graph TD
+ *   C{Cache Storage}
+ *   C -->|"GET_/users?page=1"| D[Data#1]
+ *   C -->|"GET_/users/1"| E[Data#2]
+ *   C -->|"GET_/users"| F[Data#3]
+ *   C -->|unique key| G[Data...]
+ * ```
  *
+ * ##### Data Flow:
+ * ```mermaid
+ * graph TD
+ *     A(Cache Events)
+ *     C{Cache Storage}
+ *     B[Cache Listeners]
+ *     C -->|unique key| D[Data#1]
+ *     C -->|unique key| E[Data#2]
+ *     A -->|Mutation| E
+ *     E -->|Response| B
+ * ```
+ *
+ * @note
+ * Keys used to save the values are created dynamically on the FetchCommand class
  */
 export class Cache<ErrorType, ClientOptions> {
   emitter = new EventEmitter();
-  events = getCacheEvents(this.emitter);
-
-  storage: CacheStorageType = new Map<CacheStoreKeyType, CacheStoreValueType>();
+  events: ReturnType<typeof getCacheEvents>;
+  storage: CacheStorageType;
 
   private logger: LoggerMethodsType;
 
@@ -32,10 +49,8 @@ export class Cache<ErrorType, ClientOptions> {
     private options?: CacheOptionsType<ErrorType, ClientOptions>,
   ) {
     this.logger = this.builder.loggerManager.init("Cache");
-
-    if (this.options?.storage) {
-      this.storage = this.options.storage;
-    }
+    this.storage = this?.options?.storage || new Map<CacheStoreKeyType, CacheStoreValueType>();
+    this.events = getCacheEvents(this.emitter, this.storage);
 
     this.options?.onInitialization(this);
 
@@ -73,7 +88,7 @@ export class Cache<ErrorType, ClientOptions> {
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      this.logger.debug(`Only emitting payload as command was not for save to cache`, data);
+      this.logger.debug(`Only emitting payload as command cache is off`, data);
 
       return this.events.set<Response>(cacheKey, newData);
     }
@@ -91,7 +106,7 @@ export class Cache<ErrorType, ClientOptions> {
       this.events.set<Response>(cacheKey, newData);
     } else {
       this.logger.debug(`Cached data was equal to previous values, emitting update event...`, data);
-      this.events.setEqualData(cacheKey, isRefreshed, timestamp);
+      this.events.setEqualData<Response>(cacheKey, newData, isRefreshed, timestamp);
     }
   };
 
