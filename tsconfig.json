@@ -21,5 +21,6 @@
     "noImplicitReturns": false,
     "strictPropertyInitialization": false,
     "declaration": true
-  }
+  },
+  "exclude": ["node_modules", "@better-typed/hyper-fetch"]
 }
