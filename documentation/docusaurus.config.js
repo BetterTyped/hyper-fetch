@@ -18,7 +18,6 @@ const config = {
   projectName: "Hyper Fetch", // Usually your repo name.
 
   plugins: [
-    require.resolve("@cmfcmf/docusaurus-search-local"),
     [
       "@docusaurus/plugin-content-docs",
       {
@@ -106,6 +105,11 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      algolia: {
+        appId: "QO2HW0T2F3",
+        apiKey: "706a433b386c4bea0517bcf4a10da8e2",
+        indexName: "Docs",
+      },
       announcementBar: {
         content: "This package is in <b>ALPHA VERSION</b>, please do not use it in the production!",
         backgroundColor: "#e5ad41",

@@ -24,7 +24,7 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/051-drive.svg",
     description: "Offline & Persistence(Optional) for Queues and Cache",
-    link: <Link to="/docs/next/Docs/Cache">Docs</Link>,
+    link: <Link to="/docs/Docs/Cache">Docs</Link>,
   },
   {
     image: "/img/features/029-find my gadget app.svg",
@@ -37,12 +37,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/035-contacts.svg",
     description: "Simple setup, a LOT to configure and extend",
-    link: <Link to="/docs/next/Getting Started/Quick Start">Quick Start</Link>,
+    link: <Link to="/docs/Getting Started/Quick Start">Quick Start</Link>,
   },
   {
     image: "/img/features/047-pin.svg",
     description: "Backend agnostic",
-    link: <Link to="/docs/next/Docs/Client">Docs for Client</Link>,
+    link: <Link to="/docs/Docs/Client">Docs for Client</Link>,
   },
   {
     image: "/img/features/063-slide show app.svg",
@@ -55,7 +55,7 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/049-messenger.svg",
     description: "React hooks with amazing features",
-    link: <Link to="/docs/next/React/Overview">Docs for React</Link>,
+    link: <Link to="/docs/React/Overview">Docs for React</Link>,
   },
   {
     image: "/img/features/070-file hosting.svg",

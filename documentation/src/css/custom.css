@@ -16,6 +16,10 @@ html[data-theme="dark"] {
   --ifm-color-primary-lighter: rgb(255, 237, 145);
   --ifm-color-primary-lightest: rgb(255, 242, 180);
   --ifm-code-font-size: 95%;
+
+  --docsearch-muted-color: var(--ifm-color-emphasis-700) !important;
+  --docsearch-footer-shadow: inset 0 1px 0 0 rgba(204, 168, 2, 0.5), 0 -4px 8px 0 rgba(0, 0, 0, 0.2) !important;
+  --docsearch-modal-shadow: inset 1px 1px 0 0 #0003093b, 0 3px 8px 0 #000309 !important;
 }
 
 html[data-theme="light"] {
@@ -154,47 +158,41 @@ html[data-theme="light"] .menu__link--active {
 
 /* Search */
 
-.aa-Autocomplete .aa-DetachedSearchButton {
+body .DocSearch-Button {
   height: 32px;
   border-radius: 2rem;
   font-size: 0.9rem;
-  width: 160px;
+  width: 170px;
+  padding: 0 10px 0 14px;
   color: var(--ifm-navbar-search-input-color);
   background: var(--ifm-navbar-search-input-background-color);
   border-color: var(--ifm-navbar-search-input-background-color);
 }
-.aa-Autocomplete .aa-DetachedSearchButton:focus {
+body .DocSearch-Button:hover,
+body .DocSearch-Button:focus {
   border-color: var(--ifm-color-primary);
-  box-shadow: rgba(204, 168, 2, 0.1) 0 0 0 3px, inset rgba(204, 168, 2, 0.1) 0 0 0 2px;
+  background: var(--ifm-navbar-search-input-background-color);
+  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
 }
-.aa-Autocomplete svg {
-  fill: var(--ifm-navbar-link-color);
+body .DocSearch-Modal,
+body .DocSearch-Footer {
+  background: var(--ifm-background-color);
 }
-.aa-Autocomplete .aa-DetachedSearchButtonPlaceholder {
-  color: var(--ifm-navbar-search-input-placeholder-color);
+body .DocSearch-Form {
+  background: var(--ifm-color-emphasis-200);
+  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+}
+body .DocSearch-Button-Placeholder {
+  font-size: 14px;
+}
+body .DocSearch-Search-Icon {
+  width: 16px;
 }
 
-/* Search content */
-.aa-DetachedOverlay .aa-Form:focus-within {
-  border-color: var(--ifm-color-primary);
-  box-shadow: rgba(204, 168, 2, 0.1) 0 0 0 3px, inset rgba(204, 168, 2, 0.1) 0 0 0 2px;
-}
-.aa-DetachedOverlay svg {
-  fill: var(--ifm-navbar-link-color);
-}
-.aa-DetachedOverlay svg.aa-SubmitIcon {
-  margin-top: 2px;
-}
-.aa-DetachedOverlay .aa-Input::placeholder {
-  color: var(--ifm-navbar-search-input-placeholder-color);
-}
-
-@media (max-width: 500px) {
-  .aa-Autocomplete .aa-DetachedSearchButton {
-    width: 34px;
-  }
-  .aa-Autocomplete .aa-DetachedSearchButtonPlaceholder {
-    display: none;
+@media (max-width: 750px) {
+  body .DocSearch-Button {
+    width: 40px;
+    padding: 0 12px;
   }
 }
 

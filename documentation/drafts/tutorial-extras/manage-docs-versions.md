@@ -19,7 +19,7 @@ The `docs` folder is copied into `versioned_docs/version-1.0` and `versions.json
 Your docs now have 2 versions:
 
 - `1.0` at `http://localhost:3000/docs/` for the version 1.0 docs
-- `current` at `http://localhost:3000/docs/next/` for the **upcoming, unreleased docs**
+- `current` at `http://localhost:3000/docs/` for the **upcoming, unreleased docs**
 
 ## Add a Version Dropdown
 

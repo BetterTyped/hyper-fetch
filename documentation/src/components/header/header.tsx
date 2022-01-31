@@ -45,7 +45,7 @@ export function Header(): JSX.Element {
         <h2 className={clsx(styles.tagline)}>{siteConfig.tagline}</h2>
 
         <div className={styles.buttons}>
-          <Link className="button button--primary button--lg" to="/docs/next/Getting Started/Overview">
+          <Link className="button button--primary button--lg" to="/docs/Getting Started/Overview">
             Get Started
           </Link>
           <Link className="button button--secondary button--lg" to="/examples/Basic">
