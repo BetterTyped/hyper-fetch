@@ -34,6 +34,6 @@ export const parseToJson = async (
   if (project) {
     await app.generateJson(project, apiDocsPath);
   } else {
-    error("Cannot generate project for dir: " + apiDocsPath);
+    throw new Error("Cannot generate project for dir: " + apiDocsPath);
   }
 };
