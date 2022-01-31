@@ -1,6 +1,7 @@
 import * as TypeDoc from "typedoc";
 import { PluginOptions } from "../types/package.types";
 import { getPackageJson } from "../utils/package.utils";
+import { trace } from "../utils/log.utils";
 
 export const parseToJson = async (
   apiDocsPath: string,
@@ -22,19 +23,20 @@ export const parseToJson = async (
     })
     .filter(Boolean);
 
+  trace(`Exclude packages: ${excludedPackages.join(", ")}`, "Parser");
+
   // 3. Parser options to bootstrap project
   app.bootstrap({
-    emit: true,
     excludeExternals: true,
     excludeInternal: true,
     excludePrivate: true,
     excludeProtected: true,
     exclude: [...excludedPackages, "node_modules"],
+    logLevel: "Error",
+    entryPointStrategy: "packages",
     ...pluginOptions.typeDocOptions,
-    entryPointStrategy: "expand",
     tsconfig,
     entryPoints: [entryPath],
-    logLevel: "Error",
   });
 
   // 4. Generate json output
