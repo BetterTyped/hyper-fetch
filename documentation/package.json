@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "yarn build:plugin && docusaurus build",
-    "build:plugin": "cd ./plugins/docusaurus-plugin-api && yarn build",
+    "build:plugin": "cd ./plugins/docusaurus-plugin-api && yarn install && yarn build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
