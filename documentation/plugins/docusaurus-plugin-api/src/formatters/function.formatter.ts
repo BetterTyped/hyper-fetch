@@ -1,15 +1,11 @@
 import json2md from "json2md";
-import { JSONOutput } from "typedoc";
 
-import { PluginOptions } from "../types/package.types";
 import { MdTransformer } from "../md/md.transformer";
+import { FormatterPropsType } from "./api.formatter";
 
-export const functionFormatter = (
-  value: JSONOutput.DeclarationReflection,
-  options: PluginOptions,
-  pkg: string,
-): string => {
-  const transformer = new MdTransformer(value, options, pkg);
+export const functionFormatter = (props: FormatterPropsType): string => {
+  const { reflection, pluginOptions, npmName, packageName, reflectionTree } = props;
+  const transformer = new MdTransformer(reflection, pluginOptions, npmName, packageName, reflectionTree);
 
   return json2md([
     ...transformer.getName(),
@@ -26,5 +22,8 @@ export const functionFormatter = (
     ...transformer.getExample(),
     ...transformer.getImport(),
     ...transformer.getParameters(),
+    ...transformer.getTypeReferences(),
+    ...transformer.getAdditionalLinks(),
+    ...transformer.getMainLine(),
   ]);
 };

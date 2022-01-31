@@ -1,5 +1,7 @@
 import { JSONOutput } from "typedoc";
+import { getMdLinkedReference } from "./md.styles";
 
+// Md
 export const sanitizeHtml = (htmlString: string) => {
   return htmlString
     .replace(/&/g, "&amp;")
@@ -8,30 +10,16 @@ export const sanitizeHtml = (htmlString: string) => {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 };
-
-export const flattenText = (value: string) => {
-  return value.trim().replace(/(\r\n|\n|\r)/gm, "");
+export const unSanitizeHtml = (htmlString: string) => {
+  return htmlString
+    .replace(/&amp;/g, `&`)
+    .replace(/&lt;/g, `<`)
+    .replace(/&gt;/g, `>`)
+    .replace(/&quot;/g, `"`)
+    .replace(/&#039;/g, `'`);
 };
 
-export const getStatusIcon = (tags: string[]) => {
-  if (tags?.includes("alpha") || tags?.includes("beta")) {
-    return "🚧 ";
-  }
-  if (tags?.includes("experimental")) {
-    return "🧪 ";
-  }
-
-  return ``;
-};
-
-export const getMdBoldText = (value: string) => {
-  return `<b>${value}</b>`;
-};
-
-export const getMdQuoteText = (value: string) => {
-  return `<code>${sanitizeHtml(value)}</code>`;
-};
-
+// Types
 export const getTypeName = (
   type:
     | JSONOutput.ParameterReflection["type"]
@@ -39,32 +27,81 @@ export const getTypeName = (
     | JSONOutput.SomeType
     | JSONOutput.DeclarationReflection
     | undefined,
+  packageLink: string,
+  reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[],
   showGenerics = false,
+  link = true,
 ): string => {
   let params = "";
+  let extending = "";
   const infer = type?.type === "inferred" ? "infer" : "";
   const operator = (type && "operator" in type && type?.operator) || "";
 
   const preValue = infer || operator;
   const prefix = preValue ? preValue + " " : "";
+  const isLiteral = type?.type === "literal" && typeof type.value === "string";
+
+  const getResponse = (value: string) => {
+    const name = isLiteral ? `"${value}"` : value;
+    let fullName = prefix + name + params + extending;
+    const linkedType = link ? getLinkedType(fullName, type, packageLink, reflectionTree) : fullName;
+    return linkedType;
+  };
 
   if (showGenerics && type && "typeParameter" in type && type.typeParameter) {
-    params = `<${type.typeParameter.map((arg) => getTypeName(arg)).join(", ")}>`;
+    params = `&lt;${type.typeParameter
+      .map((arg) => getType(arg, packageLink, reflectionTree, showGenerics, link))
+      .join(", ")}&gt;`;
+  }
+
+  if (showGenerics && type && "typeArguments" in type && type.typeArguments) {
+    params = `&lt;${type.typeArguments
+      .map((arg) => getType(arg, packageLink, reflectionTree, showGenerics, link))
+      .join(", ")}&gt;`;
+  }
+
+  if (type && "extendsType" in type && type.extendsType) {
+    extending = ` extends ${getType(type.extendsType, packageLink, reflectionTree, showGenerics, link)}`;
   }
 
   if (type && "target" in type) {
-    return String(prefix + getTypeName(type.target) + params);
+    return getTypeName(type.target, packageLink, reflectionTree, showGenerics, link);
   }
   if (type && "value" in type) {
-    return String(prefix + type.value + params);
+    if (type.value && typeof type.value === "object" && "value" in type.value) {
+      return getResponse(type.value.value);
+    }
+    return getResponse(String(type.value));
   }
   if (type && "name" in type) {
-    return String(prefix + type.name + params);
+    return getResponse(type.name);
   }
   if (type && "type" in type) {
-    return String(prefix + type.type + params);
+    return getResponse(type.type);
   }
-  return "void";
+  return getResponse("void");
+};
+
+export const getLinkedType = (
+  name: string,
+  type:
+    | JSONOutput.ParameterReflection["type"]
+    | JSONOutput.ReflectionType
+    | JSONOutput.SomeType
+    | JSONOutput.DeclarationReflection
+    | undefined,
+  packageLink: string,
+  reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[],
+) => {
+  if (packageLink && type) {
+    const reflectedType = reflectionTree.find(
+      (reflection) => ("id" in type && reflection.id === type.id) || ("name" in type && reflection.name === type.name),
+    );
+    if (reflectedType) {
+      return getMdLinkedReference(name, packageLink, reflectedType);
+    }
+  }
+  return name;
 };
 
 export const getType = (
@@ -74,40 +111,65 @@ export const getType = (
     | JSONOutput.SomeType
     | JSONOutput.SignatureReflection
     | undefined,
+  packageLink: string,
+  reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[],
+  showGenerics?: boolean,
+  link?: boolean,
 ): string => {
-  if (type && "checkType" in type && type.checkType && "objectType" in type.checkType && type.checkType.objectType) {
-    return getTypeName(type.checkType.objectType);
-  }
-  if (type && "objectType" in type && type.objectType) {
-    return getTypeName(type.objectType);
-  }
-  if (type && "elementType" in type && type.elementType) {
-    // Something[]
-    if (type.type === "array") {
-      return `${getTypeName(type.elementType)}[]`;
+  // T extends Something ? true : false
+  if (type && "checkType" in type && type.checkType) {
+    // References to types => T
+    if ("objectType" in type.checkType && type.checkType.objectType) {
+      return getTypeName(type.checkType.objectType, packageLink, reflectionTree, showGenerics, link);
     }
-    return getTypeName(type.elementType);
+    return `${getTypeName(type.checkType, packageLink, reflectionTree, showGenerics, link)} extends ${getType(
+      type.extendsType,
+      packageLink,
+      reflectionTree,
+    )} ? ${getType(type.trueType, packageLink, reflectionTree, showGenerics, link)} : ${getType(
+      type.falseType,
+      packageLink,
+      reflectionTree,
+    )}`;
+  }
+  // SomeType[Indexed]
+  if (type && "objectType" in type && type.objectType) {
+    return `${getTypeName(type.objectType, packageLink, reflectionTree, showGenerics, link)}[${getTypeName(
+      type.indexType,
+      packageLink,
+      reflectionTree,
+      showGenerics,
+      link,
+    )}]`;
+  }
+  // Array<Something>
+  if (type && "elementType" in type && type.elementType) {
+    return `${getTypeName(type.elementType, packageLink, reflectionTree, showGenerics, link)}[]`;
   }
   // [string, string, number]
   if (type && "elements" in type && type.elements && type.type === "tuple") {
-    return `[${type.elements.map((element) => getType(element)).join(", ")}]`;
+    return `[${type.elements
+      .map((element) => getType(element, packageLink, reflectionTree, showGenerics, link))
+      .join(", ")}]`;
   }
   // (some: number, thing: string) => void
-  if (type && "kindString" in type && type.kindString === "Call signature") {
+  if (type && "kindString" in type && (type.kindString === "Call signature" || type.kindString === "Method")) {
     const params = type.parameters || [];
-    return `(${params.map((param) => getParamName(param)).join(", ")}) => ${getType(type.type)}`;
+    return `(${params
+      .map((param) => `${getParamName(param)}: ${getType(param.type, packageLink, reflectionTree, showGenerics, link)}`)
+      .join(", ")}) => ${getType(type.type, packageLink, reflectionTree, showGenerics, link)}`;
   }
   // Some | Thing | void
   if (type && "types" in type && type.types) {
     // @ts-ignore compatibility issues (during build)
-    return type.types.map((arg) => getType(arg)).join(" | ") || "";
+    return type.types.map((arg) => getType(arg, packageLink, reflectionTree, showGenerics, link)).join(" | ") || "";
   }
   if (type && "declaration" in type && type.declaration) {
     const declaration = type.declaration;
     // (some: Thing) => void
     if (declaration.signatures && declaration.signatures[0]) {
       const signature = declaration.signatures[0];
-      return getType(signature);
+      return getType(signature, packageLink, reflectionTree, showGenerics, link);
     }
     // { some, thing }
     return `{ ${declaration.children
@@ -115,93 +177,47 @@ export const getType = (
         const signature = arg.signatures?.[0];
         // { some: (thing: number) => void }
         if (signature) {
-          return `${getTypeName(arg)}: ${getType(signature)}`;
+          return `${getTypeName(arg, packageLink, reflectionTree, showGenerics, link)}: ${getType(
+            signature,
+            packageLink,
+            reflectionTree,
+            showGenerics,
+            link,
+          )}`;
         }
-        return `${getTypeName(arg)}: ${getType(arg.type)}`;
+        return `${getTypeName(arg, packageLink, reflectionTree, showGenerics, link)}: ${getType(
+          arg.type,
+          packageLink,
+          reflectionTree,
+          showGenerics,
+          link,
+        )}`;
       })
       .join(", ")} }`;
   }
   // Something<Some, Thing>
   if (type && "typeArguments" in type && type.typeArguments?.length) {
-    return `${getTypeName(type)}<${type.typeArguments.map((arg) => getType(arg)).join(", ")}>`;
-  }
-  // T extends Something ? T : never
-  if (type?.type === "conditional") {
-    return `${getTypeName(type.checkType)} extends ${getType(type.extendsType)} ? ${getType(type.trueType)} : ${getType(
-      type.falseType,
-    )}`;
+    return `${getTypeName(type, packageLink, reflectionTree, true)}`;
   }
   // `${string}:${infer Param}/${infer Rest}`
   if (type?.type === "template-literal") {
-    const template = type.tail.map((t) => "${" + getTypeName(t[0]) + "}" + t[1]).join("");
+    const template = type.tail
+      .map((t) => "${" + getTypeName(t[0], packageLink, reflectionTree, showGenerics, link) + "}" + t[1])
+      .join("");
     return "`" + template + "`";
   }
-  //  { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
+  // { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
   if (type?.type === "mapped") {
-    return `[${type.parameter} in ${getType(type.parameterType)}]`;
+    // NonNullable<Something>???? - check
+    // if (type && "templateType" in type && type.templateType) {
+    //   return getTypeName(type.templateType, packageLink, reflectionTree, showGenerics, link);
+    // }
+    return `[${type.parameter} in ${getType(type.parameterType, packageLink, reflectionTree, showGenerics, link)}]`;
   }
-  return getTypeName(type);
+  return getTypeName(type, packageLink, reflectionTree, showGenerics, link);
 };
 
-// {
-//   "id": 350,
-//   "name": "CacheStorageAsyncType",
-//   "kind": 4194304,
-//   "kindString": "Type alias",
-//   "flags": {},
-//   "sources": [
-//     {
-//       "fileName": "cache/cache.types.ts",
-//       "line": 42,
-//       "character": 12
-//     }
-//   ],
-//   "type": {
-//     "type": "reflection",
-//     "declaration": {
-//       "id": 351,
-//       "name": "__type",
-//       "kind": 65536,
-//       "kindString": "Type literal",
-//       "flags": {},
-//       "children": [
-//         {
-//           "id": 364,
-//           "name": "clear",
-//           "kind": 2048,
-//           "kindString": "Method",
-//           "flags": {},
-//           "sources": [
-//             {
-//               "fileName": "cache/cache.types.ts",
-//               "line": 46,
-//               "character": 2
-//             }
-//           ],
-//           "signatures": [
-//             {
-//               "id": 365,
-//               "name": "clear",
-//               "kind": 4096,
-//               "kindString": "Call signature",
-//               "flags": {},
-//               "type": {
-//                 "type": "reference",
-//                 "typeArguments": [
-//                   {
-//                     "type": "intrinsic",
-//                     "name": "void"
-//                   }
-//                 ],
-//                 "qualifiedName": "Promise",
-//                 "package": "typescript",
-//                 "name": "Promise"
-//               }
-//             }
-//           ]
-//         },
-//       ]
-
+// Params
 export const getParamName = (parameter: JSONOutput.ParameterReflection | undefined, index?: number) => {
   if (parameter) {
     const paramName = parameter.name || "-";

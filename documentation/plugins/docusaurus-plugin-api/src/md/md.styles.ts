@@ -1,6 +1,5 @@
 import { JSONOutput } from "typedoc";
 
-import { flattenText, getStatusIcon } from "./md.utils";
 import { defaultTextsOptions } from "../constants/options.constants";
 import { PluginOptions } from "../types/package.types";
 import { KindTypes } from "./md.constants";
@@ -12,8 +11,23 @@ type CardBlockInputType = {
   logo?: string;
 };
 
-type LabelStates = "info" | "success" | "warning" | "danger";
+type LabelStates = "info" | "success" | "warning" | "danger" | "kind";
 export type AdmonitionTypes = "note" | "tip" | "info" | "caution" | "danger" | "deprecated";
+
+export const flattenText = (value: string) => {
+  return value.trim().replace(/(\r\n|\n|\r)/gm, "");
+};
+
+export const getStatusIcon = (tags: string[]) => {
+  if (tags?.includes("alpha") || tags?.includes("beta")) {
+    return "🚧 ";
+  }
+  if (tags?.includes("experimental")) {
+    return "🧪 ";
+  }
+
+  return ``;
+};
 
 export const getMdTitle = (value: JSONOutput.DeclarationReflection) => {
   const name = value.name;
@@ -37,7 +51,7 @@ export const getMdBadges = (value: JSONOutput.DeclarationReflection) => {
         return getMdLabel("info", "Experimental", true);
       }) || [];
 
-  tags.unshift(getMdLabel("success", value.kindString, true));
+  tags.unshift(getMdLabel("kind", value.kindString, true));
 
   return flattenText(`
   <p className="row api-badges" style={{padding: "0 10px"}}>
@@ -69,36 +83,54 @@ export const getMdRow = (value: string): string => {
   return `<div className="row api-row">${value}</div>`;
 };
 
+export const getMdCodeQuote = (value: string): string => {
+  return `<code className="api-code">${value}</code>`;
+};
+
 export const getMdDescription = (value?: string) => {
-  return !value ? "" : `<p className="api-description">${value}</p>`;
+  return !value ? "" : `${value}`;
 };
 export const getMdTable = (
   headers: string[],
   rows: { value: string[]; tag?: { value?: string; type: LabelStates } }[],
 ) => {
-  const head = flattenText(
-    `<thead><tr>${headers.map((header) => `<th style={{textAlign: "left"}}>${header}</th>`).join("")}</tr></thead>`,
-  );
+  const head = flattenText(`
+    <thead>
+      <tr>
+        ${headers
+          .map((header) =>
+            flattenText(`
+        <th style={{textAlign: "left"}}>
+          ${header}
+        </th>`),
+          )
+          .join("")}
+      </tr>
+    </thead>`);
 
   const body = flattenText(
     `<tbody>${rows
       .map(
         (row) =>
-          `<tr>${row.value
-            .map(
-              (cell, index) =>
-                "<td>" +
-                `${flattenText(cell)} ${(!index && row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""}`.trim() +
-                "</td>",
+          `<tr>\n${row.value
+            .map((cell, index) =>
+              flattenText(`
+                <td>
+                  ${flattenText(cell)} ${(!index && row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""}
+                </td>\n
+              `),
             )
-            .join("")}</tr>`,
+            .join("")}</tr>\n`,
       )
       .join("")}</tbody>`,
   );
 
   return flattenText(`
     <div className="api-table-wrapper" style={{overflowX: "auto"}}>
-      <table className="api-table" style={{width: '100%', display: "table"}}>${head}${body}</table>
+      <table className="api-table" style={{width: '100%', display: "table"}}>
+        ${head}
+        ${body}
+      </table>
     </div>
 `);
 };
@@ -156,6 +188,54 @@ ${text || defaultText}
   return [];
 };
 
+export const getMdBlockLink = (link: string, type: string, name: string) => {
+  return flattenText(`
+<div className="col col--6 api-reference-block">
+  <a className="card margin-bottom--md padding--md pagination-nav__link" href="${link}" style={{height: "fit-content"}}>
+    <div className="pagination-nav__sublabel">${type}</div>
+    <div className="pagination-nav__label">${name}   »</div>
+  </a>
+</div>`);
+};
+
+export const getMdBoldText = (value: string) => {
+  return `<b>${value}</b>`;
+};
+
+export const getMdQuoteText = (value: string) => {
+  const quoteStyle = flattenText(`
+{
+  backgroundColor: "var(--ifm-code-background)",
+  border: "0.1rem solid rgba(0, 0, 0, 0.1)",
+  borderRadius: "var(--ifm-code-border-radius)",
+  fontFamily: "var(--ifm-font-family-monospace)",
+  fontSize: "var(--ifm-code-font-size)",
+  padding: "var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal)",
+  verticalAlign: "middle"
+}`);
+
+  return `<span style={${quoteStyle}}>${value}</span>`;
+};
+
+export const getMdLinkedReference = (
+  typeName: string,
+  packageLink: string,
+  reference: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString"> | undefined,
+  isQuote = false,
+) => {
+  const getQuoted = (value: string) => {
+    const name = isQuote ? getMdQuoteText(value) : value;
+    return name;
+  };
+
+  if (!reference || !reference.kindString) {
+    return getQuoted(typeName);
+  }
+
+  const link = packageLink + `/${reference.kindString}/${reference.name}`;
+  return getQuoted(`<a className="api-reference-link" href="${link}">${typeName}</a>`);
+};
+
 export const getMdLabel = (type: LabelStates, value = "Required", filled = false) => {
   const borderStyles = {
     border: "2px solid",
@@ -199,6 +279,11 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
       borderColor: "var(--ifm-color-info)",
       color: "var(--ifm-color-info)",
     },
+    kind: {
+      ...borderStyles,
+      borderColor: "var(--ifm-color-emphasis-200)",
+      color: "var(--ifm-color-emphasis-200)",
+    },
   }[type];
 
   const fillStyle = {
@@ -221,6 +306,11 @@ export const getMdLabel = (type: LabelStates, value = "Required", filled = false
       ...fillStyles,
       background: "var(--ifm-color-info)",
       color: "#fff",
+    },
+    kind: {
+      ...fillStyles,
+      background: "var(--ifm-color-emphasis-200)",
+      color: "var(--ifm-color-emphasis-900)",
     },
   }[type];
 

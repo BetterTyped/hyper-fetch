@@ -10,21 +10,36 @@ const docsExtension = ".mdx";
 export const apiGenerator = (
   jsonFile: JSONOutput.ProjectReflection,
   options: PluginOptions,
-  packageRoute: string,
+  packageName: string,
   docsRoot: string,
 ) => {
-  jsonFile.children?.forEach((child) => {
-    const name = child.name;
-    const kind = child.kindString;
+  const reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[] = (
+    jsonFile.children || []
+  ).map((child) => ({
+    id: child.id,
+    name: child.name,
+    kind: child.kind,
+    kindString: child.kindString,
+  }));
+
+  jsonFile.children?.forEach((reflection) => {
+    const name = reflection.name;
+    const kind = reflection.kindString;
 
     if (!kind) {
       return trace(`Module ${kind} not parsed. Missing type specification.`);
     }
 
-    const data = apiFormatter(child, options, jsonFile.name);
+    const data = apiFormatter({
+      reflection,
+      reflectionTree,
+      pluginOptions: options,
+      npmName: jsonFile.name,
+      packageName,
+    });
 
     try {
-      const routePath = path.join(docsRoot, packageRoute, kind, name + docsExtension);
+      const routePath = path.join(docsRoot, packageName, kind, name + docsExtension);
       createFile(routePath, data);
     } catch (err) {
       error(`Cannot create file for ${name}`);

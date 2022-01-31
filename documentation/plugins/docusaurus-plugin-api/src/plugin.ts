@@ -2,8 +2,6 @@ import pluginBase from "@docusaurus/plugin-content-docs";
 import { DEFAULT_OPTIONS } from "@docusaurus/plugin-content-docs/lib/options";
 import { LoadContext } from "@docusaurus/types";
 import * as path from "path";
-// @ts-ignore
-import admonitions from "remark-admonitions";
 
 import builder from "./builder/builder";
 import { prepareApiDirectory } from "./utils/file.utils";
@@ -28,7 +26,7 @@ function plugin(context: LoadContext, options: PluginOptions) {
     ...options.docs,
     path: path.join(apiDir, options.docs.routeBasePath),
     id: options.id,
-    remarkPlugins: [...options.docs.remarkPlugins, admonitions],
+    remarkPlugins: [...options.docs.remarkPlugins, require("mdx-mermaid"), require("remark-admonitions")],
   });
   info("Successfully initialized plugin base");
 

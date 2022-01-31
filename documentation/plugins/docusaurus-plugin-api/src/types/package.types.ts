@@ -27,7 +27,7 @@ export type TextsOptions = {
   parameters?: string;
   typeDefinitions?: string;
   example?: string;
-  additionalLinks?: string;
+  additionalResources?: string;
   import?: string;
   preview?: string;
   returns?: string;
