@@ -8,11 +8,13 @@ import { prepareApiDirectory } from "./utils/file.utils";
 import { PluginOptions } from "./types/package.types";
 import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
+import { assignPluginOpts } from "./globals";
 
 let generated = false;
 
 function plugin(context: LoadContext, options: PluginOptions) {
   const { generatedFilesDir } = context;
+  assignPluginOpts(options);
 
   const apiRootDir = path.join(generatedFilesDir, "..", apiDir, options.docs.routeBasePath);
 
@@ -42,8 +44,7 @@ function plugin(context: LoadContext, options: PluginOptions) {
 
       trace("Loading generated docs");
       console.log("\n");
-      const response = await pluginInstance.loadContent();
-      return response;
+      return pluginInstance.loadContent();
     },
   };
 }

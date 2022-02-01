@@ -4,6 +4,7 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const path = require("path");
+const docusaurusPluginApi = require("./plugins/docusaurus-plugin-api");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -41,6 +42,7 @@ const config = {
       {
         id: "api",
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
+        readOnce: true,
         packages: [
           {
             logo: "/img/logo.svg",
@@ -77,7 +79,22 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          remarkPlugins: [require("mdx-mermaid")],
+          // TODO - We'll have to provide default path for generation .json -> maybe in a way "packageName.json"
+          remarkPlugins: [
+            require("mdx-mermaid"),
+            [
+              docusaurusPluginApi.injectDocs,
+              {
+                packages: [
+                  { name: "HyperFetch", docDir: path.join(__dirname, "/_docusaurus-plugin-api/api/Hyper-Fetch") },
+                  {
+                    name: "ReactHyperFetch",
+                    docDir: path.join(__dirname, "/_docusaurus-plugin-api/api/React-Hyper-Fetch"),
+                  },
+                ],
+              },
+            ],
+          ],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",

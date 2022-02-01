@@ -9,6 +9,7 @@ import { cleanFileName } from "../utils/file.utils";
 import { apiGenerator } from "../generators/api.generator";
 import { generateMonorepoPage } from "../generators/monorepo.page";
 import { generatePackagePage } from "../generators/package.page";
+import { addPkgMeta } from "../globals";
 
 const builder = async (apiRootDir: string, options: PluginOptions) => {
   const { packages, tsConfigPath } = options;
@@ -50,6 +51,12 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
 
     // Generate docs files
     const json = await import(apiJsonDocsPath);
+
+    addPkgMeta(title.replace(/\s/g, ""), {
+      docPath: apiJsonDocsPath,
+      ...(options.readOnce && { file: json }),
+    });
+
     trace(`Generating docs files...`, mainTitle);
     await apiGenerator(json, options, mainTitle, apiRootDir);
   });
