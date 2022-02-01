@@ -32,6 +32,7 @@ export class MdTransformer {
     private npmName: string,
     private packageName: string,
     private reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[] = [],
+    private showHeaders: boolean = true,
   ) {
     const monorepoBlock = this.pluginOptions.packages?.length > 1 ? `/${this.packageName}` : "";
     this.baseLink = `/${this.pluginOptions.docs.routeBasePath}${monorepoBlock}/${this.reflection.kindString}/${this.reflection.name}`;

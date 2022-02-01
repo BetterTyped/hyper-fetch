@@ -3,6 +3,7 @@ import * as TypeDoc from "typedoc";
 
 export type PluginOptions = {
   id: string;
+  readOnce: boolean;
   docs: DocsPluginOptions;
   packages: PackageOption[];
   typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
@@ -35,4 +36,9 @@ export type TextsOptions = {
   returns?: string;
   deprecated?: string;
   paramTableHeaders: [string, string, string, string];
+};
+
+export type PkgMeta = {
+  docPath: string;
+  file?: File;
 };
