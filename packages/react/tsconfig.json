@@ -7,7 +7,6 @@
   "include": ["./lib", "./__tests__"],
   "paths": {
     "tests": ["./__tests__/*"],
-    "lib": ["./lib/*"],
     "use-cache/*": ["use-cache/*"],
     "use-debounce/*": ["use-debounce/*"],
     "use-dependent-state/*": ["use-dependent-state/*"],

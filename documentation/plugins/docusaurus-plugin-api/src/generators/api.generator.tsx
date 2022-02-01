@@ -39,7 +39,9 @@ export const apiGenerator = (
     });
 
     try {
-      const routePath = path.join(docsRoot, packageName, kind, name + docsExtension);
+      const isMonorepo = options.packages.length > 1;
+      const pkgNamespace = isMonorepo ? packageName : ""; // -> /api/Hyper-Fetch(if monorepo) or /api
+      const routePath = path.join(docsRoot, pkgNamespace, kind, name + docsExtension);
       createFile(routePath, data);
     } catch (err) {
       error(`Cannot create file for ${name}`);

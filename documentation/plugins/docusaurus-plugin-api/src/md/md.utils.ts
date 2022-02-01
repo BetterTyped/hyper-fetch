@@ -1,6 +1,8 @@
 import { JSONOutput } from "typedoc";
 import { getMdLinkedReference } from "./md.styles";
 
+// for rework check idea: https://github.com/nlepage/typedoc-plugin-resolve-crossmodule-references/blob/main/src/index.ts
+
 // Md
 export const sanitizeHtml = (htmlString: string) => {
   return htmlString
