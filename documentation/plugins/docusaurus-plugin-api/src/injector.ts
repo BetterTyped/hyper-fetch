@@ -8,7 +8,7 @@ import { _PKG_META, _PLUGIN_OPTS } from "./globals";
 import { displayOptions } from "./types/injector.types";
 import { _title, getMatchingElement, isJSONGenerated } from "./utils/injector.utils";
 
-const plugin = (options: any) => {
+const plugin = () => {
   const transformer = async (ast: any) => {
     await isJSONGenerated();
     const packageName = `(${Array.from(_PKG_META.keys()).join("|")}) `;
@@ -37,8 +37,8 @@ const plugin = (options: any) => {
             ? packageMetaData.file
             : JSON.parse(readFileSync(packageMetaData.docPath, "utf-8"));
 
-          const child = getMatchingElement(fileData, elementName);
-          const formatter = new MdTransformer(child, _PLUGIN_OPTS, fileData.name, false);
+          const reflection = getMatchingElement(fileData, elementName);
+          const formatter = new MdTransformer(reflection, _PLUGIN_OPTS, "", fileData.name, []);
 
           node.children = unified()
             .use(remarkParse)
