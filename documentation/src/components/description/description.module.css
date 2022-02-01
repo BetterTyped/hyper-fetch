@@ -9,8 +9,19 @@
   gap: 50px 30px;
 }
 
+.title:after {
+  display: block;
+  content: "";
+  margin-top: 10px;
+  width: 80px;
+  height: 1px;
+  background: var(--ifm-color-primary);
+}
+
 .description {
   font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+  opacity: 0.95;
 }
 
 @media (max-width: 992px) {

@@ -53,8 +53,8 @@ const config = {
           {
             logo: "/img/react.svg",
             title: "React Hyper Fetch",
-            dir: path.join(__dirname, "../"),
-            entryPath: ["/packages/react/lib/index.ts", "/packages/core/lib/index.ts"],
+            dir: path.join(__dirname, "../packages/react"),
+            entryPath: "lib/index.ts",
           },
         ],
         docs: {
@@ -130,7 +130,7 @@ const config = {
       },
       announcementBar: {
         content: "This package is in <b>ALPHA VERSION</b>, please do not use it in the production!",
-        backgroundColor: "#e5ad41",
+        backgroundColor: "var(--ifm-color-primary-dark)",
         textColor: "black",
         isCloseable: false,
       },
