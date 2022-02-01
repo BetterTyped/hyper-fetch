@@ -7,7 +7,7 @@ import { FetchCommandInstance, FetchCommand } from "command";
 
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
- * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
+ * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order if needed.
  */
 export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, ClientOptions> {
   emitter = new EventEmitter();

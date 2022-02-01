@@ -12,7 +12,7 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * Key for interactions should be generated later in the hooks with getCommandKey util function, which joins the stringified values to create isolated space.
  *
  *
- * ##### Data Store:
+ * <center>
  * ```mermaid
  * graph TD
  *   C{Cache Storage}
@@ -21,8 +21,10 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  *   C -->|"GET_/users"| F[Data#3]
  *   C -->|unique key| G[Data...]
  * ```
+ * </center>
  *
- * ##### Data Flow:
+ * ### Response event flow:
+ * <center>
  * ```mermaid
  * graph TD
  *     A(Cache Events)
@@ -33,6 +35,8 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  *     A -->|Mutation| E
  *     E -->|Response| B
  * ```
+ * </center>
+ *
  *
  * @note
  * Keys used to save the values are created dynamically on the FetchCommand class

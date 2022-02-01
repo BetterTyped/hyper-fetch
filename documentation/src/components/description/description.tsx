@@ -20,9 +20,9 @@ export function Description(): JSX.Element {
           <div className={clsx(styles.block)}>
             <h3 className={clsx(styles.title)}>Offline with persistence</h3>
             <div className={clsx(styles.description)}>
-              Queues and persistance will play a great role in hyper fetch - from now on, these topics will be much
-              easier to tame, which will be helped by the patterns and solutions we use. Regardless of whether you use
-              Hyper fetch in your browser or implement native solutions - it all works in any JavaScript environment!
+              Queues and persistance play a great role in hyper fetch - from now on, these topics will be much easier to
+              handle with our solutions, which will help to create complex features. Regardless of whether you use Hyper
+              fetch in your browser or implement native solutions - it all works in any JavaScript environment!
             </div>
           </div>
           <div className={clsx(styles.block)}>
