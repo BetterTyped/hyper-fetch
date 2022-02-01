@@ -5,6 +5,7 @@ export type PluginOptions = {
   id: string;
   docs: DocsPluginOptions;
   packages: PackageOption[];
+  tsConfigPath?: string;
   typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
   texts?: TextsOptions;
 };
@@ -12,7 +13,7 @@ export type PluginOptions = {
 export type PackageOption = {
   title: string;
   dir: string;
-  entryPath: string;
+  entryPath: string | string[];
   logo?: string;
   description?: string;
   tsconfigName?: string;

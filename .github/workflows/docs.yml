@@ -18,6 +18,8 @@ jobs:
           aws-region: ${{ secrets.PROD_AWS_REGION }}
       - name: Install packages
         run: yarn bootstrap
+      - name: Build packages
+        run: yarn build
       - name: Build docs
         run: yarn build:docs
       - name: Deploy to S3 bucket

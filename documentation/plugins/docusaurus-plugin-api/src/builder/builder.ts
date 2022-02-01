@@ -11,7 +11,7 @@ import { generateMonorepoPage } from "../generators/monorepo.page";
 import { generatePackagePage } from "../generators/package.page";
 
 const builder = async (apiRootDir: string, options: PluginOptions) => {
-  const { packages } = options;
+  const { packages, tsConfigPath } = options;
   const isMonorepo = packages.length > 1;
 
   if (isMonorepo) {
@@ -27,10 +27,12 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
     const mainTitle = cleanFileName(title);
 
     // Package tsconfig file
-    const tsconfigPath = path.join(tsconfigDir, tsconfigName);
+    const tsconfigPath = tsConfigPath ?? path.join(tsconfigDir, tsconfigName);
 
     // Package entry file
-    const entry = path.join(dir, entryPath);
+    const entries = Array.isArray(entryPath)
+      ? entryPath.map((entry) => path.join(dir, entry))
+      : [path.join(dir, entryPath)];
 
     // Output directory
     trace(`Setup directories for ${mainTitle || "default"}`, mainTitle);
@@ -43,7 +45,7 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
 
     // Scan and parse docs to json
     trace(`Starting project parsing.`, mainTitle);
-    await parseToJson(apiJsonDocsPath, entry, tsconfigPath, options);
+    await parseToJson(apiJsonDocsPath, entries, tsconfigPath, options);
     success(`Successfully parsed docs!`, mainTitle);
 
     // Generate docs files

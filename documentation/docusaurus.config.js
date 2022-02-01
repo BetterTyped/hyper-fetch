@@ -40,6 +40,7 @@ const config = {
       "docusaurus-plugin-api",
       {
         id: "api",
+        tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
         packages: [
           {
             logo: "/img/logo.svg",
@@ -50,8 +51,8 @@ const config = {
           {
             logo: "/img/react.svg",
             title: "React Hyper Fetch",
-            dir: path.join(__dirname, "../packages/react"),
-            entryPath: "lib/index.ts",
+            dir: path.join(__dirname, "../"),
+            entryPath: ["/packages/react/lib/index.ts", "/packages/core/lib/index.ts"],
           },
         ],
         docs: {

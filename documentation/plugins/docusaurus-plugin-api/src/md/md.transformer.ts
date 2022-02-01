@@ -508,8 +508,8 @@ export class MdTransformer {
       const methodKinds = [KindTypes.method];
       methods = this.reflection.children
         .sort((a, b) => {
-          const nameA = a.name?.startsWith("_");
-          const nameB = b.name?.startsWith("_");
+          const nameA = a.name.startsWith("_");
+          const nameB = b.name.startsWith("_");
 
           if (nameA && nameB) {
             return 0;
