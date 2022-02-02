@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { getSubmitQueueEvents, QueueDumpValueType, QueueOptionsType, Queue } from "queues";
+import { getSubmitQueueEvents, QueueDumpValueType, QueueOptionsType, Queue, canRetryRequest } from "queues";
 import { FetchBuilder } from "builder";
 import { getUniqueRequestId } from "utils";
 import { FetchCommandInstance, FetchCommand } from "command";
@@ -9,11 +9,11 @@ import { FetchCommandInstance, FetchCommand } from "command";
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order if needed.
  */
-export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, ClientOptions> {
+export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOptions> {
   emitter = new EventEmitter();
   events = getSubmitQueueEvents(this.emitter);
 
-  constructor(builder: FetchBuilder<ErrorType, ClientOptions>, options?: QueueOptionsType<ErrorType, ClientOptions>) {
+  constructor(builder: FetchBuilder<ErrorType, HttpOptions>, options?: QueueOptionsType<ErrorType, HttpOptions>) {
     super("Submit Queue", builder, options);
   }
 
@@ -27,7 +27,7 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
-    const queueElementDump: QueueDumpValueType<ClientOptions> = {
+    const queueElementDump: QueueDumpValueType<HttpOptions> = {
       requestId,
       timestamp: +new Date(),
       commandDump: command.dump(),
@@ -68,7 +68,7 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
     return requestId;
   };
 
-  performRequest = async (requestCommand: FetchCommandInstance, queueElement: QueueDumpValueType<ClientOptions>) => {
+  performRequest = async (requestCommand: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { cacheKey, retry, retryTime, cache, queueKey } = requestCommand;
     const { client } = this.builder;
     const { requestId } = queueElement;
@@ -84,8 +84,6 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
 
     this.incrementRequestCount(cacheKey);
     const response = await client(requestCommand);
-
-    this.logger.info(`Finished request`, { response, requestId, queueKey });
 
     const runningRequests = this.getRunningRequests(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -126,7 +124,7 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
       this.deleteRequest(queueKey, requestId);
     }
     // Perform retry once request is failed
-    else if ((typeof retry === "number" && queueElement.retries <= retry) || retry === true) {
+    else if (canRetryRequest(queueElement.retries, retry)) {
       this.logger.warning(`Performing retry`, { requestId, queueKey });
 
       setTimeout(async () => {
@@ -135,6 +133,14 @@ export class SubmitQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clie
           retries: queueElement.retries + 1,
         });
       }, retryTime || 0);
+    } else {
+      this.logger.error(`Cannot perform request, removing from queue`, {
+        requestId,
+        queueKey,
+        response,
+        queueElement,
+      });
+      this.deleteRequest(queueKey, requestId);
     }
   };
 

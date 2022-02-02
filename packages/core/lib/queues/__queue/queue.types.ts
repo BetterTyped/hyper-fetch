@@ -1,27 +1,27 @@
 import { FetchCommandDump, FetchCommandInstance } from "command";
 import { Queue } from "queues";
 
-export type QueueOptionsType<ErrorType, ClientOptions> = {
-  storage: QueueStorageType<ClientOptions>;
-  onInitialization: (queueInstance: Queue<ErrorType, ClientOptions>) => void;
-  onUpdateStorage: (queueKey: string, queue: QueueData<ClientOptions>) => void;
-  onDeleteFromStorage: (queueKey: string, queue: QueueData<ClientOptions>) => void;
-  onClearStorage: (queueInstance: Queue<ErrorType, ClientOptions>) => void;
+export type QueueOptionsType<ErrorType, HttpOptions> = {
+  storage: QueueStorageType<HttpOptions>;
+  onInitialization: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
+  onUpdateStorage: (queueKey: string, queue: QueueData<HttpOptions>) => void;
+  onDeleteFromStorage: (queueKey: string, queue: QueueData<HttpOptions>) => void;
+  onClearStorage: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
 };
 
 // Values
 export type QueueStoreKeyType = string;
 export type QueueStoreValueType = FetchCommandInstance;
 
-export type QueueDumpValueType<ClientOptions> = {
+export type QueueDumpValueType<HttpOptions> = {
   requestId: string;
-  commandDump: FetchCommandDump<ClientOptions>;
+  commandDump: FetchCommandDump<HttpOptions>;
   retries: number;
   timestamp: number;
 };
-export type QueueData<ClientOptions> = {
+export type QueueData<HttpOptions> = {
   stopped: boolean;
-  requests: QueueDumpValueType<ClientOptions>[];
+  requests: QueueDumpValueType<HttpOptions>[];
 };
 
 // Events
@@ -34,23 +34,21 @@ export type QueueStatusEventType = {
 };
 
 // Storage
-export type QueueStorageSyncType<ClientOptions> = {
-  set: (key: string, data: QueueData<ClientOptions>) => void;
-  get: (key: string) => QueueData<ClientOptions> | undefined;
+export type QueueStorageSyncType<HttpOptions> = {
+  set: (key: string, data: QueueData<HttpOptions>) => void;
+  get: (key: string) => QueueData<HttpOptions> | undefined;
   keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
 };
-export type QueueStorageAsyncType<ClientOptions> = {
-  set: (key: string, data: QueueData<ClientOptions>) => Promise<void>;
-  get: (key: string) => Promise<QueueData<ClientOptions> | undefined>;
+export type QueueStorageAsyncType<HttpOptions> = {
+  set: (key: string, data: QueueData<HttpOptions>) => Promise<void>;
+  get: (key: string) => Promise<QueueData<HttpOptions> | undefined>;
   keys: () => Promise<string[] | IterableIterator<string>>;
   delete: (key: string) => Promise<void>;
   clear: () => Promise<void>;
 };
-export type QueueStorageType<ClientOptions> =
-  | QueueStorageSyncType<ClientOptions>
-  | QueueStorageAsyncType<ClientOptions>;
+export type QueueStorageType<HttpOptions> = QueueStorageSyncType<HttpOptions> | QueueStorageAsyncType<HttpOptions>;
 
 // Running
 

@@ -21,7 +21,7 @@ tracking, structure and architecture solutions.
 ## Features
 
 ✨ **Simple config** – Hyper Fetch has prepared `setup out of the box` - from caching, queueing to query parameters
-parsing, http client and much more. It has built-in http client to help you with often problematic setup, at the same
+parsing, deduplication and much more. It has built-in http client to help you with often problematic setup, at the same
 time allowing you to use your favorite libraries like Axios or Fetch!
 
 ⚡️ **Lighting fast** – Our `caching and request deduplication` solutions allow you to take advantage of fully modern

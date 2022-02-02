@@ -40,8 +40,6 @@ create modern, optimized, maintainable and high quality solutions.
 
 ## Installation
 
-### Clean
-
 ```bash
 npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 or

@@ -29,6 +29,7 @@ export const UserForm: React.FC = () => {
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
 
   onSubmitSuccess(() => {
+    // eslint-disable-next-line no-alert
     alert("queue success");
   });
 
@@ -79,8 +80,8 @@ export const UserForm: React.FC = () => {
       <h3>Queued Requests:</h3>
       <button
         type="button"
-        onClick={() => {
-          submitQueue();
+        onClick={async () => {
+          await submitQueue();
           updateQueue();
         }}
       >

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { loggerStyles, emojiLevel, LoggerType } from "managers";
+import { loggerStyles, loggerIconLevels, LoggerType } from "managers";
 
 const getTime = () => {
   const d = new Date();
@@ -10,7 +10,7 @@ const getTime = () => {
 // Logger
 export const logger: LoggerType = (log) => {
   const styles = loggerStyles[log.level];
-  const emoji = emojiLevel[log.level];
+  const emoji = loggerIconLevels[log.level];
   const module = `%c[${log.module}]:[${getTime()}]:`;
   const message = `${emoji}${module} ${log.message}`;
 

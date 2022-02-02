@@ -33,6 +33,10 @@ export const getEqualEventKey = (key: string): string => {
   return `${key}_refreshed`;
 };
 
+export const getDataKey = (key: string): string => {
+  return `${key}_cache`;
+};
+
 // Deep compare
 export const isEmpty = (value: unknown): boolean => {
   const valueType = Object.prototype.toString.call(value);

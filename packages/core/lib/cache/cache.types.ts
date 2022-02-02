@@ -1,10 +1,10 @@
 import { Cache } from "cache";
 import { ClientResponseType } from "client";
 
-export type CacheOptionsType<ErrorType, ClientOptions> = {
+export type CacheOptionsType<ErrorType, HttpOptions> = {
   storage: CacheStorageType;
   initialData: CacheInitialData;
-  onInitialization: (cache: Cache<ErrorType, ClientOptions>) => void;
+  onInitialization: (cache: Cache<ErrorType, HttpOptions>) => void;
 };
 
 // Values

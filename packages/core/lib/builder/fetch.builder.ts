@@ -41,7 +41,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
 
   // Managers
   commandManager: CommandManager = new CommandManager();
-  appManager: AppManager;
+  appManager: AppManager<ErrorType, HttpOptions>;
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
@@ -79,7 +79,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.cache = cache?.(this) || new Cache(this);
-    this.appManager = appManager?.(this) || new AppManager();
+    this.appManager = appManager?.(this) || new AppManager<ErrorType, HttpOptions>(this);
     this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, HttpOptions>(this);
     this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, HttpOptions>(this);
   }

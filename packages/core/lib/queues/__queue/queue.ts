@@ -7,17 +7,16 @@ import { FetchBuilder } from "builder";
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
-export class Queue<ErrorType, ClientOptions> {
+export class Queue<ErrorType, HttpOptions> {
   public logger: LoggerMethodsType;
-  public requestCount = new Map<string, number>();
-  private storage: QueueStorageType<ClientOptions> = new Map<QueueStoreKeyType, QueueData<ClientOptions>>();
-
+  private requestCount = new Map<string, number>();
+  private storage: QueueStorageType<HttpOptions> = new Map<QueueStoreKeyType, QueueData<HttpOptions>>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
   constructor(
     name: string,
-    public builder: FetchBuilder<ErrorType, ClientOptions>,
-    public options?: QueueOptionsType<ErrorType, ClientOptions>,
+    public builder: FetchBuilder<ErrorType, HttpOptions>,
+    public options?: QueueOptionsType<ErrorType, HttpOptions>,
   ) {
     this.logger = this.builder.loggerManager.init(name);
 
@@ -97,7 +96,7 @@ export class Queue<ErrorType, ClientOptions> {
     return this.storage.keys();
   };
 
-  set = async (queueKey: string, queue: QueueData<ClientOptions>) => {
+  set = async (queueKey: string, queue: QueueData<HttpOptions>) => {
     await this.storage.set(queueKey, queue);
 
     this.options?.onUpdateStorage(queueKey, queue);
@@ -137,13 +136,17 @@ export class Queue<ErrorType, ClientOptions> {
   };
 
   // Count
-  getRequestCount = (cacheKey: string) => {
-    return this.requestCount.get(cacheKey) || 0;
+  getRequestCount = (queueKey: string) => {
+    return this.requestCount.get(queueKey) || 0;
   };
 
-  incrementRequestCount = (cacheKey: string) => {
-    const count = this.requestCount.get(cacheKey) || 0;
-    this.requestCount.set(cacheKey, count + 1);
+  incrementRequestCount = (queueKey: string) => {
+    const count = this.requestCount.get(queueKey) || 0;
+    this.requestCount.set(queueKey, count + 1);
+  };
+
+  getOngoingRequests = (queueKey: string) => {
+    return this.runningRequests.get(queueKey) || [];
   };
 
   // Running Requests
@@ -187,7 +190,6 @@ export class Queue<ErrorType, ClientOptions> {
     this.runningRequests.get(queueKey)?.forEach((request) => {
       request.command.abort();
     });
-
     this.runningRequests.set(queueKey, []);
   };
 }

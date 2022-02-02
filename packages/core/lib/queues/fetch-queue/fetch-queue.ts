@@ -9,11 +9,11 @@ import { FetchCommandInstance, FetchCommand } from "command";
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order if needed.
  */
-export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, ClientOptions> {
+export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOptions> {
   emitter = new EventEmitter();
   events = getFetchQueueEvents(this.emitter);
 
-  constructor(builder: FetchBuilder<ErrorType, ClientOptions>, options?: QueueOptionsType<ErrorType, ClientOptions>) {
+  constructor(builder: FetchBuilder<ErrorType, HttpOptions>, options?: QueueOptionsType<ErrorType, HttpOptions>) {
     super("Fetch Queue", builder, options);
   }
 
@@ -28,7 +28,7 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
-    const queueElementDump: QueueDumpValueType<ClientOptions> = {
+    const queueElementDump: QueueDumpValueType<HttpOptions> = {
       requestId,
       timestamp: +new Date(),
       commandDump: command.dump(),
@@ -76,7 +76,7 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
   // It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
   // ----->req1------->cancel-------------->done (this response can't be saved, even if abort doesn't catch it)
   // ----------------->req2---------------->done
-  performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<ClientOptions>) => {
+  performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { commandDump, requestId } = queueElement;
     const { retry, retryTime, queueKey, cacheKey, cache } = commandDump.values;
     const { client } = this.builder;
@@ -110,8 +110,6 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
     // Trigger Request
     this.incrementRequestCount(cacheKey);
     const response = await client(command);
-
-    this.logger.http(`Finished request`, { requestId, queueKey, response });
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
@@ -160,7 +158,7 @@ export class FetchQueue<ErrorType, ClientOptions> extends Queue<ErrorType, Clien
         });
       }, retryTime || 0);
     } else {
-      this.logger.debug(`Clearing request from fetch-queue`, {
+      this.logger.debug(`Cannot perform request, removing from queue`, {
         requestId,
         queueKey,
         response,

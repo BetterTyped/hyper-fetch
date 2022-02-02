@@ -34,16 +34,25 @@ export const postQueue = builder.createCommand<{ response: string }, { id: numbe
   endpoint: "/api/queue",
   method: "POST",
   concurrent: false,
+  retry: 0,
 });
 
 // Mocks setup
-const getMock = (request: FetchCommandInstance, response: Record<string, any> | null, delay?: number) => {
-  const { method, endpoint, builder } = request;
+const getMock = (
+  request: FetchCommandInstance,
+  response: Record<string, any> | null | (() => Record<string, any> | null),
+  delay?: number,
+) => {
+  const { method, endpoint } = request;
 
   const url = builder.baseUrl + endpoint;
 
   function callback(_req: any, res: any, ctx: any) {
-    return res(ctx.delay(delay), ctx.status(200), ctx.json(response || {}));
+    return res(
+      ctx.delay(delay),
+      ctx.status(200),
+      ctx.json(typeof response === "function" ? response() : response || {}),
+    );
   }
 
   if (method.toUpperCase() === "POST") {
@@ -62,12 +71,12 @@ const getMock = (request: FetchCommandInstance, response: Record<string, any> | 
 };
 
 const handlers = [
-  getMock(getUser, getRandomUser(), DateInterval.second),
-  getMock(getUsers, getRandomUsers(), DateInterval.second),
-  getMock(postUser, getRandomUser(), DateInterval.second),
-  getMock(patchUser, getRandomUser(), DateInterval.second * 3),
+  getMock(getUser, getRandomUser, DateInterval.second),
+  getMock(getUsers, getRandomUsers, DateInterval.second),
+  getMock(postUser, getRandomUser, DateInterval.second),
+  getMock(patchUser, getRandomUser, DateInterval.second * 3),
   getMock(deleteUser, null),
-  getMock(postQueue, { response: "FROM QUEUE!" }, DateInterval.second),
+  // getMock(postQueue, { response: "FROM QUEUE!" }, DateInterval.second),
 ];
 
 const restServer = setupWorker(...handlers);

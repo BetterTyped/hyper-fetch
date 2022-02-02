@@ -8,9 +8,11 @@ import { getUser } from "../server/user.api";
 const refreshTime = DateInterval.second * 10;
 
 export const UserDetails: React.FC = () => {
+  const [dep, setDep] = useState(+new Date());
   const [fetched, setFetched] = useState(false);
 
-  const { data, loading, error, refresh, timestamp, onRequestStart } = useFetch(getUser, {
+  const { data, loading, error, refresh, timestamp, onRequestStart } = useFetch(getUser.setQueryParams({ date: dep }), {
+    dependencies: [dep],
     refresh: true,
     refreshTime,
   });
@@ -21,6 +23,9 @@ export const UserDetails: React.FC = () => {
 
   return (
     <div>
+      <button type="button" onClick={() => setDep(+new Date())}>
+        Change dependency
+      </button>
       <button type="button" onClick={() => refresh()}>
         Refresh
       </button>

@@ -10,7 +10,7 @@ import {
   getCommandKey,
   FetchCommand,
 } from "@better-typed/hyper-fetch";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { useDebounce } from "use-debounce/use-debounce.hooks";
 import {
@@ -86,11 +86,13 @@ export const useSubmit = <T extends FetchCommandInstance>(
 
   const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
     if (response) {
-      if (response[0]) {
-        onSuccessCallback?.current?.(response[0]);
-      }
-      if (response[1]) {
-        onErrorCallback?.current?.(response[1]);
+      const status = response[2] || 0;
+      const hasSuccessState = !!(response[0] && !response[1]);
+      const hasSuccessStatus = !!(!response[1] && status >= 200 && status <= 400);
+      if (hasSuccessState || hasSuccessStatus) {
+        onSuccessCallback?.current?.(response[0] as ExtractResponse<T>);
+      } else {
+        onErrorCallback?.current?.(response[1] as ExtractError<T>);
         if (shouldThrow) {
           throw {
             message: "Fetching Error.",
@@ -183,10 +185,14 @@ export const useSubmit = <T extends FetchCommandInstance>(
    * Initialization of the events related to data exchange with cache and queue
    * This allow to share the state with other hooks and keep it related
    */
-  useDidMount(() => {
-    handleDependencyTracking();
-    return handleMountEvents();
-  });
+  useDidUpdate(
+    () => {
+      handleDependencyTracking();
+      return handleMountEvents();
+    },
+    [command],
+    true,
+  );
 
   return {
     submit: handleSubmit,

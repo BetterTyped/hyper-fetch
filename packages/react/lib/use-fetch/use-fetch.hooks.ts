@@ -85,37 +85,48 @@ export const useFetch = <T extends FetchCommandInstance>(
   const handleRefresh = () => {
     refreshInterval.resetInterval();
 
-    const { timestamp } = state;
-
-    const timeLeft = timestamp ? Math.max(+timestamp + refreshTime - +new Date(), refreshTime) : refreshTime;
-
     if (refresh) {
-      logger.debug(`Starting refresh counter, request will be send in ${timeLeft}ms`);
+      logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
       refreshInterval.interval(async () => {
-        const currentRequest = await fetchQueue.get(queueKey);
+        const queueStorage = await fetchQueue.get(queueKey);
         const isBlur = !command.builder.appManager.isFocused;
 
         // If window tab is not active should we refresh the cache
         const canRefreshBlurred = isBlur && refreshBlurred;
         const canRefresh = canRefreshBlurred || command.builder.appManager.isFocused;
-        const hasQueueElements = !!currentRequest.requests.length;
+        const hasQueueElements = !!queueStorage.requests.length;
 
         if (!hasQueueElements && canRefresh) {
-          logger.info(`Performing refresh request`);
+          logger.debug(`Performing refresh request`, {
+            hasQueueElements,
+            canRefresh,
+            isFocused: command.builder.appManager.isFocused,
+            timestamp: state.timestamp,
+          });
+
           handleFetch();
           refreshInterval.resetInterval();
+        } else {
+          logger.debug(`Cannot trigger refresh request`, {
+            hasQueueElements,
+            canRefresh,
+            isFocused: command.builder.appManager.isFocused,
+            timestamp: state.timestamp,
+          });
         }
-      }, timeLeft);
+      }, refreshTime);
     }
   };
 
   const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
     if (response) {
-      if (response[0]) {
-        onSuccessCallback?.current?.(response[0]);
-      }
-      if (response[1]) {
-        onErrorCallback?.current?.(response[1]);
+      const status = response[2] || 0;
+      const hasSuccessState = !!(response[0] && !response[1]);
+      const hasSuccessStatus = !!(!response[1] && status >= 200 && status <= 400);
+      if (hasSuccessState || hasSuccessStatus) {
+        onSuccessCallback?.current?.(response[0] as ExtractResponse<T>);
+      } else {
+        onErrorCallback?.current?.(response[1] as ExtractError<T>);
         if (shouldThrow) {
           throw {
             message: "Fetching Error.",
@@ -124,24 +135,30 @@ export const useFetch = <T extends FetchCommandInstance>(
         }
       }
       onFinishedCallback?.current?.(response);
+    } else {
+      logger.debug("No response to perform callbacks");
     }
   };
 
   const handleGetCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+    logger.debug("Received new data");
     handleCallbacks(cacheData.response); // Must be first
-    actions.setCacheData(cacheData, false);
-    actions.setLoading(false, false);
+    await actions.setCacheData(cacheData, false);
+    await actions.setLoading(false, false);
+    handleRefresh();
   };
 
-  const handleGetEqualCacheUpdate = (
+  const handleGetEqualCacheUpdate = async (
     cacheData: CacheValueType<ExtractResponse<T>>,
     isRefreshed: boolean,
     timestamp: number,
   ) => {
+    logger.debug("Received equal data event");
     handleCallbacks(cacheData.response); // Must be first
-    actions.setRefreshed(isRefreshed, false);
-    actions.setTimestamp(new Date(timestamp), false);
-    actions.setLoading(false, false);
+    await actions.setRefreshed(isRefreshed, false);
+    await actions.setTimestamp(new Date(timestamp), false);
+    await actions.setLoading(false, false);
+    handleRefresh();
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: FetchLoadingEventType) => {
@@ -218,18 +235,24 @@ export const useFetch = <T extends FetchCommandInstance>(
     }
   };
 
-  /**
-   * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
-   */
   useDidMount(() => {
     if (revalidateOnMount || isStaleCacheData(cacheTime, state.timestamp)) {
       handleFetch();
     }
-
-    handleDependencyTracking();
-    return handleMountEvents();
   });
+
+  /**
+   * Initialization of the events related to data exchange with cache and queue
+   * This allow to share the state with other hooks and keep it related
+   */
+  useDidUpdate(
+    () => {
+      handleDependencyTracking();
+      return handleMountEvents();
+    },
+    [command],
+    true,
+  );
   /**
    * Initialization of the events related to data exchange with cache and queue
    * This allow to share the state with other hooks and keep it related
@@ -252,18 +275,19 @@ export const useFetch = <T extends FetchCommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    if (!fetchQueue.requestCount && debounce) {
+    if (!fetchQueue.getRequestCount(queueKey) && debounce) {
+      logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
     } else {
       handleFetch();
     }
-  }, [...dependencies, disabled]);
+  }, [command, ...dependencies, disabled]);
 
   useDidUpdate(
     () => {
       handleRefresh();
     },
-    [refresh, refreshTime, state.timestamp],
+    [command, ...dependencies, disabled, refresh, refreshTime],
     true,
   );
 

@@ -6,13 +6,13 @@ import { FetchBuilder } from "builder";
 import { AppManager } from "managers";
 import { NegativeTypes } from "types";
 
-export type FetchBuilderProps<ErrorType, ClientOptions> = {
+export type FetchBuilderProps<ErrorType, HttpOptions> = {
   baseUrl: string;
   client?: ClientType;
-  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, ClientOptions>;
-  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager;
-  fetchQueue?: <B extends FetchBuilderInstance>(builder: B) => FetchQueue<ErrorType, ClientOptions>;
-  submitQueue?: <B extends FetchBuilderInstance>(builder: B) => SubmitQueue<ErrorType, ClientOptions>;
+  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, HttpOptions>;
+  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager<ErrorType, HttpOptions>;
+  fetchQueue?: <B extends FetchBuilderInstance>(builder: B) => FetchQueue<ErrorType, HttpOptions>;
+  submitQueue?: <B extends FetchBuilderInstance>(builder: B) => SubmitQueue<ErrorType, HttpOptions>;
 };
 
 export type FetchBuilderInstance = FetchBuilder<any, any>;

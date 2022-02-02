@@ -23,7 +23,11 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * ```
  * </center>
  *
- * ### Response event flow:
+ * <center>
+ *
+ * ### Response event flow
+ *
+ * </center>
  * <center>
  * ```mermaid
  * graph TD
@@ -41,7 +45,7 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * @note
  * Keys used to save the values are created dynamically on the FetchCommand class
  */
-export class Cache<ErrorType, ClientOptions> {
+export class Cache<ErrorType, HttpOptions> {
   emitter = new EventEmitter();
   events: ReturnType<typeof getCacheEvents>;
   storage: CacheStorageType;
@@ -49,8 +53,8 @@ export class Cache<ErrorType, ClientOptions> {
   private logger: LoggerMethodsType;
 
   constructor(
-    private builder: FetchBuilder<ErrorType, ClientOptions>,
-    private options?: CacheOptionsType<ErrorType, ClientOptions>,
+    private builder: FetchBuilder<ErrorType, HttpOptions>,
+    private options?: CacheOptionsType<ErrorType, HttpOptions>,
   ) {
     this.logger = this.builder.loggerManager.init("Cache");
     this.storage = this?.options?.storage || new Map<CacheStoreKeyType, CacheStoreValueType>();

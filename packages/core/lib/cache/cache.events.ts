@@ -3,10 +3,11 @@ import EventEmitter from "events";
 import { CacheKeyType, CacheValueType, getEqualEventKey, getRevalidateEventKey, CacheStorageType } from "cache";
 import { ExtractResponse, ExtractError } from "types";
 import { matchPath } from "utils";
+import { getDataKey } from "./cache.utils";
 
 export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
   set: <T>(key: CacheKeyType, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
-    emitter.emit(key, data);
+    emitter.emit(getDataKey(key), data);
   },
   /**
    * Event sent once data response is equal to the stored data
@@ -54,8 +55,8 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
     key: CacheKeyType,
     callback: (data: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
   ): VoidFunction => {
-    emitter.on(key, callback);
-    return () => emitter.removeListener(key, callback);
+    emitter.on(getDataKey(key), callback);
+    return () => emitter.removeListener(getDataKey(key), callback);
   },
   getEqualData: <T>(
     key: CacheKeyType,

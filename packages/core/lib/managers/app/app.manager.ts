@@ -1,6 +1,7 @@
 import EventEmitter from "events";
 
-import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } from "managers";
+import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents, LoggerMethodsType } from "managers";
+import { FetchBuilder } from "builder";
 
 /**
  * App manager handles main application states - focus and online. Those two values can answer questions:
@@ -11,17 +12,20 @@ import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } 
  * @caution
  * Make sure to apply valid focus/online handlers for different environments like for example for native mobile applications.
  */
-export class AppManager {
+export class AppManager<ErrorType, HttpOptions> {
   emitter = new EventEmitter();
   events = getAppManagerEvents(this.emitter);
 
   isOnline: boolean;
   isFocused: boolean;
 
-  constructor(options?: AppManagerOptionsType) {
-    const { focusEvent, blurEvent, onlineEvent, initiallyFocused, initiallyOnline } =
-      options || appManagerInitialOptions;
+  private logger: LoggerMethodsType;
 
+  constructor(private builder: FetchBuilder<ErrorType, HttpOptions>, private options?: AppManagerOptionsType) {
+    const { focusEvent, blurEvent, onlineEvent, initiallyFocused, initiallyOnline } =
+      this.options || appManagerInitialOptions;
+
+    this.logger = this.builder.loggerManager.init("AppManager");
     this.isFocused = initiallyFocused;
     this.isOnline = initiallyOnline;
 
@@ -33,6 +37,11 @@ export class AppManager {
   setFocused = (isFocused: boolean) => {
     this.isFocused = isFocused;
 
+    this.logger.info(`Setting app to ${isFocused ? "Focused" : "Blurred"} state`, {
+      isFocused,
+      isOnline: this.isOnline,
+    });
+
     if (isFocused) {
       this.events.emitFocus();
     } else {
@@ -42,6 +51,11 @@ export class AppManager {
 
   setOnline = (isOnline: boolean) => {
     this.isOnline = isOnline;
+
+    this.logger.info(`Setting app to ${isOnline ? "Online" : "Offline"} state`, {
+      isOnline,
+      isFocused: this.isFocused,
+    });
 
     if (isOnline) {
       this.events.emitOnline();

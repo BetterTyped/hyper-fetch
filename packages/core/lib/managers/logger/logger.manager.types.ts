@@ -14,5 +14,5 @@ export type LogType = {
   additionalData?: LoggerMessageType[];
 };
 
-export type LoggerLevelType = "error" | "warning" | "http" | "info" | "debug";
+export type LoggerLevelType = "success" | "error" | "warning" | "http" | "info" | "debug";
 export type LoggerMessageType = string | Record<string, unknown> | Array<unknown>;

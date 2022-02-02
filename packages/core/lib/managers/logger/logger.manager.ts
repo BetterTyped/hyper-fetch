@@ -12,7 +12,7 @@ export class LoggerManager {
 
   constructor(private builder: FetchBuilderInstance, private options?: LoggerOptionsType) {
     this.logger = this.options?.logger || logger;
-    this.levels = this.options?.levels || ["error", "warning", "http", "info"];
+    this.levels = this.options?.levels || ["error", "success", "warning", "http", "info"];
   }
 
   setLevels = (levels: LoggerLevelType[]) => {
@@ -21,6 +21,11 @@ export class LoggerManager {
 
   init = (module: string): LoggerMethodsType => {
     return {
+      success: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+        if (!this.builder.debug || !this.levels.includes("success")) return;
+
+        this.logger({ level: "success", module, message, additionalData });
+      },
       error: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
         if (!this.builder.debug || !this.levels.includes("error")) return;
 
