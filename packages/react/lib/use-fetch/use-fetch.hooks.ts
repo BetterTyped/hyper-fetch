@@ -85,8 +85,20 @@ export const useFetch = <T extends FetchCommandInstance>(
   const handleRefresh = () => {
     refreshInterval.resetInterval();
 
+    const { timestamp } = state;
+
+    let timeLeft = refreshTime;
+    if (timestamp) {
+      const diff = +new Date() - +timestamp;
+      if (diff >= 0 && diff < refreshTime) {
+        timeLeft = refreshTime - diff;
+      } else {
+        timeLeft = 0;
+      }
+    }
+
     if (refresh) {
-      logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
+      logger.debug(`Starting refresh counter, request will be send in ${timeLeft}ms`);
       refreshInterval.interval(async () => {
         const queueStorage = await fetchQueue.get(queueKey);
         const isBlur = !command.builder.appManager.isFocused;
@@ -114,7 +126,7 @@ export const useFetch = <T extends FetchCommandInstance>(
             timestamp: state.timestamp,
           });
         }
-      }, refreshTime);
+      }, timeLeft);
     }
   };
 
@@ -197,9 +209,21 @@ export const useFetch = <T extends FetchCommandInstance>(
   };
 
   const handleMountEvents = () => {
-    const focusUnmount = appManager.events.onFocus(() => refreshOnTabFocus && handleFetch());
-    const blurUnmount = appManager.events.onBlur(() => refreshOnTabBlur && handleFetch());
-    const onlineUnmount = appManager.events.onOnline(() => refreshOnReconnect && handleFetch());
+    const focusUnmount = appManager.events.onFocus(() => {
+      if (refreshOnTabFocus) handleFetch();
+      handleRefresh();
+    });
+    const blurUnmount = appManager.events.onBlur(() => {
+      if (refreshOnTabBlur) handleFetch();
+      handleRefresh();
+    });
+    const onlineUnmount = appManager.events.onOnline(() => {
+      if (refreshOnReconnect) handleFetch();
+      handleRefresh();
+    });
+    const offlineUnmount = builder.appManager.events.onOffline(() => {
+      handleRefresh();
+    });
 
     const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
     const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
@@ -207,7 +231,6 @@ export const useFetch = <T extends FetchCommandInstance>(
     const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
 
     const loadingUnmount = fetchQueue.events.getLoading(queueKey, handleGetLoadingEvent);
-
     const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
     const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
     const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleRevalidate);
@@ -216,6 +239,7 @@ export const useFetch = <T extends FetchCommandInstance>(
       focusUnmount();
       blurUnmount();
       onlineUnmount();
+      offlineUnmount();
 
       downloadUnmount();
       uploadUnmount();
@@ -281,7 +305,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     } else {
       handleFetch();
     }
-  }, [command, ...dependencies, disabled]);
+  }, [...dependencies, disabled]);
 
   useDidUpdate(
     () => {
