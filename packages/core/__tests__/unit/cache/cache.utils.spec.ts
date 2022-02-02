@@ -104,12 +104,14 @@ describe("Cache utils", () => {
     });
 
     it("should return true for equal arguments", async () => {
+      const date = new Date();
+
       expect(isEqual(true, true)).toBe(true);
       expect(isEqual(false, false)).toBe(true);
       expect(isEqual(undefined, undefined)).toBe(true);
       expect(isEqual(null, null)).toBe(true);
-      expect(isEqual(new Date(), new Date())).toBe(true);
-      expect(isEqual(new Date(), new Date())).toBe(true);
+      expect(isEqual(date, date)).toBe(true);
+      expect(isEqual(date, date)).toBe(true);
       expect(isEqual(NaN, NaN)).toBe(true);
       expect(isEqual("1", "1")).toBe(true);
       expect(isEqual(0, 0)).toBe(true);
@@ -119,21 +121,21 @@ describe("Cache utils", () => {
       expect(isEqual([1], [1])).toBe(true);
       expect(isEqual(["1"], ["1"])).toBe(true);
       expect(isEqual([NaN], [NaN])).toBe(true);
-      expect(isEqual([new Date()], [new Date()])).toBe(true);
+      expect(isEqual([date], [date])).toBe(true);
       expect(isEqual([null], [null])).toBe(true);
       expect(isEqual([{}], [{}])).toBe(true);
       expect(isEqual([{ someKey: 1 }], [{ someKey: 1 }])).toBe(true);
       expect(isEqual([{ someKey: "1" }], [{ someKey: "1" }])).toBe(true);
       expect(isEqual([{ someKey: null }], [{ someKey: null }])).toBe(true);
       expect(isEqual([{ someKey: NaN }], [{ someKey: NaN }])).toBe(true);
-      expect(isEqual([{ someKey: new Date() }], [{ someKey: new Date() }])).toBe(true);
+      expect(isEqual([{ someKey: date }], [{ someKey: date }])).toBe(true);
       expect(isEqual([{ someKey: {} }], [{ someKey: {} }])).toBe(true);
       expect(isEqual({ someKey: 1, otherKey: 1 }, { someKey: 1, otherKey: 1 })).toBe(true);
       expect(isEqual({ someKey: "1" }, { someKey: "1" })).toBe(true);
       expect(isEqual({ someKey: {} }, { someKey: {} })).toBe(true);
       expect(isEqual({ someKey: NaN }, { someKey: NaN })).toBe(true);
       expect(isEqual({ someKey: null }, { someKey: null })).toBe(true);
-      expect(isEqual({ someKey: new Date() }, { someKey: new Date() })).toBe(true);
+      expect(isEqual({ someKey: date }, { someKey: date })).toBe(true);
       expect(isEqual({}, {})).toBe(true);
     });
   });
