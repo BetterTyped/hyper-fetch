@@ -76,7 +76,7 @@ const handlers = [
   getMock(postUser, getRandomUser, DateInterval.second),
   getMock(patchUser, getRandomUser, DateInterval.second * 3),
   getMock(deleteUser, null),
-  // getMock(postQueue, { response: "FROM QUEUE!" }, DateInterval.second),
+  getMock(postQueue, { response: "FROM QUEUE!" }, DateInterval.second),
 ];
 
 const restServer = setupWorker(...handlers);

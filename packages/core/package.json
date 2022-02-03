@@ -24,7 +24,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BetterTyped/hyper-fetch.git"
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/core"
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
