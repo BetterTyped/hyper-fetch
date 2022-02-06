@@ -22,7 +22,7 @@ export const getCacheInitialData = <T extends FetchCommandInstance>(
   };
 };
 
-export const getCacheState = (
+export const getFreshCacheState = (
   cacheData: CacheValueType | undefined,
   useOnMount: boolean,
   cacheTime?: number,

@@ -58,7 +58,9 @@ export const useFetch = <T extends FetchCommandInstance>(
 
   const { cache, fetchQueue, appManager, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useFetch")).current;
-  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData, fetchQueue);
+  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData, fetchQueue, [
+    JSON.stringify(commandDump),
+  ]);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);

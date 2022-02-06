@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
+import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 import {
   ClientResponseType,
   FetchCommandInstance,
@@ -8,7 +8,7 @@ import {
   FetchBuilderInstance,
 } from "@better-typed/hyper-fetch";
 
-import { getCacheState, getCacheInitialData, isStaleCacheData } from "utils";
+import { getCacheInitialData } from "utils";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
 import { getInitialDependentStateData, transformDataToCacheValue } from "./use-dependent-state.utils";
 
@@ -16,13 +16,14 @@ export const useDependentState = <T extends FetchCommandInstance>(
   command: FetchCommandInstance,
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
   queue: FetchBuilderInstance["fetchQueue"] | FetchBuilderInstance["submitQueue"],
+  dependencies: any[],
 ): [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
   (renderKey: keyof UseDependentStateType) => void,
   boolean,
 ] => {
-  const { builder, cacheKey, cacheTime, queueKey } = command;
+  const { builder, cacheKey, queueKey } = command;
   const { appManager, fetchQueue, cache } = builder;
 
   const [initialized, setInitialized] = useState(false);
@@ -41,23 +42,25 @@ export const useDependentState = <T extends FetchCommandInstance>(
     renderKeys.current.push(renderKey);
   };
 
-  useDidMount(() => {
-    const getInitialData = async () => {
-      const cacheData = await builder.cache.get(cacheKey);
-      const initCacheState = getCacheState(cacheData, command.cache, cacheTime);
-      const isStale = isStaleCacheData(cacheTime, initCacheState?.timestamp);
-      const cacheValue = isStale ? getCacheInitialData<T>(initialData) : initCacheState;
-      const queueElement = await queue.get(queueKey);
-      const initialLoading = state.current.loading || !!queueElement.requests.length;
+  useDidUpdate(
+    () => {
+      const getInitialData = async () => {
+        const cacheData = await builder.cache.get(cacheKey);
+        const cacheValue = !cacheData ? getCacheInitialData<T>(initialData) : cacheData;
+        const queueElement = await queue.get(queueKey);
+        const initialLoading = state.current.loading || !!queueElement.requests.length;
 
-      state.current = getInitialDependentStateData(command, cacheValue, initialLoading);
+        state.current = getInitialDependentStateData(command, cacheValue, initialLoading);
 
-      rerender(+new Date());
-      setInitialized(true);
-    };
+        rerender(+new Date());
+        setInitialized(true);
+      };
 
-    getInitialData();
-  });
+      getInitialData();
+    },
+    [...dependencies],
+    true,
+  );
 
   useDidMount(() => {
     const focusUnmount = appManager.events.onFocus(() => {

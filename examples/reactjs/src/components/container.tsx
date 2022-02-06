@@ -13,7 +13,7 @@ export const Container: React.FC<ContainerProps> = ({ children, name }) => {
         <Typography variant="h3" sx={{ fontWeight: "800" }}>
           {name}
         </Typography>
-        <Box>{children}</Box>
+        <Box sx={{ marginTop: "20px" }}>{children}</Box>
       </ContainerComponent>
     </Box>
   );

@@ -13,7 +13,7 @@ export const getUser = builder.createCommand<UserModel>()({
 export const getUsers = builder.createCommand<UserModel[]>()({
   endpoint: "/api/users",
   cache: true,
-  cacheTime: DateInterval.second * 10,
+  cacheTime: DateInterval.second * 5,
 });
 
 export const postUser = builder.createCommand<UserModel, PostUserModel>()({
@@ -42,18 +42,18 @@ export const postQueue = builder.createCommand<{ response: string }, { id: numbe
 // Mocks setup
 const getMock = (
   request: FetchCommandInstance,
-  response: Record<string, any> | null | (() => Record<string, any> | null),
+  response: Record<string, any> | null | ((req: any) => Record<string, any> | null),
   delay?: number,
 ) => {
   const { method, endpoint } = request;
 
   const url = builder.baseUrl + endpoint;
 
-  function callback(_req: any, res: any, ctx: any) {
+  function callback(req: any, res: any, ctx: any) {
     return res(
       ctx.delay(delay),
       ctx.status(200),
-      ctx.json(typeof response === "function" ? response() : response || {}),
+      ctx.json(typeof response === "function" ? response(req) : response || {}),
     );
   }
 
@@ -72,9 +72,27 @@ const getMock = (
   return rest.get(url, callback);
 };
 
+const usersPages = new Map();
+
+const getPage = (req: any) => {
+  const page = req.url.searchParams.get("page") || 1;
+  const cachedData = usersPages.get(page);
+
+  if (!cachedData) {
+    const users = getRandomUsers();
+    const newData = {
+      page,
+      data: users,
+    };
+    usersPages.set(page, newData);
+    return newData;
+  }
+  return cachedData;
+};
+
 const handlers = [
   getMock(getUser, getRandomUser, DateInterval.second),
-  getMock(getUsers, getRandomUsers, DateInterval.second),
+  getMock(getUsers, getPage, DateInterval.second),
   getMock(postUser, getRandomUser, DateInterval.second),
   getMock(patchUser, getRandomUser, DateInterval.second * 3),
   getMock(deleteUser, null),

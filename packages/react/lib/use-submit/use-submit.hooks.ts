@@ -43,7 +43,10 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData, submitQueue);
+  const commandDump = command.dump();
+  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData, submitQueue, [
+    JSON.stringify(commandDump),
+  ]);
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -192,7 +195,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
       handleDependencyTracking();
       return handleMountEvents();
     },
-    [command],
+    [JSON.stringify(commandDump)],
     true,
   );
 
