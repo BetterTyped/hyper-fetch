@@ -30,10 +30,10 @@ export const getRevalidateEventKey = (key: string): string => {
 };
 
 export const getEqualEventKey = (key: string): string => {
-  return `${key}_refreshed`;
+  return `${key}_equal`;
 };
 
-export const getDataKey = (key: string): string => {
+export const getCacheKey = (key: string): string => {
   return `${key}_cache`;
 };
 

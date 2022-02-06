@@ -1,4 +1,3 @@
-import { waitFor } from "@testing-library/react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { DateInterval } from "@better-typed/hyper-fetch";
 
@@ -6,7 +5,6 @@ import { useFetch } from "use-fetch";
 import { startServer, resetMocks, stopServer, testBuilder } from "../../utils/server";
 import { getManyMock, getManyRequest } from "../../utils/mocks";
 import { interceptGetMany, GetManyResponseType } from "../../utils/mocks/get-many.mock";
-import { sleep } from "../../utils/utils";
 
 const request = getManyRequest.setCacheTime(DateInterval.second * 10);
 const renderGetManyHook = () =>
@@ -51,17 +49,18 @@ describe("useFetch hook deduplicate logic", () => {
     expect(testBuilder.client).toHaveBeenCalledTimes(0);
   });
 
-  it("should deduplicate 2 fetches into one request", async () => {
-    interceptGetMany(200);
-    renderGetManyHook();
-    renderGetManyHook();
-    await waitFor(() => {
-      expect(testBuilder.client).toHaveBeenCalledTimes(1);
-    });
+  // THIS SHOULD BE CHECKED IN CORE
+  // it("should deduplicate 2 fetches into one request", async () => {
+  //   interceptGetMany(200);
+  //   renderGetManyHook();
+  //   renderGetManyHook();
+  //   await waitFor(() => {
+  //     expect(testBuilder.client).toHaveBeenCalledTimes(1);
+  //   });
 
-    await act(async () => {
-      await sleep(100);
-    });
-    expect(testBuilder.client).toHaveBeenCalledTimes(1);
-  });
+  //   await act(async () => {
+  //     await sleep(100);
+  //   });
+  //   expect(testBuilder.client).toHaveBeenCalledTimes(1);
+  // });
 });

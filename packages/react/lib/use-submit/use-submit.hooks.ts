@@ -12,6 +12,7 @@ import {
 } from "@better-typed/hyper-fetch";
 import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
+import { isStaleCacheData } from "utils";
 import { useDebounce } from "use-debounce/use-debounce.hooks";
 import {
   UseSubmitOptionsType,
@@ -24,7 +25,6 @@ import {
   OnProgressCallbackType,
 } from "./use-submit.types";
 import { useSubmitDefaultOptions } from "./use-submit.constants";
-import { isStaleCacheData } from "../use-fetch/use-fetch.utils";
 import { useDependentState } from "../use-dependent-state/use-dependent-state.hooks";
 
 export const useSubmit = <T extends FetchCommandInstance>(
@@ -39,7 +39,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     shouldThrow = useSubmitDefaultOptions.shouldThrow,
   }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
-  const { cacheTime, cacheKey, queueKey, builder } = command;
+  const { cacheTime, cacheKey, queueKey, builder, invalidate } = command;
   const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, commandManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
@@ -84,6 +84,16 @@ export const useSubmit = <T extends FetchCommandInstance>(
     }
   };
 
+  const invalidateFn = (invalidateKey: string | FetchCommandInstance | RegExp) => {
+    if (!invalidateKey) return;
+
+    if (invalidateKey && invalidateKey instanceof FetchCommand) {
+      cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+    } else {
+      cache.events.revalidate(invalidateKey);
+    }
+  };
+
   const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
     if (response) {
       const status = response[2] || 0;
@@ -91,6 +101,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
       const hasSuccessStatus = !!(!response[1] && status >= 200 && status <= 400);
       if (hasSuccessState || hasSuccessStatus) {
         onSuccessCallback?.current?.(response[0] as ExtractResponse<T>);
+        invalidate?.forEach((key) => invalidateFn(key));
       } else {
         onErrorCallback?.current?.(response[1] as ExtractError<T>);
         if (shouldThrow) {
@@ -151,8 +162,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
 
     const loadingUnmount = submitQueue.events.getLoading(queueKey, handleGetLoadingEvent);
-
-    const getDataUnmount = cache.events.get<T>(queueKey, handleGetCacheData);
+    const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
     const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
 
     return () => {
@@ -162,7 +172,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
       responseStartUnmount();
       loadingUnmount();
 
-      getDataUnmount();
+      getUnmount();
       getEqualDataUnmount();
     };
   };
@@ -170,14 +180,6 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const handleDependencyTracking = () => {
     if (!dependencyTracking) {
       Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
-    }
-  };
-
-  const invalidateFn = (invalidateKey: string | FetchCommandInstance | RegExp) => {
-    if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      command.builder.cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
-    } else {
-      command.builder.cache.events.revalidate(invalidateKey);
     }
   };
 

@@ -40,8 +40,8 @@ describe("[Basic] UseFetch hook", () => {
   it("should initialize without loading state", async () => {
     interceptGetMany(200);
 
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
@@ -52,8 +52,8 @@ describe("[Basic] UseFetch hook", () => {
 
   it("should change state once data is fetched", async () => {
     const mock = interceptGetMany(200);
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     await waitFor(() => {
       expect(getCurrentState(responseOne).data).not.toBe(null);
@@ -65,8 +65,8 @@ describe("[Basic] UseFetch hook", () => {
 
   it("should update error state once api call fails", async () => {
     const mock = interceptGetMany(400);
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
       return getCurrentState(responseOne).error && getCurrentState(responseTwo).error;
@@ -78,8 +78,8 @@ describe("[Basic] UseFetch hook", () => {
 
   it("should fetch new data once refresh method gets triggered", async () => {
     const mock = interceptGetMany(200);
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
@@ -108,8 +108,8 @@ describe("[Basic] UseFetch hook", () => {
   // Write smaller tests
   it("should allow to use reducer actions to override the state, and emit it to other hooks", async () => {
     const mock = interceptGetMany(200, 0);
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
@@ -175,8 +175,8 @@ describe("[Basic] UseFetch hook", () => {
   // Write smaller tests
   it("should allow to use reducer actions to override only the local state and not affect related hooks", async () => {
     const mock = interceptGetMany(200, 0);
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);

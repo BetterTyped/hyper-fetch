@@ -1,10 +1,12 @@
 import { AppManagerOptionsType } from "managers";
 import { onWindowEvent, onDocumentEvent } from "./app.manager.utils";
 
-export const focusEventKey = "focus";
-export const blurEventKey = "blur";
-export const onlineEventKey = "online";
-export const offlineEventKey = "offline";
+export enum AppEvents {
+  focus = "focus",
+  blur = "blur",
+  online = "online",
+  offline = "offline",
+}
 
 export const appManagerInitialOptions: AppManagerOptionsType = {
   initiallyFocused: true,

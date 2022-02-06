@@ -6,11 +6,13 @@ import { getRandomUser, getRandomUsers } from "utils/users.utils";
 
 export const getUser = builder.createCommand<UserModel>()({
   endpoint: "/api/user/:userId",
+  cache: true,
   cacheTime: DateInterval.second * 10,
 });
 
 export const getUsers = builder.createCommand<UserModel[]>()({
   endpoint: "/api/users",
+  cache: true,
   cacheTime: DateInterval.second * 10,
 });
 

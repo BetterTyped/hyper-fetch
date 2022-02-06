@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { DateInterval } from "@better-typed/hyper-fetch";
+import Pagination from "@mui/material/Pagination";
 import { useFetch } from "@better-typed/react-hyper-fetch";
 
 import { getUsers } from "../server/user.api";
 
-const refreshTime = DateInterval.second * 10;
-
 export const UsersList: React.FC = () => {
+  const [page, setPage] = useState(1);
   const [fetched, setFetched] = useState(false);
 
-  const { data, loading, error, onRequestStart } = useFetch(getUsers, {
-    refresh: true,
-    refreshTime,
+  const { data, loading, error, onRequestStart } = useFetch(getUsers.setQueryParams({ page }), {
+    refresh: false,
     // cacheOnMount: false,
     initialData: [
       [
@@ -31,13 +29,25 @@ export const UsersList: React.FC = () => {
     setFetched(true);
   });
 
+  const onPageChange = (_event: React.ChangeEvent<unknown>, selectedPage: number) => {
+    setPage(selectedPage);
+  };
+
   return (
     <div>
-      <h3>User Request Details:</h3>
-      <div>initially fetched: {String(fetched)}</div>
-      <div>loading: {String(loading)}</div>
-      <div>error: {JSON.stringify(error)}</div>
-      <div>data: {JSON.stringify(data)}</div>
+      <div>
+        <b>initially fetched:</b> {String(fetched)}
+      </div>
+      <div>
+        <b>loading:</b> {String(loading)}
+      </div>
+      <div>
+        <b>error:</b> {JSON.stringify(error)}
+      </div>
+      <div>
+        <b>data:</b> {JSON.stringify(data)}
+      </div>
+      <Pagination page={page} count={10} shape="rounded" onChange={onPageChange} />
     </div>
   );
 };

@@ -6,15 +6,17 @@ import { useFetch } from "@better-typed/react-hyper-fetch";
 import { getUser } from "../server/user.api";
 
 const refreshTime = DateInterval.second * 10;
+const initialDate = +new Date();
 
 export const UserDetails: React.FC = () => {
-  const [dep, setDep] = useState(+new Date());
+  const [dep, setDep] = useState(initialDate);
   const [fetched, setFetched] = useState(false);
 
   const { data, loading, error, refresh, timestamp, onRequestStart } = useFetch(getUser.setQueryParams({ date: dep }), {
     dependencies: [dep],
     refresh: true,
     refreshTime,
+    revalidateOnMount: false,
   });
 
   onRequestStart(() => {

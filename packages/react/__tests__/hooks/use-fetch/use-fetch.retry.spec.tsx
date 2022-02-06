@@ -35,8 +35,8 @@ describe("useFetch hook retry logic", () => {
   it("should not retry request when option is set to false", async () => {
     const mock = interceptGetMany(400, 0);
 
-    const responseOne = renderGetManyHook(requestNoRetry);
-    const responseTwo = renderGetManyHook(requestNoRetry);
+    const responseOne = await renderGetManyHook(requestNoRetry);
+    const responseTwo = await renderGetManyHook(requestNoRetry);
 
     await responseOne.waitForValueToChange(() => {
       return getCurrentState(responseOne).error;
@@ -55,12 +55,10 @@ describe("useFetch hook retry logic", () => {
   });
 
   it("should retry request after 100ms", async () => {
-    testBuilder.setDebug(true);
-
     const mock = interceptGetMany(400);
 
-    const responseOne = renderGetManyHook();
-    const responseTwo = renderGetManyHook();
+    const responseOne = await renderGetManyHook();
+    const responseTwo = await renderGetManyHook();
 
     await responseOne.waitForValueToChange(() => {
       return getCurrentState(responseOne).error;
