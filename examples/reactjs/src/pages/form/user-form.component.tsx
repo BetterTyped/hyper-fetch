@@ -25,13 +25,7 @@ export const UserForm: React.FC = () => {
     error: errorQueue,
     submitting: submittingQueue,
     submit: submitQueue,
-    onSubmitSuccess,
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
-
-  onSubmitSuccess(() => {
-    // eslint-disable-next-line no-alert
-    alert("queue success");
-  });
 
   const updateQueue = async () => {
     const newQueue = await postQueue.builder.submitQueue.get(postQueue.queueKey);
@@ -80,8 +74,8 @@ export const UserForm: React.FC = () => {
       <h3>Queued Requests:</h3>
       <button
         type="button"
-        onClick={async () => {
-          await submitQueue();
+        onClick={() => {
+          submitQueue();
           updateQueue();
         }}
       >

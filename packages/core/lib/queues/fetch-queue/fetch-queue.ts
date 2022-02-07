@@ -53,7 +53,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
         queueElementDump.commandDump.values,
       ) as FetchCommandInstance;
       // 2. Only last request
-      if (cancelable) {
+      if (cancelable || command.used) {
         this.logger.info(`Performing cancelable request`, { requestId, queueKey, queueElementDump });
         // Cancel all previous requests
         this.clearRunningRequests(queueKey);
@@ -90,7 +90,6 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
     // This way we don't save the Class but the instruction of the request to be done
 
     this.logger.debug(`Request set to trigger`, { queueKey, queueElement });
-
     // When offline not perform any request
     if (!command.builder.appManager.isOnline) {
       return this.logger.error("Cannot perform fetch-queue request, app is offline");

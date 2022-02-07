@@ -2,7 +2,7 @@ import { ClientType, FetchClientXHR } from "client";
 import { FetchBuilder } from "builder";
 import { FetchCommand } from "command";
 import { LoggerManager } from "managers";
-import { interceptBase } from "../../utils/mocks";
+import { interceptGetBase } from "../../utils/mocks";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 
 const baseUrl = "some-url";
@@ -97,10 +97,10 @@ describe("FetchBuilder", () => {
         .build();
 
       const command = builder.createCommand()({
-        endpoint: "/",
+        endpoint: "/something",
       });
 
-      interceptBase(400);
+      interceptGetBase(400);
 
       await command.send();
 
@@ -130,7 +130,7 @@ describe("FetchBuilder", () => {
     it("should trigger onRequest method before making request", async () => {
       const methodFn = jest.fn();
 
-      interceptBase(200);
+      interceptGetBase(200);
 
       const builder = new FetchBuilder({ baseUrl })
         .setHttpOptions(options)
@@ -141,7 +141,7 @@ describe("FetchBuilder", () => {
         .build();
 
       const command = builder.createCommand()({
-        endpoint: "/",
+        endpoint: "/something",
       });
 
       await command.send();
@@ -152,7 +152,7 @@ describe("FetchBuilder", () => {
     it("should throw onRequest method when command is not returned", async () => {
       const methodFn = jest.fn();
 
-      interceptBase(200);
+      interceptGetBase(200);
 
       const builder = new FetchBuilder({ baseUrl })
         .setHttpOptions(options)
@@ -163,7 +163,7 @@ describe("FetchBuilder", () => {
         .build();
 
       const command = builder.createCommand()({
-        endpoint: "/",
+        endpoint: "/something",
       });
 
       expect(builder.__modifyRequest(command)).rejects.toThrow();
@@ -172,7 +172,7 @@ describe("FetchBuilder", () => {
     it("should trigger onResponse method after making request", async () => {
       const methodFn = jest.fn();
 
-      interceptBase(200);
+      interceptGetBase(200);
 
       const builder = new FetchBuilder({ baseUrl })
         .setHttpOptions(options)
@@ -183,7 +183,7 @@ describe("FetchBuilder", () => {
         .build();
 
       const command = builder.createCommand()({
-        endpoint: "/",
+        endpoint: "/something",
       });
 
       await command.send();
@@ -194,7 +194,7 @@ describe("FetchBuilder", () => {
     it("should throw onResponse method when command is not returned", async () => {
       const methodFn = jest.fn();
 
-      interceptBase(200);
+      interceptGetBase(200);
 
       const builder = new FetchBuilder({ baseUrl })
         .setHttpOptions(options)
@@ -205,7 +205,7 @@ describe("FetchBuilder", () => {
         .build();
 
       const command = builder.createCommand()({
-        endpoint: "/",
+        endpoint: "/something",
       });
 
       expect(builder.__modifyResponse([undefined, null, 200], command)).rejects.toThrow();

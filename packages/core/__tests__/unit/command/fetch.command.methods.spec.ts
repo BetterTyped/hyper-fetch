@@ -50,4 +50,18 @@ describe("[Methods] FetchCommand", () => {
     expect(myCacheKey).toEqual(commandWithParams.cacheKey);
     expect(myCacheKey).toEqual(commandWithQueryParams.cacheKey);
   });
+
+  it("should change the 'used' to be true", async () => {
+    const command = builder
+      .createCommand()({
+        endpoint: "/some-endpoint/:paramId",
+      })
+      .setUsed(true);
+    const commandWithParams = command.setParams({ paramId: 1 });
+    const commandWithQueryParams = commandWithParams.setQueryParams({ test: 1 });
+
+    expect(true).toEqual(command.used);
+    expect(true).toEqual(commandWithParams.used);
+    expect(true).toEqual(commandWithQueryParams.used);
+  });
 });
