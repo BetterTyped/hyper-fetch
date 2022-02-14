@@ -4,7 +4,7 @@ import {
   ExtractResponse,
   ExtractError,
   CacheValueType,
-  FetchLoadingEventType,
+  QueueLoadingEventType,
   FetchProgressType,
 } from "@better-typed/hyper-fetch";
 
@@ -49,7 +49,7 @@ export type UseFetchReturnType<T extends FetchCommandInstance> = Omit<
   refresh: (invalidateKey?: string | FetchCommandInstance) => void;
 };
 
-export type OnRequestCallbackType = (options: Omit<FetchLoadingEventType, "isLoading">) => void;
+export type OnRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;

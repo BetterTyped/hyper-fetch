@@ -1,13 +1,9 @@
-import React, { useState } from "react";
-import { QueueDumpValueType } from "@better-typed/hyper-fetch";
-import { useSubmit } from "@better-typed/react-hyper-fetch";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
+import React from "react";
+import { useSubmit, useQueue } from "@better-typed/react-hyper-fetch";
 
 import { patchUser, postUser, postQueue } from "../server/user.api";
 
 export const UserForm: React.FC = () => {
-  const [queue, setQueue] = useState<QueueDumpValueType<Partial<XMLHttpRequest>>[]>([]);
-
   const { timestamp, data, error, submitting, submit } = useSubmit(
     postUser.setData({ email: "test", age: 12, name: "name" }),
   );
@@ -27,15 +23,7 @@ export const UserForm: React.FC = () => {
     submit: submitQueue,
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
 
-  const updateQueue = async () => {
-    const newQueue = await postQueue.builder.submitQueue.get(postQueue.queueKey);
-    setQueue(newQueue?.requests);
-  };
-
-  useDidMount(() => {
-    const interval = setInterval(updateQueue, 100);
-    return () => clearInterval(interval);
-  });
+  const { requests, stopQueue, startQueue } = useQueue(postQueue);
 
   return (
     <div>
@@ -72,14 +60,14 @@ export const UserForm: React.FC = () => {
         <b>timestamp:</b> {timestampPatch?.toDateString()} {timestampPatch?.toLocaleTimeString()}
       </div>
       <h3>Queued Requests:</h3>
-      <button
-        type="button"
-        onClick={() => {
-          submitQueue();
-          updateQueue();
-        }}
-      >
+      <button type="button" onClick={() => submitQueue()}>
         Add to queue
+      </button>
+      <button type="button" onClick={() => stopQueue()}>
+        Stop queue
+      </button>
+      <button type="button" onClick={() => startQueue()}>
+        Start queue
       </button>
       <div>
         <b>loading:</b> {String(submittingQueue)}
@@ -94,7 +82,7 @@ export const UserForm: React.FC = () => {
         <b>timestamp:</b> {timestampQueue?.toDateString()} {timestampQueue?.toLocaleTimeString()}
       </div>
       <div>
-        <b>queue elements:</b> {queue.length}
+        <b>queue elements:</b> {requests.length}
       </div>
     </div>
   );

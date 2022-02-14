@@ -28,7 +28,7 @@ describe("[Retry] FetchQueue", () => {
       const loadingTrigger = jest.fn();
       interceptGetMany(400, 0);
 
-      testBuilder.fetchQueue.events.getLoading(queueKey, loadingTrigger);
+      testBuilder.fetchQueue.events.onLoading(queueKey, loadingTrigger);
 
       const request = getManyRequest.setRetry(false);
       testBuilder.fetchQueue.add(request);

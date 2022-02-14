@@ -11,6 +11,7 @@ import {
   ParamsType,
   getCommandKey,
   FetchCommandQueueOptions,
+  getCommandQueue,
 } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
@@ -19,6 +20,8 @@ import { FetchBuilder } from "builder";
 import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
 import { FetchAction } from "action";
+import { FetchQueue } from "queues";
+import { getUniqueRequestId } from "utils";
 
 /**
  * Fetch command it is designed to prepare the necessary setup to execute the request to the server.
@@ -351,7 +354,9 @@ export class FetchCommand<
       >,
     );
 
-    return client(command);
+    const requestId = getUniqueRequestId(this.queueKey);
+
+    return client(command, requestId);
   };
 
   /**
@@ -379,7 +384,6 @@ export class FetchCommand<
       FetchCommandQueueOptions
     >,
   ) => {
-    const { fetchQueue, submitQueue } = this.builder;
     const command = this.clone(
       options as FetchCommandCurrentType<
         ResponseType,
@@ -390,12 +394,8 @@ export class FetchCommand<
         ClientOptions
       >,
     );
-
-    const isGet = command.method === HttpMethodsEnum.get;
-
-    const queueType = options?.queueType || "auto";
-    const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
-    const queue = isFetchQueue ? fetchQueue : submitQueue;
+    const queue = getCommandQueue(this, options?.queueType);
+    const isFetchQueue = queue instanceof FetchQueue;
 
     return new Promise<ClientResponseType<ResponseType, ErrorType | RequestErrorType>>((resolve) => {
       const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType | RequestErrorType>(

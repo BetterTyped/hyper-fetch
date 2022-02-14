@@ -5,7 +5,7 @@ import {
   FetchProgressType,
   ExtractError,
   ExtractFetchReturn,
-  SubmitLoadingEventType,
+  QueueLoadingEventType,
   CacheValueType,
   getCommandKey,
   FetchCommand,
@@ -137,7 +137,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     actions.setLoading(false, false);
   };
 
-  const handleGetLoadingEvent = ({ isLoading, isRetry }: SubmitLoadingEventType) => {
+  const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
     actions.setLoading(isLoading, false);
     onRequestCallback.current?.({ isRetry });
   };
@@ -164,7 +164,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
     const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
 
-    const loadingUnmount = submitQueue.events.getLoading(queueKey, handleGetLoadingEvent);
+    const loadingUnmount = submitQueue.events.onLoading(queueKey, handleGetLoadingEvent);
     const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
     const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
 

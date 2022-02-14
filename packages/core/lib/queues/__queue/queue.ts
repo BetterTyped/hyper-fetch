@@ -1,4 +1,13 @@
-import { QueueStorageType, QueueStoreKeyType, QueueData, RunningRequestValueType, QueueOptionsType } from "queues";
+import EventEmitter from "events";
+
+import {
+  QueueStorageType,
+  QueueStoreKeyType,
+  QueueData,
+  RunningRequestValueType,
+  QueueOptionsType,
+  getQueueEvents,
+} from "queues";
 import { LoggerMethodsType } from "managers";
 import { FetchCommandInstance } from "command";
 import { FetchBuilder } from "builder";
@@ -8,6 +17,8 @@ import { FetchBuilder } from "builder";
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
  */
 export class Queue<ErrorType, HttpOptions> {
+  public emitter = new EventEmitter();
+  public events = getQueueEvents<HttpOptions>(this.emitter);
   public logger: LoggerMethodsType;
   private requestCount = new Map<string, number>();
   private storage: QueueStorageType<HttpOptions> = new Map<QueueStoreKeyType, QueueData<HttpOptions>>();
@@ -27,7 +38,7 @@ export class Queue<ErrorType, HttpOptions> {
     this.options?.onInitialization(this);
   }
 
-  startQueue = async (queueKey: string, flush: (queueKey: string) => void) => {
+  __startQueue = async (queueKey: string) => {
     // Change status to running
     const queue = await this.get(queueKey);
 
@@ -37,9 +48,8 @@ export class Queue<ErrorType, HttpOptions> {
       this.set(queueKey, queue);
     }
 
-    flush(queueKey);
-
     this.logger.http(`Started queue`, { queueKey });
+    this.events.setQueueStatus(queueKey, queue);
   };
 
   /**
@@ -56,6 +66,7 @@ export class Queue<ErrorType, HttpOptions> {
 
       this.logger.http(`Paused queue`, { queueKey });
     }
+    this.events.setQueueStatus(queueKey, queue);
   };
 
   /**
@@ -75,19 +86,20 @@ export class Queue<ErrorType, HttpOptions> {
 
       this.logger.http(`Stopped queue`, { queueKey });
     }
+    this.events.setQueueStatus(queueKey, queue);
   };
 
   getIsCanceledRequest = (queueKey: string, requestId: string) => {
     const runningRequests = this.getRunningRequests(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
-    return runningRequests && !runningRequests.find((req) => req.id === requestId);
+    return runningRequests && !runningRequests.find((req) => req.requestId === requestId);
   };
 
   // Storage
-  get = async (queueKey: string) => {
-    const initialQueue = { requests: [], stopped: false };
-    const storedEntity = await this.storage.get(queueKey);
+  get = async <Command = unknown>(queueKey: string) => {
+    const initialQueue = { requests: [], stopped: false } as QueueData<HttpOptions, Command>;
+    const storedEntity = (await this.storage.get(queueKey)) as QueueData<HttpOptions, Command>;
 
     return storedEntity || initialQueue;
   };
@@ -96,10 +108,13 @@ export class Queue<ErrorType, HttpOptions> {
     return this.storage.keys();
   };
 
-  set = async (queueKey: string, queue: QueueData<HttpOptions>) => {
+  set = async <Command = unknown>(queueKey: string, queue: QueueData<HttpOptions, Command>) => {
     await this.storage.set(queueKey, queue);
 
     this.options?.onUpdateStorage(queueKey, queue);
+
+    // Emit Queue Changes
+    this.events.setQueueChanged(queueKey, queue);
 
     return queue;
   };
@@ -116,6 +131,9 @@ export class Queue<ErrorType, HttpOptions> {
     await this.storage.set(queueKey, queue);
     this.options?.onDeleteFromStorage(queueKey, queue);
 
+    // Emit Queue Changes
+    this.events.setQueueChanged(queueKey, queue);
+
     return queue;
   };
 
@@ -124,6 +142,9 @@ export class Queue<ErrorType, HttpOptions> {
     const newQueue = { requests: [], stopped: queue.stopped };
     await this.storage.set(queueKey, newQueue);
     this.options?.onDeleteFromStorage(queueKey, newQueue);
+
+    // Emit Queue Changes
+    this.events.setQueueChanged(queueKey, queue);
 
     return queue;
   };
@@ -156,16 +177,16 @@ export class Queue<ErrorType, HttpOptions> {
 
   getRunningRequest = (queueKey: string, id: string) => {
     const runningRequests = this.runningRequests.get(queueKey) || [];
-    return runningRequests.find((req) => req.id === id);
+    return runningRequests.find((req) => req.requestId === id);
   };
 
   getRunningRequests = (queueKey: string) => {
     return this.runningRequests.get(queueKey) || [];
   };
 
-  addRunningRequest = (queueKey: string, id: string, command: FetchCommandInstance) => {
+  addRunningRequest = (queueKey: string, requestId: string, command: FetchCommandInstance) => {
     const runningRequests = this.runningRequests.get(queueKey) || [];
-    runningRequests.push({ id, command });
+    runningRequests.push({ requestId, command });
     this.runningRequests.set(queueKey, runningRequests);
   };
 
@@ -178,7 +199,7 @@ export class Queue<ErrorType, HttpOptions> {
     const runningRequests = this.runningRequests.get(queueKey) || [];
     this.runningRequests.set(
       queueKey,
-      runningRequests.filter((req) => req.id !== id),
+      runningRequests.filter((req) => req.requestId !== id),
     );
   };
 

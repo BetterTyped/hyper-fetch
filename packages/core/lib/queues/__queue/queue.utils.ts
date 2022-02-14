@@ -1,5 +1,14 @@
-export const getFetchLoadingEventKey = (key: string): string => {
-  return `${key}-fetch-loading-event`;
+export const getQueueLoadingEventKey = (key: string): string => {
+  return `${key}-loading-event`;
+};
+export const getQueueDrainedEventKey = (key: string): string => {
+  return `${key}-drained-event`;
+};
+export const getQueueStatusEventKey = (key: string): string => {
+  return `${key}-status-event`;
+};
+export const getQueueChangeEventKey = (key: string): string => {
+  return `${key}-queue-event`;
 };
 
 export const getIsEqualTimestamp = (currentTimestamp: number, threshold: number, queueTimestamp?: number): boolean => {

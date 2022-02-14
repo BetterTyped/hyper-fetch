@@ -2,6 +2,9 @@ import { FetchBuilderInstance } from "builder";
 import { stringify } from "cache";
 import { FetchProgressType } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
+import { HttpMethodsEnum } from "constants/http.constants";
+import { FetchQueue, SubmitQueue } from "queues";
+import { ExtractClientOptions, ExtractError } from "types";
 
 export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
   return Number(((total * 100) / loaded).toFixed(0));
@@ -101,4 +104,18 @@ export const getCommandKey = (
   const queryParamsKey = useInitialValues ? "" : stringify(command.queryParams);
 
   return `${methodKey}_${endpointKey}_${queryParamsKey}`;
+};
+
+export const getCommandQueue = <Command extends FetchCommandInstance>(
+  command: Command,
+  queueType: "auto" | "fetch" | "submit" = "auto",
+) => {
+  const { fetchQueue, submitQueue } = command.builder;
+  const isGet = command.method === HttpMethodsEnum.get;
+  const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
+  const queue = isFetchQueue
+    ? (fetchQueue as FetchQueue<ExtractError<Command>, ExtractClientOptions<Command>>)
+    : (submitQueue as SubmitQueue<ExtractError<Command>, ExtractClientOptions<Command>>);
+
+  return queue;
 };

@@ -35,7 +35,7 @@ export const Sidebar = () => {
         <Divider />
         <List>
           {links.map((link) => (
-            <ListItem disablePadding>
+            <ListItem disablePadding key={link.path}>
               <ListItemButton onClick={() => navigate(link.path)}>
                 <ListItemText primary={link.name} />
               </ListItemButton>

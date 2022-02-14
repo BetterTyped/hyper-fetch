@@ -11,7 +11,7 @@ import {
 } from "./fetch.client.utils";
 import { ClientResponseType, ClientType } from "./fetch.client.types";
 
-export const fetchClient: ClientType = async (command) => {
+export const fetchClient: ClientType = async (command, requestId) => {
   if (!XMLHttpRequest) {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
@@ -62,28 +62,29 @@ export const fetchClient: ClientType = async (command) => {
     logger.debug(`Request setup finished`);
 
     // Request listeners
-    command.builder.commandManager.events.emitRequestStart(command.queueKey, command);
-    setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), {
+    command.builder.commandManager.events.emitRequestStart(command.queueKey, command, { requestId });
+    setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
       total: 1,
       loaded: 0,
     });
 
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), e);
+        setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), e);
       };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
       requestStartTimestamp = null;
-      setRequestProgress(command.queueKey, commandInstance, requestStartTimestamp || +new Date(), {
+      setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
         total: 1,
         loaded: 1,
       });
 
       setResponseProgress(
         command.queueKey,
+        requestId,
         commandInstance,
         responseStartTimestamp || +new Date(),
         e as ProgressEvent<XMLHttpRequest>,
@@ -92,7 +93,7 @@ export const fetchClient: ClientType = async (command) => {
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      command.builder.commandManager.events.emitResponseStart(command.queueKey, command);
+      command.builder.commandManager.events.emitResponseStart(command.queueKey, command, { requestId });
     };
 
     // Error listeners

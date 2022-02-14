@@ -3,7 +3,7 @@ import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import {
   FetchProgressType,
-  FetchLoadingEventType,
+  QueueLoadingEventType,
   FetchCommandInstance,
   FetchCommand,
   getCommandKey,
@@ -176,7 +176,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     handleRefresh();
   };
 
-  const handleGetLoadingEvent = ({ isLoading, isRetry }: FetchLoadingEventType) => {
+  const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
     actions.setLoading(isLoading, false);
     onRequestCallback.current?.({ isRetry });
   };
@@ -233,7 +233,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
     const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
 
-    const loadingUnmount = fetchQueue.events.getLoading(queueKey, handleGetLoadingEvent);
+    const loadingUnmount = fetchQueue.events.onLoading(queueKey, handleGetLoadingEvent);
     const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
     const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
     const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleRevalidate);

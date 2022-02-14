@@ -1,5 +1,12 @@
 import { ClientResponseType, ClientQueryParamsType } from "client";
-import { HttpMethodsType, NegativeTypes, NullableKeys } from "types";
+import {
+  ExtractParams,
+  ExtractQueryParams,
+  ExtractResponse,
+  HttpMethodsType,
+  NegativeTypes,
+  NullableKeys,
+} from "types";
 import { FetchCommand } from "./fetch.command";
 
 // Progress
@@ -8,13 +15,15 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 
 // Dump
 
-export type FetchCommandDump<ClientOptions> = {
+export type FetchCommandDump<ClientOptions, Command = unknown> = {
   commandOptions: FetchCommandOptions<string, ClientOptions>;
   values: Omit<FetchCommandOptions<string, ClientOptions>, "method" | "abortKey" | "cacheKey" | "queueKey"> & {
     method: HttpMethodsType;
-    data?: unknown;
-    params?: any;
-    queryParams: ClientQueryParamsType | string | NegativeTypes;
+    data?: Command extends FetchCommandInstance ? ExtractResponse<Command> : unknown;
+    params?: Command extends FetchCommandInstance ? ExtractParams<Command> : ExtractRouteParams<string>;
+    queryParams: Command extends FetchCommandInstance
+      ? ExtractQueryParams<Command> | string | NegativeTypes
+      : ClientQueryParamsType | string | NegativeTypes;
     abortKey: string;
     cacheKey: string;
     queueKey: string;

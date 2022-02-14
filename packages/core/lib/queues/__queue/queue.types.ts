@@ -13,24 +13,15 @@ export type QueueOptionsType<ErrorType, HttpOptions> = {
 export type QueueStoreKeyType = string;
 export type QueueStoreValueType = FetchCommandInstance;
 
-export type QueueDumpValueType<HttpOptions> = {
+export type QueueDumpValueType<HttpOptions, Command = unknown> = {
   requestId: string;
-  commandDump: FetchCommandDump<HttpOptions>;
+  commandDump: FetchCommandDump<HttpOptions, Command>;
   retries: number;
   timestamp: number;
 };
-export type QueueData<HttpOptions> = {
+export type QueueData<HttpOptions, Command = unknown> = {
   stopped: boolean;
-  requests: QueueDumpValueType<HttpOptions>[];
-};
-
-// Events
-export type LoadingEventType = {
-  isLoading: boolean;
-  isRetry: boolean;
-};
-export type QueueStatusEventType = {
-  stopped: boolean;
+  requests: QueueDumpValueType<HttpOptions, Command>[];
 };
 
 // Storage
@@ -53,6 +44,12 @@ export type QueueStorageType<HttpOptions> = QueueStorageSyncType<HttpOptions> | 
 // Running
 
 export type RunningRequestValueType = {
-  id: string;
+  requestId: string;
   command: FetchCommandInstance;
+};
+
+// Events
+export type QueueLoadingEventType = {
+  isLoading: boolean;
+  isRetry: boolean;
 };

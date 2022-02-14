@@ -1,6 +1,6 @@
 import {
   FetchProgressType,
-  SubmitLoadingEventType,
+  QueueLoadingEventType,
   CacheValueType,
   ExtractError,
   ExtractResponse,
@@ -43,7 +43,7 @@ export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   submit: (...parameters: Parameters<T["send"]>) => void;
 };
 
-export type OnRequestCallbackType = (options: Omit<SubmitLoadingEventType, "isLoading">) => void;
+export type OnRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;

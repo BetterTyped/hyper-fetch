@@ -173,24 +173,26 @@ export const getErrorResponse = <T extends FetchCommandInstance>(command: T, res
 
 export const setResponseProgress = <T extends FetchCommandInstance>(
   queueKey: string,
+  requestId: string,
   command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress);
+  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress, { requestId });
 };
 
 export const setRequestProgress = <T extends FetchCommandInstance>(
   queueKey: string,
+  requestId: string,
   command: T,
   startDate: number,
   event: ClientProgressEvent,
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitUploadProgress(queueKey, progress);
+  command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId });
 };
 
 // Client response handlers

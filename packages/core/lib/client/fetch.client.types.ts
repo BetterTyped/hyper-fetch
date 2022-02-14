@@ -2,7 +2,7 @@ import { FetchCommandInstance } from "command";
 
 // Client
 
-export type ClientType = (command: FetchCommandInstance) => Promise<ClientResponseType<any, any>>;
+export type ClientType = (command: FetchCommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
 
 export type FetchClientXHR = Partial<XMLHttpRequest>;
 export type FetchClientOptions = {

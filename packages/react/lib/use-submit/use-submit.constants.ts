@@ -1,4 +1,3 @@
-// TODO - check whether cache should me settable from Command or useSubmit
 export const useSubmitDefaultOptions = {
   disabled: false, // disables submitting possibility
   dependencyTracking: true, // if true -> accessors rerender only when used. If false -> rerenders on every change

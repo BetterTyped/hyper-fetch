@@ -1,6 +1,4 @@
-import EventEmitter from "events";
-
-import { QueueDumpValueType, getFetchQueueEvents, canRetryRequest, QueueOptionsType, Queue } from "queues";
+import { QueueDumpValueType, canRetryRequest, QueueOptionsType, Queue } from "queues";
 import { FetchBuilder } from "builder";
 import { getUniqueRequestId } from "utils";
 import { FetchCommandInstance, FetchCommand } from "command";
@@ -10,12 +8,14 @@ import { FetchCommandInstance, FetchCommand } from "command";
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order if needed.
  */
 export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOptions> {
-  emitter = new EventEmitter();
-  events = getFetchQueueEvents(this.emitter);
-
   constructor(builder: FetchBuilder<ErrorType, HttpOptions>, options?: QueueOptionsType<ErrorType, HttpOptions>) {
     super("Fetch Queue", builder, options);
   }
+
+  startQueue = (queueKey: string) => {
+    this.__startQueue(queueKey);
+    this.flush(queueKey);
+  };
 
   add = async (command: FetchCommandInstance) => {
     const { cancelable, queueKey, concurrent, disabled } = command;
@@ -40,7 +40,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
     queue.requests.push(queueElementDump);
     await this.set(queueKey, queue);
 
-    this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
+    this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump, queue });
 
     if (!concurrent) {
       this.logger.info(`Performing one-by-one request`, { requestId, queueKey, queueElementDump });
@@ -108,7 +108,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
 
     // Trigger Request
     this.incrementRequestCount(cacheKey);
-    const response = await client(command);
+    const response = await client(command, requestId);
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
@@ -182,13 +182,13 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
 
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
-    if (!queueElement || isStopped || runningRequests?.length) {
-      if (isStopped) {
-        return this.logger.debug(`Cannot flush stopped queue`, { queueKey });
-      }
-      if (runningRequests?.length) {
-        return this.logger.debug(`Cannot flush when there is ongoing request`, { queueKey });
-      }
+    if (isStopped) {
+      return this.logger.debug(`Cannot flush stopped queue`, { queueKey });
+    }
+    if (runningRequests?.length) {
+      return this.logger.debug(`Cannot flush when there is ongoing request`, { queueKey });
+    }
+    if (!queueElement) {
       return this.logger.info(`Queue is empty`, { queueKey });
     }
 
