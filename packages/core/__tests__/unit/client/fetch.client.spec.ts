@@ -20,7 +20,7 @@ describe("[Client] - XHR", () => {
 
     const mock = interceptGetMany(200);
 
-    const [response, error, status] = await fetchClient(requestInstance);
+    const [response, error, status] = await fetchClient(requestInstance, "test");
 
     expect(response).toStrictEqual(mock);
     expect(status).toBe(200);
@@ -32,7 +32,7 @@ describe("[Client] - XHR", () => {
 
     const mock = interceptGetMany(400);
 
-    const [response, error, status] = await fetchClient(requestInstance);
+    const [response, error, status] = await fetchClient(requestInstance, "test");
 
     expect(response).toBe(null);
     expect(status).toBe(400);
