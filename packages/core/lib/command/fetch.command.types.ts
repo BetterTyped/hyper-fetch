@@ -67,10 +67,11 @@ export type FetchCommandCurrentType<
   ErrorType,
   GenericEndpoint extends string,
   ClientOptions,
+  MapperType,
 > = {
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParamsType | string | NegativeTypes;
-  data?: PayloadType | NegativeTypes;
+  data?: (MapperType extends unknown ? PayloadType : MapperType) | NegativeTypes;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
   actions?: string[];
@@ -189,4 +190,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any, any>;
+export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any, any, any>;

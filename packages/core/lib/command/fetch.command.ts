@@ -45,13 +45,14 @@ export class FetchCommand<
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
+  MapperType = unknown,
 > {
   endpoint: EndpointType;
   headers?: HeadersInit;
   auth?: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
-  data: PayloadType | NegativeTypes;
+  data: (MapperType extends unknown ? PayloadType : MapperType) | NegativeTypes;
   queryParams: QueryParamsType | string | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
@@ -78,14 +79,18 @@ export class FetchCommand<
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
-    readonly current?: FetchCommandCurrentType<
-      ResponseType,
-      PayloadType,
-      QueryParamsType,
-      ErrorType | RequestErrorType,
-      EndpointType,
-      ClientOptions
-    >,
+    readonly commandDump?:
+      | FetchCommandCurrentType<
+          ResponseType,
+          PayloadType,
+          QueryParamsType,
+          ErrorType | RequestErrorType,
+          EndpointType,
+          ClientOptions,
+          MapperType
+        >
+      | undefined,
+    readonly dataMapper?: (data: PayloadType) => MapperType,
   ) {
     this.logger = this.builder.loggerManager.init("Command");
 
@@ -109,32 +114,33 @@ export class FetchCommand<
       invalidate = [],
     } = { ...this.builder.commandOptions, ...commandOptions };
 
-    this.endpoint = current?.endpoint || endpoint;
-    this.headers = current?.headers || headers;
-    this.auth = current?.auth || auth;
+    this.endpoint = commandDump?.endpoint || endpoint;
+    this.headers = commandDump?.headers || headers;
+    this.auth = commandDump?.auth || auth;
     this.method = method;
-    this.params = current?.params;
-    this.data = current?.data;
-    this.queryParams = current?.queryParams;
-    this.options = current?.options || options;
-    this.cancelable = current?.cancelable || cancelable;
-    this.retry = current?.retry || retry;
-    this.retryTime = current?.retryTime || retryTime;
-    this.cache = current?.cache || cache;
-    this.cacheTime = current?.cacheTime || cacheTime;
-    this.concurrent = current?.concurrent || concurrent;
-    this.deepEqual = current?.deepEqual || deepEqual;
-    this.abortKey = current?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
-    this.cacheKey = current?.cacheKey || cacheKey || getCommandKey(this);
-    this.queueKey = current?.queueKey || queueKey || getCommandKey(this);
-    this.actions = current?.actions || [];
-    this.disabled = current?.disabled || false;
-    this.used = current?.used || false;
-    this.invalidate = current?.invalidate || invalidate;
+    this.params = commandDump?.params;
+    this.data = commandDump?.data as (MapperType extends unknown ? PayloadType : MapperType) | NegativeTypes;
+    this.queryParams = commandDump?.queryParams;
+    this.options = commandDump?.options || options;
+    this.cancelable = commandDump?.cancelable || cancelable;
+    this.retry = commandDump?.retry || retry;
+    this.retryTime = commandDump?.retryTime || retryTime;
+    this.cache = commandDump?.cache || cache;
+    this.cacheTime = commandDump?.cacheTime || cacheTime;
+    this.concurrent = commandDump?.concurrent || concurrent;
+    this.deepEqual = commandDump?.deepEqual || deepEqual;
+    this.abortKey =
+      commandDump?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
+    this.cacheKey = commandDump?.cacheKey || cacheKey || getCommandKey(this);
+    this.queueKey = commandDump?.queueKey || queueKey || getCommandKey(this);
+    this.actions = commandDump?.actions || [];
+    this.disabled = commandDump?.disabled || false;
+    this.used = commandDump?.used || false;
+    this.invalidate = commandDump?.invalidate || invalidate;
 
-    this.updatedAbortKey = current?.updatedAbortKey || false;
-    this.updatedCacheKey = current?.updatedCacheKey || false;
-    this.updatedQueueKey = current?.updatedQueueKey || false;
+    this.updatedAbortKey = commandDump?.updatedAbortKey || false;
+    this.updatedCacheKey = commandDump?.updatedCacheKey || false;
+    this.updatedQueueKey = commandDump?.updatedQueueKey || false;
 
     addAbortController(this.builder, this.abortKey);
   }
@@ -152,7 +158,8 @@ export class FetchCommand<
   };
 
   public setData = (data: PayloadType) => {
-    return this.clone<true>({ data });
+    const modifiedData = this.dataMapper?.(data) || data;
+    return this.clone<true>({ data: modifiedData as typeof this.data });
   };
 
   public setQueryParams = (queryParams: QueryParamsType | string) => {
@@ -208,6 +215,14 @@ export class FetchCommand<
 
   public setUsed = (used: boolean) => {
     return this.clone({ used });
+  };
+
+  public setDataMapper = (mapper: typeof this.dataMapper) => {
+    if (this.dataMapper) {
+      console.warn("Mapper is already setup on the command.");
+      return this.clone();
+    }
+    return this.clone(undefined, mapper);
   };
 
   public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
@@ -278,8 +293,10 @@ export class FetchCommand<
       QueryParamsType,
       ErrorType | RequestErrorType,
       EndpointType,
-      ClientOptions
+      ClientOptions,
+      MapperType
     >,
+    mapper?: (data: PayloadType) => MapperType,
   ): FetchCommand<
     ResponseType,
     PayloadType,
@@ -290,16 +307,18 @@ export class FetchCommand<
     ClientOptions,
     D,
     P,
-    Q
+    Q,
+    MapperType
   > {
     const dump = this.dump();
-    const currentOptions: FetchCommandCurrentType<
+    const commandDump: FetchCommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
       ErrorType | RequestErrorType,
       EndpointType,
-      ClientOptions
+      ClientOptions,
+      MapperType
     > = {
       ...dump.values,
       ...options,
@@ -321,8 +340,9 @@ export class FetchCommand<
       ClientOptions,
       D,
       P,
-      Q
-    >(this.builder, this.commandOptions, currentOptions);
+      Q,
+      MapperType
+    >(this.builder, this.commandOptions, commandDump, mapper || this.dataMapper);
 
     return cloned;
   }
@@ -350,7 +370,8 @@ export class FetchCommand<
         QueryParamsType,
         ErrorType | RequestErrorType,
         EndpointType,
-        ClientOptions
+        ClientOptions,
+        MapperType
       >,
     );
 
@@ -391,7 +412,8 @@ export class FetchCommand<
         QueryParamsType,
         ErrorType | RequestErrorType,
         EndpointType,
-        ClientOptions
+        ClientOptions,
+        MapperType
       >,
     );
     const queue = getCommandQueue(this, options?.queueType);

@@ -64,4 +64,22 @@ describe("[Methods] FetchCommand", () => {
     expect(true).toEqual(commandWithParams.used);
     expect(true).toEqual(commandWithQueryParams.used);
   });
+
+  it("should change the 'data' using dataMapper", async () => {
+    const multiplier = 2;
+
+    const value1 = 2;
+    const value2 = 3;
+
+    const command = builder
+      .createCommand<null, number>()({
+        endpoint: "/some-endpoint/:paramId",
+      })
+      .setDataMapper((value) => value * multiplier);
+    const commandWithData = command.setData(value1);
+    const commandWithAnotherData = command.setData(value2);
+
+    expect(commandWithData.data).toEqual(value1 * multiplier);
+    expect(commandWithAnotherData.data).toEqual(value2 * multiplier);
+  });
 });

@@ -1,7 +1,7 @@
 import { FetchActionConfig } from "action";
 import { ExtractError, ExtractRequestError } from "types";
 import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
-import { FetchCommandInstance } from "../command/fetch.command.types";
+import { FetchCommandInstance } from "command";
 
 export class FetchAction<T extends FetchCommandInstance> {
   constructor(public config: FetchActionConfig<T>) {}
