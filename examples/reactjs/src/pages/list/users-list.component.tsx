@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Pagination from "@mui/material/Pagination";
 import { useFetch } from "@better-typed/react-hyper-fetch";
+import TextField from "@mui/material/TextField";
 
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -20,22 +21,14 @@ import { getUsers } from "../server/user.api";
 export const UsersList: React.FC = () => {
   const [page, setPage] = useState(1);
   const [fetched, setFetched] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const { data, loading, error, timestamp, onRequestStart } = useFetch(getUsers.setQueryParams({ page }), {
+  const { data, loading, error, timestamp, onRequestStart } = useFetch(getUsers.setQueryParams({ page, search }), {
     refresh: false,
-    // cacheOnMount: false,
-    initialData: [
-      [
-        {
-          id: 12,
-          name: "test",
-          email: "test",
-          age: 12,
-        },
-      ],
-      null,
-      200,
-    ],
+    initialData: [[], null, 200],
+    debounce: true,
+    debounceTime: 600,
+    dependencies: [search],
   });
 
   onRequestStart(() => {
@@ -48,6 +41,7 @@ export const UsersList: React.FC = () => {
 
   return (
     <div style={{ marginTop: "30px" }}>
+      <TextField label="Search" variant="outlined" value={search} onChange={(event) => setSearch(event.target.value)} />
       <List>
         <ListItem disablePadding>
           <ListItemButton>
