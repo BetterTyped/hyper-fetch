@@ -12,6 +12,7 @@ import {
   getCommandKey,
   FetchCommandQueueOptions,
   getCommandQueue,
+  FetchCommandData,
 } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { HttpMethodsType, NegativeTypes } from "types";
@@ -45,14 +46,14 @@ export class FetchCommand<
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
-  MapperType = unknown,
+  MappedData = undefined,
 > {
   endpoint: EndpointType;
   headers?: HeadersInit;
   auth?: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
-  data: (MapperType extends unknown ? PayloadType : MapperType) | NegativeTypes;
+  data: FetchCommandData<PayloadType, MappedData>;
   queryParams: QueryParamsType | string | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
@@ -87,10 +88,10 @@ export class FetchCommand<
           ErrorType | RequestErrorType,
           EndpointType,
           ClientOptions,
-          MapperType
+          MappedData
         >
       | undefined,
-    readonly dataMapper?: (data: PayloadType) => MapperType,
+    readonly dataMapper?: (data: PayloadType) => MappedData,
   ) {
     this.logger = this.builder.loggerManager.init("Command");
 
@@ -119,7 +120,7 @@ export class FetchCommand<
     this.auth = commandDump?.auth || auth;
     this.method = method;
     this.params = commandDump?.params;
-    this.data = commandDump?.data as (MapperType extends unknown ? PayloadType : MapperType) | NegativeTypes;
+    this.data = commandDump?.data as FetchCommandData<PayloadType, MappedData>;
     this.queryParams = commandDump?.queryParams;
     this.options = commandDump?.options || options;
     this.cancelable = commandDump?.cancelable || cancelable;
@@ -159,7 +160,9 @@ export class FetchCommand<
 
   public setData = (data: PayloadType) => {
     const modifiedData = this.dataMapper?.(data) || data;
-    return this.clone<true>({ data: modifiedData as typeof this.data });
+    return this.clone<true, HasParams, HasQuery, MappedData>({
+      data: modifiedData as FetchCommandData<PayloadType, MappedData>,
+    });
   };
 
   public setQueryParams = (queryParams: QueryParamsType | string) => {
@@ -217,12 +220,12 @@ export class FetchCommand<
     return this.clone({ used });
   };
 
-  public setDataMapper = (mapper: typeof this.dataMapper) => {
+  public setDataMapper = <DataMapper>(mapper: (data: PayloadType) => DataMapper) => {
     if (this.dataMapper) {
       console.warn("Mapper is already setup on the command.");
-      return this.clone();
+      return this.clone<HasData, HasParams, HasQuery, DataMapper>();
     }
-    return this.clone(undefined, mapper);
+    return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
   };
 
   public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
@@ -286,7 +289,12 @@ export class FetchCommand<
     };
   }
 
-  public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
+  public clone<
+    D extends true | false = HasData,
+    P extends true | false = HasParams,
+    Q extends true | false = HasQuery,
+    MapperData = MappedData,
+  >(
     options?: FetchCommandCurrentType<
       ResponseType,
       PayloadType,
@@ -294,9 +302,9 @@ export class FetchCommand<
       ErrorType | RequestErrorType,
       EndpointType,
       ClientOptions,
-      MapperType
+      MapperData
     >,
-    mapper?: (data: PayloadType) => MapperType,
+    mapper?: (data: PayloadType) => MapperData,
   ): FetchCommand<
     ResponseType,
     PayloadType,
@@ -308,7 +316,7 @@ export class FetchCommand<
     D,
     P,
     Q,
-    MapperType
+    MapperData
   > {
     const dump = this.dump();
     const commandDump: FetchCommandCurrentType<
@@ -318,7 +326,7 @@ export class FetchCommand<
       ErrorType | RequestErrorType,
       EndpointType,
       ClientOptions,
-      MapperType
+      MapperData
     > = {
       ...dump.values,
       ...options,
@@ -327,7 +335,7 @@ export class FetchCommand<
       queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
-      data: options?.data || this.data,
+      data: (options?.data || this.data) as any,
     };
 
     const cloned = new FetchCommand<
@@ -341,8 +349,8 @@ export class FetchCommand<
       D,
       P,
       Q,
-      MapperType
-    >(this.builder, this.commandOptions, commandDump, mapper || this.dataMapper);
+      MapperData
+    >(this.builder, this.commandOptions, commandDump, mapper);
 
     return cloned;
   }
@@ -371,7 +379,7 @@ export class FetchCommand<
         ErrorType | RequestErrorType,
         EndpointType,
         ClientOptions,
-        MapperType
+        MappedData
       >,
     );
 
@@ -413,7 +421,7 @@ export class FetchCommand<
         ErrorType | RequestErrorType,
         EndpointType,
         ClientOptions,
-        MapperType
+        MappedData
       >,
     );
     const queue = getCommandQueue(this, options?.queueType);
