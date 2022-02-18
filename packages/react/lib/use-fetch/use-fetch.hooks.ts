@@ -13,21 +13,21 @@ import {
   ExtractFetchReturn,
 } from "@better-typed/hyper-fetch";
 
-import { OnProgressCallbackType, OnStartCallbackType } from "use-fetch";
-import { useDependentState } from "use-dependent-state/use-dependent-state.hooks";
-import { useDebounce } from "use-debounce/use-debounce.hooks";
-import { useInterval } from "use-interval/use-interval.hooks";
+import { useDependentState } from "use-dependent-state";
+import { useDebounce } from "use-debounce";
+import { useInterval } from "use-interval";
 import { isStaleCacheData } from "utils";
-
 import {
-  OnRequestCallbackType,
-  OnErrorCallbackType,
-  OnFinishedCallbackType,
-  OnSuccessCallbackType,
+  OnFetchProgressCallbackType,
+  OnFetchStartCallbackType,
+  OnFetchRequestCallbackType,
+  OnFetchErrorCallbackType,
+  OnFetchFinishedCallbackType,
+  OnFetchSuccessCallbackType,
   UseFetchOptionsType,
   UseFetchReturnType,
-} from "./use-fetch.types";
-import { useFetchDefaultOptions } from "./use-fetch.constants";
+  useFetchDefaultOptions,
+} from "use-fetch";
 
 // TBD - suspense
 export const useFetch = <T extends FetchCommandInstance>(
@@ -62,14 +62,14 @@ export const useFetch = <T extends FetchCommandInstance>(
     JSON.stringify(commandDump),
   ]);
 
-  const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
-  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
-  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
-  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
-  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
-  const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
-  const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
-  const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
+  const onRequestCallback = useRef<null | OnFetchRequestCallbackType>(null);
+  const onSuccessCallback = useRef<null | OnFetchSuccessCallbackType<ExtractResponse<T>>>(null);
+  const onErrorCallback = useRef<null | OnFetchErrorCallbackType<ExtractError<T>>>(null);
+  const onFinishedCallback = useRef<null | OnFetchFinishedCallbackType<ExtractFetchReturn<T>>>(null);
+  const onRequestStartCallback = useRef<null | OnFetchStartCallbackType<T>>(null);
+  const onResponseStartCallback = useRef<null | OnFetchStartCallbackType<T>>(null);
+  const onDownloadProgressCallback = useRef<null | OnFetchProgressCallbackType>(null);
+  const onUploadProgressCallback = useRef<null | OnFetchProgressCallbackType>(null);
 
   const handleFetch = () => {
     /**
@@ -323,7 +323,6 @@ export const useFetch = <T extends FetchCommandInstance>(
   );
 
   return {
-    // necessary due to TS 4.5 restrictions on assignability of conditional types
     get data() {
       setRenderKey("data");
       return state.data;
@@ -368,35 +367,40 @@ export const useFetch = <T extends FetchCommandInstance>(
       setRenderKey("isFocused");
       return state.isFocused;
     },
+    get isRefreshingError() {
+      setRenderKey("error");
+      setRenderKey("isRefreshed");
+      return !!state.error && state.isRefreshed;
+    },
     get isStale() {
+      setRenderKey("timestamp");
       return isStaleCacheData(cacheTime, state.timestamp);
     },
-    actions,
-    onRequest: (callback: OnRequestCallbackType) => {
+    onRequest: (callback: OnFetchRequestCallbackType) => {
       onRequestCallback.current = callback;
     },
-    onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
+    onSuccess: (callback: OnFetchSuccessCallbackType<ExtractResponse<T>>) => {
       onSuccessCallback.current = callback;
     },
-    onError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+    onError: (callback: OnFetchErrorCallbackType<ExtractError<T>>) => {
       onErrorCallback.current = callback;
     },
-    onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
+    onFinished: (callback: OnFetchFinishedCallbackType<ExtractFetchReturn<T>>) => {
       onFinishedCallback.current = callback;
     },
-    onRequestStart: (callback: OnStartCallbackType<T>) => {
+    onRequestStart: (callback: OnFetchStartCallbackType<T>) => {
       onRequestStartCallback.current = callback;
     },
-    onResponseStart: (callback: OnStartCallbackType<T>) => {
+    onResponseStart: (callback: OnFetchStartCallbackType<T>) => {
       onResponseStartCallback.current = callback;
     },
-    onDownloadProgress: (callback: OnProgressCallbackType) => {
+    onDownloadProgress: (callback: OnFetchProgressCallbackType) => {
       onDownloadProgressCallback.current = callback;
     },
-    onUploadProgress: (callback: OnProgressCallbackType) => {
+    onUploadProgress: (callback: OnFetchProgressCallbackType) => {
       onUploadProgressCallback.current = callback;
     },
-    isRefreshingError: !!state.error && state.isRefreshed,
+    actions,
     isDebouncing: requestDebounce.active,
     refresh: refreshFn,
   };

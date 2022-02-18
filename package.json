@@ -6,6 +6,7 @@
     "build": "lerna run build --concurrency 1",
     "build:docs": "cd documentation && yarn install && yarn build",
     "start": "lerna run start --stream",
+    "start:docs": "cd documentation && yarn start",
     "storybook": "start-storybook -p 6006",
     "commit": "npx git-cz",
     "postinstall": "yarn install-peers && yarn husky install",

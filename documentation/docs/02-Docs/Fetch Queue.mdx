@@ -11,10 +11,24 @@ This section is currently **Work in Progress**. It will be ready for version 1.0
 ### Deduplication
 
 ```mermaid
-graph TD;
-    Component_1-->|Add request to queue|Queue;
-    Component_2-->|Add request to queue|Queue;
-    Queue-->Request;
-    Request-->Response;
-    Response-->Distribution;
+flowchart TD;
+    subgraph React
+      Component_1
+      Component_2
+      Component_3
+    end
+    subgraph Builder
+      Queue
+      Cache
+      Request
+    end
+    Component_1(Component 1);
+    Component_2(Component 2);
+    Component_3(Component 3);
+    Queue -- Sending one request --> Request[Request]
+    React -- "Trigger getUser()" --> Queue
+    React -- "Trigger getUser()" --> Queue
+    React -- "Trigger getUser()" --> Queue
+    Request -- Response Data --> Cache[(Cache)];
+    Cache -- EventEmitter --> React
 ```

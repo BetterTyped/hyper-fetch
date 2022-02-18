@@ -13,7 +13,7 @@ import { UseDependentStateActions, UseDependentStateType } from "./use-dependent
 import { getInitialDependentStateData, transformDataToCacheValue } from "./use-dependent-state.utils";
 
 export const useDependentState = <T extends FetchCommandInstance>(
-  command: FetchCommandInstance,
+  command: T,
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
   queue: FetchBuilderInstance["fetchQueue"] | FetchBuilderInstance["submitQueue"],
   dependencies: any[],
@@ -88,7 +88,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     };
   });
 
-  const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
+  const actions: UseDependentStateActions<any, any> = {
     setCacheData: async (cacheData, emitToCache = true) => {
       if (emitToCache) {
         await cache.set({

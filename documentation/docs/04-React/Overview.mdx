@@ -5,3 +5,130 @@ sidebar_position: 1
 Hyper Fetch was built primarily for React. We are putting into use a set of Hooks, the number of which will increase
 over time. At the moment we focused on the basics, i.e. [useFetch](/docs/React/useFetch) and
 [useSubmit](/docs/React/useSubmit).
+
+# Quick Start
+
+## 1. Initialize Builder
+
+The first step in implementing Hyper Fetch is to initialize the FetchBuilder. It manage the basic configuration for
+connection to the server and all the elements that make up Hyper Fetch, which are instances of - queue, cache, onfline /
+focus / persistence manager and data storage places. We start out by determining the baseUrl of our server.
+
+```tsx title="/src/server/builder.ts"
+import { FetchBuilder } from "@better-typed/hyper-fetch";
+
+export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" }).build();
+```
+
+## 2. Create Command
+
+Then, having already prepared connection to the server, we use the Builder method to create commands and assign types to
+them.
+
+:::caution
+
+We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
+[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
+resolved.
+
+:::
+
+```tsx title="/src/server/auth/auth.ts"
+import { builder } from "../builder.ts";
+
+type ResponseType = { token: string; refreshToken: string };
+type RequestType = { email: string; password: string };
+
+const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
+```
+
+## 3. Use commands with hooks
+
+Having prepared command gives us the posibility to easily use this setup with our hooks.
+
+**useFetch**
+
+```tsx
+import { useFetch } from "@better-typed/react-hyper-fetch";
+import { getUsers } from "server";
+
+const UsersListPage: React.FC = () => {
+  const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+
+  onSuccess, onError, onFinished;
+
+  onSuccess((payload) => {
+    console.log(payload); // [ User, User, User ]
+  });
+
+  onError((error) => {
+    console.log(error); // { message: string }
+  });
+
+  onFinished(([payload, error, status]) => {
+    console.log(payload); // [ User, User, User ] | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = async (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <div>
+        {loading && <Loader>}
+        {!loading && error && <Alert severity="error">{error.error_message}</Alert>}
+        {!loading && !error && !data.length && <div>List is empty</div>}
+        {!loading && !error && data.length && <div>{data.map(user => <div>{user.name}</div>)}</div>}
+    </div>
+  );
+};
+```
+
+**useSubmit**
+
+```tsx
+import { useSubmit } from "@better-typed/react-hyper-fetch";
+import { postLogin } from "server";
+
+interface Values {
+  email: string;
+  password: string;
+}
+
+const LoginPage: React.FC = () => {
+  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess((payload) => {
+    console.log(payload); // { token: string, refreshToken: string }
+  });
+
+  onSubmitError((error) => {
+    console.log(error); // { message: string }
+  });
+
+  onFinished(([payload, error, status]) => {
+    console.log(payload); // { token: string, refreshToken: string } | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+      <Form>
+        {error && <Alert severity="error">{error.error_message}</Alert>}
+        <FormInput name="email" label="Email" placeholder="Fill your email" />
+        <FormInput type="password" name="password" label="Password" placeholder="Fill your password" />
+        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
+          Log in
+        </Button>
+      </Form>
+    </Formik>
+  );
+};
+```

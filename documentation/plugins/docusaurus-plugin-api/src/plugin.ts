@@ -19,7 +19,7 @@ function plugin(context: LoadContext, options: PluginOptions) {
   const apiRootDir = path.join(generatedFilesDir, "..", apiDir, options.docs.routeBasePath);
 
   // Prepare api directory to exist
-  prepareApiDirectory(apiRootDir);
+  if (!generated) prepareApiDirectory(apiRootDir);
 
   trace("Initializing content docs plugin");
   // @ts-ignore

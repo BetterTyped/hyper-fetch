@@ -92,6 +92,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
     this.logger.debug(`Request set to trigger`, { queueKey, queueElement });
     // When offline not perform any request
     if (!command.builder.appManager.isOnline) {
+      this.events.setLoading(queueKey, { isLoading: false, isRetry: false });
       return this.logger.error("Cannot perform fetch-queue request, app is offline");
     }
 
@@ -119,6 +120,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
     this.deleteRunningRequest(queueKey, requestId);
 
     if (isCanceled || (failed && isOffline)) {
+      this.events.setLoading(queueKey, { isLoading: false, isRetry: false });
       if (isCanceled) {
         return this.logger.error(`Request canceled`, { requestId, queueKey });
       }

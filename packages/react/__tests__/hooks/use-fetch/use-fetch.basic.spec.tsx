@@ -1,10 +1,10 @@
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { waitFor } from "@testing-library/react";
-import { FetchBuilder, FetchCommand } from "@better-typed/hyper-fetch";
+import { FetchBuilder } from "@better-typed/hyper-fetch";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetMocks, stopServer } from "../../utils/server";
-import { getManyRequest, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
+import { getManyRequest, GetManyResponseType, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
 import { ErrorMockType } from "../../utils/server/server.constants";
 import { getCurrentState } from "../../utils/utils";
 import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } from "../../shared/fetch.tests";
@@ -13,7 +13,7 @@ import { sleep } from "../../utils/utils/sleep";
 const dump = getManyRequest.dump();
 
 let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
-let command = new FetchCommand(builder, dump.commandOptions, dump.values);
+let command = builder.createCommand<GetManyResponseType>()(dump.commandOptions);
 
 const renderGetManyHook = () =>
   renderHook(() => useFetch(command, { dependencyTracking: false, revalidateOnMount: false }));
@@ -34,7 +34,7 @@ describe("[Basic] UseFetch hook", () => {
   beforeEach(async () => {
     builder.clear();
     builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
-    command = new FetchCommand(builder, dump.commandOptions, dump.values);
+    command = builder.createCommand<GetManyResponseType>()(dump.commandOptions);
   });
 
   it("should initialize without loading state", async () => {

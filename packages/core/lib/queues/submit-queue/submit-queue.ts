@@ -22,6 +22,7 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
     const requestId = getUniqueRequestId(queueKey);
 
     if (disabled) {
+      this.events.setLoading(queueKey, { isLoading: false, isRetry: false });
       return this.logger.warning(`Request disabled, exiting...`);
     }
 

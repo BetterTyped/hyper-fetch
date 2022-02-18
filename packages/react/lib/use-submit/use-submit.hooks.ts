@@ -13,19 +13,19 @@ import {
 import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { isStaleCacheData } from "utils";
-import { useDebounce } from "use-debounce/use-debounce.hooks";
+import { useDependentState } from "use-dependent-state";
+import { useDebounce } from "use-debounce";
 import {
   UseSubmitOptionsType,
   UseSubmitReturnType,
-  OnSuccessCallbackType,
-  OnErrorCallbackType,
-  OnRequestCallbackType,
-  OnFinishedCallbackType,
-  OnStartCallbackType,
-  OnProgressCallbackType,
-} from "./use-submit.types";
-import { useSubmitDefaultOptions } from "./use-submit.constants";
-import { useDependentState } from "../use-dependent-state/use-dependent-state.hooks";
+  OnSubmitSuccessCallbackType,
+  OnSubmitErrorCallbackType,
+  OnSubmitRequestCallbackType,
+  OnSubmitFinishedCallbackType,
+  OnSubmitStartCallbackType,
+  OnSubmitProgressCallbackType,
+  useSubmitDefaultOptions,
+} from "use-submit";
 
 export const useSubmit = <T extends FetchCommandInstance>(
   command: T,
@@ -48,39 +48,27 @@ export const useSubmit = <T extends FetchCommandInstance>(
     JSON.stringify(commandDump),
   ]);
 
-  const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
-  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
-  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
-  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
-  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
-  const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
-  const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
-  const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
+  const onRequestCallback = useRef<null | OnSubmitRequestCallbackType>(null);
+  const onSuccessCallback = useRef<null | OnSubmitSuccessCallbackType<ExtractResponse<T>>>(null);
+  const onErrorCallback = useRef<null | OnSubmitErrorCallbackType<ExtractError<T>>>(null);
+  const onFinishedCallback = useRef<null | OnSubmitFinishedCallbackType<ExtractFetchReturn<T>>>(null);
+  const onRequestStartCallback = useRef<null | OnSubmitStartCallbackType<T>>(null);
+  const onResponseStartCallback = useRef<null | OnSubmitStartCallbackType<T>>(null);
+  const onDownloadProgressCallback = useRef<null | OnSubmitProgressCallbackType>(null);
+  const onUploadProgressCallback = useRef<null | OnSubmitProgressCallbackType>(null);
 
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
-    let request = command;
-
     const options = parameters[0];
-
-    if (options?.data) {
-      request = request.setData(options.data) as T;
-    }
-    if (options?.params) {
-      request = request.setParams(options.params) as T;
-    }
-    if (options?.queryParams) {
-      request = request.setQueryParams(options.queryParams) as T;
-    }
 
     if (!disabled) {
       logger.debug(`Adding request to submit queue`, { disabled, options });
 
       if (debounce) {
         requestDebounce.debounce(() => {
-          request.send({ queueType: "submit" });
+          command.send({ ...options, queueType: "submit" });
         });
       } else {
-        return request.send({ queueType: "submit" });
+        return command.send({ ...options, queueType: "submit" });
       }
     } else {
       logger.debug(`Cannot add to submit queue`, { disabled, options });
@@ -240,33 +228,33 @@ export const useSubmit = <T extends FetchCommandInstance>(
     get isStale() {
       return isStaleCacheData(cacheTime, state.timestamp);
     },
+    onSubmitRequest: (callback: OnSubmitRequestCallbackType) => {
+      onRequestCallback.current = callback;
+    },
+    onSubmitSuccess: (callback: OnSubmitSuccessCallbackType<ExtractResponse<T>>) => {
+      onSuccessCallback.current = callback;
+    },
+    onSubmitError: (callback: OnSubmitErrorCallbackType<ExtractError<T>>) => {
+      onErrorCallback.current = callback;
+    },
+    onSubmitFinished: (callback: OnSubmitFinishedCallbackType<ExtractFetchReturn<T>>) => {
+      onFinishedCallback.current = callback;
+    },
+    onSubmitRequestStart: (callback: OnSubmitStartCallbackType<T>) => {
+      onRequestStartCallback.current = callback;
+    },
+    onSubmitResponseStart: (callback: OnSubmitStartCallbackType<T>) => {
+      onResponseStartCallback.current = callback;
+    },
+    onSubmitDownloadProgress: (callback: OnSubmitProgressCallbackType) => {
+      onDownloadProgressCallback.current = callback;
+    },
+    onSubmitUploadProgress: (callback: OnSubmitProgressCallbackType) => {
+      onUploadProgressCallback.current = callback;
+    },
     actions,
     isDebouncing: false,
     isRefreshed: false,
-    invalidate: invalidateFn,
-    onSubmitRequest: (callback: OnRequestCallbackType) => {
-      onRequestCallback.current = callback;
-    },
-    onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
-      onSuccessCallback.current = callback;
-    },
-    onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
-      onErrorCallback.current = callback;
-    },
-    onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
-      onFinishedCallback.current = callback;
-    },
-    onSubmitRequestStart: (callback: OnStartCallbackType<T>) => {
-      onRequestStartCallback.current = callback;
-    },
-    onSubmitResponseStart: (callback: OnStartCallbackType<T>) => {
-      onResponseStartCallback.current = callback;
-    },
-    onSubmitDownloadProgress: (callback: OnProgressCallbackType) => {
-      onDownloadProgressCallback.current = callback;
-    },
-    onSubmitUploadProgress: (callback: OnProgressCallbackType) => {
-      onUploadProgressCallback.current = callback;
-    },
+    revalidate: invalidateFn,
   };
 };

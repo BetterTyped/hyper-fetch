@@ -7,6 +7,5 @@ export const useSubmitDefaultOptions = {
   debounceTime: 400, // milliseconds
   suspense: false, // TBD
   shouldThrow: false, // TBD
-  responseDataModifierFn: null,
   invalidate: [],
 };

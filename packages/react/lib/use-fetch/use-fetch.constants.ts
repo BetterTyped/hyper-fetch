@@ -4,7 +4,6 @@ export const useFetchDefaultOptions = {
   dependencies: [],
   disabled: false,
   dependencyTracking: true,
-  cacheOnMount: true,
   revalidateOnMount: true,
   initialData: null,
   refresh: false,
@@ -13,10 +12,7 @@ export const useFetchDefaultOptions = {
   refreshOnTabBlur: false,
   refreshOnTabFocus: false,
   refreshOnReconnect: false,
-  cancelable: false,
   debounce: false,
   debounceTime: 400, // milliseconds
-  deepCompareFn: undefined,
-  responseDataModifierFn: null,
   shouldThrow: false,
 };

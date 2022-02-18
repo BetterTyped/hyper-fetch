@@ -8,7 +8,7 @@ import {
   ExtractFetchReturn,
 } from "@better-typed/hyper-fetch";
 
-import { UseDependentStateType, UseDependentStateActions } from "../use-dependent-state/use-dependent-state.types";
+import { UseDependentStateType, UseDependentStateActions } from "use-dependent-state";
 
 export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
@@ -24,28 +24,27 @@ export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
 
 export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "data" | "refreshError" | "loading"
+  "refreshError" | "loading"
 > & {
-  data: null | ExtractResponse<T>;
+  onSubmitRequest: (callback: OnSubmitRequestCallbackType) => void;
+  onSubmitSuccess: (callback: OnSubmitSuccessCallbackType<ExtractResponse<T>>) => void;
+  onSubmitError: (callback: OnSubmitErrorCallbackType<ExtractError<T>>) => void;
+  onSubmitFinished: (callback: OnSubmitFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onSubmitRequestStart: (callback: OnSubmitStartCallbackType<T>) => void;
+  onSubmitResponseStart: (callback: OnSubmitStartCallbackType<T>) => void;
+  onSubmitDownloadProgress: (callback: OnSubmitProgressCallbackType) => void;
+  onSubmitUploadProgress: (callback: OnSubmitProgressCallbackType) => void;
+  revalidate: (invalidateKey: string | FetchCommandInstance | RegExp) => void;
+  submit: (...parameters: Parameters<T["send"]>) => void;
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
-  invalidate: (invalidateKey: string | FetchCommandInstance | RegExp) => void;
-  onSubmitRequest: (callback: OnRequestCallbackType) => void;
-  onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  onSubmitRequestStart: (callback: OnStartCallbackType<T>) => void;
-  onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
-  onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
-  onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
   submitting: boolean;
   isStale: boolean;
   isDebouncing: boolean;
-  submit: (...parameters: Parameters<T["send"]>) => void;
 };
 
-export type OnRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading">) => void;
-export type OnSuccessCallbackType<DataType> = (data: DataType) => void;
-export type OnErrorCallbackType<ErrorType> = (error: ErrorType) => void;
-export type OnFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
-export type OnStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
-export type OnProgressCallbackType = (progress: FetchProgressType) => void;
+export type OnSubmitRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading">) => void;
+export type OnSubmitSuccessCallbackType<DataType> = (data: DataType) => void;
+export type OnSubmitErrorCallbackType<ErrorType> = (error: ErrorType) => void;
+export type OnSubmitFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
+export type OnSubmitStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
+export type OnSubmitProgressCallbackType = (progress: FetchProgressType) => void;
