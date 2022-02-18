@@ -1,12 +1,19 @@
 // FIXME - "methods" not working
+// TODO - handle default options
 export enum displayOptions {
-  parameters = "parameters",
-  example = "example",
-  import = "import",
-  preview = "preview",
-  description = "description",
-  methods = "methods",
-  badges = "badges",
+  name = "name",
   mainLine = "mainLine",
-  admonitionsType = "admonitionsType",
+  badges = "badges",
+  description = "description",
+  admonitions = "admonitions",
+  admonitionsByType = "admonitionsByType",
+  import = "import",
+  example = "example", // TODO -> add multiple examples?
+  preview = "preview",
+  parameters = "parameters",
+  parameter = "parameter",
+  methods = "methods",
+  method = "method",
+  typeReferences = "typeReferences",
+  additionalLinks = "additionalLinks",
 }
