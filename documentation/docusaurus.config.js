@@ -124,9 +124,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       algolia: {
-        appId: "QO2HW0T2F3",
-        apiKey: "706a433b386c4bea0517bcf4a10da8e2",
-        indexName: "Docs",
+        appId: "E1R95VA83S",
+        apiKey: "aa20780883ad65342c73e9527130a725",
+        indexName: "hyperfetch",
       },
       announcementBar: {
         content: "This package is in <b>ALPHA VERSION</b>, please do not use it in the production!",
