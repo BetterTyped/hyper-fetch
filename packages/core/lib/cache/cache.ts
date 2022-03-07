@@ -60,7 +60,7 @@ export class Cache<ErrorType, HttpOptions> {
     this.storage = this?.options?.storage || new Map<CacheStoreKeyType, CacheStoreValueType>();
     this.events = getCacheEvents(this.emitter, this.storage);
 
-    this.options?.onInitialization(this);
+    this.options?.onInitialization?.(this);
 
     if (this.options?.initialData) {
       Object.keys(this.options.initialData).forEach(async (key) => {

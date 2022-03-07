@@ -22,16 +22,22 @@ export class AppManager<ErrorType, HttpOptions> {
   private logger: LoggerMethodsType;
 
   constructor(private builder: FetchBuilder<ErrorType, HttpOptions>, private options?: AppManagerOptionsType) {
-    const { focusEvent, blurEvent, onlineEvent, initiallyFocused, initiallyOnline } =
-      this.options || appManagerInitialOptions;
+    const {
+      focusEvent = appManagerInitialOptions.focusEvent,
+      blurEvent = appManagerInitialOptions.blurEvent,
+      onlineEvent = appManagerInitialOptions.onlineEvent,
+      initiallyFocused = appManagerInitialOptions.initiallyFocused,
+      initiallyOnline = appManagerInitialOptions.initiallyOnline,
+    } = this.options || appManagerInitialOptions;
+    // { ...appManagerInitialOptions, this.options };
 
     this.logger = this.builder.loggerManager.init("AppManager");
-    this.isFocused = initiallyFocused;
-    this.isOnline = initiallyOnline;
+    this.isFocused = initiallyFocused ?? true;
+    this.isOnline = initiallyOnline ?? true;
 
-    focusEvent(() => this.setFocused(true));
-    blurEvent(() => this.setFocused(false));
-    onlineEvent(this.setOnline);
+    focusEvent?.(() => this.setFocused(true));
+    blurEvent?.(() => this.setFocused(false));
+    onlineEvent?.(this.setOnline);
   }
 
   setFocused = (isFocused: boolean) => {

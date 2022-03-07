@@ -10,7 +10,7 @@ const docusaurusPluginApi = require("./plugins/docusaurus-plugin-api");
 const config = {
   title: "Hyper Fetch - Ultimate fetching solution",
   tagline: "One tool to cover your fetching requirements",
-  url: "https://bettertyped.com",
+  url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
