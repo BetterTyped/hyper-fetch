@@ -21,6 +21,6 @@ export const onDocumentEvent = <K extends keyof DocumentEventMap>(
   options?: boolean | AddEventListenerOptions | undefined,
 ) => {
   if (hasDocument()) {
-    document?.addEventListener(key, listener, options);
+    window?.document?.addEventListener(key, listener, options);
   }
 };
