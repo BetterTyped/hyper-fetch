@@ -111,7 +111,7 @@ export const encodeParams = (
   }
 
   if (typeof queryParams === "string") {
-    return `?${queryParams}`;
+    return queryParams[0] === "?" ? queryParams : `?${queryParams}`;
   }
 
   const stringified = Object.entries(queryParams)

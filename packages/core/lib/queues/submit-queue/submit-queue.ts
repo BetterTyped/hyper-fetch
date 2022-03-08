@@ -22,7 +22,6 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
     const requestId = getUniqueRequestId(queueKey);
 
     if (disabled) {
-      this.events.setLoading(queueKey, { isLoading: false, isRetry: false });
       return this.logger.warning(`Request disabled, exiting...`);
     }
 
@@ -92,6 +91,7 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
     const isCanceled = runningRequests && !runningRequests.find((req) => req.requestId === requestId);
     const queue = await this.get(queueKey);
     if ((!response[0] && queue?.stopped) || isCanceled) {
+      this.events.setLoading(queueKey, { isLoading: false, isRetry: false });
       if (isCanceled) {
         return this.logger.error(`Request canceled`, { requestId, queueKey });
       }

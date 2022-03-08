@@ -2,11 +2,11 @@ import { FetchCommandDump, FetchCommandInstance } from "command";
 import { Queue } from "queues";
 
 export type QueueOptionsType<ErrorType, HttpOptions> = {
-  storage: QueueStorageType<HttpOptions>;
-  onInitialization: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
-  onUpdateStorage: (queueKey: string, queue: QueueData<HttpOptions>) => void;
-  onDeleteFromStorage: (queueKey: string, queue: QueueData<HttpOptions>) => void;
-  onClearStorage: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
+  storage?: QueueStorageType<HttpOptions>;
+  onInitialization?: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
+  onUpdateStorage?: (queueKey: string, queue: QueueData<HttpOptions>) => void;
+  onDeleteFromStorage?: (queueKey: string, queue: QueueData<HttpOptions>) => void;
+  onClearStorage?: (queueInstance: Queue<ErrorType, HttpOptions>) => void;
 };
 
 // Values

@@ -35,7 +35,7 @@ export class Queue<ErrorType, HttpOptions> {
       this.storage = this.options.storage;
     }
 
-    this.options?.onInitialization(this);
+    this.options?.onInitialization?.(this);
   }
 
   __startQueue = async (queueKey: string) => {
@@ -111,7 +111,7 @@ export class Queue<ErrorType, HttpOptions> {
   set = async <Command = unknown>(queueKey: string, queue: QueueData<HttpOptions, Command>) => {
     await this.storage.set(queueKey, queue);
 
-    this.options?.onUpdateStorage(queueKey, queue);
+    this.options?.onUpdateStorage?.(queueKey, queue);
 
     // Emit Queue Changes
     this.events.setQueueChanged(queueKey, queue);
@@ -129,7 +129,7 @@ export class Queue<ErrorType, HttpOptions> {
     const queue = await this.get(queueKey);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     await this.storage.set(queueKey, queue);
-    this.options?.onDeleteFromStorage(queueKey, queue);
+    this.options?.onDeleteFromStorage?.(queueKey, queue);
 
     // Emit Queue Changes
     this.events.setQueueChanged(queueKey, queue);
@@ -141,7 +141,7 @@ export class Queue<ErrorType, HttpOptions> {
     const queue = await this.get(queueKey);
     const newQueue = { requests: [], stopped: queue.stopped };
     await this.storage.set(queueKey, newQueue);
-    this.options?.onDeleteFromStorage(queueKey, newQueue);
+    this.options?.onDeleteFromStorage?.(queueKey, newQueue);
 
     // Emit Queue Changes
     this.events.setQueueChanged(queueKey, queue);
@@ -153,7 +153,7 @@ export class Queue<ErrorType, HttpOptions> {
     this.runningRequests.forEach((requests) => requests.forEach((request) => request.command.abort()));
     this.runningRequests.clear();
     await this.storage.clear();
-    this.options?.onClearStorage(this);
+    this.options?.onClearStorage?.(this);
   };
 
   // Count
