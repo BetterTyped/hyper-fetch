@@ -1,5 +1,3 @@
-// FIXME - "methods" not working
-// TODO - handle default options
 export enum displayOptions {
   name = "name",
   mainLine = "mainLine",

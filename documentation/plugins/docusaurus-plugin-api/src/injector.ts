@@ -37,7 +37,7 @@ const plugin = () => {
     const elementName = "([^ ]+)";
     const displayOptionParam = "([^ ]+)?";
     const rgx = new RegExp(
-      `{@import ${packageName} ${elementName} (${Object.keys(displayOptions).join("|")}) ?${displayOptionParam}}`,
+      `{@import ${packageName} ${elementName} (${Object.keys(displayOptions).join("|")}) ?${displayOptionParam} ?}`,
     );
 
     visit(ast, "paragraph", (node: any) => {
