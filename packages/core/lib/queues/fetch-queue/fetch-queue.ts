@@ -13,8 +13,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
   }
 
   startQueue = (queueKey: string) => {
-    this.__startQueue(queueKey);
-    this.flush(queueKey);
+    this.__startQueue(queueKey, () => this.flush(queueKey));
   };
 
   add = async (command: FetchCommandInstance) => {
@@ -79,7 +78,7 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
   performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { commandDump, requestId } = queueElement;
     const { retry, retryTime, queueKey, cacheKey, cache } = commandDump.values;
-    const { client } = this.builder;
+    const { client, commandManager } = this.builder;
 
     this.logger.debug(`Adding request to fetch-queue`, {
       queueKey,
@@ -111,6 +110,9 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
     this.incrementRequestCount(cacheKey);
     const response = await client(command, requestId);
 
+    // Global response emitter to handle command execution
+    commandManager.events.emitResponse(cacheKey, response);
+
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isCanceled = this.getIsCanceledRequest(queueKey, requestId);
@@ -138,7 +140,6 @@ export class FetchQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOpt
       cacheKey,
       response,
       retries: queueElement.retries,
-      deepEqual: queueElement.commandDump.values.deepEqual,
       isRefreshed: this.getRequestCount(cacheKey) > 1,
     });
 

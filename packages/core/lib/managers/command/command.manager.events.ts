@@ -78,7 +78,7 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   // Response
   onResponse: <ResponseType, ErrorType>(
     key: CacheKeyType,
-    callback: (command: ClientResponseType<ResponseType, ErrorType>) => void,
+    callback: (response: ClientResponseType<ResponseType, ErrorType>) => void,
   ): VoidFunction => {
     emitter.on(getResponseEventKey(key), callback);
     return () => emitter.removeListener(getResponseEventKey(key), callback);

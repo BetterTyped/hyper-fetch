@@ -8,4 +8,5 @@ export const useSubmitDefaultOptions = {
   suspense: false, // TBD
   shouldThrow: false, // TBD
   invalidate: [],
+  deepCompare: true,
 };

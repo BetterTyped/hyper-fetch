@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { CacheKeyType, CacheValueType, getEqualEventKey, getRevalidateEventKey, CacheStorageType } from "cache";
+import { CacheKeyType, CacheValueType, getRevalidateEventKey, CacheStorageType } from "cache";
 import { ExtractResponse, ExtractError } from "types";
 import { matchPath } from "utils";
 import { getCacheKey } from "./cache.utils";
@@ -8,20 +8,6 @@ import { getCacheKey } from "./cache.utils";
 export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
   set: <T>(key: CacheKeyType, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
     emitter.emit(getCacheKey(key), data);
-  },
-  /**
-   * Event sent once data response is equal to the stored data
-   * @param key `cacheKey` used to match storage space
-   * @param isRefreshed
-   * @param timestamp
-   */
-  setEqualData: <T>(
-    key: CacheKeyType,
-    data: CacheValueType<ExtractResponse<T>, ExtractError<T>>,
-    isRefreshed: boolean,
-    timestamp: number,
-  ): void => {
-    emitter.emit(getEqualEventKey(key), data, isRefreshed, timestamp);
   },
   /**
    * Revalidate cache values and trigger revalidate event
@@ -57,13 +43,6 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
   ): VoidFunction => {
     emitter.on(getCacheKey(key), callback);
     return () => emitter.removeListener(getCacheKey(key), callback);
-  },
-  getEqualData: <T>(
-    key: CacheKeyType,
-    callback: (data: CacheValueType<ExtractResponse<T>>, isRefreshed: boolean, timestamp: number) => void,
-  ): VoidFunction => {
-    emitter.on(getEqualEventKey(key), callback);
-    return () => emitter.removeListener(getEqualEventKey(key), callback);
   },
   onRevalidate: (key: CacheKeyType, callback: () => void): VoidFunction => {
     emitter.on(getRevalidateEventKey(key), callback);

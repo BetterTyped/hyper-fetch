@@ -4,9 +4,12 @@ import { useSubmit, useQueue } from "@better-typed/react-hyper-fetch";
 import { patchUser, postUser, postQueue } from "../server/user.api";
 
 export const UserForm: React.FC = () => {
-  const { timestamp, data, error, submitting, submit } = useSubmit(
+  // Post
+  const { timestamp, data, error, submitting, submit, onSubmitSuccess, onSubmitError } = useSubmit(
     postUser.setData({ email: "test", age: 12, name: "name" }),
   );
+
+  // Patch
   const {
     timestamp: timestampPatch,
     data: dataPatch,
@@ -15,6 +18,7 @@ export const UserForm: React.FC = () => {
     submit: submitPatch,
   } = useSubmit(patchUser.setParams({ userId: 12 }).setData({ email: "test", age: 12, name: "name" }));
 
+  // Queue
   const {
     timestamp: timestampQueue,
     data: dataQueue,
@@ -24,6 +28,11 @@ export const UserForm: React.FC = () => {
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
 
   const { requests, stopQueue, startQueue } = useQueue(postQueue);
+
+  // eslint-disable-next-line no-console
+  onSubmitError((err) => console.log(1, err));
+  // eslint-disable-next-line no-console
+  onSubmitSuccess((response) => console.log(2, response));
 
   return (
     <div>

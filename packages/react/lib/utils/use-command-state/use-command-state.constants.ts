@@ -14,5 +14,5 @@ export const useFetchDefaultOptions = {
   refreshOnReconnect: false,
   debounce: false,
   debounceTime: 400, // milliseconds
-  deepCompare: true,
+  shouldThrow: false,
 };

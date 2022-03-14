@@ -16,14 +16,16 @@ import {
   RequestInterceptorCallback,
   ResponseInterceptorCallback,
 } from "builder";
-import { Cache, isEqual } from "cache";
+import { Cache } from "cache";
 import { FetchActionInstance } from "action";
 import { FetchQueue, SubmitQueue } from "queues";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
 /**
- * Fetch builder class is the orchestrator of the whole library, primary used to initialize connections with the server.
+ * **FetchBuilder** is a class that allows you to configure the connection with the server and then use it to create
+ * commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
+ * method specified in the command.
  */
 export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpOptions = FetchClientXHR> {
   readonly baseUrl: string;
@@ -51,7 +53,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
   submitQueue: SubmitQueue<ErrorType, HttpOptions>;
 
   // Utils
-  deepEqual: typeof isEqual = isEqual;
   stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsOptions);
 
   // Registered requests Actions
@@ -108,11 +109,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
 
   setDebug = (debug: boolean): FetchBuilder<ErrorType, HttpOptions> => {
     this.debug = debug;
-    return this;
-  };
-
-  setDeepEqual = (deepEqual: typeof isEqual): FetchBuilder<ErrorType, HttpOptions> => {
-    this.deepEqual = deepEqual;
     return this;
   };
 

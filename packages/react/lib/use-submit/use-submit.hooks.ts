@@ -1,31 +1,10 @@
 import { useRef } from "react";
-import {
-  ExtractResponse,
-  FetchCommandInstance,
-  FetchProgressType,
-  ExtractError,
-  ExtractFetchReturn,
-  QueueLoadingEventType,
-  CacheValueType,
-  getCommandKey,
-  FetchCommand,
-} from "@better-typed/hyper-fetch";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { FetchCommandInstance, getCommandKey, FetchCommand } from "@better-typed/hyper-fetch";
 
 import { isStaleCacheData } from "utils";
-import { useDependentState } from "use-dependent-state";
-import { useDebounce } from "use-debounce";
-import {
-  UseSubmitOptionsType,
-  UseSubmitReturnType,
-  OnSubmitSuccessCallbackType,
-  OnSubmitErrorCallbackType,
-  OnSubmitRequestCallbackType,
-  OnSubmitFinishedCallbackType,
-  OnSubmitStartCallbackType,
-  OnSubmitProgressCallbackType,
-  useSubmitDefaultOptions,
-} from "use-submit";
+import { useDebounce } from "utils/use-debounce";
+import { UseSubmitOptionsType, UseSubmitReturnType, useSubmitDefaultOptions } from "use-submit";
+import { useCommandState } from "utils/use-command-state";
 
 export const useSubmit = <T extends FetchCommandInstance>(
   command: T,
@@ -35,27 +14,22 @@ export const useSubmit = <T extends FetchCommandInstance>(
     initialData = useSubmitDefaultOptions.initialData,
     debounce = useSubmitDefaultOptions.debounce,
     debounceTime = useSubmitDefaultOptions.debounceTime,
-    // suspense = useSubmitDefaultOptions.suspense,
-    shouldThrow = useSubmitDefaultOptions.shouldThrow,
-  }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
+    deepCompare = useSubmitDefaultOptions.deepCompare,
+  }: // suspense = useSubmitDefaultOptions.suspense,
+  UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
-  const { cacheTime, cacheKey, queueKey, builder, invalidate } = command;
+  const { cacheTime, builder } = command;
   const requestDebounce = useDebounce(debounceTime);
-  const { cache, submitQueue, commandManager, loggerManager } = builder;
+  const { cache, submitQueue, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const commandDump = command.dump();
-  const [state, actions, setRenderKey] = useDependentState<T>(command, initialData, submitQueue, [
-    JSON.stringify(commandDump),
-  ]);
-
-  const onRequestCallback = useRef<null | OnSubmitRequestCallbackType>(null);
-  const onSuccessCallback = useRef<null | OnSubmitSuccessCallbackType<ExtractResponse<T>>>(null);
-  const onErrorCallback = useRef<null | OnSubmitErrorCallbackType<ExtractError<T>>>(null);
-  const onFinishedCallback = useRef<null | OnSubmitFinishedCallbackType<ExtractFetchReturn<T>>>(null);
-  const onRequestStartCallback = useRef<null | OnSubmitStartCallbackType<T>>(null);
-  const onResponseStartCallback = useRef<null | OnSubmitStartCallbackType<T>>(null);
-  const onDownloadProgressCallback = useRef<null | OnSubmitProgressCallbackType>(null);
-  const onUploadProgressCallback = useRef<null | OnSubmitProgressCallbackType>(null);
+  const [state, actions, { setRenderKey }] = useCommandState({
+    command,
+    queue: submitQueue,
+    dependencyTracking,
+    initialData,
+    logger,
+    deepCompare,
+  });
 
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
     const options = parameters[0];
@@ -75,7 +49,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     }
   };
 
-  const invalidateFn = (invalidateKey: string | FetchCommandInstance | RegExp) => {
+  const invalidate = (invalidateKey: string | FetchCommandInstance | RegExp) => {
     if (!invalidateKey) return;
 
     if (invalidateKey && invalidateKey instanceof FetchCommand) {
@@ -85,107 +59,17 @@ export const useSubmit = <T extends FetchCommandInstance>(
     }
   };
 
-  const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
-    if (response) {
-      const status = response[2] || 0;
-      const hasSuccessState = !!(response[0] && !response[1]);
-      const hasSuccessStatus = !!(!response[1] && status >= 200 && status <= 400);
-      if (hasSuccessState || hasSuccessStatus) {
-        onSuccessCallback?.current?.(response[0] as ExtractResponse<T>);
-        invalidate?.forEach((key) => invalidateFn(key));
-      } else {
-        onErrorCallback?.current?.(response[1] as ExtractError<T>);
-        if (shouldThrow) {
-          throw {
-            message: "Fetching Error.",
-            error: response[1],
-          };
-        }
-      }
-      onFinishedCallback?.current?.(response);
-    } else {
-      logger.debug("No response to perform callbacks");
-    }
+  const handlers = {
+    actions: actions.actions,
+    onSubmitRequest: actions.onRequest,
+    onSubmitSuccess: actions.onSuccess,
+    onSubmitError: actions.onError,
+    onSubmitFinished: actions.onFinished,
+    onSubmitRequestStart: actions.onRequestStart,
+    onSubmitResponseStart: actions.onResponseStart,
+    onSubmitDownloadProgress: actions.onDownloadProgress,
+    onSubmitUploadProgress: actions.onUploadProgress,
   };
-
-  const handleGetCacheData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    handleCallbacks(cacheData.response); // Must be first
-    actions.setLoading(false, false);
-    actions.setCacheData(cacheData, false);
-  };
-
-  const handleGetEqualCacheUpdate = (
-    cacheData: CacheValueType<ExtractResponse<T>>,
-    isRefreshed: boolean,
-    timestamp: number,
-  ) => {
-    handleCallbacks(cacheData.response); // Must be first
-    actions.setRefreshed(isRefreshed, false);
-    actions.setTimestamp(new Date(timestamp), false);
-    actions.setLoading(false, false);
-  };
-
-  const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
-    actions.setLoading(isLoading, false);
-    onRequestCallback.current?.({ isRetry });
-  };
-
-  const handleDownloadProgress = (progress: FetchProgressType) => {
-    onDownloadProgressCallback?.current?.(progress);
-  };
-
-  const handleUploadProgress = (progress: FetchProgressType) => {
-    onUploadProgressCallback?.current?.(progress);
-  };
-
-  const handleRequestStart = (middleware: T) => {
-    onRequestStartCallback?.current?.(middleware);
-  };
-
-  const handleResponseStart = (middleware: T) => {
-    onRequestStartCallback?.current?.(middleware);
-  };
-
-  const handleMountEvents = () => {
-    const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
-    const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
-    const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
-    const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
-
-    const loadingUnmount = submitQueue.events.onLoading(queueKey, handleGetLoadingEvent);
-    const getUnmount = cache.events.get<T>(cacheKey, handleGetCacheData);
-    const getEqualDataUnmount = cache.events.getEqualData<T>(cacheKey, handleGetEqualCacheUpdate);
-
-    return () => {
-      downloadUnmount();
-      uploadUnmount();
-      requestStartUnmount();
-      responseStartUnmount();
-      loadingUnmount();
-
-      getUnmount();
-      getEqualDataUnmount();
-    };
-  };
-
-  const handleDependencyTracking = () => {
-    if (!dependencyTracking) {
-      Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
-    }
-  };
-
-  /**
-   * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
-   */
-  useDidUpdate(
-    () => {
-      handleDependencyTracking();
-      return handleMountEvents();
-    },
-    [JSON.stringify(commandDump)],
-    true,
-  );
 
   return {
     submit: handleSubmit,
@@ -228,33 +112,9 @@ export const useSubmit = <T extends FetchCommandInstance>(
     get isStale() {
       return isStaleCacheData(cacheTime, state.timestamp);
     },
-    onSubmitRequest: (callback: OnSubmitRequestCallbackType) => {
-      onRequestCallback.current = callback;
-    },
-    onSubmitSuccess: (callback: OnSubmitSuccessCallbackType<ExtractResponse<T>>) => {
-      onSuccessCallback.current = callback;
-    },
-    onSubmitError: (callback: OnSubmitErrorCallbackType<ExtractError<T>>) => {
-      onErrorCallback.current = callback;
-    },
-    onSubmitFinished: (callback: OnSubmitFinishedCallbackType<ExtractFetchReturn<T>>) => {
-      onFinishedCallback.current = callback;
-    },
-    onSubmitRequestStart: (callback: OnSubmitStartCallbackType<T>) => {
-      onRequestStartCallback.current = callback;
-    },
-    onSubmitResponseStart: (callback: OnSubmitStartCallbackType<T>) => {
-      onResponseStartCallback.current = callback;
-    },
-    onSubmitDownloadProgress: (callback: OnSubmitProgressCallbackType) => {
-      onDownloadProgressCallback.current = callback;
-    },
-    onSubmitUploadProgress: (callback: OnSubmitProgressCallbackType) => {
-      onUploadProgressCallback.current = callback;
-    },
-    actions,
+    ...handlers,
     isDebouncing: false,
     isRefreshed: false,
-    revalidate: invalidateFn,
+    invalidate,
   };
 };

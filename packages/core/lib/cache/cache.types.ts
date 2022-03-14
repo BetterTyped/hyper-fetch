@@ -29,7 +29,6 @@ export type CacheSetDataType<Response, ErrorType> = {
   retries?: number;
   isRefreshed?: boolean;
   timestamp?: number;
-  deepEqual?: boolean;
 };
 
 // Storage

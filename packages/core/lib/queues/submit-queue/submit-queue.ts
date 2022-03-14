@@ -13,8 +13,7 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
   }
 
   startQueue = (queueKey: string) => {
-    this.__startQueue(queueKey);
-    this.flush(queueKey);
+    this.__startQueue(queueKey, () => this.flush(queueKey));
   };
 
   add = async (command: FetchCommandInstance) => {
@@ -70,7 +69,7 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
 
   performRequest = async (requestCommand: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { cacheKey, retry, retryTime, cache, queueKey } = requestCommand;
-    const { client } = this.builder;
+    const { client, commandManager } = this.builder;
     const { requestId } = queueElement;
 
     this.addRunningRequest(queueKey, requestId, requestCommand);
@@ -84,6 +83,9 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
 
     this.incrementRequestCount(cacheKey);
     const response = await client(requestCommand, requestId);
+
+    // Global response emitter to handle command execution
+    commandManager.events.emitResponse(cacheKey, response);
 
     const runningRequests = this.getRunningRequests(queueKey);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -112,7 +114,6 @@ export class SubmitQueue<ErrorType, HttpOptions> extends Queue<ErrorType, HttpOp
       cacheKey,
       response,
       retries: queueElement.retries,
-      deepEqual: requestCommand.deepEqual,
       isRefreshed: this.getRequestCount(cacheKey) > 1,
     });
 

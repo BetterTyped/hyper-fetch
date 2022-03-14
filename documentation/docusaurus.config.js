@@ -86,10 +86,10 @@ const config = {
               docusaurusPluginApi.injectDocs,
               {
                 packages: [
-                  { name: "HyperFetch", docDir: path.join(__dirname, "/_docusaurus-plugin-api/api/Hyper-Fetch") },
+                  { name: "HyperFetch", docDir: path.join(__dirname, "/.docusaurus-plugin-api/api/Hyper-Fetch") },
                   {
                     name: "ReactHyperFetch",
-                    docDir: path.join(__dirname, "/_docusaurus-plugin-api/api/React-Hyper-Fetch"),
+                    docDir: path.join(__dirname, "/.docusaurus-plugin-api/api/React-Hyper-Fetch"),
                   },
                 ],
               },

@@ -4,11 +4,18 @@ import {
   ExtractResponse,
   ExtractError,
   CacheValueType,
-  QueueLoadingEventType,
-  FetchProgressType,
 } from "@better-typed/hyper-fetch";
 
-import { UseDependentStateActions, UseDependentStateType } from "use-dependent-state";
+import {
+  OnErrorCallbackType,
+  OnFinishedCallbackType,
+  OnProgressCallbackType,
+  OnRequestCallbackType,
+  OnStartCallbackType,
+  OnSuccessCallbackType,
+} from "utils/use-command-state";
+import { UseDependentStateActions, UseDependentStateType } from "utils/use-dependent-state";
+import { isEqual } from "utils";
 
 export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   dependencies?: any[];
@@ -25,33 +32,25 @@ export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   debounce?: boolean;
   debounceTime?: number;
   suspense?: boolean;
-  shouldThrow?: boolean;
+  deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseFetchReturnType<T extends FetchCommandInstance> = Omit<
-  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "data"
+export type UseFetchReturnType<T extends FetchCommandInstance> = UseDependentStateType<
+  ExtractResponse<T>,
+  ExtractError<T>
 > & {
-  data: null | ExtractResponse<T>;
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
-  onRequest: (callback: OnFetchRequestCallbackType) => void;
-  onSuccess: (callback: OnFetchSuccessCallbackType<ExtractResponse<T>>) => void;
-  onError: (callback: OnFetchErrorCallbackType<ExtractError<T>>) => void;
-  onFinished: (callback: OnFetchFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  onRequestStart: (callback: OnFetchStartCallbackType<T>) => void;
-  onResponseStart: (callback: OnFetchStartCallbackType<T>) => void;
-  onDownloadProgress: (callback: OnFetchProgressCallbackType) => void;
-  onUploadProgress: (callback: OnFetchProgressCallbackType) => void;
+  onRequest: (callback: OnRequestCallbackType) => void;
+  onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
+  onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
+  onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
   isRefreshed: boolean;
   isRefreshingError: boolean;
   isDebouncing: boolean;
   isStale: boolean;
   refresh: (invalidateKey?: string | FetchCommandInstance) => void;
 };
-
-export type OnFetchRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading">) => void;
-export type OnFetchSuccessCallbackType<DataType> = (data: DataType) => void;
-export type OnFetchErrorCallbackType<ErrorType> = (error: ErrorType) => void;
-export type OnFetchFinishedCallbackType<ResponseType> = (response: ResponseType) => void;
-export type OnFetchStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
-export type OnFetchProgressCallbackType = (progress: FetchProgressType) => void;

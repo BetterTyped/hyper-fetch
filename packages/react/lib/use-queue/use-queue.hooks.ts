@@ -14,6 +14,8 @@ export const useQueue = <Command extends FetchCommandInstance>(
 
   const queueRef = useRef(getCommandQueue(command, queueType));
 
+  const unmountCallbacks = useRef<null | VoidFunction>(null);
+
   const [connecting, setConnected] = useState(true);
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Command>[]>([]);
@@ -47,12 +49,17 @@ export const useQueue = <Command extends FetchCommandInstance>(
       setRequests([...values.requests]);
     });
 
-    return () => {
+    const unmount = () => {
       unmountStatus();
       unmountChange();
       unmountDownload();
       unmountUpload();
     };
+
+    unmountCallbacks.current?.();
+    unmountCallbacks.current = unmount;
+
+    return unmount;
   };
 
   useDidMount(() => {

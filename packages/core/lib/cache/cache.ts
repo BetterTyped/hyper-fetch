@@ -6,12 +6,12 @@ import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from
 import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
 
 /**
- * Cache class should be initialized per every command instance(not modified with params or queryParams).
- * This way we create container which contains different requests to the same endpoint.
- * With this segregation of data we can keep paginated data, filtered data, without overriding it between not related fetches.
- * Key for interactions should be generated later in the hooks with getCommandKey util function, which joins the stringified values to create isolated space.
+ * Cache class handles the data exchange with the queues.
  *
+ * @note
+ * Keys used to save the values are created dynamically on the FetchCommand class
  *
+ * @remark
  * <center>
  * ```mermaid
  * graph TD
@@ -41,9 +41,6 @@ import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataTyp
  * ```
  * </center>
  *
- *
- * @note
- * Keys used to save the values are created dynamically on the FetchCommand class
  */
 export class Cache<ErrorType, HttpOptions> {
   emitter = new EventEmitter();
@@ -73,15 +70,7 @@ export class Cache<ErrorType, HttpOptions> {
   }
 
   set = async <Response>(data: CacheSetDataType<Response, ErrorType>): Promise<void> => {
-    const {
-      cache,
-      cacheKey,
-      response,
-      retries = 0,
-      deepEqual = true,
-      isRefreshed = false,
-      timestamp = +new Date(),
-    } = data;
+    const { cache, cacheKey, response, retries = 0, isRefreshed = false, timestamp = +new Date() } = data;
     const cachedData = await this.storage.get(cacheKey);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
@@ -101,31 +90,15 @@ export class Cache<ErrorType, HttpOptions> {
       return this.events.set<Response>(cacheKey, newData);
     }
 
-    // We have to compare stored data with deepCompare, this will allow us to limit rerendering
-    const equal = deepEqual && this.builder.deepEqual(cachedData?.response, response);
-
-    // Global response emitter to handle command execution
-    this.builder.commandManager.events.emitResponse(cacheKey, response);
-
     // Cache response emitter to provide optimization for libs(re-rendering)
-    if (!equal) {
-      this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
-      await this.storage.set(cacheKey, newData);
-      this.events.set<Response>(cacheKey, newData);
-    } else {
-      this.logger.debug(`Cached data was equal to previous values, emitting update event...`, data);
-      this.events.setEqualData<Response>(cacheKey, newData, isRefreshed, timestamp);
-    }
+    this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
+    await this.storage.set(cacheKey, newData);
+    this.events.set<Response>(cacheKey, newData);
   };
 
   get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {
     const cachedData = this.storage.get<Response>(cacheKey);
     return cachedData;
-  };
-
-  getResponses = async <Response>(cacheKey: string): Promise<CacheStoreValueType<Response> | undefined> => {
-    const responses = await this.storage.get(cacheKey);
-    return responses as CacheStoreValueType<Response>;
   };
 
   delete = (cacheKey: string): void => {

@@ -38,7 +38,7 @@ export class Queue<ErrorType, HttpOptions> {
     this.options?.onInitialization?.(this);
   }
 
-  __startQueue = async (queueKey: string) => {
+  __startQueue = async (queueKey: string, callback?: VoidFunction) => {
     // Change status to running
     const queue = await this.get(queueKey);
 
@@ -46,6 +46,7 @@ export class Queue<ErrorType, HttpOptions> {
     if (queue) {
       queue.stopped = false;
       this.set(queueKey, queue);
+      callback?.();
     }
 
     this.logger.http(`Started queue`, { queueKey });

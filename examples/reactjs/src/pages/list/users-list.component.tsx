@@ -23,17 +23,25 @@ export const UsersList: React.FC = () => {
   const [fetched, setFetched] = useState(false);
   const [search, setSearch] = useState("");
 
-  const { data, loading, error, timestamp, onRequestStart } = useFetch(getUsers.setQueryParams({ page, search }), {
-    refresh: false,
-    initialData: [[], null, 200],
-    debounce: true,
-    debounceTime: 600,
-    dependencies: [search],
-  });
+  const { data, loading, error, timestamp, onRequestStart, onSuccess, onError } = useFetch(
+    getUsers.setQueryParams({ page, search }),
+    {
+      refresh: false,
+      initialData: [[], null, 200],
+      debounce: true,
+      debounceTime: 600,
+      dependencies: [search],
+    },
+  );
 
   onRequestStart(() => {
     setFetched(true);
   });
+
+  // eslint-disable-next-line no-console
+  onSuccess(console.log);
+  // eslint-disable-next-line no-console
+  onError(console.log);
 
   const onPageChange = (_event: React.ChangeEvent<unknown>, selectedPage: number) => {
     setPage(selectedPage);

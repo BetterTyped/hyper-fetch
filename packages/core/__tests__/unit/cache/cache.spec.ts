@@ -49,48 +49,6 @@ describe("Cache", () => {
     });
   });
 
-  describe("When using deep compare", () => {
-    it("should not overwrite the same data", async () => {
-      const trigger = jest.fn();
-
-      cacheInstance.events.get(cacheKey, () => {
-        trigger();
-      });
-
-      await cacheInstance.set(response);
-      await cacheInstance.set(response);
-      await cacheInstance.set(response);
-
-      expect(trigger).toBeCalledTimes(1);
-      expect(await cacheInstance.get(cacheKey)).toBeDefined();
-    });
-
-    it("should write data when cache is empty or gets deleted", async () => {
-      const trigger = jest.fn();
-
-      cacheInstance.events.get(cacheKey, () => {
-        trigger();
-      });
-
-      await cacheInstance.set(response);
-      await cacheInstance.delete(cacheKey);
-      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
-      await cacheInstance.set(response);
-      await cacheInstance.delete(cacheKey);
-      expect(await cacheInstance.get(cacheKey)).not.toBeDefined();
-      await cacheInstance.set(response);
-
-      expect(trigger).toBeCalledTimes(3);
-      expect(await cacheInstance.get(cacheKey)).toBeDefined();
-    });
-
-    it("should allow to disable deep comparison when saving data", async () => {
-      await cacheInstance.set({ ...response });
-
-      expect(await cacheInstance.get(cacheKey)).toBeDefined();
-    });
-  });
-
   describe("When CacheStore gets cleared before triggering cache actions", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();

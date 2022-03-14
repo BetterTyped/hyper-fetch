@@ -2,11 +2,81 @@
 sidebar_position: 1
 ---
 
-:::note
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/FetchBuilder">
+    <div class="pagination-nav__sublabel">FetchBuilder</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+**FetchBuilder** is a class that allows you to configure the connection with the server and then use it to create
+commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
+method specified in the command.
 
-:::
+```tsx
+import { FetchBuilder } from "@better-typed/hyper-fetch";
+
+export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" }).build();
+
+export const getUsers = builder.createCommand<{ name: string; email: string }>()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+...
+
+// Usage without queue - simple request
+const [user, error, status] = await getUsers.exec()
+
+// Usage with queue - provides cancelation / concurrecny options / queueing
+const [user, error, status] = await getUsers.send()
+```
+
+### Builder has three main tasks:
+
+- `Orchestration` of library components that are responsible for connection status, queues, http client, caching, and
+  others.
+- `Creating commands` and connecting them in a specific way inside the builder elements, thanks to which they have a
+  shared configuration and react in a specific way to events
+- `Controlling` and managing data flow
+
+## Components
+
+Builder is made up of many components that can be replaced or can be configured to your own preferences.
+
+### [Cache](/api/Hyper-Fetch/Class/Cache)
+
+Handles data storages and persistance.
+
+### [Client](/api/Hyper-Fetch/Class/Cache)
+
+Handles requests.
+
+### [SubmitQueue](/api/Hyper-Fetch/Class/Cache)
+
+Handles the mutation requests and queueing.
+
+### [FetchQueue](/api/Hyper-Fetch/Class/Cache)
+
+Handles the fetching requests and queueing.
+
+### [AppManager](/api/Hyper-Fetch/Class/Cache)
+
+Handles the app focus and online state.
+
+### [CommandManager](/api/Hyper-Fetch/Class/Cache)
+
+Handles additional events and cancelation of requests.
+
+### [LoggerManager](/api/Hyper-Fetch/Class/Cache)
+
+Handles the logging systems for debugging.
+
+<!-- - how to add authentication
+- how to add token refreshing
+- how to clear between test cases
+- connection graph with command and other systems
+-->
 
 <!-- ## General Flow
 
