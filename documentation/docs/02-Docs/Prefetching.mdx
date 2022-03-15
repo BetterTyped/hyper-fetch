@@ -2,8 +2,15 @@
 sidebar_position: 11
 ---
 
-:::note
+## Description
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+**`Prefetching`** in Hyper Fetch is very easy. To do a prefetch query, we just need to execute the query through any
+queue - preferably using the method on Command. In this way, we will keep the standard flow of the request, which will
+be handled in the normal way.
 
-:::
+```tsx
+import { getUsers } from "./users.server";
+
+// Add this in the right place and simply prefetch the data keeping standard flow and loading / caching events to be emitted
+getUsers.send();
+```

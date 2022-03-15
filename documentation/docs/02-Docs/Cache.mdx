@@ -2,8 +2,41 @@
 sidebar_position: 4
 ---
 
-:::note
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/Cache">
+    <div class="pagination-nav__sublabel">Cache</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+## Description
 
-:::
+**`Cache`** is where the response data from the queues is stored. It uses an event system that successively transmits
+data to listeners and takes care of their proper refreshing in the system, tracking data refresh and error checking on
+retried requests.
+
+## Data keys
+
+The cache stores data on a `key-value` basis. The key is always specified inside the Command as cacheKey, and it
+determines where the data is stored. The cacheKey value is automatically determined by default based on parameters such
+as the method, endpoint and query params of the given command, but there is nothing to prevent you from adding the key
+manually when setting the Command or using one of its methods. Thanks to the automatic way of indexing data in the
+cache, we do not have to worry about paginated keys in the data - everything will happen automatically.
+
+## Storages
+
+By default, the cache uses Map as a data retention location. However, it is possible to replace the place where the data
+is stored in the system. We can use local storage, indexeddb - no matter if the source works synchronously or
+asynchronously.
+
+This way we can setup the `Persistent` storage that will last between sessions.
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: "localhost:3000",
+  cache: (instance) =>
+    new Cache(instance, {
+      storage,
+    }),
+}).build();
+```

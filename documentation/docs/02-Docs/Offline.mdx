@@ -2,8 +2,34 @@
 sidebar_position: 8
 ---
 
-:::note
+## Description
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+`Hyper Fetch` was created with offline operation and data persistence in mind, thanks to this approach our queues, which
+are responsible for sending and processing requests, are fully prepared for `creating offline-first applications`.
 
-:::
+Currently, the operation of this system is default, which means that the offline mechanics are queued and completely
+automated. Receiving the information that the application has entered the offline state, we automatically stop the
+requests being executed or queued, and then resume them when the connection is restored.
+
+The offline operation is greatly influenced by one of the managers -
+**[AppManager](/api/Hyper-Fetch/Class/AppManager)**, which is responsible for emitting events related to the current
+state of the application - such as offline / online or focused / blurred.
+
+## Custom offline events
+
+Let's take React Native as an example. The default events detecting whether our application has entered the offline /
+online state are based on the window event listeners, when we are talking about a native implementation, we must use
+NetInfo as the source of the connection state.
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => {
+          setOnline(state.isConnected || false);
+        }),
+    }),
+}).build();
+```

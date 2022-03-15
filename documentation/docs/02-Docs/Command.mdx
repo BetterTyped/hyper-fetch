@@ -2,8 +2,44 @@
 sidebar_position: 2
 ---
 
-:::note
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/FetchCommand">
+    <div class="pagination-nav__sublabel">FetchCommand</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+## Description
+
+**`Command`** is a class that contains all information about the request we are going to execute. The strength of the
+command is that you can create a kind of dump out of it - thanks to which we can recreate the command later. This
+approach allows you to develop a full flow persistance - we can store requests as json (only for persistance) and then
+recreate them between sessions.
+
+It contains a large number of methods that allow you to freely manage the data in the command and create a clone of the
+command after each use.
+
+:::info
+
+Using method on a command creates a clone of it - `we don't return a reference`!
 
 :::
+
+## Identifiers
+
+Each command gets its identifiers - `queueKey` and `cacheKey`. They are needed to determine under which key items will
+be cached, queued, or canceled to maintain unity between many different queries.
+
+## Testing
+
+We have access to the inside of the command all the time, so that, with the right approach, we can combine tests and
+mocking the response in a way that will allow us to reuse what has been set during development. This way, the tests
+respond to changes over time - they are easier to maintain and easier to write.
+
+## Typescript
+
+We can put the main elements of command. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
+
+```tsx
+const getUsers = builder.createCommand<Response, Payload, Error, QueryParams>()({ endpoint: "/users" });
+```

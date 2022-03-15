@@ -9,7 +9,9 @@ sidebar_position: 1
   </a>
 </p>
 
-**FetchBuilder** is a class that allows you to configure the connection with the server and then use it to create
+## Description
+
+**`FetchBuilder`** is a class that allows you to configure the connection with the server and then use it to create
 commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
 method specified in the command.
 
@@ -32,7 +34,14 @@ const [user, error, status] = await getUsers.exec()
 const [user, error, status] = await getUsers.send()
 ```
 
-### Builder has three main tasks:
+### Event driven architecture
+
+Hyper fetch is largely based on event communication - thanks to which we maintain greater flexibility in the context of
+data exchange and one approach to their flow in the library between different components.
+
+### Purpose
+
+Builder has three main tasks:
 
 - `Orchestration` of library components that are responsible for connection status, queues, http client, caching, and
   others.
@@ -46,63 +55,113 @@ Builder is made up of many components that can be replaced or can be configured 
 
 ### [Cache](/api/Hyper-Fetch/Class/Cache)
 
-Handles data storages and persistance.
+Handles data storages and persistance. Can be adjusted with cache property passed along baseUrl to the builder.
 
 ### [Client](/api/Hyper-Fetch/Class/Cache)
 
-Handles requests.
+Handles requesting. Can be replaced with `setClient` method.
 
 ### [SubmitQueue](/api/Hyper-Fetch/Class/Cache)
 
-Handles the mutation requests and queueing.
+Handles the mutation requests and queueing. Can be adjusted with cache property passed along baseUrl to the builder.
 
 ### [FetchQueue](/api/Hyper-Fetch/Class/Cache)
 
-Handles the fetching requests and queueing.
+Handles the fetching requests and queueing. Can be adjusted with cache property passed along baseUrl to the builder.
 
 ### [AppManager](/api/Hyper-Fetch/Class/Cache)
 
-Handles the app focus and online state.
+Handles the app focus and online state. Can be adjusted with cache property passed along baseUrl to the builder.
 
 ### [CommandManager](/api/Hyper-Fetch/Class/Cache)
 
-Handles additional events and cancelation of requests.
+Handles additional events and cancelation of requests. Can be adjusted with cache property passed along baseUrl to the
+builder.
 
 ### [LoggerManager](/api/Hyper-Fetch/Class/Cache)
 
 Handles the logging systems for debugging.
 
-<!-- - how to add authentication
-- how to add token refreshing
-- how to clear between test cases
+## Authentication
+
+1. Adding the headers to the request during authentication
+
+```tsx
+export const builder = new FetchBuilder({ baseUrl })
+  .onAuth((command) => {
+    const state = store.getState();
+    const authToken = state.auth.token;
+
+    // Before each command with setting "auth: true" add the Bearer token
+    return command.setHeaders({
+      ...command.headers,
+      Authorization: `Bearer ${authToken}`,
+    });
+  })
+  .build();
+
+export const getUsers = builder.createCommand<{ name: string; email: string }>()({
+  method: "GET",
+  endpoint: "/users",
+  auth: true, // Important!
+});
+```
+
+2. Refreshing the token
+
+```tsx
+export const builder = new FetchBuilder({ baseUrl })
+  .onError(async (res, command) => {
+    const status = res[2];
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
+
+    // Check if command has the used value - this will ensure you will not go into infinite loop
+    if (!command.used && refreshToken && status === 401) {
+      // Prepare the refresh token command
+      const postRefreshToken = builder.createCommand<LoginResponse, LoginData>()({
+        endpoint: "/refresh-token",
+        method: "POST",
+      });
+
+      // Call the command to receive new tokens
+      const [data] = await postRefreshToken.setData({ refreshToken }).exec();
+
+      if (data) {
+        // Safe the new tokens
+        localStorage.setItem(TOKEN_STORAGE_FIELD, data.token);
+        localStorage.setItem(REFRESH_TOKEN_STORAGE_FIELD, data.refreshToken);
+        // Repeat the request
+        return command.setUsed(true).send();
+      }
+    }
+    // Return the initial response is something goes wrong
+    return res;
+  })
+  .build();
+```
+
+## Setups
+
+#### 1. Command default setup
+
+We can use the `setCommandDefaultOptions` method to specify the defaults for every command
+
+#### 2. Client default setup
+
+We can use the `setClientOptions` method to specify the defaults for http client like custom header mapper.
+
+#### 3. Http options default setup
+
+We can use the `setHttpOptions` method to specify the defaults for every request. This method is based on the builder
+typescript generic which allow you to pass any options you need for your client.
+
+<!--
+
 - connection graph with command and other systems
+
 -->
 
-<!-- ## General Flow
-
-## Props
-
-- `baseUrl`(\*): string -
-- `options`: ClientOptions - options for a fetching client. By default, it refers to the implemented XHR Client that
-  fulfills the basic `XMLHttpRequest` interface.
-- `cache`: Cache - cache. # TODO -> here we should link to the cache page and explain all the cache intricacies along
-  with the possibility for changing the storage.
-- `manager`: Manager - responsible for offline/online state management + focus/blur
-- `fetchQueue`: FetchQueue - fetching queue
-- `submitQueue`: - queue - submit queue
-
-## Available Methods
-
-- `setClient` - allows for setting own fetching client
-- `onError` - setting callback that happens in case of any request error. # TODO -> example with connecting sentry
-- `onRequest`- allows for setting _multiple_ callbacks that happen before sending a request.
-  - TODO -> example with separate header modification and data modification.
-  - TODO -> example with automatic header authentication for all requests.
-- `onResponse` - allows for setting _multiple_ callbacks that happen after sending a request.
-- `clear` - clears all the listeners, queues and storages. Mainly used for tests.
-- `create` - indicates that the builder setup is _complete_. Returns the `Command`.
-  - TODO -> Explain the meaning and reason of "complete" .
-
+<!--
 ## TODOS and examples
 
 - TODO - subsection for Builder -> providing own client (other than XHR) + options

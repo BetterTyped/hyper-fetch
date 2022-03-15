@@ -2,8 +2,35 @@
 sidebar_position: 3
 ---
 
-:::note
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Function/fetchClient">
+    <div class="pagination-nav__sublabel">Cache</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+## Description
+
+**`Client`** is a function that is responsible for communication with the server. The default hyper fetch client is used
+to communicate with the Rest Api server. However, there is nothing to prevent us from changing and creating the client
+we need. Thanks to event communication, we can set our own client as we wish.
+
+:::caution
+
+If there is no XHR in the window object or the XHR object is a polyfill in your environment, you have to install a npm
+package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object.
 
 :::
+
+By default, the client is responsible for requests, but its role is very significant for many other elements - such as
+tracking the progress of requests, canceling them, stringify of query params, lifecycle methods of request - like
+request start / end, response start / end. It also applies all the middlewares and interceptors to the whole requesting
+process.
+
+### Custom Client
+
+```tsx
+const customHttpClient: ClientType = (command: FetchCommandInstance) => Promise.resolve([null, null, 0]);
+
+const builder = new FetchBuilder({ baseUrl }).setClient(customHttpClient).build();
+```

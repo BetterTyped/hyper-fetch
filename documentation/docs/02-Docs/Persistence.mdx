@@ -2,8 +2,53 @@
 sidebar_position: 9
 ---
 
-:::note
+## Description
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+**`Persistance`** is possible thanks to setting the appropriate cache or queues storage - which will be able to store
+between sessions in the application or its launches. To enable the persistence of data, we must replace the default
+storages with the ones we choose, which will meet our requirements - we do not have many requirements here, except for
+the type that we accept.
+
+:::caution
+
+Persistance storages can handle only json data. Remember that all file objects need to be translated to base64 or other
+valid format to match json requirements.
 
 :::
+
+## Cache Persistance
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: "localhost:3000",
+  cache: (instance) =>
+    new Cache(instance, {
+      storage: peristanceStorage,
+    }),
+}).build();
+```
+
+## Queues Persistance
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: "localhost:3000",
+  fetchQueue: (instance) =>
+    new FetchQueue(instance, {
+      storage: peristanceStorage,
+    }),
+}).build();
+```
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: "localhost:3000",
+  submitQueue: (instance) =>
+    new SubmitQueue(instance, {
+      storage: peristanceStorage,
+    }),
+}).build();
+```
+
+<!-- -limitation of json based storages - no class, file, constructor objects - we have to keep base64, no functions or any
+tricky things - simple objects/arrays, with strings, numbers, booleans and null -->

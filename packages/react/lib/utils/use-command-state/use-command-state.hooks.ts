@@ -169,7 +169,8 @@ export const useCommandState = <T extends FetchCommandInstance>({
   useDidUpdate(
     () => {
       if (initialized && !usedInitialCallbacks) {
-        handleCallbacks([state.data, state.error, state.status]);
+        // Todo: add the option to allow initial callbacks handling
+        // handleCallbacks([state.data, state.error, state.status]);
         setUsedInitialCallbacks(true);
       }
     },
