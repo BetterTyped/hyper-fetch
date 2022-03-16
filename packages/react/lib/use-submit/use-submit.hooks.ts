@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { FetchCommandInstance, getCommandKey, FetchCommand } from "@better-typed/hyper-fetch";
+import { useRef, useState } from "react";
+import { FetchCommandInstance, getCommandKey, FetchCommand, ExtractFetchReturn } from "@better-typed/hyper-fetch";
 
 import { isStaleCacheData } from "utils";
 import { useDebounce } from "utils/use-debounce";
@@ -7,7 +7,7 @@ import { UseSubmitOptionsType, UseSubmitReturnType, useSubmitDefaultOptions } fr
 import { useCommandState } from "utils/use-command-state";
 
 export const useSubmit = <T extends FetchCommandInstance>(
-  command: T,
+  cmd: T,
   {
     disabled = useSubmitDefaultOptions.disabled,
     dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
@@ -18,6 +18,12 @@ export const useSubmit = <T extends FetchCommandInstance>(
   }: // suspense = useSubmitDefaultOptions.suspense,
   UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
+  /**
+   * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's actual value
+   * and assign the command to the state once we trigger submit because this is ultimate moment when it's automated value is assigned
+   */
+  const [command, setCommand] = useState(cmd);
+
   const { cacheTime, builder } = command;
   const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, loggerManager } = builder;
@@ -34,19 +40,32 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
     const options = parameters[0];
 
-    if (!disabled) {
-      logger.debug(`Adding request to submit queue`, { disabled, options });
+    const commandClone = command.clone(options);
 
-      if (debounce) {
-        requestDebounce.debounce(() => {
-          command.send({ ...options, queueType: "submit" });
-        });
-      } else {
-        return command.send({ ...options, queueType: "submit" });
-      }
-    } else {
-      logger.debug(`Cannot add to submit queue`, { disabled, options });
-    }
+    return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
+      setCommand(commandClone as T);
+
+      const performSubmit = async () => {
+        if (!disabled) {
+          logger.debug(`Adding request to submit queue`, { disabled, options });
+
+          if (debounce) {
+            requestDebounce.debounce(async () => {
+              const value = await commandClone.send({ ...options, queueType: "submit" });
+              resolve(value);
+            });
+          } else {
+            const value = await commandClone.send({ ...options, queueType: "submit" });
+            resolve(value);
+          }
+        } else {
+          resolve([null, null, null]);
+          logger.debug(`Cannot add to submit queue`, { disabled, options });
+        }
+      };
+
+      performSubmit();
+    });
   };
 
   const invalidate = (invalidateKey: string | FetchCommandInstance | RegExp) => {

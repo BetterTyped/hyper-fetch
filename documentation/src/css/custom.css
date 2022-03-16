@@ -194,6 +194,10 @@ body .DocSearch-Button-Placeholder {
 body .DocSearch-Search-Icon {
   width: 16px;
 }
+body .DocSearch-Hit-source,
+body .DocSearch-Modal {
+  background: var(--ifm-background-color);
+}
 
 @media (max-width: 750px) {
   body .DocSearch-Button {

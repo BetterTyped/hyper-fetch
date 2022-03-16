@@ -16,7 +16,9 @@ export const UserForm: React.FC = () => {
     error: errorPatch,
     submitting: submittingPatch,
     submit: submitPatch,
-  } = useSubmit(patchUser.setParams({ userId: 12 }).setData({ email: "test", age: 12, name: "name" }));
+    onSubmitSuccess: onPatchSuccess,
+    onSubmitError: onPatchError,
+  } = useSubmit(patchUser.setData({ email: "test", age: 12, name: "name" }));
 
   // Queue
   const {
@@ -25,6 +27,8 @@ export const UserForm: React.FC = () => {
     error: errorQueue,
     submitting: submittingQueue,
     submit: submitQueue,
+    onSubmitSuccess: onQueueSuccess,
+    onSubmitError: onQueueError,
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
 
   const { requests, stopQueue, startQueue } = useQueue(postQueue);
@@ -33,6 +37,14 @@ export const UserForm: React.FC = () => {
   onSubmitError((err) => console.log(1, err));
   // eslint-disable-next-line no-console
   onSubmitSuccess((response) => console.log(2, response));
+  // eslint-disable-next-line no-console
+  onPatchError((err) => console.log(1, err));
+  // eslint-disable-next-line no-console
+  onPatchSuccess((response) => console.log(2, response));
+  // eslint-disable-next-line no-console
+  onQueueError((err) => console.log(1, err));
+  // eslint-disable-next-line no-console
+  onQueueSuccess((response) => console.log(2, response));
 
   return (
     <div>
@@ -53,7 +65,7 @@ export const UserForm: React.FC = () => {
         <b>timestamp:</b> {timestamp?.toDateString()} {timestamp?.toLocaleTimeString()}
       </div>
       <h3>User Form Patch:</h3>
-      <button type="button" onClick={() => submitPatch()}>
+      <button type="button" onClick={() => submitPatch({ params: { userId: 14 } })}>
         Submit Patch
       </button>
       <div>
