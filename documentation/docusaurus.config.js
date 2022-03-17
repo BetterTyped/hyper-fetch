@@ -194,10 +194,6 @@ const config = {
                 to: "/docs/Docs/Builder",
               },
               {
-                label: "Testing",
-                to: "/docs/Testing/Overview",
-              },
-              {
                 label: "React",
                 to: "/docs/React/Overview",
               },
