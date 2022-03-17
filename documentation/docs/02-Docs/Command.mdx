@@ -25,6 +25,41 @@ Using method on a command creates a clone of it - `we don't return a reference`!
 
 :::
 
+## Initialization
+
+The command should be initialized from the builder instance, this way we pass a shared reference to the place that
+manages communication in the application.
+
+:::caution
+
+We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
+[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
+resolved.
+
+:::
+
+```tsx
+import { FetchBuilder } from "@better-typed/hyper-fetch";
+
+export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" }).build();
+
+// We create a command which allows to get the users list
+export const getUsers = builder.createCommand<{ name: string; email: string }>()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+...
+
+// Usage without queue - simple request
+const [user, error, status] = await getUsers.exec()
+
+// Usage with queue - provides cancelation / concurrecny options / queueing
+const [user, error, status] = await getUsers.send()
+```
+
+For usage with **`React`** checkout our [hooks docs](/docs/React/Overview).
+
 ## Identifiers
 
 Each command gets its identifiers - `queueKey` and `cacheKey`. They are needed to determine under which key items will
@@ -43,3 +78,12 @@ We can put the main elements of command. This includes `Response`, `Payload`, `L
 ```tsx
 const getUsers = builder.createCommand<Response, Payload, Error, QueryParams>()({ endpoint: "/users" });
 ```
+
+## Caching
+
+We can turn off caching by setting the `cache: false` option while creating command or by it's method.
+
+## Authentication
+
+Authentication will work and trigger the `onAuth` method from the `builder` instance once we set the `auth: true` option
+on command.

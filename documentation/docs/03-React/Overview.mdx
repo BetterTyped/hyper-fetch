@@ -1,0 +1,45 @@
+---
+sidebar_position: 1
+---
+
+React support in hyper fetch is based on the implementation of events used in the core library and adapting flow to
+rendering and the most enjoyable use for developers. The goal from the beginning was to be a high transparency of the
+code written using our library, thanks to which we achieve ease of maintenance and ease of use. The minimum requirement
+to use `hooks` is to have a prepared **command**. You can find the example of how to do it [here](/docs/Docs/Command).
+
+# Quick Start
+
+To use hooks in react-hyper-fetch, we need to initialize builder and the commands instances that will be then consumed
+as properties.
+
+1. We start working with the library from `initiating the builder`.
+2. The next step is to `prepare the commands` that will be used in our Hooks.
+3. When we have ready commands, we can easily go to the `use the hooks`.
+
+Check our **[code examples](/examples/React)**
+
+```tsx
+const { data, error, loading } = useFetch(getUsers);
+```
+
+```tsx
+const { submit, data, error, submitting } = useSubmit(postLogin);
+```
+
+## Keys
+
+**`cacheKey`** is used by internal hyper-fetch systems to enable comunication between finished request and the place in
+`Cache` where we need to place the data from response. This value is automatically generated but can be modified using
+options and methods on the command instance. This is a very important element of Hook communication and data exchange
+between them.
+
+**`queueKey`** is also used by internal hyper-fetch systems to enable comunication between queues and commands. Command
+execution using the send method adds it to the appropriate queue. It is selected automatically or manually depending on
+the settings. Each queueKey gets its own separate place inside the queue instance where it can execute commands going
+there in an isolation. This means that commands with the same queueKey will end up in one execution stack and will not
+be mixed with commands with other keys.
+
+## Typescript
+
+The use of typescript is very much based on the types that are already present in the commands themselves. In this case,
+flow is controlled from one place and propagated throughout the application, providing a safe and legible flow.

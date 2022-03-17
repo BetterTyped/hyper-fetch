@@ -1,0 +1,30 @@
+---
+sidebar_position: 7
+---
+
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/React-Hyper-Fetch/Function/useAppManager">
+    <div class="pagination-nav__sublabel">useAppManager</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+## Description
+
+Thanks to this hook, we are able to use information about the connection status or the use of our application,
+additionally, we also have options to manipulate it's global state. This hook uses the AppManager available on the
+builder instance.
+
+It returns the status of `isOnline` and `isFocused`, and the actions that allow you to change them.
+
+```tsx
+const { isOnline, setOnline } = useAppManager(builder);
+
+setOnline(true);
+```
+
+```tsx
+const { isFocused, setFocused } = useAppManager(builder);
+
+setFocused(true);
+```

@@ -1,0 +1,97 @@
+---
+sidebar_position: 3
+---
+
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/React-Hyper-Fetch/Function/useFetch">
+    <div class="pagination-nav__sublabel">useFetch</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+## Description
+
+This hook is used to retrieve data from the server, it uses the FetchQueue to handle requests and the Cache to manage
+the overall state of the data. This hook is used to retrieve data from the server, it uses the `FetchQueue` to handle
+requests and the `Cache` to manage the overall state of the data. The minimum requirement to use `useFetch` is to have a
+prepared **command**. An example of how to do it can be found [here](/docs/Docs/Command).
+
+If you intend to `mutate` data stored on the server, we recommend [useSubmit](/docs/React/useSubmit) hook.
+
+```tsx
+const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+```
+
+## How it works?
+
+**`useFetch`** executes the query when a component is mounted or when its dependencies elements change. Optionally there
+is way to `refresh` it with one metod returned from it or it can be invalidated which will trigger the autorefresh. The
+common example of invalidation can be that we create new user on the server and the `useSubmit` hook as a side-effect
+invalidates the `useFetch` hook responsible for users list fetching.
+
+We can disable the hook with `disabled` option, this way we can perform dependent requests between hooks.
+
+## ETA and transfer size
+
+With the the `onDownloadProgress` and `onUploadProgress` methods available on the useFetch you can get parsed and
+preapared to display values of the estimated time for finalizing the request download or upload.
+
+It will return you the percentage value of the request progress, estimated time left to the end of the task and size of
+it that left to be uploaded or downloaded in bytes.
+
+```tsx
+  const { data, error, loading, onDownloadProgress, onUploadProgress } = useFetch(getFile);
+
+  onDownloadProgress((progress) => {
+    console.log(payload); // { progress, timeLeft, sizeLeft }
+  });
+
+  onUploadProgress((progress) => {
+    console.log(payload); // { progress, timeLeft, sizeLeft }
+  });
+};
+```
+
+### Debouncing
+
+We allow to use the built-in debouncing system, which allows to optimize requesting. Let's take an searching feature,
+where we don't want to make a request with every letter we type in the search input. Instead we wait as long as user is
+typing and when he stops for certain amount of time - we trigger the request.
+
+## Example
+
+```tsx
+import { useFetch } from "@better-typed/react-hyper-fetch";
+import { getUsers } from "server";
+
+const UsersListPage: React.FC = () => {
+  const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+
+  onSuccess((payload) => {
+    console.log(payload); // [ User, User, User ]
+  });
+
+  onError((error) => {
+    console.log(error); // { message: string }
+  });
+
+  onFinished(([payload, error, status]) => {
+    console.log(payload); // [ User, User, User ] | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = async (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <div>
+        {loading && <Loader>}
+        {!loading && error && <Alert severity="error">{error.error_message}</Alert>}
+        {!loading && !error && !data.length && <div>List is empty</div>}
+        {!loading && !error && data.length && <div>{data.map(user => <div>{user.name}</div>)}</div>}
+    </div>
+  );
+};
+```

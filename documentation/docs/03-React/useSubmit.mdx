@@ -1,0 +1,115 @@
+---
+sidebar_position: 4
+---
+
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/React-Hyper-Fetch/Function/useSubmit">
+    <div class="pagination-nav__sublabel">useSubmit</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+## Description
+
+This hook is used to mutate data on the server or to make requests in a controlled manner. During its operation, it uses
+builder components such as `SubmitQueue` to queue queries and handle these types of requests, and the `Cache` to manage
+the overall state of the data. The minimum requirement to use `useSubmit` is to have a prepared **command**. An example
+of how to do it can be found [here](/docs/Docs/Command).
+
+```tsx
+const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+```
+
+## How it works?
+
+**`useSubmit`** is a Hook that executes requests in a controlled manner. This means that requests are not performed
+automatically, but using the `submit()` method that this hook returns.
+
+At the time of execution, we can block further clicking or allow further execution of requests.
+
+## Passing data and params
+
+Passing of the data or parameters can take place in several ways. One of them is to use methods on the Command such as
+`setData` or `setParams`.
+
+```tsx
+const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
+```
+
+However, we often encounter the need to pass parameters `dynamically`, in this case we have to act a bit differently.
+
+```tsx
+const { submit } = useSubmit(patchUser);
+
+const handleSubmit = (id: number, name: string) => {
+  submit({ data: { name }, params: { userId: id } });
+};
+```
+
+## ETA and transfer size
+
+With the the `onDownloadProgress` and `onUploadProgress` methods available on the useFetch you can get parsed and
+preapared to display values of the estimated time for finalizing the request download or upload.
+
+It will return you the percentage value of the request progress, estimated time left to the end of the task and size of
+it that left to be uploaded or downloaded in bytes.
+
+```tsx
+  const { data, error, loading, onDownloadProgress, onUploadProgress } = useFetch(getFile);
+
+  onDownloadProgress((progress) => {
+    console.log(payload); // { progress, timeLeft, sizeLeft }
+  });
+
+  onUploadProgress((progress) => {
+    console.log(payload); // { progress, timeLeft, sizeLeft }
+  });
+};
+```
+
+## Example
+
+```tsx
+import { useSubmit } from "@better-typed/react-hyper-fetch";
+import { postLogin } from "server";
+
+interface Values {
+  email: string;
+  password: string;
+}
+
+const LoginPage: React.FC = () => {
+  const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
+
+  onSubmitSuccess((payload) => {
+    console.log(payload); // { token: string, refreshToken: string }
+  });
+
+  onSubmitError((error) => {
+    console.log(error); // { message: string }
+  });
+
+  onFinished(([payload, error, status]) => {
+    console.log(payload); // { token: string, refreshToken: string } | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema}>
+      <Form>
+        {error && <Alert severity="error">{error.error_message}</Alert>}
+        <FormInput name="email" label="Email" placeholder="Fill your email" />
+        <FormInput type="password" name="password" label="Password" placeholder="Fill your password" />
+        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
+          Log in
+        </Button>
+      </Form>
+    </Formik>
+  );
+};
+```

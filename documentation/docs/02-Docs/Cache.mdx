@@ -15,13 +15,14 @@ sidebar_position: 4
 data to listeners and takes care of their proper refreshing in the system, tracking data refresh and error checking on
 retried requests.
 
-## Data keys
+## CacheKey
 
-The cache stores data on a `key-value` basis. The key is always specified inside the Command as cacheKey, and it
-determines where the data is stored. The cacheKey value is automatically determined by default based on parameters such
-as the method, endpoint and query params of the given command, but there is nothing to prevent you from adding the key
-manually when setting the Command or using one of its methods. Thanks to the automatic way of indexing data in the
-cache, we do not have to worry about paginated keys in the data - everything will happen automatically.
+The cache stores data on a `key-value` basis. The key is always specified inside the Command as `cacheKey`, and it
+determines where the data is stored and it's used for propagation of the data handling events. The cacheKey value is
+automatically determined by default based on parameters such as the method, endpoint and query params of the given
+command, but there is nothing to prevent you from adding the key manually when setting the Command or using one of its
+methods. Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the
+data - everything will happen automatically.
 
 ## Storages
 

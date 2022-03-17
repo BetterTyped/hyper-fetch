@@ -4,8 +4,8 @@ sidebar_position: 8
 
 ## Description
 
-`Hyper Fetch` was created with offline operation and data persistence in mind, thanks to this approach our queues, which
-are responsible for sending and processing requests, are fully prepared for `creating offline-first applications`.
+`Hyper Fetch` was created with offline and data persistence in mind, thanks to this approach our queues, which are
+responsible for sending and processing requests, are fully prepared for `creating offline-first applications`.
 
 Currently, the operation of this system is default, which means that the offline mechanics are queued and completely
 automated. Receiving the information that the application has entered the offline state, we automatically stop the
@@ -28,7 +28,7 @@ export const builder = new FetchBuilder<ServerErrorType>({
     new AppManager(instance, {
       onlineEvent: (setOnline) =>
         NetInfo.addEventListener((state) => {
-          setOnline(state.isConnected || false);
+          setOnline(state.isConnected);
         }),
     }),
 }).build();

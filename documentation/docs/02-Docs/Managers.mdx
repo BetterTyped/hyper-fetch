@@ -2,8 +2,61 @@
 sidebar_position: 7
 ---
 
-:::note
+The library contains several managers, they are mainly used to support smaller subsystems, which are rather slightly
+detached from the whole flow logic.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+# AppManager
 
-:::
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/AppManager">
+    <div class="pagination-nav__sublabel">AppManager</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+This class is responsible for the state of our application in terms of online / offline status and whether the
+application is focused / blured (it mainly means whether we are actively using the application at present).
+
+For example, if we want to use hyper-fetch in a react native environment, our default web browser events won't work, we
+need to set the ones that are most optimal for the current environment.
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => {
+          setOnline(state.isConnected);
+        }),
+      focusEvent: (setFocused) =>
+        ...,
+      blurEvent: (setFocused) =>
+        ...,
+    }),
+}).build();
+```
+
+# CommandManager
+
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/CommandManager">
+    <div class="pagination-nav__sublabel">CommandManager</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+The CommandManager is responsible for holding the cancelation tokens needed to terminate the requests and for the events
+related to the requests being executed.
+
+# LoggerManager
+
+<p class="pagination-nav__item pagination-nav__item--prev">
+  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/LoggerManager">
+    <div class="pagination-nav__sublabel">LoggerManager</div>
+    <div class="pagination-nav__label">API Docs »</div>
+  </a>
+</p>
+
+LoggerManager is the main instance of the logging system in hyper-fetch. On its basis, we initiate single loggers in
+subsystems that are used in isolation, but still have access to the parent configuration in the builder.

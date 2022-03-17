@@ -29,6 +29,9 @@ process.
 
 ### Custom Client
 
+You can connect any client to communicate with the server and handle it as you want, the only thing that has to match is
+the interface of the output.
+
 ```tsx
 const customHttpClient: ClientType = (command: FetchCommandInstance) => Promise.resolve([null, null, 0]);
 

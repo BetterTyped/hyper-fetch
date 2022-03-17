@@ -1,0 +1,70 @@
+---
+sidebar_position: 2
+---
+
+Hyper-Fetch and React-Hyper-Fetch were written with different environments in which they can be used. Thanks to this,
+the structure of the base library is very generic and modular. This means that we can freely replace a large part of the
+components. In addition, a large part is written in vanilla js, thanks to which we maintain greater stability of our
+solutions between environments.
+
+## Online / Offline status handling
+
+Default events responsible for the online / offline status in the library are based on the events available in the web
+browsers environment. To use the solutions available on mobile devices, we can freely change the code responsible for
+handling the connection status.
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => {
+          setOnline(state.isConnected);
+        }),
+    }),
+}).build();
+```
+
+```tsx
+builder.appManager.setOnline(true);
+```
+
+```tsx
+const { isOnline, setOnline } = useAppManager(builder);
+
+setOnline(true);
+```
+
+## Application focus / blur state
+
+When you want to handle the functions needed to perform requests when the user is actively using the application or
+not - you can use similar logic as in the case of online / offline status
+
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      focusEvent: (setFocused) =>
+        ...,
+      blurEvent: (setBlured) =>
+        ...,
+    }),
+}).build();
+```
+
+```tsx
+builder.appManager.setFocused(true);
+```
+
+```tsx
+const { isFocused, setFocused } = useAppManager(builder);
+
+setFocused(true);
+```
+
+## Particular screen focus / blur state
+
+If we want to implement such logic for a specific screen, we have to use custom solutions where we can use Hooks to
+block requests by prop disabled.

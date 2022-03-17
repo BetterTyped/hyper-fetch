@@ -5,11 +5,13 @@ import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 type UseAppManagerType = {
   isFocused: boolean;
   isOnline: boolean;
+  setOnline: (isOnline: boolean) => void;
+  setFocused: (isFocused: boolean) => void;
 };
 
 export const useAppManager = <B extends FetchBuilderInstance>(builder: B): UseAppManagerType => {
-  const [isOnline, setIsOnline] = useState(builder.appManager.isOnline);
-  const [isFocused, setIsFocused] = useState(builder.appManager.isFocused);
+  const [online, setIsOnline] = useState(builder.appManager.isOnline);
+  const [focused, setIsFocused] = useState(builder.appManager.isFocused);
 
   const mountEvents = () => {
     const unmountIsOnline = builder.appManager.events.onOnline(() => setIsOnline(true));
@@ -25,7 +27,15 @@ export const useAppManager = <B extends FetchBuilderInstance>(builder: B): UseAp
     };
   };
 
+  const setOnline = (isOnline: boolean) => {
+    builder.appManager.setOnline(isOnline);
+  };
+
+  const setFocused = (isFocused: boolean) => {
+    builder.appManager.setFocused(isFocused);
+  };
+
   useDidMount(mountEvents);
 
-  return { isOnline, isFocused };
+  return { isOnline: online, isFocused: focused, setOnline, setFocused };
 };
