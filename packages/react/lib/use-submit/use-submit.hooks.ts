@@ -40,7 +40,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
     const options = parameters[0];
 
-    const commandClone = command.clone(options);
+    const commandClone = cmd.clone(options);
 
     return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
       setCommand(commandClone as T);
