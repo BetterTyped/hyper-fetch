@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate, useIsMounted } from "@better-typed/react-lifecycle-hooks";
 
 import {
   FetchProgressType,
@@ -9,6 +9,8 @@ import {
   ExtractError,
   ExtractFetchReturn,
   CacheValueType,
+  ClientResponseType,
+  CommandResponseDetails,
 } from "@better-typed/hyper-fetch";
 
 import { useDependentState } from "utils/use-dependent-state";
@@ -31,11 +33,13 @@ export const useCommandState = <T extends FetchCommandInstance>({
   initialData,
   logger,
   deepCompare,
+  commandListeners,
+  removeCommandListener,
 }: UseCommandStateOptionsType<T>): UseCommandStateReturnType<T> => {
-  const { builder, cacheKey, queueKey } = command;
-  const { commandManager, cache } = builder;
+  const { cache } = command.builder;
   const commandDump = command.dump();
 
+  const isMounted = useIsMounted();
   const [usedInitialCallbacks, setUsedInitialCallbacks] = useState(false);
 
   const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData, queue, [
@@ -45,6 +49,8 @@ export const useCommandState = <T extends FetchCommandInstance>({
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
+  const onAbortCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
+  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
   const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
   const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
   const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
@@ -53,47 +59,40 @@ export const useCommandState = <T extends FetchCommandInstance>({
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
-  const handleCallbacks = (response: ExtractFetchReturn<T> | undefined) => {
-    if (response) {
-      const status = response[2] || 0;
-      const hasSuccessState = !!(response[0] && !response[1]);
-      const hasSuccessStatus = !!(!response[1] && status >= 200 && status <= 400);
-      if (hasSuccessState || hasSuccessStatus) {
-        logger.debug("Performing success callback", {
-          status,
-          hasSuccessState,
-          hasSuccessStatus,
-          response,
-          hasCallback: !!onSuccessCallback?.current,
-        });
-        onSuccessCallback.current?.(response[0] as ExtractResponse<T>);
-      } else {
-        logger.debug("Performing error callback", {
-          status,
-          hasSuccessState,
-          hasSuccessStatus,
-          response,
-          hasCallback: !!onErrorCallback?.current,
-        });
-        onErrorCallback.current?.(response[1] as ExtractError<T>);
-      }
-      onFinishedCallback.current?.(response);
+  const handleCallbacks = (
+    data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
+    details: CommandResponseDetails,
+  ) => {
+    if (!isMounted) return logger.debug("Callback cancelled, component is unmounted");
+
+    if (details.isOffline && details.isFailed) {
+      logger.debug("Performing offline error callback", { data, details });
+      onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details);
+    } else if (details.isCanceled) {
+      logger.debug("Performing abort callback", { data, details });
+      onAbortCallback.current?.(data[1] as ExtractError<T>, details);
+    } else if (!details.isFailed) {
+      logger.debug("Performing success callback", { data, details });
+      onSuccessCallback.current?.(data[0] as ExtractResponse<T>, details);
     } else {
-      logger.debug("No response to perform callbacks");
+      logger.debug("Performing error callback", { data, details });
+      onErrorCallback.current?.(data[1] as ExtractError<T>, details);
     }
+    onFinishedCallback.current?.(data, details);
   };
 
-  const handleGetResponseData = async (data: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetResponseData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+    const { data, details } = cacheData;
+
     logger.debug("Received new data");
-    handleCallbacks(data.response); // Must be first
 
     const compareFn = typeof deepCompare === "function" ? deepCompare : isEqual;
-    const isEqualResponse = deepCompare ? compareFn(data.response, [state.data, state.error, state.status]) : false;
+    const isEqualResponse = deepCompare ? compareFn(data, [state.data, state.error, state.status]) : false;
 
     if (isEqualResponse) {
-      await actions.setTimestamp(data.timestamp ? new Date(data.timestamp) : null);
+      await actions.setTimestamp(new Date(details.timestamp));
     } else {
-      await actions.setCacheData(data, false);
+      await actions.setCacheData(cacheData, false);
     }
 
     await actions.setLoading(false, false);
@@ -120,22 +119,56 @@ export const useCommandState = <T extends FetchCommandInstance>({
     onRequestStartCallback?.current?.(middleware);
   };
 
-  const handleMountEvents = () => {
-    const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
-    const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
-    const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
-    const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
+  const handleResponse = (queueKey: string) => {
+    return (data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>, details: CommandResponseDetails) => {
+      handleCallbacks(data, details);
+      removeCommandListener(queueKey);
+    };
+  };
 
-    const loadingUnmount = queue.events.onLoading(queueKey, handleGetLoadingEvent);
-    const getResponseUnmount = cache.events.get(cacheKey, handleGetResponseData);
+  const handleMountEvents = () => {
+    const lastRequest = { cacheKey: command.cacheKey, queueKey: command.queueKey, builder: command.builder };
+
+    const unmountArray = commandListeners
+      .reduce<Pick<T, "queueKey" | "builder">[]>(
+        (acc, curr) => {
+          const hasDuplicateListener = acc.find((element) => {
+            return element.queueKey === curr.queueKey && element.builder === curr.builder;
+          });
+          if (!hasDuplicateListener) {
+            acc.push(curr);
+          }
+
+          return acc;
+        },
+        [lastRequest],
+      )
+      .map((listener) => {
+        const { queueKey } = listener;
+        const { commandManager } = listener.builder;
+
+        const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
+        const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
+        const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
+        const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
+        const responseUnmount = commandManager.events.onResponse(queueKey, handleResponse(queueKey));
+
+        return () => {
+          downloadUnmount();
+          uploadUnmount();
+          requestStartUnmount();
+          responseStartUnmount();
+          responseUnmount();
+        };
+      });
+
+    const getResponseUnmount = cache.events.get(command.cacheKey, handleGetResponseData);
+    const loadingUnmount = queue.events.onLoading(command.queueKey, handleGetLoadingEvent);
 
     const unmount = () => {
-      downloadUnmount();
-      uploadUnmount();
-      requestStartUnmount();
-      responseStartUnmount();
-      loadingUnmount();
+      unmountArray.forEach((callback) => callback());
       getResponseUnmount();
+      loadingUnmount();
     };
 
     unmountCallbacks.current?.();
@@ -190,6 +223,12 @@ export const useCommandState = <T extends FetchCommandInstance>({
       },
       onError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
         onErrorCallback.current = callback;
+      },
+      onAbort: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+        onAbortCallback.current = callback;
+      },
+      onOfflineError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+        onOfflineErrorCallback.current = callback;
       },
       onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
         onFinishedCallback.current = callback;

@@ -19,12 +19,13 @@ export const getUsers = builder.createCommand<UserModel[]>()({
 export const postUser = builder.createCommand<UserModel, PostUserModel>()({
   endpoint: "/api/user",
   method: "POST",
+  cancelable: true,
 });
 
 export const patchUser = builder.createCommand<UserModel, PostUserModel>()({
   endpoint: "/api/user/:userId",
   method: "PATCH",
-  cancelable: true,
+  cancelable: false,
 });
 
 export const deleteUser = builder.createCommand()({

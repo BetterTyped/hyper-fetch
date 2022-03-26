@@ -25,6 +25,8 @@ export const useCache = <T extends FetchCommandInstance>(
     initialData,
     logger,
     deepCompare,
+    commandListeners: [],
+    removeCommandListener: () => undefined,
   });
 
   const invalidate = (invalidateKey?: string | FetchCommandInstance | RegExp) => {

@@ -12,7 +12,7 @@ import { isEqual } from "utils";
 
 export type UseCacheOptionsType<T extends FetchCommandInstance> = {
   dependencyTracking?: boolean;
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
+  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   deepCompare?: boolean | typeof isEqual;
 };
 

@@ -6,8 +6,10 @@ import {
   NullableType,
   FetchCommandInstance,
 } from "@better-typed/hyper-fetch";
+import { getDetailsState } from "./use-dependent-state";
 
 export const getCacheInitialData = <T extends FetchCommandInstance>(
+  command: T,
   response: NullableType<ExtractFetchReturn<T>>,
 ): CacheValueType<ExtractResponse<T>, ExtractError<T>> | null => {
   if (!response) {
@@ -15,10 +17,10 @@ export const getCacheInitialData = <T extends FetchCommandInstance>(
   }
 
   return {
-    response,
-    retries: 0,
-    timestamp: +new Date(),
-    isRefreshed: false,
+    data: response,
+    details: getDetailsState(command),
+    refreshError: null,
+    retryError: null,
   };
 };
 
@@ -27,7 +29,7 @@ export const getFreshCacheState = (
   useOnMount: boolean,
   cacheTime?: number,
 ): CacheValueType | undefined => {
-  if (useOnMount && cacheData && cacheTime && +cacheData.timestamp + cacheTime > +new Date()) {
+  if (useOnMount && cacheData && cacheTime && +cacheData.details.timestamp + cacheTime > +new Date()) {
     return cacheData;
   }
   return undefined;

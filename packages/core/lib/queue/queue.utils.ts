@@ -1,3 +1,6 @@
+import { FetchCommandInstance } from "command";
+import { QueueRequestType } from "queue";
+
 export const getQueueLoadingEventKey = (key: string): string => {
   return `${key}-loading-event`;
 };
@@ -27,4 +30,19 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
     return true;
   }
   return false;
+};
+
+export const getRequestType = (command: FetchCommandInstance, hasRunningRequests: boolean) => {
+  const { concurrent, cancelable, deduplicate } = command;
+
+  if (!concurrent) {
+    return QueueRequestType.oneByOne;
+  }
+  if (cancelable) {
+    return QueueRequestType.previousCanceled;
+  }
+  if (hasRunningRequests && deduplicate) {
+    return QueueRequestType.deduplicated;
+  }
+  return QueueRequestType.allAtOnce;
 };

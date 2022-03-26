@@ -5,6 +5,7 @@ import { isStaleCacheData } from "utils";
 import { useDebounce } from "utils/use-debounce";
 import { UseSubmitOptionsType, UseSubmitReturnType, useSubmitDefaultOptions } from "use-submit";
 import { useCommandState } from "utils/use-command-state";
+import { useIsMounted } from "@better-typed/react-lifecycle-hooks";
 
 export const useSubmit = <T extends FetchCommandInstance>(
   cmd: T,
@@ -18,16 +19,35 @@ export const useSubmit = <T extends FetchCommandInstance>(
   }: // suspense = useSubmitDefaultOptions.suspense,
   UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
+  const isMounted = useIsMounted();
+  const requestDebounce = useDebounce(debounceTime);
+
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's actual value
-   * and assign the command to the state once we trigger submit because this is ultimate moment when it's automated value is assigned
+   * and assign the command to the state once we trigger submit because this is the moment that define the automated
+   * queueKey / cacheKey values and till the end those may change
    */
   const [command, setCommand] = useState(cmd);
+  const [commandListeners, setCommandListeners] = useState<Pick<T, "queueKey" | "builder">[]>([]);
 
   const { cacheTime, builder } = command;
-  const requestDebounce = useDebounce(debounceTime);
   const { cache, submitQueue, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
+
+  const addCommandListener = (triggeredCommand: FetchCommandInstance) => {
+    if (isMounted) {
+      const newItem = { queueKey: triggeredCommand.queueKey, builder: triggeredCommand.builder };
+      setCommandListeners((prev) => [...prev, newItem]);
+    }
+  };
+
+  const removeCommandListener = (queueKey: string) => {
+    if (isMounted) {
+      const index = commandListeners.findIndex((element) => element.queueKey === queueKey);
+      setCommandListeners((prev) => prev.splice(index, 1));
+    }
+  };
+
   const [state, actions, { setRenderKey }] = useCommandState({
     command,
     queue: submitQueue,
@@ -35,6 +55,8 @@ export const useSubmit = <T extends FetchCommandInstance>(
     initialData,
     logger,
     deepCompare,
+    commandListeners,
+    removeCommandListener,
   });
 
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
@@ -48,6 +70,8 @@ export const useSubmit = <T extends FetchCommandInstance>(
       const performSubmit = async () => {
         if (!disabled) {
           logger.debug(`Adding request to submit queue`, { disabled, options });
+
+          addCommandListener(command);
 
           if (debounce) {
             requestDebounce.debounce(async () => {

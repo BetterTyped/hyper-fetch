@@ -38,13 +38,13 @@ export const UserForm: React.FC = () => {
   // eslint-disable-next-line no-console
   onSubmitSuccess((response) => console.log(2, response));
   // eslint-disable-next-line no-console
-  onPatchError((err) => console.log(1, err));
+  onPatchError((err) => console.log(3, err));
   // eslint-disable-next-line no-console
-  onPatchSuccess((response) => console.log(2, response));
+  onPatchSuccess((response) => console.log(4, response));
   // eslint-disable-next-line no-console
-  onQueueError((err) => console.log(1, err));
+  onQueueError((err) => console.log(5, err));
   // eslint-disable-next-line no-console
-  onQueueSuccess((response) => console.log(2, response));
+  onQueueSuccess((response) => console.log(6, response));
 
   return (
     <div>
@@ -65,7 +65,7 @@ export const UserForm: React.FC = () => {
         <b>timestamp:</b> {timestamp?.toDateString()} {timestamp?.toLocaleTimeString()}
       </div>
       <h3>User Form Patch:</h3>
-      <button type="button" onClick={() => submitPatch({ params: { userId: 14 } })}>
+      <button type="button" onClick={() => submitPatch({ params: { userId: Math.random() } })}>
         Submit Patch
       </button>
       <div>

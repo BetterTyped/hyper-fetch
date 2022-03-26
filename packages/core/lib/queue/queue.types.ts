@@ -1,5 +1,5 @@
 import { FetchCommandDump, FetchCommandInstance } from "command";
-import { Queue } from "queues";
+import { Queue } from "queue";
 
 export type QueueOptionsType<ErrorType, HttpOptions> = {
   storage?: QueueStorageType<HttpOptions>;
@@ -52,4 +52,5 @@ export type RunningRequestValueType = {
 export type QueueLoadingEventType = {
   isLoading: boolean;
   isRetry: boolean;
+  isOffline: boolean;
 };

@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useRef, useState } from "react";
+import { useDidUpdate, useIsMounted } from "@better-typed/react-lifecycle-hooks";
 
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
@@ -32,13 +32,31 @@ export const useFetch = <T extends FetchCommandInstance>(
   const { cacheTime, cacheKey, queueKey, builder } = command;
   const commandDump = command.dump();
 
+  const isMounted = useIsMounted();
   const requestDebounce = useDebounce(debounceTime);
   const refreshInterval = useInterval(refreshTime);
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
+  const [commandListeners, setCommandListeners] = useState<Pick<T, "queueKey" | "builder">[]>([]);
+
   const { cache, fetchQueue, appManager, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useFetch")).current;
+
+  const addCommandListener = (triggeredCommand: FetchCommandInstance) => {
+    if (isMounted) {
+      const newItem = { queueKey: triggeredCommand.queueKey, builder: triggeredCommand.builder };
+      setCommandListeners((prev) => [...prev, newItem]);
+    }
+  };
+
+  const removeCommandListener = (key: string) => {
+    if (isMounted) {
+      const index = commandListeners.findIndex((element) => element.queueKey === key);
+      setCommandListeners((prev) => prev.splice(index, 1));
+    }
+  };
+
   const [state, actions, { setRenderKey, initialized }] = useCommandState({
     command,
     queue: fetchQueue,
@@ -46,6 +64,8 @@ export const useFetch = <T extends FetchCommandInstance>(
     initialData,
     logger,
     deepCompare,
+    commandListeners: [],
+    removeCommandListener,
   });
 
   const handleFetch = () => {
@@ -56,6 +76,7 @@ export const useFetch = <T extends FetchCommandInstance>(
      */
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
+      addCommandListener(command);
       fetchQueue.add(command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
@@ -64,7 +85,6 @@ export const useFetch = <T extends FetchCommandInstance>(
 
   const handleRefresh = () => {
     refreshInterval.resetInterval();
-
     const { timestamp } = state;
 
     let timeLeft = refreshTime;
@@ -80,27 +100,22 @@ export const useFetch = <T extends FetchCommandInstance>(
     if (refresh) {
       logger.debug(`Starting refresh counter, request will be send in ${timeLeft}ms`);
       refreshInterval.interval(async () => {
-        const queueStorage = await fetchQueue.get(queueKey);
         const isBlur = !appManager.isFocused;
 
         // If window tab is not active should we refresh the cache
         const canRefreshBlurred = isBlur && refreshBlurred;
-        const canRefresh = canRefreshBlurred || appManager.isFocused;
-        const hasQueueElements = !!queueStorage.requests.length;
+        const canRefresh = canRefreshBlurred || !isBlur;
 
-        if (!hasQueueElements && canRefresh) {
+        if (canRefresh) {
           logger.debug(`Performing refresh request`, {
-            hasQueueElements,
             canRefresh,
             isFocused: appManager.isFocused,
             timestamp: state.timestamp,
           });
 
           handleFetch();
-          refreshInterval.resetInterval();
         } else {
           logger.debug(`Cannot trigger refresh request`, {
-            hasQueueElements,
             canRefresh,
             isFocused: appManager.isFocused,
             timestamp: state.timestamp,
@@ -181,7 +196,7 @@ export const useFetch = <T extends FetchCommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    if (!fetchQueue.getRequestCount(queueKey) && debounce) {
+    if (!fetchQueue.getQueueRequestCount(queueKey) && debounce) {
       logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
     } else {

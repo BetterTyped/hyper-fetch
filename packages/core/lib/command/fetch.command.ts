@@ -21,7 +21,6 @@ import { FetchBuilder } from "builder";
 import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
 import { FetchAction } from "action";
-import { FetchQueue } from "queues";
 import { getUniqueRequestId } from "utils";
 
 /**
@@ -67,9 +66,8 @@ export class FetchCommand<
   cacheKey: string;
   queueKey: string;
   actions: string[] = [];
-  disabled: boolean;
   used: boolean;
-  invalidate: (string | RegExp)[];
+  deduplicate: boolean;
 
   private logger: LoggerMethodsType;
 
@@ -112,7 +110,7 @@ export class FetchCommand<
       abortKey,
       cacheKey,
       queueKey,
-      invalidate = [],
+      deduplicate = false,
     } = { ...this.builder.commandOptions, ...commandOptions };
 
     this.endpoint = commandDump?.endpoint || endpoint;
@@ -135,9 +133,8 @@ export class FetchCommand<
     this.cacheKey = commandDump?.cacheKey || cacheKey || getCommandKey(this);
     this.queueKey = commandDump?.queueKey || queueKey || getCommandKey(this);
     this.actions = commandDump?.actions || [];
-    this.disabled = commandDump?.disabled || false;
     this.used = commandDump?.used || false;
-    this.invalidate = commandDump?.invalidate || invalidate;
+    this.deduplicate = commandDump?.deduplicate || deduplicate;
 
     this.updatedAbortKey = commandDump?.updatedAbortKey || false;
     this.updatedCacheKey = commandDump?.updatedCacheKey || false;
@@ -212,8 +209,8 @@ export class FetchCommand<
     return this.clone({ queueKey });
   };
 
-  public setDisabled = (disabled: boolean) => {
-    return this.clone({ disabled });
+  public setDeduplicate = (deduplicate: boolean) => {
+    return this.clone({ deduplicate });
   };
 
   public setUsed = (used: boolean) => {
@@ -279,12 +276,11 @@ export class FetchCommand<
         cacheKey: this.cacheKey,
         queueKey: this.queueKey,
         actions: this.actions,
-        disabled: this.disabled,
         used: this.used,
-        invalidate: this.invalidate,
         updatedAbortKey: this.updatedAbortKey,
         updatedCacheKey: this.updatedCacheKey,
         updatedQueueKey: this.updatedQueueKey,
+        deduplicate: this.deduplicate,
       },
     };
   }
@@ -424,8 +420,7 @@ export class FetchCommand<
         MappedData
       >,
     );
-    const queue = getCommandQueue(this, options?.queueType);
-    const isFetchQueue = queue instanceof FetchQueue;
+    const [queue, isFetchQueue] = getCommandQueue(this, options?.queueType);
 
     return new Promise<ClientResponseType<ResponseType, ErrorType | RequestErrorType>>((resolve) => {
       const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType | RequestErrorType>(
@@ -438,9 +433,12 @@ export class FetchCommand<
 
       queue.add(command);
 
-      this.logger.http(`Performing send method and adding command to ${isFetchQueue ? "fetch" : "submit"} queue`, {
-        command,
-      });
+      this.logger.http(
+        `Performing send method and adding command to ${isFetchQueue ? "Fetch" : "Submit"} Queue queue`,
+        {
+          command,
+        },
+      );
     });
   };
 }

@@ -1,5 +1,6 @@
 import { Cache } from "cache";
 import { ClientResponseType } from "client";
+import { CommandResponseDetails } from "managers";
 
 export type CacheOptionsType<ErrorType, HttpOptions> = {
   storage?: CacheStorageType;
@@ -13,22 +14,10 @@ export type CacheStoreValueType<T = any> = CacheValueType<T>;
 
 export type CacheKeyType = string;
 export type CacheValueType<DataType = any, ErrorType = any> = {
-  response: ClientResponseType<DataType, ErrorType>;
-  retries: number;
-  timestamp: number;
-  refreshError?: ErrorType;
-  retryError?: ErrorType;
-  isRefreshed: boolean;
-};
-
-// Events
-export type CacheSetDataType<Response, ErrorType> = {
-  cache: boolean;
-  cacheKey: CacheKeyType;
-  response: ClientResponseType<Response, ErrorType>;
-  retries?: number;
-  isRefreshed?: boolean;
-  timestamp?: number;
+  data: ClientResponseType<DataType, ErrorType>;
+  details: CommandResponseDetails;
+  refreshError: ErrorType | null;
+  retryError: ErrorType | null;
 };
 
 // Storage

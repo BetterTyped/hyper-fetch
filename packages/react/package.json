@@ -46,7 +46,7 @@
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@better-typed/react-lifecycle-hooks": "^1.0.2"
+    "@better-typed/react-lifecycle-hooks": "^1.0.4"
   },
   "devDependencies": {
     "@babel/preset-react": "^7.16.7",

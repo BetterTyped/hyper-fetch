@@ -2,13 +2,13 @@ import { waitFor } from "@testing-library/dom";
 
 import { getAbortController } from "command";
 
-import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
-import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
-import { sleep } from "../../../utils/utils/sleep";
+import { resetMocks, startServer, stopServer, testBuilder } from "../../utils/server";
+import { getManyRequest, interceptGetMany } from "../../utils/mocks";
+import { sleep } from "../../utils/utils/sleep";
 
 const { queueKey } = getManyRequest;
 
-describe("[Basic] FetchQueue", () => {
+describe("[Basic] Queue", () => {
   beforeAll(() => {
     startServer();
   });
@@ -39,36 +39,33 @@ describe("[Basic] FetchQueue", () => {
     });
 
     it("should cancel already submitted request", async () => {
-      const cacheTrigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200, 100);
-      testBuilder.cache.events.get(queueKey, cacheTrigger);
 
       const request = getManyRequest.setCancelable(true).setConcurrent(true);
 
       testBuilder.fetchQueue.add(request);
-      await sleep(10);
+      await sleep(1);
       getAbortController(request)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
-      await sleep(10);
+      await sleep(1);
       getAbortController(request)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);
       await waitFor(() => {
         expect(cancelTrigger).toBeCalledTimes(2);
       });
-      await waitFor(() => {
-        expect(cacheTrigger).toBeCalledTimes(1);
-      });
       getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
     it("should deduplicate two submitted requests", async () => {
+      await sleep(100);
+
       const cacheTrigger = jest.fn();
       const cancelTrigger = jest.fn();
       interceptGetMany(200, 10);
       testBuilder.cache.events.get(queueKey, cacheTrigger);
 
-      const request = getManyRequest;
+      const request = getManyRequest.setDeduplicate(true);
 
       getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
       testBuilder.fetchQueue.add(request);

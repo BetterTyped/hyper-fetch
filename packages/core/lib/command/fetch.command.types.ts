@@ -28,12 +28,11 @@ export type FetchCommandDump<ClientOptions, Command = unknown> = {
     cacheKey: string;
     queueKey: string;
     actions: string[];
-    disabled: boolean;
     used: boolean;
     updatedAbortKey: boolean;
     updatedCacheKey: boolean;
     updatedQueueKey: boolean;
-    invalidate: (string | RegExp)[];
+    deduplicate: boolean;
   };
 };
 
@@ -56,8 +55,7 @@ export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> =
   abortKey?: string;
   cacheKey?: string;
   queueKey?: string;
-  disabled?: boolean;
-  invalidate?: (string | RegExp)[];
+  deduplicate?: boolean;
 };
 
 export type FetchCommandData<PayloadType, MappedData> =
@@ -79,12 +77,11 @@ export type FetchCommandCurrentType<
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
   actions?: string[];
-  disabled?: boolean;
   used?: boolean;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
-  invalidate?: (string | RegExp)[];
+  deduplicate?: boolean;
 } & Partial<NullableKeys<FetchCommandOptions<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;

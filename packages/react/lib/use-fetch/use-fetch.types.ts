@@ -22,7 +22,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
   dependencyTracking?: boolean;
   revalidateOnMount?: boolean;
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
+  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   refresh?: boolean;
   refreshTime?: number;
   refreshBlurred?: boolean;

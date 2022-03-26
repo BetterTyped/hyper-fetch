@@ -3,7 +3,7 @@ import { stringify } from "cache";
 import { FetchProgressType } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { FetchQueue, SubmitQueue } from "queues";
+import { Queue } from "queue";
 import { ExtractClientOptions, ExtractError } from "types";
 
 export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
@@ -109,13 +109,11 @@ export const getCommandKey = (
 export const getCommandQueue = <Command extends FetchCommandInstance>(
   command: Command,
   queueType: "auto" | "fetch" | "submit" = "auto",
-) => {
+): [Queue<ExtractError<Command>, ExtractClientOptions<Command>>, boolean] => {
   const { fetchQueue, submitQueue } = command.builder;
   const isGet = command.method === HttpMethodsEnum.get;
   const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
-  const queue = isFetchQueue
-    ? (fetchQueue as FetchQueue<ExtractError<Command>, ExtractClientOptions<Command>>)
-    : (submitQueue as SubmitQueue<ExtractError<Command>, ExtractClientOptions<Command>>);
+  const queue = isFetchQueue ? fetchQueue : submitQueue;
 
-  return queue;
+  return [queue, isFetchQueue];
 };

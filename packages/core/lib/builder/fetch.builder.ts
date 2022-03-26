@@ -18,7 +18,7 @@ import {
 } from "builder";
 import { Cache } from "cache";
 import { FetchActionInstance } from "action";
-import { FetchQueue, SubmitQueue } from "queues";
+import { Queue } from "queue";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
@@ -49,8 +49,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
   // Config
   client: ClientType;
   cache: Cache<ErrorType, HttpOptions>;
-  fetchQueue: FetchQueue<ErrorType, HttpOptions>;
-  submitQueue: SubmitQueue<ErrorType, HttpOptions>;
+  fetchQueue: Queue<ErrorType, HttpOptions>;
+  submitQueue: Queue<ErrorType, HttpOptions>;
 
   // Utils
   stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsOptions);
@@ -81,8 +81,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.cache = cache?.(this) || new Cache(this);
     this.appManager = appManager?.(this) || new AppManager<ErrorType, HttpOptions>(this);
-    this.fetchQueue = fetchQueue?.(this) || new FetchQueue<ErrorType, HttpOptions>(this);
-    this.submitQueue = submitQueue?.(this) || new SubmitQueue<ErrorType, HttpOptions>(this);
+    this.fetchQueue = fetchQueue?.(this) || new Queue<ErrorType, HttpOptions>(this);
+    this.submitQueue = submitQueue?.(this) || new Queue<ErrorType, HttpOptions>(this);
   }
 
   setHttpOptions = (httpOptions: HttpOptions): FetchBuilder<ErrorType, HttpOptions> => {
@@ -295,8 +295,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
     /**
      * Start flushing persistent queues
      */
-    this.fetchQueue.flushAll();
-    this.submitQueue.flushAll();
+    this.fetchQueue.flush();
+    this.submitQueue.flush();
 
     this.logger.info("Initialized Builder");
 

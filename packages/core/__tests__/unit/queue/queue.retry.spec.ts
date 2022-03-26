@@ -1,12 +1,12 @@
 import { waitFor } from "@testing-library/dom";
 
-import { resetMocks, startServer, stopServer, testBuilder } from "../../../utils/server";
-import { getManyRequest, interceptGetMany } from "../../../utils/mocks";
-import { sleep } from "../../../utils/utils/sleep";
+import { resetMocks, startServer, stopServer, testBuilder } from "../../utils/server";
+import { getManyRequest, interceptGetMany } from "../../utils/mocks";
+import { sleep } from "../../utils/utils/sleep";
 
 const { queueKey } = getManyRequest;
 
-describe("[Retry] FetchQueue", () => {
+describe("[Retry] Queue", () => {
   beforeAll(() => {
     startServer();
   });

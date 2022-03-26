@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { QueueLoadingEventType, QueueData } from "queues";
+import { QueueLoadingEventType, QueueData } from "queue";
 import {
   getQueueLoadingEventKey,
   getQueueDrainedEventKey,

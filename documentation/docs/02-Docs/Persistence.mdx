@@ -31,9 +31,9 @@ export const builder = new FetchBuilder<ServerErrorType>({
 ## Queues Persistance
 
 In the case of persisten queues, there are still a few open topics left in the context of web development. First of all,
-it is about synchronization between browser tabs and the introduction of a leader system when it comes to having several
+it is about synchronization between browser tabs and the introduction of a "leader system" when it comes to having several
 channels for data synchronization. Due to the freedom of storage that we can place here and their potential
-asynchronicity - we need a few more considerations on how to solve this.
+asynchronicity - we need a few more considerations on how to solve this flow properly.
 
 ```tsx
 export const builder = new FetchBuilder<ServerErrorType>({

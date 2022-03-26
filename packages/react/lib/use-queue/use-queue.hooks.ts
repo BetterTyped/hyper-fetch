@@ -21,8 +21,8 @@ export const useQueue = <Command extends FetchCommandInstance>(
   const [requests, setRequests] = useState<QueueRequest<Command>[]>([]);
 
   const getInitialState = async () => {
-    const queue = queueRef.current;
-    const commandQueue = await queue.get<Command>(queueKey);
+    const [queue] = queueRef.current;
+    const commandQueue = await queue.getQueue<Command>(queueKey);
 
     setStopped(commandQueue.stopped);
     setRequests(commandQueue.requests);
@@ -30,7 +30,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
   };
 
   const mountEvents = () => {
-    const queue = queueRef.current;
+    const [queue] = queueRef.current;
     const unmountChange = queue.events.onQueueChange<Command>(queueKey, (values) => {
       setStopped(values.stopped);
       setRequests([...values.requests]);
@@ -78,8 +78,8 @@ export const useQueue = <Command extends FetchCommandInstance>(
     connecting,
     stopped,
     requests,
-    stopQueue: () => queueRef.current.stopQueue(queueKey),
-    pauseQueue: () => queueRef.current.pauseQueue(queueKey),
-    startQueue: () => queueRef.current.startQueue(queueKey),
+    stopQueue: () => queueRef.current[0].stopQueue(queueKey),
+    pauseQueue: () => queueRef.current[0].pauseQueue(queueKey),
+    startQueue: () => queueRef.current[0].startQueue(queueKey),
   };
 };

@@ -1,9 +1,10 @@
 import EventEmitter from "events";
 
-import { LoggerMethodsType } from "managers";
+import { CommandResponseDetails, LoggerMethodsType } from "managers";
 import { FetchBuilder } from "builder";
 import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from "cache";
-import { CacheStoreKeyType, CacheValueType, CacheStoreValueType, CacheSetDataType } from "./cache.types";
+import { ClientResponseType } from "client";
+import { CacheStoreKeyType, CacheValueType, CacheStoreValueType } from "./cache.types";
 
 /**
  * Cache class handles the data exchange with the queues.
@@ -69,8 +70,13 @@ export class Cache<ErrorType, HttpOptions> {
     }
   }
 
-  set = async <Response>(data: CacheSetDataType<Response, ErrorType>): Promise<void> => {
-    const { cache, cacheKey, response, retries = 0, isRefreshed = false, timestamp = +new Date() } = data;
+  set = async <Response>(
+    cacheKey: string,
+    response: ClientResponseType<Response, ErrorType>,
+    details: CommandResponseDetails,
+    useCache: boolean,
+  ): Promise<void> => {
+    const { retries, isRefreshed } = details;
     const cachedData = await this.storage.get(cacheKey);
 
     // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
@@ -79,21 +85,21 @@ export class Cache<ErrorType, HttpOptions> {
     const retryError = retries ? response[1] : null;
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const dataToSave = getCacheData(cachedData?.response, response, refreshError, retryError);
+    const data = getCacheData(cachedData?.data, response, refreshError, retryError);
 
-    const newData: CacheValueType = { response: dataToSave, retries, refreshError, retryError, isRefreshed, timestamp };
+    const newCacheData: CacheValueType = { data, details, refreshError, retryError };
 
     // If request should not use cache - just emit response data
-    if (!cache) {
+    if (!useCache) {
       this.logger.debug(`Only emitting payload as command cache is off`, data);
 
-      return this.events.set<Response>(cacheKey, newData);
+      return this.events.set<Response>(cacheKey, newCacheData);
     }
 
     // Cache response emitter to provide optimization for libs(re-rendering)
     this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
-    await this.storage.set(cacheKey, newData);
-    this.events.set<Response>(cacheKey, newData);
+    await this.storage.set(cacheKey, newCacheData);
+    this.events.set<Response>(cacheKey, newCacheData);
   };
 
   get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {

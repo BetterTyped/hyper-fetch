@@ -22,7 +22,7 @@ export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
   invalidate?: (string | FetchCommandInstance)[];
   cacheOnMount?: boolean;
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["response"] | null;
+  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   debounce?: boolean;
   debounceTime?: number;
   suspense?: boolean;
