@@ -35,6 +35,7 @@ export const useCommandState = <T extends FetchCommandInstance>({
   deepCompare,
   commandListeners,
   removeCommandListener,
+  refresh,
 }: UseCommandStateOptionsType<T>): UseCommandStateReturnType<T> => {
   const { cache } = command.builder;
   const commandDump = command.dump();
@@ -42,7 +43,7 @@ export const useCommandState = <T extends FetchCommandInstance>({
   const isMounted = useIsMounted();
   const [usedInitialCallbacks, setUsedInitialCallbacks] = useState(false);
 
-  const [state, actions, setRenderKey, initialized] = useDependentState<T>(command, initialData, queue, [
+  const [state, actions, setRenderKey, initialized, setCacheData] = useDependentState<T>(command, initialData, queue, [
     JSON.stringify(commandDump),
   ]);
 
@@ -65,13 +66,15 @@ export const useCommandState = <T extends FetchCommandInstance>({
   ) => {
     if (!isMounted) return logger.debug("Callback cancelled, component is unmounted");
 
-    if (details.isOffline && details.isFailed) {
+    const { isOffline, isFailed, isCanceled } = details;
+
+    if (isOffline && isFailed) {
       logger.debug("Performing offline error callback", { data, details });
       onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details);
-    } else if (details.isCanceled) {
+    } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
       onAbortCallback.current?.(data[1] as ExtractError<T>, details);
-    } else if (!details.isFailed) {
+    } else if (!isFailed) {
       logger.debug("Performing success callback", { data, details });
       onSuccessCallback.current?.(data[0] as ExtractResponse<T>, details);
     } else {
@@ -81,21 +84,32 @@ export const useCommandState = <T extends FetchCommandInstance>({
     onFinishedCallback.current?.(data, details);
   };
 
-  const handleGetResponseData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetResponseData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     const { data, details } = cacheData;
+    const { isCanceled, isFailed, isOffline } = details;
 
     logger.debug("Received new data");
+
+    if (isCanceled) {
+      return logger.debug("Skipping canceled error response data");
+    }
+
+    if (isFailed && isOffline) {
+      return logger.debug("Skipping offline error response data");
+    }
+
+    refresh?.();
 
     const compareFn = typeof deepCompare === "function" ? deepCompare : isEqual;
     const isEqualResponse = deepCompare ? compareFn(data, [state.data, state.error, state.status]) : false;
 
     if (isEqualResponse) {
-      await actions.setTimestamp(new Date(details.timestamp));
+      actions.setTimestamp(new Date(details.timestamp), false);
     } else {
-      await actions.setCacheData(cacheData, false);
+      setCacheData(cacheData);
     }
 
-    await actions.setLoading(false, false);
+    actions.setLoading(false, false);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {

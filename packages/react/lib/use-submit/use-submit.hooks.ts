@@ -112,6 +112,8 @@ export const useSubmit = <T extends FetchCommandInstance>(
     onSubmitResponseStart: actions.onResponseStart,
     onSubmitDownloadProgress: actions.onDownloadProgress,
     onSubmitUploadProgress: actions.onUploadProgress,
+    onSubmitOfflineError: actions.onOfflineError,
+    onSubmitAbort: actions.onAbort,
   };
 
   return {
@@ -131,10 +133,6 @@ export const useSubmit = <T extends FetchCommandInstance>(
     get status() {
       setRenderKey("status");
       return state.status;
-    },
-    get retryError() {
-      setRenderKey("retryError");
-      return state.retryError;
     },
     get retries() {
       setRenderKey("retries");

@@ -19,8 +19,6 @@ export const getCacheInitialData = <T extends FetchCommandInstance>(
   return {
     data: response,
     details: getDetailsState(command),
-    refreshError: null,
-    retryError: null,
   };
 };
 
@@ -39,4 +37,17 @@ export const isStaleCacheData = (cacheTime: NullableType<number>, timestamp: Nul
   if (!timestamp) return true;
   if (!cacheTime) return false;
   return +new Date() > +timestamp + cacheTime;
+};
+
+export const getCacheRefreshTime = (refreshTime: number, timestamp: Date | null) => {
+  let timeLeft = refreshTime;
+  if (timestamp) {
+    const diff = +new Date() - +timestamp;
+    if (diff >= 0 && diff < refreshTime) {
+      timeLeft = refreshTime - diff;
+    } else {
+      timeLeft = 0;
+    }
+  }
+  return timeLeft;
 };

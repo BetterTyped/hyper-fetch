@@ -1,16 +1,15 @@
 import { FetchCommandInstance } from "command";
-import { ExtractError, ExtractFetchReturn } from "types";
+import { ExtractFetchReturn } from "types";
 
 export const getCacheData = <T extends FetchCommandInstance>(
   previousResponse: ExtractFetchReturn<T> | undefined,
   response: ExtractFetchReturn<T>,
-  refreshError: ExtractError<T> | null,
-  retryError: ExtractError<T> | null,
 ): ExtractFetchReturn<T> => {
-  if ((retryError || refreshError) && previousResponse?.[0]) {
-    return previousResponse;
-  }
-  return response;
+  const data = response[0] || previousResponse?.[0] || null;
+  const error = response[1];
+  const status = response[2];
+
+  return [data, error, status];
 };
 
 export const stringify = (value: unknown): string => {

@@ -63,14 +63,6 @@ export const useCache = <T extends FetchCommandInstance>(
       setRenderKey("status");
       return state.status;
     },
-    get retryError() {
-      setRenderKey("retryError");
-      return state.retryError;
-    },
-    get refreshError() {
-      setRenderKey("refreshError");
-      return state.refreshError;
-    },
     get isRefreshed() {
       setRenderKey("isRefreshed");
       return state.isRefreshed;

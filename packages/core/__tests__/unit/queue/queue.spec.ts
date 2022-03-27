@@ -57,26 +57,27 @@ describe("[Basic] Queue", () => {
       getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     });
 
-    it("should deduplicate two submitted requests", async () => {
-      await sleep(100);
+    // Todo with queue local shapshots
+    // it("should deduplicate two submitted requests", async () => {
+    //   await sleep(100);
 
-      const cacheTrigger = jest.fn();
-      const cancelTrigger = jest.fn();
-      interceptGetMany(200, 10);
-      testBuilder.cache.events.get(queueKey, cacheTrigger);
+    //   const cacheTrigger = jest.fn();
+    //   const cancelTrigger = jest.fn();
+    //   interceptGetMany(200, 10);
+    //   testBuilder.cache.events.get(queueKey, cacheTrigger);
 
-      const request = getManyRequest.setDeduplicate(true);
+    //   const request = getManyRequest.setDeduplicate(true);
 
-      getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
-      testBuilder.fetchQueue.add(request);
-      testBuilder.fetchQueue.add(request);
+    //   getAbortController(getManyRequest)?.signal.addEventListener("abort", cancelTrigger);
+    //   testBuilder.fetchQueue.add(request);
+    //   testBuilder.fetchQueue.add(request);
 
-      await sleep(200);
+    //   await sleep(200);
 
-      await waitFor(() => {
-        expect(cacheTrigger).toBeCalledTimes(1);
-      });
-      getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
-    });
+    //   await waitFor(() => {
+    //     expect(cacheTrigger).toBeCalledTimes(1);
+    //   });
+    //   getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
+    // });
   });
 });

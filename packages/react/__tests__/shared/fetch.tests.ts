@@ -7,9 +7,9 @@ import { getCurrentState } from "../utils/utils";
 export const testFetchInitialState = <H extends RenderHookResult<any, any, any>>(render: H): void => {
   const response = getCurrentState(render);
 
-  expect(response.data).toEqual(null);
-  expect(response.status).toEqual(null);
-  expect(response.error).toEqual(null);
+  expect(response.data).toStrictEqual(null);
+  expect(response.status).toStrictEqual(null);
+  expect(response.error).toStrictEqual(null);
 };
 
 export const testFetchSuccessState = <
@@ -24,8 +24,8 @@ export const testFetchSuccessState = <
 
   expect(response.data).toMatchObject(mock as Record<string, unknown>);
   expect(status).toBe(200);
-  expect(response.loading).toEqual(false);
-  expect(response.error).toEqual(null);
+  expect(response.loading).toStrictEqual(false);
+  expect(response.error).toStrictEqual(null);
 };
 
 export const testFetchErrorState = <
@@ -40,8 +40,8 @@ export const testFetchErrorState = <
 
   expect(response.error).toMatchObject(mock);
   expect(status >= 400 && status < 600).toBeTruthy();
-  expect(response.loading).toEqual(false);
-  expect(response.data).toEqual(null);
+  expect(response.loading).toStrictEqual(false);
+  expect(response.data).toStrictEqual(null);
 };
 
 export const testRefreshFetchSuccessState = <
@@ -56,9 +56,9 @@ export const testRefreshFetchSuccessState = <
 
   expect(response.data).toMatchObject(mock as Record<string, unknown>);
   expect(status >= 200 && status < 300).toBeTruthy();
-  expect(response.isRefreshed).toEqual(true);
-  expect(response.loading).toEqual(false);
-  expect(response.error).toEqual(null);
+  expect(response.isRefreshed).toStrictEqual(true);
+  expect(response.loading).toStrictEqual(false);
+  expect(response.error).toStrictEqual(null);
 };
 
 export const testRefreshFetchErrorState = <
@@ -71,9 +71,8 @@ export const testRefreshFetchErrorState = <
   const response = getCurrentState(render);
   const status = response.status || 0;
 
-  expect(response.error).toEqual(null);
-  expect(status >= 200 && status < 300).toBeTruthy();
-  expect(response.isRefreshed).toEqual(true);
-  expect(response.refreshError).toEqual(mock);
-  expect(response.loading).toEqual(false);
+  expect(response.error).toStrictEqual(mock);
+  expect(status >= 400).toBeTruthy();
+  expect(response.isRefreshed).toStrictEqual(true);
+  expect(response.loading).toStrictEqual(false);
 };

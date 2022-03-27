@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./lib"
   },
-  "include": ["./lib", "./__tests__"],
+  "include": ["./lib", "./__tests__", "queue"],
   "paths": {
     "tests": ["./__tests__/*"],
     "lib": ["./lib/*"],

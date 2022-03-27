@@ -25,6 +25,7 @@ export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   deepCompare: boolean | typeof isEqual;
   commandListeners: Pick<T, "queueKey" | "builder">[];
   removeCommandListener: (queueKey: string) => void;
+  refresh?: () => void;
 };
 
 export type UseCommandStateReturnType<T extends FetchCommandInstance> = [

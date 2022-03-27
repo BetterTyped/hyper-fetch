@@ -16,8 +16,6 @@ export type CacheKeyType = string;
 export type CacheValueType<DataType = any, ErrorType = any> = {
   data: ClientResponseType<DataType, ErrorType>;
   details: CommandResponseDetails;
-  refreshError: ErrorType | null;
-  retryError: ErrorType | null;
 };
 
 // Storage

@@ -1,5 +1,5 @@
 import { DateInterval, FetchCommandInstance } from "@better-typed/hyper-fetch";
-import { builder } from "pages/server/builder";
+import { builder, publicApiBuilder } from "pages/server/builder";
 import { PostUserModel, UserModel } from "models";
 import { rest, setupWorker } from "msw";
 import { getRandomUser, getRandomUsers } from "utils/users.utils";
@@ -38,6 +38,13 @@ export const postQueue = builder.createCommand<{ response: string }, { id: numbe
   method: "POST",
   concurrent: false,
   retry: 0,
+});
+
+export const getPublicApis = publicApiBuilder.createCommand<{ response: string }, { id: number; name: string }>()({
+  endpoint: "",
+  method: "GET",
+  retry: 0,
+  deduplicate: true,
 });
 
 // Mocks setup

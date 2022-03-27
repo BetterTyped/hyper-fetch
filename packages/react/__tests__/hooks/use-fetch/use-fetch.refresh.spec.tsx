@@ -115,7 +115,7 @@ describe("useFetch hook refresh logic", () => {
     const reRefreshMock = interceptGetMany(400);
 
     await responseOne.waitForValueToChange(() => {
-      return getCurrentState(responseOne).refreshError;
+      return getCurrentState(responseOne).error;
     });
 
     testRefreshFetchErrorState(reRefreshMock, responseOne);

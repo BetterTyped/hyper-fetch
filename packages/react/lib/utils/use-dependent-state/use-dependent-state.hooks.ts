@@ -6,6 +6,7 @@ import {
   ExtractResponse,
   ExtractError,
   FetchBuilderInstance,
+  CacheValueType,
 } from "@better-typed/hyper-fetch";
 
 import { getCacheInitialData } from "utils";
@@ -22,9 +23,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
   UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
   (renderKey: keyof UseDependentStateType) => void,
   boolean,
+  (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
 ] => {
   const { builder, cacheKey, queueKey } = command;
-  const { appManager, fetchQueue, cache } = builder;
+  const { appManager, cache } = builder;
 
   const [initialized, setInitialized] = useState(false);
   const [, rerender] = useState(+new Date());
@@ -51,7 +53,18 @@ export const useDependentState = <T extends FetchCommandInstance>(
         const queueElement = await queue.getQueue(queueKey);
         const initialLoading = state.current.loading || !!queueElement.requests.length;
 
-        state.current = getInitialDependentStateData(command, cacheValue, initialLoading);
+        const newState = getInitialDependentStateData(command, cacheValue, initialLoading);
+
+        const hasInitialState = initialData?.[0] === state.current.data;
+        const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
+        const shouldLoadInitialCache = !hasState && cacheData;
+        const shouldRemovePreviousData = hasState && !cacheData && false;
+
+        // Don't update the state when we are fetching data for new cacheKey
+        // So on paginated page we will have previous page access until the new one will be fetched
+        if (shouldLoadInitialCache || shouldRemovePreviousData) {
+          state.current = newState;
+        }
 
         rerender(+new Date());
         setInitialized(true);
@@ -59,7 +72,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
 
       getInitialData();
     },
-    [...dependencies],
+    [...dependencies, cacheKey],
     true,
   );
 
@@ -89,29 +102,24 @@ export const useDependentState = <T extends FetchCommandInstance>(
     };
   });
 
+  const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+    const newStateValues = {
+      data: cacheData.data[0],
+      error: cacheData.data[1],
+      status: cacheData.data[2],
+      retries: cacheData.details.retries,
+      timestamp: new Date(cacheData.details.timestamp),
+      isRefreshed: cacheData.details.isRefreshed,
+      loading: false,
+    };
+    state.current = {
+      ...state.current,
+      ...newStateValues,
+    };
+    renderOnKeyTrigger(Object.keys(newStateValues) as Array<keyof UseDependentStateType>);
+  };
+
   const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
-    setCacheData: async (cacheData, emitToCache = true) => {
-      if (emitToCache) {
-        await cache.set(cacheKey, cacheData.data, cacheData.details, command.cache);
-      } else {
-        const newStateValues = {
-          data: cacheData.data[0],
-          error: cacheData.data[1],
-          status: cacheData.data[2],
-          retries: cacheData.details.retries,
-          timestamp: new Date(cacheData.details.timestamp),
-          retryError: cacheData.retryError,
-          refreshError: cacheData.refreshError,
-          isRefreshed: cacheData.details.isRefreshed,
-          loading: false,
-        };
-        state.current = {
-          ...state.current,
-          ...newStateValues,
-        };
-        renderOnKeyTrigger(Object.keys(newStateValues) as Array<keyof UseDependentStateType>);
-      }
-    },
     setData: async (data, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
@@ -142,7 +150,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
     setLoading: async (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        fetchQueue.events.setLoading(cacheKey, {
+        queue.events.setLoading(cacheKey, {
           isLoading: loading,
           isRetry: false,
           isOffline: false,
@@ -180,34 +188,6 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["isRefreshed"]);
       }
     },
-    setRefreshError: async (refreshError, emitToCache = true) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        await cache.set(
-          cacheKey,
-          [currentState.data, refreshError, currentState.status],
-          getDetailsState(command, state.current, { isRefreshed: !!refreshError }),
-          command.cache,
-        );
-      } else {
-        state.current.refreshError = refreshError;
-        renderOnKeyTrigger(["refreshError"]);
-      }
-    },
-    setRetryError: async (retryError, emitToCache = true) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        await cache.set(
-          cacheKey,
-          [currentState.data, retryError, currentState.status],
-          getDetailsState(command, state.current, { retries: 1 }),
-          command.cache,
-        );
-      } else {
-        state.current.retryError = retryError;
-        renderOnKeyTrigger(["retryError"]);
-      }
-    },
     setRetries: async (retries, emitToCache = true) => {
       if (emitToCache) {
         const currentState = state.current;
@@ -238,5 +218,5 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
   };
 
-  return [state.current, actions, setRenderKeys, initialized];
+  return [state.current, actions, setRenderKeys, initialized, setCacheData];
 };

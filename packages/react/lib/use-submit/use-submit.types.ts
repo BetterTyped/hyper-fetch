@@ -33,7 +33,7 @@ export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
 
 export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "refreshError" | "loading"
+  "loading"
 > & {
   actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
   onSubmitRequest: (callback: OnRequestCallbackType) => void;

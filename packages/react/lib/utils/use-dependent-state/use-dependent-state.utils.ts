@@ -54,7 +54,5 @@ export const transformDataToCacheValue = <T>(
   return {
     data: response,
     details: getDetailsState(command),
-    refreshError: null,
-    retryError: null,
   };
 };

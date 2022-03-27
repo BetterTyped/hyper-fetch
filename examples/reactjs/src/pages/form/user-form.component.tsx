@@ -1,11 +1,11 @@
 import React from "react";
 import { useSubmit, useQueue } from "@better-typed/react-hyper-fetch";
 
-import { patchUser, postUser, postQueue } from "../server/user.api";
+import { patchUser, postUser, postQueue, getPublicApis } from "../server/user.api";
 
 export const UserForm: React.FC = () => {
   // Post
-  const { timestamp, data, error, submitting, submit, onSubmitSuccess, onSubmitError } = useSubmit(
+  const { timestamp, data, error, submitting, submit, onSubmitSuccess, onSubmitError, onSubmitAbort } = useSubmit(
     postUser.setData({ email: "test", age: 12, name: "name" }),
   );
 
@@ -33,6 +33,20 @@ export const UserForm: React.FC = () => {
 
   const { requests, stopQueue, startQueue } = useQueue(postQueue);
 
+  // Get
+  const {
+    timestamp: timestampGet,
+    data: dataGet,
+    error: errorGet,
+    submitting: submittingGet,
+    submit: submitGet,
+    onSubmitSuccess: onGetSuccess,
+    onSubmitError: onGetError,
+    onSubmitOfflineError,
+  } = useSubmit(getPublicApis);
+
+  // eslint-disable-next-line no-console
+  onSubmitAbort((err) => console.log(0, err));
   // eslint-disable-next-line no-console
   onSubmitError((err) => console.log(1, err));
   // eslint-disable-next-line no-console
@@ -45,6 +59,12 @@ export const UserForm: React.FC = () => {
   onQueueError((err) => console.log(5, err));
   // eslint-disable-next-line no-console
   onQueueSuccess((response) => console.log(6, response));
+  // eslint-disable-next-line no-console
+  onGetError((err) => console.log(7, err));
+  // eslint-disable-next-line no-console
+  onGetSuccess((response) => console.log(8, response));
+  // eslint-disable-next-line no-console
+  onSubmitOfflineError((response) => console.log(9, response));
 
   return (
     <div>
@@ -104,6 +124,22 @@ export const UserForm: React.FC = () => {
       </div>
       <div>
         <b>queue elements:</b> {requests.length}
+      </div>
+      <h3>Real GET request:</h3>
+      <button type="button" onClick={() => submitGet()}>
+        Submit GET
+      </button>
+      <div>
+        <b>loading:</b> {String(submittingGet)}
+      </div>
+      <div>
+        <b>error:</b> {JSON.stringify(errorGet)}
+      </div>
+      <div>
+        <b>data:</b> {JSON.stringify(dataGet)}
+      </div>
+      <div>
+        <b>timestamp:</b> {timestampGet?.toDateString()} {timestampGet?.toLocaleTimeString()}
       </div>
     </div>
   );

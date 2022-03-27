@@ -76,18 +76,13 @@ export class Cache<ErrorType, HttpOptions> {
     details: CommandResponseDetails,
     useCache: boolean,
   ): Promise<void> => {
-    const { retries, isRefreshed } = details;
     const cachedData = await this.storage.get(cacheKey);
 
-    // Refresh/Retry error is saved separate to not confuse render with having already cached data and refreshed one throwing error
-    // Keeping it in separate location let us to handle refreshing errors in different ways
-    const refreshError = isRefreshed ? response[1] : null;
-    const retryError = retries ? response[1] : null;
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const data = getCacheData(cachedData?.data, response, refreshError, retryError);
+    const data = getCacheData(cachedData?.data, response);
 
-    const newCacheData: CacheValueType = { data, details, refreshError, retryError };
+    const newCacheData: CacheValueType = { data, details };
 
     // If request should not use cache - just emit response data
     if (!useCache) {
@@ -98,8 +93,11 @@ export class Cache<ErrorType, HttpOptions> {
 
     // Cache response emitter to provide optimization for libs(re-rendering)
     this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
-    await this.storage.set(cacheKey, newCacheData);
     this.events.set<Response>(cacheKey, newCacheData);
+
+    if (!details.isFailed) {
+      await this.storage.set(cacheKey, newCacheData);
+    }
   };
 
   get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {

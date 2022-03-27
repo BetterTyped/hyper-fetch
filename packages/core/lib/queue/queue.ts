@@ -114,11 +114,15 @@ export class Queue<ErrorType, HttpOptions> {
     const queueElement = queue?.requests[0];
 
     const isStopped = queue && queue.stopped;
+    const isOffline = !this.builder.appManager.isOnline;
 
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
     if (isStopped) {
       return this.logger.debug(`Cannot flush stopped queue`, { queueKey });
+    }
+    if (isOffline) {
+      return this.logger.debug(`Cannot flush queue when app is offline`, { queueKey });
     }
     if (runningRequests?.length) {
       return this.logger.debug(`Cannot flush when there is ongoing request`, { queueKey });
@@ -144,6 +148,13 @@ export class Queue<ErrorType, HttpOptions> {
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     return runningRequests && !runningRequests.find((req) => req.requestId === requestId);
+  };
+
+  getIsActiveQueue = async (queueKey: string) => {
+    const queue = await this.getQueue(queueKey);
+    // Do not continue the request handling when it got stopped and request was unsuccessful
+    // Or when the request was aborted/canceled
+    return !!queue.requests.length;
   };
 
   // Storage
@@ -311,22 +322,24 @@ export class Queue<ErrorType, HttpOptions> {
       retries: 0,
     };
 
-    await this.addQueueElement(queueKey, queueElementDump);
-
     this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
 
-    const runningRequests = this.getRunningRequests(queueKey);
-    const hasRunningRequests = !!runningRequests.length;
+    // Todo fix when adding requests to the queue at the same time, those will not be deduplicated
+    // because of the async read of the data from storage - we have to keep local synchronous snapshot of queues
+    const queue = await this.getQueue(queueKey);
+    const hasRunningRequests = !!queue.requests.length;
     const requestType = getRequestType(command, hasRunningRequests);
 
     switch (requestType) {
       case QueueRequestType.oneByOne: {
+        await this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing one-by-one request`, { requestId, queueKey, queueElementDump, requestType });
         // 1. One-by-one: if we setup request as one-by-one queue use queueing system
         this.flushQueue(queueKey);
         return requestId;
       }
       case QueueRequestType.previousCanceled: {
+        await this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing cancelable request`, { requestId, queueKey, queueElementDump, requestType });
         // Cancel all previous on-going requests
         this.clearRunningRequests(queueKey);
@@ -336,9 +349,10 @@ export class Queue<ErrorType, HttpOptions> {
       case QueueRequestType.deduplicated: {
         this.logger.info(`Deduplicated request`, { requestId, queueKey, queueElementDump, requestType });
         // Return the running requestId to fullfil the events
-        return runningRequests[0].requestId;
+        return queue.requests[0].requestId;
       }
       default: {
+        await this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing all-at-once request`, { requestId, queueKey, queueElementDump, requestType });
         this.performRequest(command, queueElementDump);
         return requestId;
@@ -364,18 +378,16 @@ export class Queue<ErrorType, HttpOptions> {
   performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { commandDump, requestId } = queueElement;
     const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump.values;
-    const { client, commandManager, cache } = this.builder;
+    const { client, commandManager, cache, appManager } = this.builder;
 
     const shouldUseCache = useCache ?? true;
+    const canRetry = canRetryRequest(queueElement.retries, retry);
+    const isOffline = !appManager.isOnline;
 
-    this.logger.debug(`Adding request to queue`, {
-      queueKey,
-      cancelable: command.cancelable,
-    });
+    this.logger.debug(`Request ready to trigger`, { queueKey, queueElement });
 
-    this.logger.debug(`Request set to trigger`, { queueKey, queueElement });
     // When offline not perform any request
-    if (!command.builder.appManager.isOnline) {
+    if (isOffline) {
       this.events.setLoading(queueKey, { isLoading: false, isRetry: false, isOffline: true });
       return this.logger.error("Cannot perform queue request, app is offline");
     }
@@ -387,7 +399,7 @@ export class Queue<ErrorType, HttpOptions> {
     this.events.setLoading(queueKey, {
       isLoading: true,
       isRetry: !!queueElement.retries,
-      isOffline: false,
+      isOffline,
     });
 
     this.logger.http(`Start request`, { requestId, queueKey });
@@ -398,9 +410,10 @@ export class Queue<ErrorType, HttpOptions> {
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
+    const isOfflineOnResponse = !appManager.isOnline;
     const isCanceled = this.getIsCanceledRequest(queueKey, requestId);
     // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
-    const isOffline = !command.builder.appManager.isOnline;
+
     const isFailed = !!response[1] || !response[2] || response[2] >= 400;
 
     this.logger.debug(`Response emitting`, {
@@ -414,7 +427,7 @@ export class Queue<ErrorType, HttpOptions> {
     const requestDetails = {
       isFailed,
       isCanceled,
-      isOffline,
+      isOffline: isOfflineOnResponse,
       isRefreshed: this.getQueueRequestCount(queueKey) > 1,
       isStopped: queue.stopped,
       retries: queueElement.retries,
@@ -433,17 +446,21 @@ export class Queue<ErrorType, HttpOptions> {
     if (isCanceled) {
       return this.logger.error(`Request canceled`, { requestId, queueKey });
     }
-    if (isFailed && isOffline) {
+    if (isFailed && isOfflineOnResponse) {
       return this.logger.error(`Request failed because of going offline`, response);
     }
-
-    if (isFailed && canRetryRequest(queueElement.retries, retry)) {
+    if (!isFailed) {
+      await this.deleteQueueRequest(queueKey, requestId);
+      return this.logger.debug(`Clearing request from queue`, { requestId, queueKey });
+    }
+    if (isFailed && canRetry) {
       this.logger.warning(`Performing retry`, {
         requestId,
         queueKey,
         queueElement,
         retry,
         retryTime,
+        canRetry,
       });
 
       // Perform retry once request is failed
@@ -459,9 +476,10 @@ export class Queue<ErrorType, HttpOptions> {
         queueKey,
         response,
         queueElement,
+        canRetry,
       });
 
-      this.deleteQueueRequest(queueKey, requestId);
+      await this.deleteQueueRequest(queueKey, requestId);
     }
   };
 }
