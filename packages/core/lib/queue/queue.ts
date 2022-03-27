@@ -388,7 +388,6 @@ export class Queue<ErrorType, HttpOptions> {
 
     // When offline not perform any request
     if (isOffline) {
-      this.events.setLoading(queueKey, { isLoading: false, isRetry: false, isOffline: true });
       return this.logger.error("Cannot perform queue request, app is offline");
     }
 

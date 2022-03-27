@@ -50,8 +50,8 @@ export const useDependentState = <T extends FetchCommandInstance>(
         const cacheData = await builder.cache.get(cacheKey);
         const cacheValue = !cacheData ? getCacheInitialData<T>(command, initialData) : cacheData;
 
-        const queueElement = await queue.getQueue(queueKey);
-        const initialLoading = state.current.loading || !!queueElement.requests.length;
+        const queueStorage = await queue.getQueue(queueKey);
+        const initialLoading = state.current.loading || (!!queueStorage.requests.length && !queueStorage.stopped);
 
         const newState = getInitialDependentStateData(command, cacheValue, initialLoading);
 
@@ -66,13 +66,16 @@ export const useDependentState = <T extends FetchCommandInstance>(
           state.current = newState;
         }
 
+        // Handle loading state
+        state.current.loading = initialLoading;
+
         rerender(+new Date());
         setInitialized(true);
       };
 
       getInitialData();
     },
-    [...dependencies, cacheKey],
+    [...dependencies, cacheKey, queueKey],
     true,
   );
 

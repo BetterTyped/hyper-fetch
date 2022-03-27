@@ -90,6 +90,8 @@ export const useCommandState = <T extends FetchCommandInstance>({
 
     logger.debug("Received new data");
 
+    actions.setLoading(false, false);
+
     if (isCanceled) {
       return logger.debug("Skipping canceled error response data");
     }
@@ -108,8 +110,6 @@ export const useCommandState = <T extends FetchCommandInstance>({
     } else {
       setCacheData(cacheData);
     }
-
-    actions.setLoading(false, false);
   };
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
@@ -166,6 +166,7 @@ export const useCommandState = <T extends FetchCommandInstance>({
         const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
         const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
         const responseUnmount = commandManager.events.onResponse(queueKey, handleResponse(queueKey));
+        const loadingUnmount = queue.events.onLoading(queueKey, handleGetLoadingEvent);
 
         return () => {
           downloadUnmount();
@@ -173,16 +174,15 @@ export const useCommandState = <T extends FetchCommandInstance>({
           requestStartUnmount();
           responseStartUnmount();
           responseUnmount();
+          loadingUnmount();
         };
       });
 
     const getResponseUnmount = cache.events.get(command.cacheKey, handleGetResponseData);
-    const loadingUnmount = queue.events.onLoading(command.queueKey, handleGetLoadingEvent);
 
     const unmount = () => {
       unmountArray.forEach((callback) => callback());
       getResponseUnmount();
-      loadingUnmount();
     };
 
     unmountCallbacks.current?.();

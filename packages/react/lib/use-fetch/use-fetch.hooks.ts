@@ -55,12 +55,15 @@ export const useFetch = <T extends FetchCommandInstance>(
   const requestDebounce = useDebounce(debounceTime);
   const refreshDebounce = useDebounce(getCacheRefreshTime(refreshTime, state.timestamp));
 
-  function addCommandListener(triggeredCommand: FetchCommandInstance) {
+  const addCommandListener = (triggeredCommand: FetchCommandInstance, callback?: () => Promise<void>) => {
     if (isMounted) {
       const newItem = { queueKey: triggeredCommand.queueKey, builder: triggeredCommand.builder };
-      setCommandListeners((prev) => [...prev, newItem]);
+      setCommandListeners((prev) => {
+        callback?.();
+        return [...prev, newItem];
+      });
     }
-  }
+  };
 
   function removeCommandListener(key: string) {
     if (isMounted) {

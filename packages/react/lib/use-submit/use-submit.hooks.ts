@@ -75,11 +75,11 @@ export const useSubmit = <T extends FetchCommandInstance>(
 
           if (debounce) {
             requestDebounce.debounce(async () => {
-              const value = await commandClone.send({ ...options, queueType: "submit" });
+              const value = await commandClone.send({ queueType: "submit", ...options });
               resolve(value);
             });
           } else {
-            const value = await commandClone.send({ ...options, queueType: "submit" });
+            const value = await commandClone.send({ queueType: "submit", ...options });
             resolve(value);
           }
         } else {
