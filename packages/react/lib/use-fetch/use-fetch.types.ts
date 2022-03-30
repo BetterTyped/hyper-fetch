@@ -53,4 +53,5 @@ export type UseFetchReturnType<T extends FetchCommandInstance> = UseDependentSta
   isDebouncing: boolean;
   isStale: boolean;
   refresh: (invalidateKey?: string | FetchCommandInstance) => void;
+  abort: VoidFunction;
 };

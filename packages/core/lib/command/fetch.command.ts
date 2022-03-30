@@ -1,8 +1,6 @@
 import {
   FetchCommandDump,
   getAbortKey,
-  addAbortController,
-  abortCommand,
   FetchCommandCurrentType,
   ExtractRouteParams,
   FetchMethodType,
@@ -139,8 +137,6 @@ export class FetchCommand<
     this.updatedAbortKey = commandDump?.updatedAbortKey || false;
     this.updatedCacheKey = commandDump?.updatedCacheKey || false;
     this.updatedQueueKey = commandDump?.updatedQueueKey || false;
-
-    addAbortController(this.builder, this.abortKey);
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -238,7 +234,7 @@ export class FetchCommand<
   };
 
   public abort = () => {
-    abortCommand(this);
+    this.builder.commandManager.abortByKey(this.abortKey);
 
     return this.clone();
   };

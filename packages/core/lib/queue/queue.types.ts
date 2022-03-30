@@ -18,10 +18,11 @@ export type QueueDumpValueType<HttpOptions, Command = unknown> = {
   commandDump: FetchCommandDump<HttpOptions, Command>;
   retries: number;
   timestamp: number;
+  stopped: boolean;
 };
 export type QueueData<HttpOptions, Command = unknown> = {
-  stopped: boolean;
   requests: QueueDumpValueType<HttpOptions, Command>[];
+  stopped: boolean;
 };
 
 // Storage

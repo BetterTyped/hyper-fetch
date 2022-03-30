@@ -46,7 +46,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
 
     const unmountStatus = queue.events.onQueueStatus(queueKey, (values) => {
       setStopped(values.stopped);
-      setRequests([...values.requests]);
+      setRequests(values.requests);
     });
 
     const unmount = () => {
@@ -81,5 +81,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
     stopQueue: () => queueRef.current[0].stopQueue(queueKey),
     pauseQueue: () => queueRef.current[0].pauseQueue(queueKey),
     startQueue: () => queueRef.current[0].startQueue(queueKey),
+    startRequest: (requestId: string) => queueRef.current[0].startRequest(queueKey, requestId),
+    stopRequest: (requestId: string) => queueRef.current[0].stopRequest(queueKey, requestId),
   };
 };

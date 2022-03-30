@@ -31,7 +31,7 @@ export const UserForm: React.FC = () => {
     onSubmitError: onQueueError,
   } = useSubmit(postQueue.setData({ id: 44, name: "queue" }));
 
-  const { requests, stopQueue, startQueue } = useQueue(postQueue);
+  const { stopped, requests, stopQueue, startQueue, stopRequest, startRequest } = useQueue(postQueue);
 
   // Get
   const {
@@ -104,12 +104,16 @@ export const UserForm: React.FC = () => {
       <button type="button" onClick={() => submitQueue()}>
         Add to queue
       </button>
-      <button type="button" onClick={() => stopQueue()}>
-        Stop queue
-      </button>
-      <button type="button" onClick={() => startQueue()}>
-        Start queue
-      </button>
+      {!stopped && (
+        <button type="button" onClick={() => stopQueue()}>
+          Stop queue
+        </button>
+      )}
+      {stopped && (
+        <button type="button" onClick={() => startQueue()}>
+          Start queue
+        </button>
+      )}
       <div>
         <b>loading:</b> {String(submittingQueue)}
       </div>
@@ -124,6 +128,17 @@ export const UserForm: React.FC = () => {
       </div>
       <div>
         <b>queue elements:</b> {requests.length}
+        {requests.map((request) => (
+          <div>
+            <button
+              key={request.requestId}
+              type="button"
+              onClick={() => (request.stopped ? startRequest(request.requestId) : stopRequest(request.requestId))}
+            >
+              {request.stopped ? "Start Request: " : "Stop Request: "} {request.requestId}
+            </button>
+          </div>
+        ))}
       </div>
       <h3>Real GET request:</h3>
       <button type="button" onClick={() => submitGet()}>

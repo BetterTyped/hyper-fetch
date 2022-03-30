@@ -131,6 +131,10 @@ export const useFetch = <T extends FetchCommandInstance>(
     }
   };
 
+  const abort = () => {
+    command.abort();
+  };
+
   const handleMountEvents = () => {
     const focusUnmount = appManager.events.onFocus(() => {
       if (refreshOnTabFocus) handleFetch();
@@ -253,5 +257,6 @@ export const useFetch = <T extends FetchCommandInstance>(
     ...actions,
     isDebouncing: requestDebounce.active,
     refresh: refreshFn,
+    abort,
   };
 };

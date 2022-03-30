@@ -46,6 +46,7 @@ export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
   submit: (...parameters: Parameters<T["send"]>) => void;
   submitting: boolean;
+  abort: VoidFunction;
   isStale: boolean;
   isDebouncing: boolean;
   invalidate: (invalidateKey: string | FetchCommandInstance | RegExp) => void;

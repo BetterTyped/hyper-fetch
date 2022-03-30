@@ -103,6 +103,39 @@ export class Queue<ErrorType, HttpOptions> {
     this.events.setQueueStatus(queueKey, queue);
   };
 
+  startRequest = async (queueKey: string, requestId: string) => {
+    // Change status to running
+    const queue = await this.getQueue(queueKey);
+    const request = queue?.requests.find((element) => element.requestId === requestId);
+
+    // Start the queue when its stopped
+    if (request) {
+      request.stopped = false;
+      this.setQueue(queueKey, queue);
+      this.flushQueue(queueKey);
+    }
+
+    this.logger.http(`Started request`, { queueKey, requestId });
+    this.events.setQueueStatus(queueKey, queue);
+  };
+
+  stopRequest = async (queueKey: string, requestId: string) => {
+    // Change state to stopped
+    const queue = await this.getQueue(queueKey);
+    const request = queue?.requests.find((element) => element.requestId === requestId);
+
+    if (request) {
+      request.stopped = true;
+      this.setQueue(queueKey, queue);
+
+      // Cancel running requests
+      this.builder.commandManager.abortByRequestId(request.commandDump.values.abortKey, requestId);
+
+      this.logger.http(`Stopped request`, { queueKey, requestId });
+    }
+    this.events.setQueueStatus(queueKey, queue);
+  };
+
   /**
    * Method used to flush the queue in one-by-one fashion
    * @param queueKey
@@ -111,7 +144,7 @@ export class Queue<ErrorType, HttpOptions> {
   flushQueue = async (queueKey: string) => {
     const queue = await this.getQueue(queueKey);
     const runningRequests = this.getRunningRequests(queueKey);
-    const queueElement = queue?.requests[0];
+    const queueElement = queue?.requests.find((request) => !request.stopped);
 
     const isStopped = queue && queue.stopped;
     const isOffline = !this.builder.appManager.isOnline;
@@ -282,7 +315,7 @@ export class Queue<ErrorType, HttpOptions> {
    */
   clearRunningRequests = (queueKey: string) => {
     this.runningRequests.get(queueKey)?.forEach((request) => {
-      request.command.abort();
+      request.command.builder.commandManager.abortByRequestId(request.command.abortKey, request.requestId);
     });
     this.runningRequests.set(queueKey, []);
   };
@@ -320,6 +353,7 @@ export class Queue<ErrorType, HttpOptions> {
       timestamp: +new Date(),
       commandDump: command.dump(),
       retries: 0,
+      stopped: false,
     };
 
     this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
@@ -377,7 +411,7 @@ export class Queue<ErrorType, HttpOptions> {
    */
   performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { commandDump, requestId } = queueElement;
-    const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump.values;
+    const { retry, retryTime, queueKey, cacheKey, cache: useCache, abortKey } = commandDump.values;
     const { client, commandManager, cache, appManager } = this.builder;
 
     const shouldUseCache = useCache ?? true;
@@ -393,6 +427,8 @@ export class Queue<ErrorType, HttpOptions> {
 
     // Additionally keep the running request to possibly abort it later
     this.addRunningRequest(queueKey, requestId, command);
+    // Add the abort controller
+    commandManager.addAbortController(abortKey, requestId);
 
     // Propagate the loading to all connected hooks
     this.events.setLoading(queueKey, {
@@ -406,6 +442,9 @@ export class Queue<ErrorType, HttpOptions> {
     // Trigger Request
     this.incrementQueueRequestCount(queueKey);
     const response = await client(command, requestId);
+
+    // Remove the abort controller
+    commandManager.removeAbortController(abortKey, requestId);
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled

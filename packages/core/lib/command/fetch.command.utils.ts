@@ -1,4 +1,3 @@
-import { FetchBuilderInstance } from "builder";
 import { stringify } from "cache";
 import { FetchProgressType } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
@@ -38,31 +37,6 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ClientPro
     timeLeft,
     sizeLeft,
   };
-};
-
-// Abort
-export const addAbortController = (builder: FetchBuilderInstance, abortKey: string) => {
-  const { abortControllers } = builder.commandManager;
-
-  const existingController = abortControllers.get(abortKey);
-  if (!existingController || existingController?.signal?.aborted) {
-    abortControllers.set(abortKey, new AbortController());
-  }
-};
-
-export const getAbortController = (command: FetchCommandInstance) => {
-  const { abortControllers } = command.builder.commandManager;
-  return abortControllers.get(command.abortKey);
-};
-
-export const abortCommand = (command: FetchCommandInstance) => {
-  const controller = getAbortController(command);
-
-  if (controller) {
-    controller.abort();
-    command.builder.commandManager.events.emitAbort(command.abortKey, command);
-  }
-  addAbortController(command.builder, command.abortKey);
 };
 
 // Keys

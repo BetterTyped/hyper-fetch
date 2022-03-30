@@ -1,4 +1,3 @@
-import { getAbortController } from "command";
 import { DateInterval } from "constants/time.constants";
 import {
   setClientHeaders,
@@ -16,10 +15,11 @@ export const fetchClient: ClientType = async (command, requestId) => {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
-  const { builder } = command;
+  const { builder, abortKey, queueKey } = command;
+  const { baseUrl, commandManager, loggerManager, clientOptions, stringifyQueryParams } = builder;
 
-  const logger = builder.loggerManager.init("Client");
-  const options = builder.clientOptions;
+  const logger = loggerManager.init("Client");
+  const options = clientOptions;
 
   const xhr = new XMLHttpRequest();
 
@@ -39,9 +39,9 @@ export const fetchClient: ClientType = async (command, requestId) => {
 
   const { endpoint, queryParams, data, method } = commandInstance;
 
-  const url = builder.baseUrl + endpoint + builder.stringifyQueryParams(queryParams);
-
-  const actions = command.builder.actions.filter((action) => command.actions.includes(action.getName()));
+  const url = baseUrl + endpoint + stringifyQueryParams(queryParams);
+  const actions = builder.actions.filter((action) => command.actions.includes(action.getName()));
+  const abortController = commandManager.getAbortController(abortKey, requestId);
 
   // "Trigger" Action lifecycle
   actions.forEach((action) => action.onTrigger(command));
@@ -58,32 +58,32 @@ export const fetchClient: ClientType = async (command, requestId) => {
     xhr.open(method, url, true);
 
     setClientHeaders(commandInstance, xhr, options?.headerMapper);
-    getAbortController(command)?.signal.addEventListener("abort", abort);
+    abortController?.signal.addEventListener("abort", abort);
     logger.debug(`Request setup finished`);
 
     // Request listeners
-    command.builder.commandManager.events.emitRequestStart(command.queueKey, command, { requestId });
-    setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
+    commandManager.events.emitRequestStart(queueKey, command, { requestId });
+    setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
       total: 1,
       loaded: 0,
     });
 
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), e);
+        setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), e);
       };
     }
 
     // Response listeners
     xhr.onprogress = (e): void => {
       requestStartTimestamp = null;
-      setRequestProgress(command.queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
+      setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
         total: 1,
         loaded: 1,
       });
 
       setResponseProgress(
-        command.queueKey,
+        queueKey,
         requestId,
         commandInstance,
         responseStartTimestamp || +new Date(),
@@ -93,7 +93,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      command.builder.commandManager.events.emitResponseStart(command.queueKey, command, { requestId });
+      commandManager.events.emitResponseStart(queueKey, command, { requestId });
     };
 
     // Error listeners
@@ -130,7 +130,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
       } else {
         handleClientError(commandInstance, actions, resolve, event);
       }
-      getAbortController(command)?.signal.removeEventListener("abort", abort);
+      abortController?.signal.removeEventListener("abort", abort);
     };
 
     // Send request

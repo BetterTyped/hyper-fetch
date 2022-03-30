@@ -102,6 +102,10 @@ export const useSubmit = <T extends FetchCommandInstance>(
     }
   };
 
+  const abort = () => {
+    command.abort();
+  };
+
   const handlers = {
     actions: actions.actions,
     onSubmitRequest: actions.onRequest,
@@ -153,6 +157,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     get isStale() {
       return isStaleCacheData(cacheTime, state.timestamp);
     },
+    abort,
     ...handlers,
     isDebouncing: false,
     isRefreshed: false,
