@@ -95,6 +95,7 @@ export class Cache<ErrorType, HttpOptions> {
     this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
     this.events.set<Response>(cacheKey, newCacheData);
 
+    // Only success data is valid for the cache store
     if (!details.isFailed) {
       await this.storage.set(cacheKey, newCacheData);
     }

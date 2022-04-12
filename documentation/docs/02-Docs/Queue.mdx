@@ -2,9 +2,10 @@
 sidebar_position: 5
 ---
 
-**`FetchQueue`** is one of the hyper fetch queues. This is the place that handles the dispatch of requests and manages
-their retries, offline handling, canceling and deduplication, up to sending the received data to the cache. This queue
-is designed mainly for requests that are supposed to receive some data without mutating.
+**`Queue`** is one of the `hyper fetch` queues. This is the place that handles the dispatch of requests and manages
+their retries, offline handling, canceling and deduplication, up to sending the received data to the cache. On the
+`builder` class you can find two instances of the queues, one for fetching and one for submitting. This is made due to
+the configuration reasons, which gives much more flexibity.
 
 Queues can be `stopped`, `paused`, or `started`. The difference between stop and pause is very small, when using stop,
 requests that are in progress will be canceled (we do not remove them from the queue), while during pause, requests in

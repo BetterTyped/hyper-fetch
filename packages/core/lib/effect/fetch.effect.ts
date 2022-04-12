@@ -1,28 +1,28 @@
-import { FetchActionConfig } from "action";
+import { FetchEffectConfig } from "effect";
 import { ExtractError, ExtractRequestError } from "types";
 import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 import { FetchCommandInstance } from "command";
 
-export class FetchAction<T extends FetchCommandInstance> {
-  constructor(public config: FetchActionConfig<T>) {}
+export class FetchEffect<T extends FetchCommandInstance> {
+  constructor(public config: FetchEffectConfig<T>) {}
 
   getName = () => {
     return this.config.name;
   };
 
   onTrigger = (command: T) => {
-    this.config.on.trigger?.(command);
+    this.config.onTrigger?.(command);
   };
   onStart = (command: T) => {
-    this.config.on.start?.(command);
+    this.config.onStart?.(command);
   };
   onSuccess = (response: ClientResponseSuccessType<ResponseType>, command: T) => {
-    this.config.on.success?.(response, command);
+    this.config.onSuccess?.(response, command);
   };
   onError = (response: ClientResponseErrorType<ExtractError<T> | ExtractRequestError<T>>, command: T) => {
-    this.config.on.error?.(response, command);
+    this.config.onError?.(response, command);
   };
   onFinished = (response: ClientResponseType<ResponseType, ExtractError<T> | ExtractRequestError<T>>, command: T) => {
-    this.config.on.finished?.(response, command);
+    this.config.onFinished?.(response, command);
   };
 }

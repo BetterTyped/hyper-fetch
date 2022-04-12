@@ -11,5 +11,5 @@ export type NonNullableKeys<T> = {
 };
 
 export type RequiredKeys<T> = {
-  [P in keyof T]-?: Required<T[P]>;
+  [P in keyof T]-?: Exclude<T[P], NegativeTypes>;
 };

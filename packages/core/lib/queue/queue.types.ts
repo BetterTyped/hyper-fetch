@@ -33,14 +33,8 @@ export type QueueStorageSyncType<HttpOptions> = {
   delete: (key: string) => void;
   clear: () => void;
 };
-export type QueueStorageAsyncType<HttpOptions> = {
-  set: (key: string, data: QueueData<HttpOptions>) => Promise<void>;
-  get: (key: string) => Promise<QueueData<HttpOptions> | undefined>;
-  keys: () => Promise<string[] | IterableIterator<string>>;
-  delete: (key: string) => Promise<void>;
-  clear: () => Promise<void>;
-};
-export type QueueStorageType<HttpOptions> = QueueStorageSyncType<HttpOptions> | QueueStorageAsyncType<HttpOptions>;
+
+export type QueueStorageType<HttpOptions> = QueueStorageSyncType<HttpOptions>;
 
 // Running
 

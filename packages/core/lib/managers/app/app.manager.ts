@@ -24,21 +24,41 @@ export class AppManager<ErrorType, HttpOptions> {
   constructor(private builder: FetchBuilder<ErrorType, HttpOptions>, private options?: AppManagerOptionsType) {
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
-      blurEvent = appManagerInitialOptions.blurEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,
       initiallyFocused = appManagerInitialOptions.initiallyFocused,
       initiallyOnline = appManagerInitialOptions.initiallyOnline,
     } = this.options || appManagerInitialOptions;
-    // { ...appManagerInitialOptions, this.options };
 
     this.logger = this.builder.loggerManager.init("AppManager");
-    this.isFocused = initiallyFocused ?? true;
-    this.isOnline = initiallyOnline ?? true;
 
-    focusEvent?.(() => this.setFocused(true));
-    blurEvent?.(() => this.setFocused(false));
-    onlineEvent?.(this.setOnline);
+    this.setInitialFocus(initiallyFocused ?? true);
+    this.setInitialOnline(initiallyOnline ?? true);
+
+    focusEvent(this.setFocused);
+    onlineEvent(this.setOnline);
   }
+
+  private setInitialFocus = async (initValue: AppManagerOptionsType["initiallyFocused"]) => {
+    if (typeof initValue === "function") {
+      this.isFocused = false;
+      this.isFocused = await initValue();
+    } else if (typeof initValue === "boolean") {
+      this.isFocused = initValue;
+    } else {
+      this.isFocused = true;
+    }
+  };
+
+  private setInitialOnline = async (initValue: AppManagerOptionsType["initiallyOnline"]) => {
+    if (typeof initValue === "function") {
+      this.isOnline = false;
+      this.isOnline = await initValue();
+    } else if (typeof initValue === "boolean") {
+      this.isOnline = initValue;
+    } else {
+      this.isOnline = true;
+    }
+  };
 
   setFocused = (isFocused: boolean) => {
     this.isFocused = isFocused;

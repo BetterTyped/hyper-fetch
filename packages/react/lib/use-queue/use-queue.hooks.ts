@@ -20,9 +20,9 @@ export const useQueue = <Command extends FetchCommandInstance>(
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Command>[]>([]);
 
-  const getInitialState = async () => {
+  const getInitialState = () => {
     const [queue] = queueRef.current;
-    const commandQueue = await queue.getQueue<Command>(queueKey);
+    const commandQueue = queue.getQueue<Command>(queueKey);
 
     setStopped(commandQueue.stopped);
     setRequests(commandQueue.requests);

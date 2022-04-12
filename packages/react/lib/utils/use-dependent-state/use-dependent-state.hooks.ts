@@ -47,13 +47,14 @@ export const useDependentState = <T extends FetchCommandInstance>(
   useDidUpdate(
     () => {
       const getInitialData = async () => {
+        // Handle initial loading state
+        const initialLoading = !!queue.getRunningRequests(queueKey).length;
+        state.current.loading = initialLoading;
+
         const cacheData = await builder.cache.get(cacheKey);
         const cacheValue = !cacheData ? getCacheInitialData<T>(command, initialData) : cacheData;
 
-        const queueStorage = await queue.getQueue(queueKey);
-        const initialLoading = state.current.loading || (!!queueStorage.requests.length && !queueStorage.stopped);
-
-        const newState = getInitialDependentStateData(command, cacheValue, initialLoading);
+        const newState = getInitialDependentStateData(command, cacheValue, !!queue.getRunningRequests(queueKey).length);
 
         const hasInitialState = initialData?.[0] === state.current.data;
         const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
@@ -65,9 +66,6 @@ export const useDependentState = <T extends FetchCommandInstance>(
         if (shouldLoadInitialCache || shouldRemovePreviousData) {
           state.current = newState;
         }
-
-        // Handle loading state
-        state.current.loading = initialLoading;
 
         rerender(+new Date());
         setInitialized(true);
@@ -113,7 +111,6 @@ export const useDependentState = <T extends FetchCommandInstance>(
       retries: cacheData.details.retries,
       timestamp: new Date(cacheData.details.timestamp),
       isRefreshed: cacheData.details.isRefreshed,
-      loading: false,
     };
     state.current = {
       ...state.current,

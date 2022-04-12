@@ -21,17 +21,25 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
    */
 
   // Start
-  emitRequestStart: (queueKey: CacheKeyType, command: FetchCommandInstance, details: CommandEventDetails): void => {
-    emitter.emit(getRequestStartEventKey(queueKey), command, details);
+  emitRequestStart: (queueKey: CacheKeyType, details: CommandEventDetails<FetchCommandInstance>): void => {
+    emitter.emit(getRequestStartEventKey(queueKey), details);
   },
-  emitResponseStart: (queueKey: CacheKeyType, command: FetchCommandInstance, details: CommandEventDetails): void => {
-    emitter.emit(getResponseStartEventKey(queueKey), command, details);
+  emitResponseStart: (queueKey: CacheKeyType, details: CommandEventDetails<FetchCommandInstance>): void => {
+    emitter.emit(getResponseStartEventKey(queueKey), details);
   },
   // Progress
-  emitUploadProgress: (queueKey: CacheKeyType, values: FetchProgressType, details: CommandEventDetails): void => {
+  emitUploadProgress: (
+    queueKey: CacheKeyType,
+    values: FetchProgressType,
+    details: CommandEventDetails<FetchCommandInstance>,
+  ): void => {
     emitter.emit(getUploadProgressEventKey(queueKey), values, details);
   },
-  emitDownloadProgress: (queueKey: CacheKeyType, values: FetchProgressType, details: CommandEventDetails): void => {
+  emitDownloadProgress: (
+    queueKey: CacheKeyType,
+    values: FetchProgressType,
+    details: CommandEventDetails<FetchCommandInstance>,
+  ): void => {
     emitter.emit(getDownloadProgressEventKey(queueKey), values, details);
   },
   // Response
@@ -62,29 +70,29 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   // Start
   onRequestStart: <T extends FetchCommandInstance>(
     queueKey: CacheKeyType,
-    callback: (command: T, details: CommandEventDetails) => void,
+    callback: (details: CommandEventDetails<T>) => void,
   ): VoidFunction => {
     emitter.on(getRequestStartEventKey(queueKey), callback);
     return () => emitter.removeListener(getRequestStartEventKey(queueKey), callback);
   },
   onResponseStart: <T extends FetchCommandInstance>(
     queueKey: CacheKeyType,
-    callback: (command: T, details: CommandEventDetails) => void,
+    callback: (details: CommandEventDetails<T>) => void,
   ): VoidFunction => {
     emitter.on(getResponseStartEventKey(queueKey), callback);
     return () => emitter.removeListener(getResponseStartEventKey(queueKey), callback);
   },
   // Progress
-  onUploadProgress: (
+  onUploadProgress: <T extends FetchCommandInstance = FetchCommandInstance>(
     queueKey: CacheKeyType,
-    callback: (values: FetchProgressType, details: CommandEventDetails) => void,
+    callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void,
   ): VoidFunction => {
     emitter.on(getUploadProgressEventKey(queueKey), callback);
     return () => emitter.removeListener(getUploadProgressEventKey(queueKey), callback);
   },
-  onDownloadProgress: (
+  onDownloadProgress: <T extends FetchCommandInstance = FetchCommandInstance>(
     queueKey: CacheKeyType,
-    callback: (values: FetchProgressType, details: CommandEventDetails) => void,
+    callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void,
   ): VoidFunction => {
     emitter.on(getDownloadProgressEventKey(queueKey), callback);
     return () => emitter.removeListener(getDownloadProgressEventKey(queueKey), callback);

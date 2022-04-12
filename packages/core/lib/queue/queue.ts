@@ -17,9 +17,6 @@ import { FetchCommandInstance, FetchCommand } from "command";
 import { FetchBuilder } from "builder";
 import { getUniqueRequestId } from "utils";
 
-// Todo problem - implement leader tab system to execute requests from single tab
-// This will help to fight the possible duplication of the requests when using persistance
-
 /**
  * Queue class was made to store controlled request Fetches, and firing them one-by-one per queue.
  * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
@@ -28,8 +25,10 @@ export class Queue<ErrorType, HttpOptions> {
   public emitter = new EventEmitter();
   public events = getQueueEvents<HttpOptions>(this.emitter);
   public logger: LoggerMethodsType;
-  private requestCount = new Map<string, number>();
+
   private storage: QueueStorageType<HttpOptions> = new Map<QueueStoreKeyType, QueueData<HttpOptions>>();
+
+  private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
   constructor(
@@ -47,13 +46,13 @@ export class Queue<ErrorType, HttpOptions> {
 
   //
   //
-  // Sub Queues Handlers
+  // Queue Handlers
   //
   //
 
-  startQueue = async (queueKey: string) => {
+  startQueue = (queueKey: string) => {
     // Change status to running
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
 
     // Start the queue when its stopped
     if (queue) {
@@ -70,9 +69,9 @@ export class Queue<ErrorType, HttpOptions> {
    * Pause request queue, but not cancel already started requests
    * @param queueKey
    */
-  pauseQueue = async (queueKey: string) => {
+  pauseQueue = (queueKey: string) => {
     // Change state to stopped
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
 
     if (queue) {
       queue.stopped = true;
@@ -87,9 +86,9 @@ export class Queue<ErrorType, HttpOptions> {
    * Stop request queue and cancel all started requests - those will be treated like not started
    * @param queueKey
    */
-  stopQueue = async (queueKey: string) => {
+  stopQueue = (queueKey: string) => {
     // Change state to stopped
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
 
     if (queue) {
       queue.stopped = true;
@@ -103,9 +102,9 @@ export class Queue<ErrorType, HttpOptions> {
     this.events.setQueueStatus(queueKey, queue);
   };
 
-  startRequest = async (queueKey: string, requestId: string) => {
+  startRequest = (queueKey: string, requestId: string) => {
     // Change status to running
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
     const request = queue?.requests.find((element) => element.requestId === requestId);
 
     // Start the queue when its stopped
@@ -119,9 +118,9 @@ export class Queue<ErrorType, HttpOptions> {
     this.events.setQueueStatus(queueKey, queue);
   };
 
-  stopRequest = async (queueKey: string, requestId: string) => {
+  stopRequest = (queueKey: string, requestId: string) => {
     // Change state to stopped
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
     const request = queue?.requests.find((element) => element.requestId === requestId);
 
     if (request) {
@@ -142,7 +141,7 @@ export class Queue<ErrorType, HttpOptions> {
    * @returns
    */
   flushQueue = async (queueKey: string) => {
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
     const runningRequests = this.getRunningRequests(queueKey);
     const queueElement = queue?.requests.find((request) => !request.stopped);
 
@@ -183,17 +182,21 @@ export class Queue<ErrorType, HttpOptions> {
     return runningRequests && !runningRequests.find((req) => req.requestId === requestId);
   };
 
-  getIsActiveQueue = async (queueKey: string) => {
-    const queue = await this.getQueue(queueKey);
-    // Do not continue the request handling when it got stopped and request was unsuccessful
-    // Or when the request was aborted/canceled
-    return !!queue.requests.length;
+  getIsActiveQueue = (queueKey: string) => {
+    const queue = this.getQueue(queueKey);
+    const hasRunningRequests = queue.requests.some((req) => !req.stopped);
+    const isRunningQueue = !queue.stopped;
+    return hasRunningRequests && isRunningQueue;
+  };
+
+  getIsRunningQueue = (queueKey: string) => {
+    return !!this.runningRequests.get(queueKey)?.length;
   };
 
   // Storage
-  getQueue = async <Command = unknown>(queueKey: string) => {
+  getQueue = <Command = unknown>(queueKey: string) => {
     const initialQueue = { requests: [], stopped: false } as QueueData<HttpOptions, Command>;
-    const storedEntity = (await this.storage.get(queueKey)) as QueueData<HttpOptions, Command>;
+    const storedEntity = this.storage.get(queueKey) as QueueData<HttpOptions, Command>;
 
     return storedEntity || initialQueue;
   };
@@ -202,8 +205,8 @@ export class Queue<ErrorType, HttpOptions> {
     return this.storage.keys();
   };
 
-  setQueue = async <Command = unknown>(queueKey: string, queue: QueueData<HttpOptions, Command>) => {
-    await this.storage.set(queueKey, queue);
+  setQueue = <Command = unknown>(queueKey: string, queue: QueueData<HttpOptions, Command>) => {
+    this.storage.set(queueKey, queue);
 
     this.options?.onUpdateStorage?.(queueKey, queue);
 
@@ -213,17 +216,10 @@ export class Queue<ErrorType, HttpOptions> {
     return queue;
   };
 
-  addQueueElement = async (queueKey: string, queueElementDump: QueueDumpValueType<HttpOptions>) => {
-    /**
-     * Todo
-     * 1. Async synchronization of the multiple tabs open with the add/get events
-     * 2. Figure out way to remove possible race condition when using the async data storages
-     * We can have local dump of the queue and sync it from it
-     */
-
-    const queue = await this.getQueue(queueKey);
+  addQueueElement = (queueKey: string, queueElementDump: QueueDumpValueType<HttpOptions>) => {
+    const queue = this.getQueue(queueKey);
     queue.requests.push(queueElementDump);
-    await this.setQueue(queueKey, queue);
+    this.setQueue(queueKey, queue);
   };
 
   /**
@@ -232,10 +228,10 @@ export class Queue<ErrorType, HttpOptions> {
    * @param requestId
    * @returns
    */
-  deleteQueueRequest = async (queueKey: string, requestId: string) => {
-    const queue = await this.getQueue(queueKey);
+  deleteQueueRequest = (queueKey: string, requestId: string) => {
+    const queue = this.getQueue(queueKey);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
-    await this.storage.set(queueKey, queue);
+    this.storage.set(queueKey, queue);
     this.options?.onDeleteFromStorage?.(queueKey, queue);
 
     // Emit Queue Changes
@@ -244,10 +240,10 @@ export class Queue<ErrorType, HttpOptions> {
     return queue;
   };
 
-  clearQueue = async (queueKey: string) => {
-    const queue = await this.getQueue(queueKey);
+  clearQueue = (queueKey: string) => {
+    const queue = this.getQueue(queueKey);
     const newQueue = { requests: [], stopped: queue.stopped };
-    await this.storage.set(queueKey, newQueue);
+    this.storage.set(queueKey, newQueue);
     this.options?.onDeleteFromStorage?.(queueKey, newQueue);
 
     // Emit Queue Changes
@@ -310,7 +306,7 @@ export class Queue<ErrorType, HttpOptions> {
   };
 
   /**
-   * Clear and cancel all started requests, but do NOT clear it from queue cache
+   * Clear and cancel all started requests, but do NOT remove it from queue cache
    * @param queueKey
    */
   clearRunningRequests = (queueKey: string) => {
@@ -329,11 +325,11 @@ export class Queue<ErrorType, HttpOptions> {
   flush = async () => {
     this.logger.debug(`Flushing all queues`);
 
-    const keys = await this.getQueuesKeys();
+    const keys = this.getQueuesKeys();
 
     // eslint-disable-next-line no-restricted-syntax
-    for await (const key of keys) {
-      const queueElementDump = await this.getQueue(key);
+    for (const key of keys) {
+      const queueElementDump = this.getQueue(key);
 
       if (queueElementDump) {
         this.flushQueue(key);
@@ -341,7 +337,7 @@ export class Queue<ErrorType, HttpOptions> {
     }
   };
 
-  add = async (command: FetchCommandInstance) => {
+  add = (command: FetchCommandInstance) => {
     const { queueKey } = command;
 
     const requestId = getUniqueRequestId(queueKey);
@@ -358,22 +354,20 @@ export class Queue<ErrorType, HttpOptions> {
 
     this.logger.debug(`Adding request to queue`, { queueKey, queueElementDump });
 
-    // Todo fix when adding requests to the queue at the same time, those will not be deduplicated
-    // because of the async read of the data from storage - we have to keep local synchronous snapshot of queues
-    const queue = await this.getQueue(queueKey);
-    const hasRunningRequests = !!queue.requests.length;
-    const requestType = getRequestType(command, hasRunningRequests);
+    const queue = this.getQueue(queueKey);
+    const hasRequests = !!queue.requests.length;
+    const requestType = getRequestType(command, hasRequests);
 
     switch (requestType) {
       case QueueRequestType.oneByOne: {
-        await this.addQueueElement(queueKey, queueElementDump);
+        this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing one-by-one request`, { requestId, queueKey, queueElementDump, requestType });
         // 1. One-by-one: if we setup request as one-by-one queue use queueing system
         this.flushQueue(queueKey);
         return requestId;
       }
       case QueueRequestType.previousCanceled: {
-        await this.addQueueElement(queueKey, queueElementDump);
+        this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing cancelable request`, { requestId, queueKey, queueElementDump, requestType });
         // Cancel all previous on-going requests
         this.clearRunningRequests(queueKey);
@@ -382,11 +376,16 @@ export class Queue<ErrorType, HttpOptions> {
       }
       case QueueRequestType.deduplicated: {
         this.logger.info(`Deduplicated request`, { requestId, queueKey, queueElementDump, requestType });
+
+        // When coming back from offline we need to run the queue again
+        if (!this.getIsRunningQueue(queueKey)) {
+          this.flushQueue(queueKey);
+        }
         // Return the running requestId to fullfil the events
         return queue.requests[0].requestId;
       }
       default: {
-        await this.addQueueElement(queueKey, queueElementDump);
+        this.addQueueElement(queueKey, queueElementDump);
         this.logger.info(`Performing all-at-once request`, { requestId, queueKey, queueElementDump, requestType });
         this.performRequest(command, queueElementDump);
         return requestId;
@@ -394,10 +393,10 @@ export class Queue<ErrorType, HttpOptions> {
     }
   };
 
-  clear = async () => {
+  clear = () => {
     this.runningRequests.forEach((requests) => requests.forEach((request) => request.command.abort()));
     this.runningRequests.clear();
-    await this.storage.clear();
+    this.storage.clear();
     this.options?.onClearStorage?.(this);
   };
 
@@ -448,9 +447,12 @@ export class Queue<ErrorType, HttpOptions> {
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
-    const isOfflineOnResponse = !appManager.isOnline;
+    const isOfflineResponseStatus = !appManager.isOnline;
     const isCanceled = this.getIsCanceledRequest(queueKey, requestId);
     // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
+
+    // Remove running request
+    this.deleteRunningRequest(queueKey, requestId);
 
     const isFailed = !!response[1] || !response[2] || response[2] >= 400;
 
@@ -460,12 +462,12 @@ export class Queue<ErrorType, HttpOptions> {
       response,
     });
 
-    const queue = await this.getQueue(queueKey);
+    const queue = this.getQueue(queueKey);
 
     const requestDetails = {
       isFailed,
       isCanceled,
-      isOffline: isOfflineOnResponse,
+      isOffline: isOfflineResponseStatus,
       isRefreshed: this.getQueueRequestCount(queueKey) > 1,
       isStopped: queue.stopped,
       retries: queueElement.retries,
@@ -479,12 +481,10 @@ export class Queue<ErrorType, HttpOptions> {
     // Cache event to emit the data inside and store it
     cache.set(cacheKey, response, requestDetails, shouldUseCache);
 
-    this.deleteRunningRequest(queueKey, requestId);
-
     if (isCanceled) {
       return this.logger.error(`Request canceled`, { requestId, queueKey });
     }
-    if (isFailed && isOfflineOnResponse) {
+    if (isFailed && isOfflineResponseStatus) {
       return this.logger.error(`Request failed because of going offline`, response);
     }
     if (!isFailed) {

@@ -1,3 +1,4 @@
+import { RequiredKeys } from "types";
 import { AppManagerOptionsType } from "managers";
 import { onWindowEvent, onDocumentEvent } from "./app.manager.utils";
 
@@ -8,17 +9,15 @@ export enum AppEvents {
   offline = "offline",
 }
 
-export const appManagerInitialOptions: AppManagerOptionsType = {
+export const appManagerInitialOptions: RequiredKeys<AppManagerOptionsType> = {
   initiallyFocused: true,
   initiallyOnline: true,
-  focusEvent: (setFocused) => {
-    onDocumentEvent("visibilitychange", setFocused);
-    onWindowEvent("focus", setFocused);
+  focusEvent: (setFocused: (isFocused: boolean) => void) => {
+    onDocumentEvent("visibilitychange", () => setFocused(true));
+    onWindowEvent("focus", () => setFocused(true));
+    onWindowEvent("blur", () => setFocused(false));
   },
-  blurEvent: (setBlurred) => {
-    onWindowEvent("blur", setBlurred);
-  },
-  onlineEvent: (setOnline) => {
+  onlineEvent: (setOnline: (isOnline: boolean) => void) => {
     onWindowEvent("online", () => setOnline(true));
     onWindowEvent("offline", () => setOnline(false));
   },

@@ -9,7 +9,7 @@ between sessions in the application or its launches. To enable the persistence o
 storages with the ones we choose, which will meet our requirements - we do not have many requirements here, except for
 the type that we accept.
 
-:::caution
+:::note
 
 Persistance storages can handle only json data. Remember that all file objects need to be translated to base64 or other
 valid format to match json requirements.
@@ -31,9 +31,16 @@ export const builder = new FetchBuilder<ServerErrorType>({
 ## Queues Persistance
 
 In the case of persisten queues, there are still a few open topics left in the context of web development. First of all,
-it is about synchronization between browser tabs and the introduction of a "leader system" when it comes to having several
-channels for data synchronization. Due to the freedom of storage that we can place here and their potential
+it is about synchronization between browser tabs and the introduction of a "leader system" when it comes to having
+several channels for data synchronization. Due to the freedom of storage that we can place here and their potential
 asynchronicity - we need a few more considerations on how to solve this flow properly.
+
+:::caution
+
+Persistant queues shouldn't be used on the browser. This is due to the many tabs/windows possibility reasons. This way,
+we will have multiple builders initialized where the **duplicated** requests will be send.
+
+:::
 
 ```tsx
 export const builder = new FetchBuilder<ServerErrorType>({
@@ -54,6 +61,3 @@ export const builder = new FetchBuilder<ServerErrorType>({
     }),
 }).build();
 ```
-
-<!-- -limitation of json based storages - no class, file, constructor objects - we have to keep base64, no functions or any
-tricky things - simple objects/arrays, with strings, numbers, booleans and null -->

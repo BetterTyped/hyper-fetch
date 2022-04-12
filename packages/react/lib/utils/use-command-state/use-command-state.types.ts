@@ -10,6 +10,7 @@ import {
   ExtractClientOptions,
   LoggerMethodsType,
   CommandResponseDetails,
+  CommandEventDetails,
 } from "@better-typed/hyper-fetch";
 
 import { isEqual } from "utils";
@@ -53,5 +54,5 @@ export type OnRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoa
 export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;
-export type OnStartCallbackType<T extends FetchCommandInstance> = (middleware: T) => void;
+export type OnStartCallbackType<T extends FetchCommandInstance> = (details: CommandEventDetails<T>) => void;
 export type OnProgressCallbackType = (progress: FetchProgressType) => void;

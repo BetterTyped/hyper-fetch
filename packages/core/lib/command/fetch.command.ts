@@ -18,7 +18,7 @@ import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
 import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
-import { FetchAction } from "action";
+import { FetchEffect } from "effect";
 import { getUniqueRequestId } from "utils";
 
 /**
@@ -63,7 +63,7 @@ export class FetchCommand<
   abortKey: string;
   cacheKey: string;
   queueKey: string;
-  actions: string[] = [];
+  effects: string[] = [];
   used: boolean;
   deduplicate: boolean;
 
@@ -130,7 +130,7 @@ export class FetchCommand<
       commandDump?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
     this.cacheKey = commandDump?.cacheKey || cacheKey || getCommandKey(this);
     this.queueKey = commandDump?.queueKey || queueKey || getCommandKey(this);
-    this.actions = commandDump?.actions || [];
+    this.effects = commandDump?.effects || [];
     this.used = commandDump?.used || false;
     this.deduplicate = commandDump?.deduplicate || deduplicate;
 
@@ -221,16 +221,16 @@ export class FetchCommand<
     return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
   };
 
-  public addAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
-    const actionName = typeof action === "string" ? action : action?.getName();
-    const actions = [...this.actions, actionName];
-    return this.clone({ actions: [...new Set(actions)] });
+  public addEffect = (effect: FetchEffect<ReturnType<typeof this.clone>> | string) => {
+    const effectName = typeof effect === "string" ? effect : effect?.getName();
+    const effects = [...this.effects, effectName];
+    return this.clone({ effects: [...new Set(effects)] });
   };
 
-  public removeAction = (action: FetchAction<ReturnType<typeof this.clone>> | string) => {
-    const actionName = typeof action === "string" ? action : action?.getName();
-    const actions = this.actions.filter((currentAction) => currentAction !== actionName);
-    return this.clone({ actions });
+  public removeEffect = (effect: FetchEffect<ReturnType<typeof this.clone>> | string) => {
+    const effectName = typeof effect === "string" ? effect : effect?.getName();
+    const effects = this.effects.filter((currentEffect) => currentEffect !== effectName);
+    return this.clone({ effects });
   };
 
   public abort = () => {
@@ -271,7 +271,7 @@ export class FetchCommand<
         abortKey: this.abortKey,
         cacheKey: this.cacheKey,
         queueKey: this.queueKey,
-        actions: this.actions,
+        effects: this.effects,
         used: this.used,
         updatedAbortKey: this.updatedAbortKey,
         updatedCacheKey: this.updatedCacheKey,

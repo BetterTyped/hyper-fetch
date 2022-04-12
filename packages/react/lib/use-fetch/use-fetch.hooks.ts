@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
-import { useDidUpdate, useIsMounted } from "@better-typed/react-lifecycle-hooks";
+import { useRef } from "react";
+import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useDebounce } from "utils/use-debounce";
-import { getCacheRefreshTime, isStaleCacheData } from "utils";
+import { isStaleCacheData } from "utils";
 import { UseFetchOptionsType, UseFetchReturnType, useFetchDefaultOptions } from "use-fetch";
 import { useCommandState } from "utils/use-command-state";
 
@@ -25,18 +25,13 @@ export const useFetch = <T extends FetchCommandInstance>(
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
-  }: // suspense = useFetchDefaultOptions.suspense
-  UseFetchOptionsType<T> = useFetchDefaultOptions,
+  }: UseFetchOptionsType<T> = useFetchDefaultOptions,
 ): UseFetchReturnType<T> => {
   const { cacheTime, cacheKey, queueKey, builder } = command;
   const { cache, fetchQueue, appManager, loggerManager } = builder;
   const commandDump = command.dump();
   const logger = useRef(loggerManager.init("useFetch")).current;
   const unmountCallbacks = useRef<null | VoidFunction>(null);
-
-  const isMounted = useIsMounted();
-
-  const [commandListeners, setCommandListeners] = useState<Pick<T, "queueKey" | "builder">[]>([]);
 
   const [state, actions, { setRenderKey, initialized }] = useCommandState({
     command,
@@ -46,31 +41,13 @@ export const useFetch = <T extends FetchCommandInstance>(
     logger,
     deepCompare,
     commandListeners: [],
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    removeCommandListener,
+    removeCommandListener: () => null,
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     refresh: handleRefresh,
   });
 
   const requestDebounce = useDebounce(debounceTime);
-  const refreshDebounce = useDebounce(getCacheRefreshTime(refreshTime, state.timestamp));
-
-  const addCommandListener = (triggeredCommand: FetchCommandInstance, callback?: () => Promise<void>) => {
-    if (isMounted) {
-      const newItem = { queueKey: triggeredCommand.queueKey, builder: triggeredCommand.builder };
-      setCommandListeners((prev) => {
-        callback?.();
-        return [...prev, newItem];
-      });
-    }
-  };
-
-  function removeCommandListener(key: string) {
-    if (isMounted) {
-      const index = commandListeners.findIndex((element) => element.queueKey === key);
-      setCommandListeners((prev) => prev.splice(index, 1));
-    }
-  }
+  const refreshDebounce = useDebounce(refreshTime);
 
   const handleFetch = () => {
     /**
@@ -80,7 +57,6 @@ export const useFetch = <T extends FetchCommandInstance>(
      */
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
-      addCommandListener(command);
       fetchQueue.add(command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
@@ -88,16 +64,17 @@ export const useFetch = <T extends FetchCommandInstance>(
   };
 
   function handleRefresh() {
-    refreshDebounce.resetDebounce();
-
     if (refresh) {
+      refreshDebounce.resetDebounce();
       logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
-      refreshDebounce.debounce(async () => {
+      refreshDebounce.debounce(() => {
         const isBlur = !appManager.isFocused;
 
         // If window tab is not active should we refresh the cache
         const canRefreshBlurred = isBlur && refreshBlurred;
-        const canRefresh = canRefreshBlurred || !isBlur;
+        const isFetching = !!fetchQueue.getRunningRequests(command.queueKey).length;
+        const isQueued = !!fetchQueue.getQueue(command.queueKey)?.requests.length;
+        const canRefresh = canRefreshBlurred || !isBlur || !isFetching || !isQueued;
 
         if (canRefresh) {
           logger.debug(`Performing refresh request`, {

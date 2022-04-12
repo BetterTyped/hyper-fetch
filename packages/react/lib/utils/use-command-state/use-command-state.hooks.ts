@@ -11,6 +11,7 @@ import {
   CacheValueType,
   ClientResponseType,
   CommandResponseDetails,
+  CommandEventDetails,
 } from "@better-typed/hyper-fetch";
 
 import { useDependentState } from "utils/use-dependent-state";
@@ -89,7 +90,6 @@ export const useCommandState = <T extends FetchCommandInstance>({
     const { isCanceled, isFailed, isOffline } = details;
 
     logger.debug("Received new data");
-
     actions.setLoading(false, false);
 
     if (isCanceled) {
@@ -114,7 +114,9 @@ export const useCommandState = <T extends FetchCommandInstance>({
 
   const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
     actions.setLoading(isLoading, false);
-    onRequestCallback.current?.({ isRetry });
+    if (isLoading) {
+      onRequestCallback.current?.({ isRetry });
+    }
   };
 
   const handleDownloadProgress = (progress: FetchProgressType) => {
@@ -125,12 +127,12 @@ export const useCommandState = <T extends FetchCommandInstance>({
     onUploadProgressCallback?.current?.(progress);
   };
 
-  const handleRequestStart = (middleware: T) => {
-    onRequestStartCallback?.current?.(middleware);
+  const handleRequestStart = (details: CommandEventDetails<T>) => {
+    onRequestStartCallback?.current?.(details);
   };
 
-  const handleResponseStart = (middleware: T) => {
-    onRequestStartCallback?.current?.(middleware);
+  const handleResponseStart = (details: CommandEventDetails<T>) => {
+    onRequestStartCallback?.current?.(details);
   };
 
   const handleResponse = (queueKey: string) => {

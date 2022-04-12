@@ -6,7 +6,7 @@ import { Queue } from "queue";
 import { ExtractClientOptions, ExtractError } from "types";
 
 export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
-  return Number(((total * 100) / loaded).toFixed(0));
+  return Number(((loaded * 100) / total).toFixed(0));
 };
 
 export const fetchEtaUtils = (
@@ -27,6 +27,9 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ClientPro
       progress: 0,
       timeLeft: 0,
       sizeLeft: 0,
+      total: 0,
+      loaded: 0,
+      startTimestamp: +requestStartTime,
     };
   }
 
@@ -36,6 +39,9 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ClientPro
     progress: fetchProgressUtils(progressEvent),
     timeLeft,
     sizeLeft,
+    total,
+    loaded,
+    startTimestamp: +requestStartTime,
   };
 };
 

@@ -1,6 +1,14 @@
 import { FetchCommandInstance } from "command";
 import { QueueRequestType } from "queue";
 
+// Queue
+
+export const getStorageKey = (queueKey: string): string => {
+  return `KEY:[${queueKey}]_DATE:[${+new Date()}]`;
+};
+
+// Events
+
 export const getQueueLoadingEventKey = (key: string): string => {
   return `${key}-loading-event`;
 };
@@ -13,6 +21,8 @@ export const getQueueStatusEventKey = (key: string): string => {
 export const getQueueChangeEventKey = (key: string): string => {
   return `${key}-queue-event`;
 };
+
+// Requesting
 
 export const getIsEqualTimestamp = (currentTimestamp: number, threshold: number, queueTimestamp?: number): boolean => {
   if (!queueTimestamp) {
@@ -32,7 +42,7 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
   return false;
 };
 
-export const getRequestType = (command: FetchCommandInstance, hasRunningRequests: boolean) => {
+export const getRequestType = (command: FetchCommandInstance, hasRequests: boolean) => {
   const { concurrent, cancelable, deduplicate } = command;
 
   if (!concurrent) {
@@ -41,7 +51,7 @@ export const getRequestType = (command: FetchCommandInstance, hasRunningRequests
   if (cancelable) {
     return QueueRequestType.previousCanceled;
   }
-  if (hasRunningRequests && deduplicate) {
+  if (hasRequests && deduplicate) {
     return QueueRequestType.deduplicated;
   }
   return QueueRequestType.allAtOnce;

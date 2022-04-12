@@ -17,7 +17,7 @@ import {
   ResponseInterceptorCallback,
 } from "builder";
 import { Cache } from "cache";
-import { FetchActionInstance } from "action";
+import { FetchEffectInstance } from "effect";
 import { Queue } from "queue";
 import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
@@ -55,8 +55,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
   // Utils
   stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsOptions);
 
-  // Registered requests Actions
-  actions: FetchActionInstance[] = [];
+  // Registered requests effect
+  effects: FetchEffectInstance[] = [];
 
   // Options
   httpOptions?: HttpOptions;
@@ -262,29 +262,29 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
       >(this, params);
   };
 
-  public addActions = (actions: FetchActionInstance[]) => {
+  public addEffects = (effect: FetchEffectInstance[]) => {
     if (this.builded) {
-      throw new Error(`Actions can be applied only before usage of build method on FetchBuilder class.
+      throw new Error(`Effects can be applied only before usage of build method on FetchBuilder class.
       Build method indicates the ended setup and prevents synchronization/registration issues.`);
     }
 
-    // Check for duplicated names of actions
-    this.actions.forEach((currentAction) => {
-      const hasDuplicate = actions.some((action) => action.getName() === currentAction.getName());
+    // Check for duplicated names of effect
+    this.effects.forEach((currentEffect) => {
+      const hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
 
       if (hasDuplicate) {
-        throw new Error("Fetch action names must be unique.");
+        throw new Error("Fetch effect names must be unique.");
       }
     });
 
-    this.actions = this.actions.concat(actions);
+    this.effects = this.effects.concat(effect);
 
     return this;
   };
 
-  public removeAction = (action: FetchActionInstance | string) => {
-    const name = typeof action === "string" ? action : action?.getName();
-    this.actions = this.actions.filter((currentAction) => currentAction.getName() !== name);
+  public removeEffect = (effect: FetchEffectInstance | string) => {
+    const name = typeof effect === "string" ? effect : effect?.getName();
+    this.effects = this.effects.filter((currentEffect) => currentEffect.getName() !== name);
 
     return this;
   };

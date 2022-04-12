@@ -53,4 +53,7 @@ export type FetchProgressType = {
   progress: number;
   timeLeft: number;
   sizeLeft: number;
+  total: number;
+  loaded: number;
+  startTimestamp: number;
 };

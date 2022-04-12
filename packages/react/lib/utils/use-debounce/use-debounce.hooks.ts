@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useWillUnmount } from "@better-typed/react-lifecycle-hooks";
+import { useWillUnmount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 type Debounce = {
   time: number;
@@ -19,18 +19,19 @@ export const useDebounce = (delay = 600): UseDebounceReturnType => {
     time: delay,
     timer: null,
   });
-  debounce.current.time = delay;
+
+  useDidUpdate(() => {
+    debounce.current.time = delay;
+  }, [delay]);
 
   const resetDebounce = () => {
-    if (debounce.current.timer) clearTimeout(debounce.current.timer);
+    if (debounce.current.timer !== null) clearTimeout(debounce.current.timer);
     debounce.current.timer = null;
   };
 
   const setDebounce: DebounceFunction = (callback) => {
     resetDebounce();
-
     debounce.current.timer = setTimeout(() => {
-      debounce.current.timer = null;
       callback();
     }, debounce.current.time);
   };

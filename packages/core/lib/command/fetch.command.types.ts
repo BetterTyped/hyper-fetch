@@ -27,7 +27,7 @@ export type FetchCommandDump<ClientOptions, Command = unknown> = {
     abortKey: string;
     cacheKey: string;
     queueKey: string;
-    actions: string[];
+    effects: string[];
     used: boolean;
     updatedAbortKey: boolean;
     updatedCacheKey: boolean;
@@ -76,7 +76,7 @@ export type FetchCommandCurrentType<
   data?: FetchCommandData<PayloadType, MappedData>;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
-  actions?: string[];
+  effects?: string[];
   used?: boolean;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;

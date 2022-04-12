@@ -55,7 +55,7 @@ describe("[Basic] Queue", () => {
     //   testBuilder.commandManager.getAbortController(getManyRequest)?.signal.removeEventListener("abort", cancelTrigger);
     // });
 
-    // Todo with queue local shapshots
+    // Todo with queue local snapshots
     // it("should deduplicate two submitted requests", async () => {
     //   await sleep(100);
 

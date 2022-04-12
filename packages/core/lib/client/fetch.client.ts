@@ -40,11 +40,11 @@ export const fetchClient: ClientType = async (command, requestId) => {
   const { endpoint, queryParams, data, method } = commandInstance;
 
   const url = baseUrl + endpoint + stringifyQueryParams(queryParams);
-  const actions = builder.actions.filter((action) => command.actions.includes(action.getName()));
+  const effects = builder.effects.filter((effect) => command.effects.includes(effect.getName()));
   const abortController = commandManager.getAbortController(abortKey, requestId);
 
-  // "Trigger" Action lifecycle
-  actions.forEach((action) => action.onTrigger(command));
+  // "Trigger" Effect lifecycle
+  effects.forEach((effect) => effect.onTrigger(command));
 
   const abort = () => xhr.abort();
 
@@ -62,7 +62,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
     logger.debug(`Request setup finished`);
 
     // Request listeners
-    commandManager.events.emitRequestStart(queueKey, command, { requestId });
+    commandManager.events.emitRequestStart(queueKey, { requestId, command });
     setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
       total: 1,
       loaded: 0,
@@ -93,18 +93,18 @@ export const fetchClient: ClientType = async (command, requestId) => {
 
     xhr.onloadstart = (): void => {
       responseStartTimestamp = +new Date();
-      commandManager.events.emitResponseStart(queueKey, command, { requestId });
+      commandManager.events.emitResponseStart(queueKey, { requestId, command });
     };
 
     // Error listeners
     xhr.onabort = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
+      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
     };
     xhr.ontimeout = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
+      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
     };
     xhr.onerror = (e): void => {
-      handleClientError(commandInstance, actions, resolve, e as ProgressEvent<XMLHttpRequest>);
+      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>);
     };
 
     // State listeners
@@ -126,9 +126,9 @@ export const fetchClient: ClientType = async (command, requestId) => {
       const isSuccess = status.startsWith("2") || status.startsWith("3");
 
       if (isSuccess) {
-        handleClientSuccess(commandInstance, actions, event, resolve);
+        handleClientSuccess(commandInstance, effects, event, resolve);
       } else {
-        handleClientError(commandInstance, actions, resolve, event);
+        handleClientError(commandInstance, effects, resolve, event);
       }
       abortController?.signal.removeEventListener("abort", abort);
     };
@@ -138,6 +138,6 @@ export const fetchClient: ClientType = async (command, requestId) => {
     xhr.send(getClientPayload(data));
 
     // "Start" Action lifecycle
-    actions.forEach((action) => action.onStart(command));
+    effects.forEach((action) => action.onStart(command));
   });
 };

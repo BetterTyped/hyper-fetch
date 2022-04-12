@@ -8,7 +8,7 @@ import {
 } from "client";
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
 import { ExtractError, ExtractResponse, NegativeTypes } from "types";
-import { FetchActionInstance } from "action";
+import { FetchEffectInstance } from "effect";
 
 export const parseResponse = (response: string | unknown) => {
   try {
@@ -180,7 +180,7 @@ export const setResponseProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress, { requestId });
+  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress, { requestId, command });
 };
 
 export const setRequestProgress = <T extends FetchCommandInstance>(
@@ -192,14 +192,14 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startDate), event);
 
-  command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId });
+  command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
 };
 
 // Client response handlers
 
 export const handleClientError = async <T extends FetchCommandInstance>(
   command: T,
-  actions: FetchActionInstance[],
+  effects: FetchEffectInstance[],
   resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
   event?: ProgressEvent<XMLHttpRequest>,
   errorCase?: "timeout" | "abort",
@@ -220,8 +220,8 @@ export const handleClientError = async <T extends FetchCommandInstance>(
   let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
   command.builder.loggerManager.init("Client").error(`Received error response`, responseData);
 
-  actions.forEach((action) => action.onError(responseData, command));
-  actions.forEach((action) => action.onFinished(responseData, command));
+  effects.forEach((effect) => effect.onError(responseData, command));
+  effects.forEach((effect) => effect.onFinished(responseData, command));
 
   responseData = await command.builder.__modifyErrorResponse(responseData, command);
   responseData = await command.builder.__modifyResponse(responseData, command);
@@ -230,7 +230,7 @@ export const handleClientError = async <T extends FetchCommandInstance>(
 
 export const handleClientSuccess = async <T extends FetchCommandInstance>(
   command: T,
-  actions: FetchActionInstance[],
+  effects: FetchEffectInstance[],
   event: ProgressEvent<XMLHttpRequest>,
   resolve: (data: ClientResponseSuccessType<ExtractResponse<T>>) => void,
 ): Promise<void> => {
@@ -243,8 +243,8 @@ export const handleClientSuccess = async <T extends FetchCommandInstance>(
   let responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
   command.builder.loggerManager.init("Client").success(`Received success response`, responseData);
 
-  actions.forEach((action) => action.onSuccess(responseData, command));
-  actions.forEach((action) => action.onFinished(responseData, command));
+  effects.forEach((effect) => effect.onSuccess(responseData, command));
+  effects.forEach((effect) => effect.onFinished(responseData, command));
 
   responseData = await command.builder.__modifySuccessResponse(responseData, command);
   responseData = await command.builder.__modifyResponse(responseData, command);

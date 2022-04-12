@@ -1,6 +1,6 @@
 // rollup builder entry point
 
-export * from "./action";
+export * from "./effect";
 export * from "./builder";
 export * from "./cache";
 export * from "./client";
