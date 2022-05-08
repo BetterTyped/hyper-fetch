@@ -4,7 +4,7 @@ import {
   FetchCommandCurrentType,
   ExtractRouteParams,
   FetchMethodType,
-  FetchCommandOptions,
+  FetchCommandConfig,
   FetchType,
   ParamsType,
   getCommandKey,
@@ -75,7 +75,7 @@ export class FetchCommand<
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
-    readonly commandOptions: FetchCommandOptions<EndpointType, ClientOptions>,
+    readonly commandOptions: FetchCommandConfig<EndpointType, ClientOptions>,
     readonly commandDump?:
       | FetchCommandCurrentType<
           ResponseType,
@@ -109,34 +109,34 @@ export class FetchCommand<
       cacheKey,
       queueKey,
       deduplicate = false,
-    } = { ...this.builder.commandOptions, ...commandOptions };
+    } = { ...this.builder.commandConfig, ...commandOptions };
 
-    this.endpoint = commandDump?.endpoint || endpoint;
-    this.headers = commandDump?.headers || headers;
-    this.auth = commandDump?.auth || auth;
+    this.endpoint = commandDump?.endpoint ?? endpoint;
+    this.headers = commandDump?.headers ?? headers;
+    this.auth = commandDump?.auth ?? auth;
     this.method = method;
     this.params = commandDump?.params;
     this.data = commandDump?.data as FetchCommandData<PayloadType, MappedData>;
     this.queryParams = commandDump?.queryParams;
-    this.options = commandDump?.options || options;
-    this.cancelable = commandDump?.cancelable || cancelable;
-    this.retry = commandDump?.retry || retry;
-    this.retryTime = commandDump?.retryTime || retryTime;
-    this.cache = commandDump?.cache || cache;
-    this.cacheTime = commandDump?.cacheTime || cacheTime;
-    this.concurrent = commandDump?.concurrent || concurrent;
-    this.deepEqual = commandDump?.deepEqual || deepEqual;
+    this.options = commandDump?.options ?? options;
+    this.cancelable = commandDump?.cancelable ?? cancelable;
+    this.retry = commandDump?.retry ?? retry;
+    this.retryTime = commandDump?.retryTime ?? retryTime;
+    this.cache = commandDump?.cache ?? cache;
+    this.cacheTime = commandDump?.cacheTime ?? cacheTime;
+    this.concurrent = commandDump?.concurrent ?? concurrent;
+    this.deepEqual = commandDump?.deepEqual ?? deepEqual;
     this.abortKey =
-      commandDump?.abortKey || abortKey || getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
-    this.cacheKey = commandDump?.cacheKey || cacheKey || getCommandKey(this);
-    this.queueKey = commandDump?.queueKey || queueKey || getCommandKey(this);
-    this.effects = commandDump?.effects || [];
-    this.used = commandDump?.used || false;
-    this.deduplicate = commandDump?.deduplicate || deduplicate;
+      commandDump?.abortKey ?? abortKey ?? getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
+    this.cacheKey = commandDump?.cacheKey ?? cacheKey ?? getCommandKey(this);
+    this.queueKey = commandDump?.queueKey ?? queueKey ?? getCommandKey(this);
+    this.effects = commandDump?.effects ?? [];
+    this.used = commandDump?.used ?? false;
+    this.deduplicate = commandDump?.deduplicate ?? deduplicate;
 
-    this.updatedAbortKey = commandDump?.updatedAbortKey || false;
-    this.updatedCacheKey = commandDump?.updatedCacheKey || false;
-    this.updatedQueueKey = commandDump?.updatedQueueKey || false;
+    this.updatedAbortKey = commandDump?.updatedAbortKey ?? false;
+    this.updatedCacheKey = commandDump?.updatedCacheKey ?? false;
+    this.updatedQueueKey = commandDump?.updatedQueueKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -170,19 +170,19 @@ export class FetchCommand<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: FetchCommandOptions<EndpointType, ClientOptions>["retry"]) => {
+  public setRetry = (retry: FetchCommandConfig<EndpointType, ClientOptions>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: FetchCommandOptions<EndpointType, ClientOptions>["retryTime"]) => {
+  public setRetryTime = (retryTime: FetchCommandConfig<EndpointType, ClientOptions>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
-  public setCache = (cache: FetchCommandOptions<EndpointType, ClientOptions>["cache"]) => {
+  public setCache = (cache: FetchCommandConfig<EndpointType, ClientOptions>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: FetchCommandOptions<EndpointType, ClientOptions>["cacheTime"]) => {
+  public setCacheTime = (cacheTime: FetchCommandConfig<EndpointType, ClientOptions>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
@@ -443,7 +443,7 @@ export class FetchCommand<
 
 // const builder = new FetchBuilder({
 //   baseUrl: "http://localhost:3000",
-// }).build();
+// });
 
 // const getUsers = builder.createCommand<{ id: string }[]>()({
 //   method: "GET",

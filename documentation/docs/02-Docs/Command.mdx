@@ -41,7 +41,7 @@ resolved.
 ```tsx
 import { FetchBuilder } from "@better-typed/hyper-fetch";
 
-export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" }).build();
+export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
 
 // We create a command which allows to get the users list
 export const getUsers = builder.createCommand<{ name: string; email: string }>()({

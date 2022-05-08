@@ -25,7 +25,7 @@ export const builder = new FetchBuilder<ServerErrorType>({
     new Cache(instance, {
       storage: peristanceStorage,
     }),
-}).build();
+});
 ```
 
 ## Queues Persistance
@@ -49,7 +49,7 @@ export const builder = new FetchBuilder<ServerErrorType>({
     new FetchQueue(instance, {
       storage: peristanceStorage,
     }),
-}).build();
+});
 ```
 
 ```tsx
@@ -59,5 +59,5 @@ export const builder = new FetchBuilder<ServerErrorType>({
     new SubmitQueue(instance, {
       storage: peristanceStorage,
     }),
-}).build();
+});
 ```

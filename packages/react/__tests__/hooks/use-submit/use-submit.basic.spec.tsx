@@ -10,7 +10,7 @@ import { testFetchInitialState } from "../../shared/fetch.tests";
 
 const dump = getManyRequest.dump();
 
-let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" });
 let command = new FetchCommand(builder, dump.commandOptions, dump.values);
 
 const renderGetManyHook = () => renderHook(() => useSubmit(command, { dependencyTracking: false }));
@@ -30,7 +30,7 @@ describe("[Basic] UseSubmit hook", () => {
 
   beforeEach(async () => {
     builder.clear();
-    builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+    builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" });
     command = new FetchCommand(builder, dump.commandOptions, dump.values);
   });
 

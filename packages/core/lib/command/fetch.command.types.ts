@@ -16,8 +16,8 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 // Dump
 
 export type FetchCommandDump<ClientOptions, Command = unknown> = {
-  commandOptions: FetchCommandOptions<string, ClientOptions>;
-  values: Omit<FetchCommandOptions<string, ClientOptions>, "method" | "abortKey" | "cacheKey" | "queueKey"> & {
+  commandOptions: FetchCommandConfig<string, ClientOptions>;
+  values: Omit<FetchCommandConfig<string, ClientOptions>, "method" | "abortKey" | "cacheKey" | "queueKey"> & {
     method: HttpMethodsType;
     data?: Command extends FetchCommandInstance ? ExtractResponse<Command> : unknown;
     params?: Command extends FetchCommandInstance ? ExtractParams<Command> : ExtractRouteParams<string>;
@@ -37,7 +37,7 @@ export type FetchCommandDump<ClientOptions, Command = unknown> = {
 };
 
 // Command
-export type FetchCommandOptions<GenericEndpoint extends string, ClientOptions> = {
+export type FetchCommandConfig<GenericEndpoint extends string, ClientOptions> = {
   endpoint: GenericEndpoint;
   headers?: HeadersInit;
   auth?: boolean;
@@ -82,7 +82,7 @@ export type FetchCommandCurrentType<
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
   deduplicate?: boolean;
-} & Partial<NullableKeys<FetchCommandOptions<GenericEndpoint, ClientOptions>>>;
+} & Partial<NullableKeys<FetchCommandConfig<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;

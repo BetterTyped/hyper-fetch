@@ -4,7 +4,7 @@
     "jsx": "react-jsx",
     "baseUrl": "./lib"
   },
-  "include": ["./lib", "./__tests__"],
+  "include": ["./lib", "./__tests__", "../../global.d.ts"],
   "paths": {
     "tests": ["./__tests__/*"],
     "use-cache/*": ["use-cache/*"],

@@ -2,14 +2,17 @@ import {
   ClientType,
   fetchClient,
   encodeParams,
-  FetchClientXHR,
-  FetchClientOptions,
+  XHRConfigType,
   ClientResponseType,
   ClientQueryParamsType,
   QueryStringifyOptions,
+  ClientHeaderMappingCallback,
+  getClientHeaders,
+  getClientPayload,
+  ClientPayloadMappingCallback,
 } from "client";
 import {
-  FetchBuilderProps,
+  FetchBuilderConfig,
   FetchBuilderInstance,
   FetchBuilderErrorType,
   StringifyCallbackType,
@@ -19,7 +22,7 @@ import {
 import { Cache } from "cache";
 import { FetchEffectInstance } from "effect";
 import { Queue } from "queue";
-import { FetchCommand, FetchCommandOptions, FetchCommandInstance } from "command";
+import { FetchCommand, FetchCommandConfig, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
 /**
@@ -27,45 +30,53 @@ import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "mana
  * commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the command.
  */
-export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpOptions = FetchClientXHR> {
+export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, RequestConfigType = XHRConfigType> {
   readonly baseUrl: string;
   debug: boolean;
-
-  builded = false;
 
   // Private
   __onErrorCallbacks: ResponseInterceptorCallback[] = [];
   __onSuccessCallbacks: ResponseInterceptorCallback[] = [];
   __onResponseCallbacks: ResponseInterceptorCallback[] = [];
-
   __onAuthCallbacks: RequestInterceptorCallback[] = [];
   __onRequestCallbacks: RequestInterceptorCallback[] = [];
 
   // Managers
   commandManager: CommandManager = new CommandManager();
-  appManager: AppManager<ErrorType, HttpOptions>;
+  appManager: AppManager<ErrorType, RequestConfigType>;
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
   client: ClientType;
-  cache: Cache<ErrorType, HttpOptions>;
-  fetchQueue: Queue<ErrorType, HttpOptions>;
-  submitQueue: Queue<ErrorType, HttpOptions>;
-
-  // Utils
-  stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsOptions);
+  cache: Cache<ErrorType, RequestConfigType>;
+  fetchQueue: Queue<ErrorType, RequestConfigType>;
+  submitQueue: Queue<ErrorType, RequestConfigType>;
 
   // Registered requests effect
   effects: FetchEffectInstance[] = [];
 
   // Options
-  httpOptions?: HttpOptions;
-  clientOptions?: FetchClientOptions;
-  commandOptions?: FetchCommandOptions<string, HttpOptions>;
-  queryParamsOptions?: QueryStringifyOptions;
+  requestConfig?: RequestConfigType;
+  commandConfig?: Partial<FetchCommandConfig<string, RequestConfigType>>;
+  queryParamsConfig?: QueryStringifyOptions;
+
+  // Utils
+
+  /**
+   * Method to stringify query params from objects.
+   */
+  stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsConfig);
+  /**
+   * Method to get default headers and to map them based on the data format exchange, by default it handles FormData / JSON formats.
+   */
+  headerMapper: ClientHeaderMappingCallback = getClientHeaders;
+  /**
+   * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
+   */
+  payloadMapper: ClientPayloadMappingCallback = getClientPayload;
 
   // Logger
-  private logger = this.loggerManager.init("Builder");
+  logger = this.loggerManager.init("Builder");
 
   constructor({
     baseUrl,
@@ -74,89 +85,193 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
     cache,
     fetchQueue,
     submitQueue,
-  }: FetchBuilderProps<ErrorType, HttpOptions>) {
+  }: FetchBuilderConfig<ErrorType, RequestConfigType>) {
     this.baseUrl = baseUrl;
     this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.cache = cache?.(this) || new Cache(this);
-    this.appManager = appManager?.(this) || new AppManager<ErrorType, HttpOptions>(this);
-    this.fetchQueue = fetchQueue?.(this) || new Queue<ErrorType, HttpOptions>(this);
-    this.submitQueue = submitQueue?.(this) || new Queue<ErrorType, HttpOptions>(this);
+    this.appManager = appManager?.(this) || new AppManager<ErrorType, RequestConfigType>(this);
+    this.fetchQueue = fetchQueue?.(this) || new Queue<ErrorType, RequestConfigType>(this);
+    this.submitQueue = submitQueue?.(this) || new Queue<ErrorType, RequestConfigType>(this);
   }
 
-  setHttpOptions = (httpOptions: HttpOptions): FetchBuilder<ErrorType, HttpOptions> => {
-    this.httpOptions = httpOptions;
+  /**
+   * It sets the client request config (by default XHR config). This is the global way to setup the configuration for client and trigger it with every command.
+   */
+  setRequestConfig = (requestConfig: RequestConfigType): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.requestConfig = requestConfig;
     return this;
   };
 
-  setClientOptions = (clientOptions: FetchClientOptions): FetchBuilder<ErrorType, HttpOptions> => {
-    this.clientOptions = clientOptions;
+  /**
+   * This method allows to configure global defaults for the command configuration like method, auth, deduplication etc.
+   */
+  setCommandConfig = (
+    commandConfig: Partial<FetchCommandConfig<string, RequestConfigType>>,
+  ): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.commandConfig = commandConfig;
     return this;
   };
 
-  setCommandDefaultOptions = (
-    commandOptions: FetchCommandOptions<string, HttpOptions>,
-  ): FetchBuilder<ErrorType, HttpOptions> => {
-    this.commandOptions = commandOptions;
-    return this;
-  };
-
-  setQueryParamsOptions = (queryParamsOptions: QueryStringifyOptions): FetchBuilder<ErrorType, HttpOptions> => {
-    this.queryParamsOptions = queryParamsOptions;
-    return this;
-  };
-
-  setDebug = (debug: boolean): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * This method enables the logger usage and display the logs in console
+   */
+  setDebug = (debug: boolean): FetchBuilder<ErrorType, RequestConfigType> => {
     this.debug = debug;
     return this;
   };
 
-  setStringifyQueryParams = (stringify: StringifyCallbackType): FetchBuilder<ErrorType, HttpOptions> => {
-    this.stringifyQueryParams = stringify;
-    return this;
-  };
-
-  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Set the logger level of the messages displayed to the console
+   */
+  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, RequestConfigType> => {
     this.loggerManager.setLevels(levels);
     return this;
   };
 
-  setLogger = (callback: (builder: FetchBuilderInstance) => LoggerManager): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Set the new logger instance to the builder
+   */
+  setLogger = (
+    callback: (builder: FetchBuilderInstance) => LoggerManager,
+  ): FetchBuilder<ErrorType, RequestConfigType> => {
     this.loggerManager = callback(this);
     return this;
   };
 
-  setClient = (callback: (builder: FetchBuilderInstance) => ClientType): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Set config for the query params stringify method, we can set here, among others, arrayFormat, skipNull, encode, skipEmptyString and more
+   */
+  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptions): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.queryParamsConfig = queryParamsConfig;
+    return this;
+  };
+
+  /**
+   * Set the custom query params stringify method to the builder
+   */
+  setStringifyQueryParams = (stringify: StringifyCallbackType): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.stringifyQueryParams = stringify;
+    return this;
+  };
+
+  /**
+   * Set the custom header mapping function
+   */
+  setHeaderMapper = (headerMapper: ClientHeaderMappingCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.headerMapper = headerMapper;
+    return this;
+  };
+
+  /**
+   * Set the request payload mapping function which get triggered before request get send
+   */
+  setPayloadMapper = (payloadMapper: ClientPayloadMappingCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.payloadMapper = payloadMapper;
+    return this;
+  };
+
+  /**
+   * Set custom http client to handle graphql, rest, firebase or other
+   */
+  setClient = (callback: (builder: FetchBuilderInstance) => ClientType): FetchBuilder<ErrorType, RequestConfigType> => {
     this.client = callback(this);
     return this;
   };
 
-  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Method of manipulating commands before sending the request. We can for example add custom header with token.
+   */
+  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onAuthCallbacks.push(callback);
     return this;
   };
 
-  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Method for intercepting error responses. It can be used for example to refresh tokens.
+   */
+  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
 
-  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Method for intercepting success responses.
+   */
+  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
 
-  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Method of manipulating commands before sending the request.
+   */
+  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onRequestCallbacks.push(callback);
     return this;
   };
 
-  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, HttpOptions> => {
+  /**
+   * Method for intercepting any responses.
+   */
+  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
 
+  /**
+   * Create commands based on the builder setup
+   */
+  createCommand = <
+    ResponseType,
+    PayloadType = undefined,
+    RequestErrorType = undefined,
+    QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
+  >() => {
+    return <EndpointType extends string>(params: FetchCommandConfig<EndpointType, RequestConfigType>) =>
+      new FetchCommand<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType,
+        RequestErrorType,
+        EndpointType,
+        RequestConfigType
+      >(this, params);
+  };
+
+  /**
+   * Add persistent effects which trigger on the request lifecycle
+   */
+  addEffects = (effect: FetchEffectInstance[]) => {
+    // Check for duplicated names of effect
+    this.effects.forEach((currentEffect) => {
+      const hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
+
+      if (hasDuplicate) {
+        throw new Error("Fetch effect names must be unique.");
+      }
+    });
+
+    this.effects = this.effects.concat(effect);
+
+    return this;
+  };
+
+  /**
+   * Remove effects from builder
+   */
+  removeEffect = (effect: FetchEffectInstance | string) => {
+    const name = typeof effect === "string" ? effect : effect?.getName();
+    this.effects = this.effects.filter((currentEffect) => currentEffect.getName() !== name);
+
+    return this;
+  };
+
+  /**
+   * Clears the builder instance and remove all listeners on it's dependencies
+   */
   clear = () => {
     this.commandManager.abortControllers.clear();
     this.cache.clear();
@@ -172,8 +287,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
 
   /**
    * Helper used by http client to apply the modifications on response error
-   * @param command
-   * @returns
    */
   __modifyAuth = async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
     let newCommand = command;
@@ -188,8 +301,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
   };
   /**
    * Helper used by http client to apply the modifications of request command
-   * @param command
-   * @returns
    */
   __modifyRequest = async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
     let newCommand = command;
@@ -237,69 +348,5 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, HttpO
       }
     }
     return newResponse;
-  };
-
-  public createCommand = <
-    ResponseType,
-    PayloadType = undefined,
-    RequestErrorType = undefined,
-    QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
-  >() => {
-    if (!this.builded) {
-      throw new Error(`To create new commands you have to first use the build method on FetchBuilder class.
-      Build method indicates the ended setup and prevents synchronization/registration issues.`);
-    }
-
-    return <EndpointType extends string>(params: FetchCommandOptions<EndpointType, HttpOptions>) =>
-      new FetchCommand<
-        ResponseType,
-        PayloadType,
-        QueryParamsType,
-        ErrorType,
-        RequestErrorType,
-        EndpointType,
-        HttpOptions
-      >(this, params);
-  };
-
-  public addEffects = (effect: FetchEffectInstance[]) => {
-    if (this.builded) {
-      throw new Error(`Effects can be applied only before usage of build method on FetchBuilder class.
-      Build method indicates the ended setup and prevents synchronization/registration issues.`);
-    }
-
-    // Check for duplicated names of effect
-    this.effects.forEach((currentEffect) => {
-      const hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
-
-      if (hasDuplicate) {
-        throw new Error("Fetch effect names must be unique.");
-      }
-    });
-
-    this.effects = this.effects.concat(effect);
-
-    return this;
-  };
-
-  public removeEffect = (effect: FetchEffectInstance | string) => {
-    const name = typeof effect === "string" ? effect : effect?.getName();
-    this.effects = this.effects.filter((currentEffect) => currentEffect.getName() !== name);
-
-    return this;
-  };
-
-  build = () => {
-    this.builded = true;
-
-    /**
-     * Start flushing persistent queues
-     */
-    this.fetchQueue.flush();
-    this.submitQueue.flush();
-
-    this.logger.info("Initialized Builder");
-
-    return this;
   };
 }

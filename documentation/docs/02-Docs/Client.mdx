@@ -35,5 +35,5 @@ the interface of the output.
 ```tsx
 const customHttpClient: ClientType = (command: FetchCommandInstance) => Promise.resolve([null, null, 0]);
 
-const builder = new FetchBuilder({ baseUrl }).setClient(customHttpClient).build();
+const builder = new FetchBuilder({ baseUrl }).setClient(customHttpClient);
 ```

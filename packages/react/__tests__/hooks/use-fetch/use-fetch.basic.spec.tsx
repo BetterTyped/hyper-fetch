@@ -11,7 +11,7 @@ import { testFetchErrorState, testFetchInitialState, testFetchSuccessState } fro
 
 const dump = getManyRequest.dump();
 
-let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" });
 let command = builder.createCommand<GetManyResponseType>()(dump.commandOptions);
 
 const renderGetManyHook = () =>
@@ -32,7 +32,7 @@ describe("[Basic] UseFetch hook", () => {
 
   beforeEach(async () => {
     builder.clear();
-    builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }).build();
+    builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" });
     command = builder.createCommand<GetManyResponseType>()(dump.commandOptions);
   });
 

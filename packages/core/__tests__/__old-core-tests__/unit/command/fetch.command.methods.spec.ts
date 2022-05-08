@@ -3,7 +3,7 @@ import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { testBuilder } from "../../utils/server/server.constants";
 
 const getBuilder = () => {
-  return new FetchBuilder({ baseUrl: "/some-url" }).build();
+  return new FetchBuilder({ baseUrl: "/some-url" });
 };
 
 let builder = getBuilder();

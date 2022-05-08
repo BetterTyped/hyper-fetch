@@ -1,22 +1,8 @@
-import {
-  ClientQueryParamsType,
-  ClientQueryParamValues,
-  ClientResponseErrorType,
-  ClientResponseSuccessType,
-  QueryStringifyOptions,
-  stringifyDefaultOptions,
-} from "client";
+import { ClientQueryParamsType, ClientQueryParamValues, QueryStringifyOptions, stringifyDefaultOptions } from "client";
 import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
-import { ExtractError, ExtractResponse, NegativeTypes } from "types";
-import { FetchEffectInstance } from "effect";
+import { ExtractError, NegativeTypes } from "types";
 
-export const parseResponse = (response: string | unknown) => {
-  try {
-    return JSON.parse(response as string);
-  } catch (err) {
-    return response;
-  }
-};
+// Client data handlers
 
 export const stringifyPayload = (response: string | unknown): string => {
   try {
@@ -27,14 +13,51 @@ export const stringifyPayload = (response: string | unknown): string => {
   }
 };
 
-export const getResponseError = (errorCase?: "timeout" | "abort") => {
+export const getClientHeaders = (command: FetchCommandInstance) => {
+  const isFormData = command.data instanceof FormData;
+  const headers: HeadersInit = {};
+
+  if (!isFormData) headers["Content-Type"] = "application/json";
+
+  Object.assign(headers, command.headers);
+  return headers as HeadersInit;
+};
+
+export const getRequestConfig = <T extends Record<string, unknown> = Record<string, unknown>>(
+  command: FetchCommandInstance,
+): T => {
+  return { ...command.builder.requestConfig, ...command.commandOptions.options };
+};
+
+export const getClientPayload = (data: unknown): string | FormData => {
+  const isFormData = data instanceof FormData;
+  if (!isFormData) return stringifyPayload(data);
+
+  return data;
+};
+
+export const getErrorMessage = (errorCase?: "timeout" | "abort") => {
   if (errorCase === "timeout") {
     return new Error("Request timeout");
   }
   if (errorCase === "abort") {
     return new Error("Request cancelled");
   }
-  return new Error("Something went wrong");
+  return new Error("Unexpected error");
+};
+
+// Responses
+
+export const parseResponse = (response: string | unknown) => {
+  try {
+    return JSON.parse(response as string);
+  } catch (err) {
+    return response;
+  }
+};
+
+export const parseErrorResponse = <T extends FetchCommandInstance>(response: unknown): ExtractError<T> => {
+  return parseResponse(response) || getErrorMessage();
 };
 
 // Stringify
@@ -131,45 +154,7 @@ export const encodeParams = (
   return "";
 };
 
-// Client data handlers
-
-export const setClientHeaders = <T extends FetchCommandInstance>(
-  command: T,
-  xhr: XMLHttpRequest,
-  mapper?: (command: T, xhr: XMLHttpRequest) => void,
-): void => {
-  if (mapper) {
-    return mapper(command, xhr);
-  }
-
-  const isFormData = command.data instanceof FormData;
-  const headers: HeadersInit = {};
-
-  if (!isFormData) headers["Content-Type"] = "application/json";
-
-  Object.assign(headers, command.headers);
-  Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
-};
-
-export const setClientOptions = <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest): void => {
-  const requestOptions = { ...command.builder.httpOptions, ...command.commandOptions.options };
-
-  Object.entries(requestOptions).forEach(([name, value]) => {
-    // eslint-disable-next-line no-param-reassign
-    (xhr as any)[name] = value;
-  });
-};
-
-export const getClientPayload = (data: unknown): string | FormData => {
-  const isFormData = data instanceof FormData;
-  if (!isFormData) return stringifyPayload(data);
-
-  return data;
-};
-
-export const getErrorResponse = <T extends FetchCommandInstance>(command: T, response: unknown): ExtractError<T> => {
-  return parseResponse(response) || { message: "Request failed" };
-};
+// Progress
 
 export const setResponseProgress = <T extends FetchCommandInstance>(
   queueKey: string,
@@ -193,61 +178,4 @@ export const setRequestProgress = <T extends FetchCommandInstance>(
   const progress = getProgressData(new Date(startDate), event);
 
   command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
-};
-
-// Client response handlers
-
-export const handleClientError = async <T extends FetchCommandInstance>(
-  command: T,
-  effects: FetchEffectInstance[],
-  resolve: (data: ClientResponseErrorType<ExtractError<T>>) => void,
-  event?: ProgressEvent<XMLHttpRequest>,
-  errorCase?: "timeout" | "abort",
-): Promise<void> => {
-  if (!event?.target && !errorCase) {
-    return;
-  }
-
-  let status = 0;
-  let error: Error | ExtractError<T> = getResponseError(errorCase);
-
-  if (event?.target && !errorCase) {
-    status = event.target.status;
-    const { response } = event.target;
-    error = getErrorResponse(command, response);
-  }
-
-  let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
-  command.builder.loggerManager.init("Client").error(`Received error response`, responseData);
-
-  effects.forEach((effect) => effect.onError(responseData, command));
-  effects.forEach((effect) => effect.onFinished(responseData, command));
-
-  responseData = await command.builder.__modifyErrorResponse(responseData, command);
-  responseData = await command.builder.__modifyResponse(responseData, command);
-  resolve(responseData);
-};
-
-export const handleClientSuccess = async <T extends FetchCommandInstance>(
-  command: T,
-  effects: FetchEffectInstance[],
-  event: ProgressEvent<XMLHttpRequest>,
-  resolve: (data: ClientResponseSuccessType<ExtractResponse<T>>) => void,
-): Promise<void> => {
-  if (!event.target) return;
-
-  const { status } = event.target;
-
-  const data = parseResponse(event.target?.response);
-
-  let responseData = [data, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
-  command.builder.loggerManager.init("Client").success(`Received success response`, responseData);
-
-  effects.forEach((effect) => effect.onSuccess(responseData, command));
-  effects.forEach((effect) => effect.onFinished(responseData, command));
-
-  responseData = await command.builder.__modifySuccessResponse(responseData, command);
-  responseData = await command.builder.__modifyResponse(responseData, command);
-
-  resolve(responseData);
 };

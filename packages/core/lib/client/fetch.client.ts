@@ -1,13 +1,5 @@
 import { DateInterval } from "constants/time.constants";
-import {
-  setClientHeaders,
-  getClientPayload,
-  handleClientError,
-  handleClientSuccess,
-  setClientOptions,
-  setRequestProgress,
-  setResponseProgress,
-} from "./fetch.client.utils";
+import { parseResponse, getClientBindings, parseErrorResponse } from "client";
 import { ClientResponseType, ClientType } from "./fetch.client.types";
 
 export const fetchClient: ClientType = async (command, requestId) => {
@@ -15,101 +7,94 @@ export const fetchClient: ClientType = async (command, requestId) => {
     throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
   }
 
-  const { builder, abortKey, queueKey } = command;
-  const { baseUrl, commandManager, loggerManager, clientOptions, stringifyQueryParams } = builder;
+  const {
+    fullUrl,
+    headers,
+    payload,
+    config,
+    abortController,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onResponseEnd,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onUnexpectedError,
+    onError,
+  } = await getClientBindings(command, requestId);
 
-  const logger = loggerManager.init("Client");
-  const options = clientOptions;
+  const { method } = command;
 
   const xhr = new XMLHttpRequest();
-
   xhr.timeout = DateInterval.second * 5;
-
-  let requestStartTimestamp: null | number = null;
-  let responseStartTimestamp: null | number = null;
-
-  logger.debug(`Starting request modification`);
-
-  let commandInstance = command;
-  commandInstance = await builder.__modifyRequest(commandInstance);
-
-  if (commandInstance.auth) {
-    commandInstance = await builder.__modifyAuth(commandInstance);
-  }
-
-  const { endpoint, queryParams, data, method } = commandInstance;
-
-  const url = baseUrl + endpoint + stringifyQueryParams(queryParams);
-  const effects = builder.effects.filter((effect) => command.effects.includes(effect.getName()));
-  const abortController = commandManager.getAbortController(abortKey, requestId);
-
-  // "Trigger" Effect lifecycle
-  effects.forEach((effect) => effect.onTrigger(command));
 
   const abort = () => xhr.abort();
 
   return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
-    requestStartTimestamp = +new Date();
-    responseStartTimestamp = null;
-
-    // Setup Request
-    setClientOptions(commandInstance, xhr);
-
-    xhr.open(method, url, true);
-
-    setClientHeaders(commandInstance, xhr, options?.headerMapper);
-    abortController?.signal.addEventListener("abort", abort);
-    logger.debug(`Request setup finished`);
-
-    // Request listeners
-    commandManager.events.emitRequestStart(queueKey, { requestId, command });
-    setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
-      total: 1,
-      loaded: 0,
+    // Inject xhr options
+    Object.entries(config).forEach(([name, value]) => {
+      // eslint-disable-next-line no-param-reassign
+      (xhr as any)[name] = value;
     });
 
+    // Open connection
+    xhr.open(method, fullUrl, true);
+
+    // Set Headers
+    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
+
+    // Listen to abort signal
+    abortController?.signal.addEventListener("abort", abort);
+
+    // Request handlers
     if (xhr.upload) {
       xhr.upload.onprogress = (e): void => {
-        setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), e);
+        const event = e as ProgressEvent<XMLHttpRequest>;
+        const progress = {
+          total: event.total,
+          loaded: event.loaded,
+        };
+        onRequestProgress(progress);
       };
     }
 
-    // Response listeners
-    xhr.onprogress = (e): void => {
-      requestStartTimestamp = null;
-      setRequestProgress(queueKey, requestId, commandInstance, requestStartTimestamp || +new Date(), {
-        total: 1,
-        loaded: 1,
-      });
-
-      setResponseProgress(
-        queueKey,
-        requestId,
-        commandInstance,
-        responseStartTimestamp || +new Date(),
-        e as ProgressEvent<XMLHttpRequest>,
-      );
+    // Response handlers
+    xhr.onloadstart = (): void => {
+      onRequestEnd();
+      onResponseStart();
     };
 
-    xhr.onloadstart = (): void => {
-      responseStartTimestamp = +new Date();
-      commandManager.events.emitResponseStart(queueKey, { requestId, command });
+    xhr.onprogress = (e): void => {
+      const event = e as ProgressEvent<XMLHttpRequest>;
+      const progress = {
+        total: event.total,
+        loaded: event.loaded,
+      };
+      onResponseProgress(progress);
+    };
+
+    xhr.onloadend = () => {
+      abortController?.signal.removeEventListener("abort", abort);
+      onResponseEnd();
     };
 
     // Error listeners
-    xhr.onabort = (e): void => {
-      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>, "abort");
-    };
-    xhr.ontimeout = (e): void => {
-      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>, "timeout");
-    };
-    xhr.onerror = (e): void => {
-      handleClientError(commandInstance, effects, resolve, e as ProgressEvent<XMLHttpRequest>);
-    };
+    xhr.onabort = onAbortError;
+    xhr.ontimeout = onTimeoutError;
 
-    // State listeners
-    xhr.onloadend = (): void => {
-      responseStartTimestamp = null;
+    // Data listeners
+    xhr.onerror = (e) => {
+      const event = e as ProgressEvent<XMLHttpRequest>;
+      if (event.target) {
+        const data = parseErrorResponse(event.target.response);
+        onError(data, event.target.status, resolve);
+      } else {
+        onUnexpectedError();
+      }
     };
 
     xhr.onreadystatechange = (e) => {
@@ -117,27 +102,27 @@ export const fetchClient: ClientType = async (command, requestId) => {
       const finishedState = 4;
 
       const readyState = event.target?.readyState || 0;
-      const status = event.target?.status?.toString() || "";
+      const status = event.target?.status || 0;
+      const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
 
-      if (readyState !== finishedState || !event.target) {
-        return;
+      if (readyState === finishedState) {
+        onResponseEnd();
+
+        if (isSuccess) {
+          const data = parseResponse(event.target?.response);
+          onSuccess(data, status, resolve);
+        } else {
+          const data = parseErrorResponse(event.target?.response);
+          onError(data, status, resolve);
+        }
       }
-
-      const isSuccess = status.startsWith("2") || status.startsWith("3");
-
-      if (isSuccess) {
-        handleClientSuccess(commandInstance, effects, event, resolve);
-      } else {
-        handleClientError(commandInstance, effects, resolve, event);
-      }
-      abortController?.signal.removeEventListener("abort", abort);
     };
 
-    // Send request
-    logger.debug(`Starting request`);
-    xhr.send(getClientPayload(data));
+    // Start request
+    onBeforeRequest();
 
-    // "Start" Action lifecycle
-    effects.forEach((action) => action.onStart(command));
+    xhr.send(payload);
+
+    onRequestStart();
   });
 };

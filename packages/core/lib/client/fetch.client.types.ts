@@ -4,10 +4,9 @@ import { FetchCommandInstance } from "command";
 
 export type ClientType = (command: FetchCommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
 
-export type FetchClientXHR = Partial<XMLHttpRequest>;
-export type FetchClientOptions = {
-  headerMapper?: <T extends FetchCommandInstance>(command: T, xhr: XMLHttpRequest) => void;
-};
+export type XHRConfigType = Partial<XMLHttpRequest>;
+
+export type ClientPayloadMappingCallback = (data: unknown) => string | FormData;
 
 // Responses
 
@@ -31,6 +30,8 @@ export type ClientQueryParamsType = Record<string, ClientQueryParam>;
 
 // Headers
 
+export type ClientHeaderMappingCallback = <T extends FetchCommandInstance>(command: T) => HeadersInit;
+
 export type ClientHeadersProps = {
   isFormData: boolean;
   headers: HeadersInit | undefined;
@@ -48,6 +49,11 @@ export type QueryStringifyOptions = {
 };
 
 // Progress
+
+export type ProgressPayloadType = {
+  total: number;
+  loaded: number;
+};
 
 export type FetchProgressType = {
   progress: number;

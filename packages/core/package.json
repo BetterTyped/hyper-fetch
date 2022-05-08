@@ -41,9 +41,10 @@
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"
   },
-  "peerDependencies": {},
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/parser": "^5.22.0",
+    "jest-extended": "^2.0.0"
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn format",

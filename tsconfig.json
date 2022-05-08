@@ -20,7 +20,8 @@
     "emitDecoratorMetadata": true,
     "noImplicitReturns": false,
     "strictPropertyInitialization": false,
-    "declaration": true
+    "declaration": true,
+    "rootDir": "."
   },
   "exclude": ["node_modules", ".vscode"]
 }
