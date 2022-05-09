@@ -1,10 +1,50 @@
-import { DefaultRequestBody, PathParams, ResponseComposition, rest, RestContext, RestHandler, RestRequest } from "msw";
+import {
+  DefaultRequestBody,
+  MockedResponse,
+  PathParams,
+  ResponseComposition,
+  rest,
+  RestContext,
+  RestHandler,
+  RestRequest,
+} from "msw";
+
+import { defaultTimeout, getErrorMessage } from "client";
+import { FetchCommandInstance } from "command";
+import { sleep } from "../utils";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
+const getResponse = (ctx: RestContext, command: FetchCommandInstance, fixture: unknown, status: number, delay = 10) => {
+  const { commandManager } = command.builder;
+  const controllers = commandManager.abortControllers.get(command.abortKey);
+  const abortController = Array.from(controllers || [])[0];
+
+  const timeoutTime = command.options?.timeout || command.builder?.requestConfig?.timeout || defaultTimeout;
+  const isTimeout = timeoutTime < delay;
+
+  return async (response: MockedResponse<unknown>) => {
+    await sleep(Math.min(timeoutTime, delay));
+    if (abortController && abortController?.[1]?.signal?.aborted) {
+      ctx.status(500)(response);
+      response.body = getErrorMessage("abort");
+      return response;
+    }
+    if (isTimeout) {
+      ctx.status(500)(response);
+      response.body = getErrorMessage("timeout");
+      return response;
+    }
+    ctx.status(status)(response);
+    response.body = fixture;
+    return response;
+  };
+};
+
 export const createStubMethod = (
+  command: FetchCommandInstance,
   url: RegExp,
   method: string,
   status: number,
@@ -16,7 +56,7 @@ export const createStubMethod = (
     res: ResponseComposition<any>,
     ctx: RestContext,
   ) {
-    const args = [ctx.delay(), ctx.status(status), ctx.json(response || {})];
+    const args = [ctx.delay(), getResponse(ctx, command, response, status, delay)];
 
     if (delay === 0) {
       args.shift();

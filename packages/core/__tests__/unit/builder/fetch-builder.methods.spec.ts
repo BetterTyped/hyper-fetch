@@ -5,7 +5,7 @@ import { XHRConfigType, QueryStringifyOptions } from "client";
 import { LoggerManager, LoggerLevelType } from "managers";
 
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createBuilder, interceptorCallback, middlewareCallback } from "../../utils";
+import { createBuilder, createClient, interceptorCallback, middlewareCallback } from "../../utils";
 
 describe("FetchBuilder [ Methods ]", () => {
   let builder = createBuilder();
@@ -59,7 +59,7 @@ describe("FetchBuilder [ Methods ]", () => {
       expect(builder.loggerManager.levels).toEqual(options);
     });
     it("should assign new client [setClient]", async () => {
-      const callback = () => interceptorCallback()();
+      const callback = createClient();
       builder.setClient(() => callback);
 
       expect(builder.client).toEqual(callback);

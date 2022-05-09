@@ -1,9 +1,3 @@
-export const stringifyDefaultOptions = {
-  strict: true,
-  encode: true,
-  arrayFormat: "bracket",
-  arraySeparator: "",
-  sort: false,
-  skipNull: true,
-  skipEmptyString: true,
-} as const;
+import { DateInterval } from "constants/time.constants";
+
+export const defaultTimeout = DateInterval.second * 5;

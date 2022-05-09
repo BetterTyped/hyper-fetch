@@ -1,17 +1,17 @@
 import {
   ClientType,
   fetchClient,
-  encodeParams,
   XHRConfigType,
   ClientResponseType,
   ClientQueryParamsType,
   QueryStringifyOptions,
   ClientHeaderMappingCallback,
-  getClientHeaders,
-  getClientPayload,
   ClientPayloadMappingCallback,
 } from "client";
 import {
+  stringifyQueryParams,
+  getClientHeaders,
+  getClientPayload,
   FetchBuilderConfig,
   FetchBuilderInstance,
   FetchBuilderErrorType,
@@ -65,7 +65,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method to stringify query params from objects.
    */
-  stringifyQueryParams: StringifyCallbackType = (queryParams) => encodeParams(queryParams, this.queryParamsConfig);
+  stringifyQueryParams: StringifyCallbackType = (queryParams) =>
+    stringifyQueryParams(queryParams, this.queryParamsConfig);
   /**
    * Method to get default headers and to map them based on the data format exchange, by default it handles FormData / JSON formats.
    */
@@ -299,8 +300,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     }
     return newCommand;
   };
+
   /**
-   * Helper used by http client to apply the modifications of request command
+   * Private helper to run async pre-request processing
    */
   __modifyRequest = async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
     let newCommand = command;
@@ -314,6 +316,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     return newCommand;
   };
 
+  /**
+   * Private helper to run async on-error response processing
+   */
   __modifyErrorResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
@@ -326,6 +331,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     return newResponse;
   };
 
+  /**
+   * Private helper to run async on-success response processing
+   */
   __modifySuccessResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
@@ -338,6 +346,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     return newResponse;
   };
 
+  /**
+   * Private helper to run async response processing
+   */
   __modifyResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {

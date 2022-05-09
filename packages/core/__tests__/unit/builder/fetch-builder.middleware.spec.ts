@@ -6,6 +6,10 @@ describe("FetchBuilder [ Middleware ]", () => {
   let builder = createBuilder();
   let command = createCommand(builder);
 
+  const spy1 = jest.fn();
+  const spy2 = jest.fn();
+  const spy3 = jest.fn();
+
   beforeAll(() => {
     startServer();
   });
@@ -14,6 +18,7 @@ describe("FetchBuilder [ Middleware ]", () => {
     builder = createBuilder();
     command = createCommand(builder);
     resetInterceptors();
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
@@ -40,16 +45,8 @@ describe("FetchBuilder [ Middleware ]", () => {
   });
 
   describe("When middleware callbacks go into the execution loop", () => {
-    const spy1 = jest.fn();
-    const spy2 = jest.fn();
-    const spy3 = jest.fn();
-
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
     it("should trigger __modifyAuth async loop", async () => {
-      const callbackFirst = middlewareCallback({ callback: spy1, sleepTime: 20 });
+      const callbackFirst = middlewareCallback({ callback: spy1, sleepTime: 10 });
       const callbackMiddle = middlewareCallback({ callback: spy2 });
       const callbackLast = middlewareCallback({ callback: spy3, sleepTime: 10 });
 
@@ -59,7 +56,7 @@ describe("FetchBuilder [ Middleware ]", () => {
       testCallbacksExecution([spy1, spy2, spy3]);
     });
     it("should trigger __modifyRequest async loop", async () => {
-      const callbackFirst = middlewareCallback({ callback: spy1, sleepTime: 20 });
+      const callbackFirst = middlewareCallback({ callback: spy1, sleepTime: 10 });
       const callbackMiddle = middlewareCallback({ callback: spy2 });
       const callbackLast = middlewareCallback({ callback: spy3, sleepTime: 10 });
 
@@ -69,74 +66,17 @@ describe("FetchBuilder [ Middleware ]", () => {
       testCallbacksExecution([spy1, spy2, spy3]);
     });
   });
+
+  describe("When middleware returns undefined value", () => {
+    it("should throw onRequest method when command is not returned", async () => {
+      builder.onRequest(() => undefined as any);
+
+      expect(builder.__modifyRequest(command)).rejects.toThrow();
+    });
+    it("should throw onAuth method when command is not returned", async () => {
+      builder.onAuth(() => undefined as any);
+
+      expect(builder.__modifyAuth(command)).rejects.toThrow();
+    });
+  });
 });
-
-// describe("When using Builder methods", () => {
-//   it("should trigger onRequest method before making request", async () => {
-//     const methodFn = jest.fn();
-
-//     interceptGetBase(200);
-
-//     const builder = new FetchBuilder({ baseUrl }).setHttpOptions(options).onRequest((command) => {
-//       methodFn();
-//       return command;
-//     });
-//     const command = builder.createCommand()({
-//       endpoint: "/something",
-//     });
-
-//     await command.send();
-
-//     expect(methodFn).toBeCalled();
-//   });
-
-//   it("should throw onRequest method when command is not returned", async () => {
-//     const methodFn = jest.fn();
-
-//     interceptGetBase(200);
-
-//     const builder = new FetchBuilder({ baseUrl }).setHttpOptions(options).onRequest((command) => {
-//       methodFn();
-//       return undefined as unknown as typeof command;
-//     });
-//     const command = builder.createCommand()({
-//       endpoint: "/something",
-//     });
-
-//     expect(builder.__modifyRequest(command)).rejects.toThrow();
-//   });
-
-//   it("should trigger onResponse method after making request", async () => {
-//     const methodFn = jest.fn();
-
-//     interceptGetBase(200);
-
-//     const builder = new FetchBuilder({ baseUrl }).setHttpOptions(options).onResponse((response) => {
-//       methodFn();
-//       return response;
-//     });
-//     const command = builder.createCommand()({
-//       endpoint: "/something",
-//     });
-
-//     await command.send();
-
-//     expect(methodFn).toBeCalled();
-//   });
-
-//   it("should throw onResponse method when command is not returned", async () => {
-//     const methodFn = jest.fn();
-
-//     interceptGetBase(200);
-
-//     const builder = new FetchBuilder({ baseUrl }).setHttpOptions(options).onResponse((command) => {
-//       methodFn();
-//       return undefined as unknown as typeof command;
-//     });
-//     const command = builder.createCommand()({
-//       endpoint: "/something",
-//     });
-
-//     expect(builder.__modifyResponse([undefined, null, 200], command)).rejects.toThrow();
-//   });
-// });

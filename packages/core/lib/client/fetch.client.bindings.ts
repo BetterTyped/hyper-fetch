@@ -33,12 +33,24 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   // Command Setup
   const { builder, abortKey, queueKey, endpoint, queryParams, data } = command;
 
+  commandManager.addAbortController(abortKey, requestId);
+
   const fullUrl = baseUrl + endpoint + stringifyQueryParams(queryParams);
   const effects = builder.effects.filter((effect) => command.effects.includes(effect.getName()));
-  const abortController = commandManager.getAbortController(abortKey, requestId);
   const headers = headerMapper(command);
   const payload = payloadMapper(data);
   const config = getRequestConfig(command);
+
+  const getAbortController = () => {
+    return commandManager.getAbortController(abortKey, requestId);
+  };
+
+  const createAbortListener = (callback: () => void) => {
+    const controller = getAbortController();
+    controller?.signal.addEventListener("abort", callback);
+
+    return () => controller?.signal.removeEventListener("abort", callback);
+  };
 
   // Pre-request
 
@@ -115,6 +127,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     if (!responseStartTimestamp) {
       responseStartTimestamp = +new Date();
     }
+    commandManager.removeAbortController(abortKey, requestId);
     setResponseProgress(queueKey, requestId, command, responseStartTimestamp, {
       total: responseTotal,
       loaded: responseTotal,
@@ -183,7 +196,8 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     headers,
     payload,
     config,
-    abortController,
+    getAbortController,
+    createAbortListener,
     onBeforeRequest,
     onRequestStart,
     onRequestProgress,

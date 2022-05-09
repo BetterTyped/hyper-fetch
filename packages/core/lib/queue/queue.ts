@@ -410,7 +410,7 @@ export class Queue<ErrorType, HttpOptions> {
    */
   performRequest = async (command: FetchCommandInstance, queueElement: QueueDumpValueType<HttpOptions>) => {
     const { commandDump, requestId } = queueElement;
-    const { retry, retryTime, queueKey, cacheKey, cache: useCache, abortKey } = commandDump.values;
+    const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump.values;
     const { client, commandManager, cache, appManager } = this.builder;
 
     const shouldUseCache = useCache ?? true;
@@ -426,8 +426,6 @@ export class Queue<ErrorType, HttpOptions> {
 
     // Additionally keep the running request to possibly abort it later
     this.addRunningRequest(queueKey, requestId, command);
-    // Add the abort controller
-    commandManager.addAbortController(abortKey, requestId);
 
     // Propagate the loading to all connected hooks
     this.events.setLoading(queueKey, {
@@ -441,9 +439,6 @@ export class Queue<ErrorType, HttpOptions> {
     // Trigger Request
     this.incrementQueueRequestCount(queueKey);
     const response = await client(command, requestId);
-
-    // Remove the abort controller
-    commandManager.removeAbortController(abortKey, requestId);
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled

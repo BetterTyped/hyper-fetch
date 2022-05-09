@@ -1,6 +1,11 @@
-import { DateInterval } from "constants/time.constants";
-import { parseResponse, getClientBindings, parseErrorResponse } from "client";
-import { ClientResponseType, ClientType } from "./fetch.client.types";
+import {
+  parseResponse,
+  getClientBindings,
+  parseErrorResponse,
+  defaultTimeout,
+  ClientResponseType,
+  ClientType,
+} from "client";
 
 export const fetchClient: ClientType = async (command, requestId) => {
   if (!XMLHttpRequest) {
@@ -12,7 +17,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
     headers,
     payload,
     config,
-    abortController,
+    createAbortListener,
     onBeforeRequest,
     onRequestStart,
     onRequestProgress,
@@ -30,7 +35,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
   const { method } = command;
 
   const xhr = new XMLHttpRequest();
-  xhr.timeout = DateInterval.second * 5;
+  xhr.timeout = defaultTimeout;
 
   const abort = () => xhr.abort();
 
@@ -48,7 +53,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
 
     // Listen to abort signal
-    abortController?.signal.addEventListener("abort", abort);
+    const unmountListener = createAbortListener(abort);
 
     // Request handlers
     if (xhr.upload) {
@@ -78,7 +83,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
     };
 
     xhr.onloadend = () => {
-      abortController?.signal.removeEventListener("abort", abort);
+      unmountListener();
       onResponseEnd();
     };
 

@@ -21,16 +21,13 @@ export const stopServer = (): void => {
 
 export const createRequestInterceptor = <T extends FetchCommandInstance, StatusType extends StatusCodesType>(
   command: T,
-  {
-    fixture,
-    status,
-    delay,
-  }: {
+  props?: {
     fixture?: ExtractResponse<T>;
     status?: StatusType;
     delay?: number;
   },
 ): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponse<T> => {
+  const { fixture, status, delay } = props || {};
   const { endpoint, method } = command;
   const url = getInterceptEndpoint(endpoint);
 
@@ -40,13 +37,13 @@ export const createRequestInterceptor = <T extends FetchCommandInstance, StatusT
     const errorResponse = errorResponses[currentStatus] as StatusType extends StatusErrorCodesType
       ? ErrorMockType
       : ExtractResponse<T>;
-    server.use(createStubMethod(url, method, currentStatus, errorResponse, delay));
+    server.use(createStubMethod(command, url, method, currentStatus, errorResponse, delay));
 
     return errorResponse;
   }
 
   const responseData = fixture as ExtractResponse<T>;
 
-  server.use(createStubMethod(url, method, currentStatus, responseData, delay));
+  server.use(createStubMethod(command, url, method, currentStatus, responseData, delay));
   return responseData;
 };

@@ -6,6 +6,10 @@ describe("FetchBuilder [ Interceptor ]", () => {
   let builder = createBuilder();
   let command = createCommand(builder);
 
+  const spy1 = jest.fn();
+  const spy2 = jest.fn();
+  const spy3 = jest.fn();
+
   beforeAll(() => {
     startServer();
   });
@@ -14,6 +18,7 @@ describe("FetchBuilder [ Interceptor ]", () => {
     builder = createBuilder();
     command = createCommand(builder);
     resetInterceptors();
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
@@ -48,14 +53,6 @@ describe("FetchBuilder [ Interceptor ]", () => {
   });
 
   describe("When interceptor callbacks go into the execution loop", () => {
-    const spy1 = jest.fn();
-    const spy2 = jest.fn();
-    const spy3 = jest.fn();
-
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-
     it("should trigger __modifyErrorResponse async loop", async () => {
       const callbackAsync = interceptorCallback({ callback: spy1, sleepTime: 20 });
       const callbackSync = interceptorCallback({ callback: spy2 });
@@ -85,6 +82,24 @@ describe("FetchBuilder [ Interceptor ]", () => {
       await builder.__modifyResponse([null, null, 400], command);
 
       testCallbacksExecution([spy1, spy2, spy3]);
+    });
+  });
+
+  describe("When interceptor returns undefined value", () => {
+    it("should throw onError method when command is not returned", async () => {
+      builder.onError(() => undefined as any);
+
+      expect(builder.__modifyErrorResponse([null, null, 400], command)).rejects.toThrow();
+    });
+    it("should throw onSuccess method when command is not returned", async () => {
+      builder.onSuccess(() => undefined as any);
+
+      expect(builder.__modifySuccessResponse([null, null, 400], command)).rejects.toThrow();
+    });
+    it("should throw onResponse method when command is not returned", async () => {
+      builder.onResponse(() => undefined as any);
+
+      expect(builder.__modifyResponse([null, null, 400], command)).rejects.toThrow();
     });
   });
 });
