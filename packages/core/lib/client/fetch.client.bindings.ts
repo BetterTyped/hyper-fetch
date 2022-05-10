@@ -1,8 +1,8 @@
 import {
   getErrorMessage,
   getRequestConfig,
-  setRequestProgress,
-  setResponseProgress,
+  handleRequestProgressEvents,
+  handleResponseProgressEvents,
   ClientResponseSuccessType,
   ClientResponseErrorType,
   ProgressPayloadType,
@@ -63,17 +63,25 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   const onRequestStart = (progress?: ProgressPayloadType) => {
     effects.forEach((action) => action.onStart(command));
 
-    if (progress) {
+    if (progress?.total) {
       requestTotal = progress.total;
     }
 
-    requestStartTimestamp = +new Date();
     const initialPayload = {
       total: requestTotal,
       loaded: progress?.loaded || 0,
     };
-    setRequestProgress(queueKey, requestId, command, requestStartTimestamp, initialPayload);
+    requestStartTimestamp = +new Date();
+    handleRequestProgressEvents(
+      queueKey,
+      requestId,
+      command,
+      requestStartTimestamp,
+      requestStartTimestamp,
+      initialPayload,
+    );
     commandManager.events.emitRequestStart(queueKey, { requestId, command });
+    return requestStartTimestamp;
   };
 
   const onRequestProgress = (progress: ProgressPayloadType) => {
@@ -82,7 +90,10 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     }
     requestTotal = progress.total;
 
-    setRequestProgress(queueKey, requestId, command, requestStartTimestamp, progress);
+    const progressTimestamp = +new Date();
+
+    handleRequestProgressEvents(queueKey, requestId, command, requestStartTimestamp, progressTimestamp, progress);
+    return progressTimestamp;
   };
 
   const onRequestEnd = () => {
@@ -90,10 +101,12 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       requestStartTimestamp = +new Date();
     }
 
-    setRequestProgress(queueKey, requestId, command, requestStartTimestamp, {
+    const progressTimestamp = +new Date();
+    handleRequestProgressEvents(queueKey, requestId, command, requestStartTimestamp, progressTimestamp, {
       total: requestTotal,
       loaded: requestTotal,
     });
+    return progressTimestamp;
   };
 
   // Response
@@ -101,7 +114,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   const onResponseStart = (progress?: ProgressPayloadType) => {
     responseStartTimestamp = +new Date();
 
-    if (progress) {
+    if (progress?.total) {
       responseTotal = progress.total;
     }
 
@@ -109,8 +122,17 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       total: responseTotal,
       loaded: progress?.loaded || 0,
     };
-    setResponseProgress(queueKey, requestId, command, responseStartTimestamp, initialPayload);
+
+    handleResponseProgressEvents(
+      queueKey,
+      requestId,
+      command,
+      responseStartTimestamp,
+      responseStartTimestamp,
+      initialPayload,
+    );
     commandManager.events.emitResponseStart(queueKey, { requestId, command });
+    return responseStartTimestamp;
   };
 
   const onResponseProgress = (progress: ProgressPayloadType) => {
@@ -118,41 +140,45 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       responseStartTimestamp = +new Date();
     }
 
+    const progressTimestamp = +new Date();
     responseTotal = progress.total;
-
-    setResponseProgress(queueKey, requestId, command, responseStartTimestamp, progress);
+    handleResponseProgressEvents(queueKey, requestId, command, responseStartTimestamp, progressTimestamp, progress);
+    return progressTimestamp;
   };
 
   const onResponseEnd = () => {
     if (!responseStartTimestamp) {
       responseStartTimestamp = +new Date();
     }
+
+    const progressTimestamp = +new Date();
     commandManager.removeAbortController(abortKey, requestId);
-    setResponseProgress(queueKey, requestId, command, responseStartTimestamp, {
+    handleResponseProgressEvents(queueKey, requestId, command, responseStartTimestamp, progressTimestamp, {
       total: responseTotal,
       loaded: responseTotal,
     });
+    return progressTimestamp;
   };
 
   // Success
 
   const onSuccess = async <T extends FetchCommandInstance>(
-    response: unknown,
+    responseData: unknown,
     status: number,
     callback?: (value: ClientResponseSuccessType<ExtractResponse<T>>) => void,
   ): Promise<ClientResponseSuccessType<ExtractResponse<T>>> => {
-    let responseData = [response, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
-    command.builder.loggerManager.init("Client").http(`Success response`, { response: responseData });
+    let response = [responseData, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
+    command.builder.loggerManager.init("Client").http(`Success response`, { response });
 
-    effects.forEach((effect) => effect.onSuccess(responseData, command));
-    effects.forEach((effect) => effect.onFinished(responseData, command));
+    response = await command.builder.__modifyResponse(response, command);
+    response = await command.builder.__modifySuccessResponse(response, command);
 
-    responseData = await command.builder.__modifySuccessResponse(responseData, command);
-    responseData = await command.builder.__modifyResponse(responseData, command);
+    effects.forEach((effect) => effect.onSuccess(response, command));
+    effects.forEach((effect) => effect.onFinished(response, command));
 
-    callback?.(responseData);
+    callback?.(response);
 
-    return responseData;
+    return response;
   };
 
   // Errors
@@ -165,11 +191,11 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
     command.builder.loggerManager.init("Client").http(`Error response`, { response: responseData });
 
+    responseData = await command.builder.__modifyResponse(responseData, command);
+    responseData = await command.builder.__modifyErrorResponse(responseData, command);
+
     effects.forEach((effect) => effect.onError(responseData, command));
     effects.forEach((effect) => effect.onFinished(responseData, command));
-
-    responseData = await command.builder.__modifyErrorResponse(responseData, command);
-    responseData = await command.builder.__modifyResponse(responseData, command);
 
     callback?.(responseData);
 

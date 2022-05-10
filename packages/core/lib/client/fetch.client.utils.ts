@@ -35,26 +35,28 @@ export const parseErrorResponse = <T extends FetchCommandInstance>(response: unk
 
 // Progress
 
-export const setResponseProgress = <T extends FetchCommandInstance>(
+export const handleResponseProgressEvents = <T extends FetchCommandInstance>(
   queueKey: string,
   requestId: string,
   command: T,
-  startDate: number,
+  startTimestamp: number,
+  progressTimestamp: number,
   event: ClientProgressEvent,
 ): void => {
-  const progress = getProgressData(new Date(startDate), event);
+  const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
 
   command.builder.commandManager.events.emitDownloadProgress(queueKey, progress, { requestId, command });
 };
 
-export const setRequestProgress = <T extends FetchCommandInstance>(
+export const handleRequestProgressEvents = <T extends FetchCommandInstance>(
   queueKey: string,
   requestId: string,
   command: T,
-  startDate: number,
+  startTimestamp: number,
+  progressTimestamp: number,
   event: ClientProgressEvent,
 ): void => {
-  const progress = getProgressData(new Date(startDate), event);
+  const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
 
   command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
 };

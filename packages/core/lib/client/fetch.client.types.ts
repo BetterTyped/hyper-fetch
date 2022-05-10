@@ -57,7 +57,7 @@ export type ProgressPayloadType = {
 
 export type FetchProgressType = {
   progress: number;
-  timeLeft: number;
+  timeLeft: number | null;
   sizeLeft: number;
   total: number;
   loaded: number;

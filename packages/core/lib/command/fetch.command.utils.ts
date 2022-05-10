@@ -5,24 +5,32 @@ import { HttpMethodsEnum } from "constants/http.constants";
 import { Queue } from "queue";
 import { ExtractClientOptions, ExtractError } from "types";
 
-export const fetchProgressUtils = ({ loaded, total }: ClientProgressEvent): number => {
+export const getProgressValue = ({ loaded, total }: ClientProgressEvent): number => {
+  if (!loaded || !total) return 0;
   return Number(((loaded * 100) / total).toFixed(0));
 };
 
-export const fetchEtaUtils = (
+export const getRequestEta = (
   startDate: Date,
+  progressDate: Date,
   { total, loaded }: ClientProgressEvent,
-): { sizeLeft: number; timeLeft: number } => {
-  const timeElapsed = +new Date() - +startDate;
+): { sizeLeft: number; timeLeft: number | null } => {
+  const timeElapsed = +progressDate - +startDate || 1;
   const uploadSpeed = loaded / timeElapsed;
   const sizeLeft = total - loaded;
-  const timeLeft = sizeLeft / uploadSpeed;
+  const estimatedTimeValue = uploadSpeed ? sizeLeft / uploadSpeed : null;
+  const timeLeft = total === loaded ? 0 : estimatedTimeValue;
+
   return { timeLeft, sizeLeft };
 };
 
-export const getProgressData = (requestStartTime: Date, progressEvent: ClientProgressEvent): FetchProgressType => {
+export const getProgressData = (
+  requestStartTime: Date,
+  progressDate: Date,
+  progressEvent: ClientProgressEvent,
+): FetchProgressType => {
   const { total, loaded } = progressEvent;
-  if (!total || !loaded) {
+  if (Number.isNaN(total) || Number.isNaN(loaded)) {
     return {
       progress: 0,
       timeLeft: 0,
@@ -33,10 +41,10 @@ export const getProgressData = (requestStartTime: Date, progressEvent: ClientPro
     };
   }
 
-  const { timeLeft, sizeLeft } = fetchEtaUtils(requestStartTime, progressEvent);
+  const { timeLeft, sizeLeft } = getRequestEta(requestStartTime, progressDate, progressEvent);
 
   return {
-    progress: fetchProgressUtils(progressEvent),
+    progress: getProgressValue(progressEvent),
     timeLeft,
     sizeLeft,
     total,
