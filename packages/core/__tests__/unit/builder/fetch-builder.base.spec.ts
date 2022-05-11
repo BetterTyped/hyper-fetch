@@ -11,7 +11,7 @@ describe("FetchBuilder [ Base ]", () => {
     startServer();
   });
 
-  afterEach(() => {
+  beforeEach(() => {
     builderInstance = createBuilder();
     resetInterceptors();
   });

@@ -1,13 +1,11 @@
 import {
   getErrorMessage,
   getRequestConfig,
-  handleRequestProgressEvents,
-  handleResponseProgressEvents,
   ClientResponseSuccessType,
   ClientResponseErrorType,
   ProgressPayloadType,
 } from "client";
-import { FetchCommandInstance } from "command";
+import { FetchCommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
 export const getClientBindings = async (cmd: FetchCommandInstance, requestId: string) => {
@@ -41,15 +39,49 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   const payload = payloadMapper(data);
   const config = getRequestConfig(command);
 
+  const getRequestStartTimestamp = () => {
+    return requestStartTimestamp;
+  };
+
+  const getResponseStartTimestamp = () => {
+    return responseStartTimestamp;
+  };
+
+  // Abort
+
   const getAbortController = () => {
     return commandManager.getAbortController(abortKey, requestId);
   };
 
   const createAbortListener = (callback: () => void) => {
     const controller = getAbortController();
-    controller?.signal.addEventListener("abort", callback);
+    if (!controller) {
+      throw new Error("Controller is not found");
+    }
 
-    return () => controller?.signal.removeEventListener("abort", callback);
+    controller.signal.addEventListener("abort", callback);
+
+    return () => controller.signal.removeEventListener("abort", callback);
+  };
+
+  // Progress
+
+  const handleRequestProgress = (
+    startTimestamp: number,
+    progressTimestamp: number,
+    progressEvent: ClientProgressEvent,
+  ) => {
+    const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
+    commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
+  };
+
+  const handleResponseProgress = (
+    startTimestamp: number,
+    progressTimestamp: number,
+    progressEvent: ClientProgressEvent,
+  ) => {
+    const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
+    commandManager.events.emitDownloadProgress(queueKey, progress, { requestId, command });
   };
 
   // Pre-request
@@ -72,7 +104,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       loaded: progress?.loaded || 0,
     };
     requestStartTimestamp = +new Date();
-    handleRequestProgressEvents(requestId, command, requestStartTimestamp, requestStartTimestamp, initialPayload);
+    handleRequestProgress(requestStartTimestamp, requestStartTimestamp, initialPayload);
     commandManager.events.emitRequestStart(queueKey, { requestId, command });
     return requestStartTimestamp;
   };
@@ -85,7 +117,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
 
     const progressTimestamp = +new Date();
 
-    handleRequestProgressEvents(requestId, command, requestStartTimestamp, progressTimestamp, progress);
+    handleRequestProgress(requestStartTimestamp, progressTimestamp, progress);
     return progressTimestamp;
   };
 
@@ -95,7 +127,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     }
 
     const progressTimestamp = +new Date();
-    handleRequestProgressEvents(requestId, command, requestStartTimestamp, progressTimestamp, {
+    handleRequestProgress(requestStartTimestamp, progressTimestamp, {
       total: requestTotal,
       loaded: requestTotal,
     });
@@ -116,7 +148,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       loaded: progress?.loaded || 0,
     };
 
-    handleResponseProgressEvents(requestId, command, responseStartTimestamp, responseStartTimestamp, initialPayload);
+    handleResponseProgress(responseStartTimestamp, responseStartTimestamp, initialPayload);
     commandManager.events.emitResponseStart(queueKey, { requestId, command });
     return responseStartTimestamp;
   };
@@ -128,7 +160,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
 
     const progressTimestamp = +new Date();
     responseTotal = progress.total;
-    handleResponseProgressEvents(requestId, command, responseStartTimestamp, progressTimestamp, progress);
+    handleResponseProgress(responseStartTimestamp, progressTimestamp, progress);
     return progressTimestamp;
   };
 
@@ -139,7 +171,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
 
     const progressTimestamp = +new Date();
     commandManager.removeAbortController(abortKey, requestId);
-    handleResponseProgressEvents(requestId, command, responseStartTimestamp, progressTimestamp, {
+    handleResponseProgress(responseStartTimestamp, progressTimestamp, {
       total: responseTotal,
       loaded: responseTotal,
     });
@@ -209,6 +241,8 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     payload,
     config,
     getAbortController,
+    getRequestStartTimestamp,
+    getResponseStartTimestamp,
     createAbortListener,
     onBeforeRequest,
     onRequestStart,

@@ -1,15 +1,16 @@
 import {
-  parseResponse,
   getClientBindings,
-  parseErrorResponse,
   defaultTimeout,
   ClientResponseType,
   ClientType,
+  handleError,
+  handleReadyStateChange,
+  handleProgress,
 } from "client";
 
 export const fetchClient: ClientType = async (command, requestId) => {
-  if (!XMLHttpRequest) {
-    throw new Error("There is no XMLHttpRequest, make sure it's provided to use React-Fetch built-in client.");
+  if (!window.XMLHttpRequest) {
+    throw new Error("There is no XMLHttpRequest, make sure it's provided to use Hyper Fetch built-in client.");
   }
 
   const {
@@ -56,16 +57,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
     const unmountListener = createAbortListener(abort);
 
     // Request handlers
-    if (xhr.upload) {
-      xhr.upload.onprogress = (e): void => {
-        const event = e as ProgressEvent<XMLHttpRequest>;
-        const progress = {
-          total: event.total,
-          loaded: event.loaded,
-        };
-        onRequestProgress(progress);
-      };
-    }
+    xhr.upload.onprogress = handleProgress(onRequestProgress);
 
     // Response handlers
     xhr.onloadstart = (): void => {
@@ -73,14 +65,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
       onResponseStart();
     };
 
-    xhr.onprogress = (e): void => {
-      const event = e as ProgressEvent<XMLHttpRequest>;
-      const progress = {
-        total: event.total,
-        loaded: event.loaded,
-      };
-      onResponseProgress(progress);
-    };
+    xhr.onprogress = handleProgress(onResponseProgress);
 
     xhr.onloadend = () => {
       unmountListener();
@@ -90,38 +75,13 @@ export const fetchClient: ClientType = async (command, requestId) => {
     // Error listeners
     xhr.onabort = onAbortError;
     xhr.ontimeout = onTimeoutError;
+    xhr.upload.onabort = onAbortError;
+    xhr.upload.ontimeout = onTimeoutError;
 
     // Data listeners
-    xhr.onerror = (e) => {
-      const event = e as ProgressEvent<XMLHttpRequest>;
-      if (event.target) {
-        const data = parseErrorResponse(event.target.response);
-        onError(data, event.target.status, resolve);
-      } else {
-        onUnexpectedError();
-      }
-    };
+    xhr.onerror = handleError({ onError, onUnexpectedError }, resolve);
 
-    xhr.onreadystatechange = (e) => {
-      const event = e as ProgressEvent<XMLHttpRequest>;
-      const finishedState = 4;
-
-      const readyState = event.target?.readyState || 0;
-      const status = event.target?.status || 0;
-      const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
-
-      if (readyState === finishedState) {
-        onResponseEnd();
-
-        if (isSuccess) {
-          const data = parseResponse(event.target?.response);
-          onSuccess(data, status, resolve);
-        } else {
-          const data = parseErrorResponse(event.target?.response);
-          onError(data, status, resolve);
-        }
-      }
-    };
+    xhr.onreadystatechange = handleReadyStateChange({ onError, onSuccess, onResponseEnd }, resolve);
 
     // Start request
     onBeforeRequest();

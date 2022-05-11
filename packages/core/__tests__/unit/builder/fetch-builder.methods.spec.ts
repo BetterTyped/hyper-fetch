@@ -14,7 +14,7 @@ describe("FetchBuilder [ Methods ]", () => {
     startServer();
   });
 
-  afterEach(() => {
+  beforeEach(() => {
     builder = createBuilder();
     resetInterceptors();
   });
@@ -111,21 +111,63 @@ describe("FetchBuilder [ Methods ]", () => {
       expect(newCommand instanceof FetchCommand).toBeTrue();
       expect(newCommand.endpoint).toBe(endpoint);
     });
-    it("should add effects listeners on addEffects method trigger", async () => {
+    it("should add single effect listeners on addEffect method trigger", async () => {
       const effect = new FetchEffect({ name: "NEW-EFFECT" });
 
-      builder.addEffects([effect]);
+      builder.addEffect(effect);
 
       expect(builder.effects[0]).toBe(effect);
       expect(builder.effects).toHaveLength(1);
     });
+    it("should add effects array listeners on addEffect method trigger", async () => {
+      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+
+      builder.addEffect([effect]);
+
+      expect(builder.effects[0]).toBe(effect);
+      expect(builder.effects).toHaveLength(1);
+    });
+    it("should throw on duplicated effects", async () => {
+      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+
+      builder.addEffect([effect]);
+
+      expect(() => builder.addEffect([effect])).toThrow();
+      expect(() => builder.addEffect(effect)).toThrow();
+    });
     it("should remove effect listener on removeEffect method trigger", async () => {
       const effect = new FetchEffect({ name: "NEW-EFFECT" });
 
-      builder.addEffects([effect]);
+      builder.addEffect(effect);
       builder.removeEffect(effect);
-
       expect(builder.effects).toHaveLength(0);
+
+      builder.addEffect(effect);
+      builder.removeEffect(effect.getName());
+      expect(builder.effects).toHaveLength(0);
+    });
+    it("should not remove effect when wrong name is passed", async () => {
+      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+      const otherEffect = new FetchEffect({ name: "OTHER-EFFECT" });
+
+      builder.addEffect(effect);
+      builder.removeEffect(otherEffect);
+      expect(builder.effects).toHaveLength(1);
+
+      builder.removeEffect(otherEffect.getName());
+      expect(builder.effects).toHaveLength(1);
+    });
+    it("should assign query params handling callback [setHeaderMapper]", async () => {
+      const callback = () => ({} as HeadersInit);
+      builder.setHeaderMapper(callback);
+
+      expect(builder.headerMapper).toEqual(callback);
+    });
+    it("should assign query params handling callback [setPayloadMapper]", async () => {
+      const callback = () => "";
+      builder.setPayloadMapper(callback);
+
+      expect(builder.payloadMapper).toEqual(callback);
     });
   });
 });

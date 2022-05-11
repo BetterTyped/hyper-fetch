@@ -12,10 +12,11 @@ describe("Fetch Client [ Base ]", () => {
     startServer();
   });
 
-  afterEach(() => {
+  beforeEach(() => {
     builder = createBuilder();
     command = createCommand(builder);
     resetInterceptors();
+    jest.resetAllMocks();
   });
 
   afterAll(() => {
@@ -63,5 +64,12 @@ describe("Fetch Client [ Base ]", () => {
 
     expect(response).toBe(null);
     expect(error).toEqual(getErrorMessage("timeout"));
+  });
+
+  it("should throw when XMLHttpRequest is not available on window", async () => {
+    const xml = window.XMLHttpRequest;
+    window.XMLHttpRequest = undefined as any;
+    expect(fetchClient(command, requestId)).rejects.toThrow();
+    window.XMLHttpRequest = xml;
   });
 });

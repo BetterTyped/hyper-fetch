@@ -14,7 +14,7 @@ describe("FetchBuilder [ Middleware ]", () => {
     startServer();
   });
 
-  afterEach(() => {
+  beforeEach(() => {
     builder = createBuilder();
     command = createCommand(builder);
     resetInterceptors();

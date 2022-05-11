@@ -1,5 +1,6 @@
-import { ClientProgressEvent, FetchCommandInstance, getProgressData } from "command";
+import { FetchCommandInstance } from "command";
 import { ExtractError } from "types";
+import { getClientBindings, ClientResponseErrorType } from "client";
 
 // Utils
 
@@ -33,28 +34,64 @@ export const parseErrorResponse = <T extends FetchCommandInstance>(response: unk
   return response ? parseResponse(response) : getErrorMessage();
 };
 
-// Progress
+export const handleReadyStateChange = (
+  {
+    onError,
+    onResponseEnd,
+    onSuccess,
+  }: Pick<Awaited<ReturnType<typeof getClientBindings>>, "onError" | "onResponseEnd" | "onSuccess">,
+  resolve: (value: ClientResponseErrorType<unknown>) => void,
+) => {
+  return (e: Event) => {
+    const event = e as unknown as ProgressEvent<XMLHttpRequest>;
+    const finishedState = 4;
 
-export const handleResponseProgressEvents = <T extends FetchCommandInstance>(
-  requestId: string,
-  command: T,
-  startTimestamp: number,
-  progressTimestamp: number,
-  event: ClientProgressEvent,
-): void => {
-  const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
+    if (event.target && event.target.readyState === finishedState) {
+      const { status } = event.target;
+      const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
+      onResponseEnd();
 
-  command.builder.commandManager.events.emitDownloadProgress(command.queueKey, progress, { requestId, command });
+      if (isSuccess) {
+        const data = parseResponse(event.target.response);
+        onSuccess(data, status, resolve);
+      } else {
+        const data = parseErrorResponse(event.target.response);
+        onError(data, status, resolve);
+      }
+    }
+  };
 };
 
-export const handleRequestProgressEvents = <T extends FetchCommandInstance>(
-  requestId: string,
-  command: T,
-  startTimestamp: number,
-  progressTimestamp: number,
-  event: ClientProgressEvent,
-): void => {
-  const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
+// Progress
 
-  command.builder.commandManager.events.emitUploadProgress(command.queueKey, progress, { requestId, command });
+export const handleProgress = (
+  onProgress:
+    | Awaited<ReturnType<typeof getClientBindings>>["onResponseProgress"]
+    | Awaited<ReturnType<typeof getClientBindings>>["onRequestProgress"],
+) => {
+  return (e: ProgressEvent<EventTarget>) => {
+    const event = e as ProgressEvent<XMLHttpRequest>;
+    const progress = {
+      total: event.total,
+      loaded: event.loaded,
+    };
+    onProgress(progress);
+  };
+};
+
+// Error
+
+export const handleError = (
+  { onError, onUnexpectedError }: Pick<Awaited<ReturnType<typeof getClientBindings>>, "onError" | "onUnexpectedError">,
+  resolve: (value: ClientResponseErrorType<unknown>) => void,
+) => {
+  return (e: ProgressEvent<EventTarget>) => {
+    const event = e as ProgressEvent<XMLHttpRequest>;
+    if (event.target) {
+      const data = parseErrorResponse(event.target.response);
+      onError(data, event.target.status, resolve);
+    } else {
+      onUnexpectedError();
+    }
+  };
 };

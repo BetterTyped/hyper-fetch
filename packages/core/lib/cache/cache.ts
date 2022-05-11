@@ -4,7 +4,7 @@ import { CommandResponseDetails, LoggerMethodsType } from "managers";
 import { FetchBuilder } from "builder";
 import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { ClientResponseType } from "client";
-import { CacheStoreKeyType, CacheValueType, CacheStoreValueType } from "./cache.types";
+import { CacheValueType } from "./cache.types";
 
 /**
  * Cache class handles the data exchange with the queues.
@@ -55,19 +55,9 @@ export class Cache<ErrorType, HttpOptions> {
     private options?: CacheOptionsType<ErrorType, HttpOptions>,
   ) {
     this.logger = this.builder.loggerManager.init("Cache");
-    this.storage = this?.options?.storage || new Map<CacheStoreKeyType, CacheStoreValueType>();
+    this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter, this.storage);
-
     this.options?.onInitialization?.(this);
-
-    if (this.options?.initialData) {
-      Object.keys(this.options.initialData).forEach(async (key) => {
-        const value = await this.storage.get(key);
-        if (!value && this.options?.initialData?.[key]) {
-          await this.storage.set(key, this.options?.initialData[key]);
-        }
-      });
-    }
   }
 
   set = async <Response>(

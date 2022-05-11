@@ -9,7 +9,6 @@ export const stringifyValue = (response: string | unknown): string => {
   try {
     return JSON.stringify(response as string);
   } catch (err) {
-    console.error("Error while trying to stringify payload.");
     return "";
   }
 };
@@ -28,9 +27,9 @@ export const getClientHeaders = (command: FetchCommandInstance) => {
 
 export const getClientPayload = (data: unknown): string | FormData => {
   const isFormData = data instanceof FormData;
-  if (!isFormData) return stringifyValue(data);
+  if (isFormData) return data;
 
-  return data;
+  return stringifyValue(data);
 };
 
 // Stringify
@@ -77,9 +76,7 @@ const encodeArray = (key: string, array: Array<ClientQueryParamValues>, options:
 
   return array
     .filter(isValidValue(options))
-    .reduce<string[]>((acc, curr, index) => {
-      const value = curr === null ? "" : curr;
-
+    .reduce<string[]>((acc, value, index) => {
       switch (arrayFormat) {
         case "index": {
           const keyValue = `${encodeValue(key, options)}[${encodeValue(String(index), options)}]=`;
@@ -118,7 +115,7 @@ export const stringifyQueryParams = (
   queryParams: ClientQueryParamsType | string | NegativeTypes,
   options: QueryStringifyOptions = stringifyDefaultOptions,
 ): string => {
-  if (!queryParams || !Object.keys(queryParams)?.length) {
+  if (!queryParams || !Object.keys(queryParams).length) {
     return "";
   }
 

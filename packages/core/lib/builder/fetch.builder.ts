@@ -245,10 +245,15 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Add persistent effects which trigger on the request lifecycle
    */
-  addEffects = (effect: FetchEffectInstance[]) => {
+  addEffect = (effect: FetchEffectInstance | FetchEffectInstance[]) => {
     // Check for duplicated names of effect
     this.effects.forEach((currentEffect) => {
-      const hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
+      let hasDuplicate = false;
+      if (Array.isArray(effect)) {
+        hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
+      } else {
+        hasDuplicate = currentEffect.getName() === effect.getName();
+      }
 
       if (hasDuplicate) {
         throw new Error("Fetch effect names must be unique.");
@@ -264,7 +269,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    * Remove effects from builder
    */
   removeEffect = (effect: FetchEffectInstance | string) => {
-    const name = typeof effect === "string" ? effect : effect?.getName();
+    const name = typeof effect === "string" ? effect : effect.getName();
     this.effects = this.effects.filter((currentEffect) => currentEffect.getName() !== name);
 
     return this;

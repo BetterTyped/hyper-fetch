@@ -1,9 +1,20 @@
-import { stringify } from "cache";
 import { FetchProgressType } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { Queue } from "queue";
 import { ExtractClientOptions, ExtractError } from "types";
+
+export const stringifyKey = (value: unknown): string => {
+  try {
+    if (typeof value === "string") return value;
+    if (value === undefined || value === null) return "";
+    const data = JSON.stringify(value);
+    if (typeof data !== "string") throw new Error();
+    return data;
+  } catch (_) {
+    return "";
+  }
+};
 
 export const getProgressValue = ({ loaded, total }: ClientProgressEvent): number => {
   if (!loaded || !total) return 0;
@@ -81,15 +92,15 @@ export const getCommandKey = (
    */
 
   if ("values" in command) {
-    const methodKey = stringify(command.values.method);
-    const endpointKey = useInitialValues ? command.commandOptions.endpoint : stringify(command.values.endpoint);
-    const queryParamsKey = useInitialValues ? "" : stringify(command.values.queryParams);
+    const methodKey = stringifyKey(command.values.method);
+    const endpointKey = useInitialValues ? command.commandOptions.endpoint : stringifyKey(command.values.endpoint);
+    const queryParamsKey = useInitialValues ? "" : stringifyKey(command.values.queryParams);
 
     return `${methodKey}_${endpointKey}_${queryParamsKey}`;
   }
-  const methodKey = stringify(command.method);
-  const endpointKey = useInitialValues ? command.options.endpoint : stringify(command.endpoint);
-  const queryParamsKey = useInitialValues ? "" : stringify(command.queryParams);
+  const methodKey = stringifyKey(command.method);
+  const endpointKey = useInitialValues ? command.options.endpoint : stringifyKey(command.endpoint);
+  const queryParamsKey = useInitialValues ? "" : stringifyKey(command.queryParams);
 
   return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };

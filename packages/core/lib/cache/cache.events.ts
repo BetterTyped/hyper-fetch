@@ -2,7 +2,6 @@ import EventEmitter from "events";
 
 import { CacheKeyType, CacheValueType, getRevalidateEventKey, CacheStorageType } from "cache";
 import { ExtractResponse, ExtractError } from "types";
-import { matchPath } from "utils";
 import { getCacheKey } from "./cache.utils";
 
 export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
@@ -16,17 +15,7 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
   revalidate: async (pattern: CacheKeyType | RegExp): Promise<void> => {
     const keys = await storage.keys();
 
-    if (typeof pattern === "string" && pattern.startsWith("/") && pattern.endsWith("/")) {
-      const [matcher] = matchPath(pattern);
-      emitter.emit(getRevalidateEventKey(pattern));
-
-      // eslint-disable-next-line no-restricted-syntax
-      for (const entityKey of keys) {
-        if (matcher.test(entityKey)) {
-          emitter.emit(getRevalidateEventKey(entityKey));
-        }
-      }
-    } else if (typeof pattern === "string") {
+    if (typeof pattern === "string") {
       emitter.emit(getRevalidateEventKey(pattern));
     } else {
       // eslint-disable-next-line no-restricted-syntax
@@ -47,8 +36,5 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
   onRevalidate: (key: CacheKeyType, callback: () => void): VoidFunction => {
     emitter.on(getRevalidateEventKey(key), callback);
     return () => emitter.removeListener(getRevalidateEventKey(key), callback);
-  },
-  umount: <T extends (...args: any[]) => void>(key: CacheKeyType, callback: T): void => {
-    emitter.removeListener(key, callback);
   },
 });
