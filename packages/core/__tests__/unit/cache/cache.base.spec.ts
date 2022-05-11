@@ -96,4 +96,20 @@ describe("Cache [ Base ]", () => {
       expect(await cache.get(command.cacheKey)).not.toBeDefined();
     });
   });
+
+  describe("When CacheStore gets cleared before triggering cache actions", () => {
+    it("should return undefined when removed cache entity", async () => {
+      const trigger = jest.fn();
+
+      cache.events.onRevalidate(command.cacheKey, () => {
+        trigger();
+      });
+
+      await cache.set(command.cacheKey, response, details, false);
+      await cache.clear();
+
+      expect(trigger).toBeCalledTimes(0);
+      expect(await cache.get(command.cacheKey)).not.toBeDefined();
+    });
+  });
 });
