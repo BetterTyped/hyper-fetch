@@ -30,13 +30,12 @@ export const parseResponse = (response: string | unknown) => {
 };
 
 export const parseErrorResponse = <T extends FetchCommandInstance>(response: unknown): ExtractError<T> => {
-  return parseResponse(response) || getErrorMessage();
+  return response ? parseResponse(response) : getErrorMessage();
 };
 
 // Progress
 
 export const handleResponseProgressEvents = <T extends FetchCommandInstance>(
-  queueKey: string,
   requestId: string,
   command: T,
   startTimestamp: number,
@@ -45,11 +44,10 @@ export const handleResponseProgressEvents = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
 
-  command.builder.commandManager.events.emitDownloadProgress(queueKey, progress, { requestId, command });
+  command.builder.commandManager.events.emitDownloadProgress(command.queueKey, progress, { requestId, command });
 };
 
 export const handleRequestProgressEvents = <T extends FetchCommandInstance>(
-  queueKey: string,
   requestId: string,
   command: T,
   startTimestamp: number,
@@ -58,5 +56,5 @@ export const handleRequestProgressEvents = <T extends FetchCommandInstance>(
 ): void => {
   const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), event);
 
-  command.builder.commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
+  command.builder.commandManager.events.emitUploadProgress(command.queueKey, progress, { requestId, command });
 };
