@@ -25,6 +25,11 @@ describe("Cache [ Events ]", () => {
       await events.revalidate(/test/);
       expect(spy).toBeCalledTimes(1);
     });
+    it("should revalidate cache using regex", async () => {
+      events.onRevalidate(key, spy);
+      await events.revalidate(/test/);
+      expect(spy).toBeCalledTimes(1);
+    });
   });
 });
 

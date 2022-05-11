@@ -12,18 +12,6 @@ export const getCacheData = <T extends FetchCommandInstance>(
   return [data, error, status];
 };
 
-export const stringify = (value: unknown): string => {
-  try {
-    if (typeof value === "string") return value;
-    if (value === undefined || value === null) return "";
-    const data = JSON.stringify(value);
-    if (typeof data !== "string") throw new Error();
-    return data;
-  } catch (_) {
-    return "";
-  }
-};
-
 export const getRevalidateEventKey = (key: string): string => {
   return `${key}_revalidate`;
 };
