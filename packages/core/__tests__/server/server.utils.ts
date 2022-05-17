@@ -3,6 +3,7 @@ import {
   MockedResponse,
   PathParams,
   ResponseComposition,
+  ResponseTransformer,
   rest,
   RestContext,
   RestHandler,
@@ -25,22 +26,28 @@ const getResponse = (ctx: RestContext, command: FetchCommandInstance, fixture: u
   const timeoutTime = command.options?.timeout || command.builder?.requestConfig?.timeout || defaultTimeout;
   const isTimeout = timeoutTime < delay;
 
-  return async (response: MockedResponse<unknown>) => {
-    await sleep(Math.min(timeoutTime, delay));
-    if (abortController && abortController?.[1]?.signal?.aborted) {
-      ctx.status(500)(response);
-      response.body = getErrorMessage("abort");
+  if (!delay) {
+    return [ctx.json(fixture), ctx.status(status)];
+  }
+
+  return [
+    async (response: MockedResponse<unknown>) => {
+      await sleep(Math.min(timeoutTime, delay));
+      if (abortController && abortController?.[1]?.signal?.aborted) {
+        ctx.status(500)(response);
+        response.body = getErrorMessage("abort");
+        return response;
+      }
+      if (isTimeout) {
+        ctx.status(500)(response);
+        response.body = getErrorMessage("timeout");
+        return response;
+      }
+      ctx.json(fixture)(response);
+      ctx.status(status)(response);
       return response;
-    }
-    if (isTimeout) {
-      ctx.status(500)(response);
-      response.body = getErrorMessage("timeout");
-      return response;
-    }
-    ctx.status(status)(response);
-    response.body = fixture;
-    return response;
-  };
+    },
+  ];
 };
 
 export const createStubMethod = (
@@ -56,14 +63,17 @@ export const createStubMethod = (
     res: ResponseComposition<any>,
     ctx: RestContext,
   ) {
-    const args = [ctx.delay(), getResponse(ctx, command, response, status, delay)];
+    const args: ResponseTransformer<any, any>[] = getResponse(ctx, command, response, status, delay);
 
     if (delay === 0) {
       args.shift();
     }
 
+    if (delay === null || delay === undefined) {
+      args.unshift(ctx.delay());
+    }
+
     if (delay) {
-      args.shift();
       args.unshift(ctx.delay(delay));
     }
 

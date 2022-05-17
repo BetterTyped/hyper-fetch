@@ -1,5 +1,5 @@
 import { Cache } from "cache";
-import { Queue } from "queue";
+import { Dispatcher } from "dispatcher";
 import { AppManager } from "managers";
 import { createBuilder, interceptorCallback } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
@@ -45,17 +45,17 @@ describe("FetchBuilder [ Base ]", () => {
 
       expect(builder.cache).toBe(cache);
     });
-    it("should assign new fetchQueue", async () => {
-      const fetchQueue = new Queue(builderInstance);
-      const builder = createBuilder({ fetchQueue: () => fetchQueue });
+    it("should assign new fetchDispatcher", async () => {
+      const fetchDispatcher = new Dispatcher(builderInstance);
+      const builder = createBuilder({ fetchDispatcher: () => fetchDispatcher });
 
-      expect(builder.fetchQueue).toBe(fetchQueue);
+      expect(builder.fetchDispatcher).toBe(fetchDispatcher);
     });
-    it("should assign new submitQueue", async () => {
-      const submitQueue = new Queue(builderInstance);
-      const builder = createBuilder({ submitQueue: () => submitQueue });
+    it("should assign new submitDispatcher", async () => {
+      const submitDispatcher = new Dispatcher(builderInstance);
+      const builder = createBuilder({ submitDispatcher: () => submitDispatcher });
 
-      expect(builder.submitQueue).toBe(submitQueue);
+      expect(builder.submitDispatcher).toBe(submitDispatcher);
     });
   });
 });

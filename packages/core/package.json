@@ -34,16 +34,15 @@
     "prepublishOnly": "yarn build",
     "start": "rollup -c -w",
     "build": "rollup -c",
-    "test": "jest --watchAll --maxWorkers=3",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=3",
+    "test": "jest --watchAll --maxWorkers=2",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=2",
     "coverage": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^5.22.0",
-    "jest-extended": "^2.0.0"
+    "@typescript-eslint/parser": "^5.22.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

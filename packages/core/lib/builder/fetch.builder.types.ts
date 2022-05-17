@@ -1,6 +1,6 @@
 import { Cache } from "cache";
 import { FetchCommandInstance } from "command";
-import { Queue } from "queue";
+import { Dispatcher } from "dispatcher";
 import { ClientResponseType, ClientType, ClientQueryParamsType } from "client";
 import { FetchBuilder } from "builder";
 import { AppManager } from "managers";
@@ -11,8 +11,8 @@ export type FetchBuilderConfig<ErrorType, HttpOptions> = {
   client?: ClientType;
   cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, HttpOptions>;
   appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager<ErrorType, HttpOptions>;
-  fetchQueue?: <B extends FetchBuilderInstance>(builder: B) => Queue<ErrorType, HttpOptions>;
-  submitQueue?: <B extends FetchBuilderInstance>(builder: B) => Queue<ErrorType, HttpOptions>;
+  fetchDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher<ErrorType, HttpOptions>;
+  submitDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher<ErrorType, HttpOptions>;
 };
 
 export type FetchBuilderInstance = FetchBuilder<any, any>;

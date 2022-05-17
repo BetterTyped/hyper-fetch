@@ -16,9 +16,11 @@
     "format": "lerna run format",
     "lint": "lerna run lint --stream",
     "release": "lerna exec --concurrency 1 -- semantic-release --tag-format='${LERNA_PACKAGE_NAME}-v\\${version}'",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "runner-test": "lerna run test"
   },
   "dependencies": {
+    "jest-extended": "^2.0.0",
     "lerna": "^4.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"

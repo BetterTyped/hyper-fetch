@@ -1,7 +1,7 @@
 import { FetchProgressType } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { Queue } from "queue";
+import { Dispatcher } from "dispatcher";
 import { ExtractClientOptions, ExtractError } from "types";
 
 export const stringifyKey = (value: unknown): string => {
@@ -105,14 +105,14 @@ export const getCommandKey = (
   return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };
 
-export const getCommandQueue = <Command extends FetchCommandInstance>(
+export const getCommandDispatcher = <Command extends FetchCommandInstance>(
   command: Command,
   queueType: "auto" | "fetch" | "submit" = "auto",
-): [Queue<ExtractError<Command>, ExtractClientOptions<Command>>, boolean] => {
-  const { fetchQueue, submitQueue } = command.builder;
+): [Dispatcher<ExtractError<Command>, ExtractClientOptions<Command>>, boolean] => {
+  const { fetchDispatcher, submitDispatcher } = command.builder;
   const isGet = command.method === HttpMethodsEnum.get;
-  const isFetchQueue = (queueType === "auto" && isGet) || queueType === "fetch";
-  const queue = isFetchQueue ? fetchQueue : submitQueue;
+  const isFetchDispatcher = (queueType === "auto" && isGet) || queueType === "fetch";
+  const queue = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 
-  return [queue, isFetchQueue];
+  return [queue, isFetchDispatcher];
 };

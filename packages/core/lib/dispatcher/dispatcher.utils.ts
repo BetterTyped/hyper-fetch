@@ -1,5 +1,6 @@
 import { FetchCommandInstance } from "command";
-import { QueueRequestType } from "queue";
+import { DispatcherRequestType } from "dispatcher";
+import { ClientResponseType } from "client";
 
 // Queue
 
@@ -9,17 +10,17 @@ export const getStorageKey = (queueKey: string): string => {
 
 // Events
 
-export const getQueueLoadingEventKey = (key: string): string => {
+export const getDispatcherLoadingEventKey = (key: string): string => {
   return `${key}-loading-event`;
 };
-export const getQueueDrainedEventKey = (key: string): string => {
+export const getDispatcherDrainedEventKey = (key: string): string => {
   return `${key}-drained-event`;
 };
-export const getQueueStatusEventKey = (key: string): string => {
+export const getDispatcherStatusEventKey = (key: string): string => {
   return `${key}-status-event`;
 };
-export const getQueueChangeEventKey = (key: string): string => {
-  return `${key}-queue-event`;
+export const getDispatcherChangeEventKey = (key: string): string => {
+  return `${key}-change-event`;
 };
 
 // Requesting
@@ -36,7 +37,7 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
   if (retry === true) {
     return true;
   }
-  if (retry && retries <= retry) {
+  if (retry && retries <= retry - 1) {
     return true;
   }
   return false;
@@ -46,13 +47,21 @@ export const getRequestType = (command: FetchCommandInstance, hasRequests: boole
   const { concurrent, cancelable, deduplicate } = command;
 
   if (!concurrent) {
-    return QueueRequestType.oneByOne;
+    return DispatcherRequestType.oneByOne;
   }
   if (cancelable) {
-    return QueueRequestType.previousCanceled;
+    return DispatcherRequestType.previousCanceled;
   }
   if (hasRequests && deduplicate) {
-    return QueueRequestType.deduplicated;
+    return DispatcherRequestType.deduplicated;
   }
-  return QueueRequestType.allAtOnce;
+  return DispatcherRequestType.allAtOnce;
+};
+
+export const isFailedRequest = (data: ClientResponseType<unknown, unknown>) => {
+  const [, , status] = data;
+  if (!status || status >= 400) {
+    return true;
+  }
+  return false;
 };

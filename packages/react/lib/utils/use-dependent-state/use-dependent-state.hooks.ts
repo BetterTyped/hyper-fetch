@@ -16,7 +16,7 @@ import { getDetailsState, getInitialDependentStateData, transformDataToCacheValu
 export const useDependentState = <T extends FetchCommandInstance>(
   command: T,
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
-  queue: FetchBuilderInstance["fetchQueue"] | FetchBuilderInstance["submitQueue"],
+  queue: FetchBuilderInstance["fetchDispatcher"] | FetchBuilderInstance["submitDispatcher"],
   dependencies: any[],
 ): [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,

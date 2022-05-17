@@ -16,11 +16,11 @@ export const useCache = <T extends FetchCommandInstance>(
 ): UseCacheReturnType<T> => {
   const { cacheTime, cacheKey, builder } = command;
 
-  const { cache, fetchQueue, loggerManager } = builder;
+  const { cache, fetchDispatcher, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useCache")).current;
   const [state, actions, { setRenderKey }] = useCommandState({
     command,
-    queue: fetchQueue,
+    queue: fetchDispatcher,
     dependencyTracking,
     initialData,
     logger,

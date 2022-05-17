@@ -30,7 +30,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
   const [commandListeners, setCommandListeners] = useState<Pick<T, "queueKey" | "builder">[]>([]);
 
   const { cacheTime, builder } = command;
-  const { cache, submitQueue, loggerManager } = builder;
+  const { cache, submitDispatcher, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useSubmit")).current;
 
   const addCommandListener = (triggeredCommand: FetchCommandInstance) => {
@@ -49,7 +49,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
 
   const [state, actions, { setRenderKey }] = useCommandState({
     command,
-    queue: submitQueue,
+    queue: submitDispatcher,
     dependencyTracking,
     initialData,
     logger,

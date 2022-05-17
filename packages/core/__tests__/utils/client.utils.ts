@@ -2,7 +2,10 @@ import { fetchClient } from "client";
 import { FetchCommandInstance } from "command";
 import { sleep } from ".";
 
-export const createClient = (props?: { sleepTime?: number; callback: () => void }) => {
+export const createClient = (props?: {
+  sleepTime?: number;
+  callback: (command: FetchCommandInstance, requestId: string) => void;
+}) => {
   const { sleepTime, callback } = props || {};
 
   return async (command: FetchCommandInstance, requestId: string) => {
@@ -10,7 +13,7 @@ export const createClient = (props?: { sleepTime?: number; callback: () => void 
       await sleep(sleepTime);
     }
 
-    callback?.();
+    callback?.(command, requestId);
     return fetchClient(command, requestId);
   };
 };

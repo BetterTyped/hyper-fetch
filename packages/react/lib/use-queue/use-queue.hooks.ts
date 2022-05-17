@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { FetchCommandInstance, getCommandQueue } from "@better-typed/hyper-fetch";
+import { FetchCommandInstance, getCommandDispatcher } from "@better-typed/hyper-fetch";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue";
@@ -12,7 +12,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
   const { queueKey, builder } = command;
   const { commandManager } = builder;
 
-  const queueRef = useRef(getCommandQueue(command, queueType));
+  const queueRef = useRef(getCommandDispatcher(command, queueType));
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
@@ -78,9 +78,9 @@ export const useQueue = <Command extends FetchCommandInstance>(
     connecting,
     stopped,
     requests,
-    stopQueue: () => queueRef.current[0].stopQueue(queueKey),
-    pauseQueue: () => queueRef.current[0].pauseQueue(queueKey),
-    startQueue: () => queueRef.current[0].startQueue(queueKey),
+    stop: () => queueRef.current[0].stop(queueKey),
+    pause: () => queueRef.current[0].pause(queueKey),
+    start: () => queueRef.current[0].start(queueKey),
     startRequest: (requestId: string) => queueRef.current[0].startRequest(queueKey, requestId),
     stopRequest: (requestId: string) => queueRef.current[0].stopRequest(queueKey, requestId),
   };

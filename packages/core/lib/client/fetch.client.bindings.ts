@@ -64,6 +64,11 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     return () => controller.signal.removeEventListener("abort", callback);
   };
 
+  const unmountEmitter = createAbortListener(() => {
+    commandManager.events.emitAbort(queueKey, command);
+    commandManager.events.emitAbortById(requestId, command);
+  });
+
   // Progress
 
   const handleRequestProgress = (
@@ -175,6 +180,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
       total: responseTotal,
       loaded: responseTotal,
     });
+    unmountEmitter();
     return progressTimestamp;
   };
 

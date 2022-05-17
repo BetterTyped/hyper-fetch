@@ -28,14 +28,14 @@ export const useFetch = <T extends FetchCommandInstance>(
   }: UseFetchOptionsType<T> = useFetchDefaultOptions,
 ): UseFetchReturnType<T> => {
   const { cacheTime, cacheKey, queueKey, builder } = command;
-  const { cache, fetchQueue, appManager, loggerManager } = builder;
+  const { cache, fetchDispatcher, appManager, loggerManager } = builder;
   const commandDump = command.dump();
   const logger = useRef(loggerManager.init("useFetch")).current;
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
   const [state, actions, { setRenderKey, initialized }] = useCommandState({
     command,
-    queue: fetchQueue,
+    queue: fetchDispatcher,
     dependencyTracking,
     initialData,
     logger,
@@ -57,7 +57,7 @@ export const useFetch = <T extends FetchCommandInstance>(
      */
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
-      fetchQueue.add(command);
+      fetchDispatcher.add(command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -72,8 +72,8 @@ export const useFetch = <T extends FetchCommandInstance>(
 
         // If window tab is not active should we refresh the cache
         const canRefreshBlurred = isBlur && refreshBlurred;
-        const isFetching = !!fetchQueue.getRunningRequests(command.queueKey).length;
-        const isQueued = !!fetchQueue.getQueue(command.queueKey)?.requests.length;
+        const isFetching = !!fetchDispatcher.getRunningRequests(command.queueKey).length;
+        const isQueued = !!fetchDispatcher.getQueue(command.queueKey)?.requests.length;
         const canRefresh = canRefreshBlurred || !isBlur || !isFetching || !isQueued;
 
         if (canRefresh) {
@@ -169,7 +169,7 @@ export const useFetch = <T extends FetchCommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    if (!fetchQueue.getQueueRequestCount(queueKey) && debounce) {
+    if (!fetchDispatcher.getQueueRequestCount(queueKey) && debounce) {
       logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
     } else {

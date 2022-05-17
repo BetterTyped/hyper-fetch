@@ -7,6 +7,7 @@ import {
   getUploadProgressEventKey,
   getRequestIdEventKey,
   getAbortEventKey,
+  getAbortByIdEventKey,
   getResponseEventKey,
   CommandEventDetails,
   CommandResponseDetails,
@@ -59,8 +60,11 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
     emitter.emit(getRequestIdEventKey(requestId), response, details);
   },
   // Abort
-  emitAbort: (queueKey: CacheKeyType, command: FetchCommandInstance): void => {
-    emitter.emit(getAbortEventKey(queueKey), command);
+  emitAbort: (abortKey: CacheKeyType, command: FetchCommandInstance): void => {
+    emitter.emit(getAbortEventKey(abortKey), command);
+  },
+  emitAbortById: (requestId: CacheKeyType, command: FetchCommandInstance): void => {
+    emitter.emit(getAbortByIdEventKey(requestId), command);
   },
 
   /**
@@ -114,9 +118,13 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
     return () => emitter.removeListener(getResponseEventKey(queueKey), callback);
   },
   // Abort
-  onAbort: (queueKey: CacheKeyType, callback: (command: FetchCommandInstance) => void): VoidFunction => {
-    emitter.on(getAbortEventKey(queueKey), callback);
-    return () => emitter.removeListener(getAbortEventKey(queueKey), callback);
+  onAbort: (abortKey: CacheKeyType, callback: (command: FetchCommandInstance) => void): VoidFunction => {
+    emitter.on(getAbortEventKey(abortKey), callback);
+    return () => emitter.removeListener(getAbortEventKey(abortKey), callback);
+  },
+  onAbortById: (requestId: string, callback: (command: FetchCommandInstance) => void): VoidFunction => {
+    emitter.on(getAbortByIdEventKey(requestId), callback);
+    return () => emitter.removeListener(getAbortByIdEventKey(requestId), callback);
   },
 
   /**

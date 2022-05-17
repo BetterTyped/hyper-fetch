@@ -4,9 +4,9 @@ import {
   ExtractResponse,
   ExtractError,
   CacheValueType,
-  QueueLoadingEventType,
+  DispatcherLoadingEventType,
   FetchProgressType,
-  Queue,
+  Dispatcher,
   ExtractClientOptions,
   LoggerMethodsType,
   CommandResponseDetails,
@@ -19,7 +19,7 @@ import { UseDependentStateActions, UseDependentStateType } from "utils/use-depen
 
 export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   command: T;
-  queue: Queue<ExtractError<T>, ExtractClientOptions<T>>;
+  queue: Dispatcher<ExtractError<T>, ExtractClientOptions<T>>;
   logger: LoggerMethodsType;
   dependencyTracking: boolean;
   initialData: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
@@ -50,7 +50,7 @@ export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
   },
 ];
 
-export type OnRequestCallbackType = (options: Omit<QueueLoadingEventType, "isLoading" | "isOffline">) => void;
+export type OnRequestCallbackType = (options: Omit<DispatcherLoadingEventType, "isLoading" | "isOffline">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;

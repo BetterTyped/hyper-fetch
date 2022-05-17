@@ -9,7 +9,7 @@ import {
   ParamsType,
   getCommandKey,
   FetchCommandQueueOptions,
-  getCommandQueue,
+  getCommandDispatcher,
   FetchCommandData,
 } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
@@ -416,7 +416,7 @@ export class FetchCommand<
         MappedData
       >,
     );
-    const [queue, isFetchQueue] = getCommandQueue(this, options?.queueType);
+    const [queue, isFetchQueue] = getCommandDispatcher(this, options?.queueType);
 
     return new Promise<ClientResponseType<ResponseType, ErrorType | RequestErrorType>>((resolve) => {
       const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType | RequestErrorType>(
@@ -430,7 +430,7 @@ export class FetchCommand<
       queue.add(command);
 
       this.logger.http(
-        `Performing send method and adding command to ${isFetchQueue ? "Fetch" : "Submit"} Queue queue`,
+        `Performing send method and adding command to ${isFetchQueue ? "Fetch" : "Submit"} Dispatcher queue`,
         {
           command,
         },

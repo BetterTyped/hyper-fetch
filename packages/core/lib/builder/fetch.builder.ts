@@ -21,7 +21,7 @@ import {
 } from "builder";
 import { Cache } from "cache";
 import { FetchEffectInstance } from "effect";
-import { Queue } from "queue";
+import { Dispatcher } from "dispatcher";
 import { FetchCommand, FetchCommandConfig, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
@@ -49,8 +49,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   // Config
   client: ClientType;
   cache: Cache<ErrorType, RequestConfigType>;
-  fetchQueue: Queue<ErrorType, RequestConfigType>;
-  submitQueue: Queue<ErrorType, RequestConfigType>;
+  fetchDispatcher: Dispatcher<ErrorType, RequestConfigType>;
+  submitDispatcher: Dispatcher<ErrorType, RequestConfigType>;
 
   // Registered requests effect
   effects: FetchEffectInstance[] = [];
@@ -84,8 +84,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     client,
     appManager,
     cache,
-    fetchQueue,
-    submitQueue,
+    fetchDispatcher,
+    submitDispatcher,
   }: FetchBuilderConfig<ErrorType, RequestConfigType>) {
     this.baseUrl = baseUrl;
     this.client = client || fetchClient;
@@ -93,8 +93,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.cache = cache?.(this) || new Cache(this);
     this.appManager = appManager?.(this) || new AppManager<ErrorType, RequestConfigType>(this);
-    this.fetchQueue = fetchQueue?.(this) || new Queue<ErrorType, RequestConfigType>(this);
-    this.submitQueue = submitQueue?.(this) || new Queue<ErrorType, RequestConfigType>(this);
+    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher<ErrorType, RequestConfigType>(this);
+    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher<ErrorType, RequestConfigType>(this);
   }
 
   /**
@@ -281,13 +281,13 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   clear = () => {
     this.commandManager.abortControllers.clear();
     this.cache.clear();
-    this.fetchQueue.clear();
-    this.submitQueue.clear();
+    this.fetchDispatcher.clear();
+    this.submitDispatcher.clear();
 
     this.commandManager.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
-    this.fetchQueue.emitter.removeAllListeners();
-    this.submitQueue.emitter.removeAllListeners();
+    this.fetchDispatcher.emitter.removeAllListeners();
+    this.submitDispatcher.emitter.removeAllListeners();
     this.commandManager.emitter.removeAllListeners();
   };
 

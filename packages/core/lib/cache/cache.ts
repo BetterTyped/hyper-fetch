@@ -7,7 +7,7 @@ import { ClientResponseType } from "client";
 import { CacheValueType } from "./cache.types";
 
 /**
- * Cache class handles the data exchange with the queues.
+ * Cache class handles the data exchange with the dispatchers.
  *
  * @note
  * Keys used to save the values are created dynamically on the FetchCommand class
@@ -92,7 +92,7 @@ export class Cache<ErrorType, HttpOptions> {
   };
 
   get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {
-    const cachedData = this.storage.get<Response>(cacheKey);
+    const cachedData = await this.storage.get<Response>(cacheKey);
     return cachedData;
   };
 

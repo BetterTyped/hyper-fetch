@@ -36,7 +36,7 @@ describe("[Basic] UseFetch hook", () => {
     command = builder.createCommand<GetManyResponseType>()(dump.commandOptions);
   });
 
-  it("should initialize in loading state", async () => {
+  it("should not initialize in loading state", async () => {
     interceptGetMany(200);
 
     const responseOne = await renderGetManyHook();
@@ -45,8 +45,8 @@ describe("[Basic] UseFetch hook", () => {
     testFetchInitialState(responseOne);
     testFetchInitialState(responseTwo);
 
-    expect(getCurrentState(responseOne).loading).toBe(true);
-    expect(getCurrentState(responseTwo).loading).toBe(true);
+    expect(getCurrentState(responseOne).loading).toBe(false);
+    expect(getCurrentState(responseTwo).loading).toBe(false);
   });
 
   it("should change state once data is fetched", async () => {

@@ -3,7 +3,7 @@ import { useDidUpdate, useIsMounted } from "@better-typed/react-lifecycle-hooks"
 
 import {
   FetchProgressType,
-  QueueLoadingEventType,
+  DispatcherLoadingEventType,
   FetchCommandInstance,
   ExtractResponse,
   ExtractError,
@@ -112,7 +112,7 @@ export const useCommandState = <T extends FetchCommandInstance>({
     }
   };
 
-  const handleGetLoadingEvent = ({ isLoading, isRetry }: QueueLoadingEventType) => {
+  const handleGetLoadingEvent = ({ isLoading, isRetry }: DispatcherLoadingEventType) => {
     actions.setLoading(isLoading, false);
     if (isLoading) {
       onRequestCallback.current?.({ isRetry });
