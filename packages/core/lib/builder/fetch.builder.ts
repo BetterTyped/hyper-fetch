@@ -228,7 +228,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     ResponseType,
     PayloadType = undefined,
     RequestErrorType = undefined,
-    QueryParamsType extends ClientQueryParamsType = ClientQueryParamsType,
+    QueryParamsType extends ClientQueryParamsType | string = string,
   >() => {
     return <EndpointType extends string>(params: FetchCommandConfig<EndpointType, RequestConfigType>) =>
       new FetchCommand<
@@ -246,20 +246,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    * Add persistent effects which trigger on the request lifecycle
    */
   addEffect = (effect: FetchEffectInstance | FetchEffectInstance[]) => {
-    // Check for duplicated names of effect
-    this.effects.forEach((currentEffect) => {
-      let hasDuplicate = false;
-      if (Array.isArray(effect)) {
-        hasDuplicate = effect.some((ef) => ef.getName() === currentEffect.getName());
-      } else {
-        hasDuplicate = currentEffect.getName() === effect.getName();
-      }
-
-      if (hasDuplicate) {
-        throw new Error("Fetch effect names must be unique.");
-      }
-    });
-
     this.effects = this.effects.concat(effect);
 
     return this;
@@ -269,8 +255,8 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    * Remove effects from builder
    */
   removeEffect = (effect: FetchEffectInstance | string) => {
-    const name = typeof effect === "string" ? effect : effect.getName();
-    this.effects = this.effects.filter((currentEffect) => currentEffect.getName() !== name);
+    const name = typeof effect === "string" ? effect : effect.getEffectKey();
+    this.effects = this.effects.filter((currentEffect) => currentEffect.getEffectKey() !== name);
 
     return this;
   };

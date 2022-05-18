@@ -10,7 +10,7 @@ export type DispatcherOptionsType<ErrorType, HttpOptions> = {
 };
 
 // Values
-export type DispatcherDumpValueType<HttpOptions, Command = unknown> = {
+export type DispatcherDumpValueType<HttpOptions = unknown, Command = unknown> = {
   requestId: string;
   commandDump: FetchCommandDump<HttpOptions, Command>;
   retries: number;

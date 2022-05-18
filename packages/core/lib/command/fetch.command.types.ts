@@ -1,12 +1,5 @@
-import { ClientResponseType, ClientQueryParamsType } from "client";
-import {
-  ExtractParams,
-  ExtractQueryParams,
-  ExtractResponse,
-  HttpMethodsType,
-  NegativeTypes,
-  NullableKeys,
-} from "types";
+import { ClientQueryParamsType, ClientResponseType } from "client";
+import { ExtractParams, ExtractRequest, HttpMethodsType, NegativeTypes, NullableKeys } from "types";
 import { FetchCommand } from "./fetch.command";
 
 // Progress
@@ -15,25 +8,35 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 
 // Dump
 
-export type FetchCommandDump<ClientOptions, Command = unknown> = {
+export type FetchCommandDump<ClientOptions, Command = unknown, QueryParamsType = ClientQueryParamsType> = {
   commandOptions: FetchCommandConfig<string, ClientOptions>;
-  values: Omit<FetchCommandConfig<string, ClientOptions>, "method" | "abortKey" | "cacheKey" | "queueKey"> & {
-    method: HttpMethodsType;
-    data?: Command extends FetchCommandInstance ? ExtractResponse<Command> : unknown;
-    params?: Command extends FetchCommandInstance ? ExtractParams<Command> : ExtractRouteParams<string>;
-    queryParams: Command extends FetchCommandInstance
-      ? ExtractQueryParams<Command> | string | NegativeTypes
-      : ClientQueryParamsType | string | NegativeTypes;
-    abortKey: string;
-    cacheKey: string;
-    queueKey: string;
-    effects: string[];
-    used: boolean;
-    updatedAbortKey: boolean;
-    updatedCacheKey: boolean;
-    updatedQueueKey: boolean;
-    deduplicate: boolean;
-  };
+  endpoint: string;
+  method: HttpMethodsType;
+  headers?: HeadersInit;
+  auth: boolean;
+  cancelable: boolean;
+  retry: boolean | number;
+  retryTime: number;
+  cache: boolean;
+  cacheTime: number;
+  concurrent: boolean;
+  deepEqual: boolean;
+  disableResponseInterceptors: boolean | undefined;
+  disableRequestInterceptors: boolean | undefined;
+  options?: ClientOptions;
+  data: FetchCommandData<ExtractRequest<Command>, unknown>;
+  params: ExtractParams<Command> | NegativeTypes;
+  queryParams: QueryParamsType | NegativeTypes;
+  abortKey: string;
+  cacheKey: string;
+  queueKey: string;
+  effectKey: string;
+  used: boolean;
+  updatedAbortKey: boolean;
+  updatedCacheKey: boolean;
+  updatedQueueKey: boolean;
+  updatedEffectKey: boolean;
+  deduplicate: boolean;
 };
 
 // Command
@@ -55,6 +58,7 @@ export type FetchCommandConfig<GenericEndpoint extends string, ClientOptions> = 
   abortKey?: string;
   cacheKey?: string;
   queueKey?: string;
+  effectKey?: string;
   deduplicate?: boolean;
 };
 
@@ -72,7 +76,7 @@ export type FetchCommandCurrentType<
   MappedData,
 > = {
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
-  queryParams?: QueryParamsType | string | NegativeTypes;
+  queryParams?: QueryParamsType | NegativeTypes;
   data?: FetchCommandData<PayloadType, MappedData>;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
@@ -81,6 +85,7 @@ export type FetchCommandCurrentType<
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
+  updatedEffectKey?: boolean;
   deduplicate?: boolean;
 } & Partial<NullableKeys<FetchCommandConfig<GenericEndpoint, ClientOptions>>>;
 

@@ -23,7 +23,7 @@ describe("Fetch Client [ Bindings ]", () => {
 
   const initializeSetup = () => {
     const effect = new FetchEffect({
-      name: "test",
+      effectKey: "test",
       onTrigger: onTriggerSpy,
       onError: onErrorSpy,
       onFinished: onFinishedSpy,
@@ -33,7 +33,7 @@ describe("Fetch Client [ Bindings ]", () => {
     const builder = createBuilder({ baseUrl }).setRequestConfig(requestConfig).addEffect([effect]);
     const command = createCommand(builder, { endpoint, options: commandConfig })
       .setData(data)
-      .addEffect(effect)
+      .setEffectKey("test")
       .setQueryParams(queryParams);
 
     return { command, builder, effect };

@@ -6,8 +6,8 @@ import { FetchCommandInstance } from "command";
 export class FetchEffect<T extends FetchCommandInstance> {
   constructor(public config: FetchEffectConfig<T>) {}
 
-  getName = () => {
-    return this.config.name;
+  getEffectKey = () => {
+    return this.config.effectKey;
   };
 
   onTrigger = (command: T) => {

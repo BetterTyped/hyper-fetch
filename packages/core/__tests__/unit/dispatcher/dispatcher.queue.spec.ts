@@ -37,6 +37,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(requestId).toBeString();
       expect(clientSpy).toBeCalledTimes(1);
       expect(loadingSpy).toBeCalledTimes(1);
+      expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeTrue();
       expect(dispatcher.getQueueRequestCount(command.queueKey)).toBe(1);
     });
     it("should add running request and delete it once data is fetched", async () => {
@@ -98,75 +99,222 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(spy).toBeCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
+      expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(1);
     });
-    describe("When using dispatcher performRequest method", () => {
-      it("should trigger fetch client", async () => {
-        const command = createCommand(builder);
-        createRequestInterceptor(command);
+  });
+  describe("When using dispatcher performRequest method", () => {
+    it("should trigger fetch client", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
 
-        const spy = jest.spyOn(builder, "client");
-        const storageElement = dispatcher.createStorageElement(command);
-        dispatcher.performRequest(storageElement);
+      const spy = jest.spyOn(builder, "client");
+      const storageElement = dispatcher.createStorageElement(command);
+      dispatcher.performRequest(storageElement);
 
-        expect(spy).toBeCalledTimes(1);
-      });
-      it("should not trigger fetch client when app is offline", async () => {
-        const command = createCommand(builder);
-        createRequestInterceptor(command);
-
-        builder.appManager.setOnline(false);
-        const spy = jest.spyOn(builder, "client");
-        const storageElement = dispatcher.createStorageElement(command);
-        dispatcher.performRequest(storageElement);
-
-        expect(spy).toBeCalledTimes(0);
-      });
-      it("should not trigger one storage element two times at the same time", async () => {
-        const command = createCommand(builder);
-        createRequestInterceptor(command);
-
-        const spy = jest.spyOn(builder, "client");
-        const storageElement = dispatcher.createStorageElement(command);
-        dispatcher.performRequest(storageElement);
-        dispatcher.performRequest(storageElement);
-
-        expect(spy).toBeCalledTimes(1);
-      });
+      expect(spy).toBeCalledTimes(1);
     });
-    describe("When retrying requests", () => {
-      it("should retry failed request", async () => {
-        const command = createCommand(builder, { retry: 1, retryTime: 0 });
-        createRequestInterceptor(command, { status: 400, delay: 0 });
+    it("should not trigger fetch client when app is offline", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
 
-        const spy = jest.spyOn(builder, "client");
-        dispatcher.add(command);
+      builder.appManager.setOnline(false);
+      const spy = jest.spyOn(builder, "client");
+      const storageElement = dispatcher.createStorageElement(command);
+      dispatcher.performRequest(storageElement);
 
-        await sleep(50);
+      expect(spy).toBeCalledTimes(0);
+    });
+    it("should not trigger one storage element two times at the same time", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
 
-        expect(spy).toBeCalledTimes(2);
-      });
-      it("should retry multiple times", async () => {
-        const command = createCommand(builder, { retry: 2, retryTime: 0 });
-        createRequestInterceptor(command, { status: 400, delay: 0 });
+      const spy = jest.spyOn(builder, "client");
+      const storageElement = dispatcher.createStorageElement(command);
+      dispatcher.performRequest(storageElement);
+      dispatcher.performRequest(storageElement);
 
-        const spy = jest.spyOn(builder, "client");
-        dispatcher.add(command);
+      expect(spy).toBeCalledTimes(1);
+    });
+  });
+  describe("When retrying requests", () => {
+    it("should retry failed request", async () => {
+      const command = createCommand(builder, { retry: 1, retryTime: 0 });
+      createRequestInterceptor(command, { status: 400, delay: 0 });
 
-        await sleep(50);
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.add(command);
 
-        expect(spy).toBeCalledTimes(3);
-      });
-      it("should not retry failed request when command 'retry' option is disabled", async () => {
-        const command = createCommand(builder, { retry: false });
-        createRequestInterceptor(command, { status: 400, delay: 0 });
+      await sleep(50);
 
-        const spy = jest.spyOn(builder, "client");
-        dispatcher.add(command);
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should retry multiple times", async () => {
+      const command = createCommand(builder, { retry: 2, retryTime: 0 });
+      createRequestInterceptor(command, { status: 400, delay: 0 });
 
-        await sleep(40);
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.add(command);
 
-        expect(spy).toBeCalledTimes(1);
-      });
+      await sleep(50);
+
+      expect(spy).toBeCalledTimes(3);
+    });
+    it("should not retry failed request when command 'retry' option is disabled", async () => {
+      const command = createCommand(builder, { retry: false });
+      createRequestInterceptor(command, { status: 400, delay: 0 });
+
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.add(command);
+
+      await sleep(40);
+
+      expect(spy).toBeCalledTimes(1);
+    });
+    it("should not retry failed request in offline mode", async () => {
+      const command = createCommand(builder, { retry: false });
+      createRequestInterceptor(command, { status: 400, delay: 5 });
+
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.add(command);
+      await sleep(1);
+      builder.appManager.setOnline(false);
+      await sleep(40);
+
+      expect(spy).toBeCalledTimes(1);
+    });
+  });
+  describe("When flushing requests", () => {
+    it("should flush all queues request", async () => {
+      const firstCommand = createCommand(builder, { queueKey: "1" });
+      const secondCommand = createCommand(builder, { queueKey: "2" });
+      createRequestInterceptor(firstCommand);
+      createRequestInterceptor(secondCommand);
+
+      const spy = jest.spyOn(builder, "client");
+      builder.appManager.setOnline(false);
+
+      dispatcher.add(firstCommand);
+      dispatcher.add(firstCommand);
+      dispatcher.add(secondCommand);
+      dispatcher.add(secondCommand);
+
+      await sleep(10);
+      expect(spy).toBeCalledTimes(0);
+      builder.appManager.setOnline(true);
+      dispatcher.flush();
+      await sleep(30);
+      expect(spy).toBeCalledTimes(4);
+    });
+    it("should not trigger flush methods when queue is empty", async () => {
+      const spy = jest.spyOn(dispatcher, "performRequest");
+      dispatcher.flushQueue("fake-queue");
+      expect(spy).not.toBeCalled();
+    });
+    it("should not trigger flushQueue when queue is processing", async () => {
+      const command = createCommand(builder, { concurrent: false });
+      createRequestInterceptor(command, { delay: 1 });
+
+      const spy = jest.spyOn(dispatcher, "performRequest");
+      dispatcher.add(command);
+      dispatcher.add(command);
+
+      dispatcher.flushQueue(command.queueKey);
+      dispatcher.flushQueue(command.queueKey);
+      dispatcher.flushQueue(command.queueKey);
+
+      expect(spy).toBeCalledTimes(1);
+
+      await sleep(60);
+
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should not trigger flushQueue when having ongoing request", async () => {
+      const command = createCommand(builder, { concurrent: false });
+      createRequestInterceptor(command, { delay: 1 });
+
+      const spy = jest.spyOn(dispatcher, "performRequest");
+      const dump = dispatcher.createStorageElement(command);
+      dispatcher.addQueueElement(command.queueKey, dump);
+      dispatcher.addRunningRequest(command.queueKey, dump.requestId, command);
+
+      dispatcher.flushQueue(command.queueKey);
+
+      expect(spy).toBeCalledTimes(0);
+    });
+  });
+  describe("When starting and stoping queue", () => {
+    it("should stop queue from being send", async () => {
+      const command = createCommand(builder, { queueKey: "1" });
+      createRequestInterceptor(command);
+
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.stop(command.queueKey);
+      dispatcher.add(command);
+      dispatcher.add(command);
+
+      await sleep(20);
+      expect(spy).toBeCalledTimes(0);
+      expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeFalse();
+    });
+    it("should stop queue and cancel ongoing requests", async () => {
+      const command = createCommand(builder, { queueKey: "1" });
+      createRequestInterceptor(command);
+
+      const spy = jest.spyOn(builder, "client");
+      const firstSpy = jest.fn();
+      const secondSpy = jest.fn();
+
+      const firstRequestId = dispatcher.add(command);
+      const secondRequestId = dispatcher.add(command);
+      builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
+      builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
+
+      await sleep(1);
+
+      dispatcher.stop(command.queueKey);
+
+      await sleep(30);
+      expect(spy).toBeCalledTimes(2);
+      expect(firstSpy).toBeCalledTimes(1);
+      expect(secondSpy).toBeCalledTimes(1);
+      expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeFalse();
+    });
+    it("should start previously stopped queue", async () => {
+      const command = createCommand(builder, { queueKey: "1" });
+      createRequestInterceptor(command);
+
+      const spy = jest.spyOn(builder, "client");
+      dispatcher.stop(command.queueKey);
+      dispatcher.add(command);
+      dispatcher.add(command);
+      dispatcher.start(command.queueKey);
+      expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeTrue();
+
+      await sleep(30);
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should pause queue and finish ongoing requests", async () => {
+      const command = createCommand(builder, { queueKey: "1" });
+      createRequestInterceptor(command);
+
+      const spy = jest.spyOn(builder, "client");
+      const firstSpy = jest.fn();
+      const secondSpy = jest.fn();
+
+      const firstRequestId = dispatcher.add(command);
+      const secondRequestId = dispatcher.add(command);
+      builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
+      builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
+
+      await sleep(1);
+
+      dispatcher.pause(command.queueKey);
+
+      await sleep(30);
+      expect(spy).toBeCalledTimes(2);
+      expect(firstSpy).toBeCalledTimes(0);
+      expect(secondSpy).toBeCalledTimes(0);
+      expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeFalse();
     });
   });
 });

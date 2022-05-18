@@ -1,5 +1,5 @@
 import { FetchBuilder } from "builder";
-import { ClientResponseType, ClientType } from "client";
+import { ClientQueryParamsType, ClientResponseType, ClientType } from "client";
 import { FetchCommandConfig } from "command";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { getManyRequest, interceptGetMany } from "../../utils/mocks/get-many.mock";
@@ -82,7 +82,9 @@ describe("Basic FetchCommand usage", () => {
     const customQueryParamsTwo = { "some-query-changed": false };
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" });
-    const command = builder.createCommand<any, any>()(options).setQueryParams(customQueryParamsOne);
+    const command = builder
+      .createCommand<unknown, unknown, unknown, ClientQueryParamsType>()(options)
+      .setQueryParams(customQueryParamsOne);
 
     expect(command.queryParams).toStrictEqual(customQueryParamsOne);
 

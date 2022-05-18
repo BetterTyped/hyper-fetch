@@ -33,43 +33,7 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.addRunningRequest(command.queueKey, requestId, command);
       expect(dispatcher.hasRunningRequest(command.queueKey, requestId)).toBeTrue();
     });
-    it("should allow to stop request", async () => {
-      const command = createCommand(builder);
-      createRequestInterceptor(command, { delay: 0 });
 
-      const requestId = dispatcher.add(command);
-      expect(dispatcher.getRunningRequest(command.queueKey, requestId)).toBeDefined();
-
-      dispatcher.stopRequest(command.queueKey, requestId);
-      const queue = dispatcher.getQueue(command.queueKey);
-
-      expect(dispatcher.getRunningRequest(command.queueKey, requestId)).not.toBeDefined();
-      expect(queue.requests[0].stopped).toBeTrue();
-
-      await sleep(30);
-
-      const cacheValue = await builder.cache.get(command.cacheKey);
-      expect(cacheValue).toBeDefined();
-      expect(cacheValue?.details?.isCanceled).toBeTrue();
-    });
-    it("should allow to start previously stopped request", async () => {
-      const command = createCommand(builder);
-      createRequestInterceptor(command, { delay: 5 });
-
-      const spy = jest.spyOn(builder.cache, "set");
-
-      const requestId = dispatcher.add(command);
-      dispatcher.stopRequest(command.queueKey, requestId);
-
-      await sleep(50);
-      dispatcher.startRequest(command.queueKey, requestId);
-      await sleep(50);
-
-      const cacheValue = await builder.cache.get(command.cacheKey);
-      expect(spy).toBeCalledTimes(2);
-      expect(cacheValue).toBeDefined();
-      expect(cacheValue?.details?.isCanceled).toBeFalse();
-    });
     it("should get all running requests", async () => {
       const firstCommand = createCommand(builder, { queueKey: "test1" });
       const secondCommand = createCommand(builder, { queueKey: "test2" });
@@ -97,6 +61,14 @@ describe("Dispatcher [ Requests ]", () => {
       expect(runningRequests).toHaveLength(1);
       expect(runningRequests).toPartiallyContain({ requestId: firstRequestId });
       expect(runningRequests).not.toPartiallyContain({ requestId: secondRequestId });
+    });
+    it("should get queueKey running requests when queue name space doesn't exist", async () => {
+      const runningRequests = dispatcher.getRunningRequests("fake-namespace");
+
+      expect(runningRequests).toBeArray();
+    });
+    it("should not throw when getting running requests within non existing namespace", async () => {
+      expect(dispatcher.getRunningRequest("fake-namespace", "fake-request-id")).toBeUndefined();
     });
     it("should get single running request", async () => {
       const firstCommand = createCommand(builder, { queueKey: "test1" });
@@ -205,6 +177,58 @@ describe("Dispatcher [ Requests ]", () => {
       expect(firstSpy).toBeCalledTimes(0);
       expect(secondSpy).toBeCalledTimes(0);
       expect(thirdSpy).toBeCalledTimes(0);
+    });
+    describe("When using running request helper methods", () => {
+      it("should return false when there is no running requests", async () => {
+        expect(dispatcher.hasRunningRequests("test")).toBeFalse();
+      });
+    });
+    describe("When stoping and starting particular requests", () => {
+      it("should allow to stop request", async () => {
+        const command = createCommand(builder);
+        createRequestInterceptor(command, { delay: 0 });
+
+        const requestId = dispatcher.add(command);
+        expect(dispatcher.getRunningRequest(command.queueKey, requestId)).toBeDefined();
+
+        dispatcher.stopRequest(command.queueKey, requestId);
+        const queue = dispatcher.getQueue(command.queueKey);
+
+        expect(dispatcher.getRunningRequest(command.queueKey, requestId)).not.toBeDefined();
+        expect(queue.requests[0].stopped).toBeTrue();
+
+        await sleep(30);
+
+        const cacheValue = await builder.cache.get(command.cacheKey);
+        expect(cacheValue).toBeDefined();
+        expect(cacheValue?.details?.isCanceled).toBeTrue();
+      });
+      it("should allow to start previously stopped request", async () => {
+        const command = createCommand(builder);
+        createRequestInterceptor(command, { delay: 5 });
+
+        const spy = jest.spyOn(builder.cache, "set");
+
+        const requestId = dispatcher.add(command);
+        dispatcher.stopRequest(command.queueKey, requestId);
+
+        await sleep(50);
+        dispatcher.startRequest(command.queueKey, requestId);
+        await sleep(50);
+
+        const cacheValue = await builder.cache.get(command.cacheKey);
+        expect(spy).toBeCalledTimes(2);
+        expect(cacheValue).toBeDefined();
+        expect(cacheValue?.details?.isCanceled).toBeFalse();
+      });
+
+      it("should not emit changes when started requests is not found in storage", async () => {
+        const spy = jest.fn();
+        dispatcher.events.onQueueChange("fake-key", spy);
+        dispatcher.startRequest("fake-key", "fake-request-id");
+
+        expect(spy).not.toBeCalled();
+      });
     });
   });
 });

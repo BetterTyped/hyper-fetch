@@ -57,14 +57,12 @@ export class Dispatcher<ErrorType, HttpOptions> {
     const queue = this.getQueue(queueKey);
 
     // Start the queue when its stopped
-    if (queue) {
-      queue.stopped = false;
-      this.setQueue(queueKey, queue);
-      this.flushQueue(queueKey);
-    }
+    queue.stopped = false;
+    this.setQueue(queueKey, queue);
+    this.flushQueue(queueKey);
+    this.events.setQueueStatus(queueKey, queue);
 
     this.logger.http(`Started queue`, { queueKey });
-    this.events.setQueueStatus(queueKey, queue);
   };
 
   /**
@@ -74,13 +72,11 @@ export class Dispatcher<ErrorType, HttpOptions> {
     // Change state to stopped
     const queue = this.getQueue(queueKey);
 
-    if (queue) {
-      queue.stopped = true;
-      this.setQueue(queueKey, queue);
-
-      this.logger.http(`Paused queue`, { queueKey });
-    }
+    queue.stopped = true;
+    this.setQueue(queueKey, queue);
     this.events.setQueueStatus(queueKey, queue);
+
+    this.logger.http(`Paused queue`, { queueKey });
   };
 
   /**
@@ -90,16 +86,14 @@ export class Dispatcher<ErrorType, HttpOptions> {
     // Change state to stopped
     const queue = this.getQueue(queueKey);
 
-    if (queue) {
-      queue.stopped = true;
-      this.setQueue(queueKey, queue);
+    queue.stopped = true;
+    this.setQueue(queueKey, queue);
 
-      // Cancel running requests
-      this.cancelRunningRequests(queueKey);
-
-      this.logger.http(`Stopped queue`, { queueKey });
-    }
+    // Cancel running requests
+    this.cancelRunningRequests(queueKey);
     this.events.setQueueStatus(queueKey, queue);
+
+    this.logger.http(`Stopped queue`, { queueKey });
   };
 
   /**
@@ -112,7 +106,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
   /**
    * Return queue state object
    */
-  getQueue = <Command = unknown>(queueKey: string) => {
+  getQueue = <Command extends FetchCommandInstance = FetchCommandInstance>(queueKey: string) => {
     const initialQueueState = { requests: [], stopped: false } as DispatcherData<HttpOptions, Command>;
     const storedEntity = this.storage.get(queueKey) as DispatcherData<HttpOptions, Command>;
 
@@ -130,26 +124,31 @@ export class Dispatcher<ErrorType, HttpOptions> {
   };
 
   /**
-   * Set new queue storage value
-   */
-  setQueue = <Command = unknown>(queueKey: string, queue: DispatcherData<HttpOptions, Command>) => {
-    this.storage.set(queueKey, queue);
-
-    this.options?.onUpdateStorage?.(queueKey, queue);
-
-    // Emit Queue Changes
-    this.events.setQueueChanged(queueKey, queue);
-
-    return queue;
-  };
-
-  /**
    * Add new element to storage
    */
-  addQueueElement = (queueKey: string, dispatcherDump: DispatcherDumpValueType<HttpOptions>) => {
+  addQueueElement = <Command extends FetchCommandInstance = FetchCommandInstance>(
+    queueKey: string,
+    dispatcherDump: DispatcherDumpValueType<HttpOptions, Command>,
+  ) => {
     const queue = this.getQueue(queueKey);
     queue.requests.push(dispatcherDump);
     this.setQueue(queueKey, queue);
+  };
+
+  /**
+   * Set new queue storage value
+   */
+  setQueue = <Command extends FetchCommandInstance = FetchCommandInstance>(
+    queueKey: string,
+    queue: DispatcherData<HttpOptions, Command>,
+  ) => {
+    this.storage.set(queueKey, queue);
+
+    // Emit Queue Changes
+    this.options?.onUpdateStorage?.(queueKey, queue);
+    this.events.setQueueChanged(queueKey, queue);
+
+    return queue;
   };
 
   /**
@@ -159,9 +158,9 @@ export class Dispatcher<ErrorType, HttpOptions> {
     const queue = this.getQueue(queueKey);
     const newQueue = { requests: [], stopped: queue.stopped };
     this.storage.set(queueKey, newQueue);
-    this.options?.onDeleteFromStorage?.(queueKey, newQueue);
 
     // Emit Queue Changes
+    this.options?.onDeleteFromStorage?.(queueKey, newQueue);
     this.events.setQueueChanged(queueKey, queue);
 
     return queue;
@@ -173,12 +172,12 @@ export class Dispatcher<ErrorType, HttpOptions> {
   flushQueue = async (queueKey: string) => {
     const queue = this.getQueue(queueKey);
     const runningRequests = this.getRunningRequests(queueKey);
-    const queueElement = queue?.requests.find((request) => !request.stopped);
+    const queueElement = queue.requests.find((request) => !request.stopped);
 
     const isStopped = queue && queue.stopped;
     const isOffline = !this.builder.appManager.isOnline;
-    const isQueued = !queueElement?.commandDump.values.concurrent;
-    const isOngoing = runningRequests?.length;
+    const isQueued = !queueElement?.commandDump.concurrent;
+    const isOngoing = runningRequests.length;
 
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
@@ -247,7 +246,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
   startRequest = (queueKey: string, requestId: string) => {
     // Change status to running
     const queue = this.getQueue(queueKey);
-    const request = queue?.requests.find((element) => element.requestId === requestId);
+    const request = queue.requests.find((element) => element.requestId === requestId);
 
     // Start the queue when its stopped
     if (request) {
@@ -267,7 +266,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
   stopRequest = (queueKey: string, requestId: string) => {
     // Change state to stopped
     const queue = this.getQueue(queueKey);
-    const request = queue?.requests.find((element) => element.requestId === requestId);
+    const request = queue.requests.find((element) => element.requestId === requestId);
 
     if (request) {
       request.stopped = true;
@@ -300,7 +299,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
    * Get running request by id
    */
   getRunningRequest = (queueKey: string, requestId: string) => {
-    const runningRequests = this.runningRequests.get(queueKey) || [];
+    const runningRequests = this.getRunningRequests(queueKey);
     return runningRequests.find((req) => req.requestId === requestId);
   };
 
@@ -308,7 +307,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
    * Add request to the running requests list
    */
   addRunningRequest = (queueKey: string, requestId: string, command: FetchCommandInstance) => {
-    const runningRequests = this.runningRequests.get(queueKey) || [];
+    const runningRequests = this.getRunningRequests(queueKey);
     runningRequests.push({ requestId, command });
     this.runningRequests.set(queueKey, runningRequests);
   };
@@ -317,7 +316,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
    * Get the value based on the currently running requests
    */
   hasRunningRequests = (queueKey: string) => {
-    return !!this.runningRequests.get(queueKey)?.length;
+    return !!this.getRunningRequests(queueKey).length;
   };
 
   /**
@@ -341,14 +340,13 @@ export class Dispatcher<ErrorType, HttpOptions> {
    * Cancel started request, but do NOT remove it from main storage
    */
   cancelRunningRequest = (queueKey: string, requestId: string) => {
-    const requests =
-      this.runningRequests.get(queueKey)?.filter((request) => {
-        if (request.requestId === requestId) {
-          request.command.builder.commandManager.abortByRequestId(request.command.abortKey, request.requestId);
-          return false;
-        }
-        return true;
-      }) || [];
+    const requests = this.getRunningRequests(queueKey).filter((request) => {
+      if (request.requestId === requestId) {
+        request.command.builder.commandManager.abortByRequestId(request.command.abortKey, request.requestId);
+        return false;
+      }
+      return true;
+    });
 
     this.runningRequests.set(queueKey, requests);
   };
@@ -364,7 +362,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
    * Delete request by id, but do NOT clear it from queue and do NOT cancel them
    */
   deleteRunningRequest = (queueKey: string, requestId: string) => {
-    const runningRequests = this.runningRequests.get(queueKey) || [];
+    const runningRequests = this.getRunningRequests(queueKey);
     this.runningRequests.set(
       queueKey,
       runningRequests.filter((req) => req.requestId !== requestId),
@@ -434,11 +432,12 @@ export class Dispatcher<ErrorType, HttpOptions> {
         return requestId;
       }
       case DispatcherRequestType.previousCanceled: {
+        this.cancelRunningRequests(queueKey);
+        this.clearQueue(queueKey);
         this.addQueueElement(queueKey, storageElement);
         this.logger.info(`Performing cancelable request`, { requestId, queueKey, storageElement, requestType });
         // Cancel all previous on-going requests
-        this.cancelRunningRequests(queueKey);
-        this.performRequest(storageElement);
+        this.flushQueue(queueKey);
         return requestId;
       }
       case DispatcherRequestType.deduplicated: {
@@ -454,7 +453,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
       default: {
         this.addQueueElement(queueKey, storageElement);
         this.logger.info(`Performing all-at-once request`, { requestId, queueKey, storageElement, requestType });
-        this.performRequest(storageElement);
+        this.flushQueue(queueKey);
         return requestId;
       }
     }
@@ -467,10 +466,14 @@ export class Dispatcher<ErrorType, HttpOptions> {
     const queue = this.getQueue(queueKey);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queueKey, queue);
-    this.options?.onDeleteFromStorage?.(queueKey, queue);
 
     // Emit Queue Changes
+    this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
+
+    if (!queue.requests.length) {
+      this.events.setDrained(queueKey, queue);
+    }
 
     return queue;
   };
@@ -483,14 +486,13 @@ export class Dispatcher<ErrorType, HttpOptions> {
     const command = new FetchCommand(
       this.builder,
       storageElement.commandDump.commandOptions,
-      storageElement.commandDump.values,
+      storageElement.commandDump,
     );
 
     const { commandDump, requestId } = storageElement;
-    const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump.values;
+    const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump;
     const { client, commandManager, cache, appManager } = this.builder;
 
-    const shouldUseCache = useCache ?? true;
     const canRetry = canRetryRequest(storageElement.retries, retry);
     const isOffline = !appManager.isOnline;
     const isAlreadyRunning = this.hasRunningRequest(queueKey, requestId);
@@ -557,7 +559,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     // Emitter for getting response by requestId
     commandManager.events.emitResponseById(requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
-    cache.set(cacheKey, response, requestDetails, shouldUseCache);
+    cache.set(cacheKey, response, requestDetails, useCache);
 
     if (isCanceled) {
       // do not remove cancelled request as it may be manually paused

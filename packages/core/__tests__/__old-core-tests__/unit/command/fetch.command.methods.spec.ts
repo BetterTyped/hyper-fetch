@@ -1,4 +1,5 @@
 import { FetchBuilder } from "builder";
+import { ClientQueryParamsType } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { testBuilder } from "../../utils/server/server.constants";
 
@@ -24,7 +25,7 @@ describe("[Methods] FetchCommand", () => {
   });
 
   it("should change the 'cacheKey' when update the query params or params", async () => {
-    const command = builder.createCommand()({
+    const command = builder.createCommand<unknown, unknown, unknown, ClientQueryParamsType>()({
       endpoint: "/some-endpoint/:paramId",
     });
     const commandWithParams = command.setParams({ paramId: 1 });
@@ -39,7 +40,7 @@ describe("[Methods] FetchCommand", () => {
     const myCacheKey = "my-cache-key";
 
     const command = builder
-      .createCommand()({
+      .createCommand<unknown, unknown, unknown, ClientQueryParamsType>()({
         endpoint: "/some-endpoint/:paramId",
       })
       .setCacheKey(myCacheKey);
@@ -53,7 +54,7 @@ describe("[Methods] FetchCommand", () => {
 
   it("should change the 'used' to be true", async () => {
     const command = builder
-      .createCommand()({
+      .createCommand<unknown, unknown, unknown, ClientQueryParamsType>()({
         endpoint: "/some-endpoint/:paramId",
       })
       .setUsed(true);

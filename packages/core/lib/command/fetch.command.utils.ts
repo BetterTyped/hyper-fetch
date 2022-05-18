@@ -90,14 +90,6 @@ export const getCommandKey = (
    * queryParams: string;
    * params: string;
    */
-
-  if ("values" in command) {
-    const methodKey = stringifyKey(command.values.method);
-    const endpointKey = useInitialValues ? command.commandOptions.endpoint : stringifyKey(command.values.endpoint);
-    const queryParamsKey = useInitialValues ? "" : stringifyKey(command.values.queryParams);
-
-    return `${methodKey}_${endpointKey}_${queryParamsKey}`;
-  }
   const methodKey = stringifyKey(command.method);
   const endpointKey = useInitialValues ? command.options.endpoint : stringifyKey(command.endpoint);
   const queryParamsKey = useInitialValues ? "" : stringifyKey(command.queryParams);

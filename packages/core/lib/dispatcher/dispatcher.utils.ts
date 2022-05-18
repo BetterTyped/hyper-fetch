@@ -2,12 +2,6 @@ import { FetchCommandInstance } from "command";
 import { DispatcherRequestType } from "dispatcher";
 import { ClientResponseType } from "client";
 
-// Queue
-
-export const getStorageKey = (queueKey: string): string => {
-  return `KEY:[${queueKey}]_DATE:[${+new Date()}]`;
-};
-
 // Events
 
 export const getDispatcherLoadingEventKey = (key: string): string => {
@@ -29,7 +23,6 @@ export const getIsEqualTimestamp = (currentTimestamp: number, threshold: number,
   if (!queueTimestamp) {
     return false;
   }
-
   return queueTimestamp - currentTimestamp <= threshold;
 };
 

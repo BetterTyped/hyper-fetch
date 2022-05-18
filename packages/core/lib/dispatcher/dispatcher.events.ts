@@ -46,7 +46,4 @@ export const getDispatcherEvents = <HttpOptions>(emitter: EventEmitter) => ({
     emitter.on(getDispatcherChangeEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherChangeEventKey(queueKey), callback);
   },
-  umount: <T extends (...args: any[]) => void>(queueKey: string, callback: T): void => {
-    emitter.removeListener(queueKey, callback);
-  },
 });

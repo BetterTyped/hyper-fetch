@@ -28,14 +28,7 @@ describe("Dispatcher [ Basic ]", () => {
       const storage = new Map<string, DispatcherData<unknown>>();
       const newDispatcher = createDispatcher(builder, { storage });
 
-      const dispatcherDump = {
-        requestId,
-        commandDump: command.dump(),
-        retries: 0,
-        timestamp: +new Date(),
-        stopped: false,
-      };
-
+      const dispatcherDump = newDispatcher.createStorageElement(command);
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
 
       expect(storage.get(command.queueKey)?.requests[0]).toBe(dispatcherDump);
@@ -59,19 +52,14 @@ describe("Dispatcher [ Basic ]", () => {
     it("should trigger onDeleteFromStorage callback", async () => {
       const spy = jest.fn();
       const newDispatcher = createDispatcher(builder, { onDeleteFromStorage: spy });
-
-      const dispatcherDump = {
-        requestId,
-        commandDump: command.dump(),
-        retries: 0,
-        timestamp: +new Date(),
-        stopped: false,
-      };
+      const dispatcherDump = newDispatcher.createStorageElement(command);
 
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
       newDispatcher.delete(command.queueKey, requestId);
+      newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
+      newDispatcher.clearQueue(command.queueKey);
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toBeCalledTimes(2);
       expect(spy).toBeCalledWith(command.queueKey, { requests: [], stopped: false });
     });
     it("should trigger onClearStorage callback", async () => {

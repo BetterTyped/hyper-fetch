@@ -34,7 +34,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   commandManager.addAbortController(abortKey, requestId);
 
   const fullUrl = baseUrl + endpoint + stringifyQueryParams(queryParams);
-  const effects = builder.effects.filter((effect) => command.effects.includes(effect.getName()));
+  const effects = builder.effects.filter((effect) => command.effectKey === effect.getEffectKey());
   const headers = headerMapper(command);
   const payload = payloadMapper(data);
   const config = getRequestConfig(command);

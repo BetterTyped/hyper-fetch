@@ -112,7 +112,7 @@ describe("FetchBuilder [ Methods ]", () => {
       expect(newCommand.endpoint).toBe(endpoint);
     });
     it("should add single effect listeners on addEffect method trigger", async () => {
-      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+      const effect = new FetchEffect({ effectKey: "NEW-EFFECT" });
 
       builder.addEffect(effect);
 
@@ -120,41 +120,33 @@ describe("FetchBuilder [ Methods ]", () => {
       expect(builder.effects).toHaveLength(1);
     });
     it("should add effects array listeners on addEffect method trigger", async () => {
-      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+      const effect = new FetchEffect({ effectKey: "NEW-EFFECT" });
 
       builder.addEffect([effect]);
 
       expect(builder.effects[0]).toBe(effect);
       expect(builder.effects).toHaveLength(1);
     });
-    it("should throw on duplicated effects", async () => {
-      const effect = new FetchEffect({ name: "NEW-EFFECT" });
-
-      builder.addEffect([effect]);
-
-      expect(() => builder.addEffect([effect])).toThrow();
-      expect(() => builder.addEffect(effect)).toThrow();
-    });
     it("should remove effect listener on removeEffect method trigger", async () => {
-      const effect = new FetchEffect({ name: "NEW-EFFECT" });
+      const effect = new FetchEffect({ effectKey: "NEW-EFFECT" });
 
       builder.addEffect(effect);
       builder.removeEffect(effect);
       expect(builder.effects).toHaveLength(0);
 
       builder.addEffect(effect);
-      builder.removeEffect(effect.getName());
+      builder.removeEffect(effect.getEffectKey());
       expect(builder.effects).toHaveLength(0);
     });
-    it("should not remove effect when wrong name is passed", async () => {
-      const effect = new FetchEffect({ name: "NEW-EFFECT" });
-      const otherEffect = new FetchEffect({ name: "OTHER-EFFECT" });
+    it("should not remove effect when wrong effectKey is passed", async () => {
+      const effect = new FetchEffect({ effectKey: "NEW-EFFECT" });
+      const otherEffect = new FetchEffect({ effectKey: "OTHER-EFFECT" });
 
       builder.addEffect(effect);
       builder.removeEffect(otherEffect);
       expect(builder.effects).toHaveLength(1);
 
-      builder.removeEffect(otherEffect.getName());
+      builder.removeEffect(otherEffect.getEffectKey());
       expect(builder.effects).toHaveLength(1);
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {

@@ -18,7 +18,6 @@ import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
 import { LoggerMethodsType } from "managers";
 import { DateInterval } from "constants/time.constants";
-import { FetchEffect } from "effect";
 import { getUniqueRequestId } from "utils";
 
 /**
@@ -47,11 +46,11 @@ export class FetchCommand<
 > {
   endpoint: EndpointType;
   headers?: HeadersInit;
-  auth?: boolean;
+  auth: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
   data: FetchCommandData<PayloadType, MappedData>;
-  queryParams: QueryParamsType | string | NegativeTypes;
+  queryParams: QueryParamsType | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
   retry: boolean | number;
@@ -63,7 +62,7 @@ export class FetchCommand<
   abortKey: string;
   cacheKey: string;
   queueKey: string;
-  effects: string[] = [];
+  effectKey: string;
   used: boolean;
   deduplicate: boolean;
 
@@ -72,6 +71,7 @@ export class FetchCommand<
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
   private updatedQueueKey: boolean;
+  private updatedEffectKey: boolean;
 
   constructor(
     readonly builder: FetchBuilder<ErrorType, ClientOptions>,
@@ -108,6 +108,7 @@ export class FetchCommand<
       abortKey,
       cacheKey,
       queueKey,
+      effectKey,
       deduplicate = false,
     } = { ...this.builder.commandConfig, ...commandOptions };
 
@@ -116,7 +117,7 @@ export class FetchCommand<
     this.auth = commandDump?.auth ?? auth;
     this.method = method;
     this.params = commandDump?.params;
-    this.data = commandDump?.data as FetchCommandData<PayloadType, MappedData>;
+    this.data = commandDump?.data;
     this.queryParams = commandDump?.queryParams;
     this.options = commandDump?.options ?? options;
     this.cancelable = commandDump?.cancelable ?? cancelable;
@@ -130,13 +131,14 @@ export class FetchCommand<
       commandDump?.abortKey ?? abortKey ?? getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
     this.cacheKey = commandDump?.cacheKey ?? cacheKey ?? getCommandKey(this);
     this.queueKey = commandDump?.queueKey ?? queueKey ?? getCommandKey(this);
-    this.effects = commandDump?.effects ?? [];
+    this.effectKey = commandDump?.effectKey ?? effectKey ?? getCommandKey(this);
     this.used = commandDump?.used ?? false;
     this.deduplicate = commandDump?.deduplicate ?? deduplicate;
 
     this.updatedAbortKey = commandDump?.updatedAbortKey ?? false;
     this.updatedCacheKey = commandDump?.updatedCacheKey ?? false;
     this.updatedQueueKey = commandDump?.updatedQueueKey ?? false;
+    this.updatedEffectKey = commandDump?.updatedEffectKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -158,7 +160,7 @@ export class FetchCommand<
     });
   };
 
-  public setQueryParams = (queryParams: QueryParamsType | string) => {
+  public setQueryParams = (queryParams: QueryParamsType) => {
     return this.clone<HasData, HasParams, true>({ queryParams });
   };
 
@@ -205,6 +207,11 @@ export class FetchCommand<
     return this.clone({ queueKey });
   };
 
+  public setEffectKey = (effectKey: string) => {
+    this.updatedEffectKey = true;
+    return this.clone({ effectKey });
+  };
+
   public setDeduplicate = (deduplicate: boolean) => {
     return this.clone({ deduplicate });
   };
@@ -219,18 +226,6 @@ export class FetchCommand<
       return this.clone<HasData, HasParams, HasQuery, DataMapper>();
     }
     return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
-  };
-
-  public addEffect = (effect: FetchEffect<ReturnType<typeof this.clone>> | string) => {
-    const effectName = typeof effect === "string" ? effect : effect?.getName();
-    const effects = [...this.effects, effectName];
-    return this.clone({ effects: [...new Set(effects)] });
-  };
-
-  public removeEffect = (effect: FetchEffect<ReturnType<typeof this.clone>> | string) => {
-    const effectName = typeof effect === "string" ? effect : effect?.getName();
-    const effects = this.effects.filter((currentEffect) => currentEffect !== effectName);
-    return this.clone({ effects });
   };
 
   public abort = () => {
@@ -249,35 +244,52 @@ export class FetchCommand<
     return endpoint;
   };
 
-  public dump(): FetchCommandDump<ClientOptions> {
+  public dump(): FetchCommandDump<
+    ClientOptions,
+    FetchCommand<
+      ResponseType,
+      PayloadType,
+      QueryParamsType,
+      ErrorType,
+      RequestErrorType,
+      EndpointType,
+      ClientOptions,
+      HasData,
+      HasParams,
+      HasQuery,
+      MappedData
+    >,
+    QueryParamsType
+  > {
     return {
       commandOptions: this.commandOptions,
-      values: {
-        endpoint: this.endpoint,
-        headers: this.headers,
-        auth: this.auth,
-        method: this.method,
-        params: this.params,
-        data: this.data,
-        queryParams: this.queryParams,
-        options: this.options,
-        cancelable: this.cancelable,
-        retry: this.retry,
-        retryTime: this.retryTime,
-        cache: this.cache,
-        cacheTime: this.cacheTime,
-        concurrent: this.concurrent,
-        deepEqual: this.deepEqual,
-        abortKey: this.abortKey,
-        cacheKey: this.cacheKey,
-        queueKey: this.queueKey,
-        effects: this.effects,
-        used: this.used,
-        updatedAbortKey: this.updatedAbortKey,
-        updatedCacheKey: this.updatedCacheKey,
-        updatedQueueKey: this.updatedQueueKey,
-        deduplicate: this.deduplicate,
-      },
+      endpoint: this.endpoint,
+      headers: this.headers,
+      auth: this.auth,
+      method: this.method,
+      params: this.params,
+      data: this.data,
+      queryParams: this.queryParams,
+      options: this.options,
+      cancelable: this.cancelable,
+      retry: this.retry,
+      retryTime: this.retryTime,
+      cache: this.cache,
+      cacheTime: this.cacheTime,
+      concurrent: this.concurrent,
+      deepEqual: this.deepEqual,
+      abortKey: this.abortKey,
+      cacheKey: this.cacheKey,
+      queueKey: this.queueKey,
+      effectKey: this.effectKey,
+      used: this.used,
+      disableResponseInterceptors: this.commandOptions.disableResponseInterceptors,
+      disableRequestInterceptors: this.commandOptions.disableRequestInterceptors,
+      updatedAbortKey: this.updatedAbortKey,
+      updatedCacheKey: this.updatedCacheKey,
+      updatedQueueKey: this.updatedQueueKey,
+      updatedEffectKey: this.updatedEffectKey,
+      deduplicate: this.deduplicate,
     };
   }
 
@@ -320,7 +332,7 @@ export class FetchCommand<
       ClientOptions,
       MapperData
     > = {
-      ...dump.values,
+      ...dump,
       ...options,
       abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,

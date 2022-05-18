@@ -8,7 +8,7 @@ export type FetchEffectLifecycle = "trigger" | "start" | "success" | "error" | "
 export type FetchEffectInstance = FetchEffect<FetchCommandInstance>;
 
 export type FetchEffectConfig<T extends FetchCommandInstance> = {
-  name: string;
+  effectKey: string;
   onTrigger?: (command: FetchCommandInstance) => void;
   onStart?: (command: FetchCommandInstance) => void;
   onSuccess?: (response: ClientResponseSuccessType<ResponseType>, command: FetchCommandInstance) => void;
