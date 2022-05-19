@@ -260,6 +260,22 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(spy).toBeCalledTimes(0);
     });
+    it("should not duplicate ongoing requests using flushQueue", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command, { delay: 30 });
+
+      const spy = jest.spyOn(dispatcher, "performRequest");
+      dispatcher.add(command);
+      dispatcher.add(command);
+
+      await sleep(5);
+
+      dispatcher.add(command);
+
+      await sleep(5);
+
+      expect(spy).toBeCalledTimes(3);
+    });
   });
   describe("When starting and stoping queue", () => {
     it("should stop queue from being send", async () => {
