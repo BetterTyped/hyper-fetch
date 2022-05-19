@@ -40,6 +40,11 @@ export class Dispatcher<ErrorType, HttpOptions> {
       this.storage = this.options.storage;
     }
 
+    // Going back from offline should re-trigger all requests
+    builder.appManager.events.onOnline(() => {
+      this.flush();
+    });
+
     this.options?.onInitialization?.(this);
   }
 

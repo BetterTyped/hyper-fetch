@@ -120,9 +120,28 @@ describe("Dispatcher [ Queue ]", () => {
       builder.appManager.setOnline(false);
       const spy = jest.spyOn(builder, "client");
       const storageElement = dispatcher.createStorageElement(command);
-      dispatcher.performRequest(storageElement);
+      await dispatcher.performRequest(storageElement);
 
       expect(spy).toBeCalledTimes(0);
+    });
+    it("should trigger all requests when going back from offline", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      const spy = jest.spyOn(builder, "client");
+      builder.appManager.setOnline(false);
+      dispatcher.add(command.setQueueKey("test1"));
+      dispatcher.add(command.setQueueKey("test2"));
+      dispatcher.add(command.setQueueKey("test3"));
+
+      await sleep(5);
+
+      expect(spy).toBeCalledTimes(0);
+      builder.appManager.setOnline(true);
+
+      await sleep(5);
+
+      expect(spy).toBeCalledTimes(3);
     });
     it("should not trigger one storage element two times at the same time", async () => {
       const command = createCommand(builder);
