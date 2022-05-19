@@ -1,13 +1,10 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createBuilder, createClient, createCommand, createEffect } from "../../utils";
+import { createBuilder, createCommand, createEffect } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Effect [ Base ]", () => {
-  const clientSpy = jest.fn();
-
-  let client = createClient({ callback: clientSpy });
-  let builder = createBuilder().setClient(() => client);
+  let builder = createBuilder();
   let command = createCommand(builder);
 
   beforeAll(() => {
@@ -17,8 +14,7 @@ describe("Effect [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient({ callback: clientSpy });
-    builder = createBuilder().setClient(() => client);
+    builder = createBuilder();
     command = createCommand(builder);
   });
 
@@ -80,6 +76,15 @@ describe("Effect [ Base ]", () => {
         expect(spy4).toBeCalledTimes(1);
         expect(spy5).toBeCalledTimes(1);
       });
+    });
+    it("should not throw when effects are empty", async () => {
+      const effect = createEffect(command);
+
+      expect(effect.onTrigger).not.toThrow();
+      expect(effect.onStart).not.toThrow();
+      expect(effect.onSuccess).not.toThrow();
+      expect(effect.onError).not.toThrow();
+      expect(effect.onFinished).not.toThrow();
     });
   });
 });

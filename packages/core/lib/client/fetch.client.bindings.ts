@@ -65,7 +65,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   };
 
   const unmountEmitter = createAbortListener(() => {
-    commandManager.events.emitAbort(queueKey, command);
+    commandManager.events.emitAbort(abortKey, command);
     commandManager.events.emitAbortById(requestId, command);
   });
 

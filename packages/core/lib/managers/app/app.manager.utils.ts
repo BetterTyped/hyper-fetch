@@ -1,8 +1,8 @@
 export const hasWindow = () => {
-  return Boolean(window && window?.addEventListener);
+  return Boolean(window && window.addEventListener);
 };
 export const hasDocument = () => {
-  return Boolean(document && document?.addEventListener);
+  return Boolean(hasWindow() && window.document && window.document.addEventListener);
 };
 
 export const onWindowEvent = <K extends keyof WindowEventMap>(
@@ -11,7 +11,7 @@ export const onWindowEvent = <K extends keyof WindowEventMap>(
   options?: boolean | AddEventListenerOptions | undefined,
 ) => {
   if (hasWindow()) {
-    window?.addEventListener(key, listener, options);
+    window.addEventListener(key, listener, options);
   }
 };
 
@@ -21,6 +21,6 @@ export const onDocumentEvent = <K extends keyof DocumentEventMap>(
   options?: boolean | AddEventListenerOptions | undefined,
 ) => {
   if (hasDocument()) {
-    window?.document?.addEventListener(key, listener, options);
+    window.document.addEventListener(key, listener, options);
   }
 };

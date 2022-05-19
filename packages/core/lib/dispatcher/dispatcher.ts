@@ -555,7 +555,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     };
 
     // Global response emitter to handle command execution
-    commandManager.events.emitResponse(cacheKey, response, requestDetails);
+    commandManager.events.emitResponse(queueKey, response, requestDetails);
     // Emitter for getting response by requestId
     commandManager.events.emitResponseById(requestId, response, requestDetails);
     // Cache event to emit the data inside and store it

@@ -98,7 +98,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
-      builder.commandManager.events.onAbort(firstCommand.queueKey, thirdSpy);
+      builder.commandManager.events.onAbort(firstCommand.abortKey, thirdSpy);
 
       dispatcher.cancelRunningRequests(firstCommand.queueKey);
 
@@ -107,7 +107,7 @@ describe("Dispatcher [ Requests ]", () => {
       expect(secondSpy).toBeCalledTimes(1);
       expect(thirdSpy).toBeCalledTimes(2);
     });
-    it("should allow to cancel all single running requests", async () => {
+    it("should allow to cancel single running requests", async () => {
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
       const firstCommand = createCommand(builder);
@@ -117,11 +117,11 @@ describe("Dispatcher [ Requests ]", () => {
 
       dispatcher.add(secondCommand);
       const requestId = dispatcher.add(firstCommand);
-
-      await sleep(1);
-
       builder.commandManager.events.onAbortById(requestId, firstSpy);
-      builder.commandManager.events.onAbort(firstCommand.queueKey, secondSpy);
+      builder.commandManager.events.onAbort(firstCommand.abortKey, secondSpy);
+
+      await sleep(5);
+
       dispatcher.cancelRunningRequest(firstCommand.queueKey, requestId);
 
       expect(dispatcher.getRunningRequests(firstCommand.queueKey)).toHaveLength(1);
@@ -144,7 +144,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
-      builder.commandManager.events.onAbort(firstCommand.queueKey, thirdSpy);
+      builder.commandManager.events.onAbort(firstCommand.abortKey, thirdSpy);
 
       dispatcher.deleteRunningRequests(firstCommand.queueKey);
 

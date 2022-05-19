@@ -30,7 +30,4 @@ export const getAppManagerEvents = (emitter: EventEmitter) => ({
     emitter.on(AppEvents.offline, callback);
     return () => emitter.removeListener(AppEvents.offline, callback);
   },
-  umount: <T extends (...args: any[]) => void>(key: string, callback: T): void => {
-    emitter.removeListener(key, callback);
-  },
 });

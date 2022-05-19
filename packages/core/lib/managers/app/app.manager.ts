@@ -31,32 +31,28 @@ export class AppManager<ErrorType, HttpOptions> {
 
     this.logger = this.builder.loggerManager.init("AppManager");
 
-    this.setInitialFocus(initiallyFocused ?? true);
-    this.setInitialOnline(initiallyOnline ?? true);
+    this.setInitialFocus(initiallyFocused);
+    this.setInitialOnline(initiallyOnline);
 
     focusEvent(this.setFocused);
     onlineEvent(this.setOnline);
   }
 
-  private setInitialFocus = async (initValue: AppManagerOptionsType["initiallyFocused"]) => {
+  private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {
     if (typeof initValue === "function") {
       this.isFocused = false;
       this.isFocused = await initValue();
-    } else if (typeof initValue === "boolean") {
-      this.isFocused = initValue;
     } else {
-      this.isFocused = true;
+      this.isFocused = initValue;
     }
   };
 
-  private setInitialOnline = async (initValue: AppManagerOptionsType["initiallyOnline"]) => {
+  private setInitialOnline = async (initValue: Exclude<AppManagerOptionsType["initiallyOnline"], undefined>) => {
     if (typeof initValue === "function") {
       this.isOnline = false;
       this.isOnline = await initValue();
-    } else if (typeof initValue === "boolean") {
-      this.isOnline = initValue;
     } else {
-      this.isOnline = true;
+      this.isOnline = initValue;
     }
   };
 
