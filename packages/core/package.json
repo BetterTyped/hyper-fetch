@@ -42,6 +42,7 @@
     "precommit": "yarn lint-staged"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
     "@typescript-eslint/parser": "^5.22.0"
   },
   "lint-staged": {

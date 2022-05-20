@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks/dom";
+import { renderHook } from "@testing-library/react";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";

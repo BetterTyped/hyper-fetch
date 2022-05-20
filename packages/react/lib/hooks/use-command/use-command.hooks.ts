@@ -97,23 +97,26 @@ export const useCommand = <T extends FetchCommandInstance>({
     onFinishedCallback.current?.(data, details);
   };
 
-  const handleInitialCallbacks = async () => {
-    const hasData = state.data && state.error && state.timestamp;
-    const queue = await dispatcher.getQueue(command.queueKey);
-    if (hasData && initialized && !initializedCallbacks && initializeCallbacks) {
-      const details = {
-        retries: state.retries,
-        timestamp: new Date(state.timestamp as Date),
-        isFailed: isFailedRequest([state.data, state.error, state.status]),
-        isCanceled: false,
-        isRefreshed: state.isRefreshed,
-        isOffline: !appManager.isOnline,
-        isStopped: queue.stopped,
-      };
+  const handleInitialCallbacks = () => {
+    const trigger = async () => {
+      const hasData = state.data && state.error && state.timestamp;
+      const queue = await dispatcher.getQueue(command.queueKey);
+      if (hasData && initialized && !initializedCallbacks && initializeCallbacks) {
+        const details = {
+          retries: state.retries,
+          timestamp: new Date(state.timestamp as Date),
+          isFailed: isFailedRequest([state.data, state.error, state.status]),
+          isCanceled: false,
+          isRefreshed: state.isRefreshed,
+          isOffline: !appManager.isOnline,
+          isStopped: queue.stopped,
+        };
 
-      handleResponseCallbacks([state.data, state.error, state.status], details);
-      setInitializedCallbacks(true);
-    }
+        handleResponseCallbacks([state.data, state.error, state.status], details);
+        setInitializedCallbacks(true);
+      }
+    };
+    trigger();
   };
 
   // ******************

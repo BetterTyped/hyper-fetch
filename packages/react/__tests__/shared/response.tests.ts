@@ -1,11 +1,10 @@
-import { waitFor } from "@testing-library/react";
-import { RenderHookResult } from "@testing-library/react-hooks/dom";
+import { waitFor, RenderHookResult } from "@testing-library/react";
 import { FetchCommandInstance } from "@better-typed/hyper-fetch";
 
 import { UseFetchReturnType } from "use-fetch";
 import { getCurrentState } from "../utils";
 
-export const testInitialState = async <H extends RenderHookResult<any, any, any>>(render: H) => {
+export const testInitialState = async <H extends RenderHookResult<any, any>>(render: H) => {
   const response = getCurrentState(render);
 
   await waitFor(() => {
@@ -17,7 +16,7 @@ export const testInitialState = async <H extends RenderHookResult<any, any, any>
 
 export const testSuccessState = async <
   T extends UseFetchReturnType<FetchCommandInstance>,
-  H extends RenderHookResult<any, any, any>,
+  H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
   render: H,
@@ -34,7 +33,7 @@ export const testSuccessState = async <
 
 export const testErrorState = async <
   T extends UseFetchReturnType<FetchCommandInstance>,
-  H extends RenderHookResult<any, any, any>,
+  H extends RenderHookResult<any, any>,
 >(
   mock: T["error"],
   render: H,
@@ -52,7 +51,7 @@ export const testErrorState = async <
 
 export const testSuccessRefreshState = async <
   T extends UseFetchReturnType<FetchCommandInstance>,
-  H extends RenderHookResult<any, any, any>,
+  H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
   render: H,
@@ -67,7 +66,7 @@ export const testSuccessRefreshState = async <
 
 export const testErrorFetchState = async <
   T extends UseFetchReturnType<FetchCommandInstance>,
-  H extends RenderHookResult<any, any, any>,
+  H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
   render: H,
