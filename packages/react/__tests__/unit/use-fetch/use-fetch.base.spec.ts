@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { builder, createCommand } from "../../utils";
 import { testSuccessState } from "../../shared";
 
-describe("[Basic] UseFetch hook", () => {
+describe("useFetch [ Basic ]", () => {
   let command = createCommand();
 
   const renderUseFetch = () =>
