@@ -23,11 +23,10 @@ export const testSuccessState = async <
   render: H,
 ) => {
   const response = getCurrentState(render);
-  const status = response.status || 0;
 
   await waitFor(() => {
     expect(response.data).toMatchObject(mock as Record<string, unknown>);
-    expect(status).toBe(200);
+    expect(response.status).toBe(200);
     expect(response.loading).toStrictEqual(false);
     expect(response.error).toStrictEqual(null);
   });
