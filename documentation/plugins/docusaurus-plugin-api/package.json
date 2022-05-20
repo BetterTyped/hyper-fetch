@@ -15,7 +15,7 @@
     "build": "tsdx build && yarn copy",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
-    "prepare": "tsdx build",
+    "prepare": "yarn build",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "copy": "mkdir -p ./dist/lib && cp -r ./src/lib/* ./dist/lib"
