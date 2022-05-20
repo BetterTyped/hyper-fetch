@@ -7,6 +7,12 @@ import { ClientResponseType } from "client";
 export const getDispatcherLoadingEventKey = (key: string): string => {
   return `${key}-loading-event`;
 };
+export const getDispatcherLoadingIdEventKey = (key: string): string => {
+  return `${key}-loading-event-by-id`;
+};
+export const getDispatcherRemoveEventKey = (key: string): string => {
+  return `${key}-remove-event`;
+};
 export const getDispatcherDrainedEventKey = (key: string): string => {
   return `${key}-drained-event`;
 };

@@ -1,18 +1,18 @@
 import EventEmitter from "events";
 
-import { CacheKeyType, CacheValueType, getRevalidateEventKey, CacheStorageType } from "cache";
+import { CacheValueType, getRevalidateEventKey, CacheStorageType } from "cache";
 import { ExtractResponse, ExtractError } from "types";
 import { getCacheKey } from "./cache.utils";
 
 export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
-  set: <T>(key: CacheKeyType, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
-    emitter.emit(getCacheKey(key), data);
+  set: <T>(cacheKey: string, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
+    emitter.emit(getCacheKey(cacheKey), data);
   },
   /**
    * Revalidate cache values and trigger revalidate event
    * @param pattern Allow to revalidate cache based on the `cacheKey`, `string pattern` or `regexp` pattern for matching
    */
-  revalidate: async (pattern: CacheKeyType | RegExp): Promise<void> => {
+  revalidate: async (pattern: string | RegExp): Promise<void> => {
     const keys = await storage.keys();
 
     if (typeof pattern === "string") {
@@ -27,14 +27,14 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
     }
   },
   get: <T>(
-    key: CacheKeyType,
+    cacheKey: string,
     callback: (data: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
   ): VoidFunction => {
-    emitter.on(getCacheKey(key), callback);
-    return () => emitter.removeListener(getCacheKey(key), callback);
+    emitter.on(getCacheKey(cacheKey), callback);
+    return () => emitter.removeListener(getCacheKey(cacheKey), callback);
   },
-  onRevalidate: (key: CacheKeyType, callback: () => void): VoidFunction => {
-    emitter.on(getRevalidateEventKey(key), callback);
-    return () => emitter.removeListener(getRevalidateEventKey(key), callback);
+  onRevalidate: (cacheKey: string, callback: () => void): VoidFunction => {
+    emitter.on(getRevalidateEventKey(cacheKey), callback);
+    return () => emitter.removeListener(getRevalidateEventKey(cacheKey), callback);
   },
 });

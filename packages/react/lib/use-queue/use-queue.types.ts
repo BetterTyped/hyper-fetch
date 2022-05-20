@@ -15,4 +15,7 @@ export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpV
 > & {
   uploading?: FetchProgressType;
   downloading?: FetchProgressType;
+  startRequest: () => void;
+  stopRequest: () => void;
+  deleteRequest: () => void;
 };

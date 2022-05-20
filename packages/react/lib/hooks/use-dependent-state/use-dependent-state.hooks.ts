@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidMount, useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
 import {
   ClientResponseType,
   FetchCommandInstance,
@@ -7,6 +7,7 @@ import {
   ExtractError,
   FetchBuilderInstance,
   CacheValueType,
+  ExtractLocalError,
 } from "@better-typed/hyper-fetch";
 
 import { getCacheInitialData } from "utils";
@@ -15,7 +16,7 @@ import { getDetailsState, getInitialDependentStateData, transformDataToCacheValu
 
 export const useDependentState = <T extends FetchCommandInstance>(
   command: T,
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>> | null,
   queue: FetchBuilderInstance["fetchDispatcher"] | FetchBuilderInstance["submitDispatcher"],
   dependencies: any[],
 ): [
@@ -29,20 +30,29 @@ export const useDependentState = <T extends FetchCommandInstance>(
   const { appManager, cache } = builder;
 
   const [initialized, setInitialized] = useState(false);
-  const [, rerender] = useState(+new Date());
+
+  // ******************
+  // Dependency Tracking
+  // ******************
+
+  const forceUpdate = useForceUpdate();
+  const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
   const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(
     getInitialDependentStateData(command, transformDataToCacheValue(command, initialData)),
   );
-  const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
 
   const renderOnKeyTrigger = (keys: Array<keyof UseDependentStateType>) => {
     const shouldRerender = renderKeys.current.find((renderKey) => keys.includes(renderKey));
-    if (shouldRerender) rerender(+new Date());
+    if (shouldRerender) forceUpdate();
   };
 
   const setRenderKeys = (renderKey: keyof UseDependentStateType) => {
     renderKeys.current.push(renderKey);
   };
+
+  // ******************
+  // Cache initialization
+  // ******************
 
   useDidUpdate(
     () => {
@@ -67,7 +77,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
           state.current = newState;
         }
 
-        rerender(+new Date());
+        forceUpdate();
         setInitialized(true);
       };
 
@@ -76,6 +86,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
     [...dependencies, cacheKey, queueKey],
     true,
   );
+
+  // ******************
+  // Listeners
+  // ******************
 
   useDidMount(() => {
     const focusUnmount = appManager.events.onFocus(() => {
@@ -102,6 +116,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
       offlineUnmount();
     };
   });
+
+  // ******************
+  // Setters
+  // ******************
 
   const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     const newStateValues = {
@@ -150,7 +168,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
     setLoading: async (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        queue.events.setLoading(cacheKey, {
+        queue.events.setLoading(queueKey, "", {
           isLoading: loading,
           isRetry: false,
           isOffline: false,

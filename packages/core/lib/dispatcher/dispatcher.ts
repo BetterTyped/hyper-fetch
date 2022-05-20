@@ -467,7 +467,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
   /**
    * Delete and cancel request from the storage
    */
-  delete = (queueKey: string, requestId?: string) => {
+  delete = (queueKey: string, requestId: string) => {
     const queue = this.getQueue(queueKey);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queueKey, queue);
@@ -475,6 +475,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
+    this.events.emitRemove(requestId);
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -518,7 +519,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     this.addRunningRequest(queueKey, requestId, command);
 
     // Propagate the loading to all connected hooks
-    this.events.setLoading(queueKey, {
+    this.events.setLoading(queueKey, requestId, {
       isLoading: true,
       isRetry: !!storageElement.retries,
       isOffline,
@@ -560,14 +561,12 @@ export class Dispatcher<ErrorType, HttpOptions> {
     };
 
     // Global response emitter to handle command execution
-    commandManager.events.emitResponse(queueKey, response, requestDetails);
-    // Emitter for getting response by requestId
-    commandManager.events.emitResponseById(requestId, response, requestDetails);
+    commandManager.events.emitResponse(queueKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
     cache.set(cacheKey, response, requestDetails, useCache);
 
     if (isCanceled) {
-      // do not remove cancelled request as it may be manually paused
+      // do not remove cancelled request as it may be result of manual pause
       return this.logger.error(`Request canceled`, { requestId, queueKey });
     }
     if (isFailed && isOfflineResponseStatus) {

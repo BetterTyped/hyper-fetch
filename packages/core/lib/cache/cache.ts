@@ -74,16 +74,15 @@ export class Cache<ErrorType, HttpOptions> {
 
     const newCacheData: CacheValueType = { data, details };
 
+    this.events.set<Response>(cacheKey, newCacheData);
+
     // If request should not use cache - just emit response data
     if (!useCache) {
-      this.logger.debug(`Only emitting payload as command cache is off`, data);
-
-      return this.events.set<Response>(cacheKey, newCacheData);
+      return this.logger.debug(`Emitting payload, command cache is off`, data);
     }
 
     // Cache response emitter to provide optimization for libs(re-rendering)
     this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
-    this.events.set<Response>(cacheKey, newCacheData);
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {

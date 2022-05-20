@@ -65,8 +65,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
   };
 
   const unmountEmitter = createAbortListener(() => {
-    commandManager.events.emitAbort(abortKey, command);
-    commandManager.events.emitAbortById(requestId, command);
+    commandManager.events.emitAbort(abortKey, requestId, command);
   });
 
   // Progress
@@ -77,7 +76,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     progressEvent: ClientProgressEvent,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
-    commandManager.events.emitUploadProgress(queueKey, progress, { requestId, command });
+    commandManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, command });
   };
 
   const handleResponseProgress = (
@@ -86,7 +85,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     progressEvent: ClientProgressEvent,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
-    commandManager.events.emitDownloadProgress(queueKey, progress, { requestId, command });
+    commandManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, command });
   };
 
   // Pre-request
@@ -110,7 +109,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     };
     requestStartTimestamp = +new Date();
     handleRequestProgress(requestStartTimestamp, requestStartTimestamp, initialPayload);
-    commandManager.events.emitRequestStart(queueKey, { requestId, command });
+    commandManager.events.emitRequestStart(queueKey, requestId, { requestId, command });
     return requestStartTimestamp;
   };
 
@@ -154,7 +153,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
     };
 
     handleResponseProgress(responseStartTimestamp, responseStartTimestamp, initialPayload);
-    commandManager.events.emitResponseStart(queueKey, { requestId, command });
+    commandManager.events.emitResponseStart(queueKey, requestId, { requestId, command });
     return responseStartTimestamp;
   };
 

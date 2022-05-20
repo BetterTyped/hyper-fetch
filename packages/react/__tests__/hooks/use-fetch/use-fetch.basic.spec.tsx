@@ -93,7 +93,7 @@ describe("[Basic] UseFetch hook", () => {
     const newMock = interceptGetManyAlternative(200);
 
     act(() => {
-      responseOne.result.current.refresh();
+      responseOne.result.current.revalidate();
     });
 
     await responseOne.waitFor(() => {

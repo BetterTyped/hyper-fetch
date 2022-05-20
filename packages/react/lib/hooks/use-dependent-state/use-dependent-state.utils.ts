@@ -7,7 +7,7 @@ import {
   ExtractError,
 } from "@better-typed/hyper-fetch";
 
-import { initialState, UseDependentStateType } from "utils/use-dependent-state";
+import { initialState, UseDependentStateType } from "hooks";
 
 export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;

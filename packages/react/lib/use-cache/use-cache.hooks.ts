@@ -4,7 +4,7 @@ import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed
 
 import { isStaleCacheData } from "utils";
 import { UseCacheOptionsType, UseCacheReturnType, useCacheDefaultOptions } from "use-cache";
-import { useCommandState } from "utils/use-command-state";
+import { useCommand } from "hooks";
 
 export const useCache = <T extends FetchCommandInstance>(
   command: T,
@@ -18,22 +18,20 @@ export const useCache = <T extends FetchCommandInstance>(
 
   const { cache, fetchDispatcher, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useCache")).current;
-  const [state, actions, { setRenderKey }] = useCommandState({
+  const [state, actions, { setRenderKey }] = useCommand({
     command,
-    queue: fetchDispatcher,
+    dispatcher: fetchDispatcher,
     dependencyTracking,
     initialData,
     logger,
     deepCompare,
-    commandListeners: [],
-    removeCommandListener: () => undefined,
   });
 
-  const invalidate = (invalidateKey?: string | FetchCommandInstance | RegExp) => {
-    if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
-    } else if (invalidateKey) {
-      cache.events.revalidate(invalidateKey);
+  const revalidate = (revalidateKey?: string | FetchCommandInstance | RegExp) => {
+    if (revalidateKey && revalidateKey instanceof FetchCommand) {
+      cache.events.revalidate(`/${getCommandKey(revalidateKey, true)}/`);
+    } else if (revalidateKey) {
+      cache.events.revalidate(revalidateKey);
     } else {
       cache.events.revalidate(cacheKey);
     }
@@ -93,6 +91,6 @@ export const useCache = <T extends FetchCommandInstance>(
       return isStaleCacheData(cacheTime, state.timestamp);
     },
     ...handlers,
-    invalidate,
+    revalidate,
   };
 };

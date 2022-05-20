@@ -20,7 +20,7 @@ export type ExtractQueryParams<T> = T extends FetchCommand<any, any, infer Q, an
 
 export type ExtractError<T> = T extends FetchCommand<any, any, any, infer E, any, any, any, any, any, any> ? E : never;
 
-export type ExtractRequestError<T> = T extends FetchCommand<any, any, any, any, infer E, any, any, any, any, any>
+export type ExtractLocalError<T> = T extends FetchCommand<any, any, any, any, infer E, any, any, any, any, any>
   ? E
   : never;
 

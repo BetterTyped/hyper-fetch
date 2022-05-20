@@ -1,6 +1,12 @@
-import { DateInterval } from "@better-typed/hyper-fetch";
+import { DateInterval, FetchCommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
 
-export const useFetchDefaultOptions = {
+import { UseFetchOptionsType } from "use-fetch";
+
+type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<FetchCommandInstance>, "initialData">> & {
+  initialData: null;
+};
+
+export const useFetchDefaultOptions: DefaultOptionsType = {
   dependencies: [],
   disabled: false,
   dependencyTracking: true,
@@ -13,6 +19,6 @@ export const useFetchDefaultOptions = {
   refreshOnTabFocus: false,
   refreshOnReconnect: false,
   debounce: false,
-  debounceTime: 400, // milliseconds
+  debounceTime: 400,
   deepCompare: true,
 };

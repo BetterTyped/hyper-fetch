@@ -1,14 +1,18 @@
 import { useRef, useState } from "react";
-import { FetchCommandInstance, getCommandKey, FetchCommand, ExtractFetchReturn } from "@better-typed/hyper-fetch";
+import {
+  FetchCommandInstance,
+  getCommandKey,
+  FetchCommand,
+  ExtractFetchReturn,
+  commandSendRequest,
+} from "@better-typed/hyper-fetch";
 
 import { isStaleCacheData } from "utils";
-import { useDebounce } from "utils/use-debounce";
+import { useDebounce, useCommand } from "hooks";
 import { UseSubmitOptionsType, UseSubmitReturnType, useSubmitDefaultOptions } from "use-submit";
-import { useCommandState } from "utils/use-command-state";
-import { useIsMounted } from "@better-typed/react-lifecycle-hooks";
 
 export const useSubmit = <T extends FetchCommandInstance>(
-  cmd: T,
+  commandInstance: T,
   {
     disabled = useSubmitDefaultOptions.disabled,
     dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
@@ -18,72 +22,53 @@ export const useSubmit = <T extends FetchCommandInstance>(
     deepCompare = useSubmitDefaultOptions.deepCompare,
   }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
-  const isMounted = useIsMounted();
-  const requestDebounce = useDebounce(debounceTime);
-
   /**
-   * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's actual value
-   * and assign the command to the state once we trigger submit because this is the moment that define the automated
-   * queueKey / cacheKey values and till the end those may change
+   * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
+   * so the events got triggered properly and show the latest result without mixing it up
    */
-  const [command, setCommand] = useState(cmd);
-  const [commandListeners, setCommandListeners] = useState<Pick<T, "queueKey" | "builder">[]>([]);
-
+  const [command, setCommand] = useState(commandInstance);
   const { cacheTime, builder } = command;
   const { cache, submitDispatcher, loggerManager } = builder;
+
   const logger = useRef(loggerManager.init("useSubmit")).current;
-
-  const addCommandListener = (triggeredCommand: FetchCommandInstance) => {
-    if (isMounted) {
-      const newItem = { queueKey: triggeredCommand.queueKey, builder: triggeredCommand.builder };
-      setCommandListeners((prev) => [...prev, newItem]);
-    }
-  };
-
-  const removeCommandListener = (queueKey: string) => {
-    if (isMounted) {
-      const index = commandListeners.findIndex((element) => element.queueKey === queueKey);
-      setCommandListeners((prev) => prev.splice(index, 1));
-    }
-  };
-
-  const [state, actions, { setRenderKey }] = useCommandState({
+  const requestDebounce = useDebounce(debounceTime);
+  const [state, actions, { setRenderKey, addRequestListener }] = useCommand({
     command,
-    queue: submitDispatcher,
+    dispatcher: submitDispatcher,
     dependencyTracking,
     initialData,
     logger,
     deepCompare,
-    commandListeners,
-    removeCommandListener,
   });
+
+  // ******************
+  // Submitting
+  // ******************
 
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
     const options = parameters[0];
+    const commandClone = command.clone(options) as T;
 
-    const commandClone = cmd.clone(options);
+    setCommand(commandClone);
+    if (disabled) {
+      logger.debug(`Cannot add to submit queue`, { disabled, options });
+      return [null, null, 0];
+    }
+
+    const trigger = () => commandSendRequest(commandClone, "submit", addRequestListener);
 
     return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
-      setCommand(commandClone as T);
-
       const performSubmit = async () => {
-        if (!disabled) {
-          logger.debug(`Adding request to submit queue`, { disabled, options });
+        logger.debug(`Adding request to submit queue`, { disabled, options });
 
-          addCommandListener(command);
-
-          if (debounce) {
-            requestDebounce.debounce(async () => {
-              const value = await commandClone.send({ queueType: "submit", ...options });
-              resolve(value);
-            });
-          } else {
-            const value = await commandClone.send({ queueType: "submit", ...options });
+        if (debounce) {
+          requestDebounce.debounce(async () => {
+            const value = await trigger();
             resolve(value);
-          }
+          });
         } else {
-          resolve([null, null, null]);
-          logger.debug(`Cannot add to submit queue`, { disabled, options });
+          const value = await trigger();
+          resolve(value);
         }
       };
 
@@ -91,7 +76,11 @@ export const useSubmit = <T extends FetchCommandInstance>(
     });
   };
 
-  const invalidate = (invalidateKey: string | FetchCommandInstance | RegExp) => {
+  // ******************
+  // Revalidation
+  // ******************
+
+  const revalidate = (invalidateKey: string | FetchCommandInstance | RegExp) => {
     if (!invalidateKey) return;
 
     if (invalidateKey && invalidateKey instanceof FetchCommand) {
@@ -101,9 +90,17 @@ export const useSubmit = <T extends FetchCommandInstance>(
     }
   };
 
+  // ******************
+  // Abort
+  // ******************
+
   const abort = () => {
     command.abort();
   };
+
+  // ******************
+  // Misc
+  // ******************
 
   const handlers = {
     actions: actions.actions,
@@ -160,6 +157,6 @@ export const useSubmit = <T extends FetchCommandInstance>(
     ...handlers,
     isDebouncing: false,
     isRefreshed: false,
-    invalidate,
+    revalidate,
   };
 };

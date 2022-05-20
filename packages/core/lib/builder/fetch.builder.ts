@@ -222,27 +222,6 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   };
 
   /**
-   * Create commands based on the builder setup
-   */
-  createCommand = <
-    ResponseType,
-    PayloadType = undefined,
-    RequestErrorType = undefined,
-    QueryParamsType extends ClientQueryParamsType | string = string,
-  >() => {
-    return <EndpointType extends string>(params: FetchCommandConfig<EndpointType, RequestConfigType>) =>
-      new FetchCommand<
-        ResponseType,
-        PayloadType,
-        QueryParamsType,
-        ErrorType,
-        RequestErrorType,
-        EndpointType,
-        RequestConfigType
-      >(this, params);
-  };
-
-  /**
    * Add persistent effects which trigger on the request lifecycle
    */
   addEffect = (effect: FetchEffectInstance | FetchEffectInstance[]) => {
@@ -259,6 +238,27 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     this.effects = this.effects.filter((currentEffect) => currentEffect.getEffectKey() !== name);
 
     return this;
+  };
+
+  /**
+   * Create commands based on the builder setup
+   */
+  createCommand = <
+    ResponseType,
+    PayloadType = undefined,
+    LocalErrorType extends FetchBuilderErrorType | undefined = undefined,
+    QueryParamsType extends ClientQueryParamsType | string = string,
+  >() => {
+    return <EndpointType extends string>(params: FetchCommandConfig<EndpointType, RequestConfigType>) =>
+      new FetchCommand<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType,
+        LocalErrorType,
+        EndpointType,
+        RequestConfigType
+      >(this, params);
   };
 
   /**

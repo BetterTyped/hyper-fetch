@@ -6,9 +6,14 @@ import {
   CacheValueType,
 } from "@better-typed/hyper-fetch";
 
-import { OnErrorCallbackType, OnFinishedCallbackType, OnSuccessCallbackType } from "utils/use-command-state";
-import { UseDependentStateActions, UseDependentStateType } from "utils/use-dependent-state";
 import { isEqual } from "utils";
+import {
+  OnErrorCallbackType,
+  OnFinishedCallbackType,
+  OnSuccessCallbackType,
+  UseDependentStateActions,
+  UseDependentStateType,
+} from "hooks";
 
 export type UseCacheOptionsType<T extends FetchCommandInstance> = {
   dependencyTracking?: boolean;
@@ -26,5 +31,5 @@ export type UseCacheReturnType<T extends FetchCommandInstance> = UseDependentSta
   onCacheChange: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
   isStale: boolean;
   isRefreshingError: boolean;
-  invalidate: (invalidateKey?: string | FetchCommandInstance) => void;
+  revalidate: (revalidateKey?: string | FetchCommandInstance) => void;
 };

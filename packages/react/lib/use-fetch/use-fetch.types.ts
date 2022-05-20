@@ -13,8 +13,9 @@ import {
   OnRequestCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
-} from "utils/use-command-state";
-import { UseDependentStateActions, UseDependentStateType } from "utils/use-dependent-state";
+  UseDependentStateActions,
+  UseDependentStateType,
+} from "hooks";
 import { isEqual } from "utils";
 
 export type UseFetchOptionsType<T extends FetchCommandInstance> = {
@@ -31,7 +32,6 @@ export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   refreshOnReconnect?: boolean;
   debounce?: boolean;
   debounceTime?: number;
-  suspense?: boolean;
   deepCompare?: boolean | typeof isEqual;
 };
 
@@ -52,6 +52,6 @@ export type UseFetchReturnType<T extends FetchCommandInstance> = UseDependentSta
   isRefreshingError: boolean;
   isDebouncing: boolean;
   isStale: boolean;
-  refresh: (invalidateKey?: string | FetchCommandInstance) => void;
+  revalidate: (invalidateKey?: string | FetchCommandInstance) => void;
   abort: VoidFunction;
 };

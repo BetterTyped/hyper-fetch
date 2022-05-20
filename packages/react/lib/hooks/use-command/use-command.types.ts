@@ -15,18 +15,16 @@ import {
 
 import { isEqual } from "utils";
 
-import { UseDependentStateActions, UseDependentStateType } from "utils/use-dependent-state";
+import { UseDependentStateActions, UseDependentStateType } from "hooks";
 
 export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   command: T;
-  queue: Dispatcher<ExtractError<T>, ExtractClientOptions<T>>;
+  dispatcher: Dispatcher<ExtractError<T>, ExtractClientOptions<T>>;
   logger: LoggerMethodsType;
   dependencyTracking: boolean;
   initialData: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   deepCompare: boolean | typeof isEqual;
-  commandListeners: Pick<T, "queueKey" | "builder">[];
-  removeCommandListener: (queueKey: string) => void;
-  refresh?: () => void;
+  initializeCallbacks?: boolean;
 };
 
 export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
@@ -45,8 +43,9 @@ export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
     onUploadProgress: (callback: OnProgressCallbackType) => void;
   },
   {
+    addRequestListener: (requestId: string, command: FetchCommandInstance) => void;
     setRenderKey: (key: keyof UseDependentStateType<unknown, unknown>) => void;
-    initialized: boolean;
+    getStaleStatus: () => boolean | Promise<boolean>;
   },
 ];
 

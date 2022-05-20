@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import { useDidUpdate, useIsMounted } from "@better-typed/react-lifecycle-hooks";
-
+import { useDidUpdate, useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 import {
   FetchProgressType,
   DispatcherLoadingEventType,
@@ -8,14 +7,14 @@ import {
   ExtractResponse,
   ExtractError,
   ExtractFetchReturn,
-  CacheValueType,
   ClientResponseType,
   CommandResponseDetails,
   CommandEventDetails,
+  isFailedRequest,
 } from "@better-typed/hyper-fetch";
 
-import { useDependentState } from "utils/use-dependent-state";
 import {
+  useDependentState,
   OnProgressCallbackType,
   OnStartCallbackType,
   OnRequestCallbackType,
@@ -24,29 +23,33 @@ import {
   OnSuccessCallbackType,
   UseCommandStateReturnType,
   UseCommandStateOptionsType,
-} from "utils/use-command-state";
-import { isEqual } from "utils";
+} from "hooks";
+import { isEqual, isStaleCacheData } from "utils";
 
-export const useCommandState = <T extends FetchCommandInstance>({
+export const useCommand = <T extends FetchCommandInstance>({
   command,
-  queue,
+  dispatcher,
   dependencyTracking,
   initialData,
   logger,
   deepCompare,
-  commandListeners,
-  removeCommandListener,
-  refresh,
+  initializeCallbacks = false,
 }: UseCommandStateOptionsType<T>): UseCommandStateReturnType<T> => {
-  const { cache } = command.builder;
+  const { cache, appManager } = command.builder;
   const commandDump = command.dump();
 
   const isMounted = useIsMounted();
-  const [usedInitialCallbacks, setUsedInitialCallbacks] = useState(false);
+  const [initializedCallbacks, setInitializedCallbacks] = useState(false);
+  const [state, actions, setRenderKey, initialized, setCacheData] = useDependentState<T>(
+    command,
+    initialData,
+    dispatcher,
+    [JSON.stringify(commandDump)],
+  );
 
-  const [state, actions, setRenderKey, initialized, setCacheData] = useDependentState<T>(command, initialData, queue, [
-    JSON.stringify(commandDump),
-  ]);
+  // ******************
+  // Callbacks
+  // ******************
 
   const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
@@ -59,9 +62,18 @@ export const useCommandState = <T extends FetchCommandInstance>({
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
 
-  const unmountCallbacks = useRef<null | VoidFunction>(null);
+  // ******************
+  // Listeners unmounting
+  // ******************
 
-  const handleCallbacks = (
+  const unmountLifecycleCallbacks = useRef<VoidFunction[]>([]);
+  const unmountDataHandlerCallback = useRef<VoidFunction | null>(null);
+
+  // ******************
+  // Response handlers
+  // ******************
+
+  const handleResponseCallbacks = (
     data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
     details: CommandResponseDetails,
   ) => {
@@ -85,8 +97,33 @@ export const useCommandState = <T extends FetchCommandInstance>({
     onFinishedCallback.current?.(data, details);
   };
 
-  const handleGetResponseData = (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    const { data, details } = cacheData;
+  const handleInitialCallbacks = async () => {
+    const hasData = state.data && state.error && state.timestamp;
+    const queue = await dispatcher.getQueue(command.queueKey);
+    if (hasData && initialized && !initializedCallbacks && initializeCallbacks) {
+      const details = {
+        retries: state.retries,
+        timestamp: new Date(state.timestamp as Date),
+        isFailed: isFailedRequest([state.data, state.error, state.status]),
+        isCanceled: false,
+        isRefreshed: state.isRefreshed,
+        isOffline: !appManager.isOnline,
+        isStopped: queue.stopped,
+      };
+
+      handleResponseCallbacks([state.data, state.error, state.status], details);
+      setInitializedCallbacks(true);
+    }
+  };
+
+  // ******************
+  // Lifecycle
+  // ******************
+
+  const handleGetResponseData = (
+    data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
+    details: CommandResponseDetails,
+  ) => {
     const { isCanceled, isFailed, isOffline } = details;
 
     logger.debug("Received new data");
@@ -100,15 +137,13 @@ export const useCommandState = <T extends FetchCommandInstance>({
       return logger.debug("Skipping offline error response data");
     }
 
-    refresh?.();
-
     const compareFn = typeof deepCompare === "function" ? deepCompare : isEqual;
     const isEqualResponse = deepCompare ? compareFn(data, [state.data, state.error, state.status]) : false;
 
     if (isEqualResponse) {
       actions.setTimestamp(new Date(details.timestamp), false);
     } else {
-      setCacheData(cacheData);
+      setCacheData({ data, details });
     }
   };
 
@@ -135,63 +170,48 @@ export const useCommandState = <T extends FetchCommandInstance>({
     onRequestStartCallback?.current?.(details);
   };
 
-  const handleResponse = (queueKey: string) => {
+  const handleResponse = () => {
     return (data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>, details: CommandResponseDetails) => {
-      handleCallbacks(data, details);
-      removeCommandListener(queueKey);
+      handleResponseCallbacks(data, details);
     };
   };
 
-  const handleMountEvents = () => {
-    const lastRequest = { cacheKey: command.cacheKey, queueKey: command.queueKey, builder: command.builder };
+  const addRequestListener = (requestId: string, cmd: FetchCommandInstance) => {
+    const { commandManager } = cmd.builder;
 
-    const unmountArray = commandListeners
-      .reduce<Pick<T, "queueKey" | "builder">[]>(
-        (acc, curr) => {
-          const hasDuplicateListener = acc.find((element) => {
-            return element.queueKey === curr.queueKey && element.builder === curr.builder;
-          });
-          if (!hasDuplicateListener) {
-            acc.push(curr);
-          }
+    const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
+    const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
+    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);
+    const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart);
+    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse);
 
-          return acc;
-        },
-        [lastRequest],
-      )
-      .map((listener) => {
-        const { queueKey } = listener;
-        const { commandManager } = listener.builder;
+    // Data handlers
+    const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
+    const getResponseUnmount = commandManager.events.onResponseById(requestId, handleGetResponseData);
 
-        const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
-        const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
-        const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart);
-        const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart);
-        const responseUnmount = commandManager.events.onResponse(queueKey, handleResponse(queueKey));
-        const loadingUnmount = queue.events.onLoading(queueKey, handleGetLoadingEvent);
+    const unmountLifecycle = () => {
+      downloadUnmount();
+      uploadUnmount();
+      requestStartUnmount();
+      responseStartUnmount();
+      responseUnmount();
+      loadingUnmount();
+    };
 
-        return () => {
-          downloadUnmount();
-          uploadUnmount();
-          requestStartUnmount();
-          responseStartUnmount();
-          responseUnmount();
-          loadingUnmount();
-        };
-      });
-
-    const getResponseUnmount = cache.events.get(command.cacheKey, handleGetResponseData);
-
-    const unmount = () => {
-      unmountArray.forEach((callback) => callback());
+    const unmountDataHandlers = () => {
+      loadingUnmount();
       getResponseUnmount();
     };
 
-    unmountCallbacks.current?.();
-    unmountCallbacks.current = unmount;
+    unmountDataHandlerCallback.current?.();
 
-    return unmount;
+    unmountLifecycleCallbacks.current.push(unmountLifecycle);
+    unmountDataHandlerCallback.current = unmountDataHandlers;
   };
+
+  // ******************
+  // Misc
+  // ******************
 
   const handleDependencyTracking = () => {
     if (!dependencyTracking) {
@@ -199,33 +219,50 @@ export const useCommandState = <T extends FetchCommandInstance>({
     }
   };
 
+  const getStaleStatus = async () => {
+    const cacheData = await command.builder.cache.get(command.cacheKey);
+
+    return isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
+  };
+
+  const setInitialDataListeners = () => {
+    // Check if listeners are already initialized
+    if (!unmountDataHandlerCallback.current) {
+      const loadingUnmount = dispatcher.events.onLoading(command.queueKey, handleGetLoadingEvent);
+      const getDataUnmount = cache.events.get(command.cacheKey, (cacheData) =>
+        handleGetResponseData(cacheData.data, cacheData.details),
+      );
+
+      return () => {
+        loadingUnmount();
+        getDataUnmount();
+      };
+    }
+  };
+
   /**
    * Initialization of the events related to data exchange with cache and queue
    * This allow to share the state with other hooks and keep it related
    */
-  useDidUpdate(
-    () => {
-      handleDependencyTracking();
-      return handleMountEvents();
-    },
-    [JSON.stringify(commandDump)],
-    true,
-  );
+
+  /**
+   * Dependency tracking mode initialization
+   */
+  useDidUpdate(handleDependencyTracking, [JSON.stringify(commandDump), dependencyTracking], true);
 
   /**
    * On the init if we have data we should call the callback functions
    */
-  useDidUpdate(
-    () => {
-      if (initialized && !usedInitialCallbacks) {
-        // Todo: add the option to allow initial callbacks handling
-        // handleCallbacks([state.data, state.error, state.status]);
-        setUsedInitialCallbacks(true);
-      }
-    },
-    [JSON.stringify(commandDump), initialized],
-    true,
-  );
+  useDidUpdate(handleInitialCallbacks, [JSON.stringify(commandDump), initialized], true);
+
+  /**
+   * On the init if we have data we should call the callback functions
+   */
+  useDidUpdate(setInitialDataListeners, [JSON.stringify(commandDump), initialized], true);
+
+  useWillUnmount(() => {
+    // Unmount listeners
+  });
 
   return [
     state,
@@ -263,8 +300,9 @@ export const useCommandState = <T extends FetchCommandInstance>({
       },
     },
     {
+      addRequestListener,
       setRenderKey,
-      initialized,
+      getStaleStatus,
     },
   ];
 };

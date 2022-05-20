@@ -124,7 +124,7 @@ export type FetchRequestDataType<PayloadType, HasData extends true | false = fal
   : { data: PayloadType };
 
 export type FetchCommandQueueOptions = {
-  queueType?: "auto" | "fetch" | "submit";
+  dispatcherType?: "auto" | "fetch" | "submit";
 };
 
 export type FetchType<

@@ -10,7 +10,7 @@ export const getRequestConfig = <T extends Record<string, unknown> = Record<stri
   return { ...command.builder.requestConfig, ...command.commandOptions.options };
 };
 
-export const getErrorMessage = (errorCase?: "timeout" | "abort") => {
+export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
   if (errorCase === "timeout") {
     return new Error("Request timeout");
   }

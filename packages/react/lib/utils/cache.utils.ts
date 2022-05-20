@@ -6,7 +6,8 @@ import {
   NullableType,
   FetchCommandInstance,
 } from "@better-typed/hyper-fetch";
-import { getDetailsState } from "./use-dependent-state";
+
+import { getDetailsState } from "hooks";
 
 export const getCacheInitialData = <T extends FetchCommandInstance>(
   command: T,
@@ -33,8 +34,8 @@ export const getFreshCacheState = (
   return undefined;
 };
 
-export const isStaleCacheData = (cacheTime: NullableType<number>, timestamp: NullableType<Date | number>) => {
-  if (!timestamp) return true;
+export const isStaleCacheData = (cacheTime: NullableType<number>, cacheTimestamp: NullableType<Date | number>) => {
+  if (!cacheTimestamp) return true;
   if (!cacheTime) return false;
-  return +new Date() > +timestamp + cacheTime;
+  return +new Date() > +cacheTimestamp + cacheTime;
 };

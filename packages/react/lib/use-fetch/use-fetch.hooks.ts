@@ -1,12 +1,11 @@
 import { useRef } from "react";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useDebounce } from "utils/use-debounce";
+import { useDebounce, useCommand } from "hooks";
 import { isStaleCacheData } from "utils";
 import { UseFetchOptionsType, UseFetchReturnType, useFetchDefaultOptions } from "use-fetch";
-import { useCommandState } from "utils/use-command-state";
 
 export const useFetch = <T extends FetchCommandInstance>(
   command: T,
@@ -27,27 +26,27 @@ export const useFetch = <T extends FetchCommandInstance>(
     deepCompare = useFetchDefaultOptions.deepCompare,
   }: UseFetchOptionsType<T> = useFetchDefaultOptions,
 ): UseFetchReturnType<T> => {
+  const updateKey = JSON.stringify(command.dump());
+  const requestDebounce = useDebounce(debounceTime);
+  const refreshDebounce = useDebounce(refreshTime);
+
   const { cacheTime, cacheKey, queueKey, builder } = command;
   const { cache, fetchDispatcher, appManager, loggerManager } = builder;
-  const commandDump = command.dump();
-  const logger = useRef(loggerManager.init("useFetch")).current;
-  const unmountCallbacks = useRef<null | VoidFunction>(null);
 
-  const [state, actions, { setRenderKey, initialized }] = useCommandState({
+  const logger = useRef(loggerManager.init("useFetch")).current;
+
+  const [state, actions, { setRenderKey, getStaleStatus }] = useCommand({
     command,
-    queue: fetchDispatcher,
+    dispatcher: fetchDispatcher,
     dependencyTracking,
     initialData,
     logger,
     deepCompare,
-    commandListeners: [],
-    removeCommandListener: () => null,
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    refresh: handleRefresh,
   });
 
-  const requestDebounce = useDebounce(debounceTime);
-  const refreshDebounce = useDebounce(refreshTime);
+  // ******************
+  // Fetching
+  // ******************
 
   const handleFetch = () => {
     /**
@@ -63,127 +62,138 @@ export const useFetch = <T extends FetchCommandInstance>(
     }
   };
 
+  // ******************
+  // Refreshing
+  // ******************
+
   function handleRefresh() {
-    if (refresh) {
-      refreshDebounce.resetDebounce();
-      logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
-      refreshDebounce.debounce(() => {
-        const isBlur = !appManager.isFocused;
+    if (!refresh) return;
+    logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
 
-        // If window tab is not active should we refresh the cache
-        const canRefreshBlurred = isBlur && refreshBlurred;
-        const isFetching = !!fetchDispatcher.getRunningRequests(command.queueKey).length;
-        const isQueued = !!fetchDispatcher.getQueue(command.queueKey)?.requests.length;
-        const canRefresh = canRefreshBlurred || !isBlur || !isFetching || !isQueued;
+    refreshDebounce.debounce(() => {
+      const isBlurred = !appManager.isFocused;
 
-        if (canRefresh) {
-          logger.debug(`Performing refresh request`, {
-            canRefresh,
-            isFocused: appManager.isFocused,
-          });
+      // If window tab is not active should we refresh the cache
+      const canRefreshBlurred = isBlurred && refreshBlurred;
+      const isFetching = !!fetchDispatcher.getRunningRequests(command.queueKey).length;
+      const isQueued = !!fetchDispatcher.getQueue(command.queueKey).requests.length;
 
-          handleFetch();
-        } else {
-          logger.debug(`Cannot trigger refresh request`, {
-            canRefresh,
-            isFocused: appManager.isFocused,
-          });
-        }
-        handleRefresh();
-      });
-    }
+      if (canRefreshBlurred || !isBlurred || !isFetching || !isQueued) {
+        handleFetch();
+        logger.debug(`Performing refresh request`);
+      }
+
+      // Start new refresh counter
+      handleRefresh();
+    });
   }
 
-  const handleRevalidate = () => {
-    handleFetch();
-  };
-
-  const refreshFn = (invalidateKey?: string | FetchCommandInstance | RegExp) => {
+  const revalidate = (invalidateKey?: string | FetchCommandInstance | RegExp) => {
     if (invalidateKey && invalidateKey instanceof FetchCommand) {
-      cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+      cache.events.revalidate(getCommandKey(invalidateKey, true));
     } else if (invalidateKey) {
       cache.events.revalidate(invalidateKey);
     } else {
-      handleRevalidate();
+      handleFetch();
     }
   };
+
+  // ******************
+  // Aborting
+  // ******************
 
   const abort = () => {
     command.abort();
   };
 
-  const handleMountEvents = () => {
-    const focusUnmount = appManager.events.onFocus(() => {
-      if (refreshOnTabFocus) handleFetch();
-      handleRefresh();
-    });
-    const blurUnmount = appManager.events.onBlur(() => {
-      if (refreshOnTabBlur) handleFetch();
-      handleRefresh();
-    });
-    const onlineUnmount = appManager.events.onOnline(() => {
-      if (refreshOnReconnect) handleFetch();
-      handleRefresh();
-    });
-    const offlineUnmount = builder.appManager.events.onOffline(() => {
-      handleRefresh();
-    });
+  // ******************
+  // Fetching lifecycle
+  // ******************
 
-    const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleRevalidate);
-
-    const unmount = () => {
-      focusUnmount();
-      blurUnmount();
-      onlineUnmount();
-      offlineUnmount();
-      revalidateUnmount();
+  const initialFetchData = () => {
+    const handleInitialFetch = async () => {
+      const hasStaleData = await getStaleStatus();
+      if (revalidateOnMount || hasStaleData) {
+        handleFetch();
+      }
     };
-
-    unmountCallbacks.current?.();
-    unmountCallbacks.current = unmount;
-
-    return unmount;
+    handleInitialFetch();
   };
 
-  /**
-   * Initial fetch triggered once data is stale or we use the revalidate strategy
-   */
-  useDidUpdate(() => {
-    const hasStaleData = initialized && isStaleCacheData(cacheTime, state.timestamp);
-    if (revalidateOnMount || hasStaleData) {
-      handleFetch();
-    }
-  }, [initialized]);
-
-  /**
-   * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
-   */
-  useDidUpdate(handleMountEvents, [JSON.stringify(commandDump)], true);
-
-  /**
-   * Fetching logic for updates handling
-   */
-  useDidUpdate(() => {
+  const updateFetchData = () => {
     /**
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    if (!fetchDispatcher.getQueueRequestCount(queueKey) && debounce) {
+    const isFirstRequest = fetchDispatcher.getQueueRequestCount(queueKey);
+    if (!isFirstRequest && debounce) {
       logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
     } else {
       handleFetch();
     }
-  }, [JSON.stringify(commandDump), ...dependencies, disabled]);
+  };
 
-  useDidUpdate(
-    () => {
-      handleRefresh();
-    },
-    [JSON.stringify(commandDump), ...dependencies, disabled, refresh, refreshTime],
-    true,
-  );
+  // ******************
+  // Events
+  // ******************
+
+  const handleMountEvents = () => {
+    const focusUnmount = appManager.events.onFocus(() => {
+      if (refreshOnTabFocus) {
+        handleFetch();
+        handleRefresh();
+      }
+    });
+    const blurUnmount = appManager.events.onBlur(() => {
+      if (refreshOnTabBlur) {
+        handleFetch();
+        handleRefresh();
+      }
+    });
+    const onlineUnmount = appManager.events.onOnline(() => {
+      if (refreshOnReconnect) {
+        handleFetch();
+        handleRefresh();
+      }
+    });
+
+    const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleFetch);
+
+    const unmount = () => {
+      focusUnmount();
+      blurUnmount();
+      onlineUnmount();
+      revalidateUnmount();
+    };
+
+    return unmount;
+  };
+
+  // ******************
+  // Lifecycle
+  // ******************
+
+  /**
+   * Initialization of the events related to data exchange with cache and queue
+   * This allow to share the state with other hooks and keep it related
+   */
+  useDidUpdate(handleMountEvents, [updateKey], true);
+
+  /**
+   * Initial fetch triggered once data is stale or we use the revalidate strategy
+   */
+  useDidMount(initialFetchData);
+
+  /**
+   * Fetching logic for updates handling
+   */
+  useDidUpdate(updateFetchData, [updateKey, ...dependencies, disabled]);
+
+  /**
+   * Refresh lifecycle handler
+   */
+  useDidUpdate(handleRefresh, [updateKey, ...dependencies, disabled, refresh, refreshTime], true);
 
   return {
     get data() {
@@ -233,7 +243,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     },
     ...actions,
     isDebouncing: requestDebounce.active,
-    refresh: refreshFn,
+    revalidate,
     abort,
   };
 };

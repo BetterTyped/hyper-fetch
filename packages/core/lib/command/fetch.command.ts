@@ -9,16 +9,16 @@ import {
   ParamsType,
   getCommandKey,
   FetchCommandQueueOptions,
-  getCommandDispatcher,
   FetchCommandData,
+  commandSendRequest,
 } from "command";
-import { HttpMethodsEnum } from "constants/http.constants";
-import { HttpMethodsType, NegativeTypes } from "types";
-import { ClientQueryParamsType, ClientResponseType } from "client";
 import { FetchBuilder } from "builder";
-import { LoggerMethodsType } from "managers";
-import { DateInterval } from "constants/time.constants";
 import { getUniqueRequestId } from "utils";
+import { LoggerMethodsType } from "managers";
+import { ClientQueryParamsType } from "client";
+import { HttpMethodsType, NegativeTypes } from "types";
+import { HttpMethodsEnum } from "constants/http.constants";
+import { DateInterval } from "constants/time.constants";
 
 /**
  * Fetch command it is designed to prepare the necessary setup to execute the request to the server.
@@ -28,15 +28,15 @@ import { getUniqueRequestId } from "utils";
  * :::
  *
  * @attention
- * The most important thing about the command is that it keeps data in the format that can be dumped. This is necessary for the persistance and different queue storage types.
- * This class doesn't have any callback methods by design and communicate with queue and cache by events.
+ * The most important thing about the command is that it keeps data in the format that can be dumped. This is necessary for the persistance and different dispatcher storage types.
+ * This class doesn't have any callback methods by design and communicate with dispatcher and cache by events.
  */
 export class FetchCommand<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType | string,
   ErrorType, // Global Error Type
-  RequestErrorType, // Additional Error for specific endpoint
+  LocalErrorType, // Additional Error for specific endpoint
   EndpointType extends string,
   ClientOptions,
   HasData extends true | false = false,
@@ -81,7 +81,7 @@ export class FetchCommand<
           ResponseType,
           PayloadType,
           QueryParamsType,
-          ErrorType | RequestErrorType,
+          ErrorType | LocalErrorType,
           EndpointType,
           ClientOptions,
           MappedData
@@ -251,7 +251,7 @@ export class FetchCommand<
       PayloadType,
       QueryParamsType,
       ErrorType,
-      RequestErrorType,
+      LocalErrorType,
       EndpointType,
       ClientOptions,
       HasData,
@@ -303,7 +303,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | RequestErrorType,
+      ErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -314,7 +314,7 @@ export class FetchCommand<
     PayloadType,
     QueryParamsType,
     ErrorType,
-    RequestErrorType,
+    LocalErrorType,
     EndpointType,
     ClientOptions,
     D,
@@ -327,7 +327,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | RequestErrorType,
+      ErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -339,6 +339,7 @@ export class FetchCommand<
       queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
       endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
+      // Typescript circular types issue - we have to leave any here
       data: (options?.data || this.data) as any,
     };
 
@@ -347,7 +348,7 @@ export class FetchCommand<
       PayloadType,
       QueryParamsType,
       ErrorType,
-      RequestErrorType,
+      LocalErrorType,
       EndpointType,
       ClientOptions,
       D,
@@ -360,7 +361,7 @@ export class FetchCommand<
   }
 
   /**
-   * Method to use the command WITHOUT adding it to cache and queues - just pure request
+   * Method to use the command WITHOUT adding it to cache and queues. This mean it will make straight requests without side effects like events.
    * @param options
    * @returns
    */
@@ -368,7 +369,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | RequestErrorType,
+    ErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -380,7 +381,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | RequestErrorType,
+        ErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData
@@ -400,7 +401,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | RequestErrorType,
+    ErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -416,38 +417,35 @@ export class FetchCommand<
       HasQuery,
       FetchCommandQueueOptions
     >,
+    requestCallback?: (
+      requestId: string,
+      command: FetchCommand<
+        ResponseType,
+        PayloadType,
+        QueryParamsType,
+        ErrorType,
+        LocalErrorType,
+        EndpointType,
+        ClientOptions,
+        HasData,
+        HasParams,
+        HasQuery,
+        MappedData
+      >,
+    ) => void,
   ) => {
     const command = this.clone(
       options as FetchCommandCurrentType<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | RequestErrorType,
+        ErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData
       >,
     );
-    const [queue, isFetchQueue] = getCommandDispatcher(this, options?.queueType);
-
-    return new Promise<ClientResponseType<ResponseType, ErrorType | RequestErrorType>>((resolve) => {
-      const unmount = this.builder.commandManager.events.onResponse<ResponseType, ErrorType | RequestErrorType>(
-        command.cacheKey,
-        (response) => {
-          unmount();
-          resolve(response);
-        },
-      );
-
-      queue.add(command);
-
-      this.logger.http(
-        `Performing send method and adding command to ${isFetchQueue ? "Fetch" : "Submit"} Dispatcher queue`,
-        {
-          command,
-        },
-      );
-    });
+    return commandSendRequest<typeof command>(command, options?.dispatcherType, requestCallback);
   };
 }
 

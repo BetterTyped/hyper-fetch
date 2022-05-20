@@ -1,7 +1,7 @@
 import { FetchCommandInstance } from "command";
 import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 import { FetchEffect } from "effect";
-import { ExtractError, ExtractRequestError } from "types";
+import { ExtractError, ExtractLocalError } from "types";
 
 export type FetchEffectLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 
@@ -13,11 +13,11 @@ export type FetchEffectConfig<T extends FetchCommandInstance> = {
   onStart?: (command: FetchCommandInstance) => void;
   onSuccess?: (response: ClientResponseSuccessType<ResponseType>, command: FetchCommandInstance) => void;
   onError?: (
-    response: ClientResponseErrorType<ExtractError<T> | ExtractRequestError<T>>,
+    response: ClientResponseErrorType<ExtractError<T> | ExtractLocalError<T>>,
     command: FetchCommandInstance,
   ) => void;
   onFinished?: (
-    response: ClientResponseType<ResponseType, ExtractError<T> | ExtractRequestError<T>>,
+    response: ClientResponseType<ResponseType, ExtractError<T> | ExtractLocalError<T>>,
     command: FetchCommandInstance,
   ) => void;
 };

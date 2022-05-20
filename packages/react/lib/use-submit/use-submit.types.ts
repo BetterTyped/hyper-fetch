@@ -14,9 +14,9 @@ import {
   OnRequestCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
-} from "utils/use-command-state";
-
-import { UseDependentStateType, UseDependentStateActions } from "utils/use-dependent-state";
+  UseDependentStateType,
+  UseDependentStateActions,
+} from "hooks";
 
 export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
@@ -49,5 +49,5 @@ export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   abort: VoidFunction;
   isStale: boolean;
   isDebouncing: boolean;
-  invalidate: (invalidateKey: string | FetchCommandInstance | RegExp) => void;
+  revalidate: (revalidateKey: string | FetchCommandInstance | RegExp) => void;
 };

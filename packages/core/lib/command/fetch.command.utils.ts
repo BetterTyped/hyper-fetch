@@ -1,8 +1,8 @@
-import { FetchProgressType } from "client";
+import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { Dispatcher } from "dispatcher";
-import { ExtractClientOptions, ExtractError } from "types";
+import { Dispatcher, isFailedRequest } from "dispatcher";
+import { ExtractLocalError, ExtractClientOptions, ExtractError, ExtractResponse } from "types";
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -99,12 +99,57 @@ export const getCommandKey = (
 
 export const getCommandDispatcher = <Command extends FetchCommandInstance>(
   command: Command,
-  queueType: "auto" | "fetch" | "submit" = "auto",
+  dispatcherType: "auto" | "fetch" | "submit" = "auto",
 ): [Dispatcher<ExtractError<Command>, ExtractClientOptions<Command>>, boolean] => {
   const { fetchDispatcher, submitDispatcher } = command.builder;
   const isGet = command.method === HttpMethodsEnum.get;
-  const isFetchDispatcher = (queueType === "auto" && isGet) || queueType === "fetch";
-  const queue = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
+  const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
+  const dispatcher = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 
-  return [queue, isFetchDispatcher];
+  return [dispatcher, isFetchDispatcher];
+};
+
+export const commandSendRequest = <T extends FetchCommandInstance>(
+  command: T,
+  dispatcherType: "auto" | "fetch" | "submit" = "auto",
+  requestCallback?: (requestId: string, command: T) => void,
+) => {
+  const { appManager, commandManager } = command.builder;
+  const [dispatcher] = getCommandDispatcher(command, dispatcherType);
+
+  return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>>((resolve) => {
+    const requestId = dispatcher.add(command);
+
+    requestCallback?.(requestId, command);
+
+    let unmountResponse: () => void = () => undefined;
+    let unmountRemoveQueueElement: () => void = () => undefined;
+
+    // When resolved
+    unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>(
+      requestId,
+      (response) => {
+        const isOfflineResponseStatus = !appManager.isOnline;
+        const isFailed = isFailedRequest(response);
+
+        // When going offline we can't handle the request as it will be postponed to later resolve
+        if (isFailed && isOfflineResponseStatus) return;
+
+        resolve(response);
+
+        // Unmount Listeners
+        unmountResponse();
+        unmountRemoveQueueElement();
+      },
+    );
+
+    // When removed from queue storage we need to clean event and return proper error
+    unmountRemoveQueueElement = dispatcher.events.onRemove(requestId, () => {
+      resolve([null, getErrorMessage("deleted") as unknown as ExtractError<T>, 0]);
+
+      // Unmount Listeners
+      unmountResponse();
+      unmountRemoveQueueElement();
+    });
+  });
 };

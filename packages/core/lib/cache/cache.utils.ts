@@ -19,3 +19,7 @@ export const getRevalidateEventKey = (key: string): string => {
 export const getCacheKey = (key: string): string => {
   return `${key}_cache`;
 };
+
+export const getCacheIdKey = (key: string): string => {
+  return `${key}_cache_by_id`;
+};
