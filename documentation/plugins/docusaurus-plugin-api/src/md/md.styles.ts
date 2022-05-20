@@ -2,6 +2,7 @@ import { JSONOutput } from "typedoc";
 
 import { defaultTextsOptions } from "../constants/options.constants";
 import { PluginOptions } from "../types/package.types";
+import { getKindName } from "../utils/file.utils";
 import { KindTypes } from "./md.constants";
 
 type CardBlockInputType = {
@@ -232,7 +233,7 @@ export const getMdLinkedReference = (
     return getQuoted(typeName);
   }
 
-  const link = packageLink + `/${reference.kindString}/${reference.name}`;
+  const link = packageLink + `/${getKindName(reference.kindString || "", reference.name)}/${reference.name}`;
   return getQuoted(`<a className="api-reference-link" href="${link}">${typeName}</a>`);
 };
 

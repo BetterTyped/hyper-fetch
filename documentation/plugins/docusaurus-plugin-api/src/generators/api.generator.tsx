@@ -19,7 +19,7 @@ export const apiGenerator = (
     id: child.id,
     name: child.name,
     kind: child.kind,
-    kindString: child.kindString,
+    kindString: getKindName(child.kindString || "", child.name),
   }));
 
   jsonFile.children?.forEach((reflection) => {
