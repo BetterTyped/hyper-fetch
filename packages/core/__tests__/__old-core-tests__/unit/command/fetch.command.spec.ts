@@ -83,7 +83,7 @@ describe("Basic FetchCommand usage", () => {
 
     const builder = new FetchBuilder({ baseUrl: "/some-url" });
     const command = builder
-      .createCommand<unknown, unknown, unknown, ClientQueryParamsType>()(options)
+      .createCommand<unknown, unknown, any, ClientQueryParamsType>()(options)
       .setQueryParams(customQueryParamsOne);
 
     expect(command.queryParams).toStrictEqual(customQueryParamsOne);
