@@ -10,6 +10,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: yarn bootstrap
-      - run: yarn build
-      - run: yarn lint
       - run: yarn test
