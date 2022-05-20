@@ -1,4 +1,6 @@
-import { createDispatcher, createBuilder, createClient, createCommand, sleep } from "../../utils";
+import { waitFor } from "@testing-library/dom";
+
+import { createDispatcher, createBuilder, createClient, createCommand } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Dispatcher [ Events ]", () => {
@@ -41,12 +43,14 @@ describe("Dispatcher [ Events ]", () => {
       const spy = jest.fn();
       const unmount = dispatcher.events.onDrained(command.queueKey, spy);
       dispatcher.add(command.setConcurrent(false));
-      await sleep(40);
-      expect(spy).toBeCalledTimes(1);
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+      });
       unmount();
       dispatcher.add(command.setConcurrent(false));
-      await sleep(40);
-      expect(spy).toBeCalledTimes(1);
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+      });
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();

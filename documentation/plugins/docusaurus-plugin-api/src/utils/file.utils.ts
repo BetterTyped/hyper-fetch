@@ -39,3 +39,17 @@ export const cleanFileName = (name: string) => {
   name = name.replace(/\s+/gi, "-"); // Replace white space with dash
   return name.replace(/[^a-zA-Z0-9\-]/gi, ""); // Strip any special charactere
 };
+
+/**
+ * Find difference between regular function and hook
+ */
+export const getKindName = (kind: string, name: string) => {
+  const isHook = () => {
+    const isUppercase = name[3] == name[3]?.toUpperCase();
+    return name.startsWith("use") && isUppercase && kind === "Function";
+  };
+  if (isHook()) {
+    return "Hook";
+  }
+  return kind;
+};

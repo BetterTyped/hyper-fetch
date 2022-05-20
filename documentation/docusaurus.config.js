@@ -9,7 +9,7 @@ const docusaurusPluginApi = require("./plugins/docusaurus-plugin-api");
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Hyper Fetch - Ultimate fetching solution",
-  tagline: "One tool to cover your fetching requirements",
+  tagline: "Follow the flow of modern data exchange",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",

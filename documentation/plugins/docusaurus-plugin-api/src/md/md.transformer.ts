@@ -2,6 +2,7 @@ import json2md from "json2md";
 import { JSONOutput } from "typedoc";
 import { defaultTextsOptions } from "../constants/options.constants";
 import { PluginOptions } from "../types/package.types";
+import { getKindName } from "../utils/file.utils";
 import { KindTypes, defaultOptions, defaultMethodOptions, defaultParamOptions } from "./md.constants";
 import {
   getMdDescription,
@@ -34,7 +35,10 @@ export class MdTransformer {
     private reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[] = [],
   ) {
     const monorepoBlock = this.pluginOptions.packages?.length > 1 ? `/${this.packageName}` : "";
-    this.baseLink = `/${this.pluginOptions.docs.routeBasePath}${monorepoBlock}/${this.reflection.kindString}/${this.reflection.name}`;
+    this.baseLink = `/${this.pluginOptions.docs.routeBasePath}${monorepoBlock}/${getKindName(
+      this.reflection.kindString || "",
+      this.reflection.name,
+    )}/${this.reflection.name}`;
     this.packageLink = `/${this.pluginOptions.docs.routeBasePath}${monorepoBlock}`;
   }
 
@@ -165,7 +169,7 @@ export class MdTransformer {
     const { headingSize = defaultOptions.headingSize, hasHeading = defaultOptions.hasHeading } = options;
     const signature = this._getCallSignature();
     const parameters = signature?.parameters;
-    const kind = (this.reflection.kindString || "") as KindTypes;
+    const kind = getKindName(this.reflection.kindString || "", this.reflection.name) as KindTypes;
 
     if (signature && parameters && [KindTypes.class, KindTypes.fn].includes(kind)) {
       const params = getParamsNames(parameters);
@@ -461,8 +465,8 @@ export class MdTransformer {
               if (!ref.kindString) {
                 return "";
               }
-              const link = this.packageLink + `/${ref.kindString}/${ref.name}`;
-              return getMdBlockLink(link, ref.kindString, ref.name);
+              const link = this.packageLink + `/${getKindName(ref.kindString, ref.name)}/${ref.name}`;
+              return getMdBlockLink(link, getKindName(ref.kindString, ref.name), ref.name);
             })
             .join(""),
         ),
@@ -518,7 +522,7 @@ export class MdTransformer {
           }
           return -1;
         })
-        .filter((child) => methodKinds.includes((child.kindString || "") as KindTypes));
+        .filter((child) => methodKinds.includes(getKindName(child.kindString || "", child.name) as KindTypes));
     }
     return methods;
   }
@@ -551,7 +555,7 @@ export class MdTransformer {
     // Class / Function
     if (this.reflection.children) {
       return this.reflection.children
-        ?.find((child) => parametersKinds.includes(child.kindString || ""))
+        ?.find((child) => parametersKinds.includes(getKindName(child.kindString || "", child.name)))
         ?.signatures?.find((signature) => !!signature);
     }
     return this.reflection as JSONOutput.SignatureReflection;

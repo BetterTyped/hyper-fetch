@@ -1,7 +1,7 @@
 import * as path from "path";
 import { JSONOutput } from "typedoc";
 import { trace, error } from "../utils/log.utils";
-import { createFile } from "../utils/file.utils";
+import { createFile, getKindName } from "../utils/file.utils";
 import { apiFormatter } from "../formatters/api.formatter";
 import { PluginOptions } from "../types/package.types";
 
@@ -24,7 +24,7 @@ export const apiGenerator = (
 
   jsonFile.children?.forEach((reflection) => {
     const name = reflection.name;
-    const kind = reflection.kindString;
+    const kind = getKindName(reflection.kindString || "", name);
 
     if (!kind) {
       return trace(`Module ${kind} not parsed. Missing type specification.`);

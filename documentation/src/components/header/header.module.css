@@ -15,6 +15,11 @@
   font-family: "Viga", sans-serif;
 }
 
+.stars {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
 .tagline {
   font-size: 3.8em;
   max-width: 700px;

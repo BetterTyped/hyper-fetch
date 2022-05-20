@@ -41,7 +41,17 @@ export function Header(): JSX.Element {
       </div>
 
       <div className={clsx("container", styles.wrapper)}>
-        <h2 className={clsx(styles.title)}>{siteConfig.projectName}</h2>
+        <h2 className={clsx(styles.title)}>
+          {siteConfig.projectName}
+          <div className={clsx(styles.stars)}>
+            <a href="https://github.com/BetterTyped/hyper-fetch" target="_blank">
+              <img
+                src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat-square&label=Star&maxAge=2592000&logo=github&logoColor=white&labelColor=555&color=555"
+                alt=""
+              />
+            </a>
+          </div>
+        </h2>
         <h2 className={clsx(styles.tagline)}>{siteConfig.tagline}</h2>
 
         <div className={styles.buttons}>

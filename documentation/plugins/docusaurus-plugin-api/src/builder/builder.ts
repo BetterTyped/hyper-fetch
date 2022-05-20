@@ -25,7 +25,7 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
     const { dir, title, entryPath, tsconfigName = "/tsconfig.json", tsconfigDir = element.dir } = element;
 
     // Setup
-    const mainTitle = cleanFileName(title);
+    const packageName = cleanFileName(title); // Hyper-Fetch or React-Hyper-Fetch
 
     // Package tsconfig file
     const tsconfigPath = tsConfigPath ?? path.join(tsconfigDir, tsconfigName);
@@ -36,18 +36,18 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
       : [path.join(dir, entryPath)];
 
     // Output directory
-    trace(`Setup directories for ${mainTitle || "default"}`, mainTitle);
-    const packageApiDir = isMonorepo ? path.join(apiRootDir, mainTitle) : apiRootDir; // -> /api/Hyper-Fetch(if monorepo) or /api
+    trace(`Setup directories for ${packageName || "default"}`, packageName);
+    const packageApiDir = isMonorepo ? path.join(apiRootDir, packageName) : apiRootDir; // -> /api/Hyper-Fetch(if monorepo) or /api
     const apiJsonDocsPath = path.join(packageApiDir, apiDocsPath);
 
     // Main Page
-    trace(`Generating package page`, mainTitle);
+    trace(`Generating package page`, packageName);
     generatePackagePage(packageApiDir, element);
 
     // Scan and parse docs to json
-    trace(`Starting project parsing.`, mainTitle);
+    trace(`Starting project parsing.`, packageName);
     await parseToJson(apiJsonDocsPath, entries, tsconfigPath, options);
-    success(`Successfully parsed docs!`, mainTitle);
+    success(`Successfully parsed docs!`, packageName);
 
     // Generate docs files
     const json = await import(apiJsonDocsPath);
@@ -57,8 +57,8 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
       ...(options.readOnce && { file: json }),
     });
 
-    trace(`Generating docs files...`, mainTitle);
-    await apiGenerator(json, options, mainTitle, apiRootDir);
+    trace(`Generating docs files...`, packageName);
+    await apiGenerator(json, options, packageName, apiRootDir);
   });
   success(`Successfully builded docs!`);
 };
