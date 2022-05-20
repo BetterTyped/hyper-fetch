@@ -116,7 +116,7 @@ export const getMdTable = (
             .map((cell, index) =>
               flattenText(`
                 <td>
-                  ${flattenText(cell)} ${(!index && row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""}
+                  ${flattenText(cell)} ${(!index && !!row.tag && getMdLabel(row.tag.type, row.tag.value)) || ""}
                 </td>\n
               `),
             )
@@ -150,7 +150,7 @@ export const getMdLine = () => {
 export const getMdCopyright = (text: string) => {
   return flattenText(`
     <p style={{
-      color: "var(--ifm-color-emphasis-200)",
+      color: "var(--ifm-color-emphasis-400)",
       fontSize: "12px",
       textAlign: "center"
     }}>

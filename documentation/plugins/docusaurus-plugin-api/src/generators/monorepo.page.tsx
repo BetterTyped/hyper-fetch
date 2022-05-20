@@ -9,27 +9,35 @@ import { defaultTextsOptions } from "../constants/options.constants";
 export const generateMonorepoPage = (apiDocsRoot: string, options: PluginOptions) => {
   const monorepo = options?.texts;
 
-  const data = json2md([
-    { h1: monorepo?.monorepoTitle ?? defaultTextsOptions.monorepoTitle },
-    { p: getMdDescription(monorepo?.monorepoDescription ?? defaultTextsOptions.monorepoDescription) },
-    {
-      p: getMdRow(
-        options.packages
-          .map((pkg) =>
-            getMdCard({
-              link: "/" + path.join(options.docs.routeBasePath, cleanFileName(pkg.title)),
-              logo: pkg.logo,
-              title: pkg.title,
-              description: pkg.description || "Show details »",
-            }),
-          )
-          .join(""),
-      ),
-    },
-    { p: "<br/>" },
-    { p: "<br/>" },
-    { p: getMdCopyright("Powered by @better-type/docusaurus-api-docs") },
-  ]);
+  const position = `---
+sidebar_position: 1
+---
+
+`;
+
+  const data =
+    position +
+    json2md([
+      { h1: monorepo?.monorepoTitle ?? defaultTextsOptions.monorepoTitle },
+      { p: getMdDescription(monorepo?.monorepoDescription ?? defaultTextsOptions.monorepoDescription) },
+      {
+        p: getMdRow(
+          options.packages
+            .map((pkg) =>
+              getMdCard({
+                link: "/" + path.join(options.docs.routeBasePath, cleanFileName(pkg.title)),
+                logo: pkg.logo,
+                title: pkg.title,
+                description: pkg.description || "Show details »",
+              }),
+            )
+            .join(""),
+        ),
+      },
+      { p: "<br/>" },
+      { p: "<br/>" },
+      { p: getMdCopyright("Powered by @better-typed") },
+    ]);
 
   try {
     const routePath = path.join(apiDocsRoot, "index.mdx");

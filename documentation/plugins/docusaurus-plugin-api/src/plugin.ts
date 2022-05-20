@@ -1,6 +1,5 @@
-import pluginBase from "@docusaurus/plugin-content-docs";
-import { DEFAULT_OPTIONS } from "@docusaurus/plugin-content-docs/lib/options";
-import { LoadContext } from "@docusaurus/types";
+import pluginBase, { LoadedContent } from "@docusaurus/plugin-content-docs";
+import { Plugin, LoadContext } from "@docusaurus/types";
 import * as path from "path";
 
 import builder from "./builder/builder";
@@ -10,9 +9,11 @@ import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
 import { assignPluginOpts } from "./globals";
 
+const { DEFAULT_OPTIONS } = require("./lib/options");
+
 let generated = false;
 
-function plugin(context: LoadContext, options: PluginOptions) {
+async function plugin(context: LoadContext, options: PluginOptions): Promise<Plugin<LoadedContent>> {
   const { generatedFilesDir } = context;
   assignPluginOpts(options);
 
@@ -32,8 +33,10 @@ function plugin(context: LoadContext, options: PluginOptions) {
   });
   info("Successfully initialized plugin base");
 
+  const instance = await pluginInstance;
+
   return {
-    ...pluginInstance,
+    ...instance,
     loadContent: async function () {
       if (!generated) {
         await builder(apiRootDir, options);
@@ -44,8 +47,8 @@ function plugin(context: LoadContext, options: PluginOptions) {
 
       trace("Loading generated docs");
       console.log("\n");
-      return pluginInstance.loadContent();
-    },
+      return instance.loadContent?.();
+    } as any,
   };
 }
 

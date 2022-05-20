@@ -210,6 +210,7 @@ body .DocSearch-Modal {
 
 .github {
   padding: var(--ifm-navbar-item-padding-vertical);
+  font-size: 0;
 }
 
 .github::before {
@@ -221,7 +222,7 @@ body .DocSearch-Modal {
   height: 24px;
 }
 
-.github span {
+.github svg {
   display: none;
 }
 

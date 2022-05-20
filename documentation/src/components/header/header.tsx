@@ -46,7 +46,7 @@ export function Header(): JSX.Element {
           <div className={clsx(styles.stars)}>
             <a href="https://github.com/BetterTyped/hyper-fetch" target="_blank">
               <img
-                src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat-square&label=Star&maxAge=2592000&logo=github&logoColor=white&labelColor=555&color=555"
+                src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&label=Stars&maxAge=2592000&logo=github&logoColor=white&labelColor=272c32&color=0d1117"
                 alt=""
               />
             </a>

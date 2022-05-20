@@ -20,6 +20,12 @@
   margin-bottom: 10px;
 }
 
+.stars img {
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
 .tagline {
   font-size: 3.8em;
   max-width: 700px;

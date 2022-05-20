@@ -11,13 +11,14 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
+    "start": "tsdx watch && yarn copy",
+    "build": "tsdx build && yarn copy",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "copy": "mkdir -p ./dist/lib && cp -r ./src/lib/* ./dist/lib"
   },
   "peerDependencies": {
     "react": ">=16"
@@ -41,7 +42,7 @@
     }
   ],
   "devDependencies": {
-    "@docusaurus/types": "2.0.0-alpha.65",
+    "@docusaurus/types": "^2.0.0-beta.20",
     "@size-limit/preset-small-lib": "^7.0.5",
     "@types/fs-extra": "^9.0.13",
     "@types/json2md": "^1.5.1",
@@ -58,7 +59,7 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@docusaurus/plugin-content-docs": "2.0.0-beta.14",
+    "@docusaurus/plugin-content-docs": "^2.0.0-beta.20",
     "fs-extra": "^10.0.0",
     "json2md": "^1.12.0",
     "mdx-mermaid": "^1.2.1",

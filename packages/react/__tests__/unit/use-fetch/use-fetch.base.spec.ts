@@ -9,7 +9,7 @@ describe("[Basic] UseFetch hook", () => {
   let command = createCommand();
 
   const renderUseFetch = () =>
-    renderHook(() => useFetch(command, { dependencyTracking: false, revalidateOnMount: false }));
+    renderHook(async () => useFetch(command, { dependencyTracking: false, revalidateOnMount: false }));
 
   beforeAll(() => {
     startServer();
