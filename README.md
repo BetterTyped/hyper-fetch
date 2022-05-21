@@ -1,8 +1,6 @@
 # Hyper Fetch
 
 [![BetterTyped](https://badgen.net/badge/icon/Created%20by%20BetterTyped?label&color=black&labelColor=black)](https://bettertyped.com)
-[![Downloads](https://img.shields.io/npm/dm/@better-typed/hyper-fetch)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-[![NPM](https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
 [![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
 [![Stars](https://badgen.net/github/stars/BetterTyped/hyper-fetch?color=green&icon=github)](https://github.com/BetterTyped/hyper-fetch)
 [![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
@@ -47,8 +45,46 @@ the fetch approach and setup creation, we have developed a structure that should
 
 ## Packages
 
-- #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-- #### [React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)
+<table style="width: 100%;">
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Downloads</th>
+      <th>Version</th>
+      <th>NPM</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">Hyper Fetch</a>
+      </td>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch" /></a>
+      </td>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg" /></a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">View</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a style="font-weight:bold" href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core">React Hyper Fetch</a>
+      </td>
+      <td>
+        <a href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" /></a>
+      </td>
+      <td>
+        <a href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" /></a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">View</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Installation
 
