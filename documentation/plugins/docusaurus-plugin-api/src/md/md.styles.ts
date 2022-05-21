@@ -79,7 +79,7 @@ export const getMdCard = ({ link, logo, title, description }: CardBlockInputType
         <h2 style={{color: "var(--ifm-color-emphasis-1000)", display: "flex", alignItems: "center"}} className="text--truncate api-card-title" title="${title}">
           ${img} ${title}
         </h2>
-        <div className="text--truncate pagination-nav__sublabel api-card-description" style={{ marginBottom: -30px, marginTop: 30px }} title="${description}">
+        <div className="text--truncate pagination-nav__sublabel api-card-description" style={{ marginBottom: "-30px", marginTop: "30px" }} title="${description}">
           ${description}
         </div>
       </a>
