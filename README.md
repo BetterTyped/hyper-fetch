@@ -71,13 +71,13 @@ the fetch approach and setup creation, we have developed a structure that should
     </tr>
     <tr>
       <td>
-        <a style="font-weight:bold" href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core">React Hyper Fetch</a>
+        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react">React Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" /></a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" /></a>
       </td>
       <td>
-        <a href="https://github.com/BetterTyped/react-hyper-fetch/tree/main/packages/core"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" /></a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" /></a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">View</a>
