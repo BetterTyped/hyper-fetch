@@ -1,11 +1,7 @@
 import { isEmpty, isEqual } from "utils";
 
-describe("Cache utils", () => {
-  describe("Util function: isEmpty", () => {
-    it("should return true for empty array or object", async () => {
-      expect(isEmpty([])).toBe(true);
-      expect(isEmpty({})).toBe(true);
-    });
+describe("Cache utils", () => { describe("Util function: isEmpty", () => { it("should return true for empty array or
+object", async () => { expect(isEmpty([])).toBe(true); expect(isEmpty({})).toBe(true); });
 
     it("should return false", async () => {
       expect(isEmpty(null)).toBe(false);
@@ -22,46 +18,27 @@ describe("Cache utils", () => {
       expect(isEmpty([1, 2, 3])).toBe(false);
       expect(isEmpty({ something: 1 })).toBe(false);
     });
-  });
 
-  describe("Util function: isEqual", () => {
-    it("should return false for non equal values", async () => {
-      expect(isEqual(true, false)).toBe(false);
-      expect(isEqual(null, {})).toBe(false);
-      expect(isEqual(new Date(), {})).toBe(false);
-      expect(isEqual(new Date(), null)).toBe(false);
-      expect(isEqual(NaN, {})).toBe(false);
-      expect(isEqual(NaN, null)).toBe(false);
-      expect(isEqual("1", 1)).toBe(false);
-      expect(isEqual(0, -1)).toBe(false);
-      expect(isEqual("2", "3")).toBe(false);
-      expect(isEqual([], [1])).toBe(false);
-      expect(isEqual([1], [2])).toBe(false);
-      expect(isEqual(["1"], [1])).toBe(false);
-      expect(isEqual([null], [NaN])).toBe(false);
-      expect(isEqual([null], [new Date()])).toBe(false);
-      expect(isEqual([null], [{}])).toBe(false);
-      expect(isEqual([new Date()], [{}])).toBe(false);
-      expect(isEqual([NaN], [{}])).toBe(false);
-      expect(isEqual([{ someKey: 1 }], [{ someKey: 2 }])).toBe(false);
-      expect(isEqual([{ someKey: "1" }], [{ someKey: 1 }])).toBe(false);
-      expect(isEqual([{ someKey: null }], [{ someKey: {} }])).toBe(false);
-      expect(isEqual([{ someKey: null }], [{ someKey: NaN }])).toBe(false);
-      expect(isEqual([{ someKey: null }], [{ someKey: new Date() }])).toBe(false);
-      expect(isEqual([{ someKey: {} }], [{ someKey: new Date() }])).toBe(false);
-      expect(isEqual([{ someKey: {} }], [{ someKey: NaN }])).toBe(false);
-      expect(isEqual({ someKey: 1 }, { otherKey: 1 })).toBe(false);
-      expect(isEqual({ someKey: 1 }, { someKey: 1, otherKey: 1 })).toBe(false);
-      expect(isEqual({ someKey: 1 }, { someKey: 2 })).toBe(false);
-      expect(isEqual({ someKey: "1" }, { someKey: 1 })).toBe(false);
-      expect(isEqual({ someKey: null }, { someKey: {} })).toBe(false);
-      expect(isEqual({ someKey: null }, { someKey: NaN })).toBe(false);
-      expect(isEqual({ someKey: null }, { someKey: new Date() })).toBe(false);
-      expect(isEqual({ someKey: {} }, { someKey: new Date() })).toBe(false);
-      expect(isEqual({ someKey: {} }, { someKey: NaN })).toBe(false);
-      expect(isEqual({ someKey: 1 }, { otherKey: 1 })).toBe(false);
-      expect(isEqual({ someKey: 1 }, { someKey: 1, otherKey: 1 })).toBe(false);
-    });
+});
+
+describe("Util function: isEqual", () => { it("should return false for non equal values", async () => {
+expect(isEqual(true, false)).toBe(false); expect(isEqual(null, {})).toBe(false); expect(isEqual(new Date(),
+{})).toBe(false); expect(isEqual(new Date(), null)).toBe(false); expect(isEqual(NaN, {})).toBe(false);
+expect(isEqual(NaN, null)).toBe(false); expect(isEqual("1", 1)).toBe(false); expect(isEqual(0, -1)).toBe(false);
+expect(isEqual("2", "3")).toBe(false); expect(isEqual([], [1])).toBe(false); expect(isEqual([1], [2])).toBe(false);
+expect(isEqual(["1"], [1])).toBe(false); expect(isEqual([null], [NaN])).toBe(false); expect(isEqual([null], [new
+Date()])).toBe(false); expect(isEqual([null], [{}])).toBe(false); expect(isEqual([new Date()], [{}])).toBe(false);
+expect(isEqual([NaN], [{}])).toBe(false); expect(isEqual([{ someKey: 1 }], [{ someKey: 2 }])).toBe(false);
+expect(isEqual([{ someKey: "1" }], [{ someKey: 1 }])).toBe(false); expect(isEqual([{ someKey: null }], [{ someKey: {}
+}])).toBe(false); expect(isEqual([{ someKey: null }], [{ someKey: NaN }])).toBe(false); expect(isEqual([{ someKey: null
+}], [{ someKey: new Date() }])).toBe(false); expect(isEqual([{ someKey: {} }], [{ someKey: new Date() }])).toBe(false);
+expect(isEqual([{ someKey: {} }], [{ someKey: NaN }])).toBe(false); expect(isEqual({ someKey: 1 }, { otherKey: 1
+})).toBe(false); expect(isEqual({ someKey: 1 }, { someKey: 1, otherKey: 1 })).toBe(false); expect(isEqual({ someKey: 1
+}, { someKey: 2 })).toBe(false); expect(isEqual({ someKey: "1" }, { someKey: 1 })).toBe(false); expect(isEqual({
+someKey: null }, { someKey: {} })).toBe(false); expect(isEqual({ someKey: null }, { someKey: NaN })).toBe(false);
+expect(isEqual({ someKey: null }, { someKey: new Date() })).toBe(false); expect(isEqual({ someKey: {} }, { someKey: new
+Date() })).toBe(false); expect(isEqual({ someKey: {} }, { someKey: NaN })).toBe(false); expect(isEqual({ someKey: 1 }, {
+otherKey: 1 })).toBe(false); expect(isEqual({ someKey: 1 }, { someKey: 1, otherKey: 1 })).toBe(false); });
 
     it("should return true for equal arguments", async () => {
       const date = new Date();
@@ -98,5 +75,5 @@ describe("Cache utils", () => {
       expect(isEqual({ someKey: date }, { someKey: date })).toBe(true);
       expect(isEqual({}, {})).toBe(true);
     });
-  });
-});
+
+}); });
