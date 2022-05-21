@@ -58,7 +58,7 @@ export class FetchCommand<
   cache: boolean;
   cacheTime: number;
   concurrent: boolean;
-  deepEqual: boolean;
+  offline: boolean;
   abortKey: string;
   cacheKey: string;
   queueKey: string;
@@ -104,7 +104,7 @@ export class FetchCommand<
       cache = true,
       cacheTime = DateInterval.minute * 5,
       concurrent = true,
-      deepEqual = true,
+      offline = true,
       abortKey,
       cacheKey,
       queueKey,
@@ -126,7 +126,7 @@ export class FetchCommand<
     this.cache = commandDump?.cache ?? cache;
     this.cacheTime = commandDump?.cacheTime ?? cacheTime;
     this.concurrent = commandDump?.concurrent ?? concurrent;
-    this.deepEqual = commandDump?.deepEqual ?? deepEqual;
+    this.offline = commandDump?.offline ?? offline;
     this.abortKey =
       commandDump?.abortKey ?? abortKey ?? getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
     this.cacheKey = commandDump?.cacheKey ?? cacheKey ?? getCommandKey(this);
@@ -277,7 +277,7 @@ export class FetchCommand<
       cache: this.cache,
       cacheTime: this.cacheTime,
       concurrent: this.concurrent,
-      deepEqual: this.deepEqual,
+      offline: this.offline,
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
       queueKey: this.queueKey,

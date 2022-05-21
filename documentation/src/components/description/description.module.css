@@ -1,12 +1,12 @@
 .container {
-  padding: 80px 0;
+  padding: 100px 0;
   background: var(--section-background);
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 50px 30px;
+  gap: 50px 60px;
 }
 
 .title:after {
@@ -14,7 +14,7 @@
   content: "";
   margin-top: 10px;
   width: 80px;
-  height: 1px;
+  height: 2px;
   background: var(--ifm-color-primary);
 }
 

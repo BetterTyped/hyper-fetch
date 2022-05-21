@@ -128,12 +128,6 @@ const config = {
         apiKey: "aa20780883ad65342c73e9527130a725",
         indexName: "hyperfetch",
       },
-      announcementBar: {
-        content: "This package is in <b>ALPHA VERSION</b>, please do not use it in the production!",
-        backgroundColor: "var(--ifm-color-primary-dark)",
-        textColor: "black",
-        isCloseable: false,
-      },
       navbar: {
         title: "Hyper Fetch",
         logo: {

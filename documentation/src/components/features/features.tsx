@@ -19,55 +19,63 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/036-browser.svg",
-    description: "Lightweight ultimate fetching solution",
+    description: "Built-in http client",
+    link: <Link to="/docs/Docs/Client">Read more</Link>,
   },
   {
     image: "/img/features/051-drive.svg",
-    description: "Offline & Persistence(Optional) for Queues and Cache",
-    link: <Link to="/docs/Docs/Cache">Docs</Link>,
+    description: "Automatic caching",
+    link: <Link to="/docs/Docs/Cache">Read more</Link>,
   },
   {
     image: "/img/features/029-find my gadget app.svg",
-    description: "Typescript ready",
+    description: "Rich Typescript support",
+    link: <Link to="/docs/Getting%20Started/Typescript">Read more</Link>,
   },
   {
     image: "/img/features/038-like.svg",
-    description: "Pagination and Infinity scroll",
+    description: "Simple setup",
+    link: <Link to="/docs/Getting Started/Quick Start">Read more</Link>,
   },
   {
     image: "/img/features/035-contacts.svg",
-    description: "Simple setup, a LOT to configure and extend",
-    link: <Link to="/docs/Getting Started/Quick Start">Quick Start</Link>,
+    description: "React hooks",
+    link: <Link to="/docs/React/Overview">Read more</Link>,
   },
   {
     image: "/img/features/047-pin.svg",
-    description: "Backend agnostic",
-    link: <Link to="/docs/Docs/Client">Docs for Client</Link>,
+    description: "Persistance",
+    link: <Link to="/docs/Docs/Persistence">Read more</Link>,
   },
   {
     image: "/img/features/063-slide show app.svg",
-    description: "Support for native, browser and SSR",
+    description: "Easy to test",
+    link: <Link to="/docs/Docs/Testing">Read more</Link>,
   },
   {
     image: "/img/features/069-linkedin.svg",
-    description: "Offline and Focus Manager",
+    description: "App Managers",
+    link: <Link to="/docs/Docs/Managers">Read more</Link>,
   },
   {
     image: "/img/features/049-messenger.svg",
     description: "React hooks with amazing features",
-    link: <Link to="/docs/React/Overview">Docs for React</Link>,
+    link: <Link to="/docs/React/Managers">Read more</Link>,
   },
   {
     image: "/img/features/070-file hosting.svg",
-    description: "Prefetching, Pooling, realtime, auto cache and scroll recovery",
+    description: "Authentication solutions",
+    link: <Link to="/examples/Authentication">Read more</Link>,
   },
   {
     image: "/img/features/012-daily health app.svg",
-    description: "Easy request download/upload tracking",
+    description: "Queueing requests",
+    link: <Link to="/examples/Authentication">Read more</Link>,
   },
   {
     image: "/img/features/002-speech bubble.svg",
-    description: "Optimistic approach mutations",
+    description: "Offline handling",
+    link: <Link to="/docs/Docs/Offline">Read more</Link>,
   },
 ];
 

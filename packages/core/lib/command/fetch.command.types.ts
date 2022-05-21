@@ -20,7 +20,7 @@ export type FetchCommandDump<ClientOptions, Command = unknown, QueryParamsType =
   cache: boolean;
   cacheTime: number;
   concurrent: boolean;
-  deepEqual: boolean;
+  offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
   options?: ClientOptions;
@@ -51,7 +51,7 @@ export type FetchCommandConfig<GenericEndpoint extends string, ClientOptions> = 
   cache?: boolean;
   cacheTime?: number;
   concurrent?: boolean;
-  deepEqual?: boolean;
+  offline?: boolean;
   disableResponseInterceptors?: boolean;
   disableRequestInterceptors?: boolean;
   options?: ClientOptions;

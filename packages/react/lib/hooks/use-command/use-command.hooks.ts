@@ -90,6 +90,7 @@ export const useCommand = <T extends FetchCommandInstance>({
     if (isOffline && isFailed) {
       logger.debug("Performing offline error callback", { data, details });
       onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details);
+      if (command.offline) onErrorCallback.current?.(data[1] as ExtractError<T>, details);
     } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
       onAbortCallback.current?.(data[1] as ExtractError<T>, details);

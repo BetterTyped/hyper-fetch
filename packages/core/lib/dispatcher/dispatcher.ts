@@ -496,7 +496,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     );
 
     const { commandDump, requestId } = storageElement;
-    const { retry, retryTime, queueKey, cacheKey, cache: useCache } = commandDump;
+    const { retry, retryTime, queueKey, cacheKey, cache: useCache, offline } = commandDump;
     const { client, commandManager, cache, appManager } = this.builder;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
@@ -506,7 +506,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
     this.logger.debug(`Request ready to trigger`, { queueKey, storageElement });
 
     // When offline not perform any request
-    if (isOffline) {
+    if (isOffline && offline) {
       return this.logger.error("Cannot perform queue request, app is offline");
     }
 
@@ -570,6 +570,8 @@ export class Dispatcher<ErrorType, HttpOptions> {
       return this.logger.error(`Request canceled`, { requestId, queueKey });
     }
     if (isFailed && isOfflineResponseStatus) {
+      // if we don't want to keep offline request - just delete them
+      if (!offline) await this.delete(queueKey, requestId);
       // do not remove request from store as we want to re-send it later
       return this.logger.error(`Request failed because of going offline`, response);
     }
