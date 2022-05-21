@@ -2,7 +2,7 @@ import { renderHook } from "@testing-library/react";
 
 import { useFetch } from "use-fetch";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand } from "../../utils";
+import { builder, createCommand, waitForRender } from "../../utils";
 import { testSuccessState } from "../../shared";
 
 describe("useFetch [ Basic ]", () => {
@@ -30,8 +30,14 @@ describe("useFetch [ Basic ]", () => {
 
   it("should change state once data is fetched", async () => {
     const mock = createRequestInterceptor(command);
-    const responseOne = await renderUseFetch();
-    const responseTwo = await renderUseFetch();
+
+    const renderOne = renderUseFetch();
+    const renderTwo = renderUseFetch();
+
+    await waitForRender();
+
+    const responseOne = renderOne;
+    const responseTwo = renderTwo;
 
     testSuccessState(mock, responseOne);
     testSuccessState(mock, responseTwo);

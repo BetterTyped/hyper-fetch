@@ -9,8 +9,14 @@ import {
 
 import { isStaleCacheData } from "utils";
 import { useDebounce, useCommand } from "hooks";
-import { UseSubmitOptionsType, UseSubmitReturnType, useSubmitDefaultOptions } from "use-submit";
+import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
 
+/**
+ * This hooks aims to mutate data on the server.
+ * @param command
+ * @param options
+ * @returns
+ */
 export const useSubmit = <T extends FetchCommandInstance>(
   commandInstance: T,
   {
@@ -21,7 +27,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
     debounceTime = useSubmitDefaultOptions.debounceTime,
     deepCompare = useSubmitDefaultOptions.deepCompare,
   }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
-): UseSubmitReturnType<T> => {
+) => {
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up

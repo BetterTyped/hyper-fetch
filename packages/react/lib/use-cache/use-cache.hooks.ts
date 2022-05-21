@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { isStaleCacheData } from "utils";
-import { UseCacheOptionsType, UseCacheReturnType, useCacheDefaultOptions } from "use-cache";
+import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 import { useCommand } from "hooks";
 
 export const useCache = <T extends FetchCommandInstance>(
@@ -13,7 +13,7 @@ export const useCache = <T extends FetchCommandInstance>(
     initialData = useCacheDefaultOptions.initialData,
     deepCompare = useCacheDefaultOptions.deepCompare,
   }: UseCacheOptionsType<T> = useCacheDefaultOptions,
-): UseCacheReturnType<T> => {
+) => {
   const { cacheTime, cacheKey, builder } = command;
 
   const { cache, fetchDispatcher, loggerManager } = builder;

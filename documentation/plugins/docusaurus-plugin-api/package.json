@@ -11,14 +11,13 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch && yarn copy",
-    "build": "tsdx build && yarn copy",
+    "start": "tsdx watch",
+    "build": "tsdx build",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "yarn build",
     "size": "size-limit",
-    "analyze": "size-limit --why",
-    "copy": "mkdir -p ./dist/lib && cp -r ./src/lib/* ./dist/lib"
+    "analyze": "size-limit --why"
   },
   "peerDependencies": {
     "react": ">=16"
@@ -52,6 +51,7 @@
     "husky": "^7.0.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "rollup-plugin-copy": "^3.4.0",
     "size-limit": "^7.0.5",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",

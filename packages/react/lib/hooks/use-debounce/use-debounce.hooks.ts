@@ -14,6 +14,11 @@ type UseDebounceReturnType = {
   active: boolean;
 };
 
+/**
+ * @param delay
+ * @internal
+ * @returns
+ */
 export const useDebounce = (delay = 600): UseDebounceReturnType => {
   const debounce = useRef<Debounce>({
     time: delay,

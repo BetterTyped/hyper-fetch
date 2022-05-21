@@ -210,7 +210,6 @@ body .DocSearch-Modal {
 
 .github {
   padding: var(--ifm-navbar-item-padding-vertical);
-  font-size: 0;
 }
 
 .github::before {
@@ -243,7 +242,11 @@ html[data-theme="dark"] .navbar-sidebar .github {
   display: none;
 }
 
-.navbar-sidebar .github span {
+.navbar-sidebar .github {
+  display: initial;
+}
+
+.navbar-sidebar .github {
   display: initial;
 }
 
@@ -251,10 +254,18 @@ html[data-theme="dark"] .navbar-sidebar .github {
   padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
 }
 
+.navbar__inner .github {
+  font-size: 0;
+}
+
 /* Docs */
 
 aside {
   background: var(--ifm-background-color);
+}
+
+.breadcrumbs__link {
+  font-weight: 600;
 }
 
 /* Footer */

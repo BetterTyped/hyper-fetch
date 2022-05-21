@@ -5,8 +5,14 @@ import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed
 
 import { useDebounce, useCommand } from "hooks";
 import { isStaleCacheData } from "utils";
-import { UseFetchOptionsType, UseFetchReturnType, useFetchDefaultOptions } from "use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
 
+/**
+ * This hooks aims to retrieve data from server.
+ * @param command Command instance
+ * @param options Hook options
+ * @returns
+ */
 export const useFetch = <T extends FetchCommandInstance>(
   command: T,
   {
@@ -25,7 +31,7 @@ export const useFetch = <T extends FetchCommandInstance>(
     debounceTime = useFetchDefaultOptions.debounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   }: UseFetchOptionsType<T> = useFetchDefaultOptions,
-): UseFetchReturnType<T> => {
+) => {
   const updateKey = JSON.stringify(command.dump());
   const requestDebounce = useDebounce(debounceTime);
   const refreshDebounce = useDebounce(refreshTime);

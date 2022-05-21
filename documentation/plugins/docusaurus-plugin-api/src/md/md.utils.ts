@@ -75,6 +75,9 @@ export const getTypeName = (
     }
     return getResponse(String(type.value));
   }
+  if (type && "type" in type && "name" in type && type.type) {
+    return getResponse(type.name);
+  }
   if (type && "name" in type) {
     return getResponse(type.name);
   }
@@ -174,7 +177,7 @@ export const getType = (
       return getType(signature, packageLink, reflectionTree, showGenerics, link);
     }
     // { some, thing }
-    return `{ ${declaration.children
+    return `&#123; ${declaration.children
       ?.map((arg) => {
         const signature = arg.signatures?.[0];
         // { some: (thing: number) => void }
@@ -195,7 +198,7 @@ export const getType = (
           link,
         )}`;
       })
-      .join(", ")} }`;
+      .join(", ")} &#125;`;
   }
   // Something<Some, Thing>
   if (type && "typeArguments" in type && type.typeArguments?.length) {
@@ -218,6 +221,31 @@ export const getType = (
   }
   return getTypeName(type, packageLink, reflectionTree, showGenerics, link);
 };
+
+// export const getTypeTable = (
+//   type:
+//     | JSONOutput.ParameterReflection["type"]
+//     | JSONOutput.ReflectionType
+//     | JSONOutput.SomeType
+//     | JSONOutput.SignatureReflection
+//     | undefined,
+//   packageLink: string,
+//   reflectionTree: Pick<JSONOutput.DeclarationReflection, "id" | "name" | "kind" | "kindString">[],
+// ): [string, string, string][] => {
+//   if (type?.type === "intersection") {
+//     return type.types.map((t) => getTypeTable(t, packageLink, reflectionTree)).flat();
+//   }
+
+//   if (type && "id" in type && type.id) {
+//     const refType = reflectionTree.find((reflection) => reflection.id === type.id);
+
+//     if (refType) {
+//       return getTypeTable(refType., packageLink, reflectionTree);
+//     }
+//   }
+
+//   return [];
+// };
 
 // Params
 export const getParamName = (parameter: JSONOutput.ParameterReflection | undefined, index?: number) => {

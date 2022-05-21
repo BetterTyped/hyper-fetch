@@ -19,3 +19,11 @@ export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpV
   stopRequest: () => void;
   deleteRequest: () => void;
 };
+
+export type UseQueueReturnType<T extends FetchCommandInstance> = {
+  stopped: boolean;
+  requests: QueueRequest<T>[];
+  stop: () => void;
+  pause: () => void;
+  start: () => void;
+};

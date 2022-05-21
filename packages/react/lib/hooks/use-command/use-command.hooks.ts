@@ -26,6 +26,12 @@ import {
 } from "hooks";
 import { isEqual, isStaleCacheData } from "utils";
 
+/**
+ * This is helper hook that handles main Hyper-Fetch event/data flow
+ * @internal
+ * @param options
+ * @returns
+ */
 export const useCommand = <T extends FetchCommandInstance>({
   command,
   dispatcher,

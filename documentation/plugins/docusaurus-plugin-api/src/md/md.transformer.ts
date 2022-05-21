@@ -70,8 +70,11 @@ export class MdTransformer {
       descriptionSize = defaultOptions.descriptionSize,
     } = options;
 
-    const shortDescription = this.reflection.comment?.shortText;
-    const longDescription = this.reflection.comment?.text;
+    const signature = this._getCallSignature();
+    const comment = this.reflection.comment || signature?.comment;
+
+    const shortDescription = comment?.shortText;
+    const longDescription = comment?.text;
 
     const output: json2md.DataObject[] = [];
 
@@ -85,6 +88,67 @@ export class MdTransformer {
 
     if (hasHeading && output.length) {
       output.unshift({ [headingSize]: "Description" });
+    }
+
+    return output;
+  }
+
+  getReturns(options: MdOptions = defaultOptions) {
+    const {
+      headingSize = defaultOptions.headingSize,
+      hasHeading = defaultOptions.hasHeading,
+      descriptionSize = defaultOptions.descriptionSize,
+    } = options;
+
+    const signature = this._getCallSignature();
+    const comment = this.reflection.comment || signature?.comment;
+
+    const returns = comment?.returns;
+
+    const output: json2md.DataObject[] = [];
+
+    if (returns) {
+      output.push({ [descriptionSize]: getMdDescription(returns || "") });
+    }
+
+    if (signature?.type && "declaration" in signature.type && signature.type.declaration) {
+      const list = signature.type.declaration?.children || [];
+
+      const headers = [...(this.pluginOptions.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders)];
+      headers.splice(1, 1);
+      let namedParameterCount = 0;
+      const params = list.map((parameter) => {
+        const param = new MdTransformer(
+          parameter,
+          this.pluginOptions,
+          this.npmName,
+          this.packageName,
+          this.reflectionTree,
+        );
+
+        const name = getParamName(parameter, namedParameterCount);
+
+        const signature = param._getCallSignature();
+        const comment = parameter.comment || signature?.comment;
+
+        if (parameter.name === "__namedParameters") {
+          namedParameterCount++;
+        }
+
+        return {
+          value: [getMdBoldText(name), this._getLinkedType(parameter?.type, true) || "-", comment?.shortText || "-"],
+        };
+      });
+
+      if (params) {
+        output.push({
+          p: getMdTable(headers, params),
+        });
+      }
+    }
+
+    if (hasHeading && output.length) {
+      output.unshift({ [headingSize]: "Returns" });
     }
 
     return output;
@@ -225,7 +289,18 @@ export class MdTransformer {
       const headers = this.pluginOptions.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders;
       let namedParameterCount = 0;
       const params = parameters.map((parameter) => {
+        const param = new MdTransformer(
+          parameter,
+          this.pluginOptions,
+          this.npmName,
+          this.packageName,
+          this.reflectionTree,
+        );
+
         const name = getParamName(parameter, namedParameterCount);
+
+        const signature = param._getCallSignature();
+        const comment = parameter.comment || signature?.comment;
 
         if (parameter.name === "__namedParameters") {
           namedParameterCount++;
@@ -236,7 +311,7 @@ export class MdTransformer {
             getMdBoldText(name),
             this._getLinkedType(parameter?.type, true) || "-",
             parameter.defaultValue || "-",
-            parameter?.comment?.shortText || "-",
+            comment?.shortText || "-",
           ],
         };
       });
@@ -345,7 +420,7 @@ export class MdTransformer {
 
       methods.forEach((method, index) => {
         const isLast = methods.length === index + 1;
-        const methodOutput = this.getMethod(method.name, { ...methodOptions, type: "complex" });
+        const methodOutput = this.getMethod(method.name, methodOptions);
 
         output = output.concat(methodOutput);
         !isLast && output.push({ p: getMdLine() });
@@ -434,6 +509,7 @@ export class MdTransformer {
       const admonitions = methodTransformer.getAdmonitions();
 
       output.push({ [headingSize]: getMdCodeQuote(method.name + "()") });
+      output = output.concat(description);
       output.push({
         code: {
           language: this._getLanguage(),
@@ -441,7 +517,6 @@ export class MdTransformer {
         },
       });
       output.push({ [descriptionSize]: returns });
-      output = output.concat(description);
       output = output.concat(parameters);
       output = output.concat(admonitions);
       return output;
@@ -659,7 +734,7 @@ export class MdTransformer {
     const type = this._getLinkedType(signature?.type, true);
     const returnsText = this.pluginOptions.texts?.returns ?? defaultTextsOptions.returns;
 
-    const getReturnResponse = (value: string) => `${returnsText} ${value}`;
+    const getReturnResponse = (value: string) => `<div style={{fontSize: "0.8rem"}}>${returnsText} ${value} </div>`;
 
     if (returnTag && returnTag.text) {
       return [{ p: getReturnResponse(returnTag.text) }];

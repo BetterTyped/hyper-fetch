@@ -151,9 +151,10 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
 
   /**
    * Set the custom query params stringify method to the builder
+   * @param stringifyFn Custom callback handling query params stringify
    */
-  setStringifyQueryParams = (stringify: StringifyCallbackType): FetchBuilder<ErrorType, RequestConfigType> => {
-    this.stringifyQueryParams = stringify;
+  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): FetchBuilder<ErrorType, RequestConfigType> => {
+    this.stringifyQueryParams = stringifyFn;
     return this;
   };
 

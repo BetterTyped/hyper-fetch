@@ -40,19 +40,26 @@ export const getMdTitle = (value: JSONOutput.DeclarationReflection) => {
 };
 
 export const getMdBadges = (value: JSONOutput.DeclarationReflection) => {
+  const comment = value.comment || value.signatures?.[0]?.comment;
   const tags =
-    value.comment?.tags
-      ?.filter(({ tag }) => ["alpha", "beta", "experimental"].includes(tag || ""))
+    comment?.tags
+      ?.filter(({ tag }) => ["alpha", "beta", "experimental", "helper", "util", "internal"].includes(tag || ""))
       .map(({ tag }) => {
         if (tag === "alpha") {
-          return getMdLabel("danger", "Alpha", true);
+          return getMdLabel("danger", "🚨 Alpha", true);
         } else if (tag === "beta") {
-          return getMdLabel("warning", "Beta", true);
+          return getMdLabel("warning", "🚧 Beta", true);
+        } else if (tag === "helper") {
+          return getMdLabel("info", "🪢 Helper", true);
+        } else if (tag === "util") {
+          return getMdLabel("info", "🧩 Util", true);
+        } else if (tag === "internal") {
+          return getMdLabel("info", "ℹ️ Internal", true);
         }
-        return getMdLabel("info", "Experimental", true);
+        return getMdLabel("info", "🧪 Experimental", true);
       }) || [];
 
-  tags.unshift(getMdLabel("kind", value.kindString, true));
+  tags.unshift(getMdLabel("kind", getKindName(value.kindString || "", value.name), true));
 
   return flattenText(`
   <p className="row api-badges" style={{padding: "0 10px"}}>
@@ -91,6 +98,7 @@ export const getMdCodeQuote = (value: string): string => {
 export const getMdDescription = (value?: string) => {
   return !value ? "" : `${value}`;
 };
+
 export const getMdTable = (
   headers: string[],
   rows: { value: string[]; tag?: { value?: string; type: LabelStates } }[],

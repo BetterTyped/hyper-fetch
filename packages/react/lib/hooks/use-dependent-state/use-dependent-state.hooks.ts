@@ -14,6 +14,15 @@ import { getCacheInitialData } from "utils";
 import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
 import { getDetailsState, getInitialDependentStateData, transformDataToCacheValue } from "./use-dependent-state.utils";
 
+/**
+ *
+ * @param command
+ * @param initialData
+ * @param queue
+ * @param dependencies
+ * @internal
+ * @returns
+ */
 export const useDependentState = <T extends FetchCommandInstance>(
   command: T,
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>> | null,

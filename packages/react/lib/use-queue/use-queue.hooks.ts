@@ -9,6 +9,12 @@ import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue";
 
+/**
+ * This hook allows to control dispatchers request queues
+ * @param command
+ * @param options
+ * @returns
+ */
 export const useQueue = <Command extends FetchCommandInstance>(
   command: Command,
   options: UseQueueOptions = useQueueDefaultOptions,
@@ -21,7 +27,6 @@ export const useQueue = <Command extends FetchCommandInstance>(
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
-  const [connecting, setConnected] = useState(true);
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Command>[]>([]);
 
@@ -50,7 +55,6 @@ export const useQueue = <Command extends FetchCommandInstance>(
 
     setStopped(commandQueue.stopped);
     setRequests(createRequestsArray(commandQueue.requests));
-    setConnected(false);
   };
 
   // ******************
@@ -99,7 +103,6 @@ export const useQueue = <Command extends FetchCommandInstance>(
   useDidUpdate(mountEvents, [stopped, requests, setRequests, setStopped], true);
 
   return {
-    connecting,
     stopped,
     requests,
     stop: () => dispatcher[0].stop(queueKey),
