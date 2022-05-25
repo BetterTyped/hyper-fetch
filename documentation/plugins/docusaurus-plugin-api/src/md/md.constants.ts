@@ -23,7 +23,7 @@ export const defaultParamOptions: RequiredKeys<ParamOptions> = {
 };
 
 export const defaultMethodOptions: RequiredKeys<MethodOptions> = {
-  type: "link",
+  type: "complex",
   headingSize: "h3",
   paramsHeadingSize: "h4",
   descriptionSize: "p",
