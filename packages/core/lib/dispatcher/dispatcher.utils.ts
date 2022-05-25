@@ -43,9 +43,9 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
 };
 
 export const getRequestType = (command: FetchCommandInstance, hasRequests: boolean) => {
-  const { concurrent, cancelable, deduplicate } = command;
+  const { queued, cancelable, deduplicate } = command;
 
-  if (!concurrent) {
+  if (queued) {
     return DispatcherRequestType.oneByOne;
   }
   if (cancelable) {

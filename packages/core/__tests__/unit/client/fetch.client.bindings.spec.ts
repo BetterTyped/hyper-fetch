@@ -174,7 +174,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const { onRequestStart, onRequestProgress } = await getClientBindings(command, requestId);
         const spy = jest.fn();
         const startTimestamp = onRequestStart();
-        await sleep(20);
+        await sleep(30);
         const unmount = builder.commandManager.events.onUploadProgress(command.queueKey, spy);
         const progressTimestamp = onRequestProgress(progress);
         unmount();
@@ -198,7 +198,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const { onRequestStart, onRequestEnd } = await getClientBindings(command, requestId);
         const spy = jest.fn();
         const startTimestamp = onRequestStart(progress);
-        await sleep(20);
+        await sleep(30);
         const unmount = builder.commandManager.events.onUploadProgress(command.queueKey, spy);
         const progressTimestamp = onRequestEnd();
         unmount();
@@ -257,7 +257,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const { onResponseStart, onResponseProgress } = await getClientBindings(command, requestId);
         const spy = jest.fn();
         const startTimestamp = onResponseStart();
-        await sleep(20);
+        await sleep(30);
         const unmount = builder.commandManager.events.onDownloadProgress(command.queueKey, spy);
         const progressTimestamp = onResponseProgress(progress);
         unmount();
@@ -282,7 +282,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const { onResponseStart, onResponseEnd } = await getClientBindings(command, requestId);
         const spy = jest.fn();
         const startTimestamp = onResponseStart(progress);
-        await sleep(20);
+        await sleep(30);
         const unmount = builder.commandManager.events.onDownloadProgress(command.queueKey, spy);
         const progressTimestamp = onResponseEnd();
         unmount();

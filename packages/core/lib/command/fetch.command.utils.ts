@@ -114,7 +114,7 @@ export const commandSendRequest = <T extends FetchCommandInstance>(
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
   requestCallback?: (requestId: string, command: T) => void,
 ) => {
-  const { appManager, commandManager } = command.builder;
+  const { commandManager } = command.builder;
   const [dispatcher] = getCommandDispatcher(command, dispatcherType);
 
   return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>>((resolve) => {
@@ -128,12 +128,12 @@ export const commandSendRequest = <T extends FetchCommandInstance>(
     // When resolved
     unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>(
       requestId,
-      (response) => {
-        const isOfflineResponseStatus = !appManager.isOnline;
+      (response, details) => {
+        const isOfflineStatus = command.offline && details.isOffline;
         const isFailed = isFailedRequest(response);
 
         // When going offline we can't handle the request as it will be postponed to later resolve
-        if (isFailed && isOfflineResponseStatus) return;
+        if (isFailed && isOfflineStatus) return;
 
         resolve(response);
 

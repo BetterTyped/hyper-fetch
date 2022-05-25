@@ -183,7 +183,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   };
 
   /**
-   * Method of manipulating commands before sending the request. We can for example add custom header with token.
+   * Method of manipulating commands before sending the request. We can for example add custom header with token to the request which command had the auth set to true.
    */
   onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
     this.__onAuthCallbacks.push(callback);
