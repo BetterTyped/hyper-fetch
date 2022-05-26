@@ -177,7 +177,7 @@ export const getType = (
       return getType(signature, packageLink, reflectionTree, showGenerics, link);
     }
     // { some, thing }
-    return `&#123; ${declaration.children
+    return `{'{'} ${declaration.children
       ?.map((arg) => {
         const signature = arg.signatures?.[0];
         // { some: (thing: number) => void }
@@ -198,7 +198,7 @@ export const getType = (
           link,
         )}`;
       })
-      .join(", ")} &#125;`;
+      .join(", ")} {'}'}`;
   }
   // Something<Some, Thing>
   if (type && "typeArguments" in type && type.typeArguments?.length) {

@@ -12,6 +12,7 @@ export enum displayOptions {
   parameter = "parameter",
   methods = "methods",
   method = "method",
+  returns = "returns",
   typeReferences = "typeReferences",
   additionalLinks = "additionalLinks",
 }

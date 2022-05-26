@@ -23,7 +23,7 @@ the necessary configurations and types.
 
 ---
 
-### Purpose
+## Purpose
 
 - `Orchestration` of the components and flow of the library
 - `Creating commands` to provide global setups and environment
@@ -31,7 +31,7 @@ the necessary configurations and types.
 
 ---
 
-### Initialization
+## Initialization
 
 ```tsx
 import { FetchBuilder } from "@better-typed/hyper-fetch";
@@ -39,7 +39,9 @@ import { FetchBuilder } from "@better-typed/hyper-fetch";
 export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
 ```
 
-### Setup of defaults
+---
+
+## Setup of defaults
 
 Due to the fact that the components in hyper fetch are created inside the builder, we can set global or default values
 for our system on it.
@@ -55,58 +57,123 @@ typescript generic which allow you to pass any options you need for your client.
 
 ---
 
-### Features
+## Features
 
-- #### Authentication
-- #### Pre-Request Interceptors
-- #### Post-Request Interceptors
-- #### Query Params
-- #### Header Mapper
-- #### Payload Mapper
+### Authentication
+
+When we want to send authenticated request we have to setup the `onAuth` interceptor and setup the command with the
+`auth` option set to true.
+
+[Read More](/guides/Basic/Authentication)
+
+### Pre-Request Interceptor
+
+When you need to use the pre-request interceptor to modify command before it get's send, you can use the `onRequest`
+builder method.
+
+### Post-Request Interceptors
+
+There are several possibilities to intercept the response from command. You can do it with methods:
+
+- `onError` which is triggered on request error response
+- `onSuccess` which is triggered on request success response
+- `onResponse` which is triggered on any response
+
+### Query Params
+
+Builder has the built in query params encoding fuction, you can modify it's options as you want or provide your own
+function.
+
+You can change it's setup with `setQueryParamsConfig` method and options listed bellow.
+
+{@import HyperFetch QueryStringifyOptions returns}
+
+To change the encoding function you can use `setStringifyQueryParams` method.
+
+```tsx
+builder.setStringifyQueryParams((value: string) => encode(value));
+```
+
+### Header Mapper
+
+By default header mapper behaves very simple. It checks for the content to be FormData or json, and provide correct
+headers to the request. You can do much advanced setups with the `setHeaderMapper` that allows you to define custom
+logic that will be triggered before every request made in the builder.
+
+### Payload Mapper
+
+It's main default responsibility is to check if data is instance of FormData or not. Based on this details, we can
+stringify non-FormData values or just pass the FormData to the request to be made. This way file upload is supported out
+of the box.
 
 ---
 
-### Components
+## Typescript
 
-#### [Cache](/api/Hyper-Fetch/Class/Cache)
+Builder has two generic types.
+
+```tsx
+class FetchBuilder<GlobalErrorType, RequestConfigType>
+```
+
+- `GlobalErrorType` defines the error type used in all of the commands it should consist of `Error` type and your
+  default `ServerErrorType`. For the individual error types needed in some commands you can setup the `LocalErrorType`
+  for each individual command.
+
+- `RequestConfigType` is the generic responsible for shaping the options passed to the client. Most likely you will
+  change it only when you provide your custom client.
+
+---
+
+## Components
+
+### [Cache](/api/Hyper-Fetch/Class/Cache)
 
 Handles data storages and persistance. Can be adjusted with options when initializing builder.
 
 ---
 
-#### [Client](/api/Hyper-Fetch/Function/fetchClient)
+### [Client](/api/Hyper-Fetch/Function/fetchClient)
 
 Handles all requests within builder. Can be replaced with `setClient` method.
 
 ---
 
-#### [SubmitDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
+### [SubmitDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
 Handles the mutation requests and queueing. Can be adjusted with options when initializing builder.
 
 ---
 
-#### [FetchDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
+### [FetchDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
 Handles the fetching requests and queueing. Can be adjusted with options when initializing builder.
 
 ---
 
-#### [AppManager](/api/Hyper-Fetch/Class/AppManager)
+### [AppManager](/api/Hyper-Fetch/Class/AppManager)
 
 Handles the app focus and online state. Can be adjusted with options when initializing builder.
 
 ---
 
-#### [CommandManager](/api/Hyper-Fetch/Class/CommandManager)
+### [CommandManager](/api/Hyper-Fetch/Class/CommandManager)
 
 Handles additional events and cancelation of requests. Can be adjusted with options when initializing builder.
 
 ---
 
-#### [LoggerManager](/api/Hyper-Fetch/Class/LoggerManager)
+### [LoggerManager](/api/Hyper-Fetch/Class/LoggerManager)
 
-Handles the logging systems for debugging. Can be adjusted with options when initializing builder.
+Handles the logging systems for debugging.
+
+---
+
+## Parameters
+
+Configuration options
+
+{@import HyperFetch FetchBuilderConfig returns}
 
 <!-- ## Authentication
 

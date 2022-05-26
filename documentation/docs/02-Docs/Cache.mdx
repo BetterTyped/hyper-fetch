@@ -2,18 +2,28 @@
 sidebar_position: 4
 ---
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/Cache">
-    <div class="pagination-nav__sublabel">Cache</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/Hyper-Fetch/Class/Cache">
+  <div class="api-link-title">Cache</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-## Description
+---
 
-**`Cache`** is where the response data from the queues is stored. It uses an event system that successively transmits
-data to listeners and takes care of their proper refreshing in the system, tracking data refresh and error checking on
-retried requests.
+## Introduction
+
+**`Cache`** is responsible for storing response data from the requests. It uses an event system that successively
+transmits data and takes care of reavalidation in the system. Data is stored under `cacheKey` in the storage which by
+default is a Map object, but can be replaced to any other compatible interface.
+
+---
+
+## Purpose
+
+- `Storing` requests results
+- `Managing` stored data
+- `Emitting` storage events
+
+---
 
 ## CacheKey
 
@@ -23,6 +33,16 @@ automatically determined by default based on parameters such as the method, endp
 command, but there is nothing to prevent you from adding the key manually when setting the Command or using one of its
 methods. Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the
 data - everything will happen automatically.
+
+---
+
+## Events
+
+Configuration options
+
+{@import HyperFetch getCacheEvents returns}
+
+---
 
 ## Storages
 
@@ -41,3 +61,33 @@ export const builder = new FetchBuilder<ServerErrorType>({
     }),
 });
 ```
+
+---
+
+## Presistance
+
+We can achieve the persistance of the stored data by changing the cache storage to persistent one. It needs to match the
+provided interface.
+
+#### [Read More](/guides/Basic/Persistence)
+
+:::info
+
+Currently there is no cross tabs synchronization. It's planned for next releases when we will have more insights from
+our internal testing.
+
+:::
+
+---
+
+## Lifecycle
+
+Cache options can be provided with some lifefcycle methods. These are events such as `onInitialization`.
+
+---
+
+## Parameters
+
+Configuration options
+
+{@import HyperFetch CacheOptionsType returns}

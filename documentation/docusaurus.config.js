@@ -149,7 +149,7 @@ const config = {
             activeBaseRegex: `/api`,
           },
           {
-            to: "/guides/Basic",
+            to: "/guides/Basic/Simple Example",
             label: "Guides",
             position: "left",
             activeBaseRegex: `/guides/`,

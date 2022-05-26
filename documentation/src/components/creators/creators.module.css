@@ -46,7 +46,7 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (max-width: 650px) {
+@media (max-width: 440px) {
   .container {
     margin: 0 0 40px;
     padding: 40px 0;

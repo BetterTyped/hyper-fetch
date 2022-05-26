@@ -23,7 +23,7 @@ We can trigger the request with the `send` method, which add request to the queu
 
 ---
 
-### Purpose
+## Purpose
 
 - `Configuration` of requests templates
 - `Standardization` of the data schema in system
@@ -31,7 +31,7 @@ We can trigger the request with the `send` method, which add request to the queu
 
 ---
 
-### Initialization
+## Initialization
 
 The command should be initialized from the builder instance, this way we pass a shared reference to the place that
 manages communication in the application.
@@ -78,93 +78,124 @@ export const deleteUser = builder.createCommand<null>()({
 
 ---
 
-### Features
+## Request building
 
-- #### Request Data
+### Initialize
 
-  You can set any data to be sent to the server by using the `setData` method.
+The process begins with command initialization. At this point, we have the option of an extensive configuration of how
+our request will behave, but most of it is optional. It is also possible to prepare a global configuration in the
+builder and avoid copying the setup between commands.
 
-  ```tsx
-  // Regular data
-  postUser.setData({ name: "John", age: 18 })
+```tsx
+const postUser = builder.createCommand<null>()({
+  endpoint: "/some-endpoint",
+  headers: {},
+  auth: true,
+  method: "POST"
+  cancelable: false,
+  retry: 2,
+  retryTime: 1000,
+  cache: false,
+  cacheTime: 50000
+  queued: false,
+  deduplicate: false,
+  offline: false,
+  options: {}, // Client options
+  disableRequestInterceptors: false,
+  disableResponseInterceptors: false,
+});
+```
 
-  // Form data
-  const data = new FormData();
-  ...
-  postFile.setData(data)
-  ```
+### Request Data
 
-- #### Parameters
+You can set any data to be sent to the server by using the `setData` method.
 
-  Parameters has to be defined in the endpoint of the command by stating it with `:`.
+```tsx
+// Regular data
+postUser.setData({ name: "John", age: 18 })
 
-  ```tsx
-  const getNote = builder.createCommand()({
-    endpoint: "/note/:noteId";
-  })
-  const getCategory = builder.createCommand()({
-    endpoint: "/category/:categoryId";
-  })
-  const getCategoryNote = builder.createCommand()({
-    endpoint: "/category/:noteId";
-  })
-  ```
+// Form data
+const data = new FormData();
+...
+postFile.setData(data)
+```
 
-  When we have properly prepared commands that expect parameters, we can add them using the `setParams` method.
-  Additionally by generic typescript, these parameters will match the endpoint ones by using literal types and require
-  them.
+### Parameters
 
-  ```tsx
-  getNote.setParams({ noteId: 1 });
-  getCategory.setParams({ categoryId: 2 });
-  getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
-  ```
+Parameters has to be defined in the endpoint of the command by stating it with `:`.
 
-- #### Query parameters
+```tsx
+const getNote = builder.createCommand()({
+  endpoint: "/note/:noteId";
+})
+const getCategory = builder.createCommand()({
+  endpoint: "/category/:categoryId";
+})
+const getCategoryNote = builder.createCommand()({
+  endpoint: "/category/:noteId";
+})
+```
 
-  You can set query params by using the `setQueryParams` method. With typescript you can set it up to be accepted as
-  strings, objects or strict interface. The encoding type for arrays and other options is possible to be setup on the
-  builder. You can also provide your own encoding logic.
+When we have properly prepared commands that expect parameters, we can add them using the `setParams` method.
+Additionally by generic typescript, these parameters will match the endpoint ones by using literal types and require
+them.
 
-  ```tsx
-  getUsers.setQueryParams({ search: "John", sort: "age" });
-  ```
+```tsx
+getNote.setParams({ noteId: 1 });
+getCategory.setParams({ categoryId: 2 });
+getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
+```
 
-- #### Trigger request
+### Query parameters
 
-  You can perform a request with the `send` method.
+You can set query params by using the `setQueryParams` method. With typescript you can set it up to be accepted as
+strings, objects or strict interface. The encoding type for arrays and other options is possible to be setup on the
+builder. You can also provide your own encoding logic.
 
-  ```tsx
-  // Simple Send
-  getNotes.send();
+```tsx
+getUsers.setQueryParams({ search: "John", sort: "age" });
+```
 
-  // Chained Send
-  getUsers.setQueryParams({ search: "John", sort: "age" }).send();
+### Trigger request
 
-  // Multiple chained Send
-  getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
-  ```
+You can perform a request with the `send` method.
+
+```tsx
+// Simple Send
+getNotes.send();
+
+// Chained Send
+getUsers.setQueryParams({ search: "John", sort: "age" }).send();
+
+// Multiple chained Send
+getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
+```
 
 ---
 
-### Other Features
+## Features
 
 You can read more in the API reference.
 
-- Requests retries
-- Caching
-- Cancelation
-- Queueing
-- Offline support
-- Deduplication
-- Authentication
+### [Cancelation](/guides/Basic/Cancelation)
+
+### [Queueing](/guides/Basic/Queueing)
+
+### [Offline](/guides/Basic/Offline)
+
+### [Deduplication](/guides/Basic/Deduplication)
+
+### [Authentication](/guides/Basic/Authentication)
+
+### [Data Mapping](/guides/Basic/Data%20Mapping)
 
 ---
 
-### Methods
+## Methods
 
-Using methods on a command is different from the other classes. This is to ensure isolation between different uses - not
-to overwrite previously prepared commands with each other and to dynamically generate keys for queues or cache.
+Using methods on a command is different from the other classes in Hyper Fetch. This is to ensure isolation between
+different uses - not to overwrite previously prepared commands with each other and to dynamically generate keys for
+queues or cache.
 
 :::danger
 
@@ -177,7 +208,7 @@ Using any method on command returns its clone! `We don't return a reference!`
 
 const command = getUser;
 
-command.setParams({ userId: 1 }); // Returns command with assigned params
+command.setParams({ userId: 1 }); // Returns CLONED command with assigned params
 
 command.send(); // Server error - no params
 ```
@@ -187,14 +218,14 @@ command.send(); // Server error - no params
 
 const command = getUser;
 
-const commandWithParams = command.setParams({ userId: 1 }); // Returns command with assigned params
+const commandWithParams = command.setParams({ userId: 1 }); // Returns CLONED command with assigned params
 
 commandWithParams.send(); // Success
 ```
 
 ---
 
-### Keys
+## Keys
 
 Each command gets its identifiers - `queueKey`, `cacheKey`, `abortKey` and `effectKey`. They are needed to determine
 under which key items will be cached, queued, canceled or handled by [Effects](/docs/Docs/Effect). By default keys are
@@ -203,15 +234,32 @@ proper method.
 
 ---
 
-### Typescript
+## Typescript
 
-We can put the main elements of command. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
+Builder has four generic types built in. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
 
 ```tsx
 type Response = { name: string }; // What's returned from request
 type Payload = { email: string }; // What's send with request
-type Error = { nameMessage: string }; // Additional "local" errors like errors for particular form
+type LocalError = { nameMessage: string }; // Additional "local" errors like errors for particular form
 type QueryParams = { sort: string; search: string }; // Query params interface
 
-builder.createCommand<Response, Payload, Error, QueryParams>()({ endpoint: "..." });
+const someCommand = builder.createCommand<Response, Payload, LocalError, QueryParams>()({
+  endpoint: "category/:categoryId",
+});
+
+someCommand.setData(); // Require the 'Payload' type
+someCommand.setParams(); // Require { categoryId: Param } type
+someCommand.setQueryParams(); // Require the 'QueryParams' type
+
+const [data, error] = someCommand.send();
+
+data; // Has 'Response' type
+error; // Has 'GlobalError' or 'LocalError' type
 ```
+
+## Parameters
+
+Configuration options
+
+{@import HyperFetch FetchCommandConfig returns}

@@ -1,0 +1,16 @@
+```tsx
+export const builder = new FetchBuilder<ServerErrorType>({
+  baseUrl: environment.serverUrl,
+  appManager: (instance) =>
+    new AppManager(instance, {
+      onlineEvent: (setOnline) =>
+        NetInfo.addEventListener((state) => {
+          setOnline(state.isConnected);
+        }),
+      focusEvent: (setFocused) =>
+        ...,
+      blurEvent: (setBlured) =>
+        ...,
+    }),
+});
+```

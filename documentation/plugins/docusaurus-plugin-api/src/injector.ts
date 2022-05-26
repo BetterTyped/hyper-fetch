@@ -24,6 +24,7 @@ const MD_OPTIONS_METHODS = [
   displayOptions.preview,
   displayOptions.parameters,
   displayOptions.methods,
+  displayOptions.returns,
   displayOptions.typeReferences,
   displayOptions.additionalLinks,
 ];

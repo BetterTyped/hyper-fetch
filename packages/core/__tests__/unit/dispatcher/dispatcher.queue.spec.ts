@@ -182,7 +182,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should not retry failed request when command 'retry' option is disabled", async () => {
-      const command = createCommand(builder, { retry: false });
+      const command = createCommand(builder, { retry: 0 });
       createRequestInterceptor(command, { status: 400, delay: 0 });
 
       const spy = jest.spyOn(builder, "client");
@@ -193,7 +193,7 @@ describe("Dispatcher [ Queue ]", () => {
       });
     });
     it("should not retry failed request in offline mode", async () => {
-      const command = createCommand(builder, { retry: false });
+      const command = createCommand(builder, { retry: 0 });
       createRequestInterceptor(command, { status: 400, delay: 5 });
 
       const spy = jest.spyOn(builder, "client");

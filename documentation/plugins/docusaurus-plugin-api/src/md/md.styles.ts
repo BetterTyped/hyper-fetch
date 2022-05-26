@@ -212,18 +212,7 @@ export const getMdBoldText = (value: string) => {
 };
 
 export const getMdQuoteText = (value: string) => {
-  const quoteStyle = flattenText(`
-{
-  backgroundColor: "var(--ifm-code-background)",
-  border: "0.1rem solid rgba(0, 0, 0, 0.1)",
-  borderRadius: "var(--ifm-code-border-radius)",
-  fontFamily: "var(--ifm-font-family-monospace)",
-  fontSize: "var(--ifm-code-font-size)",
-  padding: "var(--ifm-code-padding-vertical) var(--ifm-code-padding-horizontal)",
-  verticalAlign: "middle"
-}`);
-
-  return `<span style={${quoteStyle}}>${value}</span>`;
+  return `<code>${value}</code>`;
 };
 
 export const getMdLinkedReference = (

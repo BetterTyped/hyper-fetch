@@ -35,7 +35,7 @@ export class FetchCommand<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType | string,
-  ErrorType, // Global Error Type
+  GlobalErrorType, // Global Error Type
   LocalErrorType, // Additional Error for specific endpoint
   EndpointType extends string,
   ClientOptions,
@@ -53,7 +53,7 @@ export class FetchCommand<
   queryParams: QueryParamsType | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
-  retry: boolean | number;
+  retry: number;
   retryTime: number;
   cache: boolean;
   cacheTime: number;
@@ -74,14 +74,14 @@ export class FetchCommand<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly builder: FetchBuilder<ErrorType, ClientOptions>,
+    readonly builder: FetchBuilder<GlobalErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandConfig<EndpointType, ClientOptions>,
     readonly commandDump?:
       | FetchCommandCurrentType<
           ResponseType,
           PayloadType,
           QueryParamsType,
-          ErrorType | LocalErrorType,
+          GlobalErrorType | LocalErrorType,
           EndpointType,
           ClientOptions,
           MappedData
@@ -99,7 +99,7 @@ export class FetchCommand<
       method = HttpMethodsEnum.get,
       options,
       cancelable = false,
-      retry = false,
+      retry = 0,
       retryTime = 500,
       cache = true,
       cacheTime = DateInterval.minute * 5,
@@ -250,7 +250,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      GlobalErrorType,
       LocalErrorType,
       EndpointType,
       ClientOptions,
@@ -303,7 +303,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | LocalErrorType,
+      GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -313,7 +313,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType,
+    GlobalErrorType,
     LocalErrorType,
     EndpointType,
     ClientOptions,
@@ -327,7 +327,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | LocalErrorType,
+      GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -347,7 +347,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      GlobalErrorType,
       LocalErrorType,
       EndpointType,
       ClientOptions,
@@ -369,7 +369,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | LocalErrorType,
+    GlobalErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -381,7 +381,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | LocalErrorType,
+        GlobalErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData
@@ -401,7 +401,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | LocalErrorType,
+    GlobalErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -423,7 +423,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType,
+        GlobalErrorType,
         LocalErrorType,
         EndpointType,
         ClientOptions,
@@ -439,7 +439,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | LocalErrorType,
+        GlobalErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData

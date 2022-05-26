@@ -2,61 +2,78 @@
 sidebar_position: 7
 ---
 
-The library contains several managers, they are mainly used to support smaller subsystems, which are rather slightly
-detached from the whole flow logic.
+The library contains several managers, they are mainly used to support smaller subsystems and features.
 
-# AppManager
+## AppManager
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/AppManager">
-    <div class="pagination-nav__sublabel">AppManager</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/Hyper-Fetch/Class/AppManager">
+  <div class="api-link-title">AppManager</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-This class is responsible for the state of our application in terms of online / offline status and whether the
-application is focused / blured (it mainly means whether we are actively using the application at present).
+This class is responsible for the state of our application in terms of `online` or `offline` status and whether the
+application window is `focused` or `blured`.
 
-For example, if we want to use hyper-fetch in a react native environment, our default web browser events won't work, we
-need to set the ones that are most optimal for the current environment.
+For example, if we want to use hyper-fetch in a `react native environment`, our default web browser events won't work,
+we need to set the ones that are most optimal for the current environment.
+
+:::info
+
+Events listeners in the Hyper Fetch returns the unmounting callback for easier cleanup handling.
+
+:::
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
-  baseUrl: environment.serverUrl,
-  appManager: (instance) =>
-    new AppManager(instance, {
-      onlineEvent: (setOnline) =>
-        NetInfo.addEventListener((state) => {
-          setOnline(state.isConnected);
-        }),
-      focusEvent: (setFocused) =>
-        ...,
-      blurEvent: (setBlured) =>
-        ...,
-    }),
-});
+const unmountFocusListener = builder.commandManager.events.onFocus(console.log);
+const unmountOfflineListener = builder.commandManager.events.onOffline(console.log);
+
+...
+
+unmountFocusListener()
+unmountOfflineListener()
 ```
 
-# CommandManager
+### Events
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/CommandManager">
-    <div class="pagination-nav__sublabel">CommandManager</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+{@import HyperFetch getAppManagerEvents returns}
 
-The CommandManager is responsible for holding the cancelation tokens needed to terminate the requests and for the events
-related to the requests being executed.
+## CommandManager
 
-# LoggerManager
+<a class="api-link" href="/api/Hyper-Fetch/Class/CommandManager">
+  <div class="api-link-title">CommandManager</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/LoggerManager">
-    <div class="pagination-nav__sublabel">LoggerManager</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+The `CommandManager` is responsible for holding the cancelation tokens needed to terminate the requests and for the
+events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
+
+:::info
+
+Events listeners in the Hyper Fetch returns the unmounting callback for easier cleanup handling.
+
+:::
+
+```tsx
+
+const unmountUploadListener = builder.commandManager.events.onUploadProgressById(requestId, console.log);
+const unmountDownloadListener = builder.commandManager.events.onDownloadProgressById(requestId, console.log);
+
+...
+
+unmountUploadListener()
+unmountDownloadListener()
+```
+
+### Events
+
+{@import HyperFetch getCommandManagerEvents returns}
+
+## LoggerManager
+
+<a class="api-link" href="/api/Hyper-Fetch/Class/LoggerManager">
+  <div class="api-link-title">LoggerManager</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
 LoggerManager is the main instance of the logging system in hyper-fetch. On its basis, we initiate single loggers in
 subsystems that are used in isolation, but still have access to the parent configuration in the builder.

@@ -30,7 +30,7 @@ import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "mana
  * commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the command.
  */
-export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, RequestConfigType = XHRConfigType> {
+export class FetchBuilder<GlobalErrorType extends FetchBuilderErrorType = Error, RequestConfigType = XHRConfigType> {
   readonly baseUrl: string;
   debug: boolean;
 
@@ -43,14 +43,14 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
 
   // Managers
   commandManager: CommandManager = new CommandManager();
-  appManager: AppManager<ErrorType, RequestConfigType>;
+  appManager: AppManager<GlobalErrorType, RequestConfigType>;
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
   client: ClientType;
-  cache: Cache<ErrorType, RequestConfigType>;
-  fetchDispatcher: Dispatcher<ErrorType, RequestConfigType>;
-  submitDispatcher: Dispatcher<ErrorType, RequestConfigType>;
+  cache: Cache<GlobalErrorType, RequestConfigType>;
+  fetchDispatcher: Dispatcher<GlobalErrorType, RequestConfigType>;
+  submitDispatcher: Dispatcher<GlobalErrorType, RequestConfigType>;
 
   // Registered requests effect
   effects: FetchEffectInstance[] = [];
@@ -86,21 +86,21 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
     cache,
     fetchDispatcher,
     submitDispatcher,
-  }: FetchBuilderConfig<ErrorType, RequestConfigType>) {
+  }: FetchBuilderConfig<GlobalErrorType, RequestConfigType>) {
     this.baseUrl = baseUrl;
     this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
     this.cache = cache?.(this) || new Cache(this);
-    this.appManager = appManager?.(this) || new AppManager<ErrorType, RequestConfigType>(this);
-    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher<ErrorType, RequestConfigType>(this);
-    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher<ErrorType, RequestConfigType>(this);
+    this.appManager = appManager?.(this) || new AppManager<GlobalErrorType, RequestConfigType>(this);
+    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher<GlobalErrorType, RequestConfigType>(this);
+    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher<GlobalErrorType, RequestConfigType>(this);
   }
 
   /**
    * It sets the client request config (by default XHR config). This is the global way to setup the configuration for client and trigger it with every command.
    */
-  setRequestConfig = (requestConfig: RequestConfigType): FetchBuilder<ErrorType, RequestConfigType> => {
+  setRequestConfig = (requestConfig: RequestConfigType): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.requestConfig = requestConfig;
     return this;
   };
@@ -110,7 +110,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    */
   setCommandConfig = (
     commandConfig: Partial<FetchCommandConfig<string, RequestConfigType>>,
-  ): FetchBuilder<ErrorType, RequestConfigType> => {
+  ): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.commandConfig = commandConfig;
     return this;
   };
@@ -118,7 +118,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean): FetchBuilder<ErrorType, RequestConfigType> => {
+  setDebug = (debug: boolean): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.debug = debug;
     return this;
   };
@@ -126,7 +126,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Set the logger level of the messages displayed to the console
    */
-  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<ErrorType, RequestConfigType> => {
+  setLoggerLevel = (levels: LoggerLevelType[]): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.loggerManager.setLevels(levels);
     return this;
   };
@@ -136,7 +136,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    */
   setLogger = (
     callback: (builder: FetchBuilderInstance) => LoggerManager,
-  ): FetchBuilder<ErrorType, RequestConfigType> => {
+  ): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -144,7 +144,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Set config for the query params stringify method, we can set here, among others, arrayFormat, skipNull, encode, skipEmptyString and more
    */
-  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptions): FetchBuilder<ErrorType, RequestConfigType> => {
+  setQueryParamsConfig = (
+    queryParamsConfig: QueryStringifyOptions,
+  ): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.queryParamsConfig = queryParamsConfig;
     return this;
   };
@@ -153,7 +155,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
    * Set the custom query params stringify method to the builder
    * @param stringifyFn Custom callback handling query params stringify
    */
-  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): FetchBuilder<ErrorType, RequestConfigType> => {
+  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.stringifyQueryParams = stringifyFn;
     return this;
   };
@@ -161,7 +163,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Set the custom header mapping function
    */
-  setHeaderMapper = (headerMapper: ClientHeaderMappingCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  setHeaderMapper = (headerMapper: ClientHeaderMappingCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.headerMapper = headerMapper;
     return this;
   };
@@ -169,7 +171,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Set the request payload mapping function which get triggered before request get send
    */
-  setPayloadMapper = (payloadMapper: ClientPayloadMappingCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  setPayloadMapper = (
+    payloadMapper: ClientPayloadMappingCallback,
+  ): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.payloadMapper = payloadMapper;
     return this;
   };
@@ -177,7 +181,9 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Set custom http client to handle graphql, rest, firebase or other
    */
-  setClient = (callback: (builder: FetchBuilderInstance) => ClientType): FetchBuilder<ErrorType, RequestConfigType> => {
+  setClient = (
+    callback: (builder: FetchBuilderInstance) => ClientType,
+  ): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.client = callback(this);
     return this;
   };
@@ -185,7 +191,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method of manipulating commands before sending the request. We can for example add custom header with token to the request which command had the auth set to true.
    */
-  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  onAuth = (callback: RequestInterceptorCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.__onAuthCallbacks.push(callback);
     return this;
   };
@@ -193,7 +199,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
-  onError = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  onError = (callback: ResponseInterceptorCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
@@ -201,7 +207,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method for intercepting success responses.
    */
-  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  onSuccess = (callback: ResponseInterceptorCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
@@ -209,7 +215,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method of manipulating commands before sending the request.
    */
-  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  onRequest = (callback: RequestInterceptorCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.__onRequestCallbacks.push(callback);
     return this;
   };
@@ -217,7 +223,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Method for intercepting any responses.
    */
-  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<ErrorType, RequestConfigType> => {
+  onResponse = (callback: ResponseInterceptorCallback): FetchBuilder<GlobalErrorType, RequestConfigType> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
@@ -255,7 +261,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType,
+        GlobalErrorType,
         LocalErrorType,
         EndpointType,
         RequestConfigType
@@ -311,7 +317,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Private helper to run async on-error response processing
    */
-  __modifyErrorResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
+  __modifyErrorResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
@@ -326,7 +332,10 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Private helper to run async on-success response processing
    */
-  __modifySuccessResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
+  __modifySuccessResponse = async (
+    response: ClientResponseType<any, GlobalErrorType>,
+    command: FetchCommandInstance,
+  ) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
@@ -341,7 +350,7 @@ export class FetchBuilder<ErrorType extends FetchBuilderErrorType = Error, Reque
   /**
    * Private helper to run async response processing
    */
-  __modifyResponse = async (response: ClientResponseType<any, ErrorType>, command: FetchCommandInstance) => {
+  __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: FetchCommandInstance) => {
     let newResponse = response;
     if (!command.commandOptions.disableResponseInterceptors) {
       // eslint-disable-next-line no-restricted-syntax
