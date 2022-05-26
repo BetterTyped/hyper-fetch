@@ -1,0 +1,12 @@
+```tsx
+export const builder = new FetchBuilder({ baseUrl }).onAuth((command) => {
+  const state = store.getState();
+  const authToken = state.auth.token;
+
+  // Before each command with setting "auth: true" add the Bearer token
+  return command.setHeaders({
+    ...command.headers,
+    Authorization: `Bearer ${authToken}`,
+  });
+});
+```

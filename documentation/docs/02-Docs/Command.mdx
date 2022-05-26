@@ -2,28 +2,34 @@
 sidebar_position: 2
 ---
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/FetchCommand">
-    <div class="pagination-nav__sublabel">FetchCommand</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/Hyper-Fetch/Class/FetchCommand">
+  <div class="api-link-title">FetchCommand</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-## Description
+---
 
-**`Command`** is a class that contains all information about the request we are going to execute. The strength of the
-command is that you can create a kind of dump out of it - thanks to which we can recreate the command later. This
-approach allows you to develop a full flow persistance - we can store requests as json (only for persistance) and then
-recreate them between sessions.
+## Introduction
 
-It contains a large number of methods that allow you to freely manage the data in the command and create a clone of the
-command after each use.
+**`FetchCommand`** is a class that creates a template for request and all necessary information needed for it to be
+made. It's strength lays in it's strict and predictable data structure. Thanks to which we can dump it, save it to some
+storage as a json and recreate it later from it. This approach allows you to develop a full persistance flow - we can
+easily persist command dumps between sessions.
 
-:::info
+The command contains mass about its behavior in the queues or cache, data on the server, and information necessary to
+execute a valid request. In combination with typescript we get a very friendly flow, resistant to mistakes.
 
-Using method on a command creates a clone of it - `we don't return a reference`!
+We can trigger the request with the `send` method, which add request to the queue and returns the response.
 
-:::
+---
+
+## Purpose
+
+- `Configuration` of requests templates
+- `Standardization` of the data schema in system
+- `Sending` requests by using dispatchers
+
+---
 
 ## Initialization
 
@@ -32,58 +38,228 @@ manages communication in the application.
 
 :::caution
 
-We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
+We are using currying in `createCommand` method to achieve auto generated types for the endpoint string. This solution
+will be removed once
 [https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
 resolved.
 
 :::
 
 ```tsx
-import { FetchBuilder } from "@better-typed/hyper-fetch";
+import { builder } from "./builder";
 
-export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
-
-// We create a command which allows to get the users list
-export const getUsers = builder.createCommand<{ name: string; email: string }>()({
+export const getUsers = builder.createCommand<UserModel[]>()({
   method: "GET",
   endpoint: "/users",
 });
 
-...
+export const getUser = builder.createCommand<UserModel>()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
 
-// Usage without queue - simple request
-const [user, error, status] = await getUsers.exec()
+export const postUser = builder.createCommand<UserModel, UserPostDataType>()({
+  method: "POST",
+  endpoint: "/users",
+});
 
-// Usage with queue - provides cancelation / concurrecny options / queueing
-const [user, error, status] = await getUsers.send()
+export const patchUser = builder.createCommand<UserModel, Partial<UserPostDataType>>()({
+  method: "PATCH",
+  endpoint: "/users/:userId",
+});
+
+export const deleteUser = builder.createCommand<null>()({
+  method: "DELETE",
+  endpoint: "/users/:userId",
+});
 ```
 
-For usage with **`React`** checkout our [hooks docs](/docs/React/Overview).
+---
 
-## Identifiers
+## Request building
 
-Each command gets its identifiers - `queueKey` and `cacheKey`. They are needed to determine under which key items will
-be cached, queued, or canceled to maintain unity between many different queries.
+### Initialize
 
-## Testing
+The process begins with command initialization. At this point, we have the option of an extensive configuration of how
+our request will behave, but most of it is optional. It is also possible to prepare a global configuration in the
+builder and avoid copying the setup between commands.
 
-We have access to the inside of the command all the time, so that, with the right approach, we can combine tests and
-mocking the response in a way that will allow us to reuse what has been set during development. This way, the tests
-respond to changes over time - they are easier to maintain and easier to write.
+```tsx
+const postUser = builder.createCommand<null>()({
+  endpoint: "/some-endpoint",
+  headers: {},
+  auth: true,
+  method: "POST"
+  cancelable: false,
+  retry: 2,
+  retryTime: 1000,
+  cache: false,
+  cacheTime: 50000
+  queued: false,
+  deduplicate: false,
+  offline: false,
+  options: {}, // Client options
+  disableRequestInterceptors: false,
+  disableResponseInterceptors: false,
+});
+```
+
+### Request Data
+
+You can set any data to be sent to the server by using the `setData` method.
+
+```tsx
+// Regular data
+postUser.setData({ name: "John", age: 18 })
+
+// Form data
+const data = new FormData();
+...
+postFile.setData(data)
+```
+
+### Parameters
+
+Parameters has to be defined in the endpoint of the command by stating it with `:`.
+
+```tsx
+const getNote = builder.createCommand()({
+  endpoint: "/note/:noteId";
+})
+const getCategory = builder.createCommand()({
+  endpoint: "/category/:categoryId";
+})
+const getCategoryNote = builder.createCommand()({
+  endpoint: "/category/:noteId";
+})
+```
+
+When we have properly prepared commands that expect parameters, we can add them using the `setParams` method.
+Additionally by generic typescript, these parameters will match the endpoint ones by using literal types and require
+them.
+
+```tsx
+getNote.setParams({ noteId: 1 });
+getCategory.setParams({ categoryId: 2 });
+getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
+```
+
+### Query parameters
+
+You can set query params by using the `setQueryParams` method. With typescript you can set it up to be accepted as
+strings, objects or strict interface. The encoding type for arrays and other options is possible to be setup on the
+builder. You can also provide your own encoding logic.
+
+```tsx
+getUsers.setQueryParams({ search: "John", sort: "age" });
+```
+
+### Trigger request
+
+You can perform a request with the `send` method.
+
+```tsx
+// Simple Send
+getNotes.send();
+
+// Chained Send
+getUsers.setQueryParams({ search: "John", sort: "age" }).send();
+
+// Multiple chained Send
+getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
+```
+
+#### For usage with **`React`** checkout our [hooks docs](/docs/React/Overview).
+
+---
+
+## Features
+
+You can read more in the API reference and guides.
+
+### [Cancelation](/guides/Basic/Cancelation)
+
+### [Queueing](/guides/Basic/Queueing)
+
+### [Offline](/guides/Basic/Offline)
+
+### [Deduplication](/guides/Basic/Deduplication)
+
+### [Authentication](/guides/Basic/Authentication)
+
+### [Data Mapping](/guides/Basic/Data%20Mapping)
+
+---
+
+## Methods
+
+Using methods on a command is different from the other classes in Hyper Fetch. This is to ensure isolation between
+different uses - not to overwrite previously prepared commands with each other and to dynamically generate keys for
+queues or cache.
+
+:::danger
+
+Using any method on command returns its clone! `We don't return a reference!`
+
+:::
+
+```tsx
+// ❌ WRONG
+
+const command = getUser;
+
+command.setParams({ userId: 1 }); // Returns CLONED command with assigned params
+
+command.send(); // Server error - no params
+```
+
+```tsx
+// ✅ Good
+
+const command = getUser;
+
+const commandWithParams = command.setParams({ userId: 1 }); // Returns CLONED command with assigned params
+
+commandWithParams.send(); // Success
+```
+
+---
+
+## Keys
+
+Each command gets its identifiers - `queueKey`, `cacheKey`, `abortKey` and `effectKey`. They are needed to determine
+under which key items will be cached, queued, canceled or handled by [Effects](/docs/Docs/Effect). By default keys are
+auto-generated based on the current values of parameters, endpoint, method, but you can overwrite those values with the
+proper method.
+
+---
 
 ## Typescript
 
-We can put the main elements of command. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
+Builder has four generic types built in. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
 
 ```tsx
-const getUsers = builder.createCommand<Response, Payload, Error, QueryParams>()({ endpoint: "/users" });
+type Response = { name: string }; // What's returned from request
+type Payload = { email: string }; // What's send with request
+type LocalError = { nameMessage: string }; // Additional "local" errors like errors for particular form
+type QueryParams = { sort: string; search: string }; // Query params interface
+
+const someCommand = builder.createCommand<Response, Payload, LocalError, QueryParams>()({
+  endpoint: "category/:categoryId",
+});
+
+someCommand.setData(); // Require the 'Payload' type
+someCommand.setParams(); // Require { categoryId: Param } type
+someCommand.setQueryParams(); // Require the 'QueryParams' type
+
+const [data, error] = someCommand.send();
+
+data; // Has 'Response' type
+error; // Has 'GlobalError' or 'LocalError' type
 ```
 
-## Caching
+## Parameters
 
-We can turn off caching by setting the `cache: false` option while creating command or by it's method.
+Configuration options
 
-## Authentication
-
-Authentication will work and trigger the `onAuth` method from the `builder` instance once we set the `auth: true` option
-on command.
+{@import HyperFetch FetchCommandConfig returns}

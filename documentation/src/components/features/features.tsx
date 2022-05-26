@@ -65,12 +65,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/070-file hosting.svg",
     description: "Authentication solutions",
-    link: <Link to="/examples/Authentication">Read more</Link>,
+    link: <Link to="/guides/Authentication">Read more</Link>,
   },
   {
     image: "/img/features/012-daily health app.svg",
     description: "Queueing requests",
-    link: <Link to="/examples/Authentication">Read more</Link>,
+    link: <Link to="/guides/Authentication">Read more</Link>,
   },
   {
     image: "/img/features/002-speech bubble.svg",

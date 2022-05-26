@@ -36,7 +36,7 @@ export const deleteUser = builder.createCommand()({
 export const postQueue = builder.createCommand<{ response: string }, { id: number; name: string }>()({
   endpoint: "/api/queue",
   method: "POST",
-  concurrent: false,
+  queued: false,
   retry: 0,
 });
 

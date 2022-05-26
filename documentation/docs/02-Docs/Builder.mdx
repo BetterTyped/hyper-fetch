@@ -2,87 +2,180 @@
 sidebar_position: 1
 ---
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Class/FetchBuilder">
-    <div class="pagination-nav__sublabel">FetchBuilder</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/Hyper-Fetch/Class/FetchBuilder">
+  <div class="api-link-title">FetchBuilder</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-## Description
+---
 
-**`FetchBuilder`** is a class that allows you to configure the connection with the server and then use it to create
-commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
-method specified in the command.
+## Introduction
+
+**`FetchBuilder`** is a class that allows you to configure the connection to the server. It initializes the subsystems
+of the entire library - such as queues, caches, interceptors, and allows you to create, based on its settings, commands
+necessary to execute requests. In this way, the data and information flow remains locked inside a given builder - it is
+isolated and does not affect other builders.
+
+It was designed to be used as a singleton, where the builder helps us create a global structure for making server
+requests, without duplicating logic in different parts of the application. In this approach, we can easily create a
+solid structure and architecture of our application, which additionally facilitates the maintenance of tests by dividing
+the necessary configurations and types.
+
+---
+
+## Purpose
+
+- `Orchestration` of the components and flow of the library
+- `Creating commands` to provide global setups and environment
+- `Isolation` from other builders and their events
+
+---
+
+## Initialization
 
 ```tsx
 import { FetchBuilder } from "@better-typed/hyper-fetch";
 
 export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
-
-export const getUsers = builder.createCommand<{ name: string; email: string }>()({
-  method: "GET",
-  endpoint: "/users",
-});
-
-...
-
-// Usage without queue - simple request
-const [user, error, status] = await getUsers.exec()
-
-// Usage with queue - provides cancelation / concurrecny options / queueing
-const [user, error, status] = await getUsers.send()
 ```
 
-### Event driven architecture
+---
 
-Hyper fetch is largely based on event communication - thanks to which we maintain greater flexibility in the context of
-data exchange and one approach to their flow in the library between different components.
+## Setup of defaults
 
-### Purpose
+Due to the fact that the components in hyper fetch are created inside the builder, we can set global or default values
+for our system on it.
 
-Builder has three main tasks:
+#### Command default setup
 
-- `Orchestration` of library components that are responsible for connection status, queues, http client, caching, and
-  others.
-- `Creating commands` and connecting them in a specific way inside the builder elements, thanks to which they have a
-  shared configuration and react in a specific way to events
-- `Controlling` and managing data flow
+We can use the `setCommandConfig` method to specify the defaults for every created command
+
+#### Client request options default setup
+
+We can use the `setRequestConfig` method to specify the defaults for every request. This method is based on the builder
+typescript generic which allow you to pass any options you need for your client.
+
+---
+
+## Features
+
+### Authentication
+
+When we want to send authenticated request we have to setup the `onAuth` interceptor and setup the command with the
+`auth` option set to true.
+
+[Read More](/guides/Basic/Authentication)
+
+### Pre-Request Interceptor
+
+When you need to use the pre-request interceptor to modify command before it get's send, you can use the `onRequest`
+builder method.
+
+### Post-Request Interceptors
+
+There are several possibilities to intercept the response from command. You can do it with methods:
+
+- `onError` which is triggered on request error response
+- `onSuccess` which is triggered on request success response
+- `onResponse` which is triggered on any response
+
+### Query Params
+
+Builder has the built in query params encoding fuction, you can modify it's options as you want or provide your own
+function.
+
+You can change it's setup with `setQueryParamsConfig` method and options listed bellow.
+
+{@import HyperFetch QueryStringifyOptions returns}
+
+To change the encoding function you can use `setStringifyQueryParams` method.
+
+```tsx
+builder.setStringifyQueryParams((value: string) => encode(value));
+```
+
+### Header Mapper
+
+By default header mapper behaves very simple. It checks for the content to be FormData or json, and provide correct
+headers to the request. You can do much advanced setups with the `setHeaderMapper` that allows you to define custom
+logic that will be triggered before every request made in the builder.
+
+### Payload Mapper
+
+It's main default responsibility is to check if data is instance of FormData or not. Based on this details, we can
+stringify non-FormData values or just pass the FormData to the request to be made. This way file upload is supported out
+of the box.
+
+---
+
+## Typescript
+
+Builder has two generic types.
+
+```tsx
+class FetchBuilder<GlobalErrorType, RequestConfigType>
+```
+
+- `GlobalErrorType` defines the error type used in all of the commands it should consist of `Error` type and your
+  default `ServerErrorType`. For the individual error types needed in some commands you can setup the `LocalErrorType`
+  for each individual command.
+
+- `RequestConfigType` is the generic responsible for shaping the options passed to the client. Most likely you will
+  change it only when you provide your custom client.
+
+---
 
 ## Components
 
-Builder is made up of many components that can be replaced or can be configured to your own preferences.
-
 ### [Cache](/api/Hyper-Fetch/Class/Cache)
 
-Handles data storages and persistance. Can be adjusted with cache property passed along baseUrl to the builder.
+Handles data storages and persistance. Can be adjusted with options when initializing builder.
 
-### [Client](/api/Hyper-Fetch/Class/Cache)
+---
 
-Handles requesting. Can be replaced with `setClient` method.
+### [Client](/api/Hyper-Fetch/Function/fetchClient)
 
-### [SubmitQueue](/api/Hyper-Fetch/Class/Cache)
+Handles all requests within builder. Can be replaced with `setClient` method.
 
-Handles the mutation requests and queueing. Can be adjusted with cache property passed along baseUrl to the builder.
+---
 
-### [FetchQueue](/api/Hyper-Fetch/Class/Cache)
+### [SubmitDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
-Handles the fetching requests and queueing. Can be adjusted with cache property passed along baseUrl to the builder.
+Handles the mutation requests and queueing. Can be adjusted with options when initializing builder.
 
-### [AppManager](/api/Hyper-Fetch/Class/Cache)
+---
 
-Handles the app focus and online state. Can be adjusted with cache property passed along baseUrl to the builder.
+### [FetchDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
-### [CommandManager](/api/Hyper-Fetch/Class/Cache)
+Handles the fetching requests and queueing. Can be adjusted with options when initializing builder.
 
-Handles additional events and cancelation of requests. Can be adjusted with cache property passed along baseUrl to the
-builder.
+---
 
-### [LoggerManager](/api/Hyper-Fetch/Class/Cache)
+### [AppManager](/api/Hyper-Fetch/Class/AppManager)
+
+Handles the app focus and online state. Can be adjusted with options when initializing builder.
+
+---
+
+### [CommandManager](/api/Hyper-Fetch/Class/CommandManager)
+
+Handles additional events and cancelation of requests. Can be adjusted with options when initializing builder.
+
+---
+
+### [LoggerManager](/api/Hyper-Fetch/Class/LoggerManager)
 
 Handles the logging systems for debugging.
 
-## Authentication
+---
+
+## Parameters
+
+Configuration options
+
+{@import HyperFetch FetchBuilderConfig returns}
+
+<!-- ## Authentication
 
 1. Adding the headers to the request during authentication
 
@@ -134,22 +227,7 @@ export const builder = new FetchBuilder({ baseUrl }).onError(async (res, command
   // Return the initial response is something goes wrong
   return res;
 });
-```
-
-## Setups
-
-#### 1. Command default setup
-
-We can use the `setCommandDefaultOptions` method to specify the defaults for every command
-
-#### 2. Client default setup
-
-We can use the `setClientOptions` method to specify the defaults for http client like custom header mapper.
-
-#### 3. Http options default setup
-
-We can use the `setHttpOptions` method to specify the defaults for every request. This method is based on the builder
-typescript generic which allow you to pass any options you need for your client.
+``` -->
 
 <!--
 

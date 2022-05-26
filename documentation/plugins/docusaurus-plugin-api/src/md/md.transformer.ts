@@ -115,7 +115,7 @@ export class MdTransformer {
       const list = signature.type.declaration?.children || [];
 
       const headers = [...(this.pluginOptions.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders)];
-      headers.splice(1, 1);
+      headers.splice(2, 1);
       let namedParameterCount = 0;
       const params = list.map((parameter) => {
         const param = new MdTransformer(
@@ -136,7 +136,11 @@ export class MdTransformer {
         }
 
         return {
-          value: [getMdBoldText(name), this._getLinkedType(parameter?.type, true) || "-", comment?.shortText || "-"],
+          value: [
+            getMdBoldText(name),
+            getMdQuoteText(this._getLinkedType(parameter?.type) || "-"),
+            comment?.shortText || "-",
+          ],
         };
       });
 

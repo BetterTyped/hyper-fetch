@@ -1,0 +1,48 @@
+---
+sidebar_position: 6
+---
+
+## Introduction
+
+Testing is one of the best things Hyper Fetch has to offer. With our architecture approach and focus on global singleton
+structure, our tests can be largely based on the configuration we prepare for our application. Thanks to this, the tests
+are no longer sensitive to micro changes (like changing endpoints or types). Everything here reacts and adapts to our
+tests or shows the appropriate error - they are easier to maintain and faster to write.
+
+## Benefits
+
+- Our setup is always up to date with the production solution
+- No duplication of the configurations and setups
+- Easy maintenance of the tests
+- Tests are faster to build
+
+## Example
+
+In our approach we are using great mocking library [msw](https://mswjs.io/) and
+[testin-library](https://testing-library.com/) but this solution works with other libraries like
+[Cypress](https://www.cypress.io/). Thanks to it we can simulate the real requests and make our tests as close to
+production environment as we can. Together we can create really powerfull flow that allow us to create tests with ease
+and fun.
+
+You can create the utilities set that takes command and use its method, endpoint and types to create function that allow
+you to intercept request.
+
+```tsx
+import { getUsers } from "commands";
+
+const getUsersInterceptor = createInterceptor(getUsers, {
+  data: [
+    { name: "John", age: 18 },
+    { name: "Matthew", age: 27 },
+  ],
+});
+
+it("My test", async () => {
+  const mock = getUsersInterceptor();
+
+  // Some test
+  renderApp();
+
+  expect(await screen.findByText(mock.data[0])).toBeVisible();
+});
+```

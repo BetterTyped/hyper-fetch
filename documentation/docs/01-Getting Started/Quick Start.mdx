@@ -2,9 +2,8 @@
 sidebar_position: 3
 ---
 
-This is a quick start of the basic version of the library, to see other packages go here:
-
-- ** [React Quick Start](/docs/React/Overview). **
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 :::info
 
@@ -12,7 +11,7 @@ The basic version of Hyper Fetch is not associated with any framework or library
 
 :::
 
-## 1. Initialize Builder
+### 1. Initialize Builder
 
 The first step in implementing Hyper Fetch is to initialize the FetchBuilder. It manage the basic configuration for
 connection to the server and all the elements that make up Hyper Fetch, which are instances of - queue, cache, onfline /
@@ -24,7 +23,7 @@ import { FetchBuilder } from "@better-typed/hyper-fetch";
 export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
 ```
 
-## 2. Create Command
+### 2. Create Command
 
 Then, having already prepared connection to the server, we use the Builder method to create commands and assign types to
 them.
@@ -46,11 +45,29 @@ type RequestType = { email: string; password: string };
 const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
 ```
 
-## 3. Use the command
+### 3. Use the command
+
+<Tabs>
+  <TabItem value="React" label="React" default>
+
+```tsx
+import { useSubmit, useFetch } from "@better-typed/react-hyper-fetch";
+
+import { postUser, getUsers } from "server/auth";
+
+// Submitting (mutation)
+const { submit, submitting } = useSubmit(postUser.setData({ name: "John" }));
+submit();
+
+// Fetching
+const { data, error, loading } = useFetch(getUsers);
+```
+
+  </TabItem>
+  <TabItem value="Vanilla JS" label="Vanilla JS">
 
 ```tsx
 import { postLogin } from "server/auth";
-
 
 ...
 
@@ -69,5 +86,7 @@ const handleLogin = async (values: {email: string, password: string}) => {
 
 ...
 
-
 ```
+
+  </TabItem>
+</Tabs>

@@ -1,3 +1,4 @@
+import { waitFor } from "@testing-library/dom";
 import { createDispatcher, createBuilder, createCommand, createClient, sleep } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createRequestInterceptor } from "../../server/server";
@@ -94,7 +95,7 @@ describe("Dispatcher [ Requests ]", () => {
       const firstRequestId = dispatcher.add(firstCommand);
       const secondRequestId = dispatcher.add(secondCommand);
 
-      await sleep(1);
+      await sleep(5);
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
@@ -140,7 +141,7 @@ describe("Dispatcher [ Requests ]", () => {
       const firstRequestId = dispatcher.add(firstCommand);
       const secondRequestId = dispatcher.add(secondCommand);
 
-      await sleep(1);
+      await sleep(5);
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
@@ -165,7 +166,7 @@ describe("Dispatcher [ Requests ]", () => {
       const firstRequestId = dispatcher.add(firstCommand);
       const secondRequestId = dispatcher.add(secondCommand);
 
-      await sleep(1);
+      await sleep(5);
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
@@ -197,11 +198,11 @@ describe("Dispatcher [ Requests ]", () => {
         expect(dispatcher.getRunningRequest(command.queueKey, requestId)).not.toBeDefined();
         expect(queue.requests[0].stopped).toBeTrue();
 
-        await sleep(30);
-
-        const cacheValue = await builder.cache.get(command.cacheKey);
-        expect(cacheValue).toBeDefined();
-        expect(cacheValue?.details?.isCanceled).toBeTrue();
+        await waitFor(async () => {
+          const cacheValue = await builder.cache.get(command.cacheKey);
+          expect(cacheValue).toBeDefined();
+          expect(cacheValue?.details?.isCanceled).toBeTrue();
+        });
       });
       it("should allow to start previously stopped request", async () => {
         const command = createCommand(builder);

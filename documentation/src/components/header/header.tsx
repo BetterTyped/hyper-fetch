@@ -58,7 +58,7 @@ export function Header(): JSX.Element {
           <Link className="button button--primary button--lg" to="/docs/Getting Started/Overview">
             Get Started
           </Link>
-          <Link className="button button--secondary button--lg" to="/examples/Basic">
+          <Link className="button button--secondary button--lg" to="/guides/Basic">
             Examples
           </Link>
         </div>

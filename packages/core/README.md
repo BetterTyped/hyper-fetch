@@ -32,7 +32,8 @@ limitations) data and restore them in subsequent sessions allowing for fully off
 
 💎 **Queueing** – If you need to send requests in an orderly manner, we have solutions that allow you to use one of
 several approaches. `Concurrent` to allow you to send all requests at once, `one-by-one` to send them in order or
-`only-last` to cancel all running requests except the last one.
+`only-last` to cancel all running requests except the last one and the `deduplicated` to send only one at the given
+time.
 
 🌍 **Opinionated** – Hyper Fetch was built with architecture in mind to tackle multiple problems at once. By observing
 the fetch approach and setup creation, we have developed a structure that should be readable by everyone.

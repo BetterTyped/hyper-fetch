@@ -2,18 +2,22 @@
 sidebar_position: 3
 ---
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/Hyper-Fetch/Function/fetchClient">
-    <div class="pagination-nav__sublabel">Cache</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/Hyper-Fetch/Function/fetchClient">
+  <div class="api-link-title">Client</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-## Description
+---
 
-**`Client`** is a function that is responsible for communication with the server. The default hyper fetch client is used
-to communicate with the Rest Api server. However, there is nothing to prevent us from changing and creating the client
-we need. Thanks to event communication, we can set our own client as we wish.
+## Introduction
+
+**`Client`** is a function that is responsible for communication with the server. The default client is used to
+communicate with the REST server. However, there is nothing to prevent us from changing and creating the client we need.
+Thanks to event communication, we can set our own client as we wish.
+
+By default, the client is responsible for requests, but its role is very significant for many other elements - such as
+tracking the progress of requests, listening for cancelation, mapping payload and headers. It also applies all the
+interceptors in requesting lifecycle.
 
 :::caution
 
@@ -22,18 +26,64 @@ package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set i
 
 :::
 
-By default, the client is responsible for requests, but its role is very significant for many other elements - such as
-tracking the progress of requests, canceling them, stringify of query params, lifecycle methods of request - like
-request start / end, response start / end. It also applies all the middlewares and interceptors to the whole requesting
-process.
+---
 
-### Custom Client
+## Preview
 
-You can connect any client to communicate with the server and handle it as you want, the only thing that has to match is
-the interface of the output.
+{@import HyperFetch fetchClient preview}
+
+---
+
+## Purpose
+
+- `Requests` handler of the builder dispatchers
+- `Changeability` of the handler to provide more flexibility
+
+---
+
+## Custom Client
+
+You can create your own client based on your preferences or requirements. You can use the bindings to achieve it. They
+will let you to easily connect into the library logic flow, so this way you will make your custom client without
+handling the internals on the library. We propose to use the `getClientBindings` util so you skip the sensitive and
+highly advanced part of connecting into hyper fetch flow.
+
+```tsx
+const customHttpClient = async () => {
+  const {
+    fullUrl,
+    headers,
+    payload,
+    config,
+    getAbortController,
+    getRequestStartTimestamp,
+    getResponseStartTimestamp,
+    createAbortListener,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onResponseEnd,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onUnexpectedError,
+    onError,
+  } = await getClientBindings(command, requestId);
+
+  // ... custom client logic
+};
+```
+
+Connect any client to communicate with the server and handle it as you want, the only thing that has to match is the
+interface of the output.
 
 ```tsx
 const customHttpClient: ClientType = (command: FetchCommandInstance) => Promise.resolve([null, null, 0]);
 
 const builder = new FetchBuilder({ baseUrl }).setClient(customHttpClient);
 ```
+
+---

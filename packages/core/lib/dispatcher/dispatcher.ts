@@ -181,7 +181,7 @@ export class Dispatcher<ErrorType, HttpOptions> {
 
     const isStopped = queue && queue.stopped;
     const isOffline = !this.builder.appManager.isOnline;
-    const isQueued = !queueElement?.commandDump.concurrent;
+    const isQueued = queueElement?.commandDump.queued;
     const isOngoing = runningRequests.length;
 
     // When there are no requests to flush, when its stopped, there is running request

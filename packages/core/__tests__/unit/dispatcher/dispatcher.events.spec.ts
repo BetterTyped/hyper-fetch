@@ -42,12 +42,12 @@ describe("Dispatcher [ Events ]", () => {
     it("should emit drained event", async () => {
       const spy = jest.fn();
       const unmount = dispatcher.events.onDrained(command.queueKey, spy);
-      dispatcher.add(command.setConcurrent(false));
+      dispatcher.add(command.setQueued(true));
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });
       unmount();
-      dispatcher.add(command.setConcurrent(false));
+      dispatcher.add(command.setQueued(true));
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });

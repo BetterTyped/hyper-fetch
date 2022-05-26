@@ -268,6 +268,32 @@ aside {
   font-weight: 600;
 }
 
+/* Api link */
+
+.api-link {
+  display: block;
+  width: fit-content;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-pagination-nav-border-radius);
+  line-height: var(--ifm-heading-line-height);
+  padding: var(--ifm-global-spacing);
+  transition: border-color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
+  margin-bottom: 10px;
+}
+
+.api-link-title {
+  color: var(--ifm-color-content-secondary);
+  font-size: var(--ifm-h5-font-size);
+  font-weight: var(--ifm-heading-font-weight);
+  margin-bottom: 0.25rem;
+}
+
+.api-link-sub-title {
+  font-size: var(--ifm-h4-font-size);
+  font-weight: var(--ifm-heading-font-weight);
+  word-break: break-word;
+}
+
 /* Footer */
 
 html[data-theme="light"] footer {

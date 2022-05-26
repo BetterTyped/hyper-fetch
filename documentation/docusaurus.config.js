@@ -22,9 +22,9 @@ const config = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "examples",
-        path: "examples",
-        routeBasePath: "examples",
+        id: "guides",
+        path: "guides",
+        routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
@@ -149,10 +149,10 @@ const config = {
             activeBaseRegex: `/api`,
           },
           {
-            to: "/examples/Basic",
-            label: "Examples",
+            to: "/guides/Basic/Simple Example",
+            label: "Guides",
             position: "left",
-            activeBaseRegex: `/examples/`,
+            activeBaseRegex: `/guides/`,
           },
           {
             to: "/resources/Overview",

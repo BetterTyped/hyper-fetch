@@ -35,8 +35,9 @@ export function Description(): JSX.Element {
           <div className={clsx(styles.block)}>
             <h3 className={clsx(styles.title)}>Persistance and Offline</h3>
             <div className={clsx(styles.description)}>
-              Persistence takes a great part of our library architecture, thanks to it you can resist everything - whole
-              requests and cache. We automatically handle offline and hold the request until the connection is restored.
+              Persistence takes a great part of our library architecture, thanks to it you can persist everything -
+              whole requests and cache. We automatically handle offline and hold the request until the connection is
+              restored.
             </div>
           </div>
         </div>

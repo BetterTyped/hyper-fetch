@@ -35,7 +35,7 @@ export class FetchCommand<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType | string,
-  ErrorType, // Global Error Type
+  GlobalErrorType, // Global Error Type
   LocalErrorType, // Additional Error for specific endpoint
   EndpointType extends string,
   ClientOptions,
@@ -53,11 +53,11 @@ export class FetchCommand<
   queryParams: QueryParamsType | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
-  retry: boolean | number;
+  retry: number;
   retryTime: number;
   cache: boolean;
   cacheTime: number;
-  concurrent: boolean;
+  queued: boolean;
   offline: boolean;
   abortKey: string;
   cacheKey: string;
@@ -74,14 +74,14 @@ export class FetchCommand<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly builder: FetchBuilder<ErrorType, ClientOptions>,
+    readonly builder: FetchBuilder<GlobalErrorType, ClientOptions>,
     readonly commandOptions: FetchCommandConfig<EndpointType, ClientOptions>,
     readonly commandDump?:
       | FetchCommandCurrentType<
           ResponseType,
           PayloadType,
           QueryParamsType,
-          ErrorType | LocalErrorType,
+          GlobalErrorType | LocalErrorType,
           EndpointType,
           ClientOptions,
           MappedData
@@ -99,11 +99,11 @@ export class FetchCommand<
       method = HttpMethodsEnum.get,
       options,
       cancelable = false,
-      retry = false,
+      retry = 0,
       retryTime = 500,
       cache = true,
       cacheTime = DateInterval.minute * 5,
-      concurrent = true,
+      queued = false,
       offline = true,
       abortKey,
       cacheKey,
@@ -125,7 +125,7 @@ export class FetchCommand<
     this.retryTime = commandDump?.retryTime ?? retryTime;
     this.cache = commandDump?.cache ?? cache;
     this.cacheTime = commandDump?.cacheTime ?? cacheTime;
-    this.concurrent = commandDump?.concurrent ?? concurrent;
+    this.queued = commandDump?.queued ?? queued;
     this.offline = commandDump?.offline ?? offline;
     this.abortKey =
       commandDump?.abortKey ?? abortKey ?? getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
@@ -188,8 +188,8 @@ export class FetchCommand<
     return this.clone({ cacheTime });
   };
 
-  public setConcurrent = (concurrent: boolean) => {
-    return this.clone({ concurrent });
+  public setQueued = (queued: boolean) => {
+    return this.clone({ queued });
   };
 
   public setAbortKey = (abortKey: string) => {
@@ -250,7 +250,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      GlobalErrorType,
       LocalErrorType,
       EndpointType,
       ClientOptions,
@@ -276,7 +276,7 @@ export class FetchCommand<
       retryTime: this.retryTime,
       cache: this.cache,
       cacheTime: this.cacheTime,
-      concurrent: this.concurrent,
+      queued: this.queued,
       offline: this.offline,
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
@@ -303,7 +303,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | LocalErrorType,
+      GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -313,7 +313,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType,
+    GlobalErrorType,
     LocalErrorType,
     EndpointType,
     ClientOptions,
@@ -327,7 +327,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType | LocalErrorType,
+      GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
@@ -347,7 +347,7 @@ export class FetchCommand<
       ResponseType,
       PayloadType,
       QueryParamsType,
-      ErrorType,
+      GlobalErrorType,
       LocalErrorType,
       EndpointType,
       ClientOptions,
@@ -369,7 +369,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | LocalErrorType,
+    GlobalErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -381,7 +381,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | LocalErrorType,
+        GlobalErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData
@@ -401,7 +401,7 @@ export class FetchCommand<
     ResponseType,
     PayloadType,
     QueryParamsType,
-    ErrorType | LocalErrorType,
+    GlobalErrorType | LocalErrorType,
     EndpointType,
     HasData,
     HasParams,
@@ -423,7 +423,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType,
+        GlobalErrorType,
         LocalErrorType,
         EndpointType,
         ClientOptions,
@@ -439,7 +439,7 @@ export class FetchCommand<
         ResponseType,
         PayloadType,
         QueryParamsType,
-        ErrorType | LocalErrorType,
+        GlobalErrorType | LocalErrorType,
         EndpointType,
         ClientOptions,
         MappedData
