@@ -11,9 +11,13 @@ sidebar_position: 3
 
 ## Introduction
 
-**`Client`** is a function that is responsible for communication with the server. The default hyper fetch client is used
-to communicate with the Rest Api server. However, there is nothing to prevent us from changing and creating the client
-we need. Thanks to event communication, we can set our own client as we wish.
+**`Client`** is a function that is responsible for communication with the server. The default client is used to
+communicate with the REST server. However, there is nothing to prevent us from changing and creating the client we need.
+Thanks to event communication, we can set our own client as we wish.
+
+By default, the client is responsible for requests, but its role is very significant for many other elements - such as
+tracking the progress of requests, listening for cancelation, mapping payload and headers. It also applies all the
+interceptors in requesting lifecycle.
 
 :::caution
 
@@ -21,11 +25,6 @@ If there is no XHR in the window object or the XHR object is a polyfill in your 
 package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object.
 
 :::
-
-By default, the client is responsible for requests, but its role is very significant for many other elements - such as
-tracking the progress of requests, canceling them, stringify of query params, lifecycle methods of request - like
-request start / end, response start / end. It also applies all the middlewares and interceptors to the whole requesting
-process.
 
 ---
 

@@ -2,47 +2,37 @@
 sidebar_position: 1
 ---
 
-:::danger
-
-The library starts with **ALPHA** version please have it in mind when using it, since it's still not tested as we would
-like. Currently we do not recommend using it in production.
-
-:::
-
-**Hyper Fetch** is a library for a very wide range of uses - it provides the logic necessary to **perform requests,
-caching, queuing, offline support, presistence possibilities of the queued requests and cache**. By offering the above
-solutions, we have the ambition to become one of the greatest fetching tools - this is certainly not our last word, but
-there are still many challenges ahead of us.
+**Hyper Fetch** is a library for a very wide range of uses - it provides the logic necessary to `perform requests`,
+`caching`, `queuing`, `offline support`, `presistence` possibilities of the queued requests and cache. By offering the
+above solutions, we have the ambition to become one of the greatest fetching tools - this is certainly not our last
+word.
 
 ### Motivation
 
-The idea for Hyper Fetch came from observing many projects in the Reactjs environment where there are many great fetch
-libraries, but each of them is based only on providing hooks and the rest of the `fetcher` implementation is up to the
-developers. However, we believe you can provide much more functionality that will run in a predictable manner in whole
-application server interactions. For this reason, the work began only on building integration around Reactjs, but over
-time it allowed us to understand that we can separate the library into two smaller ones - Hyper Fetch offering the logic
-needed to operate all functionalities, written in vanilla javascript and React Hyper Fetch, i.e. a set of hooks to
-handle commands from the main library. This allows other developers to create extensions and plugins and use the
-underlying logic in any JavaScript environment!
+The idea for Hyper Fetch came from our observation and leading many projects in the Reactjs environment. There are many
+great fetch libraries and api - like `axios`, `fetch`, `swr`, `react-query` but the logic that they provide is detached
+from each other - hooks from the fetchers. This of course gives the possibility to make it our own way - but there are
+few issues coming with this appraoch. We need to make this logic on our own, there is no schema for data exchange and
+normalization which is blocking many, many possible features to come. We decided to overcome this issue by giving
+straight and opinionated solution with the flexibility that will make it possible to change the parts of the whole
+system to make it work as you would like. With this approach we can give you the tool that's packed with all sorts of
+features you may need in production environments with solutions for testing, maintaining and general usage. Do not waste
+your time to write fetchers and whole flow with each application, set it up in few minutes and you're ready to go!
 
 ### Main Goals
 
-- **Caching** - to limit the requests to the server
-- **Queues** - for deduplication, cancelation and chaining requests (one for fetching another for submitting)
-- **Easy upload/download tracking** - get streamed request status, get the eta and how much load still have to be
-  processed
-- **Offline and persistance** - to make it possible to recreate previous session with pending requests and cache no
-  matter of connection status
-- **No duplication of configs** - the entire environment has access to developer settings so testers and anyone can use
-  the used configs without copying
-- **Performance and optimization** - make it easier for infrastructure - optimize pagination, filters, infinity scroll
-  etc
-- **Http Client** - provided out of the box and possibility to create your own to support any backend
-- **Simplicity** - get rid of many repetitive configs and automate as much as possible
+- Enable you to quickly build new solutions without repeating your work or copying it between projects
+- Provide all the necessary fetching systems with the possibility of expanding them as you wish
+- Eliminate duplication of solutions between and within projects by giving global access to server settings
+- Make rapid development of applications possible, where setting up fetcher and dependencies will take minutes, not
+  hours or days
+- Trivial tracking of the progress and queue of sent requests
+- Offline and persistance solutions that no other library offers
+- Ease of use by eliminating and automating the most problematic places
 
 ### Guides
 
 Checkout our guides section where you can find:
 
-- [Basic](/guides/Basic)
-- [React](/guides/React)
+- [Basic](/guides/Basic/Simple%20Example)
+- [React](/guides/React/Fetching)
