@@ -30,7 +30,7 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/029-find my gadget app.svg",
     description: "Rich Typescript support",
-    link: <Link to="/docs/Getting%20Started/Typescript">Read more</Link>,
+    // link: <Link to="">Read more</Link>,
   },
   {
     image: "/img/features/038-like.svg",
@@ -45,12 +45,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/047-pin.svg",
     description: "Persistance",
-    link: <Link to="/docs/Docs/Persistence">Read more</Link>,
+    link: <Link to="/guides/Basic/Persistence">Read more</Link>,
   },
   {
     image: "/img/features/063-slide show app.svg",
     description: "Easy to test",
-    link: <Link to="/docs/Docs/Testing">Read more</Link>,
+    link: <Link to="/docs/Getting%20Started/Testing">Read more</Link>,
   },
   {
     image: "/img/features/069-linkedin.svg",
@@ -65,17 +65,17 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/070-file hosting.svg",
     description: "Authentication solutions",
-    link: <Link to="/guides/Authentication">Read more</Link>,
+    link: <Link to="/guides/Basic/Authentication">Read more</Link>,
   },
   {
     image: "/img/features/012-daily health app.svg",
     description: "Queueing requests",
-    link: <Link to="/guides/Authentication">Read more</Link>,
+    link: <Link to="/guides/Basic/Queueing">Read more</Link>,
   },
   {
     image: "/img/features/002-speech bubble.svg",
     description: "Offline handling",
-    link: <Link to="/docs/Docs/Offline">Read more</Link>,
+    link: <Link to="/guides/Basic/Offline">Read more</Link>,
   },
 ];
 
