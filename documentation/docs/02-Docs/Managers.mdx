@@ -4,6 +4,8 @@ sidebar_position: 7
 
 The library contains several managers, they are mainly used to support smaller subsystems and features.
 
+---
+
 ## AppManager
 
 <a class="api-link" href="/api/Hyper-Fetch/Class/AppManager">
@@ -37,6 +39,8 @@ unmountOfflineListener()
 
 {@import HyperFetch getAppManagerEvents returns}
 
+---
+
 ## CommandManager
 
 <a class="api-link" href="/api/Hyper-Fetch/Class/CommandManager">
@@ -64,9 +68,18 @@ unmountUploadListener()
 unmountDownloadListener()
 ```
 
+### AbortKey
+
+Every requests which gets added to the dispatcher creates the abort controller for itself that's placed in Map object
+and it's stored there under abort key and requestId in it. This way we can abort whole groups of requests by abortKey or
+single requests by their requestId. By default it is automatically created on command out of it's endpoint and method,
+but we an set the custom value for easier usage.
+
 ### Events
 
 {@import HyperFetch getCommandManagerEvents returns}
+
+---
 
 ## LoggerManager
 
