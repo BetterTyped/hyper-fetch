@@ -2,63 +2,40 @@
 sidebar_position: 3
 ---
 
-<p class="pagination-nav__item pagination-nav__item--prev">
-  <a class="pagination-nav__link" href="/api/React-Hyper-Fetch/Hook/useFetch">
-    <div class="pagination-nav__sublabel">useFetch</div>
-    <div class="pagination-nav__label">API Docs »</div>
-  </a>
-</p>
+<a class="api-link" href="/api/React-Hyper-Fetch/Hook/useFetch">
+  <div class="api-link-title">useFetch</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-## Description
+---
 
-This hook is used to retrieve data from the server, it uses the FetchQueue to handle requests and the Cache to manage
-the overall state of the data. This hook is used to retrieve data from the server, it uses the `FetchQueue` to handle
-requests and the `Cache` to manage the overall state of the data. The minimum requirement to use `useFetch` is to have a
-prepared **command**. An example of how to do it can be found [here](/docs/Docs/Command).
+## Introduction
 
-If you intend to `mutate` data stored on the server, we recommend [useSubmit](/docs/React/useSubmit) hook.
+This hook is created to **retrieve data** from the server. It uses the [`Fetch Dispatcher`](/docs/Docs/Dispatcher) to
+handle requests and the [`Cache`](/docs/Docs/Cache) to manage the overall state of the data.
+
+The minimum requirement to use `useFetch` is to have a prepared [`Command`](/docs/Docs/Command).
+
+If you intend to `mutate` data stored on the server, we recommend [`useSubmit`](/docs/React/useSubmit) hook.
+
+---
+
+## Initialization
 
 ```tsx
 const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
 ```
 
+---
+
 ## How it works?
 
-**`useFetch`** executes the query when a component is mounted or when its dependencies elements change. Optionally there
-is way to `refresh` it with one metod returned from it or it can be invalidated which will trigger the autorefresh. The
-common example of invalidation can be that we create new user on the server and the `useSubmit` hook as a side-effect
-invalidates the `useFetch` hook responsible for users list fetching.
-
-We can disable the hook with `disabled` option, this way we can perform dependent requests between hooks.
-
-## ETA and transfer size
-
-With the the `onDownloadProgress` and `onUploadProgress` methods available on the useFetch you can get parsed and
-preapared to display values of the estimated time for finalizing the request download or upload.
-
-It will return you the percentage value of the request progress, estimated time left to the end of the task and size of
-it that left to be uploaded or downloaded in bytes.
-
-```tsx
-  const { data, error, loading, onDownloadProgress, onUploadProgress } = useFetch(getFile);
-
-  onDownloadProgress((progress) => {
-    console.log(payload); // { progress, timeLeft, sizeLeft }
-  });
-
-  onUploadProgress((progress) => {
-    console.log(payload); // { progress, timeLeft, sizeLeft }
-  });
-};
-```
-
-### Debouncing
-
-We allow to use the built-in debouncing system, which allows to optimize requesting. Let's take an searching feature,
-where we don't want to make a request with every letter we type in the search input. Instead we wait as long as user is
-typing and when he stops for certain amount of time - we trigger the request.
-
-## Example
+**`useFetch`** executes the command when a component is mounted or when its dependencies array change. It uses
+dependency tracking to limit rerendering and help with the performance. Under the hood the communication with the core
+systems is established by the events emitters. There are many helpful `"helper hooks"` that get returned from the hook
+like `onSuccess`, `onError`, `onFinished` and many more to help you handle interesting events in the request flow and
+lifecycle. We used this approach to not overload the base hook with the callbacks logic which cause low readibility of
+the code and increase complication level. Thanks to this we can easily organize our code.
 
 ```tsx
 import { useFetch } from "@better-typed/react-hyper-fetch";
@@ -95,3 +72,27 @@ const UsersListPage: React.FC = () => {
   );
 };
 ```
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useFetch(command, options)
+```
+
+{@import ReactHyperFetch UseFetchOptionsType returns}
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useFetch(command);
+```
+
+{@import ReactHyperFetch useFetch returns}

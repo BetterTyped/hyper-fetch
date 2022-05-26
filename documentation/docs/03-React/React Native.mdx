@@ -2,10 +2,9 @@
 sidebar_position: 2
 ---
 
-Hyper-Fetch and React-Hyper-Fetch were written with different environments in which they can be used. Thanks to this,
-the structure of the base library is very generic and modular. This means that we can freely replace a large part of the
-components. In addition, a large part is written in vanilla js, thanks to which we maintain greater stability of our
-solutions between environments.
+**`React Native`** is supported by our library as the `Hyper Fetch` was written to support as many environments as
+possible. Thanks to this, the structure of the base library is very generic and modular. This means that we can freely
+replace a large part of the components.
 
 ## Online / Offline status handling
 
@@ -18,22 +17,13 @@ export const builder = new FetchBuilder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
+      initiallyOnline: NetInfo.fetch().then((state) => state.isConnected),
       onlineEvent: (setOnline) =>
         NetInfo.addEventListener((state) => {
           setOnline(state.isConnected);
         }),
     }),
 });
-```
-
-```tsx
-builder.appManager.setOnline(true);
-```
-
-```tsx
-const { isOnline, setOnline } = useAppManager(builder);
-
-setOnline(true);
 ```
 
 ## Application focus / blur state
@@ -54,17 +44,32 @@ export const builder = new FetchBuilder<ServerErrorType>({
 });
 ```
 
-```tsx
-builder.appManager.setFocused(true);
-```
-
-```tsx
-const { isFocused, setFocused } = useAppManager(builder);
-
-setFocused(true);
-```
-
 ## Particular screen focus / blur state
 
-If we want to implement such logic for a specific screen, we have to use custom solutions where we can use Hooks to
-block requests by prop disabled.
+If we want to implement such logic for a specific screen, we have to use custom solutions where we can track the focus
+state of the screen and hook it into revalidation.
+
+```tsx
+import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
+
+export function useFocusRevalidation(revalidate: () => void) {
+  const initialized = React.useRef(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (initialized.current) {
+        initialized.current = false;
+      } else {
+        revalidate();
+      }
+    }, [revalidate]),
+  );
+}
+```
+
+```tsx
+const { data, error, loading, revalidate } = useFetch(getUsers);
+
+useFocusRevalidation(revalidate);
+```

@@ -2,8 +2,80 @@
 sidebar_position: 5
 ---
 
-:::note
+<a class="api-link" href="/api/React-Hyper-Fetch/Hook/useQueue">
+  <div class="api-link-title">useQueue</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
+
+## Introduction
+
+This hook is created to **controll the dispatcher queues**. It uses the [`Dispatcher`](/docs/Docs/Dispatcher) to read
+the actual value of the queue `based on the queueKey` retrived from command passed as first argument.
+
+The minimum requirement to use `useQueue` is to have a prepared [`Command`](/docs/Docs/Command).
+
+---
+
+## Initialization
+
+```tsx
+const { requests, stopped, stop, start, pause } = useQueue(getUsers);
+```
+
+---
+
+## How it works?
+
+**`useQueue`** use the command to read the dispatcher queue value based on it's queueKey. It uses the events emitted by
+dispatcher to keep this hook up to date. It is giving you the possibilities to controll every single request made in
+your application, and possibilities to manipulate whole queues and single requests. It works the best with the
+`one-by-one` dispatching mode, when command `queued` option is set to true.
+
+:::caution
+
+Remember to make sure your command `queueKey` is static when you use this hook, because of the autogeneration of keys it
+may return wrong values if your command has the params or query params used. To avoid it, it is recommended to provide
+custom `queueKey` when command gets created.
 
 :::
+
+```tsx
+const { requests, stopped, stop, start, pause } = useQueue(getUsers);
+
+requests.forEach((req) => {
+  req.stopRequest();
+  req.startRequest();
+});
+
+stop();
+pause();
+start();
+```
+
+Read more about differences between `stop`, `pause` and `start` at the [`Dispatcher`](/docs/Docs/Dispatcher) doc page.
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useQueue(command, options)
+```
+
+<!-- {@import ReactHyperFetch UseQueueOptionsType returns} -->
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useQueue(command);
+```
+
+{@import ReactHyperFetch useQueue returns}

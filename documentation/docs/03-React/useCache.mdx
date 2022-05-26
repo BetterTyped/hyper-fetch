@@ -2,8 +2,59 @@
 sidebar_position: 6
 ---
 
-:::note
+<a class="api-link" href="/api/React-Hyper-Fetch/Hook/useCache">
+  <div class="api-link-title">useCache</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+## Introduction
+
+Thanks to this hook, we are able to manipulate the [`Cache`](/docs/Docs/Managers) of the passed command and receive
+change callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation - to make sure we have
+the stable connection between hook's command and the cache.
+
+```tsx
+const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUseres);
+
+revalidate();
+
+onSuccess((payload) => {
+  console.log(payload); // [ User, User, User ]
+});
+
+onError((error) => {
+  console.log(error); // { message: string }
+});
+
+onFinished(([payload, error, status]) => {
+  console.log(payload); // [ User, User, User ] | null
+  console.log(error); // { message: string } | null
+  console.log(status); // 200 / 400 / 404 / 500 ...
+});
+```
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useCache(command, options)
+```
+
+{@import ReactHyperFetch UseCacheOptionsType returns}
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useCache(command);
+```
+
+{@import ReactHyperFetch useAppManager returns}
