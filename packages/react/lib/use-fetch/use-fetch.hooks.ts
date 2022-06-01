@@ -1,10 +1,8 @@
 import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
-
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useDebounce, useCommand } from "hooks";
-import { isStaleCacheData } from "utils";
 import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
 
 /**
@@ -36,7 +34,7 @@ export const useFetch = <T extends FetchCommandInstance>(
   const requestDebounce = useDebounce(debounceTime);
   const refreshDebounce = useDebounce(refreshTime);
 
-  const { cacheTime, cacheKey, queueKey, builder } = command;
+  const { cacheKey, queueKey, builder } = command;
   const { cache, fetchDispatcher, appManager, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useFetch")).current;
@@ -229,23 +227,6 @@ export const useFetch = <T extends FetchCommandInstance>(
     get timestamp() {
       setRenderKey("timestamp");
       return state.timestamp;
-    },
-    get isOnline() {
-      setRenderKey("isOnline");
-      return state.isOnline;
-    },
-    get isFocused() {
-      setRenderKey("isFocused");
-      return state.isFocused;
-    },
-    get isRefreshingError() {
-      setRenderKey("error");
-      setRenderKey("isRefreshed");
-      return !!state.error && state.isRefreshed;
-    },
-    get isStale() {
-      setRenderKey("timestamp");
-      return isStaleCacheData(cacheTime, state.timestamp);
     },
     ...actions,
     isDebouncing: requestDebounce.active,

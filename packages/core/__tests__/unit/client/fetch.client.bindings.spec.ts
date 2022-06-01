@@ -1,5 +1,5 @@
 import { FetchEffect } from "effect";
-import { getClientBindings, XHRConfigType, ClientResponseType, getErrorMessage } from "client";
+import { getClientBindings, ClientDefaultOptionsType, ClientResponseType, getErrorMessage } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createCommand, sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
@@ -12,8 +12,8 @@ describe("Fetch Client [ Bindings ]", () => {
   const data = { value: 1 };
   const successResponse: ClientResponseType<unknown, unknown> = [data, null, 200];
   const errorResponse: ClientResponseType<unknown, unknown> = [null, data, 400];
-  const requestConfig: XHRConfigType = { timeout: 1000 };
-  const commandConfig: XHRConfigType = { responseType: "arraybuffer" };
+  const requestConfig: ClientDefaultOptionsType = { timeout: 1000 };
+  const commandConfig: ClientDefaultOptionsType = { responseType: "arraybuffer" };
 
   const onTriggerSpy = jest.fn();
   const onErrorSpy = jest.fn();

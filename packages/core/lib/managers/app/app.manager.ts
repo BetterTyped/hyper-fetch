@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
-import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents, LoggerMethodsType } from "managers";
-import { FetchBuilder } from "builder";
+import { FetchBuilderInstance } from "builder";
+import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } from "managers";
 
 /**
  * App manager handles main application states - focus and online. Those two values can answer questions:
@@ -12,24 +12,20 @@ import { FetchBuilder } from "builder";
  * @caution
  * Make sure to apply valid focus/online handlers for different environments like for example for native mobile applications.
  */
-export class AppManager<ErrorType, HttpOptions> {
+export class AppManager {
   emitter = new EventEmitter();
   events = getAppManagerEvents(this.emitter);
 
   isOnline: boolean;
   isFocused: boolean;
 
-  private logger: LoggerMethodsType;
-
-  constructor(private builder: FetchBuilder<ErrorType, HttpOptions>, private options?: AppManagerOptionsType) {
+  constructor(private builder: FetchBuilderInstance, private options?: AppManagerOptionsType) {
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,
       initiallyFocused = appManagerInitialOptions.initiallyFocused,
       initiallyOnline = appManagerInitialOptions.initiallyOnline,
     } = this.options || appManagerInitialOptions;
-
-    this.logger = this.builder.loggerManager.init("AppManager");
 
     this.setInitialFocus(initiallyFocused);
     this.setInitialOnline(initiallyOnline);
@@ -59,11 +55,6 @@ export class AppManager<ErrorType, HttpOptions> {
   setFocused = (isFocused: boolean) => {
     this.isFocused = isFocused;
 
-    this.logger.info(`Setting app to ${isFocused ? "Focused" : "Blurred"} state`, {
-      isFocused,
-      isOnline: this.isOnline,
-    });
-
     if (isFocused) {
       this.events.emitFocus();
     } else {
@@ -73,11 +64,6 @@ export class AppManager<ErrorType, HttpOptions> {
 
   setOnline = (isOnline: boolean) => {
     this.isOnline = isOnline;
-
-    this.logger.info(`Setting app to ${isOnline ? "Online" : "Offline"} state`, {
-      isOnline,
-      isFocused: this.isFocused,
-    });
 
     if (isOnline) {
       this.events.emitOnline();

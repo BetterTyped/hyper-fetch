@@ -1,7 +1,7 @@
+import { ExtractError } from "types";
 import { FetchEffectConfig } from "effect";
-import { ExtractError, ExtractLocalError } from "types";
-import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 import { FetchCommandInstance } from "command";
+import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 
 export class FetchEffect<T extends FetchCommandInstance> {
   constructor(public config: FetchEffectConfig<T>) {}
@@ -19,10 +19,10 @@ export class FetchEffect<T extends FetchCommandInstance> {
   onSuccess = (response: ClientResponseSuccessType<ResponseType>, command: T) => {
     this.config.onSuccess?.(response, command);
   };
-  onError = (response: ClientResponseErrorType<ExtractError<T> | ExtractLocalError<T>>, command: T) => {
+  onError = (response: ClientResponseErrorType<ExtractError<T>>, command: T) => {
     this.config.onError?.(response, command);
   };
-  onFinished = (response: ClientResponseType<ResponseType, ExtractError<T> | ExtractLocalError<T>>, command: T) => {
+  onFinished = (response: ClientResponseType<ResponseType, ExtractError<T>>, command: T) => {
     this.config.onFinished?.(response, command);
   };
 }

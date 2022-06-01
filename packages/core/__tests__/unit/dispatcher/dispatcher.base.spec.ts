@@ -25,7 +25,7 @@ describe("Dispatcher [ Basic ]", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should allow to change storage", async () => {
-      const storage = new Map<string, DispatcherData<unknown>>();
+      const storage = new Map<string, DispatcherData>();
       const newDispatcher = createDispatcher(builder, { storage });
 
       const dispatcherDump = newDispatcher.createStorageElement(command);

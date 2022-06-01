@@ -1,6 +1,6 @@
 import { FetchCommandInstance } from "command";
-import { DispatcherRequestType } from "dispatcher";
 import { ClientResponseType } from "client";
+import { DispatcherRequestType, DispatcherDumpValueType } from "dispatcher";
 
 // Events
 
@@ -42,8 +42,9 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
   return false;
 };
 
-export const getRequestType = (command: FetchCommandInstance, hasRequests: boolean) => {
+export const getRequestType = (command: FetchCommandInstance, latestRequest: DispatcherDumpValueType | undefined) => {
   const { queued, cancelable, deduplicate } = command;
+  const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= command.deduplicateTime : false;
 
   if (queued) {
     return DispatcherRequestType.oneByOne;
@@ -51,7 +52,7 @@ export const getRequestType = (command: FetchCommandInstance, hasRequests: boole
   if (cancelable) {
     return DispatcherRequestType.previousCanceled;
   }
-  if (hasRequests && deduplicate) {
+  if (canDeduplicate && deduplicate) {
     return DispatcherRequestType.deduplicated;
   }
   return DispatcherRequestType.allAtOnce;

@@ -1,10 +1,8 @@
 import { useRef } from "react";
-
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { isStaleCacheData } from "utils";
-import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 import { useCommand } from "hooks";
+import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 
 export const useCache = <T extends FetchCommandInstance>(
   command: T,
@@ -14,7 +12,7 @@ export const useCache = <T extends FetchCommandInstance>(
     deepCompare = useCacheDefaultOptions.deepCompare,
   }: UseCacheOptionsType<T> = useCacheDefaultOptions,
 ) => {
-  const { cacheTime, cacheKey, builder } = command;
+  const { cacheKey, builder } = command;
 
   const { cache, fetchDispatcher, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useCache")).current;
@@ -35,13 +33,6 @@ export const useCache = <T extends FetchCommandInstance>(
     } else {
       cache.events.revalidate(cacheKey);
     }
-  };
-
-  const handlers = {
-    actions: actions.actions,
-    onCacheError: actions.onError,
-    onCacheSuccess: actions.onSuccess,
-    onCacheChange: actions.onFinished,
   };
 
   return {
@@ -73,24 +64,10 @@ export const useCache = <T extends FetchCommandInstance>(
       setRenderKey("timestamp");
       return state.timestamp;
     },
-    get isOnline() {
-      setRenderKey("isOnline");
-      return state.isOnline;
-    },
-    get isFocused() {
-      setRenderKey("isFocused");
-      return state.isFocused;
-    },
-    get isRefreshingError() {
-      setRenderKey("error");
-      setRenderKey("isRefreshed");
-      return !!state.error && state.isRefreshed;
-    },
-    get isStale() {
-      setRenderKey("timestamp");
-      return isStaleCacheData(cacheTime, state.timestamp);
-    },
-    ...handlers,
+    onCacheError: actions.onError,
+    onCacheSuccess: actions.onSuccess,
+    onCacheChange: actions.onFinished,
+    ...actions,
     revalidate,
   };
 };

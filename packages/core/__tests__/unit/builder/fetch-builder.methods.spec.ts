@@ -1,7 +1,7 @@
 import { FetchEffect } from "effect";
 import { StringifyCallbackType } from "builder";
 import { FetchCommandConfig, FetchCommand } from "command";
-import { XHRConfigType, QueryStringifyOptions } from "client";
+import { ClientDefaultOptionsType, QueryStringifyOptions } from "client";
 import { LoggerManager, LoggerLevelType } from "managers";
 
 import { resetInterceptors, startServer, stopServer } from "../../server";
@@ -25,13 +25,13 @@ describe("FetchBuilder [ Methods ]", () => {
 
   describe("When using config methods", () => {
     it("should assign request config [setRequestConfig]", async () => {
-      const options: XHRConfigType = { timeout: 1000 };
+      const options: ClientDefaultOptionsType = { timeout: 1000 };
       builder.setRequestConfig(options);
 
       expect(builder.requestConfig).toEqual(options);
     });
     it("should assign default command config [setCommandConfig]", async () => {
-      const options: Partial<FetchCommandConfig<string, XHRConfigType>> = { method: "POST" };
+      const options: Partial<FetchCommandConfig<string, ClientDefaultOptionsType>> = { method: "POST" };
       builder.setCommandConfig(options);
 
       expect(builder.commandConfig).toEqual(options);

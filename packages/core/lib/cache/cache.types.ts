@@ -2,9 +2,14 @@ import { Cache } from "cache";
 import { ClientResponseType } from "client";
 import { CommandResponseDetails } from "managers";
 
-export type CacheOptionsType<ErrorType, HttpOptions> = {
+export type CacheOptionsType = {
   storage?: CacheStorageType;
-  onInitialization?: (cache: Cache<ErrorType, HttpOptions>) => void;
+  onInitialization?: (cache: Cache) => void;
+  onChange?: <DataType = any, ErrorType = any>(
+    key: string,
+    value: CacheValueType<DataType, ErrorType>,
+    details: CommandResponseDetails,
+  ) => void;
 };
 
 // Values

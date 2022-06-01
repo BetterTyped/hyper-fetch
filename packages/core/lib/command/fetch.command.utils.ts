@@ -2,7 +2,7 @@ import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
 import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { Dispatcher, isFailedRequest } from "dispatcher";
-import { ExtractLocalError, ExtractClientOptions, ExtractError, ExtractResponse } from "types";
+import { ExtractError, ExtractResponse } from "types";
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -76,7 +76,7 @@ export const getAbortKey = (method: string, baseUrl: string, endpoint: string, c
  * @returns
  */
 export const getCommandKey = (
-  command: FetchCommandInstance | FetchCommandDump<any>,
+  command: FetchCommandInstance | FetchCommandDump<FetchCommandInstance>,
   useInitialValues?: boolean,
 ): string => {
   /**
@@ -100,7 +100,7 @@ export const getCommandKey = (
 export const getCommandDispatcher = <Command extends FetchCommandInstance>(
   command: Command,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
-): [Dispatcher<ExtractError<Command>, ExtractClientOptions<Command>>, boolean] => {
+): [Dispatcher, boolean] => {
   const { fetchDispatcher, submitDispatcher } = command.builder;
   const isGet = command.method === HttpMethodsEnum.get;
   const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
@@ -117,7 +117,7 @@ export const commandSendRequest = <T extends FetchCommandInstance>(
   const { commandManager } = command.builder;
   const [dispatcher] = getCommandDispatcher(command, dispatcherType);
 
-  return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>>((resolve) => {
+  return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T>>>((resolve) => {
     const requestId = dispatcher.add(command);
 
     requestCallback?.(requestId, command);
@@ -126,7 +126,7 @@ export const commandSendRequest = <T extends FetchCommandInstance>(
     let unmountRemoveQueueElement: () => void = () => undefined;
 
     // When resolved
-    unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>>(
+    unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T>>(
       requestId,
       (response, details) => {
         const isOfflineStatus = command.offline && details.isOffline;

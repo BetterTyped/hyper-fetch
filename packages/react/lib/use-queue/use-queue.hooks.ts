@@ -1,10 +1,5 @@
 import { useState, useRef } from "react";
-import {
-  DispatcherDumpValueType,
-  ExtractClientOptions,
-  FetchCommandInstance,
-  getCommandDispatcher,
-} from "@better-typed/hyper-fetch";
+import { FetchCommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue";
@@ -34,9 +29,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
   // Mapping
   // ******************
 
-  const createRequestsArray = (
-    queueElements: DispatcherDumpValueType<ExtractClientOptions<Command>, Command>[],
-  ): QueueRequest<Command>[] => {
+  const createRequestsArray = (queueElements: DispatcherDumpValueType<Command>[]): QueueRequest<Command>[] => {
     return queueElements.map<QueueRequest<Command>>((req) => ({
       ...req,
       stopRequest: () => dispatcher[0].stopRequest(queueKey, req.requestId),
@@ -76,7 +69,7 @@ export const useQueue = <Command extends FetchCommandInstance>(
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, uploading: progress } : el)));
     });
 
-    const unmountStatus = queue.events.onQueueStatus(queueKey, (values) => {
+    const unmountStatus = queue.events.onQueueStatus<Command>(queueKey, (values) => {
       setStopped(values.stopped);
       setRequests(createRequestsArray(values.requests));
     });

@@ -1,16 +1,18 @@
 import EventEmitter from "events";
 
-import { DispatcherLoadingEventType, DispatcherData } from "dispatcher";
 import {
-  getDispatcherLoadingEventKey,
-  getDispatcherLoadingIdEventKey,
-  getDispatcherDrainedEventKey,
-  getDispatcherStatusEventKey,
+  DispatcherData,
+  DispatcherLoadingEventType,
   getDispatcherChangeEventKey,
+  getDispatcherStatusEventKey,
   getDispatcherRemoveEventKey,
-} from "./dispatcher.utils";
+  getDispatcherLoadingEventKey,
+  getDispatcherDrainedEventKey,
+  getDispatcherLoadingIdEventKey,
+} from "dispatcher";
+import { FetchCommandInstance } from "command";
 
-export const getDispatcherEvents = <HttpOptions>(emitter: EventEmitter) => ({
+export const getDispatcherEvents = (emitter: EventEmitter) => ({
   setLoading: (queueKey: string, requestId: string, values: DispatcherLoadingEventType): void => {
     emitter.emit(getDispatcherLoadingIdEventKey(requestId), values);
     emitter.emit(getDispatcherLoadingEventKey(queueKey), values);
@@ -18,13 +20,13 @@ export const getDispatcherEvents = <HttpOptions>(emitter: EventEmitter) => ({
   emitRemove: (requestId: string): void => {
     emitter.emit(getDispatcherRemoveEventKey(requestId));
   },
-  setDrained: <Command>(queueKey: string, values: DispatcherData<HttpOptions, Command>): void => {
+  setDrained: <Command extends FetchCommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
     emitter.emit(getDispatcherDrainedEventKey(queueKey), values);
   },
-  setQueueStatus: <Command>(queueKey: string, values: DispatcherData<HttpOptions, Command>): void => {
+  setQueueStatus: <Command extends FetchCommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
     emitter.emit(getDispatcherStatusEventKey(queueKey), values);
   },
-  setQueueChanged: <Command>(queueKey: string, values: DispatcherData<HttpOptions, Command>): void => {
+  setQueueChanged: <Command extends FetchCommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
     emitter.emit(getDispatcherChangeEventKey(queueKey), values);
   },
   onLoading: (queueKey: string, callback: (values: DispatcherLoadingEventType) => void): VoidFunction => {
@@ -39,23 +41,23 @@ export const getDispatcherEvents = <HttpOptions>(emitter: EventEmitter) => ({
     emitter.on(getDispatcherRemoveEventKey(requestId), callback);
     return () => emitter.removeListener(getDispatcherRemoveEventKey(requestId), callback);
   },
-  onDrained: <Command>(
+  onDrained: <Command extends FetchCommandInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<HttpOptions, Command>) => void,
+    callback: (values: DispatcherData<Command>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherDrainedEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherDrainedEventKey(queueKey), callback);
   },
-  onQueueStatus: <Command>(
+  onQueueStatus: <Command extends FetchCommandInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<HttpOptions, Command>) => void,
+    callback: (values: DispatcherData<Command>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherStatusEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherStatusEventKey(queueKey), callback);
   },
-  onQueueChange: <Command>(
+  onQueueChange: <Command extends FetchCommandInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<HttpOptions, Command>) => void,
+    callback: (values: DispatcherData<Command>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherChangeEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherChangeEventKey(queueKey), callback);

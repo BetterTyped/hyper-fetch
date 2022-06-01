@@ -1,24 +1,23 @@
 import {
-  FetchCommandDump,
-  getAbortKey,
-  FetchCommandCurrentType,
-  ExtractRouteParams,
-  FetchMethodType,
-  FetchCommandConfig,
   FetchType,
   ParamsType,
+  getAbortKey,
   getCommandKey,
-  FetchCommandQueueOptions,
+  FetchMethodType,
   FetchCommandData,
+  FetchCommandDump,
+  FetchCommandConfig,
+  ExtractRouteParams,
   commandSendRequest,
+  FetchCommandCurrentType,
+  FetchCommandQueueOptions,
 } from "command";
 import { FetchBuilder } from "builder";
 import { getUniqueRequestId } from "utils";
-import { LoggerMethodsType } from "managers";
 import { ClientQueryParamsType } from "client";
 import { HttpMethodsType, NegativeTypes } from "types";
-import { HttpMethodsEnum } from "constants/http.constants";
 import { DateInterval } from "constants/time.constants";
+import { HttpMethodsEnum } from "constants/http.constants";
 
 /**
  * Fetch command it is designed to prepare the necessary setup to execute the request to the server.
@@ -65,8 +64,7 @@ export class FetchCommand<
   effectKey: string;
   used: boolean;
   deduplicate: boolean;
-
-  private logger: LoggerMethodsType;
+  deduplicateTime: number;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -89,8 +87,6 @@ export class FetchCommand<
       | undefined,
     readonly dataMapper?: (data: PayloadType) => MappedData,
   ) {
-    this.logger = this.builder.loggerManager.init("Command");
-
     const { baseUrl } = builder;
     const {
       endpoint,
@@ -110,6 +106,7 @@ export class FetchCommand<
       queueKey,
       effectKey,
       deduplicate = false,
+      deduplicateTime = 10,
     } = { ...this.builder.commandConfig, ...commandOptions };
 
     this.endpoint = commandDump?.endpoint ?? endpoint;
@@ -134,6 +131,7 @@ export class FetchCommand<
     this.effectKey = commandDump?.effectKey ?? effectKey ?? getCommandKey(this);
     this.used = commandDump?.used ?? false;
     this.deduplicate = commandDump?.deduplicate ?? deduplicate;
+    this.deduplicateTime = commandDump?.deduplicateTime ?? deduplicateTime;
 
     this.updatedAbortKey = commandDump?.updatedAbortKey ?? false;
     this.updatedCacheKey = commandDump?.updatedCacheKey ?? false;
@@ -216,6 +214,10 @@ export class FetchCommand<
     return this.clone({ deduplicate });
   };
 
+  public setDeduplicateTime = (deduplicateTime: number) => {
+    return this.clone({ deduplicateTime });
+  };
+
   public setUsed = (used: boolean) => {
     return this.clone({ used });
   };
@@ -245,7 +247,6 @@ export class FetchCommand<
   };
 
   public dump(): FetchCommandDump<
-    ClientOptions,
     FetchCommand<
       ResponseType,
       PayloadType,
@@ -259,6 +260,7 @@ export class FetchCommand<
       HasQuery,
       MappedData
     >,
+    ClientOptions,
     QueryParamsType
   > {
     return {
@@ -290,6 +292,7 @@ export class FetchCommand<
       updatedQueueKey: this.updatedQueueKey,
       updatedEffectKey: this.updatedEffectKey,
       deduplicate: this.deduplicate,
+      deduplicateTime: this.deduplicateTime,
     };
   }
 

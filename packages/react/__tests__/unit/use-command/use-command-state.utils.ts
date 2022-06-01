@@ -1,7 +1,7 @@
 import { isEmpty, isEqual } from "utils";
 
-describe("useCache [ Utils ]", () => {
-  describe("Util function: isEmpty", () => {
+describe("useCommand [ Utils ]", () => {
+  describe("when isEmpty gets triggered", () => {
     it("should return true for empty array or object", async () => {
       expect(isEmpty([])).toBe(true);
       expect(isEmpty({})).toBe(true);
@@ -24,7 +24,7 @@ describe("useCache [ Utils ]", () => {
     });
   });
 
-  describe("Util function: isEqual", () => {
+  describe("when isEqual gets triggered", () => {
     it("should return false for non equal values", async () => {
       expect(isEqual(true, false)).toBe(false);
       expect(isEqual(null, {})).toBe(false);

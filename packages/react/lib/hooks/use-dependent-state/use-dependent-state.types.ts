@@ -1,4 +1,4 @@
-export type UseDependentStateType<DataType = any, ErrorType = any> = {
+export type UseDependentStateType<DataType = unknown, ErrorType = unknown> = {
   data: null | DataType;
   error: null | ErrorType;
   loading: boolean;
@@ -6,8 +6,6 @@ export type UseDependentStateType<DataType = any, ErrorType = any> = {
   retries: number;
   timestamp: null | Date;
   isRefreshed: boolean;
-  isOnline: boolean;
-  isFocused: boolean;
 };
 
 export type UseDependentStateActions<DataType, ErrorType> = {

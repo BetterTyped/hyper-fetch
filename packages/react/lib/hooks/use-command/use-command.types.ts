@@ -1,25 +1,23 @@
 import {
-  FetchCommandInstance,
-  ExtractFetchReturn,
-  ExtractResponse,
+  Dispatcher,
   ExtractError,
   CacheValueType,
-  DispatcherLoadingEventType,
-  FetchProgressType,
-  Dispatcher,
-  ExtractClientOptions,
+  ExtractResponse,
   LoggerMethodsType,
-  CommandResponseDetails,
+  FetchProgressType,
+  ExtractFetchReturn,
   CommandEventDetails,
+  FetchCommandInstance,
+  CommandResponseDetails,
+  DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
 
 import { isEqual } from "utils";
-
 import { UseDependentStateActions, UseDependentStateType } from "hooks";
 
 export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   command: T;
-  dispatcher: Dispatcher<ExtractError<T>, ExtractClientOptions<T>>;
+  dispatcher: Dispatcher;
   logger: LoggerMethodsType;
   dependencyTracking: boolean;
   initialData: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;

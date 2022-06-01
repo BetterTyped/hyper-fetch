@@ -1,5 +1,5 @@
-import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, LoggerMethodsType } from "managers";
 import { FetchBuilderInstance } from "builder";
+import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, LoggerMethodsType } from "managers";
 
 /**
  * This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each builder.

@@ -1,13 +1,12 @@
 import { useRef, useState } from "react";
 import {
-  FetchCommandInstance,
-  getCommandKey,
   FetchCommand,
+  getCommandKey,
   ExtractFetchReturn,
   commandSendRequest,
+  FetchCommandInstance,
 } from "@better-typed/hyper-fetch";
 
-import { isStaleCacheData } from "utils";
 import { useDebounce, useCommand } from "hooks";
 import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
 
@@ -33,7 +32,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
    * so the events got triggered properly and show the latest result without mixing it up
    */
   const [command, setCommand] = useState(commandInstance);
-  const { cacheTime, builder } = command;
+  const { builder } = command;
   const { cache, submitDispatcher, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
@@ -147,17 +146,6 @@ export const useSubmit = <T extends FetchCommandInstance>(
     get timestamp() {
       setRenderKey("timestamp");
       return state.timestamp;
-    },
-    get isOnline() {
-      setRenderKey("isOnline");
-      return state.isOnline;
-    },
-    get isFocused() {
-      setRenderKey("isFocused");
-      return state.isFocused;
-    },
-    get isStale() {
-      return isStaleCacheData(cacheTime, state.timestamp);
     },
     abort,
     ...handlers,

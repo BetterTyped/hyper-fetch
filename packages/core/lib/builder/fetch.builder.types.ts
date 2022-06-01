@@ -9,7 +9,7 @@ import { NegativeTypes } from "types";
 /**
  * Configuration setup for the builder
  */
-export type FetchBuilderConfig<ErrorType, HttpOptions> = {
+export type FetchBuilderConfig = {
   /**
    * Url to your server
    */
@@ -21,19 +21,19 @@ export type FetchBuilderConfig<ErrorType, HttpOptions> = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache<ErrorType, HttpOptions>;
+  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache;
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager<ErrorType, HttpOptions>;
+  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager;
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher<ErrorType, HttpOptions>;
+  fetchDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher;
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher<ErrorType, HttpOptions>;
+  submitDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher;
 };
 
 export type FetchBuilderInstance = FetchBuilder<any, any>;

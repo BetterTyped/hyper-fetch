@@ -1,18 +1,10 @@
-import {
-  ExtractClientOptions,
-  FetchProgressType,
-  FetchCommandInstance,
-  DispatcherDumpValueType,
-} from "@better-typed/hyper-fetch";
+import { FetchProgressType, FetchCommandInstance, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 
 export type UseQueueOptions = {
   queueType?: "auto" | "fetch" | "submit";
 };
 
-export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpValueType<
-  ExtractClientOptions<Command>,
-  Command
-> & {
+export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpValueType<Command> & {
   uploading?: FetchProgressType;
   downloading?: FetchProgressType;
   startRequest: () => void;

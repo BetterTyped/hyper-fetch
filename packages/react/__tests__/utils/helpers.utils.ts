@@ -8,5 +8,5 @@ export const sleep = async (ms: number) => {
 // Solves the issue: https://github.com/testing-library/react-testing-library/issues/1051
 export const waitForRender = () =>
   act(async () => {
-    await sleep(50);
+    await sleep(1);
   });

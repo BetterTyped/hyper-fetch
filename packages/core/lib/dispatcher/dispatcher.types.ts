@@ -1,37 +1,42 @@
-import { FetchCommandDump, FetchCommandInstance } from "command";
 import { Dispatcher } from "dispatcher";
+import { FetchCommandDump, FetchCommandInstance } from "command";
 
-export type DispatcherOptionsType<ErrorType, HttpOptions> = {
-  storage?: DispatcherStorageType<HttpOptions>;
-  onInitialization?: (dispatcherInstance: Dispatcher<ErrorType, HttpOptions>) => void;
-  onUpdateStorage?: (queueKey: string, data: DispatcherData<HttpOptions>) => void;
-  onDeleteFromStorage?: (queueKey: string, data: DispatcherData<HttpOptions>) => void;
-  onClearStorage?: (dispatcherInstance: Dispatcher<ErrorType, HttpOptions>) => void;
+export type DispatcherOptionsType = {
+  storage?: DispatcherStorageType;
+  onInitialization?: (dispatcherInstance: Dispatcher) => void;
+  onUpdateStorage?: <Command extends FetchCommandInstance>(queueKey: string, data: DispatcherData<Command>) => void;
+  onDeleteFromStorage?: <Command extends FetchCommandInstance>(queueKey: string, data: DispatcherData<Command>) => void;
+  onClearStorage?: (dispatcherInstance: Dispatcher) => void;
 };
 
 // Values
-export type DispatcherDumpValueType<HttpOptions = unknown, Command = unknown> = {
+export type DispatcherDumpValueType<Command extends FetchCommandInstance = FetchCommandInstance> = {
   requestId: string;
-  commandDump: FetchCommandDump<HttpOptions, Command>;
+  commandDump: FetchCommandDump<Command>;
   retries: number;
   timestamp: number;
   stopped: boolean;
 };
-export type DispatcherData<HttpOptions, Command = unknown> = {
-  requests: DispatcherDumpValueType<HttpOptions, Command>[];
+export type DispatcherData<Command extends FetchCommandInstance = FetchCommandInstance> = {
+  requests: DispatcherDumpValueType<Command>[];
   stopped: boolean;
 };
 
 // Storage
-export type DispatcherStorageSyncType<HttpOptions> = {
-  set: (key: string, data: DispatcherData<HttpOptions>) => void;
-  get: (key: string) => DispatcherData<HttpOptions> | undefined;
+export type DispatcherStorageSyncType = {
+  set: <Command extends FetchCommandInstance = FetchCommandInstance>(
+    key: string,
+    data: DispatcherData<Command>,
+  ) => void;
+  get: <Command extends FetchCommandInstance = FetchCommandInstance>(
+    key: string,
+  ) => DispatcherData<Command> | undefined;
   keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
 };
 
-export type DispatcherStorageType<HttpOptions> = DispatcherStorageSyncType<HttpOptions>;
+export type DispatcherStorageType = DispatcherStorageSyncType;
 
 // Running
 

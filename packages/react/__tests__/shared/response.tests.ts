@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { FetchCommandInstance } from "@better-typed/hyper-fetch";
+import { ClientResponseType, ExtractResponse, FetchCommandInstance } from "@better-typed/hyper-fetch";
 
 import { UseFetchReturnType } from "use-fetch";
 import { getCurrentState } from "../utils";
@@ -8,9 +8,9 @@ export const testInitialState = async <H extends RenderHookResult<any, any>>(ren
   const response = getCurrentState(render);
 
   await waitFor(() => {
-    expect(response.data).toStrictEqual(null);
-    expect(response.status).toStrictEqual(null);
-    expect(response.error).toStrictEqual(null);
+    expect(response.data).toBe(null);
+    expect(response.status).toBe(null);
+    expect(response.error).toBe(null);
   });
 };
 
@@ -25,9 +25,10 @@ export const testSuccessState = async <
 
   await waitFor(() => {
     expect(response.data).toMatchObject(mock as Record<string, unknown>);
+    expect(response.data).toBeDefined();
     expect(response.status).toBe(200);
-    expect(response.loading).toStrictEqual(false);
-    expect(response.error).toStrictEqual(null);
+    expect(response.loading).toBe(false);
+    expect(response.error).toBe(null);
   });
 };
 
@@ -37,15 +38,17 @@ export const testErrorState = async <
 >(
   mock: T["error"],
   render: H,
+  data: ExtractResponse<T> | null = null,
 ) => {
   const response = getCurrentState(render);
   const status = response.status || 0;
 
   await waitFor(() => {
     expect(response.error).toMatchObject(mock);
+    expect(response.error).toBeDefined();
     expect(status >= 400 && status < 600).toBeTruthy();
-    expect(response.loading).toStrictEqual(false);
-    expect(response.data).toStrictEqual(null);
+    expect(response.loading).toBe(false);
+    expect(response.data).toBe(data);
   });
 };
 
@@ -76,5 +79,20 @@ export const testErrorFetchState = async <
   await waitFor(() => {
     testErrorState(mock, render);
     expect(response.isRefreshed).toStrictEqual(true);
+  });
+};
+
+export const testCacheState = async <T extends ClientResponseType<any, Error>, H extends RenderHookResult<any, any>>(
+  mock: T,
+  render: H,
+) => {
+  const response = getCurrentState(render);
+
+  await waitFor(() => {
+    expect(response.data).toMatchObject(mock[0]);
+    expect(response.data).toBeDefined();
+    expect(response.error).toBe(mock[1]);
+    expect(response.data).not.toBeDefined();
+    expect(response.status).toBe(mock[2]);
   });
 };

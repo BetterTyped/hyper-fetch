@@ -1,7 +1,7 @@
 import {
   ClientType,
   fetchClient,
-  XHRConfigType,
+  ClientDefaultOptionsType,
   ClientResponseType,
   ClientQueryParamsType,
   QueryStringifyOptions,
@@ -20,8 +20,8 @@ import {
   ResponseInterceptorCallback,
 } from "builder";
 import { Cache } from "cache";
-import { FetchEffectInstance } from "effect";
 import { Dispatcher } from "dispatcher";
+import { FetchEffectInstance } from "effect";
 import { FetchCommand, FetchCommandConfig, FetchCommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
 
@@ -30,7 +30,10 @@ import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "mana
  * commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the command.
  */
-export class FetchBuilder<GlobalErrorType extends FetchBuilderErrorType = Error, RequestConfigType = XHRConfigType> {
+export class FetchBuilder<
+  GlobalErrorType extends FetchBuilderErrorType = Error,
+  RequestConfigType = ClientDefaultOptionsType,
+> {
   readonly baseUrl: string;
   debug: boolean;
 
@@ -43,14 +46,14 @@ export class FetchBuilder<GlobalErrorType extends FetchBuilderErrorType = Error,
 
   // Managers
   commandManager: CommandManager = new CommandManager();
-  appManager: AppManager<GlobalErrorType, RequestConfigType>;
+  appManager: AppManager;
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
   client: ClientType;
-  cache: Cache<GlobalErrorType, RequestConfigType>;
-  fetchDispatcher: Dispatcher<GlobalErrorType, RequestConfigType>;
-  submitDispatcher: Dispatcher<GlobalErrorType, RequestConfigType>;
+  cache: Cache;
+  fetchDispatcher: Dispatcher;
+  submitDispatcher: Dispatcher;
 
   // Registered requests effect
   effects: FetchEffectInstance[] = [];
@@ -79,22 +82,15 @@ export class FetchBuilder<GlobalErrorType extends FetchBuilderErrorType = Error,
   // Logger
   logger = this.loggerManager.init("Builder");
 
-  constructor({
-    baseUrl,
-    client,
-    appManager,
-    cache,
-    fetchDispatcher,
-    submitDispatcher,
-  }: FetchBuilderConfig<GlobalErrorType, RequestConfigType>) {
+  constructor({ baseUrl, client, appManager, cache, fetchDispatcher, submitDispatcher }: FetchBuilderConfig) {
     this.baseUrl = baseUrl;
     this.client = client || fetchClient;
 
-    // IMPORTANT: Do not change initialization order as it's crucial for dependencies and 'this' usage
+    // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
+    this.appManager = appManager?.(this) || new AppManager(this);
     this.cache = cache?.(this) || new Cache(this);
-    this.appManager = appManager?.(this) || new AppManager<GlobalErrorType, RequestConfigType>(this);
-    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher<GlobalErrorType, RequestConfigType>(this);
-    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher<GlobalErrorType, RequestConfigType>(this);
+    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
+    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   }
 
   /**

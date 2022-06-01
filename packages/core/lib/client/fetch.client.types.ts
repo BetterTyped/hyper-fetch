@@ -4,7 +4,7 @@ import { FetchCommandInstance } from "command";
 
 export type ClientType = (command: FetchCommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
 
-export type XHRConfigType = Partial<XMLHttpRequest>;
+export type ClientDefaultOptionsType = Partial<XMLHttpRequest>;
 
 export type ClientPayloadMappingCallback = (data: unknown) => string | FormData;
 

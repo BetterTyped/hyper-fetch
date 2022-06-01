@@ -6,7 +6,6 @@ const config: Config.InitialOptions = {
   preset: "ts-jest",
   testRegex: [".spec.ts", ".spec.tsx"],
   roots: ["<rootDir>/__tests__", "<rootDir>/lib"],
-  setupFilesAfterEnv: ["<rootDir>/__tests__/jest.setup.ts"],
   coverageProvider: "v8",
   collectCoverageFrom: ["<rootDir>/lib/**/*.ts", "<rootDir>/lib/**/*.tsx"],
   coveragePathIgnorePatterns: [".spec", "test", "tests", "types", "constants", "index.ts"],
@@ -17,5 +16,6 @@ const config: Config.InitialOptions = {
     },
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
+  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts"],
 };
 export default config;

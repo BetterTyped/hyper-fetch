@@ -1,10 +1,9 @@
 import EventEmitter from "events";
 
-import { CommandResponseDetails, LoggerMethodsType } from "managers";
-import { FetchBuilder } from "builder";
-import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents } from "cache";
 import { ClientResponseType } from "client";
-import { CacheValueType } from "./cache.types";
+import { FetchBuilderInstance } from "builder";
+import { CommandResponseDetails } from "managers";
+import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, CacheValueType } from "cache";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -43,26 +42,20 @@ import { CacheValueType } from "./cache.types";
  * </center>
  *
  */
-export class Cache<ErrorType, HttpOptions> {
+export class Cache {
   emitter = new EventEmitter();
   events: ReturnType<typeof getCacheEvents>;
   storage: CacheStorageType;
 
-  private logger: LoggerMethodsType;
-
-  constructor(
-    private builder: FetchBuilder<ErrorType, HttpOptions>,
-    private options?: CacheOptionsType<ErrorType, HttpOptions>,
-  ) {
-    this.logger = this.builder.loggerManager.init("Cache");
+  constructor(private builder: FetchBuilderInstance, private options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter, this.storage);
     this.options?.onInitialization?.(this);
   }
 
-  set = async <Response>(
+  set = async <Response, Error>(
     cacheKey: string,
-    response: ClientResponseType<Response, ErrorType>,
+    response: ClientResponseType<Response, Error>,
     details: CommandResponseDetails,
     useCache: boolean,
   ): Promise<void> => {
@@ -78,11 +71,8 @@ export class Cache<ErrorType, HttpOptions> {
 
     // If request should not use cache - just emit response data
     if (!useCache) {
-      return this.logger.debug(`Emitting payload, command cache is off`, data);
+      return;
     }
-
-    // Cache response emitter to provide optimization for libs(re-rendering)
-    this.logger.debug(`Setting new data to cache, emitting setter event...`, data);
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {
@@ -96,7 +86,6 @@ export class Cache<ErrorType, HttpOptions> {
   };
 
   delete = (cacheKey: string): void => {
-    this.logger.debug(`Removing data from cache, emitting revalidation event...`);
     this.events.revalidate(cacheKey);
     this.storage.delete(cacheKey);
   };

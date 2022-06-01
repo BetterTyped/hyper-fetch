@@ -1,13 +1,12 @@
 import { useRef, useState } from "react";
-import { useDidMount, useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
 import {
+  ExtractError,
+  CacheValueType,
+  ExtractResponse,
   ClientResponseType,
   FetchCommandInstance,
-  ExtractResponse,
-  ExtractError,
   FetchBuilderInstance,
-  CacheValueType,
-  ExtractLocalError,
 } from "@better-typed/hyper-fetch";
 
 import { getCacheInitialData } from "utils";
@@ -21,11 +20,10 @@ import { getDetailsState, getInitialDependentStateData, transformDataToCacheValu
  * @param queue
  * @param dependencies
  * @internal
- * @returns
  */
 export const useDependentState = <T extends FetchCommandInstance>(
   command: T,
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T> | ExtractLocalError<T>> | null,
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
   queue: FetchBuilderInstance["fetchDispatcher"] | FetchBuilderInstance["submitDispatcher"],
   dependencies: any[],
 ): [
@@ -36,7 +34,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
   (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
 ] => {
   const { builder, cacheKey, queueKey } = command;
-  const { appManager, cache } = builder;
+  const { cache } = builder;
 
   const [initialized, setInitialized] = useState(false);
 
@@ -97,37 +95,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
   );
 
   // ******************
-  // Listeners
-  // ******************
-
-  useDidMount(() => {
-    const focusUnmount = appManager.events.onFocus(() => {
-      state.current.isFocused = true;
-      renderOnKeyTrigger(["isFocused"]);
-    });
-    const blurUnmount = appManager.events.onBlur(() => {
-      state.current.isFocused = false;
-      renderOnKeyTrigger(["isFocused"]);
-    });
-    const onlineUnmount = appManager.events.onOnline(() => {
-      state.current.isOnline = true;
-      renderOnKeyTrigger(["isOnline"]);
-    });
-    const offlineUnmount = appManager.events.onOffline(() => {
-      state.current.isOnline = false;
-      renderOnKeyTrigger(["isOnline"]);
-    });
-
-    return () => {
-      focusUnmount();
-      blurUnmount();
-      onlineUnmount();
-      offlineUnmount();
-    };
-  });
-
-  // ******************
-  // Setters
+  // Cache data handler
   // ******************
 
   const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
@@ -145,6 +113,10 @@ export const useDependentState = <T extends FetchCommandInstance>(
     };
     renderOnKeyTrigger(Object.keys(newStateValues) as Array<keyof UseDependentStateType>);
   };
+
+  // ******************
+  // Actions
+  // ******************
 
   const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
     setData: async (data, emitToCache = true) => {
