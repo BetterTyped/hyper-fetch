@@ -4,14 +4,12 @@ import { ClientResponseType, ExtractResponse, FetchCommandInstance } from "@bett
 import { UseFetchReturnType } from "use-fetch";
 import { getCurrentState } from "../utils";
 
-export const testInitialState = async <H extends RenderHookResult<any, any>>(render: H) => {
+export const testInitialState = <H extends RenderHookResult<any, any>>(render: H) => {
   const response = getCurrentState(render);
-
-  await waitFor(() => {
-    expect(response.data).toBe(null);
-    expect(response.status).toBe(null);
-    expect(response.error).toBe(null);
-  });
+  expect(response.data).toBe(null);
+  expect(response.status).toBe(null);
+  expect(response.error).toBe(null);
+  expect(response.loading).toBe(false);
 };
 
 export const testSuccessState = async <
@@ -21,10 +19,9 @@ export const testSuccessState = async <
   mock: T["data"],
   render: H,
 ) => {
-  const response = getCurrentState(render);
-
   await waitFor(() => {
-    expect(response.data).toMatchObject(mock as Record<string, unknown>);
+    const response = getCurrentState(render);
+    expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
     expect(response.status).toBe(200);
     expect(response.loading).toBe(false);
@@ -40,15 +37,14 @@ export const testErrorState = async <
   render: H,
   data: ExtractResponse<T> | null = null,
 ) => {
-  const response = getCurrentState(render);
-  const status = response.status || 0;
-
   await waitFor(() => {
-    expect(response.error).toMatchObject(mock);
+    const response = getCurrentState(render);
+    const status = response.status || 0;
+    expect(response.error).toStrictEqual(mock);
     expect(response.error).toBeDefined();
     expect(status >= 400 && status < 600).toBeTruthy();
     expect(response.loading).toBe(false);
-    expect(response.data).toBe(data);
+    expect(response.data).toStrictEqual(data);
   });
 };
 
@@ -61,8 +57,8 @@ export const testSuccessRefreshState = async <
 ) => {
   const response = getCurrentState(render);
 
-  await waitFor(() => {
-    testSuccessState(mock, render);
+  await waitFor(async () => {
+    await testSuccessState(mock, render);
     expect(response.isRefreshed).toStrictEqual(true);
   });
 };
@@ -76,23 +72,20 @@ export const testErrorFetchState = async <
 ) => {
   const response = getCurrentState(render);
 
-  await waitFor(() => {
-    testErrorState(mock, render);
+  await waitFor(async () => {
+    await testErrorState(mock, render);
     expect(response.isRefreshed).toStrictEqual(true);
   });
 };
 
-export const testCacheState = async <T extends ClientResponseType<any, Error>, H extends RenderHookResult<any, any>>(
+export const testCacheState = async <T extends ClientResponseType<any, any>, H extends RenderHookResult<any, any>>(
   mock: T,
   render: H,
 ) => {
-  const response = getCurrentState(render);
-
   await waitFor(() => {
-    expect(response.data).toMatchObject(mock[0]);
-    expect(response.data).toBeDefined();
-    expect(response.error).toBe(mock[1]);
-    expect(response.data).not.toBeDefined();
+    const response = getCurrentState(render);
+    expect(response.data).toStrictEqual(mock[0]);
+    expect(response.error).toStrictEqual(mock[1]);
     expect(response.status).toBe(mock[2]);
   });
 };

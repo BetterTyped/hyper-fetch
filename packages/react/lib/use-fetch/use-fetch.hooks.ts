@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useDebounce, useCommand } from "hooks";
+import { useDebounce, useCommandEvents, useDependentState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
 
 /**
@@ -35,17 +35,33 @@ export const useFetch = <T extends FetchCommandInstance>(
   const refreshDebounce = useDebounce(refreshTime);
 
   const { cacheKey, queueKey, builder } = command;
-  const { cache, fetchDispatcher, appManager, loggerManager } = builder;
+  const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useFetch")).current;
 
-  const [state, actions, { setRenderKey, getStaleStatus }] = useCommand({
-    command,
-    dispatcher: fetchDispatcher,
-    dependencyTracking,
-    initialData,
+  /**
+   * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
+   */
+  const [state, actions, { setRenderKey, setCacheData, isInitialized, getStaleStatus }] = useDependentState<T>({
     logger,
+    command,
+    dispatcher,
+    initialData,
+    dependencyTracking,
+  });
+
+  /**
+   * Handles the data exchange with the core logic - responses, loading, downloading etc
+   */
+  const [callbacks, { addRequestListener }] = useCommandEvents({
+    state,
+    logger,
+    actions,
+    command,
+    dispatcher,
     deepCompare,
+    setCacheData,
+    cacheInitialized: isInitialized,
   });
 
   // ******************
@@ -60,7 +76,8 @@ export const useFetch = <T extends FetchCommandInstance>(
      */
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
-      fetchDispatcher.add(command);
+      const requestId = dispatcher.add(command);
+      addRequestListener(requestId, command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -79,8 +96,8 @@ export const useFetch = <T extends FetchCommandInstance>(
 
       // If window tab is not active should we refresh the cache
       const canRefreshBlurred = isBlurred && refreshBlurred;
-      const isFetching = !!fetchDispatcher.getRunningRequests(command.queueKey).length;
-      const isQueued = !!fetchDispatcher.getQueue(command.queueKey).requests.length;
+      const isFetching = !!dispatcher.getRunningRequests(command.queueKey).length;
+      const isQueued = !!dispatcher.getQueue(command.queueKey).requests.length;
 
       if (canRefreshBlurred || !isBlurred || !isFetching || !isQueued) {
         handleFetch();
@@ -129,7 +146,7 @@ export const useFetch = <T extends FetchCommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    const isFirstRequest = fetchDispatcher.getQueueRequestCount(queueKey);
+    const isFirstRequest = dispatcher.getQueueRequestCount(queueKey);
     if (!isFirstRequest && debounce) {
       logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
@@ -229,6 +246,7 @@ export const useFetch = <T extends FetchCommandInstance>(
       return state.timestamp;
     },
     ...actions,
+    ...callbacks,
     isDebouncing: requestDebounce.active,
     revalidate,
     abort,

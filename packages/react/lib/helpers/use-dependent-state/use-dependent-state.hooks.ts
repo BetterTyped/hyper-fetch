@@ -1,59 +1,66 @@
 import { useRef, useState } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
-import {
-  ExtractError,
-  CacheValueType,
-  ExtractResponse,
-  ClientResponseType,
-  FetchCommandInstance,
-  FetchBuilderInstance,
-} from "@better-typed/hyper-fetch";
+import { ExtractError, CacheValueType, ExtractResponse, FetchCommandInstance } from "@better-typed/hyper-fetch";
 
-import { getCacheInitialData } from "utils";
-import { UseDependentStateActions, UseDependentStateType } from "./use-dependent-state.types";
-import { getDetailsState, getInitialDependentStateData, transformDataToCacheValue } from "./use-dependent-state.utils";
+import {
+  UseDependentStateActions,
+  UseDependentStateType,
+  UseDependentStateProps,
+  UseDependentStateReturn,
+} from "./use-dependent-state.types";
+import {
+  getDetailsState,
+  getInitialState,
+  responseToCacheValue,
+  getValidCacheData,
+  isStaleCacheData,
+} from "./use-dependent-state.utils";
 
 /**
  *
  * @param command
  * @param initialData
- * @param queue
+ * @param dispatcher
  * @param dependencies
  * @internal
  */
-export const useDependentState = <T extends FetchCommandInstance>(
-  command: T,
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
-  queue: FetchBuilderInstance["fetchDispatcher"] | FetchBuilderInstance["submitDispatcher"],
-  dependencies: any[],
-): [
-  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
-  (renderKey: keyof UseDependentStateType) => void,
-  boolean,
-  (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
-] => {
+export const useDependentState = <T extends FetchCommandInstance>({
+  command,
+  dispatcher,
+  initialData,
+  dependencyTracking,
+  defaultCacheEmitting = true,
+}: UseDependentStateProps<T>): UseDependentStateReturn<T> => {
   const { builder, cacheKey, queueKey } = command;
   const { cache } = builder;
+  const initialState = getInitialState(responseToCacheValue(initialData), dispatcher.hasRunningRequests(queueKey));
 
-  const [initialized, setInitialized] = useState(false);
+  const forceUpdate = useForceUpdate();
+
+  const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(initialState);
+  const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
+  const [isInitialized, setInitialized] = useState(false);
+
+  // ******************
+  // Utils
+  // ******************
+
+  const getStaleStatus = async () => {
+    const cacheData = await command.builder.cache.get(command.cacheKey);
+
+    return isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
+  };
 
   // ******************
   // Dependency Tracking
   // ******************
-
-  const forceUpdate = useForceUpdate();
-  const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
-  const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(
-    getInitialDependentStateData(command, transformDataToCacheValue(command, initialData)),
-  );
 
   const renderOnKeyTrigger = (keys: Array<keyof UseDependentStateType>) => {
     const shouldRerender = renderKeys.current.find((renderKey) => keys.includes(renderKey));
     if (shouldRerender) forceUpdate();
   };
 
-  const setRenderKeys = (renderKey: keyof UseDependentStateType) => {
+  const setRenderKey = (renderKey: keyof UseDependentStateType) => {
     renderKeys.current.push(renderKey);
   };
 
@@ -64,33 +71,51 @@ export const useDependentState = <T extends FetchCommandInstance>(
   useDidUpdate(
     () => {
       const getInitialData = async () => {
+        setInitialized(false);
+
         // Handle initial loading state
-        const initialLoading = !!queue.getRunningRequests(queueKey).length;
-        state.current.loading = initialLoading;
+        state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
-        const cacheData = await builder.cache.get(cacheKey);
-        const cacheValue = !cacheData ? getCacheInitialData<T>(command, initialData) : cacheData;
-
-        const newState = getInitialDependentStateData(command, cacheValue, !!queue.getRunningRequests(queueKey).length);
+        // Get cache state
+        const cacheData = await builder.cache.get<ExtractResponse<T>, ExtractError<T>>(cacheKey);
+        const cacheState = getValidCacheData<T>(command, initialData, cacheData);
+        const newState = getInitialState(cacheState, dispatcher.hasRunningRequests(queueKey));
 
         const hasInitialState = initialData?.[0] === state.current.data;
         const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
         const shouldLoadInitialCache = !hasState && cacheData;
-        const shouldRemovePreviousData = hasState && !cacheData && false;
+        const shouldRemovePreviousData = hasState && !cacheData;
 
-        // Don't update the state when we are fetching data for new cacheKey
-        // So on paginated page we will have previous page access until the new one will be fetched
         if (shouldLoadInitialCache || shouldRemovePreviousData) {
+          // Don't update the state when we are fetching data for new cacheKey
+          // So on paginated page we will have previous page access until the new one will be fetched
           state.current = newState;
         }
 
-        forceUpdate();
         setInitialized(true);
       };
 
       getInitialData();
     },
-    [...dependencies, cacheKey, queueKey],
+    [cacheKey, queueKey],
+    true,
+  );
+
+  // ******************
+  // Turn off dependency tracking
+  // ******************
+
+  useDidUpdate(
+    () => {
+      const handleDependencyTracking = () => {
+        if (!dependencyTracking) {
+          Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
+        }
+      };
+
+      handleDependencyTracking();
+    },
+    [dependencyTracking],
     true,
   );
 
@@ -111,7 +136,8 @@ export const useDependentState = <T extends FetchCommandInstance>(
       ...state.current,
       ...newStateValues,
     };
-    renderOnKeyTrigger(Object.keys(newStateValues) as Array<keyof UseDependentStateType>);
+
+    forceUpdate();
   };
 
   // ******************
@@ -119,13 +145,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
   // ******************
 
   const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
-    setData: async (data, emitToCache = true) => {
+    setData: async (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [data, currentState.error, currentState.status],
-          getDetailsState(command, state.current),
+          getDetailsState(state.current),
           command.cache,
         );
       } else {
@@ -133,13 +159,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["data"]);
       }
     },
-    setError: async (error, emitToCache = true) => {
+    setError: async (error, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [currentState.data, error, currentState.status],
-          getDetailsState(command, state.current, { isFailed: !!error }),
+          getDetailsState(state.current, { isFailed: !!error }),
           command.cache,
         );
       } else {
@@ -149,7 +175,7 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
     setLoading: async (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        queue.events.setLoading(queueKey, "", {
+        dispatcher.events.setLoading(queueKey, "", {
           isLoading: loading,
           isRetry: false,
           isOffline: false,
@@ -159,13 +185,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["loading"]);
       }
     },
-    setStatus: async (status, emitToCache = true) => {
+    setStatus: async (status, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [currentState.data, currentState.error, status],
-          getDetailsState(command, state.current),
+          getDetailsState(state.current),
           command.cache,
         );
       } else {
@@ -173,13 +199,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["status"]);
       }
     },
-    setRefreshed: async (isRefreshed, emitToCache = true) => {
+    setRefreshed: async (isRefreshed, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [currentState.data, currentState.error, currentState.status],
-          getDetailsState(command, state.current, { isRefreshed }),
+          getDetailsState(state.current, { isRefreshed }),
           command.cache,
         );
       } else {
@@ -187,13 +213,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["isRefreshed"]);
       }
     },
-    setRetries: async (retries, emitToCache = true) => {
+    setRetries: async (retries, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [currentState.data, currentState.error, currentState.status],
-          getDetailsState(command, state.current, { retries }),
+          getDetailsState(state.current, { retries }),
           command.cache,
         );
       } else {
@@ -201,13 +227,13 @@ export const useDependentState = <T extends FetchCommandInstance>(
         renderOnKeyTrigger(["retries"]);
       }
     },
-    setTimestamp: async (timestamp, emitToCache = true) => {
+    setTimestamp: async (timestamp, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
         await cache.set(
           cacheKey,
           [currentState.data, currentState.error, currentState.status],
-          getDetailsState(command, state.current, { timestamp }),
+          getDetailsState(state.current, { timestamp }),
           command.cache,
         );
       } else {
@@ -217,5 +243,5 @@ export const useDependentState = <T extends FetchCommandInstance>(
     },
   };
 
-  return [state.current, actions, setRenderKeys, initialized, setCacheData];
+  return [state.current, actions, { setRenderKey, isInitialized, setCacheData, getStaleStatus }];
 };

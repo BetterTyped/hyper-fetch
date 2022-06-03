@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useCommand } from "hooks";
+import { useCommand } from "helpers";
 import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 
 export const useCache = <T extends FetchCommandInstance>(

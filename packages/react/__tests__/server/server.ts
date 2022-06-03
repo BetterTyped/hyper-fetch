@@ -41,7 +41,7 @@ export const createRequestInterceptor = <T extends FetchCommandInstance, StatusT
     return errorResponse;
   }
 
-  const responseData = fixture as ExtractResponse<T>;
+  const responseData = (fixture !== undefined ? fixture : { data: [1, 2, 3] }) as ExtractResponse<T>;
 
   server.use(createStubMethod(command, url, method, currentStatus, responseData, delay));
   return responseData;

@@ -5,31 +5,31 @@ import { CommandResponseDetails } from "managers";
 export type CacheOptionsType = {
   storage?: CacheStorageType;
   onInitialization?: (cache: Cache) => void;
-  onChange?: <DataType = any, ErrorType = any>(
+  onChange?: <Response = any, Error = any>(
     key: string,
-    value: CacheValueType<DataType, ErrorType>,
+    value: CacheValueType<Response, Error>,
     details: CommandResponseDetails,
   ) => void;
 };
 
 // Values
-export type CacheValueType<DataType = any, ErrorType = any> = {
-  data: ClientResponseType<DataType, ErrorType>;
+export type CacheValueType<Response = any, Error = any> = {
+  data: ClientResponseType<Response, Error>;
   details: CommandResponseDetails;
 };
 
 // Storage
 export type CacheStorageSyncType = {
-  set: <DataType>(key: string, data: CacheValueType<DataType>) => void;
-  get: <DataType>(key: string) => CacheValueType<DataType> | undefined;
-  keys: () => string[] | IterableIterator<string>;
+  set: <Response, Error>(key: string, data: CacheValueType<Response, Error>) => void;
+  get: <Response, Error>(key: string) => CacheValueType<Response, Error> | undefined;
+  keys: () => string[] | IterableIterator<string> | string[];
   delete: (key: string) => void;
   clear: () => void;
 };
 export type CacheStorageAsyncType = {
-  set: <DataType>(key: string, data: CacheValueType<DataType>) => Promise<void>;
-  get: <DataType>(key: string) => Promise<CacheValueType<DataType> | undefined>;
-  keys: () => Promise<string[] | IterableIterator<string>>;
+  set: <Response, Error>(key: string, data: CacheValueType<Response, Error>) => Promise<void>;
+  get: <Response, Error>(key: string) => Promise<CacheValueType<Response, Error> | undefined>;
+  keys: () => Promise<string[] | IterableIterator<string> | string[]>;
   delete: (key: string) => Promise<void>;
   clear: () => Promise<void>;
 };

@@ -13,22 +13,22 @@ import {
 } from "@better-typed/hyper-fetch";
 
 import { isEqual } from "utils";
-import { UseDependentStateActions, UseDependentStateType } from "hooks";
+import { UseDependentStateType, UseDependentStateActions } from "helpers";
 
 export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerMethodsType;
-  dependencyTracking: boolean;
-  initialData: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
+  state: UseDependentStateType<ExtractResponse<T>, ExtractError<T>>;
+  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
   deepCompare: boolean | typeof isEqual;
+  cacheInitialized: boolean;
   initializeCallbacks?: boolean;
 };
 
 export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
-  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   {
-    actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
     onRequest: (callback: OnRequestCallbackType) => void;
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
     onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
@@ -41,9 +41,10 @@ export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
     onUploadProgress: (callback: OnProgressCallbackType) => void;
   },
   {
-    addRequestListener: (requestId: string, command: FetchCommandInstance) => void;
-    setRenderKey: (key: keyof UseDependentStateType<unknown, unknown>) => void;
-    getStaleStatus: () => boolean | Promise<boolean>;
+    addRequestListener: (
+      requestId: string,
+      command: FetchCommandInstance,
+    ) => (unmountLifecycleEvents: boolean, unmountDataEvents: boolean) => void;
   },
 ];
 

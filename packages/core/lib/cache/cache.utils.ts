@@ -1,11 +1,15 @@
 import { FetchCommandInstance } from "command";
+import { isFailedRequest } from "dispatcher";
 import { ExtractFetchReturn } from "types";
 
 export const getCacheData = <T extends FetchCommandInstance>(
   previousResponse: ExtractFetchReturn<T> | undefined,
   response: ExtractFetchReturn<T>,
 ): ExtractFetchReturn<T> => {
-  const data = response[0] || previousResponse?.[0] || null;
+  const isFailed = isFailedRequest(response);
+
+  const previousData = isFailed && previousResponse ? previousResponse[0] : null;
+  const data = response[0] || previousData;
   const error = response[1];
   const status = response[2];
 

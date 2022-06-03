@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import {
   ExtractError,
+  CacheValueType,
   isFailedRequest,
   ExtractResponse,
   FetchProgressType,
@@ -14,7 +15,6 @@ import {
 import { useDidUpdate, useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import {
-  useDependentState,
   OnErrorCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
@@ -23,8 +23,8 @@ import {
   OnFinishedCallbackType,
   UseCommandStateReturnType,
   UseCommandStateOptionsType,
-} from "hooks";
-import { isEqual, isStaleCacheData } from "utils";
+} from "helpers";
+import { isEqual } from "utils";
 
 /**
  * This is helper hook that handles main Hyper-Fetch event/data flow
@@ -32,26 +32,22 @@ import { isEqual, isStaleCacheData } from "utils";
  * @param options
  * @returns
  */
-export const useCommand = <T extends FetchCommandInstance>({
+export const useCommandEvents = <T extends FetchCommandInstance>({
   command,
   dispatcher,
-  dependencyTracking,
-  initialData,
   logger,
+  state,
+  actions,
+  setCacheData,
   deepCompare,
+  cacheInitialized,
   initializeCallbacks = false,
 }: UseCommandStateOptionsType<T>): UseCommandStateReturnType<T> => {
-  const { cache, appManager } = command.builder;
+  const { cache, appManager, commandManager } = command.builder;
   const commandDump = command.dump();
 
   const isMounted = useIsMounted();
   const [initializedCallbacks, setInitializedCallbacks] = useState(false);
-  const [state, actions, setRenderKey, initialized, setCacheData] = useDependentState<T>(
-    command,
-    initialData,
-    dispatcher,
-    [JSON.stringify(commandDump)],
-  );
 
   // ******************
   // Callbacks
@@ -72,8 +68,8 @@ export const useCommand = <T extends FetchCommandInstance>({
   // Listeners unmounting
   // ******************
 
-  const unmountLifecycleCallbacks = useRef<VoidFunction[]>([]);
-  const unmountDataHandlerCallback = useRef<VoidFunction | null>(null);
+  const unmountLifecycleEventsCallbacks = useRef<VoidFunction[]>([]);
+  const unmountDataEventsCallback = useRef<VoidFunction | null>(null);
 
   // ******************
   // Response handlers
@@ -87,10 +83,9 @@ export const useCommand = <T extends FetchCommandInstance>({
 
     const { isOffline, isFailed, isCanceled } = details;
 
-    if (isOffline && isFailed) {
+    if (command.offline && isOffline && isFailed) {
       logger.debug("Performing offline error callback", { data, details });
       onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details);
-      if (command.offline) onErrorCallback.current?.(data[1] as ExtractError<T>, details);
     } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
       onAbortCallback.current?.(data[1] as ExtractError<T>, details);
@@ -105,10 +100,10 @@ export const useCommand = <T extends FetchCommandInstance>({
   };
 
   const handleInitialCallbacks = () => {
-    const trigger = async () => {
+    const trigger = () => {
       const hasData = state.data && state.error && state.timestamp;
-      const queue = await dispatcher.getQueue(command.queueKey);
-      if (hasData && initialized && !initializedCallbacks && initializeCallbacks) {
+      const queue = dispatcher.getQueue(command.queueKey);
+      if (hasData && cacheInitialized && !initializedCallbacks && initializeCallbacks) {
         const details = {
           retries: state.retries,
           timestamp: new Date(state.timestamp as Date),
@@ -130,29 +125,29 @@ export const useCommand = <T extends FetchCommandInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetResponseData = (
-    data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
-    details: CommandResponseDetails,
-  ) => {
+  const handleGetResponseData = ({ data, details }: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     const { isCanceled, isFailed, isOffline } = details;
 
     logger.debug("Received new data");
     actions.setLoading(false, false);
 
     if (isCanceled) {
-      return logger.debug("Skipping canceled error response data");
+      logger.debug("Skipping canceled error response data");
     }
 
     if (isFailed && isOffline) {
-      return logger.debug("Skipping offline error response data");
+      logger.debug("Skipping offline error response data");
     }
 
     const compareFn = typeof deepCompare === "function" ? deepCompare : isEqual;
     const isEqualResponse = deepCompare ? compareFn(data, [state.data, state.error, state.status]) : false;
 
+    // To limit rerendering we change only the data timestamp when data is equal
     if (isEqualResponse) {
       actions.setTimestamp(new Date(details.timestamp), false);
-    } else {
+    }
+    // When new data comes we fully change state
+    else {
       setCacheData({ data, details });
     }
   };
@@ -187,8 +182,6 @@ export const useCommand = <T extends FetchCommandInstance>({
   };
 
   const addRequestListener = (requestId: string, cmd: FetchCommandInstance) => {
-    const { commandManager } = cmd.builder;
-
     const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
     const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
     const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);
@@ -197,7 +190,10 @@ export const useCommand = <T extends FetchCommandInstance>({
 
     // Data handlers
     const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
-    const getResponseUnmount = commandManager.events.onResponseById(requestId, handleGetResponseData);
+    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(
+      cmd.cacheKey,
+      handleGetResponseData,
+    );
 
     const unmountLifecycle = () => {
       downloadUnmount();
@@ -213,41 +209,15 @@ export const useCommand = <T extends FetchCommandInstance>({
       getResponseUnmount();
     };
 
-    unmountDataHandlerCallback.current?.();
+    unmountDataEventsCallback.current?.();
 
-    unmountLifecycleCallbacks.current.push(unmountLifecycle);
-    unmountDataHandlerCallback.current = unmountDataHandlers;
-  };
+    unmountLifecycleEventsCallbacks.current.push(unmountLifecycle);
+    unmountDataEventsCallback.current = unmountDataHandlers;
 
-  // ******************
-  // Misc
-  // ******************
-
-  const handleDependencyTracking = () => {
-    if (!dependencyTracking) {
-      Object.keys(state).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
-    }
-  };
-
-  const getStaleStatus = async () => {
-    const cacheData = await command.builder.cache.get(command.cacheKey);
-
-    return isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
-  };
-
-  const setInitialDataListeners = () => {
-    // Check if listeners are already initialized
-    if (!unmountDataHandlerCallback.current) {
-      const loadingUnmount = dispatcher.events.onLoading(command.queueKey, handleGetLoadingEvent);
-      const getDataUnmount = cache.events.get(command.cacheKey, (cacheData) =>
-        handleGetResponseData(cacheData.data, cacheData.details),
-      );
-
-      return () => {
-        loadingUnmount();
-        getDataUnmount();
-      };
-    }
+    return (unmountLifecycleEvents = true, unmountDataEvents = true) => {
+      if (unmountLifecycleEvents) unmountLifecycle();
+      if (unmountDataEvents) unmountDataHandlers();
+    };
   };
 
   /**
@@ -256,28 +226,21 @@ export const useCommand = <T extends FetchCommandInstance>({
    */
 
   /**
-   * Dependency tracking mode initialization
-   */
-  useDidUpdate(handleDependencyTracking, [JSON.stringify(commandDump), dependencyTracking], true);
-
-  /**
    * On the init if we have data we should call the callback functions
    */
-  useDidUpdate(handleInitialCallbacks, [JSON.stringify(commandDump), initialized], true);
+  useDidUpdate(handleInitialCallbacks, [JSON.stringify(commandDump), cacheInitialized], true);
 
   /**
-   * On the init if we have data we should call the callback functions
+   * On unmount we want to clear all the listeners to prevent memory leaks
    */
-  useDidUpdate(setInitialDataListeners, [JSON.stringify(commandDump), initialized], true);
-
   useWillUnmount(() => {
     // Unmount listeners
+    unmountLifecycleEventsCallbacks.current.forEach((unmount) => unmount());
+    unmountDataEventsCallback.current?.();
   });
 
   return [
-    state,
     {
-      actions,
       onRequest: (callback: OnRequestCallbackType) => {
         onRequestCallback.current = callback;
       },
@@ -311,8 +274,6 @@ export const useCommand = <T extends FetchCommandInstance>({
     },
     {
       addRequestListener,
-      setRenderKey,
-      getStaleStatus,
     },
   ];
 };

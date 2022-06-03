@@ -13,7 +13,7 @@ import {
   OnSuccessCallbackType,
   UseDependentStateActions,
   UseDependentStateType,
-} from "hooks";
+} from "helpers";
 
 export type UseCacheOptionsType<T extends FetchCommandInstance> = {
   dependencyTracking?: boolean;

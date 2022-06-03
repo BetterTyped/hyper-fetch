@@ -7,7 +7,7 @@ import {
   FetchCommandInstance,
 } from "@better-typed/hyper-fetch";
 
-import { useDebounce, useCommand } from "hooks";
+import { useDebounce, useDependentState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
 
 /**
@@ -33,17 +33,34 @@ export const useSubmit = <T extends FetchCommandInstance>(
    */
   const [command, setCommand] = useState(commandInstance);
   const { builder } = command;
-  const { cache, submitDispatcher, loggerManager } = builder;
+  const { cache, submitDispatcher: dispatcher, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce(debounceTime);
-  const [state, actions, { setRenderKey, addRequestListener }] = useCommand({
-    command,
-    dispatcher: submitDispatcher,
-    dependencyTracking,
-    initialData,
+
+  /**
+   * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
+   */
+  const [state, actions, { setRenderKey, setCacheData, isInitialized }] = useDependentState<T>({
     logger,
+    command,
+    dispatcher,
+    initialData,
+    dependencyTracking,
+  });
+
+  /**
+   * Handles the data exchange with the core logic - responses, loading, downloading etc
+   */
+  const [callbacks, { addRequestListener }] = useCommandEvents({
+    state,
+    logger,
+    actions,
+    command,
+    dispatcher,
     deepCompare,
+    setCacheData,
+    cacheInitialized: isInitialized,
   });
 
   // ******************
@@ -108,17 +125,16 @@ export const useSubmit = <T extends FetchCommandInstance>(
   // ******************
 
   const handlers = {
-    actions: actions.actions,
-    onSubmitRequest: actions.onRequest,
-    onSubmitSuccess: actions.onSuccess,
-    onSubmitError: actions.onError,
-    onSubmitFinished: actions.onFinished,
-    onSubmitRequestStart: actions.onRequestStart,
-    onSubmitResponseStart: actions.onResponseStart,
-    onSubmitDownloadProgress: actions.onDownloadProgress,
-    onSubmitUploadProgress: actions.onUploadProgress,
-    onSubmitOfflineError: actions.onOfflineError,
-    onSubmitAbort: actions.onAbort,
+    onSubmitRequest: callbacks.onRequest,
+    onSubmitSuccess: callbacks.onSuccess,
+    onSubmitError: callbacks.onError,
+    onSubmitFinished: callbacks.onFinished,
+    onSubmitRequestStart: callbacks.onRequestStart,
+    onSubmitResponseStart: callbacks.onResponseStart,
+    onSubmitDownloadProgress: callbacks.onDownloadProgress,
+    onSubmitUploadProgress: callbacks.onUploadProgress,
+    onSubmitOfflineError: callbacks.onOfflineError,
+    onSubmitAbort: callbacks.onAbort,
   };
 
   return {
@@ -148,6 +164,7 @@ export const useSubmit = <T extends FetchCommandInstance>(
       return state.timestamp;
     },
     abort,
+    ...actions,
     ...handlers,
     isDebouncing: false,
     isRefreshed: false,

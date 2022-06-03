@@ -92,7 +92,7 @@ export class Dispatcher {
    * Return all
    */
   getQueuesKeys = () => {
-    return this.storage.keys();
+    return Array.from(this.storage.keys());
   };
 
   /**
@@ -217,7 +217,9 @@ export class Dispatcher {
    * Clear all running requests and storage
    */
   clear = () => {
-    this.runningRequests.forEach((requests) => requests.forEach((request) => request.command.abort()));
+    const keys = this.getQueuesKeys();
+    keys.forEach((queueKey) => this.cancelRunningRequests(queueKey));
+
     this.runningRequests.clear();
     this.storage.clear();
     this.options?.onClearStorage?.(this);

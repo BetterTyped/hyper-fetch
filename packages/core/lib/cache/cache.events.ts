@@ -1,11 +1,10 @@
 import EventEmitter from "events";
 
 import { CacheValueType, getRevalidateEventKey, CacheStorageType } from "cache";
-import { ExtractResponse, ExtractError } from "types";
 import { getCacheKey } from "./cache.utils";
 
 export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType) => ({
-  set: <T>(cacheKey: string, data: CacheValueType<ExtractResponse<T>, ExtractError<T>>): void => {
+  set: <Response, Error>(cacheKey: string, data: CacheValueType<Response, Error>): void => {
     emitter.emit(getCacheKey(cacheKey), data);
   },
   /**
@@ -26,10 +25,7 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
       }
     }
   },
-  get: <T>(
-    cacheKey: string,
-    callback: (data: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void,
-  ): VoidFunction => {
+  get: <Response, Error>(cacheKey: string, callback: (data: CacheValueType<Response, Error>) => void): VoidFunction => {
     emitter.on(getCacheKey(cacheKey), callback);
     return () => emitter.removeListener(getCacheKey(cacheKey), callback);
   },

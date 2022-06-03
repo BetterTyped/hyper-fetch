@@ -6,15 +6,15 @@ import {
   ExtractError,
 } from "@better-typed/hyper-fetch";
 
-export const createCacheData = <T extends FetchCommandInstance>(
+export const createCacheData = async <T extends FetchCommandInstance>(
   command: T,
   rest?: {
     data?: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
-    details?: CommandResponseDetails;
+    details?: Partial<CommandResponseDetails>;
   },
 ) => {
   const dataValue = rest?.data || [{ data: 1 } as ExtractResponse<T>, null, 200];
-  const detailsValue = rest?.details || {
+  const detailsValue = {
     retries: 0,
     timestamp: new Date(),
     isFailed: false,
@@ -22,8 +22,9 @@ export const createCacheData = <T extends FetchCommandInstance>(
     isRefreshed: false,
     isOffline: false,
     isStopped: false,
+    ...rest?.details,
   };
 
-  command.builder.cache.storage.set(command.cacheKey, { data: dataValue, details: detailsValue });
-  return dataValue;
+  await command.builder.cache.storage.set(command.cacheKey, { data: dataValue, details: detailsValue });
+  return [dataValue, detailsValue] as const;
 };

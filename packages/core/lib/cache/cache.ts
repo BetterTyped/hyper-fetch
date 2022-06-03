@@ -43,9 +43,10 @@ import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, Cache
  *
  */
 export class Cache {
-  emitter = new EventEmitter();
-  events: ReturnType<typeof getCacheEvents>;
-  storage: CacheStorageType;
+  public emitter = new EventEmitter();
+  public events: ReturnType<typeof getCacheEvents>;
+
+  private storage: CacheStorageType;
 
   constructor(private builder: FetchBuilderInstance, private options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
@@ -59,7 +60,7 @@ export class Cache {
     details: CommandResponseDetails,
     useCache: boolean,
   ): Promise<void> => {
-    const cachedData = await this.storage.get(cacheKey);
+    const cachedData = await this.storage.get<Response, Error>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
@@ -67,7 +68,7 @@ export class Cache {
 
     const newCacheData: CacheValueType = { data, details };
 
-    this.events.set<Response>(cacheKey, newCacheData);
+    this.events.set<Response, Error>(cacheKey, newCacheData);
 
     // If request should not use cache - just emit response data
     if (!useCache) {
@@ -76,13 +77,19 @@ export class Cache {
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {
-      await this.storage.set(cacheKey, newCacheData);
+      await this.storage.set<Response, Error>(cacheKey, newCacheData);
     }
   };
 
-  get = async <Response>(cacheKey: string): Promise<CacheValueType<Response> | undefined> => {
-    const cachedData = await this.storage.get<Response>(cacheKey);
+  get = async <Response, Error>(cacheKey: string): Promise<CacheValueType<Response, Error> | undefined> => {
+    const cachedData = await this.storage.get<Response, Error>(cacheKey);
     return cachedData;
+  };
+
+  keys = async (): Promise<string[]> => {
+    const values = await this.storage.keys();
+
+    return Array.from(values);
   };
 
   delete = (cacheKey: string): void => {
@@ -90,7 +97,7 @@ export class Cache {
     this.storage.delete(cacheKey);
   };
 
-  clear = (): void => {
-    this.storage.clear();
+  clear = async (): Promise<void> => {
+    await this.storage.clear();
   };
 }

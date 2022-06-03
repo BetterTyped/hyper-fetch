@@ -15,7 +15,7 @@ import {
   OnSuccessCallbackType,
   UseDependentStateActions,
   UseDependentStateType,
-} from "hooks";
+} from "helpers";
 import { isEqual } from "utils";
 
 export type UseFetchOptionsType<T extends FetchCommandInstance> = {

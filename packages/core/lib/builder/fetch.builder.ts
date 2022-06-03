@@ -267,17 +267,16 @@ export class FetchBuilder<
   /**
    * Clears the builder instance and remove all listeners on it's dependencies
    */
-  clear = () => {
+  clear = async () => {
     this.commandManager.abortControllers.clear();
-    this.cache.clear();
     this.fetchDispatcher.clear();
     this.submitDispatcher.clear();
+    await this.cache.clear();
 
     this.commandManager.emitter.removeAllListeners();
-    this.cache.emitter.removeAllListeners();
     this.fetchDispatcher.emitter.removeAllListeners();
     this.submitDispatcher.emitter.removeAllListeners();
-    this.commandManager.emitter.removeAllListeners();
+    this.cache.emitter.removeAllListeners();
   };
 
   /**

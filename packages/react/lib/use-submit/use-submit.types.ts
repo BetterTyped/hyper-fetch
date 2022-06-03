@@ -16,7 +16,7 @@ import {
   OnSuccessCallbackType,
   UseDependentStateType,
   UseDependentStateActions,
-} from "hooks";
+} from "helpers";
 
 export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   disabled?: boolean;
