@@ -270,6 +270,10 @@ aside {
 
 /* Api link */
 
+.api-card-column {
+  margin-bottom: 15px;
+}
+
 .api-link {
   display: block;
   width: fit-content;
@@ -278,7 +282,6 @@ aside {
   line-height: var(--ifm-heading-line-height);
   padding: var(--ifm-global-spacing);
   transition: border-color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
-  margin-bottom: 10px;
 }
 
 .api-link-title {
