@@ -52,7 +52,7 @@ const builder = async (apiRootDir: string, options: PluginOptions) => {
     // Generate docs files
     const json = await import(apiJsonDocsPath);
 
-    addPkgMeta(title.replace(/\s/g, ""), {
+    addPkgMeta(packageName, {
       docPath: apiJsonDocsPath,
       ...(options.readOnce && { file: json }),
     });
