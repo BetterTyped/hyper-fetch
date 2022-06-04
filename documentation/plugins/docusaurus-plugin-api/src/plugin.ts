@@ -7,7 +7,6 @@ import { prepareApiDirectory } from "./utils/file.utils";
 import { PluginOptions } from "./types/package.types";
 import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
-import { assignPluginOpts } from "./globals";
 
 const { DEFAULT_OPTIONS } = require("./lib/options");
 
@@ -15,7 +14,6 @@ let generated = false;
 
 async function plugin(context: LoadContext, options: PluginOptions): Promise<Plugin<LoadedContent>> {
   const { generatedFilesDir } = context;
-  assignPluginOpts(options);
 
   const apiRootDir = path.join(generatedFilesDir, "..", apiDir, options.docs.routeBasePath);
 
@@ -44,7 +42,7 @@ async function plugin(context: LoadContext, options: PluginOptions): Promise<Plu
     ...instance,
     loadContent: async function () {
       if (!generated) {
-        await builder(apiRootDir, options);
+        await builder(apiRootDir, options, generatedFilesDir);
         generated = true;
       } else {
         trace("Using cached api files. If you want to see changes, please restart the command.");

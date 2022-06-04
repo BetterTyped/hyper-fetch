@@ -6,12 +6,13 @@ import unified from "unified";
 import remarkParse from "remark-parse";
 
 import { MdTransformer } from "./md/md.transformer";
-import { _PKG_META, _PLUGIN_OPTS } from "./globals";
 import { displayOptions } from "./types/injector.types";
 import { _title, getMatchingElement, isJSONGenerated } from "./utils/injector.utils";
 import { RequiredKeys } from "./types/helpers.types";
 import { MdOptions } from "./md/md.types";
 import { defaultMethodOptions } from "./md/md.constants";
+import { apiDir, apiDocsPath, optionsDir, pluginOptionsDir } from "./constants/paths.constants";
+import { PkgMeta, PluginOptions } from "./types/package.types";
 
 const DEFAULT_INJECTOR_MD_OPTIONS: RequiredKeys<MdOptions> = {
   hasHeading: false,
@@ -33,24 +34,32 @@ const MD_OPTIONS_METHODS = [
 
 const DISPLAY_OPTIONS_WITH_PARAM = [displayOptions.method, displayOptions.parameter];
 
-const docsInjector = () => {
-  const transformer = async (ast: any) => {
+export const docsInjector = () => {
+  return async (tree: any, file: any) => {
     await isJSONGenerated();
-    const packageName = `(${Array.from(_PKG_META.keys()).join("|")})`;
+
+    const optionsPath = path.join(file.cwd, apiDir, optionsDir);
+    const pluginOptionsPath = path.join(file.cwd, apiDir, pluginOptionsDir);
+
+    const options: PkgMeta = require(optionsPath);
+    const pluginOptions: PluginOptions = require(pluginOptionsPath);
+    const apiRootDir = path.join(file.cwd, apiDir, pluginOptions.docs.routeBasePath);
+    const packages = Object.keys(options);
+    const isMonorepo = packages.length > 1;
+
+    const packageNames = `(${packages.join("|")})`;
     const elementName = "([^ ]+)";
     const displayOptionParam = "([^ ]+)?";
     const rgx = new RegExp(
-      `{@import ${packageName} ${elementName} (${Object.keys(displayOptions).join("|")}) ?${displayOptionParam} ?}`,
+      `{@import ${packageNames} ${elementName} (${Object.keys(displayOptions).join("|")}) ?${displayOptionParam} ?}`,
     );
 
-    visit(ast, "paragraph", (node: any) => {
-      if ([node.children, node.children[0], node.children[0].type === "text"].every(Boolean)) {
+    visit(tree, (node: any) => {
+      if ([node.children, node.children?.[0], node.children?.[0]?.type === "text"].every(Boolean)) {
         const apiImport = node.children[0].value.match(rgx);
 
-        if (node.children[0].value.includes("@import ")) console.log(node.children[0].value);
-
         if (apiImport) {
-          const [, pkgName, elementName, displayOption, optionParam] = apiImport;
+          const [, packageName, elementName, displayOption, optionParam] = apiImport;
 
           if (!Object.keys(displayOptions).includes(displayOption)) {
             throw Error(`Unknown display option. Available display options are: ${Object.keys(displayOptions)}`);
@@ -60,19 +69,13 @@ const docsInjector = () => {
             throw Error(`Display option ${displayOption} does not accept parameter`);
           }
 
-          const packageMetaData = _PKG_META.get(pkgName);
-          if (!packageMetaData) {
-            throw Error(
-              `Wrong package name for import. Received ${pkgName}. Available names: ${Array.from(_PKG_META.keys())}`,
-            );
-          }
+          const packageApiDir = isMonorepo ? path.join(apiRootDir, packageName) : apiRootDir; // -> /api/Hyper-Fetch(if monorepo) or /api
+          const apiJsonDocsPath = path.join(packageApiDir, apiDocsPath);
 
-          const fileData = _PLUGIN_OPTS.readOnce
-            ? packageMetaData.file
-            : JSON.parse(readFileSync(packageMetaData.docPath, "utf-8"));
+          const fileData = JSON.parse(readFileSync(apiJsonDocsPath, "utf-8"));
 
           const reflection = getMatchingElement(fileData, elementName);
-          const formatter = new MdTransformer(reflection, _PLUGIN_OPTS, "", fileData.name, []);
+          const formatter = new MdTransformer(reflection, pluginOptions, "", fileData.name, []);
 
           const displayOptionsArgs = [];
           if (MD_OPTIONS_METHODS.includes(displayOption)) {
@@ -90,7 +93,4 @@ const docsInjector = () => {
       }
     });
   };
-  return transformer;
 };
-
-export default docsInjector;
