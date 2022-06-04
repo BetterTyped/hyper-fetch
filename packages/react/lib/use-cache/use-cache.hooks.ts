@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
+import { getCommandDispatcher, FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useCommand } from "helpers";
+import { useCommandEvents, useDependentState } from "helpers";
 import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 
 export const useCache = <T extends FetchCommandInstance>(
@@ -14,15 +14,34 @@ export const useCache = <T extends FetchCommandInstance>(
 ) => {
   const { cacheKey, builder } = command;
 
-  const { cache, fetchDispatcher, loggerManager } = builder;
+  const { cache, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useCache")).current;
-  const [state, actions, { setRenderKey }] = useCommand({
-    command,
-    dispatcher: fetchDispatcher,
-    dependencyTracking,
-    initialData,
+
+  const [dispatcher] = getCommandDispatcher(command);
+
+  /**
+   * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
+   */
+  const [state, actions, { setRenderKey, setCacheData, isInitialized }] = useDependentState<T>({
     logger,
+    command,
+    dispatcher,
+    initialData,
+    dependencyTracking,
+  });
+
+  /**
+   * Handles the data exchange with the core logic - responses, loading, downloading etc
+   */
+  const [callbacks] = useCommandEvents({
+    state,
+    logger,
+    actions,
+    command,
+    dispatcher,
     deepCompare,
+    setCacheData,
+    cacheInitialized: isInitialized,
   });
 
   const revalidate = (revalidateKey?: string | FetchCommandInstance | RegExp) => {
@@ -64,9 +83,9 @@ export const useCache = <T extends FetchCommandInstance>(
       setRenderKey("timestamp");
       return state.timestamp;
     },
-    onCacheError: actions.onError,
-    onCacheSuccess: actions.onSuccess,
-    onCacheChange: actions.onFinished,
+    onCacheError: callbacks.onError,
+    onCacheSuccess: callbacks.onSuccess,
+    onCacheChange: callbacks.onFinished,
     ...actions,
     revalidate,
   };
