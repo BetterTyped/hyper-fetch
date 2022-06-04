@@ -1,4 +1,5 @@
-import { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-docs/lib/types";
+import type { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-docs";
+
 import * as TypeDoc from "typedoc";
 
 export type PluginOptions = {

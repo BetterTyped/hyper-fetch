@@ -4,7 +4,6 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const path = require("path");
-const docusaurusPluginApi = require("./plugins/docusaurus-plugin-api");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -73,6 +72,7 @@ const config = {
     ],
   ],
 
+  
   presets: [
     [
       "@docusaurus/preset-classic",
