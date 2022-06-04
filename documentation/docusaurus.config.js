@@ -79,22 +79,6 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          // TODO - We'll have to provide default path for generation .json -> maybe in a way "packageName.json"
-          remarkPlugins: [
-            require("mdx-mermaid"),
-            [
-              docusaurusPluginApi.injectDocs,
-              {
-                packages: [
-                  { name: "HyperFetch", docDir: path.join(__dirname, "/.docusaurus-plugin-api/api/Hyper-Fetch") },
-                  {
-                    name: "ReactHyperFetch",
-                    docDir: path.join(__dirname, "/.docusaurus-plugin-api/api/React-Hyper-Fetch"),
-                  },
-                ],
-              },
-            ],
-          ],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",

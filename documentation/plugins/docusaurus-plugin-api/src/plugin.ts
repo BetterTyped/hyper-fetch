@@ -8,6 +8,7 @@ import { PluginOptions } from "./types/package.types";
 import { trace, info } from "./utils/log.utils";
 import { apiDir } from "./constants/paths.constants";
 import { assignPluginOpts } from "./globals";
+import injector from "./injector";
 
 const { DEFAULT_OPTIONS } = require("./lib/options");
 
@@ -29,7 +30,21 @@ async function plugin(context: LoadContext, options: PluginOptions): Promise<Plu
     ...options.docs,
     path: path.join(apiDir, options.docs.routeBasePath),
     id: options.id,
-    remarkPlugins: [...options.docs.remarkPlugins, require("mdx-mermaid"), require("remark-admonitions")],
+    remarkPlugins: [
+      ...options.docs.remarkPlugins,
+      require("mdx-mermaid"),
+      require("remark-admonitions"),
+      require("mdx-mermaid"),
+      [
+        injector,
+        {
+          packages: options.packages.map((pkg) => ({
+            name: pkg.title.replace(/\s/g, ""),
+            docDir: pkg.dir,
+          })),
+        },
+      ],
+    ],
   });
   info("Successfully initialized plugin base");
 

@@ -1,9 +1,10 @@
 import { readFileSync } from "fs";
 import visit from "unist-util-visit";
-import { MdTransformer } from "./md/md.transformer";
 import json2md from "json2md";
 import unified from "unified";
 import remarkParse from "remark-parse";
+
+import { MdTransformer } from "./md/md.transformer";
 import { _PKG_META, _PLUGIN_OPTS } from "./globals";
 import { displayOptions } from "./types/injector.types";
 import { _title, getMatchingElement, isJSONGenerated } from "./utils/injector.utils";

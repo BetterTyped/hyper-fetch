@@ -35,6 +35,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.0.0-beta.20",
     "@tsconfig/docusaurus": "^1.0.4",
+    "rollup-plugin-delete": "^2.0.0",
     "typescript": "^4.3.5"
   },
   "browserslist": {
