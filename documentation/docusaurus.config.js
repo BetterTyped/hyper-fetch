@@ -72,13 +72,16 @@ const config = {
     ],
   ],
 
-  
   presets: [
     [
       "@docusaurus/preset-classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
+          remarkPlugins: [
+            require("mdx-mermaid"),
+            require("./plugins/docusaurus-plugin-api").docsInjector
+          ],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",

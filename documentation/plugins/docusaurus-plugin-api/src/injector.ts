@@ -1,3 +1,4 @@
+import path from "path";
 import { readFileSync } from "fs";
 import visit from "unist-util-visit";
 import json2md from "json2md";
@@ -32,7 +33,7 @@ const MD_OPTIONS_METHODS = [
 
 const DISPLAY_OPTIONS_WITH_PARAM = [displayOptions.method, displayOptions.parameter];
 
-const plugin = () => {
+const docsInjector = () => {
   const transformer = async (ast: any) => {
     await isJSONGenerated();
     const packageName = `(${Array.from(_PKG_META.keys()).join("|")})`;
@@ -45,6 +46,8 @@ const plugin = () => {
     visit(ast, "paragraph", (node: any) => {
       if ([node.children, node.children[0], node.children[0].type === "text"].every(Boolean)) {
         const apiImport = node.children[0].value.match(rgx);
+
+        if (node.children[0].value.includes("@import ")) console.log(node.children[0].value);
 
         if (apiImport) {
           const [, pkgName, elementName, displayOption, optionParam] = apiImport;
@@ -90,4 +93,4 @@ const plugin = () => {
   return transformer;
 };
 
-export default plugin;
+export default docsInjector;
