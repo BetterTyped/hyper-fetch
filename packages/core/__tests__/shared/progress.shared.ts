@@ -1,9 +1,9 @@
-import { FetchCommandInstance, getProgressValue, getRequestEta } from "command";
+import { CommandInstance, getProgressValue, getRequestEta } from "command";
 
 export const testProgressSpy = (props: {
   spy: () => void;
   requestId: string;
-  command: FetchCommandInstance;
+  command: CommandInstance;
   startTimestamp: number;
   progressTimestamp?: number;
   total?: number;

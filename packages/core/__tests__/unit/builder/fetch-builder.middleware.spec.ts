@@ -2,7 +2,7 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createCommand, middlewareCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 
-describe("FetchBuilder [ Middleware ]", () => {
+describe("Builder [ Middleware ]", () => {
   let builder = createBuilder();
   let command = createCommand(builder);
 

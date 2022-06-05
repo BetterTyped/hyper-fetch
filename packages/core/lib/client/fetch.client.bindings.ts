@@ -5,10 +5,10 @@ import {
   ClientResponseErrorType,
   ProgressPayloadType,
 } from "client";
-import { FetchCommandInstance, getProgressData, ClientProgressEvent } from "command";
+import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
-export const getClientBindings = async (cmd: FetchCommandInstance, requestId: string) => {
+export const getClientBindings = async (cmd: CommandInstance, requestId: string) => {
   const { baseUrl, commandManager, loggerManager, stringifyQueryParams, headerMapper, payloadMapper } = cmd.builder;
 
   const logger = loggerManager.init("Client");
@@ -185,7 +185,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
 
   // Success
 
-  const onSuccess = async <T extends FetchCommandInstance>(
+  const onSuccess = async <T extends CommandInstance>(
     responseData: unknown,
     status: number,
     callback?: (value: ClientResponseSuccessType<ExtractResponse<T>>) => void,
@@ -206,7 +206,7 @@ export const getClientBindings = async (cmd: FetchCommandInstance, requestId: st
 
   // Errors
 
-  const onError = async <T extends FetchCommandInstance>(
+  const onError = async <T extends CommandInstance>(
     error: Error | ExtractError<T>,
     status: number,
     callback?: (value: ClientResponseErrorType<ExtractError<T>>) => void,

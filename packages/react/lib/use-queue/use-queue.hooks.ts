@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { FetchCommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
+import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue";
@@ -10,7 +10,7 @@ import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue
  * @param options
  * @returns
  */
-export const useQueue = <Command extends FetchCommandInstance>(
+export const useQueue = <Command extends CommandInstance>(
   command: Command,
   options: UseQueueOptions = useQueueDefaultOptions,
 ) => {

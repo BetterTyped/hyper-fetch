@@ -22,7 +22,7 @@ online state are based on the window event listeners, when we are talking about 
 NetInfo as the source of the connection state.
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {

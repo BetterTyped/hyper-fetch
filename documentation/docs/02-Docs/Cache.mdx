@@ -53,7 +53,7 @@ asynchronously.
 This way we can setup the `Persistent` storage that will last between sessions.
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {

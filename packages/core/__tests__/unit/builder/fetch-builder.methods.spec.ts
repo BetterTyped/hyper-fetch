@@ -1,13 +1,13 @@
 import { FetchEffect } from "effect";
 import { StringifyCallbackType } from "builder";
-import { FetchCommandConfig, FetchCommand } from "command";
+import { CommandConfig, Command } from "command";
 import { ClientDefaultOptionsType, QueryStringifyOptions } from "client";
 import { LoggerManager, LoggerLevelType } from "managers";
 
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createClient, interceptorCallback, middlewareCallback } from "../../utils";
 
-describe("FetchBuilder [ Methods ]", () => {
+describe("Builder [ Methods ]", () => {
   let builder = createBuilder();
 
   beforeAll(() => {
@@ -31,7 +31,7 @@ describe("FetchBuilder [ Methods ]", () => {
       expect(builder.requestConfig).toEqual(options);
     });
     it("should assign default command config [setCommandConfig]", async () => {
-      const options: Partial<FetchCommandConfig<string, ClientDefaultOptionsType>> = { method: "POST" };
+      const options: Partial<CommandConfig<string, ClientDefaultOptionsType>> = { method: "POST" };
       builder.setCommandConfig(options);
 
       expect(builder.commandConfig).toEqual(options);
@@ -108,7 +108,7 @@ describe("FetchBuilder [ Methods ]", () => {
       const endpoint = "some-endpoint";
       const newCommand = builder.createCommand()({ endpoint });
 
-      expect(newCommand instanceof FetchCommand).toBeTrue();
+      expect(newCommand instanceof Command).toBeTrue();
       expect(newCommand.endpoint).toBe(endpoint);
     });
     it("should add single effect listeners on addEffect method trigger", async () => {

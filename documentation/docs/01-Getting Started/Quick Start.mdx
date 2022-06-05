@@ -13,14 +13,14 @@ The basic version of Hyper Fetch is not associated with any framework or library
 
 ### 1. Initialize Builder
 
-The first step in implementing Hyper Fetch is to initialize the FetchBuilder. It manage the basic configuration for
+The first step in implementing Hyper Fetch is to initialize the Builder. It manage the basic configuration for
 connection to the server and all the elements that make up Hyper Fetch, which are instances of - queue, cache, onfline /
 focus / persistence manager and data storage places. We start out by determining the baseUrl of our server.
 
 ```tsx title="/src/server/builder.ts"
-import { FetchBuilder } from "@better-typed/hyper-fetch";
+import { Builder } from "@better-typed/hyper-fetch";
 
-export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
+export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 ```
 
 ### 2. Create Command

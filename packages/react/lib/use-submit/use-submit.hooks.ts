@@ -1,10 +1,10 @@
 import { useRef, useState } from "react";
 import {
-  FetchCommand,
+  Command,
   getCommandKey,
   ExtractFetchReturn,
   commandSendRequest,
-  FetchCommandInstance,
+  CommandInstance,
 } from "@better-typed/hyper-fetch";
 
 import { useDebounce, useDependentState, useCommandEvents } from "helpers";
@@ -16,7 +16,7 @@ import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
  * @param options
  * @returns
  */
-export const useSubmit = <T extends FetchCommandInstance>(
+export const useSubmit = <T extends CommandInstance>(
   commandInstance: T,
   {
     disabled = useSubmitDefaultOptions.disabled,
@@ -102,10 +102,10 @@ export const useSubmit = <T extends FetchCommandInstance>(
   // Revalidation
   // ******************
 
-  const revalidate = (invalidateKey: string | FetchCommandInstance | RegExp) => {
+  const revalidate = (invalidateKey: string | CommandInstance | RegExp) => {
     if (!invalidateKey) return;
 
-    if (invalidateKey && invalidateKey instanceof FetchCommand) {
+    if (invalidateKey && invalidateKey instanceof Command) {
       cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
     } else {
       cache.events.revalidate(invalidateKey);

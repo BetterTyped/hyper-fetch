@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { FetchBuilderInstance } from "@better-typed/hyper-fetch";
+import { BuilderInstance } from "@better-typed/hyper-fetch";
 
-export const useAppManager = <B extends FetchBuilderInstance>(builder: B) => {
+export const useAppManager = <B extends BuilderInstance>(builder: B) => {
   const [online, setIsOnline] = useState(builder.appManager.isOnline);
   const [focused, setIsFocused] = useState(builder.appManager.isFocused);
 

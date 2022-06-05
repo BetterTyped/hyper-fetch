@@ -2,7 +2,7 @@ import {
   CacheValueType,
   ExtractError,
   ExtractResponse,
-  FetchCommandInstance,
+  CommandInstance,
   ExtractFetchReturn,
 } from "@better-typed/hyper-fetch";
 
@@ -18,9 +18,9 @@ import {
   UseDependentStateActions,
 } from "helpers";
 
-export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
+export type UseSubmitOptionsType<T extends CommandInstance> = {
   disabled?: boolean;
-  invalidate?: (string | FetchCommandInstance)[];
+  invalidate?: (string | CommandInstance)[];
   cacheOnMount?: boolean;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   debounce?: boolean;
@@ -31,7 +31,7 @@ export type UseSubmitOptionsType<T extends FetchCommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
+export type UseSubmitReturnType<T extends CommandInstance> = Omit<
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   "loading"
 > & {
@@ -49,5 +49,5 @@ export type UseSubmitReturnType<T extends FetchCommandInstance> = Omit<
   abort: VoidFunction;
   isStale: boolean;
   isDebouncing: boolean;
-  revalidate: (revalidateKey: string | FetchCommandInstance | RegExp) => void;
+  revalidate: (revalidateKey: string | CommandInstance | RegExp) => void;
 };

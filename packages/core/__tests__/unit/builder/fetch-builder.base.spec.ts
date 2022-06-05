@@ -4,7 +4,7 @@ import { AppManager } from "managers";
 import { createBuilder, interceptorCallback } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
-describe("FetchBuilder [ Base ]", () => {
+describe("Builder [ Base ]", () => {
   let builderInstance = createBuilder();
 
   beforeAll(() => {

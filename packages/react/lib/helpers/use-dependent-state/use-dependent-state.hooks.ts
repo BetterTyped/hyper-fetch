@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
-import { ExtractError, CacheValueType, ExtractResponse, FetchCommandInstance } from "@better-typed/hyper-fetch";
+import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
 
 import {
   UseDependentStateActions,
@@ -24,7 +24,7 @@ import {
  * @param dependencies
  * @internal
  */
-export const useDependentState = <T extends FetchCommandInstance>({
+export const useDependentState = <T extends CommandInstance>({
   command,
   dispatcher,
   initialData,

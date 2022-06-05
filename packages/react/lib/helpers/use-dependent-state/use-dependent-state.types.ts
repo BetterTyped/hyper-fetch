@@ -4,11 +4,11 @@ import {
   CacheValueType,
   ExtractResponse,
   ClientResponseType,
-  FetchCommandInstance,
+  CommandInstance,
   LoggerMethodsType,
 } from "@better-typed/hyper-fetch";
 
-export type UseDependentStateProps<T extends FetchCommandInstance> = {
+export type UseDependentStateProps<T extends CommandInstance> = {
   command: T;
   logger: LoggerMethodsType;
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null;
@@ -17,7 +17,7 @@ export type UseDependentStateProps<T extends FetchCommandInstance> = {
   defaultCacheEmitting?: boolean;
 };
 
-export type UseDependentStateReturn<T extends FetchCommandInstance> = [
+export type UseDependentStateReturn<T extends CommandInstance> = [
   UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
   UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>,
   {

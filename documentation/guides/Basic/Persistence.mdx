@@ -19,7 +19,7 @@ valid format to match json requirements.
 ## Cache Persistance
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -43,7 +43,7 @@ we will have multiple builders initialized where the **duplicated** requests wil
 :::
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   fetchQueue: (instance) =>
     new FetchQueue(instance, {
@@ -53,7 +53,7 @@ export const builder = new FetchBuilder<ServerErrorType>({
 ```
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   submitQueue: (instance) =>
     new SubmitQueue(instance, {

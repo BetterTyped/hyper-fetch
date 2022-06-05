@@ -1,7 +1,7 @@
 import {
   CacheValueType,
   NullableType,
-  FetchCommandInstance,
+  CommandInstance,
   ClientResponseType,
   ExtractResponse,
   ExtractError,
@@ -32,7 +32,7 @@ export const isStaleCacheData = (cacheTime: NullableType<number>, cacheTimestamp
   return +new Date() > +cacheTimestamp + cacheTime;
 };
 
-export const getValidCacheData = <T extends FetchCommandInstance>(
+export const getValidCacheData = <T extends CommandInstance>(
   command: T,
   initialData: NullableType<ExtractFetchReturn<T>>,
   cacheData: NullableType<CacheValueType<ExtractResponse<T>, ExtractError<T>>>,

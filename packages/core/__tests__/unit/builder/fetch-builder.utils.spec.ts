@@ -2,7 +2,7 @@ import { stringifyQueryParams } from "builder";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createCommand } from "../../utils";
 
-describe("FetchBuilder [ Utils ]", () => {
+describe("Builder [ Utils ]", () => {
   let builder = createBuilder();
   let command = createCommand(builder);
 
@@ -184,7 +184,7 @@ describe("FetchBuilder [ Utils ]", () => {
 
 // // Mappers
 
-// export const getClientHeaders = (command: FetchCommandInstance) => {
+// export const getClientHeaders = (command: CommandInstance) => {
 //   const isFormData = command.data instanceof FormData;
 //   const headers: HeadersInit = {};
 

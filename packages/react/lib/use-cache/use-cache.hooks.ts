@@ -1,10 +1,10 @@
 import { useRef } from "react";
-import { getCommandDispatcher, FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
+import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useCommandEvents, useDependentState } from "helpers";
 import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
 
-export const useCache = <T extends FetchCommandInstance>(
+export const useCache = <T extends CommandInstance>(
   command: T,
   {
     dependencyTracking = useCacheDefaultOptions.dependencyTracking,
@@ -44,8 +44,8 @@ export const useCache = <T extends FetchCommandInstance>(
     cacheInitialized: isInitialized,
   });
 
-  const revalidate = (revalidateKey?: string | FetchCommandInstance | RegExp) => {
-    if (revalidateKey && revalidateKey instanceof FetchCommand) {
+  const revalidate = (revalidateKey?: string | CommandInstance | RegExp) => {
+    if (revalidateKey && revalidateKey instanceof Command) {
       cache.events.revalidate(`/${getCommandKey(revalidateKey, true)}/`);
     } else if (revalidateKey) {
       cache.events.revalidate(revalidateKey);

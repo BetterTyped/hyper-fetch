@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { ClientResponseType } from "client";
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 import { CommandResponseDetails } from "managers";
 import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, CacheValueType } from "cache";
 
@@ -9,7 +9,7 @@ import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, Cache
  * Cache class handles the data exchange with the dispatchers.
  *
  * @note
- * Keys used to save the values are created dynamically on the FetchCommand class
+ * Keys used to save the values are created dynamically on the Command class
  *
  * @remark
  * <center>
@@ -46,9 +46,9 @@ export class Cache {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
-  private storage: CacheStorageType;
+  public storage: CacheStorageType;
 
-  constructor(private builder: FetchBuilderInstance, private options?: CacheOptionsType) {
+  constructor(private builder: BuilderInstance, private options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter, this.storage);
     this.options?.onInitialization?.(this);

@@ -1,4 +1,4 @@
-// import { renderHook } from "@testing-library/react-hooks/dom"; // import { FetchBuilder, FetchCommand } from
+// import { renderHook } from "@testing-library/react-hooks/dom"; // import { Builder, Command } from
 "@better-typed/hyper-fetch";
 
 // import { useSubmit } from "use-submit"; // import { startServer, resetMocks, stopServer } from "../../utils/server";
@@ -8,7 +8,7 @@ testFetchInitialState } from "../../shared/fetch.tests";
 
 // const dump = getManyRequest.dump();
 
-// let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }); // let command = new FetchCommand(builder,
+// let builder = new Builder<ErrorMockType>({ baseUrl: "" }); // let command = new Command(builder,
 dump.commandOptions, dump);
 
 // const renderGetManyHook = () => renderHook(() => useSubmit(command, { dependencyTracking: false }));
@@ -19,8 +19,8 @@ dump.commandOptions, dump);
 
 // afterAll(() => { // stopServer(); // });
 
-// beforeEach(async () => { // builder.clear(); // builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }); //
-command = new FetchCommand(builder, dump.commandOptions, dump); // });
+// beforeEach(async () => { // builder.clear(); // builder = new Builder<ErrorMockType>({ baseUrl: "" }); //
+command = new Command(builder, dump.commandOptions, dump); // });
 
 // it("should initialize without submitting state", async () => { // interceptGetMany(200);
 

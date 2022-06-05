@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } from "managers";
 
 /**
@@ -19,7 +19,7 @@ export class AppManager {
   isOnline: boolean;
   isFocused: boolean;
 
-  constructor(private builder: FetchBuilderInstance, private options?: AppManagerOptionsType) {
+  constructor(private builder: BuilderInstance, private options?: AppManagerOptionsType) {
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,

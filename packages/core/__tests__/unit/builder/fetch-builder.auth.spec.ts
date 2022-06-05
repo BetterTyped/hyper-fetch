@@ -1,7 +1,7 @@
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createCommand } from "../../utils";
 
-describe("FetchBuilder [ Auth ]", () => {
+describe("Builder [ Auth ]", () => {
   const commandFixture = { data: "" };
 
   const refreshFixture = { token: "new-token" };

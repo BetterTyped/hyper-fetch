@@ -4,15 +4,15 @@ import {
   getAbortKey,
   getCommandKey,
   FetchMethodType,
-  FetchCommandData,
-  FetchCommandDump,
-  FetchCommandConfig,
+  CommandData,
+  CommandDump,
+  CommandConfig,
   ExtractRouteParams,
   commandSendRequest,
-  FetchCommandCurrentType,
-  FetchCommandQueueOptions,
+  CommandCurrentType,
+  CommandQueueOptions,
 } from "command";
-import { FetchBuilder } from "builder";
+import { Builder } from "builder";
 import { getUniqueRequestId } from "utils";
 import { ClientQueryParamsType } from "client";
 import { HttpMethodsType, NegativeTypes } from "types";
@@ -23,14 +23,14 @@ import { HttpMethodsEnum } from "constants/http.constants";
  * Fetch command it is designed to prepare the necessary setup to execute the request to the server.
  * We can setup basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
  * :::info Usage
- * We should not use this class directly in the standard development flow. We can initialize it using the `createCommand` method on the **FetchBuilder** class.
+ * We should not use this class directly in the standard development flow. We can initialize it using the `createCommand` method on the **Builder** class.
  * :::
  *
  * @attention
  * The most important thing about the command is that it keeps data in the format that can be dumped. This is necessary for the persistance and different dispatcher storage types.
  * This class doesn't have any callback methods by design and communicate with dispatcher and cache by events.
  */
-export class FetchCommand<
+export class Command<
   ResponseType,
   PayloadType,
   QueryParamsType extends ClientQueryParamsType | string,
@@ -48,7 +48,7 @@ export class FetchCommand<
   auth: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
-  data: FetchCommandData<PayloadType, MappedData>;
+  data: CommandData<PayloadType, MappedData>;
   queryParams: QueryParamsType | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
@@ -72,10 +72,10 @@ export class FetchCommand<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly builder: FetchBuilder<GlobalErrorType, ClientOptions>,
-    readonly commandOptions: FetchCommandConfig<EndpointType, ClientOptions>,
+    readonly builder: Builder<GlobalErrorType, ClientOptions>,
+    readonly commandOptions: CommandConfig<EndpointType, ClientOptions>,
     readonly commandDump?:
-      | FetchCommandCurrentType<
+      | CommandCurrentType<
           ResponseType,
           PayloadType,
           QueryParamsType,
@@ -154,7 +154,7 @@ export class FetchCommand<
   public setData = (data: PayloadType) => {
     const modifiedData = this.dataMapper?.(data) || data;
     return this.clone<true, HasParams, HasQuery, MappedData>({
-      data: modifiedData as FetchCommandData<PayloadType, MappedData>,
+      data: modifiedData as CommandData<PayloadType, MappedData>,
     });
   };
 
@@ -170,19 +170,19 @@ export class FetchCommand<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: FetchCommandConfig<EndpointType, ClientOptions>["retry"]) => {
+  public setRetry = (retry: CommandConfig<EndpointType, ClientOptions>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: FetchCommandConfig<EndpointType, ClientOptions>["retryTime"]) => {
+  public setRetryTime = (retryTime: CommandConfig<EndpointType, ClientOptions>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
-  public setCache = (cache: FetchCommandConfig<EndpointType, ClientOptions>["cache"]) => {
+  public setCache = (cache: CommandConfig<EndpointType, ClientOptions>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: FetchCommandConfig<EndpointType, ClientOptions>["cacheTime"]) => {
+  public setCacheTime = (cacheTime: CommandConfig<EndpointType, ClientOptions>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
@@ -246,8 +246,8 @@ export class FetchCommand<
     return endpoint;
   };
 
-  public dump(): FetchCommandDump<
-    FetchCommand<
+  public dump(): CommandDump<
+    Command<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -302,7 +302,7 @@ export class FetchCommand<
     Q extends true | false = HasQuery,
     MapperData = MappedData,
   >(
-    options?: FetchCommandCurrentType<
+    options?: CommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -312,7 +312,7 @@ export class FetchCommand<
       MapperData
     >,
     mapper?: (data: PayloadType) => MapperData,
-  ): FetchCommand<
+  ): Command<
     ResponseType,
     PayloadType,
     QueryParamsType,
@@ -326,7 +326,7 @@ export class FetchCommand<
     MapperData
   > {
     const dump = this.dump();
-    const commandDump: FetchCommandCurrentType<
+    const commandDump: CommandCurrentType<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -346,7 +346,7 @@ export class FetchCommand<
       data: (options?.data || this.data) as any,
     };
 
-    const cloned = new FetchCommand<
+    const cloned = new Command<
       ResponseType,
       PayloadType,
       QueryParamsType,
@@ -380,7 +380,7 @@ export class FetchCommand<
   > = async (options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
     const { client } = this.builder;
     const command = this.clone(
-      options as FetchCommandCurrentType<
+      options as CommandCurrentType<
         ResponseType,
         PayloadType,
         QueryParamsType,
@@ -409,20 +409,12 @@ export class FetchCommand<
     HasData,
     HasParams,
     HasQuery,
-    FetchCommandQueueOptions
+    CommandQueueOptions
   > = async (
-    options?: FetchType<
-      PayloadType,
-      QueryParamsType,
-      EndpointType,
-      HasData,
-      HasParams,
-      HasQuery,
-      FetchCommandQueueOptions
-    >,
+    options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, CommandQueueOptions>,
     requestCallback?: (
       requestId: string,
-      command: FetchCommand<
+      command: Command<
         ResponseType,
         PayloadType,
         QueryParamsType,
@@ -438,7 +430,7 @@ export class FetchCommand<
     ) => void,
   ) => {
     const command = this.clone(
-      options as FetchCommandCurrentType<
+      options as CommandCurrentType<
         ResponseType,
         PayloadType,
         QueryParamsType,
@@ -454,7 +446,7 @@ export class FetchCommand<
 
 // Typescript test cases
 
-// const builder = new FetchBuilder({
+// const builder = new Builder({
 //   baseUrl: "http://localhost:3000",
 // });
 

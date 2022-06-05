@@ -1,5 +1,5 @@
 import { ClientResponseType } from "client";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { sleep } from "./helpers.utils";
 
 export const interceptorCallback = (props?: { sleepTime?: number; callback: () => void }) => {
@@ -18,7 +18,7 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
 export const middlewareCallback = (props?: { sleepTime?: number; callback: () => void }) => {
   const { sleepTime, callback } = props || {};
 
-  return async (command: FetchCommandInstance): Promise<FetchCommandInstance> => {
+  return async (command: CommandInstance): Promise<CommandInstance> => {
     if (sleepTime) {
       await sleep(sleepTime);
     }

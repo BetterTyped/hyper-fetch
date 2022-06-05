@@ -1,3 +1,3 @@
-export * from "./fetch.command";
-export * from "./fetch.command.types";
-export * from "./fetch.command.utils";
+export * from "./command";
+export * from "./command.types";
+export * from "./command.utils";

@@ -1,8 +1,8 @@
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 
 // Client
 
-export type ClientType = (command: FetchCommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
+export type ClientType = (command: CommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
 
 export type ClientDefaultOptionsType = Partial<XMLHttpRequest>;
 
@@ -30,7 +30,7 @@ export type ClientQueryParamsType = Record<string, ClientQueryParam>;
 
 // Headers
 
-export type ClientHeaderMappingCallback = <T extends FetchCommandInstance>(command: T) => HeadersInit;
+export type ClientHeaderMappingCallback = <T extends CommandInstance>(command: T) => HeadersInit;
 
 export type ClientHeadersProps = {
   isFormData: boolean;

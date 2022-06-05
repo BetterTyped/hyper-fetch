@@ -1,9 +1,9 @@
 import { FetchEffect, FetchEffectConfig } from "effect";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 
 export const createEffect = (
-  command: FetchCommandInstance,
-  options?: Partial<Omit<FetchEffectConfig<FetchCommandInstance>, "effectKey">>,
+  command: CommandInstance,
+  options?: Partial<Omit<FetchEffectConfig<CommandInstance>, "effectKey">>,
 ) => {
   return new FetchEffect({ ...options, effectKey: command.effectKey });
 };

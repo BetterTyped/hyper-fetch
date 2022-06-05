@@ -1,5 +1,5 @@
 import { ClientQueryParam, ClientQueryParamsType, ClientQueryParamValues, QueryStringifyOptions } from "client";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { stringifyDefaultOptions } from "builder";
 import { NegativeTypes } from "types";
 
@@ -15,7 +15,7 @@ export const stringifyValue = (response: string | unknown): string => {
 
 // Mappers
 
-export const getClientHeaders = (command: FetchCommandInstance) => {
+export const getClientHeaders = (command: CommandInstance) => {
   const isFormData = command.data instanceof FormData;
   const headers: HeadersInit = {};
 

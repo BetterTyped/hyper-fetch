@@ -1,15 +1,15 @@
-import { FetchBuilder } from "builder";
+import { Builder } from "builder";
 import { ClientQueryParamsType } from "client";
 import { resetMocks, startServer, stopServer } from "../../utils/server";
 import { testBuilder } from "../../utils/server/server.constants";
 
 const getBuilder = () => {
-  return new FetchBuilder({ baseUrl: "/some-url" });
+  return new Builder({ baseUrl: "/some-url" });
 };
 
 let builder = getBuilder();
 
-describe("[Methods] FetchCommand", () => {
+describe("[Methods] Command", () => {
   beforeAll(() => {
     startServer();
   });

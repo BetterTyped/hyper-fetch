@@ -1,9 +1,9 @@
 import { ExtractError } from "types";
 import { FetchEffectConfig } from "effect";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { ClientResponseErrorType, ClientResponseType, ClientResponseSuccessType } from "client";
 
-export class FetchEffect<T extends FetchCommandInstance> {
+export class FetchEffect<T extends CommandInstance> {
   constructor(public config: FetchEffectConfig<T>) {}
 
   getEffectKey = () => {

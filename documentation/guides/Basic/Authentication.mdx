@@ -1,5 +1,5 @@
 ```tsx
-export const builder = new FetchBuilder({ baseUrl }).onAuth((command) => {
+export const builder = new Builder({ baseUrl }).onAuth((command) => {
   const state = store.getState();
   const authToken = state.auth.token;
 

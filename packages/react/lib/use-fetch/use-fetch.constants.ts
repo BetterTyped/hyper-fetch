@@ -1,8 +1,8 @@
-import { DateInterval, FetchCommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
+import { DateInterval, CommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
 
 import { UseFetchOptionsType } from "use-fetch";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<FetchCommandInstance>, "initialData">> & {
+type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<CommandInstance>, "initialData">> & {
   initialData: null;
 };
 

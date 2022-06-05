@@ -1,8 +1,8 @@
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { isFailedRequest } from "dispatcher";
 import { ExtractFetchReturn } from "types";
 
-export const getCacheData = <T extends FetchCommandInstance>(
+export const getCacheData = <T extends CommandInstance>(
   previousResponse: ExtractFetchReturn<T> | undefined,
   response: ExtractFetchReturn<T>,
 ): ExtractFetchReturn<T> => {

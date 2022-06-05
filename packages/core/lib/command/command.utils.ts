@@ -1,5 +1,5 @@
 import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
-import { ClientProgressEvent, FetchCommandInstance, FetchCommandDump } from "command";
+import { ClientProgressEvent, CommandInstance, CommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { Dispatcher, isFailedRequest } from "dispatcher";
 import { ExtractError, ExtractResponse } from "types";
@@ -76,7 +76,7 @@ export const getAbortKey = (method: string, baseUrl: string, endpoint: string, c
  * @returns
  */
 export const getCommandKey = (
-  command: FetchCommandInstance | FetchCommandDump<FetchCommandInstance>,
+  command: CommandInstance | CommandDump<CommandInstance>,
   useInitialValues?: boolean,
 ): string => {
   /**
@@ -97,7 +97,7 @@ export const getCommandKey = (
   return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };
 
-export const getCommandDispatcher = <Command extends FetchCommandInstance>(
+export const getCommandDispatcher = <Command extends CommandInstance>(
   command: Command,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
 ): [Dispatcher, boolean] => {
@@ -109,7 +109,7 @@ export const getCommandDispatcher = <Command extends FetchCommandInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const commandSendRequest = <T extends FetchCommandInstance>(
+export const commandSendRequest = <T extends CommandInstance>(
   command: T,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
   requestCallback?: (requestId: string, command: T) => void,

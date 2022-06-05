@@ -1,5 +1,5 @@
 // import { renderHook, act } from "@testing-library/react-hooks/dom"; // import { waitFor } from
-"@testing-library/react"; // import { FetchBuilder } from "@better-typed/hyper-fetch";
+"@testing-library/react"; // import { Builder } from "@better-typed/hyper-fetch";
 
 // import { useFetch } from "use-fetch"; // import { startServer, resetMocks, stopServer } from "../../utils/server"; //
 import { getManyRequest, GetManyResponseType, interceptGetMany, interceptGetManyAlternative } from "../../utils/mocks";
@@ -9,7 +9,7 @@ import { getManyRequest, GetManyResponseType, interceptGetMany, interceptGetMany
 
 // const dump = getManyRequest.dump();
 
-// let builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }); // let command =
+// let builder = new Builder<ErrorMockType>({ baseUrl: "" }); // let command =
 builder.createCommand<GetManyResponseType>()(dump.commandOptions);
 
 // const renderGetManyHook = () => // renderHook(() => useFetch(command, { dependencyTracking: false, revalidateOnMount:
@@ -21,7 +21,7 @@ false }));
 
 // afterAll(() => { // stopServer(); // });
 
-// beforeEach(async () => { // builder.clear(); // builder = new FetchBuilder<ErrorMockType>({ baseUrl: "" }); //
+// beforeEach(async () => { // builder.clear(); // builder = new Builder<ErrorMockType>({ baseUrl: "" }); //
 command = builder.createCommand<GetManyResponseType>()(dump.commandOptions); // });
 
 // it("should not initialize in loading state", async () => { // interceptGetMany(200);

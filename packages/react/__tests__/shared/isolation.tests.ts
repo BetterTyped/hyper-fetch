@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/react";
-import { FetchBuilderInstance } from "@better-typed/hyper-fetch";
+import { BuilderInstance } from "@better-typed/hyper-fetch";
 
-export const testBuilderIsolation = async (builder: FetchBuilderInstance) => {
+export const testBuilderIsolation = async (builder: BuilderInstance) => {
   await waitFor(async () => {
     expect(builder.fetchDispatcher.getAllRunningRequest()).toStrictEqual([]);
     expect(builder.submitDispatcher.getAllRunningRequest()).toStrictEqual([]);

@@ -13,7 +13,7 @@ browsers environment. To use the solutions available on mobile devices, we can f
 handling the connection status.
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
@@ -32,7 +32,7 @@ When you want to handle the functions needed to perform requests when the user i
 not - you can use similar logic as in the case of online / offline status
 
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {

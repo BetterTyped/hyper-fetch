@@ -1,4 +1,4 @@
-// import { renderHook } from "@testing-library/react-hooks/dom"; // import { FetchCommandInstance } from
+// import { renderHook } from "@testing-library/react-hooks/dom"; // import { CommandInstance } from
 "@better-typed/hyper-fetch"; // import { waitFor } from "@testing-library/react";
 
 // import { useFetch } from "use-fetch"; // import { startServer, resetMocks, stopServer, testBuilder } from
@@ -10,7 +10,7 @@ testFetchErrorState, testFetchSuccessState } from "../../shared/fetch.tests"; //
 // const request = getManyRequest.setRetry(1).setRetryTime(100); // const requestNoRetry =
 getManyRequest.setRetry(false);
 
-// const renderGetManyHook = (req: FetchCommandInstance = request) => // renderHook(() => useFetch(req, {
+// const renderGetManyHook = (req: CommandInstance = request) => // renderHook(() => useFetch(req, {
 dependencyTracking: false }));
 
 // describe("useFetch hook retry logic", () => { // beforeAll(() => { // startServer(); // });

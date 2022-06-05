@@ -1,5 +1,5 @@
-import { FetchBuilder, FetchBuilderConfig } from "builder";
+import { Builder, BuilderConfig } from "builder";
 
-export const createBuilder = (config?: Partial<FetchBuilderConfig>) => {
-  return new FetchBuilder({ baseUrl: "shared-base-url", ...config });
+export const createBuilder = (config?: Partial<BuilderConfig>) => {
+  return new Builder({ baseUrl: "shared-base-url", ...config });
 };

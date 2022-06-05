@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 
 import { ExtractResponse } from "types";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { getInterceptEndpoint, createStubMethod } from "./server.utils";
 import { ErrorMockType, errorResponses, StatusCodesType, StatusErrorCodesType } from "./server.constants";
 
@@ -19,7 +19,7 @@ export const stopServer = (): void => {
   server.close();
 };
 
-export const createRequestInterceptor = <T extends FetchCommandInstance, StatusType extends StatusCodesType>(
+export const createRequestInterceptor = <T extends CommandInstance, StatusType extends StatusCodesType>(
   command: T,
   props?: {
     fixture?: ExtractResponse<T>;

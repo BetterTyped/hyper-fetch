@@ -2,8 +2,8 @@
 sidebar_position: 1
 ---
 
-<a class="api-link" href="/api/Hyper-Fetch/Class/FetchBuilder">
-  <div class="api-link-title">FetchBuilder</div>
+<a class="api-link" href="/api/Hyper-Fetch/Class/Builder">
+  <div class="api-link-title">Builder</div>
   <div class="api-link-sub-title">Read the API Reference »</div>
 </a>
 
@@ -11,8 +11,8 @@ sidebar_position: 1
 
 ## Introduction
 
-**`FetchBuilder`** is a class that allows you to configure the connection to the server. It initializes the subsystems
-of the entire library - such as queues, caches, interceptors, and allows you to create, based on its settings, commands
+**`Builder`** is a class that allows you to configure the connection to the server. It initializes the subsystems of the
+entire library - such as queues, caches, interceptors, and allows you to create, based on its settings, commands
 necessary to execute requests. In this way, the data and information flow remains locked inside a given builder - it is
 isolated and does not affect other builders.
 
@@ -34,9 +34,9 @@ the necessary configurations and types.
 ## Initialization
 
 ```tsx
-import { FetchBuilder } from "@better-typed/hyper-fetch";
+import { Builder } from "@better-typed/hyper-fetch";
 
-export const builder = new FetchBuilder({ baseUrl: "http://localhost:3000" });
+export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 ```
 
 ---
@@ -113,7 +113,7 @@ of the box.
 Builder has two generic types.
 
 ```tsx
-class FetchBuilder<GlobalErrorType, RequestConfigType>
+class Builder<GlobalErrorType, RequestConfigType>
 ```
 
 - `GlobalErrorType` defines the error type used in all of the commands it should consist of `Error` type and your
@@ -173,14 +173,14 @@ Handles the logging systems for debugging.
 
 Configuration options
 
-{@import Hyper-Fetch FetchBuilderConfig returns}
+{@import Hyper-Fetch BuilderConfig returns}
 
 <!-- ## Authentication
 
 1. Adding the headers to the request during authentication
 
 ```tsx
-export const builder = new FetchBuilder({ baseUrl }).onAuth((command) => {
+export const builder = new Builder({ baseUrl }).onAuth((command) => {
   const state = store.getState();
   const authToken = state.auth.token;
 
@@ -201,7 +201,7 @@ export const getUsers = builder.createCommand<{ name: string; email: string }>()
 2. Refreshing the token
 
 ```tsx
-export const builder = new FetchBuilder({ baseUrl }).onError(async (res, command) => {
+export const builder = new Builder({ baseUrl }).onError(async (res, command) => {
   const status = res[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
 

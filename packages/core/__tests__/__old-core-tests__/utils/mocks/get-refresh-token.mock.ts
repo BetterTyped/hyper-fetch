@@ -1,4 +1,4 @@
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 import { DateInterval } from "constants/time.constants";
 import { createInterceptor, ErrorCodesType } from "../server";
 import { buildMock } from ".";
@@ -9,7 +9,7 @@ interface LoginResponse {
   token: string;
 }
 
-export const getRefreshToken = <T extends FetchBuilderInstance>(builder: T) =>
+export const getRefreshToken = <T extends BuilderInstance>(builder: T) =>
   builder.createCommand<LoginResponse, Pick<LoginResponse, "refreshToken">>()({
     endpoint: "/refresh-token",
     options: {

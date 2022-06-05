@@ -13,8 +13,8 @@ import {
   RunningRequestValueType,
 } from "dispatcher";
 import { getUniqueRequestId } from "utils";
-import { FetchBuilderInstance } from "builder";
-import { FetchCommandInstance, FetchCommand } from "command";
+import { BuilderInstance } from "builder";
+import { CommandInstance, Command } from "command";
 
 /**
  * Dispatcher class was made to store controlled request Fetches, and firing them all-at-once or one-by-one in command queue.
@@ -23,12 +23,12 @@ import { FetchCommandInstance, FetchCommand } from "command";
 export class Dispatcher {
   public emitter = new EventEmitter();
   public events = getDispatcherEvents(this.emitter);
+  public storage: DispatcherStorageType = new Map<string, DispatcherData<CommandInstance>>();
 
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
-  private storage: DispatcherStorageType = new Map<string, DispatcherData<FetchCommandInstance>>();
 
-  constructor(private builder: FetchBuilderInstance, public options?: DispatcherOptionsType) {
+  constructor(private builder: BuilderInstance, public options?: DispatcherOptionsType) {
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }
@@ -98,7 +98,7 @@ export class Dispatcher {
   /**
    * Return queue state object
    */
-  getQueue = <Command extends FetchCommandInstance = FetchCommandInstance>(queueKey: string) => {
+  getQueue = <Command extends CommandInstance = CommandInstance>(queueKey: string) => {
     const initialQueueState = { requests: [], stopped: false };
     const storedEntity = this.storage.get<Command>(queueKey);
 
@@ -118,7 +118,7 @@ export class Dispatcher {
   /**
    * Add new element to storage
    */
-  addQueueElement = <Command extends FetchCommandInstance = FetchCommandInstance>(
+  addQueueElement = <Command extends CommandInstance = CommandInstance>(
     queueKey: string,
     dispatcherDump: DispatcherDumpValueType<Command>,
   ) => {
@@ -130,10 +130,7 @@ export class Dispatcher {
   /**
    * Set new queue storage value
    */
-  setQueue = <Command extends FetchCommandInstance = FetchCommandInstance>(
-    queueKey: string,
-    queue: DispatcherData<Command>,
-  ) => {
+  setQueue = <Command extends CommandInstance = CommandInstance>(queueKey: string, queue: DispatcherData<Command>) => {
     this.storage.set<Command>(queueKey, queue);
 
     // Emit Queue Changes
@@ -292,7 +289,7 @@ export class Dispatcher {
   /**
    * Add request to the running requests list
    */
-  addRunningRequest = (queueKey: string, requestId: string, command: FetchCommandInstance) => {
+  addRunningRequest = (queueKey: string, requestId: string, command: CommandInstance) => {
     const runningRequests = this.getRunningRequests(queueKey);
     runningRequests.push({ requestId, command });
     this.runningRequests.set(queueKey, runningRequests);
@@ -374,7 +371,7 @@ export class Dispatcher {
    * Create storage element from command
    */
   // eslint-disable-next-line class-methods-use-this
-  createStorageElement = <Command extends FetchCommandInstance>(command: Command) => {
+  createStorageElement = <Command extends CommandInstance>(command: Command) => {
     const requestId = getUniqueRequestId(command.queueKey);
     const storageElement: DispatcherDumpValueType<Command> = {
       requestId,
@@ -395,7 +392,7 @@ export class Dispatcher {
   /**
    * Add command to the dispatcher handler
    */
-  add = (command: FetchCommandInstance) => {
+  add = (command: CommandInstance) => {
     const { queueKey } = command;
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
@@ -459,11 +456,7 @@ export class Dispatcher {
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
   performRequest = async (storageElement: DispatcherDumpValueType) => {
-    const command = new FetchCommand(
-      this.builder,
-      storageElement.commandDump.commandOptions,
-      storageElement.commandDump,
-    );
+    const command = new Command(this.builder, storageElement.commandDump.commandOptions, storageElement.commandDump);
 
     const { commandDump, requestId } = storageElement;
     const { retry, retryTime, queueKey, cacheKey, cache: useCache, offline } = commandDump;

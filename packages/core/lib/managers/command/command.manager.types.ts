@@ -1,6 +1,6 @@
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 
-export type CommandEventDetails<T extends FetchCommandInstance> = {
+export type CommandEventDetails<T extends CommandInstance> = {
   requestId: string;
   command: T;
 };

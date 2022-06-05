@@ -2,7 +2,7 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createCommand, interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 
-describe("FetchBuilder [ Interceptor ]", () => {
+describe("Builder [ Interceptor ]", () => {
   let builder = createBuilder();
   let command = createCommand(builder);
 

@@ -1,5 +1,5 @@
 import {
-  FetchCommandInstance,
+  CommandInstance,
   ExtractFetchReturn,
   ExtractResponse,
   ExtractError,
@@ -18,7 +18,7 @@ import {
 } from "helpers";
 import { isEqual } from "utils";
 
-export type UseFetchOptionsType<T extends FetchCommandInstance> = {
+export type UseFetchOptionsType<T extends CommandInstance> = {
   dependencies?: any[];
   disabled?: boolean;
   dependencyTracking?: boolean;
@@ -35,7 +35,7 @@ export type UseFetchOptionsType<T extends FetchCommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseFetchReturnType<T extends FetchCommandInstance> = UseDependentStateType<
+export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<
   ExtractResponse<T>,
   ExtractError<T>
 > & {
@@ -52,6 +52,6 @@ export type UseFetchReturnType<T extends FetchCommandInstance> = UseDependentSta
   isRefreshingError: boolean;
   isDebouncing: boolean;
   isStale: boolean;
-  revalidate: (invalidateKey?: string | FetchCommandInstance) => void;
+  revalidate: (invalidateKey?: string | CommandInstance) => void;
   abort: VoidFunction;
 };

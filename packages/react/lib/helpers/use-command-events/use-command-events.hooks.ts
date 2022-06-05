@@ -8,7 +8,7 @@ import {
   ClientResponseType,
   ExtractFetchReturn,
   CommandEventDetails,
-  FetchCommandInstance,
+  CommandInstance,
   CommandResponseDetails,
   DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
@@ -32,7 +32,7 @@ import { isEqual } from "utils";
  * @param options
  * @returns
  */
-export const useCommandEvents = <T extends FetchCommandInstance>({
+export const useCommandEvents = <T extends CommandInstance>({
   command,
   dispatcher,
   logger,
@@ -181,7 +181,7 @@ export const useCommandEvents = <T extends FetchCommandInstance>({
     };
   };
 
-  const addRequestListener = (requestId: string, cmd: FetchCommandInstance) => {
+  const addRequestListener = (requestId: string, cmd: CommandInstance) => {
     const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
     const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
     const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);

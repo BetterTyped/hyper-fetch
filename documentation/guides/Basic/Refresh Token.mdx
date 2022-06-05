@@ -1,5 +1,5 @@
 ```tsx
-export const builder = new FetchBuilder({ baseUrl }).onError(async (res, command) => {
+export const builder = new Builder({ baseUrl }).onError(async (res, command) => {
   const status = res[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
 

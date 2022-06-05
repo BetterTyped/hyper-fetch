@@ -1,15 +1,15 @@
 import { Cache } from "cache";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { Dispatcher } from "dispatcher";
 import { ClientResponseType, ClientType, ClientQueryParamsType } from "client";
-import { FetchBuilder } from "builder";
+import { Builder } from "builder";
 import { AppManager } from "managers";
 import { NegativeTypes } from "types";
 
 /**
  * Configuration setup for the builder
  */
-export type FetchBuilderConfig = {
+export type BuilderConfig = {
   /**
    * Url to your server
    */
@@ -21,33 +21,31 @@ export type FetchBuilderConfig = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends FetchBuilderInstance>(builder: B) => Cache;
+  cache?: <B extends BuilderInstance>(builder: B) => Cache;
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends FetchBuilderInstance>(builder: B) => AppManager;
+  appManager?: <B extends BuilderInstance>(builder: B) => AppManager;
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher;
+  fetchDispatcher?: <B extends BuilderInstance>(builder: B) => Dispatcher;
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends FetchBuilderInstance>(builder: B) => Dispatcher;
+  submitDispatcher?: <B extends BuilderInstance>(builder: B) => Dispatcher;
 };
 
-export type FetchBuilderInstance = FetchBuilder<any, any>;
+export type BuilderInstance = Builder<any, any>;
 
-export type FetchBuilderErrorType = Record<string, any> | string;
+export type BuilderErrorType = Record<string, any> | string;
 
 // Interceptors
 
-export type RequestInterceptorCallback = (
-  command: FetchCommandInstance,
-) => Promise<FetchCommandInstance> | FetchCommandInstance;
+export type RequestInterceptorCallback = (command: CommandInstance) => Promise<CommandInstance> | CommandInstance;
 export type ResponseInterceptorCallback = (
   response: ClientResponseType<any, any>,
-  command: FetchCommandInstance,
+  command: CommandInstance,
 ) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;
 
 // Stringify

@@ -1,11 +1,11 @@
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { ExtractError } from "types";
 import { getClientBindings, ClientResponseErrorType } from "client";
 
 // Utils
 
 export const getRequestConfig = <T extends Record<string, unknown> = Record<string, unknown>>(
-  command: FetchCommandInstance,
+  command: CommandInstance,
 ): T => {
   return { ...command.builder.requestConfig, ...command.commandOptions.options };
 };
@@ -30,7 +30,7 @@ export const parseResponse = (response: string | unknown) => {
   }
 };
 
-export const parseErrorResponse = <T extends FetchCommandInstance>(response: unknown): ExtractError<T> => {
+export const parseErrorResponse = <T extends CommandInstance>(response: unknown): ExtractError<T> => {
   return response ? parseResponse(response) : getErrorMessage();
 };
 

@@ -25,6 +25,6 @@ export const createCacheData = async <T extends FetchCommandInstance>(
     ...rest?.details,
   };
 
-  await command.builder.cache.set(command.cacheKey, dataValue, detailsValue, true);
+  await command.builder.cache.storage.set(command.cacheKey, { data: dataValue, details: detailsValue });
   return [dataValue, detailsValue] as const;
 };

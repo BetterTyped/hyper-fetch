@@ -7,7 +7,7 @@ import {
   ExtractQueryParams,
   ExtractClientOptions,
 } from "types";
-import { FetchCommand } from "command";
+import { Command } from "command";
 import { ClientResponseType, ClientQueryParamsType } from "client";
 
 // Progress
@@ -19,13 +19,13 @@ export type ClientProgressResponse = { progress: number; timeLeft: number; sizeL
 /**
  * Dump of the command used to later recreate it
  */
-export type FetchCommandDump<
-  Command extends FetchCommandInstance,
+export type CommandDump<
+  Command extends CommandInstance,
   // Bellow generics provided only to overcome the typescript bugs
   ClientOptions = unknown,
   QueryParamsType = ClientQueryParamsType,
 > = {
-  commandOptions: FetchCommandConfig<string, ClientOptions | ExtractClientOptions<Command>>;
+  commandOptions: CommandConfig<string, ClientOptions | ExtractClientOptions<Command>>;
   endpoint: string;
   method: HttpMethodsType;
   headers?: HeadersInit;
@@ -40,7 +40,7 @@ export type FetchCommandDump<
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
   options?: ClientOptions | ExtractClientOptions<Command>;
-  data: FetchCommandData<ExtractRequest<Command>, unknown>;
+  data: CommandData<ExtractRequest<Command>, unknown>;
   params: ExtractParams<Command> | NegativeTypes;
   queryParams: QueryParamsType | ExtractQueryParams<Command> | NegativeTypes;
   abortKey: string;
@@ -61,7 +61,7 @@ export type FetchCommandDump<
 /**
  * Configuration options for command creation
  */
-export type FetchCommandConfig<GenericEndpoint extends string, ClientOptions> = {
+export type CommandConfig<GenericEndpoint extends string, ClientOptions> = {
   /**
    * Determine the endpoint for command request
    */
@@ -144,11 +144,11 @@ export type FetchCommandConfig<GenericEndpoint extends string, ClientOptions> = 
   deduplicateTime?: number;
 };
 
-export type FetchCommandData<PayloadType, MappedData> =
+export type CommandData<PayloadType, MappedData> =
   | (MappedData extends undefined ? PayloadType : MappedData)
   | NegativeTypes;
 
-export type FetchCommandCurrentType<
+export type CommandCurrentType<
   ResponseType,
   PayloadType,
   QueryParamsType,
@@ -160,14 +160,14 @@ export type FetchCommandCurrentType<
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParamsType | NegativeTypes;
-  data?: FetchCommandData<PayloadType, MappedData>;
+  data?: CommandData<PayloadType, MappedData>;
   mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
   updatedEffectKey?: boolean;
-} & Partial<NullableKeys<FetchCommandConfig<GenericEndpoint, ClientOptions>>>;
+} & Partial<NullableKeys<CommandConfig<GenericEndpoint, ClientOptions>>>;
 
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
@@ -203,7 +203,7 @@ export type FetchRequestDataType<PayloadType, HasData extends true | false = fal
   ? { data?: NegativeTypes }
   : { data: PayloadType };
 
-export type FetchCommandQueueOptions = {
+export type CommandQueueOptions = {
   dispatcherType?: "auto" | "fetch" | "submit";
 };
 
@@ -279,4 +279,4 @@ export type FetchMethodType<
       options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
     ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
 
-export type FetchCommandInstance = FetchCommand<any, any, any, any, any, any, any, any, any, any, any>;
+export type CommandInstance = Command<any, any, any, any, any, any, any, any, any, any, any>;

@@ -1,10 +1,10 @@
-import { FetchProgressType, FetchCommandInstance, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
+import { FetchProgressType, CommandInstance, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 
 export type UseQueueOptions = {
   queueType?: "auto" | "fetch" | "submit";
 };
 
-export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpValueType<Command> & {
+export type QueueRequest<Command extends CommandInstance> = DispatcherDumpValueType<Command> & {
   uploading?: FetchProgressType;
   downloading?: FetchProgressType;
   startRequest: () => void;
@@ -12,7 +12,7 @@ export type QueueRequest<Command extends FetchCommandInstance> = DispatcherDumpV
   deleteRequest: () => void;
 };
 
-export type UseQueueReturnType<T extends FetchCommandInstance> = {
+export type UseQueueReturnType<T extends CommandInstance> = {
   stopped: boolean;
   requests: QueueRequest<T>[];
   stop: () => void;

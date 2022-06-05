@@ -1,5 +1,5 @@
 import {
-  FetchCommandInstance,
+  CommandInstance,
   ExtractFetchReturn,
   ExtractResponse,
   ExtractError,
@@ -15,13 +15,13 @@ import {
   UseDependentStateType,
 } from "helpers";
 
-export type UseCacheOptionsType<T extends FetchCommandInstance> = {
+export type UseCacheOptionsType<T extends CommandInstance> = {
   dependencyTracking?: boolean;
   initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseCacheReturnType<T extends FetchCommandInstance> = UseDependentStateType<
+export type UseCacheReturnType<T extends CommandInstance> = UseDependentStateType<
   ExtractResponse<T>,
   ExtractError<T>
 > & {
@@ -31,5 +31,5 @@ export type UseCacheReturnType<T extends FetchCommandInstance> = UseDependentSta
   onCacheChange: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
   isStale: boolean;
   isRefreshingError: boolean;
-  revalidate: (revalidateKey?: string | FetchCommandInstance) => void;
+  revalidate: (revalidateKey?: string | CommandInstance) => void;
 };

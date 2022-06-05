@@ -1,4 +1,4 @@
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, LoggerMethodsType } from "managers";
 
 /**
@@ -10,7 +10,7 @@ export class LoggerManager {
   logger: LoggerType;
   levels: LoggerLevelType[];
 
-  constructor(private builder: FetchBuilderInstance, private options?: LoggerOptionsType) {
+  constructor(private builder: BuilderInstance, private options?: LoggerOptionsType) {
     this.logger = this.options?.logger || logger;
     this.levels = this.options?.levels || ["error", "success", "warning", "http", "info"];
   }

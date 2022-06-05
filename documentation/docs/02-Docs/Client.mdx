@@ -81,9 +81,9 @@ Connect any client to communicate with the server and handle it as you want, the
 interface of the output.
 
 ```tsx
-const customHttpClient: ClientType = (command: FetchCommandInstance) => Promise.resolve([null, null, 0]);
+const customHttpClient: ClientType = (command: CommandInstance) => Promise.resolve([null, null, 0]);
 
-const builder = new FetchBuilder({ baseUrl }).setClient(customHttpClient);
+const builder = new Builder({ baseUrl }).setClient(customHttpClient);
 ```
 
 ---

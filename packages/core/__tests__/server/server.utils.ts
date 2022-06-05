@@ -11,14 +11,14 @@ import {
 } from "msw";
 
 import { defaultTimeout, getErrorMessage } from "client";
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { sleep } from "../utils";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
-const getResponse = (ctx: RestContext, command: FetchCommandInstance, fixture: unknown, status: number, delay = 10) => {
+const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknown, status: number, delay = 10) => {
   const { commandManager } = command.builder;
   const controllers = commandManager.abortControllers.get(command.abortKey);
   const abortController = Array.from(controllers || [])[0];
@@ -51,7 +51,7 @@ const getResponse = (ctx: RestContext, command: FetchCommandInstance, fixture: u
 };
 
 export const createStubMethod = (
-  command: FetchCommandInstance,
+  command: CommandInstance,
   url: RegExp,
   method: string,
   status: number,

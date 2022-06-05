@@ -1,4 +1,4 @@
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { ClientResponseType } from "client";
 import { DispatcherRequestType, DispatcherDumpValueType } from "dispatcher";
 
@@ -42,7 +42,7 @@ export const canRetryRequest = (retries: number, retry: number | boolean | undef
   return false;
 };
 
-export const getRequestType = (command: FetchCommandInstance, latestRequest: DispatcherDumpValueType | undefined) => {
+export const getRequestType = (command: CommandInstance, latestRequest: DispatcherDumpValueType | undefined) => {
   const { queued, cancelable, deduplicate } = command;
   const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= command.deduplicateTime : false;
 

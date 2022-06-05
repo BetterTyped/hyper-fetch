@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
 
-import { FetchCommandInstance } from "command";
+import { CommandInstance } from "command";
 import { FetchMockType } from "../mocks";
 import { getInterceptEndpoint, getMethod } from "./server.utils";
 import { ErrorCodesType, ErrorMockType, errorResponses } from "./server.constants";
@@ -19,10 +19,7 @@ export const stopServer = (): void => {
   server.close();
 };
 
-export const createInterceptor = <
-  T extends FetchMockType<FetchCommandInstance>,
-  StatusType extends number | ErrorCodesType,
->(
+export const createInterceptor = <T extends FetchMockType<CommandInstance>, StatusType extends number | ErrorCodesType>(
   apiStub: T,
   status: StatusType,
   delay?: number,

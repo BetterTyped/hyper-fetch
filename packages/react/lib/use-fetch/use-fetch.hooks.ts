@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { FetchCommandInstance, FetchCommand, getCommandKey } from "@better-typed/hyper-fetch";
+import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useDebounce, useCommandEvents, useDependentState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
@@ -11,7 +11,7 @@ import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
  * @param options Hook options
  * @returns
  */
-export const useFetch = <T extends FetchCommandInstance>(
+export const useFetch = <T extends CommandInstance>(
   command: T,
   {
     dependencies = useFetchDefaultOptions.dependencies,
@@ -109,8 +109,8 @@ export const useFetch = <T extends FetchCommandInstance>(
     });
   }
 
-  const revalidate = (invalidateKey?: string | FetchCommandInstance | RegExp) => {
-    if (invalidateKey && invalidateKey instanceof FetchCommand) {
+  const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
+    if (invalidateKey && invalidateKey instanceof Command) {
       cache.events.revalidate(getCommandKey(invalidateKey, true));
     } else if (invalidateKey) {
       cache.events.revalidate(invalidateKey);

@@ -7,7 +7,7 @@ import {
   FetchProgressType,
   ExtractFetchReturn,
   CommandEventDetails,
-  FetchCommandInstance,
+  CommandInstance,
   CommandResponseDetails,
   DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
@@ -15,7 +15,7 @@ import {
 import { isEqual } from "utils";
 import { UseDependentStateType, UseDependentStateActions } from "helpers";
 
-export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
+export type UseCommandStateOptionsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerMethodsType;
@@ -27,7 +27,7 @@ export type UseCommandStateOptionsType<T extends FetchCommandInstance> = {
   initializeCallbacks?: boolean;
 };
 
-export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
+export type UseCommandStateReturnType<T extends CommandInstance> = [
   {
     onRequest: (callback: OnRequestCallbackType) => void;
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
@@ -43,7 +43,7 @@ export type UseCommandStateReturnType<T extends FetchCommandInstance> = [
   {
     addRequestListener: (
       requestId: string,
-      command: FetchCommandInstance,
+      command: CommandInstance,
     ) => (unmountLifecycleEvents: boolean, unmountDataEvents: boolean) => void;
   },
 ];
@@ -52,5 +52,5 @@ export type OnRequestCallbackType = (options: Omit<DispatcherLoadingEventType, "
 export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;
-export type OnStartCallbackType<T extends FetchCommandInstance> = (details: CommandEventDetails<T>) => void;
+export type OnStartCallbackType<T extends CommandInstance> = (details: CommandEventDetails<T>) => void;
 export type OnProgressCallbackType = (progress: FetchProgressType) => void;

@@ -1,6 +1,6 @@
 import { Dispatcher, DispatcherOptionsType } from "dispatcher";
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 
-export const createDispatcher = (builder: FetchBuilderInstance, options?: DispatcherOptionsType) => {
+export const createDispatcher = (builder: BuilderInstance, options?: DispatcherOptionsType) => {
   return new Dispatcher(builder, options);
 };

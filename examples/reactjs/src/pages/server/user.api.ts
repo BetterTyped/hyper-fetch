@@ -1,4 +1,4 @@
-import { DateInterval, FetchCommandInstance } from "@better-typed/hyper-fetch";
+import { DateInterval, CommandInstance } from "@better-typed/hyper-fetch";
 import { builder, publicApiBuilder } from "pages/server/builder";
 import { PostUserModel, UserModel } from "models";
 import { rest, setupWorker } from "msw";
@@ -49,7 +49,7 @@ export const getPublicApis = publicApiBuilder.createCommand<{ response: string }
 
 // Mocks setup
 const getMock = (
-  request: FetchCommandInstance,
+  request: CommandInstance,
   response: Record<string, any> | null | ((req: any) => Record<string, any> | null),
   delay?: number,
 ) => {

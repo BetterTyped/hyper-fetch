@@ -1,9 +1,9 @@
-import { FetchBuilderInstance } from "builder";
+import { BuilderInstance } from "builder";
 import { DateInterval } from "index";
 import { createInterceptor, ErrorCodesType, testBuilder } from "../server";
 import { buildMock } from ".";
 
-export const getBase = <T extends FetchBuilderInstance>(builder: T) =>
+export const getBase = <T extends BuilderInstance>(builder: T) =>
   builder.createCommand()({
     endpoint: "/something",
     options: {

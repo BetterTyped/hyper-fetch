@@ -1,5 +1,5 @@
 ```tsx
-export const builder = new FetchBuilder<ServerErrorType>({
+export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
