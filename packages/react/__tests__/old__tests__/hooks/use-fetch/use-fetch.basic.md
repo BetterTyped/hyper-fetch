@@ -21,8 +21,8 @@ false }));
 
 // afterAll(() => { // stopServer(); // });
 
-// beforeEach(async () => { // builder.clear(); // builder = new Builder<ErrorMockType>({ baseUrl: "" }); //
-command = builder.createCommand<GetManyResponseType>()(dump.commandOptions); // });
+// beforeEach(async () => { // builder.clear(); // builder = new Builder<ErrorMockType>({ baseUrl: "" }); // command =
+builder.createCommand<GetManyResponseType>()(dump.commandOptions); // });
 
 // it("should not initialize in loading state", async () => { // interceptGetMany(200);
 

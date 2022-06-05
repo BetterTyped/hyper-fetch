@@ -1,12 +1,12 @@
 import {
   ClientResponseType,
   CommandResponseDetails,
-  FetchCommandInstance,
+  CommandInstance,
   ExtractResponse,
   ExtractError,
 } from "@better-typed/hyper-fetch";
 
-export const createCacheData = async <T extends FetchCommandInstance>(
+export const createCacheData = async <T extends CommandInstance>(
   command: T,
   rest?: {
     data?: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;

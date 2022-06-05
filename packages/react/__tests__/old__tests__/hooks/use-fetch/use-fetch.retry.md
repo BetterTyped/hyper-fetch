@@ -10,8 +10,8 @@ testFetchErrorState, testFetchSuccessState } from "../../shared/fetch.tests"; //
 // const request = getManyRequest.setRetry(1).setRetryTime(100); // const requestNoRetry =
 getManyRequest.setRetry(false);
 
-// const renderGetManyHook = (req: CommandInstance = request) => // renderHook(() => useFetch(req, {
-dependencyTracking: false }));
+// const renderGetManyHook = (req: CommandInstance = request) => // renderHook(() => useFetch(req, { dependencyTracking:
+false }));
 
 // describe("useFetch hook retry logic", () => { // beforeAll(() => { // startServer(); // });
 

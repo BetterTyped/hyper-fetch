@@ -9,8 +9,8 @@ getCurrentState(render);
 expect(response.data).toStrictEqual(null); expect(response.status).toStrictEqual(null);
 expect(response.error).toStrictEqual(null); };
 
-export const testFetchSuccessState = < T extends UseFetchReturnType<CommandInstance>, H extends
-RenderHookResult<any, any, any>,
+export const testFetchSuccessState = < T extends UseFetchReturnType<CommandInstance>, H extends RenderHookResult<any,
+any, any>,
 
 > ( mock: T["data"], render: H, ): void => { const response = getCurrentState(render); const status = response.status ||
 > 0;
@@ -18,8 +18,8 @@ RenderHookResult<any, any, any>,
 expect(response.data).toMatchObject(mock as Record<string, unknown>); expect(status).toBe(200);
 expect(response.loading).toStrictEqual(false); expect(response.error).toStrictEqual(null); };
 
-export const testFetchErrorState = < T extends UseFetchReturnType<CommandInstance>, H extends RenderHookResult<any,
-any, any>,
+export const testFetchErrorState = < T extends UseFetchReturnType<CommandInstance>, H extends RenderHookResult<any, any,
+any>,
 
 > ( mock: T["error"], render: H, ): void => { const response = getCurrentState(render); const status = response.status
 > || 0;
