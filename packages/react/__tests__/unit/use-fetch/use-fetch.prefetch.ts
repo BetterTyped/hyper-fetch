@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Prefetch ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Prefetch ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   describe("when command is triggered while mounting page", () => {

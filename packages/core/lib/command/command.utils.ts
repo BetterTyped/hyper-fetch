@@ -65,8 +65,8 @@ export const getProgressData = (
 };
 
 // Keys
-export const getAbortKey = (method: string, baseUrl: string, endpoint: string, cancelable: boolean): string => {
-  return `${method}_${baseUrl}${endpoint}_${cancelable}`;
+export const getSimpleKey = (command: CommandInstance | CommandDump<CommandInstance>): string => {
+  return `${command.method}_${command.commandOptions.endpoint}_${command.cancelable}`;
 };
 
 /**

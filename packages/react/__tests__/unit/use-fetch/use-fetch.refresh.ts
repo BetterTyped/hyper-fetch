@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Refreshing ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Refreshing ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   it("should refetch data after refresh time of 200ms", async () => {});

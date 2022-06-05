@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Helpers ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Helpers ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   describe("given hook is mounted", () => {

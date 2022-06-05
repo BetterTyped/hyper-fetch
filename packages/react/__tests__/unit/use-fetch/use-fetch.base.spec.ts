@@ -109,9 +109,4 @@ describe("useFetch [ Basic ]", () => {
       await testErrorState(errorMock, response, mock);
     });
   });
-
-  describe("when command is about to change", () => {
-    it("should use the latest command to fetch data", async () => {});
-    it("should use the latest command when key changed", async () => {});
-  });
 });

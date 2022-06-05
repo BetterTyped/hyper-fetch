@@ -2,5 +2,5 @@ import { CommandConfig, ClientDefaultOptionsType } from "@better-typed/hyper-fet
 import { builder } from "./builder.utils";
 
 export const createCommand = (options?: Partial<CommandConfig<string, ClientDefaultOptionsType>>) => {
-  return builder.createCommand<any, any>()({ endpoint: "/shared-endpoint", ...options });
+  return builder.createCommand<any, any, any, any>()({ endpoint: "/shared-endpoint", ...options });
 };

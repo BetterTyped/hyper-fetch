@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Suspense ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Suspense ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   it("should render fallback", async () => {});

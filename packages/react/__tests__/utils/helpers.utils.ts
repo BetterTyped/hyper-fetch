@@ -6,7 +6,7 @@ export const sleep = async (ms: number) => {
 };
 
 // Solves the issue: https://github.com/testing-library/react-testing-library/issues/1051
-export const waitForRender = async (time = 1) => {
+export const waitForRender = async (time = 10) => {
   await act(async () => {
     await sleep(time);
   });

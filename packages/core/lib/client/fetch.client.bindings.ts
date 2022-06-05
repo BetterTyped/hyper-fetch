@@ -9,15 +9,19 @@ import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
 export const getClientBindings = async (cmd: CommandInstance, requestId: string) => {
-  const { baseUrl, commandManager, loggerManager, stringifyQueryParams, headerMapper, payloadMapper } = cmd.builder;
+  const { baseUrl, commandManager, loggerManager, headerMapper, payloadMapper } = cmd.builder;
 
   const logger = loggerManager.init("Client");
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
+  let command = cmd;
+
+  // Progress
   let requestTotal = 1;
   let responseTotal = 1;
-  let command = cmd;
+  let previousRequestTotal = 0;
+  let previousResponseTotal = 0;
 
   // Pre request modifications
   logger.debug(`Starting command middleware callbacks`);
@@ -29,11 +33,11 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   }
 
   // Command Setup
-  const { builder, abortKey, queueKey, endpoint, queryParams, data } = command;
+  const { builder, abortKey, queueKey, endpoint, data } = command;
 
   commandManager.addAbortController(abortKey, requestId);
 
-  const fullUrl = baseUrl + endpoint + stringifyQueryParams(queryParams);
+  const fullUrl = baseUrl + endpoint;
   const effects = builder.effects.filter((effect) => command.effectKey === effect.getEffectKey());
   const headers = headerMapper(command);
   const payload = payloadMapper(data);
@@ -76,7 +80,11 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     progressEvent: ClientProgressEvent,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
-    commandManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, command });
+
+    if (previousRequestTotal !== 100) {
+      previousRequestTotal = progress.progress;
+      commandManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, command });
+    }
   };
 
   const handleResponseProgress = (
@@ -85,7 +93,11 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     progressEvent: ClientProgressEvent,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
-    commandManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, command });
+
+    if (previousResponseTotal !== 100) {
+      previousResponseTotal = progress.progress;
+      commandManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, command });
+    }
   };
 
   // Pre-request

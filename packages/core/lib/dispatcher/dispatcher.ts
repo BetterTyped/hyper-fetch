@@ -514,7 +514,7 @@ export class Dispatcher {
     };
 
     // Global response emitter to handle command execution
-    commandManager.events.emitResponse(queueKey, requestId, response, requestDetails);
+    commandManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
     cache.set(cacheKey, response, requestDetails, useCache);
 

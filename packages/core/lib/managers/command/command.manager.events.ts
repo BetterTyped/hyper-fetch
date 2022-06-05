@@ -54,13 +54,13 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   },
   // Response
   emitResponse: (
-    queueKey: string,
+    cacheKey: string,
     requestId: string,
     response: ClientResponseType<unknown, unknown>,
     details: CommandResponseDetails,
   ): void => {
     emitter.emit(getResponseIdEventKey(requestId), response, details);
-    emitter.emit(getResponseEventKey(queueKey), response, details);
+    emitter.emit(getResponseEventKey(cacheKey), response, details);
   },
   // Abort
   emitAbort: (abortKey: string, requestId: string, command: CommandInstance): void => {

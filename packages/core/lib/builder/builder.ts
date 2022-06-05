@@ -79,7 +79,8 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   // Logger
   logger = this.loggerManager.init("Builder");
 
-  constructor({ baseUrl, client, appManager, cache, fetchDispatcher, submitDispatcher }: BuilderConfig) {
+  constructor(private options: BuilderConfig) {
+    const { baseUrl, client, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.baseUrl = baseUrl;
     this.client = client || fetchClient;
 
@@ -257,6 +258,8 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
    * Clears the builder instance and remove all listeners on it's dependencies
    */
   clear = async () => {
+    const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+
     this.commandManager.abortControllers.clear();
     this.fetchDispatcher.clear();
     this.submitDispatcher.clear();
@@ -266,6 +269,11 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
     this.fetchDispatcher.emitter.removeAllListeners();
     this.submitDispatcher.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
+
+    this.appManager = appManager?.(this) || new AppManager(this);
+    this.cache = cache?.(this) || new Cache(this);
+    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
+    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   };
 
   /**

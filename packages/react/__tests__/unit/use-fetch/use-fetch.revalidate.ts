@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Revalidate ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   it("should allow to revalidate on mount", async () => {});

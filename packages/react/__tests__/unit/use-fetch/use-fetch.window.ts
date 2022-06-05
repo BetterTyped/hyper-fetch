@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Basic ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Basic ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   it("should refresh on tab focus", async () => {});

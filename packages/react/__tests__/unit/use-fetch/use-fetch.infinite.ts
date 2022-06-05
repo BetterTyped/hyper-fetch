@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Infinite ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Infinite ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   describe("when command query params are changed", () => {

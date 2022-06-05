@@ -197,7 +197,7 @@ describe("Fetch Client [ Bindings ]", () => {
       it("should emit upload progress event", async () => {
         const { onRequestStart, onRequestEnd } = await getClientBindings(command, requestId);
         const spy = jest.fn();
-        const startTimestamp = onRequestStart(progress);
+        const startTimestamp = onRequestStart({ total: progress.total, loaded: 0 });
         await sleep(30);
         const unmount = builder.commandManager.events.onUploadProgress(command.queueKey, spy);
         const progressTimestamp = onRequestEnd();
@@ -281,7 +281,7 @@ describe("Fetch Client [ Bindings ]", () => {
       it("should emit upload progress event", async () => {
         const { onResponseStart, onResponseEnd } = await getClientBindings(command, requestId);
         const spy = jest.fn();
-        const startTimestamp = onResponseStart(progress);
+        const startTimestamp = onResponseStart({ total: progress.total, loaded: 0 });
         await sleep(30);
         const unmount = builder.commandManager.events.onDownloadProgress(command.queueKey, spy);
         const progressTimestamp = onResponseEnd();

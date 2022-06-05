@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Retry ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Retry ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   describe("when command retry attribute is set to false", () => {

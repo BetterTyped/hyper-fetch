@@ -1,4 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
+import { builder } from "../../utils";
 
 describe("useFetch [ Debounce ]", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("useFetch [ Debounce ]", () => {
 
   beforeEach(async () => {
     jest.resetModules();
+    await builder.clear();
   });
 
   describe("given debounce is active", () => {

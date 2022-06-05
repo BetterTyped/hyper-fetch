@@ -1,7 +1,7 @@
 import {
   FetchType,
   ParamsType,
-  getAbortKey,
+  getSimpleKey,
   getCommandKey,
   FetchMethodType,
   CommandData,
@@ -87,7 +87,6 @@ export class Command<
       | undefined,
     readonly dataMapper?: (data: PayloadType) => MappedData,
   ) {
-    const { baseUrl } = builder;
     const {
       endpoint,
       headers,
@@ -124,11 +123,10 @@ export class Command<
     this.cacheTime = commandDump?.cacheTime ?? cacheTime;
     this.queued = commandDump?.queued ?? queued;
     this.offline = commandDump?.offline ?? offline;
-    this.abortKey =
-      commandDump?.abortKey ?? abortKey ?? getAbortKey(this.method, baseUrl, this.endpoint, this.cancelable);
+    this.abortKey = commandDump?.abortKey ?? abortKey ?? getSimpleKey(this);
     this.cacheKey = commandDump?.cacheKey ?? cacheKey ?? getCommandKey(this);
-    this.queueKey = commandDump?.queueKey ?? queueKey ?? getCommandKey(this);
-    this.effectKey = commandDump?.effectKey ?? effectKey ?? getCommandKey(this);
+    this.queueKey = commandDump?.queueKey ?? queueKey ?? getSimpleKey(this);
+    this.effectKey = commandDump?.effectKey ?? effectKey ?? getSimpleKey(this);
     this.used = commandDump?.used ?? false;
     this.deduplicate = commandDump?.deduplicate ?? deduplicate;
     this.deduplicateTime = commandDump?.deduplicateTime ?? deduplicateTime;
@@ -236,12 +234,18 @@ export class Command<
     return this.clone();
   };
 
-  private paramsMapper = (params: ParamsType | null | undefined): string => {
+  private paramsMapper = (
+    params: ParamsType | null | undefined,
+    queryParams: QueryParamsType | NegativeTypes,
+  ): string => {
     let endpoint = this.commandOptions.endpoint as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
       });
+    }
+    if (queryParams) {
+      endpoint += this.builder.stringifyQueryParams(queryParams);
     }
     return endpoint;
   };
@@ -340,7 +344,10 @@ export class Command<
       abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
       queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
-      endpoint: this.paramsMapper(options?.params || this.params) as EndpointType,
+      endpoint: this.paramsMapper(
+        options?.params || this.params,
+        options?.queryParams || this.queryParams,
+      ) as EndpointType,
       queryParams: options?.queryParams || this.queryParams,
       // Typescript circular types issue - we have to leave any here
       data: (options?.data || this.data) as any,

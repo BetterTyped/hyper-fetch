@@ -36,17 +36,17 @@ describe("CommandManager [ Events ]", () => {
       builder.commandManager.events.onResponseStart(command.queueKey, spy2);
       builder.commandManager.events.onUploadProgress(command.queueKey, spy3);
       builder.commandManager.events.onDownloadProgress(command.queueKey, spy4);
+      builder.commandManager.events.onResponse(command.cacheKey, spy5);
 
       const requestId = builder.fetchDispatcher.add(command);
 
-      builder.commandManager.events.onResponse(command.cacheKey, spy5);
       builder.commandManager.events.onResponseById(requestId, spy6);
 
       await waitFor(() => {
         expect(spy1).toBeCalledTimes(1);
         expect(spy2).toBeCalledTimes(1);
         expect(spy3).toBeCalledTimes(2);
-        expect(spy4).toBeCalledTimes(3);
+        expect(spy4).toBeCalledTimes(2);
         expect(spy5).toBeCalledTimes(1);
         expect(spy6).toBeCalledTimes(1);
       });
