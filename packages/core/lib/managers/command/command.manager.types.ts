@@ -10,7 +10,5 @@ export type CommandResponseDetails = {
   timestamp: Date;
   isFailed: boolean;
   isCanceled: boolean;
-  isRefreshed: boolean;
   isOffline: boolean;
-  isStopped: boolean;
 };

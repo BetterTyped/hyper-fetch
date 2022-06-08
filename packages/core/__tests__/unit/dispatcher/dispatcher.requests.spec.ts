@@ -26,7 +26,7 @@ describe("Dispatcher [ Requests ]", () => {
     stopServer();
   });
 
-  describe("When request gets triggered", () => {
+  describe("Given request gets triggered", () => {
     it("should allow to add request to running requests", async () => {
       const requestId = "test";
       const command = createCommand(builder);
@@ -187,9 +187,10 @@ describe("Dispatcher [ Requests ]", () => {
     describe("When stoping and starting particular requests", () => {
       it("should allow to stop request", async () => {
         const command = createCommand(builder);
-        createRequestInterceptor(command, { delay: 0 });
+        createRequestInterceptor(command, { delay: 5 });
 
         const requestId = dispatcher.add(command);
+        await sleep(1);
         expect(dispatcher.getRunningRequest(command.queueKey, requestId)).toBeDefined();
 
         dispatcher.stopRequest(command.queueKey, requestId);
@@ -200,8 +201,7 @@ describe("Dispatcher [ Requests ]", () => {
 
         await waitFor(async () => {
           const cacheValue = await builder.cache.get(command.cacheKey);
-          expect(cacheValue).toBeDefined();
-          expect(cacheValue?.details?.isCanceled).toBeTrue();
+          expect(cacheValue).not.toBeDefined();
         });
       });
       it("should allow to start previously stopped request", async () => {
@@ -213,14 +213,16 @@ describe("Dispatcher [ Requests ]", () => {
         const requestId = dispatcher.add(command);
         dispatcher.stopRequest(command.queueKey, requestId);
 
-        await sleep(50);
-        dispatcher.startRequest(command.queueKey, requestId);
-        await sleep(50);
+        await sleep(10);
 
-        const cacheValue = await builder.cache.get(command.cacheKey);
-        expect(spy).toBeCalledTimes(2);
-        expect(cacheValue).toBeDefined();
-        expect(cacheValue?.details?.isCanceled).toBeFalse();
+        dispatcher.startRequest(command.queueKey, requestId);
+
+        await waitFor(async () => {
+          const cacheValue = await builder.cache.get(command.cacheKey);
+          expect(spy).toBeCalledTimes(2);
+          expect(cacheValue).toBeDefined();
+          expect(cacheValue?.details.isCanceled).toBeFalse();
+        });
       });
 
       it("should not emit changes when started requests is not found in storage", async () => {

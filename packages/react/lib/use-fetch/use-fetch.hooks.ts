@@ -53,7 +53,7 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, { addRequestListener }] = useCommandEvents({
+  const [callbacks, listeners] = useCommandEvents({
     state,
     logger,
     actions,
@@ -64,20 +64,18 @@ export const useFetch = <T extends CommandInstance>(
     cacheInitialized: isInitialized,
   });
 
+  const { addDataListener, addLifecycleListeners, clearLifecycleListeners } = listeners;
+
   // ******************
   // Fetching
   // ******************
-
   const handleFetch = () => {
-    /**
-     * We can fetch when data is not stale or we don't have data at all
-     * The exception is made for refreshing which should be triggered no matter if data is fresh or not
-     * That's because cache time gives the details if the INITIAL call should be made, refresh works without limits
-     */
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
       const requestId = dispatcher.add(command);
-      addRequestListener(requestId, command);
+      addDataListener(command);
+      clearLifecycleListeners();
+      addLifecycleListeners(requestId);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -95,11 +93,13 @@ export const useFetch = <T extends CommandInstance>(
       const isBlurred = !appManager.isFocused;
 
       // If window tab is not active should we refresh the cache
-      const canRefreshBlurred = isBlurred && refreshBlurred;
-      const isFetching = !!dispatcher.getRunningRequests(command.queueKey).length;
-      const isQueued = !!dispatcher.getQueue(command.queueKey).requests.length;
+      const isFetching = dispatcher.hasRunningRequests(command.queueKey);
+      const isQueued = dispatcher.getIsActiveQueue(command.queueKey);
+      const isActive = isFetching || isQueued;
+      const canRefreshBlurred = isBlurred && refreshBlurred && !isActive;
+      const canRefreshFocused = !isBlurred && !isActive;
 
-      if (canRefreshBlurred || !isBlurred || !isFetching || !isQueued) {
+      if (canRefreshBlurred || canRefreshFocused) {
         handleFetch();
         logger.debug(`Performing refresh request`);
       }
@@ -146,8 +146,7 @@ export const useFetch = <T extends CommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    const isFirstRequest = dispatcher.getQueueRequestCount(queueKey);
-    if (!isFirstRequest && debounce) {
+    if (debounce) {
       logger.debug("Debouncing request", { queueKey, command });
       requestDebounce.debounce(() => handleFetch());
     } else {
@@ -209,7 +208,7 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * Fetching logic for updates handling
    */
-  useDidUpdate(updateFetchData, [updateKey, ...dependencies, disabled]);
+  useDidUpdate(updateFetchData, [updateKey, ...dependencies]);
 
   /**
    * Refresh lifecycle handler
@@ -232,10 +231,6 @@ export const useFetch = <T extends CommandInstance>(
     get status() {
       setRenderKey("status");
       return state.status;
-    },
-    get isRefreshed() {
-      setRenderKey("isRefreshed");
-      return state.isRefreshed;
     },
     get retries() {
       setRenderKey("retries");

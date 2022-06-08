@@ -15,7 +15,12 @@ import {
 import { isEqual } from "utils";
 import { UseDependentStateType, UseDependentStateActions } from "helpers";
 
-export type UseCommandStateOptionsType<T extends CommandInstance> = {
+// Misc
+export type UseCommandEventsDataMap = { unmount: VoidFunction };
+export type UseCommandEventsLifecycleMap = Map<string, { unmount: VoidFunction }>;
+
+// Props
+export type UseCommandEventsOptionsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerMethodsType;
@@ -27,7 +32,8 @@ export type UseCommandStateOptionsType<T extends CommandInstance> = {
   initializeCallbacks?: boolean;
 };
 
-export type UseCommandStateReturnType<T extends CommandInstance> = [
+// Return
+export type UseCommandEventsReturnType<T extends CommandInstance> = [
   {
     onRequest: (callback: OnRequestCallbackType) => void;
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
@@ -41,13 +47,15 @@ export type UseCommandStateReturnType<T extends CommandInstance> = [
     onUploadProgress: (callback: OnProgressCallbackType) => void;
   },
   {
-    addRequestListener: (
-      requestId: string,
-      command: CommandInstance,
-    ) => (unmountLifecycleEvents: boolean, unmountDataEvents: boolean) => void;
+    addDataListener: (command: CommandInstance, clear?: boolean) => VoidFunction;
+    clearDataListener: VoidFunction;
+    addLifecycleListeners: (requestId: string) => VoidFunction;
+    removeLifecycleListener: (requestId: string) => void;
+    clearLifecycleListeners: () => void;
   },
 ];
 
+// Lifecycle
 export type OnRequestCallbackType = (options: Omit<DispatcherLoadingEventType, "isLoading" | "isOffline">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;

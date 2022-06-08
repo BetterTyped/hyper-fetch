@@ -33,7 +33,7 @@ const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknow
   return [
     async (response: MockedResponse<unknown>) => {
       await sleep(Math.min(timeoutTime, delay));
-      if (abortController && abortController?.[1]?.signal?.aborted) {
+      if (abortController && abortController?.[1].signal.aborted) {
         ctx.status(500)(response);
         response.body = getErrorMessage("abort");
         return response;

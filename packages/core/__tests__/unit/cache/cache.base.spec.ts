@@ -10,9 +10,7 @@ describe("Cache [ Base ]", () => {
     timestamp: new Date(),
     isFailed: false,
     isCanceled: false,
-    isRefreshed: false,
     isOffline: false,
-    isStopped: false,
   };
 
   let builder = createBuilder();

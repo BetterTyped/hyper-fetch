@@ -109,4 +109,9 @@ describe("useFetch [ Basic ]", () => {
       await testErrorState(errorMock, response, mock);
     });
   });
+  describe("when dependencies change", () => {
+    it("should fetch when dependencies change", async () => {
+      // Todo
+    });
+  });
 });

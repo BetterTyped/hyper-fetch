@@ -71,10 +71,6 @@ export const useCache = <T extends CommandInstance>(
       setRenderKey("status");
       return state.status;
     },
-    get isRefreshed() {
-      setRenderKey("isRefreshed");
-      return state.isRefreshed;
-    },
     get retries() {
       setRenderKey("retries");
       return state.retries;

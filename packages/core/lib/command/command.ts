@@ -220,6 +220,10 @@ export class Command<
     return this.clone({ used });
   };
 
+  public setOffline = (offline: boolean) => {
+    return this.clone({ offline });
+  };
+
   public setDataMapper = <DataMapper>(mapper: (data: PayloadType) => DataMapper) => {
     if (this.dataMapper) {
       console.warn("Mapper is already setup on the command.");

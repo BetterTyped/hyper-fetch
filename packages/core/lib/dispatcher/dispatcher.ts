@@ -15,6 +15,8 @@ import {
 import { getUniqueRequestId } from "utils";
 import { BuilderInstance } from "builder";
 import { CommandInstance, Command } from "command";
+import { CommandResponseDetails } from "managers";
+import { getErrorMessage } from "client";
 
 /**
  * Dispatcher class was made to store controlled request Fetches, and firing them all-at-once or one-by-one in command queue.
@@ -434,10 +436,17 @@ export class Dispatcher {
   /**
    * Delete and cancel request from the storage
    */
-  delete = (queueKey: string, requestId: string) => {
+  delete = (queueKey: string, requestId: string, abortKey: string) => {
     const queue = this.getQueue(queueKey);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queueKey, queue);
+
+    // Clean controllers
+    if (this.hasRunningRequest(queueKey, requestId)) {
+      this.builder.commandManager.abortByRequestId(abortKey, requestId);
+    } else {
+      this.builder.commandManager.removeAbortController(abortKey, requestId);
+    }
 
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
@@ -459,7 +468,7 @@ export class Dispatcher {
     const command = new Command(this.builder, storageElement.commandDump.commandOptions, storageElement.commandDump);
 
     const { commandDump, requestId } = storageElement;
-    const { retry, retryTime, queueKey, cacheKey, cache: useCache, offline } = commandDump;
+    const { retry, retryTime, queueKey, cacheKey, abortKey, cache: useCache, offline } = commandDump;
     const { client, commandManager, cache, appManager } = this.builder;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
@@ -496,19 +505,15 @@ export class Dispatcher {
     // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
     const isFailed = isFailedRequest(response);
     // If there is no running request with this id, it means it was cancelled and removed
-    const isCanceled = !this.hasRunningRequest(queueKey, requestId);
+    const isCanceled = response[1]?.message === getErrorMessage("abort").message;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queueKey, requestId);
 
-    const queue = this.getQueue(queueKey);
-
-    const requestDetails = {
+    const requestDetails: CommandResponseDetails = {
       isFailed,
       isCanceled,
       isOffline: isOfflineResponseStatus,
-      isRefreshed: this.getQueueRequestCount(queueKey) > 1,
-      isStopped: queue.stopped,
       retries: storageElement.retries,
       timestamp: new Date(),
     };
@@ -519,17 +524,24 @@ export class Dispatcher {
     cache.set(cacheKey, response, requestDetails, useCache);
 
     if (isCanceled) {
-      // do not remove cancelled request as it may be result of manual pause
+      const queue = this.getQueue(queueKey);
+      const request = queue?.requests.find((req) => req.requestId === requestId);
+
+      // do not remove cancelled request as it may be result of manual queue pause
+      if (!queue.stopped && !request?.stopped) {
+        this.delete(queueKey, requestId, abortKey);
+      }
       return;
     }
     if (isFailed && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
-      if (!offline) await this.delete(queueKey, requestId);
+      if (!offline) this.delete(queueKey, requestId, abortKey);
       // do not remove request from store as we want to re-send it later
       return;
     }
+
     if (!isFailed) {
-      await this.delete(queueKey, requestId);
+      this.delete(queueKey, requestId, abortKey);
       return;
     }
     if (isFailed && canRetry) {
@@ -541,7 +553,7 @@ export class Dispatcher {
         });
       }, retryTime || 0);
     } else {
-      await this.delete(queueKey, requestId);
+      this.delete(queueKey, requestId, abortKey);
     }
   };
 }

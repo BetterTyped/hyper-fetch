@@ -55,7 +55,7 @@ describe("Dispatcher [ Basic ]", () => {
       const dispatcherDump = newDispatcher.createStorageElement(command);
 
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
-      newDispatcher.delete(command.queueKey, requestId);
+      newDispatcher.delete(command.queueKey, requestId, command.abortKey);
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
       newDispatcher.clearQueue(command.queueKey);
 

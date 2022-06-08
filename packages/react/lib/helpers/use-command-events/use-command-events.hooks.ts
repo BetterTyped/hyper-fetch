@@ -21,8 +21,10 @@ import {
   OnRequestCallbackType,
   OnProgressCallbackType,
   OnFinishedCallbackType,
-  UseCommandStateReturnType,
-  UseCommandStateOptionsType,
+  UseCommandEventsDataMap,
+  UseCommandEventsReturnType,
+  UseCommandEventsOptionsType,
+  UseCommandEventsLifecycleMap,
 } from "helpers";
 import { isEqual } from "utils";
 
@@ -42,7 +44,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   deepCompare,
   cacheInitialized,
   initializeCallbacks = false,
-}: UseCommandStateOptionsType<T>): UseCommandStateReturnType<T> => {
+}: UseCommandEventsOptionsType<T>): UseCommandEventsReturnType<T> => {
   const { cache, appManager, commandManager } = command.builder;
   const commandDump = command.dump();
 
@@ -68,8 +70,8 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Listeners unmounting
   // ******************
 
-  const unmountLifecycleEventsCallbacks = useRef<VoidFunction[]>([]);
-  const unmountDataEventsCallback = useRef<VoidFunction | null>(null);
+  const lifecycleEvents = useRef<UseCommandEventsLifecycleMap>(new Map());
+  const dataEvents = useRef<UseCommandEventsDataMap | null>(null);
 
   // ******************
   // Response handlers
@@ -102,16 +104,13 @@ export const useCommandEvents = <T extends CommandInstance>({
   const handleInitialCallbacks = () => {
     const trigger = () => {
       const hasData = state.data && state.error && state.timestamp;
-      const queue = dispatcher.getQueue(command.queueKey);
       if (hasData && cacheInitialized && !initializedCallbacks && initializeCallbacks) {
         const details = {
           retries: state.retries,
           timestamp: new Date(state.timestamp as Date),
           isFailed: isFailedRequest([state.data, state.error, state.status]),
           isCanceled: false,
-          isRefreshed: state.isRefreshed,
           isOffline: !appManager.isOnline,
-          isStopped: queue.stopped,
         };
 
         handleResponseCallbacks([state.data, state.error, state.status], details);
@@ -172,22 +171,28 @@ export const useCommandEvents = <T extends CommandInstance>({
   };
 
   const handleResponseStart = (details: CommandEventDetails<T>) => {
-    onRequestStartCallback?.current?.(details);
+    onResponseStartCallback?.current?.(details);
   };
 
-  const handleResponse = () => {
+  const handleResponse = (requestId: string) => {
     return (data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>, details: CommandResponseDetails) => {
+      const event = lifecycleEvents.current.get(requestId);
+      event?.unmount();
+      lifecycleEvents.current.delete(requestId);
+
       handleResponseCallbacks(data, details);
     };
   };
 
-  const addRequestListener = (requestId: string, cmd: CommandInstance) => {
-    const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
-    const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
-    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);
-    const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart);
-    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse);
+  // ******************
+  // Data Listeners
+  // ******************
 
+  const clearDataListener = () => {
+    dataEvents.current?.unmount();
+  };
+
+  const addDataListener = (cmd: CommandInstance, clear = true) => {
     // Data handlers
     const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
     const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(
@@ -195,29 +200,54 @@ export const useCommandEvents = <T extends CommandInstance>({
       handleGetResponseData,
     );
 
-    const unmountLifecycle = () => {
+    const unmount = () => {
+      loadingUnmount();
+      getResponseUnmount();
+    };
+
+    if (clear) clearDataListener();
+    dataEvents.current = { unmount };
+
+    return unmount;
+  };
+
+  // ******************
+  // Lifecycle Listeners
+  // ******************
+
+  const addLifecycleListeners = (requestId: string) => {
+    const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
+    const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
+    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);
+    const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart);
+    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(requestId));
+
+    const unmount = () => {
       downloadUnmount();
       uploadUnmount();
       requestStartUnmount();
       responseStartUnmount();
       responseUnmount();
-      loadingUnmount();
     };
 
-    const unmountDataHandlers = () => {
-      loadingUnmount();
-      getResponseUnmount();
-    };
+    lifecycleEvents.current.set(requestId, { unmount });
 
-    unmountDataEventsCallback.current?.();
+    return unmount;
+  };
 
-    unmountLifecycleEventsCallbacks.current.push(unmountLifecycle);
-    unmountDataEventsCallback.current = unmountDataHandlers;
+  const removeLifecycleListener = (requestId: string) => {
+    const event = lifecycleEvents.current.get(requestId);
+    event?.unmount();
+    lifecycleEvents.current.delete(requestId);
+  };
 
-    return (unmountLifecycleEvents = true, unmountDataEvents = true) => {
-      if (unmountLifecycleEvents) unmountLifecycle();
-      if (unmountDataEvents) unmountDataHandlers();
-    };
+  const clearLifecycleListeners = () => {
+    const events = lifecycleEvents.current;
+    const listeners = Array.from(events.values());
+    listeners.forEach((value) => {
+      value.unmount();
+    });
+    events.clear();
   };
 
   /**
@@ -235,8 +265,8 @@ export const useCommandEvents = <T extends CommandInstance>({
    */
   useWillUnmount(() => {
     // Unmount listeners
-    unmountLifecycleEventsCallbacks.current.forEach((unmount) => unmount());
-    unmountDataEventsCallback.current?.();
+    clearLifecycleListeners();
+    clearDataListener();
   });
 
   return [
@@ -273,7 +303,11 @@ export const useCommandEvents = <T extends CommandInstance>({
       },
     },
     {
-      addRequestListener,
+      addDataListener,
+      clearDataListener,
+      addLifecycleListeners,
+      removeLifecycleListener,
+      clearLifecycleListeners,
     },
   ];
 };

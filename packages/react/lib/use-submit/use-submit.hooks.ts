@@ -52,7 +52,7 @@ export const useSubmit = <T extends CommandInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, { addRequestListener }] = useCommandEvents({
+  const [callbacks, listeners] = useCommandEvents({
     state,
     logger,
     actions,
@@ -62,6 +62,8 @@ export const useSubmit = <T extends CommandInstance>(
     setCacheData,
     cacheInitialized: isInitialized,
   });
+
+  const { addDataListener, addLifecycleListeners } = listeners;
 
   // ******************
   // Submitting
@@ -77,7 +79,11 @@ export const useSubmit = <T extends CommandInstance>(
       return [null, null, 0];
     }
 
-    const trigger = () => commandSendRequest(commandClone, "submit", addRequestListener);
+    const triggerRequest = () =>
+      commandSendRequest(commandClone, "submit", (requestId, cmd) => {
+        addDataListener(cmd);
+        addLifecycleListeners(requestId);
+      });
 
     return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
       const performSubmit = async () => {
@@ -85,11 +91,11 @@ export const useSubmit = <T extends CommandInstance>(
 
         if (debounce) {
           requestDebounce.debounce(async () => {
-            const value = await trigger();
+            const value = await triggerRequest();
             resolve(value);
           });
         } else {
-          const value = await trigger();
+          const value = await triggerRequest();
           resolve(value);
         }
       };

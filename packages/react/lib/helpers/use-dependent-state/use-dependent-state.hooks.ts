@@ -130,7 +130,6 @@ export const useDependentState = <T extends CommandInstance>({
       status: cacheData.data[2],
       retries: cacheData.details.retries,
       timestamp: new Date(cacheData.details.timestamp),
-      isRefreshed: cacheData.details.isRefreshed,
     };
     state.current = {
       ...state.current,
@@ -197,20 +196,6 @@ export const useDependentState = <T extends CommandInstance>({
       } else {
         state.current.status = status;
         renderOnKeyTrigger(["status"]);
-      }
-    },
-    setRefreshed: async (isRefreshed, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        await cache.set(
-          cacheKey,
-          [currentState.data, currentState.error, currentState.status],
-          getDetailsState(state.current, { isRefreshed }),
-          command.cache,
-        );
-      } else {
-        state.current.isRefreshed = isRefreshed;
-        renderOnKeyTrigger(["isRefreshed"]);
       }
     },
     setRetries: async (retries, emitToCache = defaultCacheEmitting) => {

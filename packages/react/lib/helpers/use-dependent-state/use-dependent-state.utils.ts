@@ -19,9 +19,7 @@ export const getDetailsState = (
     timestamp: new Date(),
     isFailed: false,
     isCanceled: false,
-    isRefreshed: false,
     isOffline: false,
-    isStopped: false,
     ...details,
   };
 };

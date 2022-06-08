@@ -42,39 +42,9 @@ export const testErrorState = async <
     const status = response.status || 0;
     expect(response.error).toStrictEqual(mock);
     expect(response.error).toBeDefined();
-    expect(status >= 400 && status < 600).toBeTruthy();
+    expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     expect(response.loading).toBe(false);
     expect(response.data).toStrictEqual(data);
-  });
-};
-
-export const testSuccessRefreshState = async <
-  T extends UseFetchReturnType<CommandInstance>,
-  H extends RenderHookResult<any, any>,
->(
-  mock: T["data"],
-  render: H,
-) => {
-  const response = getCurrentState(render);
-
-  await waitFor(async () => {
-    await testSuccessState(mock, render);
-    expect(response.isRefreshed).toStrictEqual(true);
-  });
-};
-
-export const testErrorFetchState = async <
-  T extends UseFetchReturnType<CommandInstance>,
-  H extends RenderHookResult<any, any>,
->(
-  mock: T["data"],
-  render: H,
-) => {
-  const response = getCurrentState(render);
-
-  await waitFor(async () => {
-    await testErrorState(mock, render);
-    expect(response.isRefreshed).toStrictEqual(true);
   });
 };
 

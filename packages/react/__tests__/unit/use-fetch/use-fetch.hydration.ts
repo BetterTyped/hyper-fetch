@@ -20,9 +20,17 @@ describe("useFetch [ Hydration ]", () => {
   });
 
   describe("when environment is server side rendered", () => {
-    it("should allow to prefetch before hydration", async () => {});
-    it("should handle the successful response", async () => {});
-    it("should handle the error response", async () => {});
-    it("should handle the offline state", async () => {});
+    it("should allow to prefetch before hydration", async () => {
+      // TODO
+    });
+    it("should handle the successful response", async () => {
+      // TODO
+    });
+    it("should handle the error response", async () => {
+      // TODO
+    });
+    it("should handle the offline state", async () => {
+      // TODO
+    });
   });
 });

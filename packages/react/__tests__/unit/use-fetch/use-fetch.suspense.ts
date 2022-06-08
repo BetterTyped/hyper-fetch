@@ -19,9 +19,16 @@ describe("useFetch [ Suspense ]", () => {
     await builder.clear();
   });
 
-  it("should render fallback", async () => {});
-  it("should render multiple fallbacks", async () => {});
-  it("should work for non-promises", async () => {});
-  it("should throw errors", async () => {});
-  it("should render cached data with error", async () => {});
+  it("should render fallback", async () => {
+    // TODO
+  });
+  it("should render multiple fallbacks", async () => {
+    // TODO
+  });
+  it("should throw errors", async () => {
+    // TODO
+  });
+  it("should render cached data with error", async () => {
+    // TODO
+  });
 });
