@@ -15,7 +15,7 @@ export const useQueue = <Command extends CommandInstance>(
   options: UseQueueOptions = useQueueDefaultOptions,
 ) => {
   const { queueType = useQueueDefaultOptions.queueType } = options;
-  const { queueKey, builder } = command;
+  const { abortKey, queueKey, builder } = command;
   const { commandManager } = builder;
 
   const dispatcher = getCommandDispatcher(command, queueType);
@@ -34,7 +34,7 @@ export const useQueue = <Command extends CommandInstance>(
       ...req,
       stopRequest: () => dispatcher[0].stopRequest(queueKey, req.requestId),
       startRequest: () => dispatcher[0].startRequest(queueKey, req.requestId),
-      deleteRequest: () => dispatcher[0].delete(queueKey, req.requestId),
+      deleteRequest: () => dispatcher[0].delete(queueKey, req.requestId, abortKey),
     }));
   };
 
