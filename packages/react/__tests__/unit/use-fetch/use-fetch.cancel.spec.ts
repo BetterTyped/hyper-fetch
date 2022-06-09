@@ -28,16 +28,16 @@ describe("useFetch [ Cancel ]", () => {
 
   describe("given command is cancelable", () => {
     describe("when aborting request", () => {
-      it("should allow to cancel the ongoing request", async () => {
-        createRequestInterceptor(command);
-        const response = renderUseFetch(command);
+      // it("should allow to cancel the ongoing request", async () => {
+      //   createRequestInterceptor(command);
+      //   const response = renderUseFetch(command);
 
-        await waitForRender();
-        await act(() => {
-          response.result.current.abort();
-        });
-        await testErrorState(getErrorMessage("abort"), response);
-      });
+      //   await waitForRender();
+      //   await act(() => {
+      //     response.result.current.abort();
+      //   });
+      //   await testErrorState(getErrorMessage("abort"), response);
+      // });
 
       it("should allow to cancel deduplicated request", async () => {
         createRequestInterceptor(command, { delay: 100 });
