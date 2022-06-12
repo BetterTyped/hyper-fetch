@@ -1,7 +1,7 @@
 import { ClientResponseSuccessType } from "client";
 import { CommandResponseDetails } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createBuilder, createCache, createCommand } from "../../utils";
+import { createBuilder, createCache, createCommand, sleep } from "../../utils";
 
 describe("Cache [ Base ]", () => {
   const response: ClientResponseSuccessType<unknown> = [{ data: 123 }, null, 200];
@@ -35,11 +35,11 @@ describe("Cache [ Base ]", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should initialize cache", async () => {
-      expect(await cache.get(command.cacheKey)).not.toBeDefined();
+      expect(cache.get(command.cacheKey)).not.toBeDefined();
 
-      await cache.set(command.cacheKey, response, details, true);
+      cache.set(command.setCache(true), response, details);
 
-      expect(await cache.get(command.cacheKey)).toBeDefined();
+      expect(cache.get(command.cacheKey)).toBeDefined();
     });
 
     it("should trigger onInitialization callback", async () => {
@@ -53,45 +53,37 @@ describe("Cache [ Base ]", () => {
   describe("When managing cache data", () => {
     it("should add element to cache and emit set event", async () => {
       const trigger = jest.fn();
+      const unmount = cache.events.get(command.cacheKey, trigger);
 
-      const unmount = cache.events.get(command.cacheKey, () => {
-        trigger();
-      });
-
-      await cache.set(command.cacheKey, response, details, true);
+      cache.set(command.setCache(true), response, details);
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
-      expect(await cache.get(command.cacheKey)).toBeDefined();
+      expect(cache.get(command.cacheKey)).toBeDefined();
     });
 
     it("should delete cache and send revalidate event", async () => {
       const trigger = jest.fn();
+      const unmount = cache.events.onRevalidate(command.cacheKey, trigger);
 
-      const unmount = cache.events.onRevalidate(command.cacheKey, () => {
-        trigger();
-      });
+      cache.set(command.setCache(true), response, details);
+      cache.delete(command.cacheKey);
+      await sleep(1);
 
-      await cache.set(command.cacheKey, response, details, true);
-      await cache.delete(command.cacheKey);
-      unmount();
-
+      expect(cache.get(command.cacheKey)).not.toBeDefined();
       expect(trigger).toBeCalledTimes(1);
-      expect(await cache.get(command.cacheKey)).not.toBeDefined();
+      unmount();
     });
 
     it("should not add to cache when useCache is set to false", async () => {
       const trigger = jest.fn();
+      const unmount = cache.events.get(command.cacheKey, trigger);
 
-      const unmount = cache.events.get(command.cacheKey, () => {
-        trigger();
-      });
-
-      await cache.set(command.cacheKey, response, details, false);
+      cache.set(command.setCache(false), response, details);
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
-      expect(await cache.get(command.cacheKey)).not.toBeDefined();
+      expect(cache.get(command.cacheKey)).not.toBeDefined();
     });
   });
 
@@ -99,15 +91,13 @@ describe("Cache [ Base ]", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      cache.events.onRevalidate(command.cacheKey, () => {
-        trigger();
-      });
+      cache.events.onRevalidate(command.cacheKey, trigger);
 
-      await cache.set(command.cacheKey, response, details, false);
-      await cache.clear();
+      cache.set(command.setCache(false), response, details);
+      cache.clear();
 
       expect(trigger).toBeCalledTimes(0);
-      expect(await cache.get(command.cacheKey)).not.toBeDefined();
+      expect(cache.get(command.cacheKey)).not.toBeDefined();
     });
   });
 });

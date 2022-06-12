@@ -12,7 +12,6 @@ import {
   DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
 
-import { isEqual } from "utils";
 import { UseDependentStateType, UseDependentStateActions } from "helpers";
 
 // Misc
@@ -24,11 +23,9 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerMethodsType;
-  state: UseDependentStateType<ExtractResponse<T>, ExtractError<T>>;
-  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+  state: UseDependentStateType<T>;
+  actions: UseDependentStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
-  deepCompare: boolean | typeof isEqual;
-  cacheInitialized: boolean;
   initializeCallbacks?: boolean;
 };
 

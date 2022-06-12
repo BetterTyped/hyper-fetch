@@ -41,11 +41,12 @@ export const useSubmit = <T extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, isInitialized }] = useDependentState<T>({
+  const [state, actions, { setRenderKey, setCacheData }] = useDependentState<T>({
     logger,
     command,
     dispatcher,
     initialData,
+    deepCompare,
     dependencyTracking,
   });
 
@@ -58,9 +59,7 @@ export const useSubmit = <T extends CommandInstance>(
     actions,
     command,
     dispatcher,
-    deepCompare,
     setCacheData,
-    cacheInitialized: isInitialized,
   });
 
   const { addDataListener, addLifecycleListeners } = listeners;

@@ -47,7 +47,7 @@ describe("Fetch Client [ Bindings ]", () => {
     startServer();
   });
 
-  beforeEach(async () => {
+  beforeEach(() => {
     setup = initializeSetup();
     resetInterceptors();
     jest.resetAllMocks();

@@ -35,11 +35,8 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<
-  ExtractResponse<T>,
-  ExtractError<T>
-> & {
-  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
+  actions: UseDependentStateActions<T>;
   onRequest: (callback: OnRequestCallbackType) => void;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;

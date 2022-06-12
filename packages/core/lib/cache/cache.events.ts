@@ -9,17 +9,17 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
   },
   /**
    * Revalidate cache values and trigger revalidate event
-   * @param pattern Allow to revalidate cache based on the `cacheKey`, `string pattern` or `regexp` pattern for matching
+   * @param cacheKey Allow to revalidate cache based on the `cacheKey`, `string pattern` or `regexp` pattern for matching
    */
-  revalidate: async (pattern: string | RegExp): Promise<void> => {
+  revalidate: async (cacheKey: string | RegExp): Promise<void> => {
     const keys = await storage.keys();
 
-    if (typeof pattern === "string") {
-      emitter.emit(getRevalidateEventKey(pattern));
+    if (typeof cacheKey === "string") {
+      emitter.emit(getRevalidateEventKey(cacheKey));
     } else {
       // eslint-disable-next-line no-restricted-syntax
       for (const entityKey of keys) {
-        if (pattern.test(entityKey)) {
+        if (cacheKey.test(entityKey)) {
           emitter.emit(getRevalidateEventKey(entityKey));
         }
       }

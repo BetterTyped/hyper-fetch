@@ -4,6 +4,7 @@ import { ClientResponseType } from "client";
 import { BuilderInstance } from "builder";
 import { CommandResponseDetails } from "managers";
 import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, CacheValueType } from "cache";
+import { CommandDump, CommandInstance } from "command";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -54,40 +55,40 @@ export class Cache {
     this.options?.onInitialization?.(this);
   }
 
-  set = async <Response, Error>(
-    cacheKey: string,
+  set = <Response, Error>(
+    command: CommandInstance | CommandDump<CommandInstance>,
     response: ClientResponseType<Response, Error>,
     details: CommandResponseDetails,
-    useCache: boolean,
-  ): Promise<void> => {
-    const cachedData = await this.storage.get<Response, Error>(cacheKey);
+  ): void => {
+    const { cacheKey, cache, cacheTime } = command;
+    const cachedData = this.storage.get<Response, Error>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
     const data = getCacheData(cachedData?.data, response);
 
-    const newCacheData: CacheValueType = { data, details };
+    const newCacheData: CacheValueType = { data, details, cacheTime };
 
     this.events.set<Response, Error>(cacheKey, newCacheData);
 
     // If request should not use cache - just emit response data
-    if (!useCache) {
+    if (!cache) {
       return;
     }
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {
-      await this.storage.set<Response, Error>(cacheKey, newCacheData);
+      this.storage.set<Response, Error>(cacheKey, newCacheData);
     }
   };
 
-  get = async <Response, Error>(cacheKey: string): Promise<CacheValueType<Response, Error> | undefined> => {
-    const cachedData = await this.storage.get<Response, Error>(cacheKey);
+  get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error> | undefined => {
+    const cachedData = this.storage.get<Response, Error>(cacheKey);
     return cachedData;
   };
 
-  keys = async (): Promise<string[]> => {
-    const values = await this.storage.keys();
+  keys = (): string[] => {
+    const values = this.storage.keys();
 
     return Array.from(values);
   };
@@ -97,7 +98,7 @@ export class Cache {
     this.storage.delete(cacheKey);
   };
 
-  clear = async (): Promise<void> => {
-    await this.storage.clear();
+  clear = (): void => {
+    this.storage.clear();
   };
 }

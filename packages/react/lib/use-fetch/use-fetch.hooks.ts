@@ -42,11 +42,12 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, isInitialized, getStaleStatus }] = useDependentState<T>({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useDependentState<T>({
     logger,
     command,
     dispatcher,
     initialData,
+    deepCompare,
     dependencyTracking,
   });
 
@@ -59,9 +60,7 @@ export const useFetch = <T extends CommandInstance>(
     actions,
     command,
     dispatcher,
-    deepCompare,
     setCacheData,
-    cacheInitialized: isInitialized,
   });
 
   const { addDataListener, addLifecycleListeners, clearLifecycleListeners } = listeners;
@@ -72,8 +71,8 @@ export const useFetch = <T extends CommandInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
-      const requestId = dispatcher.add(command);
       addDataListener(command);
+      const requestId = dispatcher.add(command);
       clearLifecycleListeners();
       addLifecycleListeners(requestId);
     } else {
@@ -111,7 +110,7 @@ export const useFetch = <T extends CommandInstance>(
 
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
     if (invalidateKey && invalidateKey instanceof Command) {
-      cache.events.revalidate(getCommandKey(invalidateKey, true));
+      cache.events.revalidate(new RegExp(getCommandKey(invalidateKey, true)));
     } else if (invalidateKey) {
       cache.events.revalidate(invalidateKey);
     } else {

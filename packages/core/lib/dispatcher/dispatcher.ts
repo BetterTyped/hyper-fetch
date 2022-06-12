@@ -169,6 +169,7 @@ export class Dispatcher {
     const isOffline = !this.builder.appManager.isOnline;
     const isQueued = queueElement?.commandDump.queued;
     const isOngoing = runningRequests.length;
+    const isEmpty = !queueElement;
 
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
@@ -178,7 +179,7 @@ export class Dispatcher {
     if (isOffline) {
       return;
     }
-    if (!queueElement) {
+    if (isEmpty) {
       return;
     }
     if (!isQueued) {
@@ -468,20 +469,17 @@ export class Dispatcher {
     const command = new Command(this.builder, storageElement.commandDump.commandOptions, storageElement.commandDump);
 
     const { commandDump, requestId } = storageElement;
-    const { retry, retryTime, queueKey, cacheKey, abortKey, cache: useCache, offline } = commandDump;
+    const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = commandDump;
     const { client, commandManager, cache, appManager } = this.builder;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
-    const isOffline = !appManager.isOnline;
-    const isAlreadyRunning = this.hasRunningRequest(queueKey, requestId);
-
     // When offline not perform any request
-    if (isOffline && offline) {
-      return;
-    }
-
+    const isOffline = !appManager.isOnline && offline;
     // When request with this id was triggered again
-    if (isAlreadyRunning) {
+    const isAlreadyRunning = this.hasRunningRequest(queueKey, requestId);
+    const isStopped = storageElement.stopped;
+
+    if (isOffline || isAlreadyRunning || isStopped) {
       return;
     }
 
@@ -518,10 +516,16 @@ export class Dispatcher {
       timestamp: new Date(),
     };
 
+    // Turn off loading
+    this.events.setLoading(queueKey, requestId, {
+      isLoading: false,
+      isRetry: !!storageElement.retries,
+      isOffline,
+    });
     // Global response emitter to handle command execution
     commandManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
-    cache.set(cacheKey, response, requestDetails, useCache);
+    cache.set(command, response, requestDetails);
 
     if (isCanceled) {
       const queue = this.getQueue(queueKey);

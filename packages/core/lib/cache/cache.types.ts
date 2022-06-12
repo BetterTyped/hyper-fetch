@@ -16,6 +16,7 @@ export type CacheOptionsType = {
 export type CacheValueType<Response = any, Error = any> = {
   data: ClientResponseType<Response, Error>;
   details: CommandResponseDetails;
+  cacheTime: number;
 };
 
 // Storage
@@ -34,6 +35,6 @@ export type CacheStorageAsyncType = {
   clear: () => Promise<void>;
 };
 
-export type CacheStorageType = CacheStorageSyncType | CacheStorageAsyncType;
+export type CacheStorageType = CacheStorageSyncType;
 
 export type CacheInitialData = Record<string, CacheValueType>;

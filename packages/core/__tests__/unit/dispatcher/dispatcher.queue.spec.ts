@@ -264,6 +264,20 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(spy).toBeCalledTimes(0);
     });
+
+    it("should not trigger flushQueue on stopped requests", async () => {
+      const command = createCommand(builder, { queued: true });
+      createRequestInterceptor(command, { delay: 1 });
+
+      const spy = jest.spyOn(builder, "client");
+      const dump = dispatcher.createStorageElement(command);
+      dispatcher.addQueueElement(command.queueKey, dump);
+      dispatcher.stopRequest(command.queueKey, dump.requestId);
+
+      dispatcher.flushQueue(command.queueKey);
+
+      expect(spy).toBeCalledTimes(0);
+    });
     it("should not duplicate ongoing requests using flushQueue", async () => {
       const command = createCommand(builder);
       createRequestInterceptor(command, { delay: 30 });
@@ -281,7 +295,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toBeCalledTimes(3);
     });
   });
-  describe("When starting and stoping queue", () => {
+  describe("When starting and stopping queue", () => {
     it("should stop queue from being send", async () => {
       const command = createCommand(builder, { queueKey: "1" });
       createRequestInterceptor(command);

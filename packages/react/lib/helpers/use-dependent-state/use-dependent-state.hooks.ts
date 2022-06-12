@@ -1,20 +1,15 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
 import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
 
+import { isEqual } from "utils";
 import {
   UseDependentStateActions,
   UseDependentStateType,
   UseDependentStateProps,
   UseDependentStateReturn,
 } from "./use-dependent-state.types";
-import {
-  getDetailsState,
-  getInitialState,
-  responseToCacheValue,
-  getValidCacheData,
-  isStaleCacheData,
-} from "./use-dependent-state.utils";
+import { getDetailsState, getInitialState, isStaleCacheData } from "./use-dependent-state.utils";
 
 /**
  *
@@ -28,40 +23,41 @@ export const useDependentState = <T extends CommandInstance>({
   command,
   dispatcher,
   initialData,
+  deepCompare,
   dependencyTracking,
   defaultCacheEmitting = true,
 }: UseDependentStateProps<T>): UseDependentStateReturn<T> => {
-  const { builder, cacheKey, queueKey } = command;
+  const { builder, cacheKey, queueKey, cacheTime } = command;
   const { cache } = builder;
-  const initialState = getInitialState(responseToCacheValue(initialData), dispatcher.hasRunningRequests(queueKey));
 
   const forceUpdate = useForceUpdate();
 
-  const state = useRef<UseDependentStateType<ExtractResponse<T>, ExtractError<T>>>(initialState);
-  const renderKeys = useRef<Array<keyof UseDependentStateType>>([]);
-  const [isInitialized, setInitialized] = useState(false);
+  const state = useRef<UseDependentStateType<T>>(getInitialState(initialData, dispatcher, command));
+  const renderKeys = useRef<Array<keyof UseDependentStateType<T>>>([]);
 
   // ******************
   // Utils
   // ******************
 
   const getStaleStatus = async () => {
-    const cacheData = await command.builder.cache.get(command.cacheKey);
+    const cacheData = cache.get(cacheKey);
 
-    return isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
+    return isStaleCacheData(cacheTime, cacheData?.details.timestamp);
   };
 
   // ******************
   // Dependency Tracking
   // ******************
 
-  const renderOnKeyTrigger = (keys: Array<keyof UseDependentStateType>) => {
-    const shouldRerender = renderKeys.current.find((renderKey) => keys.includes(renderKey));
+  const renderKeyTrigger = (keys: Array<keyof UseDependentStateType>) => {
+    const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
     if (shouldRerender) forceUpdate();
   };
 
   const setRenderKey = (renderKey: keyof UseDependentStateType) => {
-    renderKeys.current.push(renderKey);
+    if (!renderKeys.current.includes(renderKey)) {
+      renderKeys.current.push(renderKey);
+    }
   };
 
   // ******************
@@ -70,32 +66,22 @@ export const useDependentState = <T extends CommandInstance>({
 
   useDidUpdate(
     () => {
-      const getInitialData = async () => {
-        setInitialized(false);
+      // Handle initial loading state
+      state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
-        // Handle initial loading state
-        state.current.loading = dispatcher.hasRunningRequests(queueKey);
+      // Get cache state
+      const newState = getInitialState(initialData, dispatcher, command);
 
-        // Get cache state
-        const cacheData = await builder.cache.get<ExtractResponse<T>, ExtractError<T>>(cacheKey);
-        const cacheState = getValidCacheData<T>(command, initialData, cacheData);
-        const newState = getInitialState(cacheState, dispatcher.hasRunningRequests(queueKey));
+      const hasInitialState = initialData?.[0] === state.current.data;
+      const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
+      const shouldLoadInitialCache = !hasState && state.current.data;
+      const shouldRemovePreviousData = hasState && !state.current.data;
 
-        const hasInitialState = initialData?.[0] === state.current.data;
-        const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
-        const shouldLoadInitialCache = !hasState && cacheData;
-        const shouldRemovePreviousData = hasState && !cacheData;
-
-        if (shouldLoadInitialCache || shouldRemovePreviousData) {
-          // Don't update the state when we are fetching data for new cacheKey
-          // So on paginated page we will have previous page access until the new one will be fetched
-          state.current = newState;
-        }
-
-        setInitialized(true);
-      };
-
-      getInitialData();
+      if (shouldLoadInitialCache || shouldRemovePreviousData) {
+        // Don't update the state when we are fetching data for new cacheKey
+        // So on paginated page we will have previous page access until the new one will be fetched
+        state.current = newState;
+      }
     },
     [cacheKey, queueKey],
     true,
@@ -123,56 +109,70 @@ export const useDependentState = <T extends CommandInstance>({
   // Cache data handler
   // ******************
 
+  const handleCompare = (firstValue: unknown, secondValue: unknown) => {
+    if (typeof deepCompare === "function") {
+      return deepCompare(firstValue, secondValue);
+    }
+    if (deepCompare) {
+      return isEqual(firstValue, secondValue);
+    }
+    return false;
+  };
+
   const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    const newStateValues = {
+    const newStateValues: UseDependentStateType<T> = {
       data: cacheData.data[0],
       error: cacheData.data[1],
       status: cacheData.data[2],
       retries: cacheData.details.retries,
       timestamp: new Date(cacheData.details.timestamp),
+      loading: false,
     };
+
+    const changedKeys = Object.keys(newStateValues).filter((key) => {
+      const keyValue = key as keyof UseDependentStateType<T>;
+      const firstValue = state.current[keyValue];
+      const secondValue = newStateValues[keyValue];
+
+      return !handleCompare(firstValue, secondValue);
+    }) as unknown as (keyof UseDependentStateType<T>)[];
+
     state.current = {
       ...state.current,
       ...newStateValues,
     };
 
-    forceUpdate();
+    renderKeyTrigger(changedKeys);
   };
 
   // ******************
   // Actions
   // ******************
 
-  const actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>> = {
-    setData: async (data, emitToCache = defaultCacheEmitting) => {
+  const actions: UseDependentStateActions<T> = {
+    setData: (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        await cache.set(
-          cacheKey,
-          [data, currentState.error, currentState.status],
-          getDetailsState(state.current),
-          command.cache,
-        );
+        cache.set(command, [data, currentState.error, currentState.status], getDetailsState(state.current));
       } else {
         state.current.data = data;
-        renderOnKeyTrigger(["data"]);
+        renderKeyTrigger(["data"]);
       }
     },
-    setError: async (error, emitToCache = defaultCacheEmitting) => {
+    setError: (error, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        await cache.set(
-          cacheKey,
+        cache.set(
+          command,
           [currentState.data, error, currentState.status],
           getDetailsState(state.current, { isFailed: !!error }),
-          command.cache,
         );
       } else {
         state.current.error = error;
-        renderOnKeyTrigger(["error"]);
+        renderKeyTrigger(["error"]);
       }
     },
-    setLoading: async (loading, emitToHooks = true) => {
+    setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
         dispatcher.events.setLoading(queueKey, "", {
           isLoading: loading,
@@ -181,52 +181,45 @@ export const useDependentState = <T extends CommandInstance>({
         });
       } else {
         state.current.loading = loading;
-        renderOnKeyTrigger(["loading"]);
+        renderKeyTrigger(["loading"]);
       }
     },
-    setStatus: async (status, emitToCache = defaultCacheEmitting) => {
+    setStatus: (status, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        await cache.set(
-          cacheKey,
-          [currentState.data, currentState.error, status],
-          getDetailsState(state.current),
-          command.cache,
-        );
+        cache.set(command, [currentState.data, currentState.error, status], getDetailsState(state.current));
       } else {
         state.current.status = status;
-        renderOnKeyTrigger(["status"]);
+        renderKeyTrigger(["status"]);
       }
     },
-    setRetries: async (retries, emitToCache = defaultCacheEmitting) => {
+    setRetries: (retries, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        await cache.set(
-          cacheKey,
+        cache.set(
+          command,
           [currentState.data, currentState.error, currentState.status],
           getDetailsState(state.current, { retries }),
-          command.cache,
         );
       } else {
         state.current.retries = retries;
-        renderOnKeyTrigger(["retries"]);
+        renderKeyTrigger(["retries"]);
       }
     },
-    setTimestamp: async (timestamp, emitToCache = defaultCacheEmitting) => {
+    setTimestamp: (timestamp, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        await cache.set(
-          cacheKey,
+        cache.set(
+          command,
           [currentState.data, currentState.error, currentState.status],
           getDetailsState(state.current, { timestamp }),
-          command.cache,
         );
       } else {
         state.current.timestamp = timestamp;
-        renderOnKeyTrigger(["timestamp"]);
+        renderKeyTrigger(["timestamp"]);
       }
     },
   };
 
-  return [state.current, actions, { setRenderKey, isInitialized, setCacheData, getStaleStatus }];
+  return [state.current, actions, { setRenderKey, setCacheData, getStaleStatus }];
 };

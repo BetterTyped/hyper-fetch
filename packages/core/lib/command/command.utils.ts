@@ -91,10 +91,9 @@ export const getCommandKey = (
    * params: string;
    */
   const methodKey = stringifyKey(command.method);
-  const endpointKey = useInitialValues ? command.options.endpoint : stringifyKey(command.endpoint);
-  const queryParamsKey = useInitialValues ? "" : stringifyKey(command.queryParams);
+  const endpointKey = useInitialValues ? command.commandOptions.endpoint : stringifyKey(command.endpoint);
 
-  return `${methodKey}_${endpointKey}_${queryParamsKey}`;
+  return `${methodKey}_${endpointKey}`;
 };
 
 export const getCommandDispatcher = <Command extends CommandInstance>(

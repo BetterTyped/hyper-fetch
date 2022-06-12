@@ -6,12 +6,13 @@ import {
   ExtractResponse,
   ExtractError,
   ExtractFetchReturn,
+  Dispatcher,
 } from "@better-typed/hyper-fetch";
 
 import { initialState, UseDependentStateType } from "helpers";
 
 export const getDetailsState = (
-  state?: UseDependentStateType,
+  state?: UseDependentStateType<CommandInstance>,
   details?: Partial<CacheValueType<unknown, unknown>["details"]>,
 ): CacheValueType<unknown, unknown>["details"] => {
   return {
@@ -45,6 +46,7 @@ export const getValidCacheData = <T extends CommandInstance>(
     return {
       data: initialData,
       details: getDetailsState(),
+      cacheTime: 1000,
     };
   }
 
@@ -55,19 +57,6 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const getInitialState = (
-  initialData: NullableType<CacheValueType>,
-  initialLoading?: boolean,
-): UseDependentStateType<any, any> => ({
-  ...initialState,
-  data: initialData?.data?.[0] || initialState.data,
-  error: initialData?.data?.[1] || initialState.error,
-  status: initialData?.data?.[2] || initialState.status,
-  retries: initialData?.details.retries || initialState.retries,
-  timestamp: getTimestamp(initialData?.details.timestamp || initialState.timestamp),
-  loading: initialLoading ?? initialState.loading,
-});
-
 export const responseToCacheValue = <T>(
   response: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
 ): NullableType<CacheValueType> => {
@@ -75,5 +64,30 @@ export const responseToCacheValue = <T>(
   return {
     data: response,
     details: getDetailsState(),
+    cacheTime: 1000,
+  };
+};
+
+export const getInitialState = <T extends CommandInstance>(
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+  dispatcher: Dispatcher,
+  command: T,
+): UseDependentStateType<T> => {
+  const { builder, cacheKey } = command;
+  const { cache } = builder;
+
+  const cacheData = cache.get<ExtractResponse<T>, ExtractError<T>>(cacheKey);
+  const cacheState = getValidCacheData<T>(command, initialData, cacheData);
+
+  const initialLoading = dispatcher.hasRunningRequests(command.queueKey);
+
+  return {
+    ...initialState,
+    data: cacheState?.data?.[0] || initialState.data,
+    error: cacheState?.data?.[1] || initialState.error,
+    status: cacheState?.data?.[2] || initialState.status,
+    retries: cacheState?.details.retries || initialState.retries,
+    timestamp: getTimestamp(cacheState?.details.timestamp || initialState.timestamp),
+    loading: initialLoading ?? initialState.loading,
   };
 };

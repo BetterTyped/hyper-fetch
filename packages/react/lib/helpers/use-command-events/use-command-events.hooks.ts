@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import {
   ExtractError,
   CacheValueType,
@@ -26,7 +26,6 @@ import {
   UseCommandEventsOptionsType,
   UseCommandEventsLifecycleMap,
 } from "helpers";
-import { isEqual } from "utils";
 
 /**
  * This is helper hook that handles main Hyper-Fetch event/data flow
@@ -41,15 +40,12 @@ export const useCommandEvents = <T extends CommandInstance>({
   state,
   actions,
   setCacheData,
-  deepCompare,
-  cacheInitialized,
   initializeCallbacks = false,
 }: UseCommandEventsOptionsType<T>): UseCommandEventsReturnType<T> => {
   const { cache, appManager, commandManager } = command.builder;
   const commandDump = command.dump();
 
   const isMounted = useIsMounted();
-  const [initializedCallbacks, setInitializedCallbacks] = useState(false);
 
   // ******************
   // Callbacks
@@ -102,33 +98,28 @@ export const useCommandEvents = <T extends CommandInstance>({
   };
 
   const handleInitialCallbacks = () => {
-    const trigger = () => {
-      const hasData = state.data && state.error && state.timestamp;
-      if (hasData && cacheInitialized && !initializedCallbacks && initializeCallbacks) {
-        const details = {
-          retries: state.retries,
-          timestamp: new Date(state.timestamp as Date),
-          isFailed: isFailedRequest([state.data, state.error, state.status]),
-          isCanceled: false,
-          isOffline: !appManager.isOnline,
-        };
+    const hasData = state.data && state.error && state.timestamp;
+    if (hasData && initializeCallbacks) {
+      const details = {
+        retries: state.retries,
+        timestamp: new Date(state.timestamp as Date),
+        isFailed: isFailedRequest([state.data, state.error, state.status]),
+        isCanceled: false,
+        isOffline: !appManager.isOnline,
+      };
 
-        handleResponseCallbacks([state.data, state.error, state.status], details);
-        setInitializedCallbacks(true);
-      }
-    };
-    trigger();
+      handleResponseCallbacks([state.data, state.error, state.status], details);
+    }
   };
 
   // ******************
   // Lifecycle
   // ******************
 
-  const handleGetResponseData = ({ data, details }: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const handleGetResponseData = ({ data, details, cacheTime }: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
     const { isCanceled, isFailed, isOffline } = details;
 
     logger.debug("Received new data");
-    actions.setLoading(false, false);
 
     if (isCanceled) {
       logger.debug("Skipping canceled error response data");
@@ -138,24 +129,11 @@ export const useCommandEvents = <T extends CommandInstance>({
       logger.debug("Skipping offline error response data");
     }
 
-    const compareFn = typeof deepCompare === "function" ? deepCompare : isEqual;
-    const isEqualResponse = deepCompare ? compareFn(data, [state.data, state.error, state.status]) : false;
-
-    // To limit rerendering we change only the data timestamp when data is equal
-    if (isEqualResponse) {
-      actions.setTimestamp(new Date(details.timestamp), false);
-    }
-    // When new data comes we fully change state
-    else {
-      setCacheData({ data, details });
-    }
+    setCacheData({ data, details, cacheTime });
   };
 
-  const handleGetLoadingEvent = ({ isLoading, isRetry }: DispatcherLoadingEventType) => {
+  const handleGetLoadingEvent = ({ isLoading }: DispatcherLoadingEventType) => {
     actions.setLoading(isLoading, false);
-    if (isLoading) {
-      onRequestCallback.current?.({ isRetry });
-    }
   };
 
   const handleDownloadProgress = (progress: FetchProgressType) => {
@@ -258,7 +236,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   /**
    * On the init if we have data we should call the callback functions
    */
-  useDidUpdate(handleInitialCallbacks, [JSON.stringify(commandDump), cacheInitialized], true);
+  useDidUpdate(handleInitialCallbacks, [commandDump.cacheKey, commandDump.queueKey], true);
 
   /**
    * On unmount we want to clear all the listeners to prevent memory leaks

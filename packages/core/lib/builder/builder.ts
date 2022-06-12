@@ -257,13 +257,13 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   /**
    * Clears the builder instance and remove all listeners on it's dependencies
    */
-  clear = async () => {
+  clear = () => {
     const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
 
     this.commandManager.abortControllers.clear();
     this.fetchDispatcher.clear();
     this.submitDispatcher.clear();
-    await this.cache.clear();
+    this.cache.clear();
 
     this.commandManager.emitter.removeAllListeners();
     this.fetchDispatcher.emitter.removeAllListeners();
