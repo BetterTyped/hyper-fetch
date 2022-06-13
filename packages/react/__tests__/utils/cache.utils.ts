@@ -25,6 +25,10 @@ export const createCacheData = async <T extends CommandInstance>(
     ...rest?.details,
   };
 
-  await command.builder.cache.storage.set(command.cacheKey, { data: dataValue, details: detailsValue });
+  await command.builder.cache.storage.set(command.cacheKey, {
+    data: dataValue,
+    details: detailsValue,
+    cacheTime: 1000,
+  });
   return [dataValue, detailsValue] as const;
 };

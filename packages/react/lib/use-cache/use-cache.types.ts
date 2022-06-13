@@ -21,11 +21,8 @@ export type UseCacheOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseCacheReturnType<T extends CommandInstance> = UseDependentStateType<
-  ExtractResponse<T>,
-  ExtractError<T>
-> & {
-  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+export type UseCacheReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
+  actions: UseDependentStateActions<T>;
   onCacheSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onCacheError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onCacheChange: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

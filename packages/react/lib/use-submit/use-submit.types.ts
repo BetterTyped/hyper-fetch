@@ -31,11 +31,8 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseSubmitReturnType<T extends CommandInstance> = Omit<
-  UseDependentStateType<ExtractResponse<T>, ExtractError<T>>,
-  "loading"
-> & {
-  actions: UseDependentStateActions<ExtractResponse<T>, ExtractError<T>>;
+export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseDependentStateType<T>, "loading"> & {
+  actions: UseDependentStateActions<T>;
   onSubmitRequest: (callback: OnRequestCallbackType) => void;
   onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
