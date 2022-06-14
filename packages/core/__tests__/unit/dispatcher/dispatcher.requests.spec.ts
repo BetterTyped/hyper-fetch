@@ -199,8 +199,8 @@ describe("Dispatcher [ Requests ]", () => {
         expect(dispatcher.getRunningRequest(command.queueKey, requestId)).not.toBeDefined();
         expect(queue.requests[0].stopped).toBeTrue();
 
-        await waitFor(async () => {
-          const cacheValue = await builder.cache.get(command.cacheKey);
+        await waitFor(() => {
+          const cacheValue = builder.cache.get(command.cacheKey);
           expect(cacheValue).not.toBeDefined();
         });
       });
@@ -217,8 +217,8 @@ describe("Dispatcher [ Requests ]", () => {
 
         dispatcher.startRequest(command.queueKey, requestId);
 
-        await waitFor(async () => {
-          const cacheValue = await builder.cache.get(command.cacheKey);
+        await waitFor(() => {
+          const cacheValue = builder.cache.get(command.cacheKey);
           expect(spy).toBeCalledTimes(2);
           expect(cacheValue).toBeDefined();
           expect(cacheValue?.details.isCanceled).toBeFalse();

@@ -26,18 +26,18 @@ describe("useFetch [ Basic ]", () => {
   });
 
   describe("when hook is initialized", () => {
-    it("should initialize in idle state", async () => {
+    it("should initialize in loading state", async () => {
+      await testBuilderIsolation(builder);
       createRequestInterceptor(command);
       const response = renderUseFetch(command);
 
       testInitialState(response);
-      await testBuilderIsolation(builder);
       await waitForRender();
     });
     it("should load cached data", async () => {
-      const mock = createRequestInterceptor(command);
       await testBuilderIsolation(builder);
-      const [cache] = await createCacheData(command, {
+      const mock = createRequestInterceptor(command);
+      const [cache] = createCacheData(command, {
         data: [mock, null, 200],
         details: { retries: 2 },
       });
@@ -46,10 +46,10 @@ describe("useFetch [ Basic ]", () => {
       await testCacheState(cache, response);
     });
     it("should not load stale cache data", async () => {
-      const timestamp = new Date(+new Date() - 10);
-      const mock = createRequestInterceptor(command, { delay: 20 });
       await testBuilderIsolation(builder);
-      await createCacheData(command, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
+      const timestamp = new Date(+new Date() - 11);
+      const mock = createRequestInterceptor(command, { delay: 20 });
+      createCacheData(command, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
 
       const response = renderUseFetch(command.setCacheTime(10));
 

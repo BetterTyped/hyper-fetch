@@ -11,8 +11,8 @@ export const getCacheEvents = (emitter: EventEmitter, storage: CacheStorageType)
    * Revalidate cache values and trigger revalidate event
    * @param cacheKey Allow to revalidate cache based on the `cacheKey`, `string pattern` or `regexp` pattern for matching
    */
-  revalidate: async (cacheKey: string | RegExp): Promise<void> => {
-    const keys = await storage.keys();
+  revalidate: (cacheKey: string | RegExp): void => {
+    const keys = storage.keys();
 
     if (typeof cacheKey === "string") {
       emitter.emit(getRevalidateEventKey(cacheKey));

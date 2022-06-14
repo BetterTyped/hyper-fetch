@@ -131,13 +131,10 @@ export const useFetch = <T extends CommandInstance>(
   // ******************
 
   const initialFetchData = () => {
-    const handleInitialFetch = async () => {
-      const hasStaleData = await getStaleStatus();
-      if (revalidateOnMount || hasStaleData) {
-        handleFetch();
-      }
-    };
-    handleInitialFetch();
+    const hasStaleData = getStaleStatus();
+    if (revalidateOnMount || hasStaleData) {
+      handleFetch();
+    }
   };
 
   const updateFetchData = () => {

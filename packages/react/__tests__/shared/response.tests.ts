@@ -9,7 +9,7 @@ export const testInitialState = <H extends RenderHookResult<any, any>>(render: H
   expect(response.data).toBe(null);
   expect(response.status).toBe(null);
   expect(response.error).toBe(null);
-  expect(response.loading).toBe(false);
+  expect(response.loading).toBe(true);
 };
 
 export const testSuccessState = async <

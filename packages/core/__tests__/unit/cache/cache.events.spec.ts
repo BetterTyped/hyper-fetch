@@ -17,17 +17,17 @@ describe("Cache [ Events ]", () => {
   describe("when revalidate event is triggered", () => {
     it("should revalidate cache using cache key", async () => {
       events.onRevalidate(key, spy);
-      await events.revalidate(key);
+      events.revalidate(key);
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex string", async () => {
       events.onRevalidate(key, spy);
-      await events.revalidate(/test/);
+      events.revalidate(/test/);
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex", async () => {
       events.onRevalidate(key, spy);
-      await events.revalidate(/test/);
+      events.revalidate(/test/);
       expect(spy).toBeCalledTimes(1);
     });
   });

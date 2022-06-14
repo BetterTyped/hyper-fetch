@@ -25,7 +25,7 @@ export type UseDependentStateReturn<T extends CommandInstance> = [
   {
     setRenderKey: (renderKey: keyof UseDependentStateType<T>) => void;
     setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
-    getStaleStatus: () => Promise<boolean>;
+    getStaleStatus: () => boolean;
   },
 ];
 

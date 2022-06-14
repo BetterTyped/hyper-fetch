@@ -6,7 +6,7 @@ import {
   ExtractError,
 } from "@better-typed/hyper-fetch";
 
-export const createCacheData = async <T extends CommandInstance>(
+export const createCacheData = <T extends CommandInstance>(
   command: T,
   rest?: {
     data?: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
@@ -25,7 +25,7 @@ export const createCacheData = async <T extends CommandInstance>(
     ...rest?.details,
   };
 
-  await command.builder.cache.storage.set(command.cacheKey, {
+  command.builder.cache.storage.set(command.cacheKey, {
     data: dataValue,
     details: detailsValue,
     cacheTime: 1000,

@@ -39,7 +39,7 @@ export const useDependentState = <T extends CommandInstance>({
   // Utils
   // ******************
 
-  const getStaleStatus = async () => {
+  const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
 
     return isStaleCacheData(cacheTime, cacheData?.details.timestamp);
