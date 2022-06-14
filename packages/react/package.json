@@ -35,7 +35,7 @@
     "start": "rollup -c -w",
     "build": "rollup -c",
     "test": "jest --watchAll --maxWorkers=2",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=2",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1",
     "coverage": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
