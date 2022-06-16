@@ -47,13 +47,13 @@ const config = {
             logo: "/img/logo.svg",
             title: "Hyper Fetch",
             dir: path.join(__dirname, "../packages/core"),
-            entryPath: "lib/index.ts",
+            entryPath: "src/index.ts",
           },
           {
             logo: "/img/react.svg",
             title: "React Hyper Fetch",
             dir: path.join(__dirname, "../packages/react"),
-            entryPath: "lib/index.ts",
+            entryPath: "src/index.ts",
           },
         ],
         docs: {
@@ -78,10 +78,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          remarkPlugins: [
-            require("mdx-mermaid"),
-            require("./plugins/docusaurus-plugin-api").docsInjector
-          ],
+          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",

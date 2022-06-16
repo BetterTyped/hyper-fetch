@@ -17,7 +17,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
       - name: Install packages
-        run: yarn bootstrap
+        run: yarn install
       - name: Build packages
         run: yarn build
       - name: Build docs
