@@ -1,0 +1,15 @@
+import { ClientResponseType } from "client";
+import { ExtractRouteParams, Command, CommandInstance } from "command";
+export declare type ExtractFetchReturn<T extends CommandInstance> = ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
+export declare type ExtractResponse<T> = T extends Command<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+export declare type ExtractRequest<T> = T extends Command<any, infer D, any, any, any, any, any, any, any, any> ? D : never;
+export declare type ExtractQueryParams<T> = T extends Command<any, any, infer Q, any, any, any, any, any, any, any> ? Q : never;
+export declare type ExtractError<T> = T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never;
+export declare type ExtractGlobalError<T> = T extends Command<any, any, any, infer E, any, any, any, any, any, any> ? E : never;
+export declare type ExtractLocalError<T> = T extends Command<any, any, any, any, infer E, any, any, any, any, any> ? E : never;
+export declare type ExtractParams<T> = T extends Command<any, any, any, any, any, infer P, any, any, any, any> ? ExtractRouteParams<P> : never;
+export declare type ExtractEndpoint<T> = T extends Command<any, any, any, any, any, infer E, any, any, any, any> ? E : never;
+export declare type ExtractClientOptions<T> = T extends Command<any, any, any, any, any, any, infer O, any, any, any> ? O : never;
+export declare type ExtractHasData<T> = T extends Command<any, any, any, any, any, any, any, infer D, any, any> ? D : never;
+export declare type ExtractHasParams<T> = T extends Command<any, any, any, any, any, any, any, any, infer P, any> ? P : never;
+export declare type ExtractHasQueryParams<T> = T extends Command<any, any, any, any, any, any, any, any, any, infer Q> ? Q : never;

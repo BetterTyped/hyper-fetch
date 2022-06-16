@@ -9,15 +9,35 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "source": "lib/index.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+  "source": "src/index.ts",
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "test": "jest --watchAll --maxWorkers=3",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1",
+    "build": "yarn clean && node ../../scripts/build.js && yarn build:types",
+    "build:types": "tsc --emitDeclarationOnly --declaration --project tsconfig.json --outDir dist",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "format": "prettier --write .",
+    "precommit": "yarn lint-staged"
   },
-  "files": [
-    "dist",
-    "lib"
-  ],
+  "peerDependencies": {
+    "@better-typed/hyper-fetch": "*",
+    "react": ">= 16.8.0"
+  },
+  "dependencies": {
+    "@better-typed/react-lifecycle-hooks": "^1.0.5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn jest --bail --findRelatedTests"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.com/"
@@ -29,47 +49,6 @@
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
-  },
-  "scripts": {
-    "prepublishOnly": "yarn build",
-    "start": "rollup -c -w",
-    "build": "rollup -c",
-    "test": "jest --watchAll --maxWorkers=2",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=1",
-    "coverage": "jest --coverage --watchAll=false",
-    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
-    "format": "prettier --write .",
-    "precommit": "yarn lint-staged"
-  },
-  "peerDependencies": {
-    "@better-typed/hyper-fetch": "*",
-    "react": ">= 16.8.0"
-  },
-  "dependencies": {
-    "@better-typed/react-lifecycle-hooks": "^1.0.4"
-  },
-  "devDependencies": {
-    "@babel/preset-react": "^7.16.7",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/react": "^18.0.9",
-    "@types/react-dom": "^18.0.4",
-    "@typescript-eslint/parser": "^5.22.0",
-    "react-dom": ">= 16.8.0"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "yarn format",
-      "yarn lint",
-      "yarn jest --bail --findRelatedTests"
-    ]
   },
   "keywords": [
     "react",

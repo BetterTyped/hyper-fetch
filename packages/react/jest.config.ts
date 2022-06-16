@@ -1,15 +1,15 @@
 import type { Config } from "@jest/types";
 
 const config: Config.InitialOptions = {
-  cacheDirectory: "node_modules/.cache/jest",
+  cacheDirectory: "../../node_modules/.cache/rhf/jest",
   testEnvironment: "jsdom",
   preset: "ts-jest",
   testRegex: [".spec.ts", ".spec.tsx"],
-  roots: ["<rootDir>/__tests__", "<rootDir>/lib"],
+  roots: ["<rootDir>/__tests__", "<rootDir>/src"],
   coverageProvider: "v8",
-  collectCoverageFrom: ["<rootDir>/lib/**/*.ts", "<rootDir>/lib/**/*.tsx"],
+  collectCoverageFrom: ["<rootDir>/src/**/*.ts", "<rootDir>/src/**/*.tsx"],
   coveragePathIgnorePatterns: [".spec", "test", "tests", "types", "constants", "index.ts"],
-  moduleDirectories: ["node_modules", "lib"],
+  moduleDirectories: ["node_modules", "src"],
   globals: {
     "ts-jest": {
       tsconfig: "./tsconfig.json",

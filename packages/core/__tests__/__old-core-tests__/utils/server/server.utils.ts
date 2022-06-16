@@ -1,4 +1,4 @@
-import { DefaultRequestBody, PathParams, ResponseComposition, rest, RestContext, RestHandler, RestRequest } from "msw";
+import { DefaultBodyType, PathParams, ResponseComposition, rest, RestContext, RestHandler, RestRequest } from "msw";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
@@ -11,11 +11,7 @@ export const getMethod = (
   response: Record<string, any>,
   delay?: number,
 ): RestHandler => {
-  function callback(
-    _req: RestRequest<DefaultRequestBody, PathParams>,
-    res: ResponseComposition<any>,
-    ctx: RestContext,
-  ) {
+  function callback(_req: RestRequest<DefaultBodyType, PathParams>, res: ResponseComposition<any>, ctx: RestContext) {
     const args = [ctx.delay(), ctx.status(status), ctx.json(response || {})];
 
     if (delay === 0) {

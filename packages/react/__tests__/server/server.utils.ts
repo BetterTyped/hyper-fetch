@@ -1,5 +1,5 @@
 import {
-  DefaultRequestBody,
+  DefaultBodyType,
   MockedResponse,
   PathParams,
   ResponseComposition,
@@ -57,11 +57,7 @@ export const createStubMethod = (
   response: Record<string, any>,
   delay?: number,
 ): RestHandler => {
-  function callback(
-    _req: RestRequest<DefaultRequestBody, PathParams>,
-    res: ResponseComposition<any>,
-    ctx: RestContext,
-  ) {
+  function callback(_req: RestRequest<DefaultBodyType, PathParams>, res: ResponseComposition<any>, ctx: RestContext) {
     const args: ResponseTransformer<any, any>[] = getResponse(ctx, command, response, status, delay);
 
     if (delay === 0) {

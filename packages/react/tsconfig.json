@@ -1,18 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "baseUrl": "./lib"
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "jsx": "react-jsx"
   },
-  "include": ["./lib", "./__tests__", "../../global.d.ts"],
-  "paths": {
-    "tests": ["./__tests__/*"],
-    "use-cache/*": ["use-cache/*"],
-    "use-debounce/*": ["use-debounce/*"],
-    "use-dependent-state/*": ["use-dependent-state/*"],
-    "use-fetch/*": ["use-fetch/*"],
-    "use-interval/*": ["use-interval/*"],
-    "use-queue/*": ["use-queue/*"],
-    "use-submit/*": ["use-submit/*"]
-  }
+  "exclude": ["__tests__", "jest.config.ts"]
 }

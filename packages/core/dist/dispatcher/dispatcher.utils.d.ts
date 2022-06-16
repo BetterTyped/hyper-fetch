@@ -1,0 +1,13 @@
+import { CommandInstance } from "command";
+import { ClientResponseType } from "client";
+import { DispatcherRequestType, DispatcherDumpValueType } from "dispatcher";
+export declare const getDispatcherLoadingEventKey: (key: string) => string;
+export declare const getDispatcherLoadingIdEventKey: (key: string) => string;
+export declare const getDispatcherRemoveEventKey: (key: string) => string;
+export declare const getDispatcherDrainedEventKey: (key: string) => string;
+export declare const getDispatcherStatusEventKey: (key: string) => string;
+export declare const getDispatcherChangeEventKey: (key: string) => string;
+export declare const getIsEqualTimestamp: (currentTimestamp: number, threshold: number, queueTimestamp?: number) => boolean;
+export declare const canRetryRequest: (retries: number, retry: number | boolean | undefined) => boolean;
+export declare const getRequestType: (command: CommandInstance, latestRequest: DispatcherDumpValueType | undefined) => DispatcherRequestType;
+export declare const isFailedRequest: (data: ClientResponseType<unknown, unknown>) => boolean;

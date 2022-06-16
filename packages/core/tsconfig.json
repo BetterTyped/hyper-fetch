@@ -1,21 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./lib"
+    "rootDir": "./src",
+    "baseUrl": "./src"
   },
-  "include": ["./lib", "./__tests__", "queue"],
-  "paths": {
-    "tests": ["./__tests__/*"],
-    "lib": ["./lib/*"],
-    "action": ["action/*"],
-    "builder": ["builder/*"],
-    "cache": ["cache/*"],
-    "client": ["client/*"],
-    "command": ["command/*"],
-    "constants": ["constants/*"],
-    "managers": ["managers/*"],
-    "queues": ["queues/*"],
-    "types": ["types/*"],
-    "utils": ["utils/*"]
-  }
+  "exclude": ["__tests__", "jest.config.ts"]
 }

@@ -1,0 +1,25 @@
+import { ClientResponseSuccessType, ClientResponseErrorType, ProgressPayloadType } from "client";
+import { CommandInstance } from "command";
+import { ExtractResponse, ExtractError } from "types";
+export declare const getClientBindings: (cmd: CommandInstance, requestId: string) => Promise<{
+    fullUrl: string;
+    headers: HeadersInit;
+    payload: string | FormData;
+    config: Record<string, unknown>;
+    getAbortController: () => AbortController;
+    getRequestStartTimestamp: () => number;
+    getResponseStartTimestamp: () => number;
+    createAbortListener: (callback: () => void) => () => void;
+    onBeforeRequest: () => void;
+    onRequestStart: (progress?: ProgressPayloadType) => number;
+    onRequestProgress: (progress: ProgressPayloadType) => number;
+    onRequestEnd: () => number;
+    onResponseStart: (progress?: ProgressPayloadType) => number;
+    onResponseProgress: (progress: ProgressPayloadType) => number;
+    onResponseEnd: () => number;
+    onSuccess: <T extends CommandInstance>(responseData: unknown, status: number, callback?: (value: ClientResponseSuccessType<ExtractResponse<T>>) => void) => Promise<ClientResponseSuccessType<ExtractResponse<T>>>;
+    onAbortError: () => Promise<ClientResponseErrorType<any>>;
+    onTimeoutError: () => Promise<ClientResponseErrorType<any>>;
+    onUnexpectedError: () => Promise<ClientResponseErrorType<any>>;
+    onError: <T_1 extends CommandInstance>(error: Error | ExtractError<T_1>, status: number, callback?: (value: ClientResponseErrorType<ExtractError<T_1>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_1>>>;
+}>;

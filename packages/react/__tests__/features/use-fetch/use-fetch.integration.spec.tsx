@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { useFetch } from "use-fetch";
-import { createCommand, builder, sleep } from "../../utils";
+import { createCommand, builder, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Integration ]", () => {
@@ -64,10 +64,8 @@ describe("useFetch [ Integration ]", () => {
 
         render(<Page />);
 
-        await act(async () => {
-          await sleep(1);
-          fireEvent.click(screen.getByText(btnText));
-        });
+        await waitForRender(1);
+        fireEvent.click(screen.getByText(btnText));
 
         await waitFor(() => {
           const printedDataElement = screen.getByText(command.setQueryParams(queryParams).endpoint);

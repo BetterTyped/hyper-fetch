@@ -44,5 +44,5 @@ export const createRequestInterceptor = <T extends CommandInstance, StatusType e
   const responseData = (fixture !== undefined ? fixture : { data: [1, 2, 3] }) as ExtractResponse<T>;
 
   server.use(createStubMethod(command, url, method, currentStatus, responseData, delay));
-  return responseData;
+  return responseData as StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponse<T>;
 };
