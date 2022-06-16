@@ -7,7 +7,7 @@
     "postinstall": "yarn install-peers && yarn husky install",
     "build": "nx run-many --target=build --all",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "test-pipeline": "nx run-many --target=test-pipeline --all",
+    "test:pipeline": "nx run-many --target=test-pipeline --all",
     "test": "nx run-many --target=test --all",
     "lint": "nx run-many --target=lint --all",
     "semantic-release": "semantic-release"
