@@ -157,7 +157,7 @@ describe("Dispatcher [ Events ]", () => {
       await sleep(1);
       builder.commandManager.abortAll();
 
-      const clientResponse: ClientResponseType<unknown, unknown> = [null, getErrorMessage("abort"), 500];
+      const clientResponse: ClientResponseType<unknown, unknown> = [null, getErrorMessage("abort"), 0];
       const responseDetails: Omit<CommandResponseDetails, "timestamp"> = {
         retries: 0,
         isFailed: true,

@@ -46,7 +46,8 @@ import { Command, getCommandKey } from "@better-typed/hyper-fetch";
 // src/helpers/use-command-events/use-command-events.hooks.ts
 import { useRef } from "react";
 import {
-  isFailedRequest
+  isFailedRequest,
+  getErrorMessage
 } from "@better-typed/hyper-fetch";
 import { useDidUpdate, useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 var useCommandEvents = ({
@@ -61,7 +62,6 @@ var useCommandEvents = ({
   const { cache, appManager, commandManager } = command.builder;
   const commandDump = command.dump();
   const isMounted = useIsMounted();
-  const onRequestCallback = useRef(null);
   const onSuccessCallback = useRef(null);
   const onErrorCallback = useRef(null);
   const onAbortCallback = useRef(null);
@@ -106,17 +106,6 @@ var useCommandEvents = ({
       handleResponseCallbacks([state.data, state.error, state.status], details);
     }
   };
-  const handleGetResponseData = ({ data, details, cacheTime }) => {
-    const { isCanceled, isFailed, isOffline } = details;
-    logger.debug("Received new data");
-    if (isCanceled) {
-      logger.debug("Skipping canceled error response data");
-    }
-    if (isFailed && isOffline) {
-      logger.debug("Skipping offline error response data");
-    }
-    setCacheData({ data, details, cacheTime });
-  };
   const handleGetLoadingEvent = ({ isLoading }) => {
     actions.setLoading(isLoading, false);
   };
@@ -144,16 +133,33 @@ var useCommandEvents = ({
       handleResponseCallbacks(data, details);
     };
   };
+  const handleAbort = () => {
+    const data = [
+      null,
+      getErrorMessage("abort"),
+      0
+    ];
+    const details = {
+      retries: 0,
+      timestamp: new Date(),
+      isFailed: false,
+      isCanceled: true,
+      isOffline: false
+    };
+    handleResponseCallbacks(data, details);
+  };
   const clearDataListener = () => {
     var _a;
     (_a = dataEvents.current) == null ? void 0 : _a.unmount();
   };
   const addDataListener = (cmd, clear = true) => {
     const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
-    const getResponseUnmount = cache.events.get(cmd.cacheKey, handleGetResponseData);
+    const getResponseUnmount = cache.events.get(cmd.cacheKey, (data) => setCacheData(data));
+    const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort);
     const unmount = () => {
       loadingUnmount();
       getResponseUnmount();
+      abortUnmount();
     };
     if (clear)
       clearDataListener();
@@ -196,9 +202,6 @@ var useCommandEvents = ({
   });
   return [
     {
-      onRequest: (callback) => {
-        onRequestCallback.current = callback;
-      },
       onSuccess: (callback) => {
         onSuccessCallback.current = callback;
       },
@@ -769,7 +772,6 @@ var useSubmit = (commandInstance, {
     command.abort();
   };
   const handlers = {
-    onSubmitRequest: callbacks.onRequest,
     onSubmitSuccess: callbacks.onSuccess,
     onSubmitError: callbacks.onError,
     onSubmitFinished: callbacks.onFinished,

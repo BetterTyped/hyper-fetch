@@ -11,7 +11,6 @@ import {
   OnErrorCallbackType,
   OnFinishedCallbackType,
   OnProgressCallbackType,
-  OnRequestCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
   UseDependentStateType,
@@ -33,7 +32,6 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
 
 export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseDependentStateType<T>, "loading"> & {
   actions: UseDependentStateActions<T>;
-  onSubmitRequest: (callback: OnRequestCallbackType) => void;
   onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

@@ -29,9 +29,9 @@ describe("useFetch [ Basic ]", () => {
     it("should initialize in loading state", async () => {
       await testBuilderIsolation(builder);
       createRequestInterceptor(command);
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
 
-      testInitialState(response);
+      testInitialState(view);
       await waitForRender();
     });
     it("should load cached data", async () => {
@@ -41,9 +41,9 @@ describe("useFetch [ Basic ]", () => {
         data: [mock, null, 200],
         details: { retries: 2 },
       });
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
       await waitForRender();
-      await testCacheState(cache, response);
+      await testCacheState(cache, view);
     });
     it("should not load stale cache data", async () => {
       await testBuilderIsolation(builder);
@@ -51,10 +51,10 @@ describe("useFetch [ Basic ]", () => {
       const mock = createRequestInterceptor(command, { delay: 20 });
       createCacheData(command, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
 
-      const response = renderUseFetch(command.setCacheTime(10));
+      const view = renderUseFetch(command.setCacheTime(10));
 
       await waitForRender();
-      await testCacheState([null, null, null], response);
+      await testCacheState([null, null, null], view);
     });
     it("should make only one request", async () => {});
   });
@@ -62,51 +62,51 @@ describe("useFetch [ Basic ]", () => {
     it("should set state with success data", async () => {
       await testBuilderIsolation(builder);
       const mock = createRequestInterceptor(command);
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
 
       await waitForRender();
-      await testSuccessState(mock, response);
+      await testSuccessState(mock, view);
     });
     it("should clear previous error state once success response is returned", async () => {
       await testBuilderIsolation(builder);
       const errorMock = createRequestInterceptor(command, { status: 400 });
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
 
       await waitForRender();
-      await testErrorState(errorMock, response);
+      await testErrorState(errorMock, view);
       const mock = createRequestInterceptor(command);
 
       act(() => {
-        response.result.current.revalidate();
+        view.result.current.revalidate();
       });
 
-      await testSuccessState(mock, response);
+      await testSuccessState(mock, view);
     });
   });
   describe("when hook get error response", () => {
     it("should set state with error data", async () => {
       await testBuilderIsolation(builder);
       const mock = createRequestInterceptor(command, { status: 400 });
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
 
       await waitForRender();
-      await testErrorState(mock, response);
+      await testErrorState(mock, view);
     });
     it("should keep previous success state once error response is returned", async () => {
       await testBuilderIsolation(builder);
       const mock = createRequestInterceptor(command);
-      const response = renderUseFetch(command);
+      const view = renderUseFetch(command);
 
       await waitForRender();
-      await testSuccessState(mock, response);
+      await testSuccessState(mock, view);
 
       const errorMock = createRequestInterceptor(command, { status: 400 });
 
       act(() => {
-        response.result.current.revalidate();
+        view.result.current.revalidate();
       });
 
-      await testErrorState(errorMock, response, mock);
+      await testErrorState(errorMock, view, mock);
     });
   });
   describe("when dependencies change", () => {

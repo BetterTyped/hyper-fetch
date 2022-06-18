@@ -26,8 +26,8 @@ export declare type QueryStringifyOptions = {
     skipEmptyString?: boolean;
 };
 export declare type ProgressPayloadType = {
-    total: number;
-    loaded: number;
+    total?: number;
+    loaded?: number;
 };
 export declare type FetchProgressType = {
     progress: number;

@@ -1,12 +1,5 @@
-import {
-  getClientBindings,
-  defaultTimeout,
-  ClientResponseType,
-  ClientType,
-  handleError,
-  handleReadyStateChange,
-  handleProgress,
-} from "client";
+import { getClientBindings, defaultTimeout, ClientResponseType, ClientType } from "client";
+import { parseErrorResponse, parseResponse } from "./fetch.client.utils";
 
 export const fetchClient: ClientType = async (command, requestId) => {
   if (!window.XMLHttpRequest) {
@@ -25,12 +18,11 @@ export const fetchClient: ClientType = async (command, requestId) => {
     onRequestEnd,
     onResponseStart,
     onResponseProgress,
-    onResponseEnd,
     onSuccess,
     onAbortError,
     onTimeoutError,
-    onUnexpectedError,
     onError,
+    onResponseEnd,
   } = await getClientBindings(command, requestId);
 
   const { method } = command;
@@ -43,8 +35,7 @@ export const fetchClient: ClientType = async (command, requestId) => {
   return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
     // Inject xhr options
     Object.entries(config).forEach(([name, value]) => {
-      // eslint-disable-next-line no-param-reassign
-      (xhr as any)[name] = value;
+      xhr[name] = value;
     });
 
     // Open connection
@@ -54,10 +45,10 @@ export const fetchClient: ClientType = async (command, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(abort);
+    const unmountListener = createAbortListener(abort, resolve);
 
     // Request handlers
-    xhr.upload.onprogress = handleProgress(onRequestProgress);
+    xhr.upload.onprogress = onRequestProgress;
 
     // Response handlers
     xhr.onloadstart = (): void => {
@@ -65,29 +56,43 @@ export const fetchClient: ClientType = async (command, requestId) => {
       onResponseStart();
     };
 
-    xhr.onprogress = handleProgress(onResponseProgress);
+    xhr.onprogress = onResponseProgress;
 
     xhr.onloadend = () => {
-      unmountListener();
       onResponseEnd();
+      unmountListener();
     };
 
     // Error listeners
-    xhr.onabort = onAbortError;
-    xhr.ontimeout = onTimeoutError;
-    xhr.upload.onabort = onAbortError;
-    xhr.upload.ontimeout = onTimeoutError;
+    xhr.onabort = () => onAbortError(resolve);
+    xhr.ontimeout = () => onTimeoutError(resolve);
+    xhr.upload.onabort = () => onAbortError(resolve);
+    xhr.upload.ontimeout = () => onTimeoutError(resolve);
 
-    // Data listeners
-    xhr.onerror = handleError({ onError, onUnexpectedError }, resolve);
+    // Data handler
+    xhr.onreadystatechange = (e: Event) => {
+      const event = e as unknown as ProgressEvent<XMLHttpRequest>;
+      const finishedState = 4;
 
-    xhr.onreadystatechange = handleReadyStateChange({ onError, onSuccess, onResponseEnd }, resolve);
+      if (event.target && event.target.readyState === finishedState) {
+        const status = event.target.status || 0;
+        const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
+
+        if (isSuccess) {
+          const data = parseResponse(event.target?.response);
+          onSuccess(data, status, resolve);
+        } else {
+          // delay to finish after onabort/ontimeout
+          const data = parseErrorResponse(event.target?.response);
+          onError(data, status, resolve);
+        }
+      }
+    };
 
     // Start request
     onBeforeRequest();
+    onRequestStart();
 
     xhr.send(payload);
-
-    onRequestStart();
   });
 };

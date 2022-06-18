@@ -89,29 +89,41 @@ describe("Fetch Client [ Bindings ]", () => {
       it("should create listener using createAbortListener", async () => {
         const { createAbortListener, getAbortController } = await getClientBindings(command, requestId);
         const spy = jest.fn();
+        const resolveSpy = jest.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener(spy);
+        const unmount = createAbortListener(spy, resolveSpy);
         expect(spy).toBeCalledTimes(0);
+        expect(resolveSpy).toBeCalledTimes(0);
         controller?.abort();
+        await sleep(1);
         expect(spy).toBeCalledTimes(1);
+        expect(resolveSpy).toBeCalledTimes(1);
         unmount();
       });
 
       it("should unmount listener using createAbortListener", async () => {
         const { createAbortListener, getAbortController } = await getClientBindings(command, requestId);
         const spy = jest.fn();
+        const resolveSpy = jest.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener(spy);
+        const unmount = createAbortListener(spy, resolveSpy);
         expect(spy).toBeCalledTimes(0);
+        expect(resolveSpy).toBeCalledTimes(0);
         unmount();
         controller?.abort();
         expect(spy).toBeCalledTimes(0);
+        expect(resolveSpy).toBeCalledTimes(0);
       });
 
       it("should throw createAbortListener when there is no controller", async () => {
         const { createAbortListener } = await getClientBindings(command, requestId);
         builder.commandManager.abortControllers.clear();
-        expect(() => createAbortListener(() => null)).toThrow();
+        expect(() =>
+          createAbortListener(
+            () => null,
+            () => null,
+          ),
+        ).toThrow();
       });
     });
   });
@@ -304,12 +316,12 @@ describe("Fetch Client [ Bindings ]", () => {
     describe("when onSuccess got executed", () => {
       it("should return success data", async () => {
         const { onSuccess } = await getClientBindings(command, requestId);
-        const response = await onSuccess(data, 200);
+        const response = await onSuccess(data, 200, () => null);
         expect(response).toEqual(successResponse);
       });
       it("should use effect lifecycle methods", async () => {
         const { onSuccess } = await getClientBindings(command, requestId);
-        await onSuccess(data, 200);
+        await onSuccess(data, 200, () => null);
         expect(onSuccessSpy).toBeCalledTimes(1);
         expect(onFinishedSpy).toBeCalledTimes(1);
         expect(onSuccessSpy).toBeCalledWith(successResponse, command);
@@ -318,14 +330,14 @@ describe("Fetch Client [ Bindings ]", () => {
       it("should return data transformed by __modifyResponse", async () => {
         const { onSuccess } = await getClientBindings(command, requestId);
         builder.__onResponseCallbacks.push(() => successResponse);
-        const response = await onSuccess(data, 200);
+        const response = await onSuccess(data, 200, () => null);
         builder.__onResponseCallbacks = [];
         expect(response).toEqual(successResponse);
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
         const { onSuccess } = await getClientBindings(command, requestId);
         builder.__onSuccessCallbacks.push(() => successResponse);
-        const response = await onSuccess(data, 200);
+        const response = await onSuccess(data, 200, () => null);
         builder.__onSuccessCallbacks = [];
         expect(response).toEqual(successResponse);
       });
@@ -334,7 +346,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const newData: ClientResponseType<unknown, unknown> = ["modified", null, 222];
         builder.__onResponseCallbacks.push(() => errorResponse);
         builder.__onSuccessCallbacks.push(() => newData);
-        const response = await onSuccess(data, 200);
+        const response = await onSuccess(data, 200, () => null);
         builder.__onResponseCallbacks = [];
         builder.__onSuccessCallbacks = [];
         expect(response).toEqual(newData);
@@ -345,12 +357,12 @@ describe("Fetch Client [ Bindings ]", () => {
     describe("when onError got executed", () => {
       it("should return error data", async () => {
         const { onError } = await getClientBindings(command, requestId);
-        const response = await onError(data, 400);
+        const response = await onError(data, 400, () => null);
         expect(response).toEqual(errorResponse);
       });
       it("should use effect lifecycle methods", async () => {
         const { onError } = await getClientBindings(command, requestId);
-        await onError(data, 400);
+        await onError(data, 400, () => null);
         expect(onErrorSpy).toBeCalledTimes(1);
         expect(onFinishedSpy).toBeCalledTimes(1);
         expect(onErrorSpy).toBeCalledWith(errorResponse, command);
@@ -359,14 +371,14 @@ describe("Fetch Client [ Bindings ]", () => {
       it("should return data transformed by __modifyResponse", async () => {
         const { onError } = await getClientBindings(command, requestId);
         builder.__onResponseCallbacks.push(() => errorResponse);
-        const response = await onError(data, 400);
+        const response = await onError(data, 400, () => null);
         builder.__onResponseCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
       it("should return data transformed by __modifyErrorResponse", async () => {
         const { onError } = await getClientBindings(command, requestId);
         builder.__onErrorCallbacks.push(() => errorResponse);
-        const response = await onError(data, 400);
+        const response = await onError(data, 400, () => null);
         builder.__onErrorCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
@@ -375,7 +387,7 @@ describe("Fetch Client [ Bindings ]", () => {
         const newData: ClientResponseType<unknown, unknown> = ["modified", null, 444];
         builder.__onResponseCallbacks.push(() => successResponse);
         builder.__onErrorCallbacks.push(() => newData);
-        const response = await onError(data, 400);
+        const response = await onError(data, 400, () => null);
         builder.__onErrorCallbacks = [];
         builder.__onResponseCallbacks = [];
         expect(response).toEqual(newData);
@@ -386,17 +398,17 @@ describe("Fetch Client [ Bindings ]", () => {
     describe("when errors methods got executed", () => {
       it("should return correct message when onAbortError is executed", async () => {
         const { onAbortError } = await getClientBindings(command, requestId);
-        const response = await onAbortError();
+        const response = await onAbortError(() => null);
         expect(response).toEqual([null, getErrorMessage("abort"), 0]);
       });
       it("should return correct message when onTimeoutError is executed", async () => {
         const { onTimeoutError } = await getClientBindings(command, requestId);
-        const response = await onTimeoutError();
+        const response = await onTimeoutError(() => null);
         expect(response).toEqual([null, getErrorMessage("timeout"), 0]);
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
         const { onUnexpectedError } = await getClientBindings(command, requestId);
-        const response = await onUnexpectedError();
+        const response = await onUnexpectedError(() => null);
         expect(response).toEqual([null, getErrorMessage(), 0]);
       });
     });

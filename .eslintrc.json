@@ -48,6 +48,16 @@
     "prettier/prettier": ["error"],
     "consistent-return": 0,
     "@typescript-eslint/no-throw-literal": 0,
-    "no-underscore-dangle": 0
-  }
+    "no-underscore-dangle": 0,
+    "react/function-component-definition": 0,
+    "testing-library/render-result-naming-convention": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "testing-library/render-result-naming-convention": "off"
+      }
+    }
+  ]
 }

@@ -1,10 +1,6 @@
 import { CommandInstance } from "command";
 import { ExtractError } from "types";
-import { getClientBindings, ClientResponseErrorType } from "client";
 export declare const getRequestConfig: <T extends Record<string, unknown> = Record<string, unknown>>(command: CommandInstance) => T;
 export declare const getErrorMessage: (errorCase?: "timeout" | "abort" | "deleted") => Error;
 export declare const parseResponse: (response: string | unknown) => any;
 export declare const parseErrorResponse: <T extends CommandInstance>(response: unknown) => ExtractError<T>;
-export declare const handleReadyStateChange: ({ onError, onResponseEnd, onSuccess, }: Pick<Awaited<ReturnType<typeof getClientBindings>>, "onError" | "onResponseEnd" | "onSuccess">, resolve: (value: ClientResponseErrorType<unknown>) => void) => (e: Event) => void;
-export declare const handleProgress: (onProgress: Awaited<ReturnType<typeof getClientBindings>>["onResponseProgress"] | Awaited<ReturnType<typeof getClientBindings>>["onRequestProgress"]) => (e: ProgressEvent<EventTarget>) => void;
-export declare const handleError: ({ onError, onUnexpectedError }: Pick<Awaited<ReturnType<typeof getClientBindings>>, "onError" | "onUnexpectedError">, resolve: (value: ClientResponseErrorType<unknown>) => void) => (e: ProgressEvent<EventTarget>) => void;

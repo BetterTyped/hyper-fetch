@@ -95,7 +95,7 @@ describe("Dispatcher [ Requests ]", () => {
       const firstRequestId = dispatcher.add(firstCommand);
       const secondRequestId = dispatcher.add(secondCommand);
 
-      await sleep(5);
+      await sleep(1);
 
       builder.commandManager.events.onAbortById(firstRequestId, firstSpy);
       builder.commandManager.events.onAbortById(secondRequestId, secondSpy);
@@ -206,19 +206,19 @@ describe("Dispatcher [ Requests ]", () => {
       });
       it("should allow to start previously stopped request", async () => {
         const command = createCommand(builder);
-        createRequestInterceptor(command, { delay: 5 });
+        createRequestInterceptor(command, { delay: 1 });
 
         const spy = jest.spyOn(builder.cache, "set");
 
         const requestId = dispatcher.add(command);
         dispatcher.stopRequest(command.queueKey, requestId);
 
-        await sleep(10);
-
+        await sleep(20);
         dispatcher.startRequest(command.queueKey, requestId);
 
         await waitFor(() => {
           const cacheValue = builder.cache.get(command.cacheKey);
+          expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(0);
           expect(spy).toBeCalledTimes(2);
           expect(cacheValue).toBeDefined();
           expect(cacheValue?.details.isCanceled).toBeFalse();

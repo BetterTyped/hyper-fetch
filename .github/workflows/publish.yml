@@ -18,7 +18,7 @@ jobs:
       - run: yarn install
       - run: yarn build
       - run: yarn lint
-      - run: yarn test:pipeline
+      - run: yarn test
       - run: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.PROD_GITHUB_SECRET }}

@@ -51,8 +51,8 @@ export type QueryStringifyOptions = {
 // Progress
 
 export type ProgressPayloadType = {
-  total: number;
-  loaded: number;
+  total?: number;
+  loaded?: number;
 };
 
 export type FetchProgressType = {

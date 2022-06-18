@@ -1,0 +1,55 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/reactjs/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/examples/reactjs",
+        "index": "examples/reactjs/src/index.html",
+        "baseHref": "/",
+        "main": "examples/reactjs/src/main.tsx",
+        "polyfills": "examples/reactjs/src/polyfills.ts",
+        "tsConfig": "examples/reactjs/tsconfig.app.json",
+        "assets": ["examples/reactjs/src/favicon.ico", "examples/reactjs/src/assets"],
+        "styles": ["examples/reactjs/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "examples/reactjs/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "reactjs:build",
+        "hmr": true,
+        "port": 4100
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "reactjs:build:development"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/reactjs/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}

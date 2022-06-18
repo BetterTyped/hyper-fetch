@@ -18,14 +18,13 @@ export declare type DispatcherData<Command extends CommandInstance = CommandInst
     requests: DispatcherDumpValueType<Command>[];
     stopped: boolean;
 };
-export declare type DispatcherStorageSyncType = {
+export declare type DispatcherStorageType = {
     set: <Command extends CommandInstance = CommandInstance>(key: string, data: DispatcherData<Command>) => void;
     get: <Command extends CommandInstance = CommandInstance>(key: string) => DispatcherData<Command> | undefined;
     keys: () => string[] | IterableIterator<string>;
     delete: (key: string) => void;
     clear: () => void;
 };
-export declare type DispatcherStorageType = DispatcherStorageSyncType;
 export declare type RunningRequestValueType = {
     requestId: string;
     command: CommandInstance;

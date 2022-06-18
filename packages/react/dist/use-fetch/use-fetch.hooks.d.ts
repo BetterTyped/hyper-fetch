@@ -10,7 +10,6 @@ export declare const useFetch: <T extends Command<any, any, any, any, any, any, 
     isDebouncing: boolean;
     revalidate: (invalidateKey?: string | CommandInstance | RegExp) => void;
     abort: () => void;
-    onRequest: (callback: import("helpers").OnRequestCallbackType) => void;
     onSuccess: (callback: import("helpers").OnSuccessCallbackType<import("@better-typed/hyper-fetch").ExtractResponse<T>>) => void;
     onError: (callback: import("helpers").OnErrorCallbackType<import("@better-typed/hyper-fetch").ExtractError<T>>) => void;
     onAbort: (callback: import("helpers").OnErrorCallbackType<import("@better-typed/hyper-fetch").ExtractError<T>>) => void;

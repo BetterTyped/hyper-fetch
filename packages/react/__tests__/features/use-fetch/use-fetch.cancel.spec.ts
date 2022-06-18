@@ -6,7 +6,7 @@ import { builder, createCommand, renderUseFetch, waitForRender } from "../../uti
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Cancel ]", () => {
-  let command = createCommand({ cancelable: true, deduplicate: true });
+  let command = createCommand({ cancelable: true });
 
   beforeAll(() => {
     startServer();
@@ -22,7 +22,7 @@ describe("useFetch [ Cancel ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand({ cancelable: true, deduplicate: true });
+    command = createCommand({ cancelable: true });
     builder.clear();
   });
 
@@ -65,6 +65,7 @@ describe("useFetch [ Cancel ]", () => {
           response.result.current.onAbort(spy);
           response.rerender({ command: command.setQueryParams(params), dependencies: [params] });
         });
+        await waitForRender();
 
         await waitFor(() => {
           expect(spy).toBeCalledTimes(1);

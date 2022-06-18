@@ -51,28 +51,14 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     return responseStartTimestamp;
   };
 
-  // Abort
-
-  const getAbortController = () => {
-    return commandManager.getAbortController(abortKey, requestId);
-  };
-
-  const createAbortListener = (callback: () => void) => {
-    const controller = getAbortController();
-    if (!controller) {
-      throw new Error("Controller is not found");
-    }
-
-    controller.signal.addEventListener("abort", callback);
-
-    return () => controller.signal.removeEventListener("abort", callback);
-  };
-
-  const unmountEmitter = createAbortListener(() => {
-    commandManager.events.emitAbort(abortKey, requestId, command);
-  });
-
   // Progress
+
+  const getTotal = (previousTotal: number, progress?: ProgressPayloadType) => {
+    if (!progress) return previousTotal;
+    const total = Number(progress?.total || 0);
+    const loaded = Number(progress?.loaded || 0);
+    return Math.max(total, loaded, previousTotal);
+  };
 
   const handleRequestProgress = (
     startTimestamp: number,
@@ -82,7 +68,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
     if (previousRequestTotal !== 100) {
-      previousRequestTotal = progress.progress;
+      previousRequestTotal = progress.total;
       commandManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, command });
     }
   };
@@ -95,7 +81,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
     if (previousResponseTotal !== 100) {
-      previousResponseTotal = progress.progress;
+      previousResponseTotal = progress.total;
       commandManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, command });
     }
   };
@@ -112,7 +98,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     effects.forEach((action) => action.onStart(command));
 
     if (progress?.total) {
-      requestTotal = progress.total;
+      requestTotal = getTotal(requestTotal, progress);
     }
 
     const initialPayload = {
@@ -129,11 +115,14 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     if (!requestStartTimestamp) {
       requestStartTimestamp = +new Date();
     }
-    requestTotal = progress.total;
+    requestTotal = getTotal(requestTotal, progress);
 
     const progressTimestamp = +new Date();
 
-    handleRequestProgress(requestStartTimestamp, progressTimestamp, progress);
+    handleRequestProgress(requestStartTimestamp, progressTimestamp, {
+      total: requestTotal,
+      loaded: progress.loaded || 0,
+    });
     return progressTimestamp;
   };
 
@@ -155,9 +144,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   const onResponseStart = (progress?: ProgressPayloadType) => {
     responseStartTimestamp = +new Date();
 
-    if (progress?.total) {
-      responseTotal = progress.total;
-    }
+    responseTotal = getTotal(responseTotal, progress);
 
     const initialPayload = {
       total: responseTotal,
@@ -175,8 +162,12 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     }
 
     const progressTimestamp = +new Date();
-    responseTotal = progress.total;
-    handleResponseProgress(responseStartTimestamp, progressTimestamp, progress);
+    responseTotal = getTotal(responseTotal, progress);
+
+    handleResponseProgress(responseStartTimestamp, progressTimestamp, {
+      total: progress.total || responseTotal,
+      loaded: progress.loaded || 0,
+    });
     return progressTimestamp;
   };
 
@@ -191,7 +182,6 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
       total: responseTotal,
       loaded: responseTotal,
     });
-    unmountEmitter();
     return progressTimestamp;
   };
 
@@ -200,7 +190,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   const onSuccess = async <T extends CommandInstance>(
     responseData: unknown,
     status: number,
-    callback?: (value: ClientResponseSuccessType<ExtractResponse<T>>) => void,
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
   ): Promise<ClientResponseSuccessType<ExtractResponse<T>>> => {
     let response = [responseData, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
     command.builder.loggerManager.init("Client").http(`Success response`, { response });
@@ -211,7 +201,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     effects.forEach((effect) => effect.onSuccess(response, command));
     effects.forEach((effect) => effect.onFinished(response, command));
 
-    callback?.(response);
+    resolve(response);
 
     return response;
   };
@@ -221,7 +211,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   const onError = async <T extends CommandInstance>(
     error: Error | ExtractError<T>,
     status: number,
-    callback?: (value: ClientResponseErrorType<ExtractError<T>>) => void,
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
   ): Promise<ClientResponseErrorType<ExtractError<T>>> => {
     let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
     command.builder.loggerManager.init("Client").http(`Error response`, { response: responseData });
@@ -232,24 +222,56 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     effects.forEach((effect) => effect.onError(responseData, command));
     effects.forEach((effect) => effect.onFinished(responseData, command));
 
-    callback?.(responseData);
+    resolve(responseData);
 
     return responseData;
   };
 
-  const onAbortError = async () => {
+  const onAbortError = <T extends CommandInstance>(
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
+  ) => {
     const error = getErrorMessage("abort");
-    return onError(error, 0);
+    return onError(error, 0, resolve);
   };
 
-  const onTimeoutError = async () => {
+  const onTimeoutError = <T extends CommandInstance>(
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
+  ) => {
     const error = getErrorMessage("timeout");
-    return onError(error, 0);
+    return onError(error, 0, resolve);
   };
 
-  const onUnexpectedError = async () => {
+  const onUnexpectedError = <T extends CommandInstance>(
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
+  ) => {
     const error = getErrorMessage();
-    return onError(error, 0);
+    return onError(error, 0, resolve);
+  };
+
+  // Abort
+
+  const getAbortController = () => {
+    return commandManager.getAbortController(abortKey, requestId);
+  };
+
+  const createAbortListener = <T extends CommandInstance>(
+    callback: () => void,
+    resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
+  ) => {
+    const controller = getAbortController();
+    if (!controller) {
+      throw new Error("Controller is not found");
+    }
+
+    const fn = () => {
+      callback();
+      onAbortError(resolve);
+      commandManager.events.emitAbort(abortKey, requestId, command);
+    };
+
+    controller.signal.addEventListener("abort", fn);
+
+    return () => controller.signal.removeEventListener("abort", fn);
   };
 
   return {

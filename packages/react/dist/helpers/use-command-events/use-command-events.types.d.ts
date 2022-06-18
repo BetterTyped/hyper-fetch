@@ -1,4 +1,4 @@
-import { Dispatcher, ExtractError, CacheValueType, ExtractResponse, LoggerMethodsType, FetchProgressType, ExtractFetchReturn, CommandEventDetails, CommandInstance, CommandResponseDetails, DispatcherLoadingEventType } from "@better-typed/hyper-fetch";
+import { Dispatcher, ExtractError, CacheValueType, ExtractResponse, LoggerMethodsType, FetchProgressType, ExtractFetchReturn, CommandEventDetails, CommandInstance, CommandResponseDetails } from "@better-typed/hyper-fetch";
 import { UseDependentStateType, UseDependentStateActions } from "helpers";
 export declare type UseCommandEventsDataMap = {
     unmount: VoidFunction;
@@ -17,7 +17,6 @@ export declare type UseCommandEventsOptionsType<T extends CommandInstance> = {
 };
 export declare type UseCommandEventsReturnType<T extends CommandInstance> = [
     {
-        onRequest: (callback: OnRequestCallbackType) => void;
         onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
         onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
         onAbort: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
@@ -36,7 +35,6 @@ export declare type UseCommandEventsReturnType<T extends CommandInstance> = [
         clearLifecycleListeners: () => void;
     }
 ];
-export declare type OnRequestCallbackType = (options: Omit<DispatcherLoadingEventType, "isLoading" | "isOffline">) => void;
 export declare type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export declare type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
 export declare type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;

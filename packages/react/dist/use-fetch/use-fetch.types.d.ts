@@ -1,5 +1,5 @@
 import { CommandInstance, ExtractFetchReturn, ExtractResponse, ExtractError, CacheValueType } from "@better-typed/hyper-fetch";
-import { OnErrorCallbackType, OnFinishedCallbackType, OnProgressCallbackType, OnRequestCallbackType, OnStartCallbackType, OnSuccessCallbackType, UseDependentStateActions, UseDependentStateType } from "helpers";
+import { OnErrorCallbackType, OnFinishedCallbackType, OnProgressCallbackType, OnStartCallbackType, OnSuccessCallbackType, UseDependentStateActions, UseDependentStateType } from "helpers";
 import { isEqual } from "utils";
 export declare type UseFetchOptionsType<T extends CommandInstance> = {
     dependencies?: any[];
@@ -19,7 +19,6 @@ export declare type UseFetchOptionsType<T extends CommandInstance> = {
 };
 export declare type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
     actions: UseDependentStateActions<T>;
-    onRequest: (callback: OnRequestCallbackType) => void;
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
     onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
     onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

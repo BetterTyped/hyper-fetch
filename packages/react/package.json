@@ -14,8 +14,9 @@
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1",
-    "build": "yarn clean && node ../../scripts/build.js && yarn build:types",
-    "build:types": "tsc --emitDeclarationOnly --declaration --project tsconfig.json --outDir dist",
+    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "build": "yarn clean && node ../../scripts/build.js",
+    "postbuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"

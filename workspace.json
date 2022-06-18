@@ -3,6 +3,8 @@
   "version": 2,
   "projects": {
     "core": "packages/core",
-    "react": "packages/react"
+    "nextjs": "examples/nextjs",
+    "react": "packages/react",
+    "reactjs": "examples/reactjs"
   }
 }

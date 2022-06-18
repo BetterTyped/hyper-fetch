@@ -12,10 +12,10 @@ import {
   DispatcherDumpValueType,
   RunningRequestValueType,
 } from "dispatcher";
-import { getUniqueRequestId } from "utils";
 import { BuilderInstance } from "builder";
-import { CommandInstance, Command } from "command";
+import { getUniqueRequestId } from "utils";
 import { CommandResponseDetails } from "managers";
+import { CommandInstance, Command } from "command";
 import { getErrorMessage } from "client";
 
 /**
@@ -152,9 +152,9 @@ export class Dispatcher {
 
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, newQueue);
-    this.events.setQueueChanged(queueKey, queue);
+    this.events.setQueueChanged(queueKey, newQueue);
 
-    return queue;
+    return newQueue;
   };
 
   /**
@@ -259,12 +259,11 @@ export class Dispatcher {
     if (request) {
       request.stopped = true;
       this.setQueue(queueKey, queue);
+
+      // Cancel running requests
+      this.cancelRunningRequest(queueKey, requestId);
+      this.events.setQueueStatus(queueKey, queue);
     }
-
-    // Cancel running requests
-    this.cancelRunningRequest(queueKey, requestId);
-
-    this.events.setQueueStatus(queueKey, queue);
   };
 
   /**
@@ -409,16 +408,16 @@ export class Dispatcher {
 
     switch (requestType) {
       case DispatcherRequestType.oneByOne: {
+        // Requests will go one by one
         this.addQueueElement(queueKey, storageElement);
-        // 1. One-by-one: if we setup request as one-by-one queue use queueing system
         this.flushQueue(queueKey);
         return requestId;
       }
       case DispatcherRequestType.previousCanceled: {
+        // Cancel all previous on-going requests
         this.cancelRunningRequests(queueKey);
         this.clearQueue(queueKey);
         this.addQueueElement(queueKey, storageElement);
-        // Cancel all previous on-going requests
         this.flushQueue(queueKey);
         return requestId;
       }
@@ -495,6 +494,7 @@ export class Dispatcher {
 
     // Trigger Request
     this.incrementQueueRequestCount(queueKey);
+
     const response = await client(command, requestId);
 
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -502,8 +502,9 @@ export class Dispatcher {
     const isOfflineResponseStatus = !appManager.isOnline;
     // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
     const isFailed = isFailedRequest(response);
-    // If there is no running request with this id, it means it was cancelled and removed
-    const isCanceled = response[1]?.message === getErrorMessage("abort").message;
+    // If there is no running request with this id, it means it was cancelled and removed during send
+    const isCancelMessage = getErrorMessage("abort").message === response[1]?.message;
+    const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queueKey, requestId);
@@ -532,6 +533,7 @@ export class Dispatcher {
       const request = queue?.requests.find((req) => req.requestId === requestId);
 
       // do not remove cancelled request as it may be result of manual queue pause
+      // if abort was done without stop action we can remove request
       if (!queue.stopped && !request?.stopped) {
         this.delete(queueKey, requestId, abortKey);
       }

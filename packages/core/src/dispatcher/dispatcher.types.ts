@@ -23,15 +23,13 @@ export type DispatcherData<Command extends CommandInstance = CommandInstance> = 
 };
 
 // Storage
-export type DispatcherStorageSyncType = {
+export type DispatcherStorageType = {
   set: <Command extends CommandInstance = CommandInstance>(key: string, data: DispatcherData<Command>) => void;
   get: <Command extends CommandInstance = CommandInstance>(key: string) => DispatcherData<Command> | undefined;
   keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
 };
-
-export type DispatcherStorageType = DispatcherStorageSyncType;
 
 // Running
 

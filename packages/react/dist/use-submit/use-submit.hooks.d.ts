@@ -10,7 +10,6 @@ export declare const useSubmit: <T extends Command<any, any, any, any, any, any,
     isDebouncing: boolean;
     isRefreshed: boolean;
     revalidate: (invalidateKey: string | CommandInstance | RegExp) => void;
-    onSubmitRequest: (callback: import("helpers").OnRequestCallbackType) => void;
     onSubmitSuccess: (callback: import("helpers").OnSuccessCallbackType<import("@better-typed/hyper-fetch").ExtractResponse<T>>) => void;
     onSubmitError: (callback: import("helpers").OnErrorCallbackType<import("@better-typed/hyper-fetch").ExtractError<T>>) => void;
     onSubmitFinished: (callback: import("helpers").OnFinishedCallbackType<ClientResponseType<import("@better-typed/hyper-fetch").ExtractResponse<T_1>, import("@better-typed/hyper-fetch").ExtractError<T_1>>>) => void;

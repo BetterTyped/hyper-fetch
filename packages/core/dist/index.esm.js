@@ -68,63 +68,6 @@ var FetchEffect = class {
   }
 };
 
-// src/client/fetch.client.ts
-var fetchClient = (command, requestId) => __async(void 0, null, function* () {
-  if (!window.XMLHttpRequest) {
-    throw new Error("There is no XMLHttpRequest, make sure it's provided to use Hyper Fetch built-in client.");
-  }
-  const {
-    fullUrl,
-    headers,
-    payload,
-    config,
-    createAbortListener,
-    onBeforeRequest,
-    onRequestStart,
-    onRequestProgress,
-    onRequestEnd,
-    onResponseStart,
-    onResponseProgress,
-    onResponseEnd,
-    onSuccess,
-    onAbortError,
-    onTimeoutError,
-    onUnexpectedError,
-    onError
-  } = yield getClientBindings(command, requestId);
-  const { method } = command;
-  const xhr = new XMLHttpRequest();
-  xhr.timeout = defaultTimeout;
-  const abort = () => xhr.abort();
-  return new Promise((resolve) => {
-    Object.entries(config).forEach(([name, value]) => {
-      xhr[name] = value;
-    });
-    xhr.open(method, fullUrl, true);
-    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
-    const unmountListener = createAbortListener(abort);
-    xhr.upload.onprogress = handleProgress(onRequestProgress);
-    xhr.onloadstart = () => {
-      onRequestEnd();
-      onResponseStart();
-    };
-    xhr.onprogress = handleProgress(onResponseProgress);
-    xhr.onloadend = () => {
-      unmountListener();
-      onResponseEnd();
-    };
-    xhr.onabort = onAbortError;
-    xhr.ontimeout = onTimeoutError;
-    xhr.upload.onabort = onAbortError;
-    xhr.upload.ontimeout = onTimeoutError;
-    xhr.onerror = handleError({ onError, onUnexpectedError }, resolve);
-    xhr.onreadystatechange = handleReadyStateChange({ onError, onSuccess, onResponseEnd }, resolve);
-    onBeforeRequest();
-    xhr.send(payload);
-    onRequestStart();
-  });
-});
-
 // src/client/fetch.client.utils.ts
 var getRequestConfig = (command) => {
   return __spreadValues(__spreadValues({}, command.builder.requestConfig), command.commandOptions.options);
@@ -148,49 +91,76 @@ var parseResponse = (response) => {
 var parseErrorResponse = (response) => {
   return response ? parseResponse(response) : getErrorMessage();
 };
-var handleReadyStateChange = ({
-  onError,
-  onResponseEnd,
-  onSuccess
-}, resolve) => {
-  return (e) => {
-    const event = e;
-    const finishedState = 4;
-    if (event.target && event.target.readyState === finishedState) {
-      const { status } = event.target;
-      const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
-      onResponseEnd();
-      if (isSuccess) {
-        const data = parseResponse(event.target.response);
-        onSuccess(data, status, resolve);
-      } else {
-        const data = parseErrorResponse(event.target.response);
-        onError(data, status, resolve);
-      }
-    }
-  };
-};
-var handleProgress = (onProgress) => {
-  return (e) => {
-    const event = e;
-    const progress = {
-      total: event.total,
-      loaded: event.loaded
+
+// src/client/fetch.client.ts
+var fetchClient = (command, requestId) => __async(void 0, null, function* () {
+  if (!window.XMLHttpRequest) {
+    throw new Error("There is no XMLHttpRequest, make sure it's provided to use Hyper Fetch built-in client.");
+  }
+  const {
+    fullUrl,
+    headers,
+    payload,
+    config,
+    createAbortListener,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onError,
+    onResponseEnd
+  } = yield getClientBindings(command, requestId);
+  const { method } = command;
+  const xhr = new XMLHttpRequest();
+  xhr.timeout = defaultTimeout;
+  const abort = () => xhr.abort();
+  return new Promise((resolve) => {
+    Object.entries(config).forEach(([name, value]) => {
+      xhr[name] = value;
+    });
+    xhr.open(method, fullUrl, true);
+    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
+    const unmountListener = createAbortListener(abort, resolve);
+    xhr.upload.onprogress = onRequestProgress;
+    xhr.onloadstart = () => {
+      onRequestEnd();
+      onResponseStart();
     };
-    onProgress(progress);
-  };
-};
-var handleError = ({ onError, onUnexpectedError }, resolve) => {
-  return (e) => {
-    const event = e;
-    if (event.target) {
-      const data = parseErrorResponse(event.target.response);
-      onError(data, event.target.status, resolve);
-    } else {
-      onUnexpectedError();
-    }
-  };
-};
+    xhr.onprogress = onResponseProgress;
+    xhr.onloadend = () => {
+      onResponseEnd();
+      unmountListener();
+    };
+    xhr.onabort = () => onAbortError(resolve);
+    xhr.ontimeout = () => onTimeoutError(resolve);
+    xhr.upload.onabort = () => onAbortError(resolve);
+    xhr.upload.ontimeout = () => onTimeoutError(resolve);
+    xhr.onreadystatechange = (e) => {
+      var _a, _b;
+      const event = e;
+      const finishedState = 4;
+      if (event.target && event.target.readyState === finishedState) {
+        const status = event.target.status || 0;
+        const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
+        if (isSuccess) {
+          const data = parseResponse((_a = event.target) == null ? void 0 : _a.response);
+          onSuccess(data, status, resolve);
+        } else {
+          const data = parseErrorResponse((_b = event.target) == null ? void 0 : _b.response);
+          onError(data, status, resolve);
+        }
+      }
+    };
+    onBeforeRequest();
+    onRequestStart();
+    xhr.send(payload);
+  });
+});
 
 // src/utils/uuid.utils.ts
 var getUniqueRequestId = (key) => {
@@ -541,8 +511,8 @@ var Dispatcher = class {
       const newQueue = { requests: [], stopped: queue.stopped };
       this.storage.set(queueKey, newQueue);
       (_b = (_a = this.options) == null ? void 0 : _a.onDeleteFromStorage) == null ? void 0 : _b.call(_a, queueKey, newQueue);
-      this.events.setQueueChanged(queueKey, queue);
-      return queue;
+      this.events.setQueueChanged(queueKey, newQueue);
+      return newQueue;
     };
     this.flushQueue = (queueKey) => __async(this, null, function* () {
       const queue = this.getQueue(queueKey);
@@ -609,9 +579,9 @@ var Dispatcher = class {
       if (request) {
         request.stopped = true;
         this.setQueue(queueKey, queue);
+        this.cancelRunningRequest(queueKey, requestId);
+        this.events.setQueueStatus(queueKey, queue);
       }
-      this.cancelRunningRequest(queueKey, requestId);
-      this.events.setQueueStatus(queueKey, queue);
     };
     this.getAllRunningRequest = () => {
       return Array.from(this.runningRequests.values()).flat();
@@ -748,7 +718,8 @@ var Dispatcher = class {
       const response = yield client(command, requestId);
       const isOfflineResponseStatus = !appManager.isOnline;
       const isFailed = isFailedRequest(response);
-      const isCanceled = ((_a = response[1]) == null ? void 0 : _a.message) === getErrorMessage("abort").message;
+      const isCancelMessage = getErrorMessage("abort").message === ((_a = response[1]) == null ? void 0 : _a.message);
+      const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
       this.deleteRunningRequest(queueKey, requestId);
       const requestDetails = {
         isFailed,
@@ -881,9 +852,10 @@ var getProgressValue = ({ loaded, total }) => {
 var getRequestEta = (startDate, progressDate, { total, loaded }) => {
   const timeElapsed = +progressDate - +startDate || 1;
   const uploadSpeed = loaded / timeElapsed;
-  const sizeLeft = total - loaded;
+  const totalValue = Math.max(total, loaded);
+  const sizeLeft = totalValue - loaded;
   const estimatedTimeValue = uploadSpeed ? sizeLeft / uploadSpeed : null;
-  const timeLeft = total === loaded ? 0 : estimatedTimeValue;
+  const timeLeft = totalValue === loaded ? 0 : estimatedTimeValue;
   return { timeLeft, sizeLeft };
 };
 var getProgressData = (requestStartTime, progressDate, progressEvent) => {
@@ -977,31 +949,24 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
   const getResponseStartTimestamp = () => {
     return responseStartTimestamp;
   };
-  const getAbortController = () => {
-    return commandManager.getAbortController(abortKey, requestId);
+  const getTotal = (previousTotal, progress) => {
+    if (!progress)
+      return previousTotal;
+    const total = Number((progress == null ? void 0 : progress.total) || 0);
+    const loaded = Number((progress == null ? void 0 : progress.loaded) || 0);
+    return Math.max(total, loaded, previousTotal);
   };
-  const createAbortListener = (callback) => {
-    const controller = getAbortController();
-    if (!controller) {
-      throw new Error("Controller is not found");
-    }
-    controller.signal.addEventListener("abort", callback);
-    return () => controller.signal.removeEventListener("abort", callback);
-  };
-  const unmountEmitter = createAbortListener(() => {
-    commandManager.events.emitAbort(abortKey, requestId, command);
-  });
   const handleRequestProgress = (startTimestamp, progressTimestamp, progressEvent) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
     if (previousRequestTotal !== 100) {
-      previousRequestTotal = progress.progress;
+      previousRequestTotal = progress.total;
       commandManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, command });
     }
   };
   const handleResponseProgress = (startTimestamp, progressTimestamp, progressEvent) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
     if (previousResponseTotal !== 100) {
-      previousResponseTotal = progress.progress;
+      previousResponseTotal = progress.total;
       commandManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, command });
     }
   };
@@ -1011,7 +976,7 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
   const onRequestStart = (progress) => {
     effects.forEach((action) => action.onStart(command));
     if (progress == null ? void 0 : progress.total) {
-      requestTotal = progress.total;
+      requestTotal = getTotal(requestTotal, progress);
     }
     const initialPayload = {
       total: requestTotal,
@@ -1026,9 +991,12 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
     if (!requestStartTimestamp) {
       requestStartTimestamp = +new Date();
     }
-    requestTotal = progress.total;
+    requestTotal = getTotal(requestTotal, progress);
     const progressTimestamp = +new Date();
-    handleRequestProgress(requestStartTimestamp, progressTimestamp, progress);
+    handleRequestProgress(requestStartTimestamp, progressTimestamp, {
+      total: requestTotal,
+      loaded: progress.loaded || 0
+    });
     return progressTimestamp;
   };
   const onRequestEnd = () => {
@@ -1044,9 +1012,7 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
   };
   const onResponseStart = (progress) => {
     responseStartTimestamp = +new Date();
-    if (progress == null ? void 0 : progress.total) {
-      responseTotal = progress.total;
-    }
+    responseTotal = getTotal(responseTotal, progress);
     const initialPayload = {
       total: responseTotal,
       loaded: (progress == null ? void 0 : progress.loaded) || 0
@@ -1060,8 +1026,11 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
       responseStartTimestamp = +new Date();
     }
     const progressTimestamp = +new Date();
-    responseTotal = progress.total;
-    handleResponseProgress(responseStartTimestamp, progressTimestamp, progress);
+    responseTotal = getTotal(responseTotal, progress);
+    handleResponseProgress(responseStartTimestamp, progressTimestamp, {
+      total: progress.total || responseTotal,
+      loaded: progress.loaded || 0
+    });
     return progressTimestamp;
   };
   const onResponseEnd = () => {
@@ -1074,41 +1043,56 @@ var getClientBindings = (cmd, requestId) => __async(void 0, null, function* () {
       total: responseTotal,
       loaded: responseTotal
     });
-    unmountEmitter();
     return progressTimestamp;
   };
-  const onSuccess = (responseData, status, callback) => __async(void 0, null, function* () {
+  const onSuccess = (responseData, status, resolve) => __async(void 0, null, function* () {
     let response = [responseData, null, status];
     command.builder.loggerManager.init("Client").http(`Success response`, { response });
     response = yield command.builder.__modifyResponse(response, command);
     response = yield command.builder.__modifySuccessResponse(response, command);
     effects.forEach((effect) => effect.onSuccess(response, command));
     effects.forEach((effect) => effect.onFinished(response, command));
-    callback == null ? void 0 : callback(response);
+    resolve(response);
     return response;
   });
-  const onError = (error, status, callback) => __async(void 0, null, function* () {
+  const onError = (error, status, resolve) => __async(void 0, null, function* () {
     let responseData = [null, error, status];
     command.builder.loggerManager.init("Client").http(`Error response`, { response: responseData });
     responseData = yield command.builder.__modifyResponse(responseData, command);
     responseData = yield command.builder.__modifyErrorResponse(responseData, command);
     effects.forEach((effect) => effect.onError(responseData, command));
     effects.forEach((effect) => effect.onFinished(responseData, command));
-    callback == null ? void 0 : callback(responseData);
+    resolve(responseData);
     return responseData;
   });
-  const onAbortError = () => __async(void 0, null, function* () {
+  const onAbortError = (resolve) => {
     const error = getErrorMessage("abort");
-    return onError(error, 0);
-  });
-  const onTimeoutError = () => __async(void 0, null, function* () {
+    return onError(error, 0, resolve);
+  };
+  const onTimeoutError = (resolve) => {
     const error = getErrorMessage("timeout");
-    return onError(error, 0);
-  });
-  const onUnexpectedError = () => __async(void 0, null, function* () {
+    return onError(error, 0, resolve);
+  };
+  const onUnexpectedError = (resolve) => {
     const error = getErrorMessage();
-    return onError(error, 0);
-  });
+    return onError(error, 0, resolve);
+  };
+  const getAbortController = () => {
+    return commandManager.getAbortController(abortKey, requestId);
+  };
+  const createAbortListener = (callback, resolve) => {
+    const controller = getAbortController();
+    if (!controller) {
+      throw new Error("Controller is not found");
+    }
+    const fn = () => {
+      callback();
+      onAbortError(resolve);
+      commandManager.events.emitAbort(abortKey, requestId, command);
+    };
+    controller.signal.addEventListener("abort", fn);
+    return () => controller.signal.removeEventListener("abort", fn);
+  };
   return {
     fullUrl,
     headers,
@@ -1279,10 +1263,18 @@ var AppManager = class {
 
 // src/managers/app/app.manager.utils.ts
 var hasWindow = () => {
-  return Boolean(window && window.addEventListener);
+  try {
+    return Boolean(window && window.addEventListener);
+  } catch (err) {
+    return false;
+  }
 };
 var hasDocument = () => {
-  return Boolean(hasWindow() && window.document && window.document.addEventListener);
+  try {
+    return Boolean(hasWindow() && window.document && window.document.addEventListener);
+  } catch (err) {
+    return false;
+  }
 };
 var onWindowEvent = (key, listener, options) => {
   if (hasWindow()) {
@@ -1926,9 +1918,6 @@ export {
   getSimpleKey,
   getUploadProgressEventKey,
   getUploadProgressIdEventKey,
-  handleError,
-  handleProgress,
-  handleReadyStateChange,
   hasDocument,
   hasWindow,
   isFailedRequest,

@@ -1,14 +1,14 @@
 import { useRef } from "react";
 import {
   ExtractError,
-  CacheValueType,
   isFailedRequest,
   ExtractResponse,
+  CommandInstance,
+  getErrorMessage,
   FetchProgressType,
   ClientResponseType,
   ExtractFetchReturn,
   CommandEventDetails,
-  CommandInstance,
   CommandResponseDetails,
   DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
@@ -18,7 +18,6 @@ import {
   OnErrorCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
-  OnRequestCallbackType,
   OnProgressCallbackType,
   OnFinishedCallbackType,
   UseCommandEventsDataMap,
@@ -51,7 +50,6 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Callbacks
   // ******************
 
-  const onRequestCallback = useRef<null | OnRequestCallbackType>(null);
   const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
   const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
   const onAbortCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
@@ -116,22 +114,6 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetResponseData = ({ data, details, cacheTime }: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    const { isCanceled, isFailed, isOffline } = details;
-
-    logger.debug("Received new data");
-
-    if (isCanceled) {
-      logger.debug("Skipping canceled error response data");
-    }
-
-    if (isFailed && isOffline) {
-      logger.debug("Skipping offline error response data");
-    }
-
-    setCacheData({ data, details, cacheTime });
-  };
-
   const handleGetLoadingEvent = ({ isLoading }: DispatcherLoadingEventType) => {
     actions.setLoading(isLoading, false);
   };
@@ -162,6 +144,23 @@ export const useCommandEvents = <T extends CommandInstance>({
     };
   };
 
+  const handleAbort = () => {
+    const data: ClientResponseType<ExtractResponse<T>, ExtractError<T>> = [
+      null,
+      // @ts-ignore
+      getErrorMessage("abort") as ExtractResponse<T>,
+      0,
+    ];
+    const details: CommandResponseDetails = {
+      retries: 0,
+      timestamp: new Date(),
+      isFailed: false,
+      isCanceled: true,
+      isOffline: false,
+    };
+    handleResponseCallbacks(data, details);
+  };
+
   // ******************
   // Data Listeners
   // ******************
@@ -173,14 +172,15 @@ export const useCommandEvents = <T extends CommandInstance>({
   const addDataListener = (cmd: CommandInstance, clear = true) => {
     // Data handlers
     const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
-    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(
-      cmd.cacheKey,
-      handleGetResponseData,
+    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, (data) =>
+      setCacheData(data),
     );
+    const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort);
 
     const unmount = () => {
       loadingUnmount();
       getResponseUnmount();
+      abortUnmount();
     };
 
     if (clear) clearDataListener();
@@ -249,9 +249,6 @@ export const useCommandEvents = <T extends CommandInstance>({
 
   return [
     {
-      onRequest: (callback: OnRequestCallbackType) => {
-        onRequestCallback.current = callback;
-      },
       onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
         onSuccessCallback.current = callback;
       },

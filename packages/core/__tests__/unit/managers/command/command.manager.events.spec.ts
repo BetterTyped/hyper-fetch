@@ -46,7 +46,7 @@ describe("CommandManager [ Events ]", () => {
         expect(spy1).toBeCalledTimes(1);
         expect(spy2).toBeCalledTimes(1);
         expect(spy3).toBeCalledTimes(2);
-        expect(spy4).toBeCalledTimes(2);
+        expect(spy4).toBeCalledTimes(3);
         expect(spy5).toBeCalledTimes(1);
         expect(spy6).toBeCalledTimes(1);
       });

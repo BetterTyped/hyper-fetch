@@ -130,7 +130,6 @@ export const useSubmit = <T extends CommandInstance>(
   // ******************
 
   const handlers = {
-    onSubmitRequest: callbacks.onRequest,
     onSubmitSuccess: callbacks.onSuccess,
     onSubmitError: callbacks.onError,
     onSubmitFinished: callbacks.onFinished,

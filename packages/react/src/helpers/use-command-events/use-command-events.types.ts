@@ -9,7 +9,6 @@ import {
   CommandEventDetails,
   CommandInstance,
   CommandResponseDetails,
-  DispatcherLoadingEventType,
 } from "@better-typed/hyper-fetch";
 
 import { UseDependentStateType, UseDependentStateActions } from "helpers";
@@ -32,7 +31,6 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
 // Return
 export type UseCommandEventsReturnType<T extends CommandInstance> = [
   {
-    onRequest: (callback: OnRequestCallbackType) => void;
     onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
     onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
     onAbort: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
@@ -53,7 +51,6 @@ export type UseCommandEventsReturnType<T extends CommandInstance> = [
 ];
 
 // Lifecycle
-export type OnRequestCallbackType = (options: Omit<DispatcherLoadingEventType, "isLoading" | "isOffline">) => void;
 export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
 export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
 export type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;

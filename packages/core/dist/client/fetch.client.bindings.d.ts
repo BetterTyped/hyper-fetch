@@ -9,7 +9,7 @@ export declare const getClientBindings: (cmd: CommandInstance, requestId: string
     getAbortController: () => AbortController;
     getRequestStartTimestamp: () => number;
     getResponseStartTimestamp: () => number;
-    createAbortListener: (callback: () => void) => () => void;
+    createAbortListener: <T extends CommandInstance>(callback: () => void, resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void) => () => void;
     onBeforeRequest: () => void;
     onRequestStart: (progress?: ProgressPayloadType) => number;
     onRequestProgress: (progress: ProgressPayloadType) => number;
@@ -17,9 +17,9 @@ export declare const getClientBindings: (cmd: CommandInstance, requestId: string
     onResponseStart: (progress?: ProgressPayloadType) => number;
     onResponseProgress: (progress: ProgressPayloadType) => number;
     onResponseEnd: () => number;
-    onSuccess: <T extends CommandInstance>(responseData: unknown, status: number, callback?: (value: ClientResponseSuccessType<ExtractResponse<T>>) => void) => Promise<ClientResponseSuccessType<ExtractResponse<T>>>;
-    onAbortError: () => Promise<ClientResponseErrorType<any>>;
-    onTimeoutError: () => Promise<ClientResponseErrorType<any>>;
-    onUnexpectedError: () => Promise<ClientResponseErrorType<any>>;
-    onError: <T_1 extends CommandInstance>(error: Error | ExtractError<T_1>, status: number, callback?: (value: ClientResponseErrorType<ExtractError<T_1>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_1>>>;
+    onSuccess: <T_1 extends CommandInstance>(responseData: unknown, status: number, resolve: (value: ClientResponseErrorType<ExtractError<T_1>>) => void) => Promise<ClientResponseSuccessType<ExtractResponse<T_1>>>;
+    onAbortError: <T_2 extends CommandInstance>(resolve: (value: ClientResponseErrorType<ExtractError<T_2>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_2>>>;
+    onTimeoutError: <T_3 extends CommandInstance>(resolve: (value: ClientResponseErrorType<ExtractError<T_3>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_3>>>;
+    onUnexpectedError: <T_4 extends CommandInstance>(resolve: (value: ClientResponseErrorType<ExtractError<T_4>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_4>>>;
+    onError: <T_5 extends CommandInstance>(error: Error | ExtractError<T_5>, status: number, resolve: (value: ClientResponseErrorType<ExtractError<T_5>>) => void) => Promise<ClientResponseErrorType<ExtractError<T_5>>>;
 }>;

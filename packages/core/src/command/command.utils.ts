@@ -28,9 +28,10 @@ export const getRequestEta = (
 ): { sizeLeft: number; timeLeft: number | null } => {
   const timeElapsed = +progressDate - +startDate || 1;
   const uploadSpeed = loaded / timeElapsed;
-  const sizeLeft = total - loaded;
+  const totalValue = Math.max(total, loaded);
+  const sizeLeft = totalValue - loaded;
   const estimatedTimeValue = uploadSpeed ? sizeLeft / uploadSpeed : null;
-  const timeLeft = total === loaded ? 0 : estimatedTimeValue;
+  const timeLeft = totalValue === loaded ? 0 : estimatedTimeValue;
 
   return { timeLeft, sizeLeft };
 };

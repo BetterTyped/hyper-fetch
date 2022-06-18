@@ -10,7 +10,6 @@ import {
   OnErrorCallbackType,
   OnFinishedCallbackType,
   OnProgressCallbackType,
-  OnRequestCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
   UseDependentStateActions,
@@ -37,7 +36,6 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
 
 export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
   actions: UseDependentStateActions<T>;
-  onRequest: (callback: OnRequestCallbackType) => void;
   onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
   onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
   onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;

@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-yarn commitlint --edit "$1"
-nx run-many --target=precommit --all
-# nx run-many --target=lint --all
+# yarn commitlint --edit "$1"
+# yarn nx run-many --target=precommit --all
+# yarn nx run-many --target=lint --all

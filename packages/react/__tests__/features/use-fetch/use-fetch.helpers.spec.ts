@@ -63,7 +63,7 @@ describe("useFetch [ Helpers ]", () => {
 
         await waitForRender();
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(2);
+        expect(spy).toBeCalledTimes(3);
       });
       it("should trigger onUploadProgress helper", async () => {
         const spy = jest.fn();
