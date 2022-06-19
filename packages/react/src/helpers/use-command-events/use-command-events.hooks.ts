@@ -114,8 +114,13 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetLoadingEvent = ({ isLoading }: DispatcherLoadingEventType) => {
-    actions.setLoading(isLoading, false);
+  const handleGetLoadingEvent = (queueKey: string) => {
+    return ({ isLoading }: DispatcherLoadingEventType) => {
+      const canDisableLoading = !isLoading && !dispatcher.hasRunningRequests(queueKey);
+      if (isLoading || canDisableLoading) {
+        actions.setLoading(isLoading, false);
+      }
+    };
   };
 
   const handleDownloadProgress = (progress: FetchProgressType) => {
@@ -170,7 +175,7 @@ export const useCommandEvents = <T extends CommandInstance>({
 
   const addDataListener = (cmd: CommandInstance, clear = true) => {
     // Data handlers
-    const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent);
+    const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
     const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, (data) =>
       setCacheData(data),
     );

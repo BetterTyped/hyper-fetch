@@ -78,11 +78,12 @@ export const useSubmit = <T extends CommandInstance>(
       return [null, null, 0];
     }
 
-    const triggerRequest = () =>
-      commandSendRequest(commandClone, "submit", (requestId, cmd) => {
-        addDataListener(cmd);
+    const triggerRequest = () => {
+      addDataListener(commandClone, true);
+      commandSendRequest(commandClone, "submit", (requestId) => {
         addLifecycleListeners(requestId);
       });
+    };
 
     return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
       const performSubmit = async () => {

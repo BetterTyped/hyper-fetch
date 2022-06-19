@@ -25,13 +25,15 @@ type Props = {
 };
 
 export function Request({ name, children, result }: Props) {
-  const { data, error, loading, timestamp } = result;
+  const { data, error, loading, submitting, timestamp } = result;
 
   const { enqueueSnackbar } = useSnackbar();
 
   const [fetched, setFetched] = React.useState(false);
 
-  const loadingComponent = loading ? (
+  const isLoading = submitting || loading;
+
+  const loadingComponent = isLoading ? (
     <Box sx={{ display: "flex", gap: "10px" }}>
       True <CircularProgress size="4" />
     </Box>

@@ -126,7 +126,7 @@ export const useDependentState = <T extends CommandInstance>({
       status: cacheData.data[2],
       retries: cacheData.details.retries,
       timestamp: new Date(cacheData.details.timestamp),
-      loading: false,
+      loading: state.current.loading,
     };
 
     const changedKeys = Object.keys(newStateValues).filter((key) => {
