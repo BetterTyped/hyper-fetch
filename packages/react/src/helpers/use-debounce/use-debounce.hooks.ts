@@ -6,7 +6,7 @@ type Debounce = {
   timer: ReturnType<typeof setTimeout> | null;
 };
 
-type DebounceFunction = (callback: () => void | Promise<void>) => void;
+type DebounceFunction = (callback: () => void | Promise<void>, time?: number) => void;
 
 type UseDebounceReturnType = {
   debounce: DebounceFunction;
@@ -34,11 +34,11 @@ export const useDebounce = (delay = 600): UseDebounceReturnType => {
     debounce.current.timer = null;
   };
 
-  const setDebounce: DebounceFunction = (callback) => {
+  const setDebounce: DebounceFunction = (callback, time) => {
     resetDebounce();
     debounce.current.timer = setTimeout(() => {
       callback();
-    }, debounce.current.time);
+    }, time || debounce.current.time);
   };
 
   useWillUnmount(resetDebounce);

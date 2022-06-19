@@ -47,10 +47,6 @@ describe("useFetch [ Refreshing ]", () => {
 
     expect(spy).toBeCalledTimes(2);
   });
-
-  it("should not de-synchronize refreshing interval", async () => {
-    // TODO
-  });
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
     createRequestInterceptor(command);
@@ -78,5 +74,11 @@ describe("useFetch [ Refreshing ]", () => {
     await waitForRender();
     await waitForRender(hookOptions.refreshTime * 1.5);
     expect(spy).toBeCalledTimes(1);
+  });
+  it("should postpone refresh when revalidation is triggered during countdown", async () => {
+    // TODO
+  });
+  it("should postpone refresh when dependencies change during countdown", async () => {
+    // TODO
   });
 });

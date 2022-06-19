@@ -36,10 +36,10 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
 
 export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
   actions: UseDependentStateActions<T>;
-  onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
+  onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+  onFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
+  onRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => void;
   onResponseStart: (callback: OnStartCallbackType<T>) => void;
   onDownloadProgress: (callback: OnProgressCallbackType) => void;
   onUploadProgress: (callback: OnProgressCallbackType) => void;

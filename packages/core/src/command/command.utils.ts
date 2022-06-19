@@ -1,7 +1,7 @@
 import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
 import { ClientProgressEvent, CommandInstance, CommandDump } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { Dispatcher, isFailedRequest } from "dispatcher";
+import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
 import { ExtractError, ExtractResponse } from "types";
 
 export const stringifyKey = (value: unknown): string => {
@@ -112,15 +112,14 @@ export const getCommandDispatcher = <Command extends CommandInstance>(
 export const commandSendRequest = <T extends CommandInstance>(
   command: T,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
-  requestCallback?: (requestId: string, command: T) => void,
+  settleCallback?: (requestId: string, command: T) => void,
 ) => {
   const { commandManager } = command.builder;
   const [dispatcher] = getCommandDispatcher(command, dispatcherType);
 
   return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T>>>((resolve) => {
     const requestId = dispatcher.add(command);
-
-    requestCallback?.(requestId, command);
+    settleCallback?.(requestId, command);
 
     let unmountResponse: () => void = () => undefined;
     let unmountRemoveQueueElement: () => void = () => undefined;
@@ -129,11 +128,15 @@ export const commandSendRequest = <T extends CommandInstance>(
     unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T>>(
       requestId,
       (response, details) => {
-        const isOfflineStatus = command.offline && details.isOffline;
         const isFailed = isFailedRequest(response);
+        const isOfflineStatus = command.offline && details.isOffline;
+        const willRetry = canRetryRequest(details.retries, command.retry);
 
         // When going offline we can't handle the request as it will be postponed to later resolve
         if (isFailed && isOfflineStatus) return;
+
+        // When command is in retry mode we need to listen for retries end
+        if (isFailed && willRetry) return;
 
         resolve(response);
 
@@ -143,7 +146,7 @@ export const commandSendRequest = <T extends CommandInstance>(
       },
     );
 
-    // When removed from queue storage we need to clean event and return proper error
+    // When removed from queue storage we need to clean event listeners and return proper error
     unmountRemoveQueueElement = dispatcher.events.onRemove(requestId, () => {
       resolve([null, getErrorMessage("deleted") as unknown as ExtractError<T>, 0]);
 

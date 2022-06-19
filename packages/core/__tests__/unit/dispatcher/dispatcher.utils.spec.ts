@@ -86,14 +86,11 @@ describe("Dispatcher [ Utils ]", () => {
       expect(canRetryRequest(0, 1)).toBeTrue();
       expect(canRetryRequest(0, 2)).toBeTrue();
       expect(canRetryRequest(5, 10)).toBeTrue();
-      expect(canRetryRequest(5, true)).toBeTrue();
     });
     it("should return false on success statuses", async () => {
       expect(canRetryRequest(1, 0)).toBeFalse();
       expect(canRetryRequest(2, 1)).toBeFalse();
       expect(canRetryRequest(5, 5)).toBeFalse();
-      expect(canRetryRequest(0, false)).toBeFalse();
-      expect(canRetryRequest(1, false)).toBeFalse();
     });
   });
   describe("When using event get key utils", () => {

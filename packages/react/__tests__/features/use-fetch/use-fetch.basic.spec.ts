@@ -56,7 +56,9 @@ describe("useFetch [ Basic ]", () => {
       await waitForRender();
       await testCacheState([null, null, null], view);
     });
-    it("should make only one request", async () => {});
+    it("should make only one request", async () => {
+      // Todo
+    });
   });
   describe("when hook get success response", () => {
     it("should set state with success data", async () => {
@@ -81,6 +83,9 @@ describe("useFetch [ Basic ]", () => {
       });
 
       await testSuccessState(mock, view);
+    });
+    it("should change loading to false on success", async () => {
+      // Todo
     });
   });
   describe("when hook get error response", () => {
@@ -107,6 +112,9 @@ describe("useFetch [ Basic ]", () => {
       });
 
       await testErrorState(errorMock, view, mock);
+    });
+    it("should change loading to false on error", async () => {
+      // Todo
     });
   });
   describe("when dependencies change", () => {

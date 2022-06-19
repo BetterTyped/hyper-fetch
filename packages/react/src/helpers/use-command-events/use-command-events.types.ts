@@ -31,12 +31,12 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
 // Return
 export type UseCommandEventsReturnType<T extends CommandInstance> = [
   {
-    onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-    onError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-    onAbort: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-    onOfflineError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-    onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-    onRequestStart: (callback: OnStartCallbackType<T>) => void;
+    onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
+    onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+    onAbort: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+    onOfflineError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+    onFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
+    onRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => void;
     onResponseStart: (callback: OnStartCallbackType<T>) => void;
     onDownloadProgress: (callback: OnProgressCallbackType) => void;
     onUploadProgress: (callback: OnProgressCallbackType) => void;
@@ -51,8 +51,22 @@ export type UseCommandEventsReturnType<T extends CommandInstance> = [
 ];
 
 // Lifecycle
-export type OnSuccessCallbackType<DataType> = (data: DataType, details: CommandResponseDetails) => void;
-export type OnErrorCallbackType<ErrorType> = (error: ErrorType, details: CommandResponseDetails) => void;
-export type OnFinishedCallbackType<ResponseType> = (response: ResponseType, details: CommandResponseDetails) => void;
-export type OnStartCallbackType<T extends CommandInstance> = (details: CommandEventDetails<T>) => void;
+export type OnSuccessCallbackType<DataType, Context> = (
+  data: DataType,
+  details: CommandResponseDetails,
+  context: Context,
+) => void;
+export type OnErrorCallbackType<ErrorType, Context> = (
+  error: ErrorType,
+  details: CommandResponseDetails,
+  context: Context,
+) => void;
+export type OnFinishedCallbackType<ResponseType, Context> = (
+  response: ResponseType,
+  details: CommandResponseDetails,
+  context: Context,
+) => void;
+export type OnStartCallbackType<T extends CommandInstance, Context = undefined> = (
+  details: CommandEventDetails<T>,
+) => Context;
 export type OnProgressCallbackType = (progress: FetchProgressType) => void;

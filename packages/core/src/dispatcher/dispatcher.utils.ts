@@ -32,11 +32,8 @@ export const getIsEqualTimestamp = (currentTimestamp: number, threshold: number,
   return queueTimestamp - currentTimestamp <= threshold;
 };
 
-export const canRetryRequest = (retries: number, retry: number | boolean | undefined) => {
-  if (retry === true) {
-    return true;
-  }
-  if (retry && retries <= retry - 1) {
+export const canRetryRequest = (currentRetries: number, retry: number | undefined) => {
+  if (retry && currentRetries < retry) {
     return true;
   }
   return false;

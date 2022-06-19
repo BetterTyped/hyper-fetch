@@ -38,7 +38,7 @@ describe("useFetch [ Deduplication ]", () => {
         createRequestInterceptor(dedupeCommand, { delay: 200 });
 
         renderUseFetch(dedupeCommand);
-        await waitForRender(10);
+        await waitForRender(2);
 
         renderUseFetch(dedupeCommand);
         await waitForRender();

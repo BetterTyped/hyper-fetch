@@ -23,9 +23,9 @@ export type UseCacheOptionsType<T extends CommandInstance> = {
 
 export type UseCacheReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
   actions: UseDependentStateActions<T>;
-  onCacheSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  onCacheError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  onCacheChange: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
+  onCacheSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
+  onCacheError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+  onCacheChange: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
   isStale: boolean;
   isRefreshingError: boolean;
   revalidate: (revalidateKey?: string | CommandInstance) => void;

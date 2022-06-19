@@ -32,10 +32,10 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
 
 export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseDependentStateType<T>, "loading"> & {
   actions: UseDependentStateActions<T>;
-  onSubmitSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => void;
-  onSubmitError: (callback: OnErrorCallbackType<ExtractError<T>>) => void;
-  onSubmitFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => void;
-  onSubmitRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onSubmitSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
+  onSubmitError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
+  onSubmitFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
+  onSubmitRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => void;
   onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
   onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;

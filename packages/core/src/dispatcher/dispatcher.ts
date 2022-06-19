@@ -528,6 +528,7 @@ export class Dispatcher {
     // Cache event to emit the data inside and store it
     cache.set(command, response, requestDetails);
 
+    // On cancelled
     if (isCanceled) {
       const queue = this.getQueue(queueKey);
       const request = queue?.requests.find((req) => req.requestId === requestId);
@@ -539,17 +540,19 @@ export class Dispatcher {
       }
       return;
     }
+    // On offline
     if (isFailed && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
       if (!offline) this.delete(queueKey, requestId, abortKey);
       // do not remove request from store as we want to re-send it later
       return;
     }
-
+    // On success
     if (!isFailed) {
       this.delete(queueKey, requestId, abortKey);
       return;
     }
+    // On retry
     if (isFailed && canRetry) {
       // Perform retry once request is failed
       setTimeout(async () => {

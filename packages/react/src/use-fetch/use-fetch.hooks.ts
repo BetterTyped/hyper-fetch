@@ -115,6 +115,7 @@ export const useFetch = <T extends CommandInstance>(
       cache.events.revalidate(invalidateKey);
     } else {
       handleFetch();
+      handleRefresh();
     }
   };
 

@@ -50,12 +50,12 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Callbacks
   // ******************
 
-  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>>>(null);
-  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
-  const onAbortCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
-  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>>>(null);
-  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>>>(null);
-  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
+  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>, unknown>>(null);
+  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
+  const onAbortCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
+  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
+  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>, unknown>>(null);
+  const onRequestStartCallback = useRef<null | OnStartCallbackType<T, unknown>>(null);
   const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
@@ -74,6 +74,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   const handleResponseCallbacks = (
     data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
     details: CommandResponseDetails,
+    context?: unknown,
   ) => {
     if (!isMounted) return logger.debug("Callback cancelled, component is unmounted");
 
@@ -81,18 +82,18 @@ export const useCommandEvents = <T extends CommandInstance>({
 
     if (command.offline && isOffline && isFailed) {
       logger.debug("Performing offline error callback", { data, details });
-      onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details);
+      onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details, context);
     } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
-      onAbortCallback.current?.(data[1] as ExtractError<T>, details);
+      onAbortCallback.current?.(data[1] as ExtractError<T>, details, context);
     } else if (!isFailed) {
       logger.debug("Performing success callback", { data, details });
-      onSuccessCallback.current?.(data[0] as ExtractResponse<T>, details);
+      onSuccessCallback.current?.(data[0] as ExtractResponse<T>, details, context);
     } else {
       logger.debug("Performing error callback", { data, details });
-      onErrorCallback.current?.(data[1] as ExtractError<T>, details);
+      onErrorCallback.current?.(data[1] as ExtractError<T>, details, context);
     }
-    onFinishedCallback.current?.(data, details);
+    onFinishedCallback.current?.(data, details, context);
   };
 
   const handleInitialCallbacks = () => {
@@ -131,21 +132,22 @@ export const useCommandEvents = <T extends CommandInstance>({
     onUploadProgressCallback?.current?.(progress);
   };
 
-  const handleRequestStart = (details: CommandEventDetails<T>) => {
-    onRequestStartCallback?.current?.(details);
+  const handleRequestStart = (setContext: (value: unknown) => void) => {
+    return (details: CommandEventDetails<T>) => {
+      setContext(onRequestStartCallback?.current?.(details));
+    };
   };
-
   const handleResponseStart = (details: CommandEventDetails<T>) => {
     onResponseStartCallback?.current?.(details);
   };
 
-  const handleResponse = (requestId: string) => {
+  const handleResponse = (requestId: string, context: unknown) => {
     return (data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>, details: CommandResponseDetails) => {
       const event = lifecycleEvents.current.get(requestId);
       event?.unmount();
       lifecycleEvents.current.delete(requestId);
 
-      handleResponseCallbacks(data, details);
+      handleResponseCallbacks(data, details, context);
     };
   };
 
@@ -198,11 +200,17 @@ export const useCommandEvents = <T extends CommandInstance>({
   // ******************
 
   const addLifecycleListeners = (requestId: string) => {
+    let context: unknown | null = null;
+
+    const setContext = (value: unknown) => {
+      context = value;
+    };
+
     const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
     const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
-    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart);
+    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart(setContext));
     const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart);
-    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(requestId));
+    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(requestId, context));
 
     const unmount = () => {
       downloadUnmount();
@@ -253,22 +261,22 @@ export const useCommandEvents = <T extends CommandInstance>({
 
   return [
     {
-      onSuccess: (callback: OnSuccessCallbackType<ExtractResponse<T>>) => {
+      onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => {
         onSuccessCallback.current = callback;
       },
-      onError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+      onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
         onErrorCallback.current = callback;
       },
-      onAbort: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+      onAbort: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
         onAbortCallback.current = callback;
       },
-      onOfflineError: (callback: OnErrorCallbackType<ExtractError<T>>) => {
+      onOfflineError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
         onOfflineErrorCallback.current = callback;
       },
-      onFinished: (callback: OnFinishedCallbackType<ExtractFetchReturn<T>>) => {
+      onFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => {
         onFinishedCallback.current = callback;
       },
-      onRequestStart: (callback: OnStartCallbackType<T>) => {
+      onRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => {
         onRequestStartCallback.current = callback;
       },
       onResponseStart: (callback: OnStartCallbackType<T>) => {
