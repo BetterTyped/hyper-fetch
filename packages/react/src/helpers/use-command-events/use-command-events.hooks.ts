@@ -147,8 +147,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   const handleAbort = () => {
     const data: ClientResponseType<ExtractResponse<T>, ExtractError<T>> = [
       null,
-      // @ts-ignore
-      getErrorMessage("abort") as ExtractResponse<T>,
+      getErrorMessage("abort") as ExtractError<T>,
       0,
     ];
     const details: CommandResponseDetails = {

@@ -30,7 +30,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --bail --findRelatedTests"
+      "yarn jest --bail --findRelatedTests --passWithNoTests"
     ]
   },
   "eslintConfig": {

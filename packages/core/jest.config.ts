@@ -13,6 +13,7 @@ const config: Config.InitialOptions = {
   globals: {
     "ts-jest": {
       tsconfig: "./tsconfig.json",
+      isolatedModules: true,
     },
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],

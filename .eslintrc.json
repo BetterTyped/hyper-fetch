@@ -11,7 +11,7 @@
   "settings": {
     "import/resolver": {
       "node": {
-        "moduleDirectory": ["node_modules", "lib/"]
+        "moduleDirectory": ["node_modules", "src/"]
       }
     },
     "react": {

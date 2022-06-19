@@ -2,5 +2,6 @@
   "compilerOptions": {
     "noEmit": true,
     "baseUrl": "../src"
-  }
+  },
+  "include": ["../jest.config.ts", "./"]
 }
