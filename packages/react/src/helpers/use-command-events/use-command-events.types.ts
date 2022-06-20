@@ -31,6 +31,7 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
 // Return
 export type UseCommandEventsReturnType<T extends CommandInstance> = [
   {
+    abort: () => void;
     onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
     onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
     onAbort: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;

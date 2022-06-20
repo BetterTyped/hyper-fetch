@@ -72,10 +72,11 @@ describe("useFetch [ Cancel ]", () => {
         });
       });
     });
-    describe("when aborting previous request", () => {
-      it("should not trigger the canceled request helper hooks", async () => {
-        // TODO
-      });
+    it("should not trigger the canceled request helper hooks", async () => {
+      // TODO
+    });
+    it("should clear request from dispatcher's queue", async () => {
+      // TODO
     });
   });
 });

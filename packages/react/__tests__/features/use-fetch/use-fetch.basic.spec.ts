@@ -56,6 +56,12 @@ describe("useFetch [ Basic ]", () => {
       await waitForRender();
       await testCacheState([null, null, null], view);
     });
+    it("should allow to use initial data", async () => {
+      // Todo
+    });
+    it("should prefer cache data over initial data", async () => {
+      // Todo
+    });
     it("should make only one request", async () => {
       // Todo
     });

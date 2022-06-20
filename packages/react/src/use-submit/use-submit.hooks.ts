@@ -119,14 +119,6 @@ export const useSubmit = <T extends CommandInstance>(
   };
 
   // ******************
-  // Abort
-  // ******************
-
-  const abort = () => {
-    command.abort();
-  };
-
-  // ******************
   // Misc
   // ******************
 
@@ -168,7 +160,7 @@ export const useSubmit = <T extends CommandInstance>(
       setRenderKey("timestamp");
       return state.timestamp;
     },
-    abort,
+    abort: callbacks.abort,
     ...actions,
     ...handlers,
     isDebouncing: false,

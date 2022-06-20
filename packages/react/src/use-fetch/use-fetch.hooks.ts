@@ -120,14 +120,6 @@ export const useFetch = <T extends CommandInstance>(
   };
 
   // ******************
-  // Aborting
-  // ******************
-
-  const abort = () => {
-    command.abort();
-  };
-
-  // ******************
   // Fetching lifecycle
   // ******************
 
@@ -241,6 +233,5 @@ export const useFetch = <T extends CommandInstance>(
     ...callbacks,
     isDebouncing: requestDebounce.active,
     revalidate,
-    abort,
   };
 };

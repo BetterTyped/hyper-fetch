@@ -240,10 +240,23 @@ export const useCommandEvents = <T extends CommandInstance>({
     events.clear();
   };
 
-  /**
-   * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
-   */
+  // ******************
+  // Abort
+  // ******************
+
+  const abort = () => {
+    const { abortKey } = command;
+    const requests = dispatcher.getAllRunningRequest();
+    requests.forEach((request) => {
+      if (request.command.abortKey === abortKey) {
+        dispatcher.delete(request.command.queueKey, request.requestId, abortKey);
+      }
+    });
+  };
+
+  // ******************
+  // Lifecycle
+  // ******************
 
   /**
    * On the init if we have data we should call the callback functions
@@ -261,6 +274,7 @@ export const useCommandEvents = <T extends CommandInstance>({
 
   return [
     {
+      abort,
       onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => {
         onSuccessCallback.current = callback;
       },

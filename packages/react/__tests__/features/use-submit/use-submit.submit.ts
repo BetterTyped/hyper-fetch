@@ -18,19 +18,19 @@ describe("useSubmit [ Base ]", () => {
   });
 
   describe("when submit method gets triggered", () => {
-    it("should trigger request", async () => {
+    it("should return data from submit method", async () => {
       // Todo
     });
-    it("should allow to trigger all event methods", async () => {
+    it("should allow to change submit details", async () => {
       // Todo
     });
-    it("should allow to trigger all event methods on dynamic keys change", async () => {
+    it("should allow to pass data to submit", async () => {
       // Todo
     });
-    it("should isolate helper hooks between different calls", async () => {
+    it("should allow to pass params to submit", async () => {
       // Todo
     });
-    it("should call helper hooks for every request made", async () => {
+    it("should allow to pass query params to submit", async () => {
       // Todo
     });
   });

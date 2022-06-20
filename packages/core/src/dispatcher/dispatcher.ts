@@ -434,7 +434,7 @@ export class Dispatcher {
   };
 
   /**
-   * Delete and cancel request from the storage
+   * Delete from the storage and cancel request
    */
   delete = (queueKey: string, requestId: string, abortKey: string) => {
     const queue = this.getQueue(queueKey);
@@ -443,9 +443,8 @@ export class Dispatcher {
 
     // Clean controllers
     if (this.hasRunningRequest(queueKey, requestId)) {
+      this.deleteRunningRequest(queueKey, requestId);
       this.builder.commandManager.abortByRequestId(abortKey, requestId);
-    } else {
-      this.builder.commandManager.removeAbortController(abortKey, requestId);
     }
 
     // Emit Queue Changes
