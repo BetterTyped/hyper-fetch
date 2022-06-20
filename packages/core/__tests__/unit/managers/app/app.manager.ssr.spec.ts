@@ -1,9 +1,6 @@
-import { createBuilder } from "../../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../../server";
 
 describe("AppManager [ SSR ]", () => {
-  let builder = createBuilder();
-
   beforeAll(() => {
     startServer();
   });
@@ -11,7 +8,6 @@ describe("AppManager [ SSR ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    builder = createBuilder();
   });
 
   afterAll(() => {
