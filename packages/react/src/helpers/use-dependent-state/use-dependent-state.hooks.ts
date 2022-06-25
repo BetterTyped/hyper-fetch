@@ -28,7 +28,7 @@ export const useDependentState = <T extends CommandInstance>({
   defaultCacheEmitting = true,
 }: UseDependentStateProps<T>): UseDependentStateReturn<T> => {
   const { builder, cacheKey, queueKey, cacheTime } = command;
-  const { cache } = builder;
+  const { cache, commandManager } = builder;
 
   const forceUpdate = useForceUpdate();
 
@@ -174,7 +174,7 @@ export const useDependentState = <T extends CommandInstance>({
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        dispatcher.events.setLoading(queueKey, "", {
+        commandManager.events.setLoading(queueKey, "", {
           isLoading: loading,
           isRetry: false,
           isOffline: false,

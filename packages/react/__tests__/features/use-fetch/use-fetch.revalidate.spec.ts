@@ -122,12 +122,12 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate(command);
+      responseOne.result.current.revalidate(command.setQueryParams("?something=123"));
     });
 
     await waitFor(async () => {
       await testSuccessState(customMock, responseOne);
-      await testSuccessState(customMock, responseTwo);
+      await testSuccessState(mock, responseTwo);
     });
   });
 });

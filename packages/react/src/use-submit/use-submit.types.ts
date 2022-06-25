@@ -1,10 +1,4 @@
-import {
-  CacheValueType,
-  ExtractError,
-  ExtractResponse,
-  CommandInstance,
-  ExtractFetchReturn,
-} from "@better-typed/hyper-fetch";
+import { CacheValueType, ExtractError, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
 
 import { isEqual } from "utils";
 import {
@@ -32,10 +26,10 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
 
 export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseDependentStateType<T>, "loading"> & {
   actions: UseDependentStateActions<T>;
-  onSubmitSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
-  onSubmitError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
-  onSubmitFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
-  onSubmitRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => void;
+  onSubmitSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  onSubmitError: (callback: OnErrorCallbackType<T>) => void;
+  onSubmitFinished: (callback: OnFinishedCallbackType<T>) => void;
+  onSubmitRequestStart: (callback: OnStartCallbackType<T>) => void;
   onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
   onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;

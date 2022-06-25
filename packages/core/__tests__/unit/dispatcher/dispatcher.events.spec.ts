@@ -34,7 +34,7 @@ describe("Dispatcher [ Events ]", () => {
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onLoading(command.queueKey, spy);
+      const unmount = builder.commandManager.events.onLoading(command.queueKey, spy);
       dispatcher.add(command);
       expect(spy).toBeCalledTimes(1);
       unmount();

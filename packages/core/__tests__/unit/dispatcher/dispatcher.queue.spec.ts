@@ -33,7 +33,7 @@ describe("Dispatcher [ Queue ]", () => {
       createRequestInterceptor(command);
 
       const loadingSpy = jest.fn();
-      dispatcher.events.onLoading(command.queueKey, loadingSpy);
+      builder.commandManager.events.onLoading(command.queueKey, loadingSpy);
       const requestId = dispatcher.add(command);
 
       expect(requestId).toBeString();

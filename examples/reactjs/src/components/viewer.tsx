@@ -1,10 +1,12 @@
 /* eslint-disable react/require-default-props */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Stack, Box, Typography, Container } from "@mui/material";
+import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
+import { useAppManager } from "@better-typed/react-hyper-fetch";
 
 import { Sidebar } from "components/sidebar";
 import { DASHBOARD_PAGE } from "constants/routing.constants";
+import { builder } from "api";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,
@@ -12,6 +14,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
   noButtons,
 }) => {
   const [mount, setMount] = useState(true);
+  const { isOnline, isFocused } = useAppManager(builder);
 
   const push = useNavigate();
 
@@ -24,6 +27,8 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
       <Box sx={{ background: "#eaeaea", pt: "30px", pb: "40px", pl: 3, pr: 3 }}>
         <Typography variant="h3" sx={{ fontWeight: "800" }}>
           {name}
+          {!isFocused && <Chip label="Blur" color="primary" />}
+          {!isOnline && <Chip label="Offline" color="error" />}
         </Typography>
         {!noButtons && (
           <Stack direction="row" spacing={2}>

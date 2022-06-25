@@ -71,10 +71,10 @@ export const useFetch = <T extends CommandInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
+      clearLifecycleListeners();
       addDataListener(command);
       const requestId = dispatcher.add(command);
-      clearLifecycleListeners();
-      addLifecycleListeners(requestId);
+      addLifecycleListeners(requestId, command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -110,7 +110,7 @@ export const useFetch = <T extends CommandInstance>(
 
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
     if (invalidateKey && invalidateKey instanceof Command) {
-      cache.events.revalidate(new RegExp(getCommandKey(invalidateKey, true)));
+      cache.events.revalidate(getCommandKey(invalidateKey));
     } else if (invalidateKey) {
       cache.events.revalidate(invalidateKey);
     } else {

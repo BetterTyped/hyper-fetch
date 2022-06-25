@@ -108,6 +108,16 @@ export class Dispatcher {
   };
 
   /**
+   * Return request from queue state
+   */
+  getRequest = <Command extends CommandInstance = CommandInstance>(queueKey: string, requestId: string) => {
+    const initialQueueState: DispatcherData<Command> = { requests: [], stopped: false };
+    const storedEntity = this.storage.get<Command>(queueKey) || initialQueueState;
+
+    return storedEntity.requests.find((req) => req.requestId === requestId);
+  };
+
+  /**
    * Get value of the active queue status based on the stopped status
    */
   getIsActiveQueue = (queueKey: string) => {
@@ -450,7 +460,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.events.emitRemove(requestId);
+    this.builder.commandManager.events.emitRemove(requestId);
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -485,7 +495,7 @@ export class Dispatcher {
     this.addRunningRequest(queueKey, requestId, command);
 
     // Propagate the loading to all connected hooks
-    this.events.setLoading(queueKey, requestId, {
+    commandManager.events.setLoading(queueKey, requestId, {
       isLoading: true,
       isRetry: !!storageElement.retries,
       isOffline,
@@ -517,7 +527,7 @@ export class Dispatcher {
     };
 
     // Turn off loading
-    this.events.setLoading(queueKey, requestId, {
+    commandManager.events.setLoading(queueKey, requestId, {
       isLoading: false,
       isRetry: !!storageElement.retries,
       isOffline,

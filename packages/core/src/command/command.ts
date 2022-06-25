@@ -232,12 +232,6 @@ export class Command<
     return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
   };
 
-  public abort = () => {
-    this.builder.commandManager.abortByKey(this.abortKey);
-
-    return this.clone();
-  };
-
   private paramsMapper = (
     params: ParamsType | null | undefined,
     queryParams: QueryParamsType | NegativeTypes,
@@ -374,6 +368,13 @@ export class Command<
     return cloned;
   }
 
+  public abort = () => {
+    const { commandManager } = this.builder;
+    commandManager.abortByKey(this.abortKey);
+
+    return this.clone();
+  };
+
   /**
    * Method to use the command WITHOUT adding it to cache and queues. This mean it will make straight requests without side effects like events.
    * @param options
@@ -413,7 +414,7 @@ export class Command<
     CommandQueueOptions
   > = async (
     options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, CommandQueueOptions>,
-    requestCallback?: (
+    onInit?: (
       requestId: string,
       command: Command<
         ResponseType,
@@ -431,7 +432,7 @@ export class Command<
     ) => void,
   ) => {
     const command = this.clone(options as any);
-    return commandSendRequest<typeof command>(command, options?.dispatcherType, requestCallback);
+    return commandSendRequest<typeof command>(command, options?.dispatcherType, onInit);
   };
 }
 

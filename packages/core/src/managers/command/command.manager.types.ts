@@ -1,5 +1,12 @@
 import { CommandInstance } from "command";
 
+// Events
+export type CommandLoadingEventType = {
+  isLoading: boolean;
+  isRetry: boolean;
+  isOffline: boolean;
+};
+
 export type CommandEventDetails<T extends CommandInstance> = {
   requestId: string;
   command: T;

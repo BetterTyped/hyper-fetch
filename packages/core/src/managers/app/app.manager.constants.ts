@@ -12,12 +12,12 @@ export enum AppEvents {
 export const appManagerInitialOptions: RequiredKeys<AppManagerOptionsType> = {
   initiallyFocused: true,
   initiallyOnline: true,
-  focusEvent: (setFocused: (isFocused: boolean) => void) => {
+  focusEvent: (setFocused) => {
     onDocumentEvent("visibilitychange", () => setFocused(true));
     onWindowEvent("focus", () => setFocused(true));
     onWindowEvent("blur", () => setFocused(false));
   },
-  onlineEvent: (setOnline: (isOnline: boolean) => void) => {
+  onlineEvent: (setOnline) => {
     onWindowEvent("online", () => setOnline(true));
     onWindowEvent("offline", () => setOnline(false));
   },

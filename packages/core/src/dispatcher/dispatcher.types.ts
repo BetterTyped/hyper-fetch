@@ -37,10 +37,3 @@ export type RunningRequestValueType = {
   requestId: string;
   command: CommandInstance;
 };
-
-// Events
-export type DispatcherLoadingEventType = {
-  isLoading: boolean;
-  isRetry: boolean;
-  isOffline: boolean;
-};

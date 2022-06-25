@@ -15,6 +15,10 @@ export type BuilderConfig = {
    */
   baseUrl: string;
   /**
+   * Disable the web event listeners and actions on window object
+   */
+  isNodeJS?: boolean;
+  /**
    * Custom client initialization prop
    */
   client?: ClientType;

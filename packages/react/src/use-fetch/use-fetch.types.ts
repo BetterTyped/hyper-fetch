@@ -1,10 +1,4 @@
-import {
-  CommandInstance,
-  ExtractFetchReturn,
-  ExtractResponse,
-  ExtractError,
-  CacheValueType,
-} from "@better-typed/hyper-fetch";
+import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@better-typed/hyper-fetch";
 
 import {
   OnErrorCallbackType,
@@ -36,10 +30,10 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
 
 export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
   actions: UseDependentStateActions<T>;
-  onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => void;
-  onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => void;
-  onFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => void;
-  onRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => void;
+  onSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  onError: (callback: OnErrorCallbackType<T>) => void;
+  onFinished: (callback: OnFinishedCallbackType<T>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
   onResponseStart: (callback: OnStartCallbackType<T>) => void;
   onDownloadProgress: (callback: OnProgressCallbackType) => void;
   onUploadProgress: (callback: OnProgressCallbackType) => void;

@@ -2,7 +2,6 @@ import {
   canRetryRequest,
   getDispatcherChangeEventKey,
   getDispatcherDrainedEventKey,
-  getDispatcherLoadingEventKey,
   getDispatcherStatusEventKey,
   getIsEqualTimestamp,
   isFailedRequest,
@@ -95,7 +94,6 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using event get key utils", () => {
     it("should return true if retry is possible", async () => {
-      expect(getDispatcherLoadingEventKey("test")).toBe(`test-loading-event`);
       expect(getDispatcherDrainedEventKey("test")).toBe(`test-drained-event`);
       expect(getDispatcherStatusEventKey("test")).toBe(`test-status-event`);
       expect(getDispatcherChangeEventKey("test")).toBe(`test-change-event`);

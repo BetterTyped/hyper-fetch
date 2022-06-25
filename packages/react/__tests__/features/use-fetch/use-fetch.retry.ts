@@ -1,6 +1,6 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
 
-describe("useSubmit [ Retry ]", () => {
+describe("useFetch [ Retry ]", () => {
   beforeAll(() => {
     startServer();
   });

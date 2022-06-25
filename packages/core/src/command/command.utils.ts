@@ -147,7 +147,7 @@ export const commandSendRequest = <T extends CommandInstance>(
     );
 
     // When removed from queue storage we need to clean event listeners and return proper error
-    unmountRemoveQueueElement = dispatcher.events.onRemove(requestId, () => {
+    unmountRemoveQueueElement = commandManager.events.onRemove(requestId, () => {
       resolve([null, getErrorMessage("deleted") as unknown as ExtractError<T>, 0]);
 
       // Unmount Listeners

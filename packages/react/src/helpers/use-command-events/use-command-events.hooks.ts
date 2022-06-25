@@ -7,7 +7,6 @@ import {
   getErrorMessage,
   FetchProgressType,
   ClientResponseType,
-  ExtractFetchReturn,
   CommandEventDetails,
   CommandResponseDetails,
   DispatcherLoadingEventType,
@@ -50,12 +49,12 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Callbacks
   // ******************
 
-  const onSuccessCallback = useRef<null | OnSuccessCallbackType<ExtractResponse<T>, unknown>>(null);
-  const onErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
-  const onAbortCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
-  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<ExtractError<T>, unknown>>(null);
-  const onFinishedCallback = useRef<null | OnFinishedCallbackType<ExtractFetchReturn<T>, unknown>>(null);
-  const onRequestStartCallback = useRef<null | OnStartCallbackType<T, unknown>>(null);
+  const onSuccessCallback = useRef<null | OnSuccessCallbackType<T>>(null);
+  const onErrorCallback = useRef<null | OnErrorCallbackType<T>>(null);
+  const onAbortCallback = useRef<null | OnErrorCallbackType<T>>(null);
+  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<T>>(null);
+  const onFinishedCallback = useRef<null | OnFinishedCallbackType<T>>(null);
+  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
   const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
@@ -67,14 +66,29 @@ export const useCommandEvents = <T extends CommandInstance>({
   const lifecycleEvents = useRef<UseCommandEventsLifecycleMap>(new Map());
   const dataEvents = useRef<UseCommandEventsDataMap | null>(null);
 
+  const removeLifecycleListener = (requestId: string) => {
+    const event = lifecycleEvents.current.get(requestId);
+    event?.unmount();
+    lifecycleEvents.current.delete(requestId);
+  };
+
+  const clearLifecycleListeners = () => {
+    const events = lifecycleEvents.current;
+    const listeners = Array.from(events.values());
+    listeners.forEach((value) => {
+      value.unmount();
+    });
+    events.clear();
+  };
+
   // ******************
   // Response handlers
   // ******************
 
   const handleResponseCallbacks = (
+    cmd: T,
     data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
     details: CommandResponseDetails,
-    context?: unknown,
   ) => {
     if (!isMounted) return logger.debug("Callback cancelled, component is unmounted");
 
@@ -82,18 +96,18 @@ export const useCommandEvents = <T extends CommandInstance>({
 
     if (command.offline && isOffline && isFailed) {
       logger.debug("Performing offline error callback", { data, details });
-      onOfflineErrorCallback.current?.(data[1] as ExtractError<T>, details, context);
+      onOfflineErrorCallback.current?.({ response: data[1] as ExtractError<T>, command: cmd, details });
     } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
-      onAbortCallback.current?.(data[1] as ExtractError<T>, details, context);
+      onAbortCallback.current?.({ response: data[1] as ExtractError<T>, command: cmd, details });
     } else if (!isFailed) {
       logger.debug("Performing success callback", { data, details });
-      onSuccessCallback.current?.(data[0] as ExtractResponse<T>, details, context);
+      onSuccessCallback.current?.({ response: data[0] as ExtractResponse<T>, command: cmd, details });
     } else {
       logger.debug("Performing error callback", { data, details });
-      onErrorCallback.current?.(data[1] as ExtractError<T>, details, context);
+      onErrorCallback.current?.({ response: data[1] as ExtractError<T>, command: cmd, details });
     }
-    onFinishedCallback.current?.(data, details, context);
+    onFinishedCallback.current?.({ response: data, command: cmd, details });
   };
 
   const handleInitialCallbacks = () => {
@@ -107,7 +121,7 @@ export const useCommandEvents = <T extends CommandInstance>({
         isOffline: !appManager.isOnline,
       };
 
-      handleResponseCallbacks([state.data, state.error, state.status], details);
+      handleResponseCallbacks(command, [state.data, state.error, state.status], details);
     }
   };
 
@@ -132,56 +146,60 @@ export const useCommandEvents = <T extends CommandInstance>({
     onUploadProgressCallback?.current?.(progress);
   };
 
-  const handleRequestStart = (setContext: (value: unknown) => void) => {
+  const handleRequestStart = (cmd: T) => {
     return (details: CommandEventDetails<T>) => {
-      setContext(onRequestStartCallback?.current?.(details));
+      onRequestStartCallback?.current?.({ command: cmd, details });
     };
   };
-  const handleResponseStart = (details: CommandEventDetails<T>) => {
-    onResponseStartCallback?.current?.(details);
+  const handleResponseStart = (cmd: T) => {
+    return (details: CommandEventDetails<T>) => {
+      onResponseStartCallback?.current?.({ command: cmd, details });
+    };
   };
 
-  const handleResponse = (requestId: string, context: unknown) => {
+  const handleResponse = (cmd: T) => {
     return (data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>, details: CommandResponseDetails) => {
-      const event = lifecycleEvents.current.get(requestId);
-      event?.unmount();
-      lifecycleEvents.current.delete(requestId);
-
-      handleResponseCallbacks(data, details, context);
+      handleResponseCallbacks(cmd, data, details);
     };
   };
 
-  const handleAbort = () => {
-    const data: ClientResponseType<ExtractResponse<T>, ExtractError<T>> = [
-      null,
-      getErrorMessage("abort") as ExtractError<T>,
-      0,
-    ];
-    const details: CommandResponseDetails = {
-      retries: 0,
-      timestamp: new Date(),
-      isFailed: false,
-      isCanceled: true,
-      isOffline: false,
+  const handleRemove = (requestId: string) => {
+    removeLifecycleListener(requestId);
+  };
+
+  const handleAbort = (cmd: T) => {
+    return () => {
+      const data: ClientResponseType<ExtractResponse<T>, ExtractError<T>> = [
+        null,
+        getErrorMessage("abort") as ExtractError<T>,
+        0,
+      ];
+      const details: CommandResponseDetails = {
+        retries: 0,
+        timestamp: new Date(),
+        isFailed: false,
+        isCanceled: true,
+        isOffline: false,
+      };
+      handleResponseCallbacks(cmd, data, details);
     };
-    handleResponseCallbacks(data, details);
   };
 
   // ******************
   // Data Listeners
   // ******************
 
-  const clearDataListener = () => {
+  const removeDataListener = () => {
     dataEvents.current?.unmount();
   };
 
   const addDataListener = (cmd: CommandInstance, clear = true) => {
     // Data handlers
-    const loadingUnmount = dispatcher.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
+    const loadingUnmount = commandManager.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
     const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, (data) =>
       setCacheData(data),
     );
-    const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort);
+    const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort(cmd));
 
     const unmount = () => {
       loadingUnmount();
@@ -189,7 +207,7 @@ export const useCommandEvents = <T extends CommandInstance>({
       abortUnmount();
     };
 
-    if (clear) clearDataListener();
+    if (clear) removeDataListener();
     dataEvents.current = { unmount };
 
     return unmount;
@@ -199,20 +217,16 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Lifecycle Listeners
   // ******************
 
-  const addLifecycleListeners = (requestId: string) => {
-    let context: unknown | null = null;
-
-    const setContext = (value: unknown) => {
-      context = value;
-    };
-
-    const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
+  const addLifecycleListeners = (requestId: string, cmd: CommandInstance) => {
+    const requestRemove = commandManager.events.onRemove(requestId, handleRemove);
+    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart(cmd));
+    const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart(cmd));
+    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(cmd));
     const uploadUnmount = commandManager.events.onUploadProgressById(requestId, handleUploadProgress);
-    const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart(setContext));
-    const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart);
-    const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(requestId, context));
+    const downloadUnmount = commandManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
 
     const unmount = () => {
+      requestRemove();
       downloadUnmount();
       uploadUnmount();
       requestStartUnmount();
@@ -223,21 +237,6 @@ export const useCommandEvents = <T extends CommandInstance>({
     lifecycleEvents.current.set(requestId, { unmount });
 
     return unmount;
-  };
-
-  const removeLifecycleListener = (requestId: string) => {
-    const event = lifecycleEvents.current.get(requestId);
-    event?.unmount();
-    lifecycleEvents.current.delete(requestId);
-  };
-
-  const clearLifecycleListeners = () => {
-    const events = lifecycleEvents.current;
-    const listeners = Array.from(events.values());
-    listeners.forEach((value) => {
-      value.unmount();
-    });
-    events.clear();
   };
 
   // ******************
@@ -269,28 +268,28 @@ export const useCommandEvents = <T extends CommandInstance>({
   useWillUnmount(() => {
     // Unmount listeners
     clearLifecycleListeners();
-    clearDataListener();
+    removeDataListener();
   });
 
   return [
     {
       abort,
-      onSuccess: <Context = undefined>(callback: OnSuccessCallbackType<ExtractResponse<T>, Context>) => {
+      onSuccess: (callback: OnSuccessCallbackType<T>) => {
         onSuccessCallback.current = callback;
       },
-      onError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
+      onError: (callback: OnErrorCallbackType<T>) => {
         onErrorCallback.current = callback;
       },
-      onAbort: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
+      onAbort: (callback: OnErrorCallbackType<T>) => {
         onAbortCallback.current = callback;
       },
-      onOfflineError: <Context = undefined>(callback: OnErrorCallbackType<ExtractError<T>, Context>) => {
+      onOfflineError: (callback: OnErrorCallbackType<T>) => {
         onOfflineErrorCallback.current = callback;
       },
-      onFinished: <Context = undefined>(callback: OnFinishedCallbackType<ExtractFetchReturn<T>, Context>) => {
+      onFinished: (callback: OnFinishedCallbackType<T>) => {
         onFinishedCallback.current = callback;
       },
-      onRequestStart: <Context = undefined>(callback: OnStartCallbackType<T, Context>) => {
+      onRequestStart: (callback: OnStartCallbackType<T>) => {
         onRequestStartCallback.current = callback;
       },
       onResponseStart: (callback: OnStartCallbackType<T>) => {
@@ -305,7 +304,7 @@ export const useCommandEvents = <T extends CommandInstance>({
     },
     {
       addDataListener,
-      clearDataListener,
+      removeDataListener,
       addLifecycleListeners,
       removeLifecycleListener,
       clearLifecycleListeners,

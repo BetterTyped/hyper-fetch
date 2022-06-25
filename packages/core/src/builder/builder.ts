@@ -34,6 +34,7 @@ import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "mana
  */
 export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestConfigType = ClientDefaultOptionsType> {
   readonly baseUrl: string;
+  readonly isNodeJS: boolean;
   debug: boolean;
 
   // Private
@@ -82,8 +83,9 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   logger = this.loggerManager.init("Builder");
 
   constructor(private options: BuilderConfig) {
-    const { baseUrl, client, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+    const { baseUrl, isNodeJS, client, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.baseUrl = baseUrl;
+    this.isNodeJS = isNodeJS;
     this.client = client || fetchClient;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection

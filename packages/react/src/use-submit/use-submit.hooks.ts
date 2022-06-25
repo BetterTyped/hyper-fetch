@@ -80,8 +80,8 @@ export const useSubmit = <T extends CommandInstance>(
 
     const triggerRequest = () => {
       addDataListener(commandClone, true);
-      commandSendRequest(commandClone, "submit", (requestId) => {
-        addLifecycleListeners(requestId);
+      return commandSendRequest(commandClone, "submit", (requestId) => {
+        addLifecycleListeners(requestId, commandClone);
       });
     };
 
@@ -112,7 +112,7 @@ export const useSubmit = <T extends CommandInstance>(
     if (!invalidateKey) return;
 
     if (invalidateKey && invalidateKey instanceof Command) {
-      cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+      cache.events.revalidate(getCommandKey(invalidateKey));
     } else {
       cache.events.revalidate(invalidateKey);
     }

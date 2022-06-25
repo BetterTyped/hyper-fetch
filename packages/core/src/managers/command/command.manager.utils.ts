@@ -1,4 +1,9 @@
 // Events
+
+export const getLoadingEventKey = (key: string): string => `${key}-loading-event`;
+export const getLoadingIdEventKey = (key: string): string => `${key}-loading-event-by-id`;
+export const getRemoveEventKey = (key: string): string => `${key}-remove-event`;
+
 export const getAbortEventKey = (key: string) => `${key}-request-abort`;
 export const getAbortByIdEventKey = (key: string) => `${key}-request-abort-by-id`;
 export const getResponseEventKey = (key: string) => `${key}-response`;

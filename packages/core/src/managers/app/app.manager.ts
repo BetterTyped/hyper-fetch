@@ -30,8 +30,8 @@ export class AppManager {
     this.setInitialFocus(initiallyFocused);
     this.setInitialOnline(initiallyOnline);
 
-    focusEvent(this.setFocused);
-    onlineEvent(this.setOnline);
+    focusEvent(this.setFocused, builder);
+    onlineEvent(this.setOnline, builder);
   }
 
   private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {

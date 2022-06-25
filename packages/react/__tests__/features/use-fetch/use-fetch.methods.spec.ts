@@ -1,9 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
+import { builder, createCommand, renderUseFetch } from "../../utils";
 
-describe("useFetch [ Helpers ]", () => {
+describe("useFetch [ Methods ]", () => {
   let command = createCommand();
 
   beforeAll(() => {
@@ -35,7 +35,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onRequestStart(spy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(1);
       });
@@ -48,7 +47,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onResponseStart(spy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(1);
       });
@@ -61,7 +59,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onDownloadProgress(spy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(3);
       });
@@ -74,7 +71,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onUploadProgress(spy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(2);
       });
@@ -91,7 +87,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onError(unusedSpy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(1);
         expect(unusedSpy).toBeCalledTimes(0);
@@ -107,7 +102,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onSuccess(unusedSpy);
         });
 
-        await waitForRender();
         await testErrorState(mock, response);
         expect(spy).toBeCalledTimes(1);
         expect(unusedSpy).toBeCalledTimes(0);
@@ -121,7 +115,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onFinished(spy);
         });
 
-        await waitForRender();
         await testSuccessState(mock, response);
         expect(spy).toBeCalledTimes(1);
       });
@@ -134,7 +127,6 @@ describe("useFetch [ Helpers ]", () => {
           response.result.current.onFinished(spy);
         });
 
-        await waitForRender();
         await testErrorState(mock, response);
         expect(spy).toBeCalledTimes(1);
       });
@@ -145,8 +137,6 @@ describe("useFetch [ Helpers ]", () => {
         createRequestInterceptor(command, { status: 400 });
         const response = renderUseFetch(command.setOffline(true));
 
-        await waitForRender();
-
         act(() => {
           response.result.current.onOfflineError(spy);
           builder.appManager.setOnline(false);
@@ -155,6 +145,85 @@ describe("useFetch [ Helpers ]", () => {
         await waitFor(() => {
           expect(spy).toBeCalledTimes(1);
         });
+      });
+      it("should trigger methods on retry", async () => {
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        const spy3 = jest.fn();
+        const spy4 = jest.fn();
+        const spy5 = jest.fn();
+        const spy6 = jest.fn();
+        const spy7 = jest.fn();
+        const spy8 = jest.fn();
+
+        const errorMock = createRequestInterceptor(command, { status: 400 });
+        const response = renderUseFetch(command.setRetry(1).setRetryTime(100));
+
+        act(() => {
+          response.result.current.onRequestStart(spy1);
+          response.result.current.onResponseStart(spy2);
+          response.result.current.onDownloadProgress(spy3);
+          response.result.current.onUploadProgress(spy4);
+          response.result.current.onSuccess(spy5);
+          response.result.current.onError(spy6);
+          response.result.current.onFinished(spy7);
+          response.result.current.onOfflineError(spy8);
+        });
+
+        await testErrorState(errorMock, response);
+        const successMock = createRequestInterceptor(command);
+        await testSuccessState(successMock, response);
+
+        expect(spy1).toBeCalledTimes(2);
+        expect(spy2).toBeCalledTimes(2);
+        expect(spy3).toBeCalledTimes(6);
+        expect(spy4).toBeCalledTimes(4);
+        expect(spy5).toBeCalledTimes(1);
+        expect(spy6).toBeCalledTimes(1);
+        expect(spy7).toBeCalledTimes(2);
+        expect(spy8).toBeCalledTimes(0);
+      });
+      it("should trigger methods on coming back online", async () => {
+        const spy1 = jest.fn();
+        const spy2 = jest.fn();
+        const spy3 = jest.fn();
+        const spy4 = jest.fn();
+        const spy5 = jest.fn();
+        const spy6 = jest.fn();
+        const spy7 = jest.fn();
+        const spy8 = jest.fn();
+
+        const errorMock = createRequestInterceptor(command, { status: 400 });
+        const response = renderUseFetch(command);
+
+        act(() => {
+          response.result.current.onRequestStart(spy1);
+          response.result.current.onResponseStart(spy2);
+          response.result.current.onDownloadProgress(spy3);
+          response.result.current.onUploadProgress(spy4);
+          response.result.current.onSuccess(spy5);
+          response.result.current.onError(spy6);
+          response.result.current.onFinished(spy7);
+          response.result.current.onOfflineError(spy8);
+          builder.appManager.setOnline(false);
+        });
+
+        await testErrorState(errorMock, response);
+        const successMock = createRequestInterceptor(command);
+
+        act(() => {
+          builder.appManager.setOnline(true);
+        });
+
+        await testSuccessState(successMock, response);
+        expect(spy1).toBeCalledTimes(2);
+        expect(spy2).toBeCalledTimes(2);
+        expect(spy3).toBeCalledTimes(6);
+        expect(spy4).toBeCalledTimes(4);
+        expect(spy5).toBeCalledTimes(1);
+        expect(spy6).toBeCalledTimes(0);
+        expect(spy7).toBeCalledTimes(2);
+        expect(spy8).toBeCalledTimes(1);
       });
     });
   });
