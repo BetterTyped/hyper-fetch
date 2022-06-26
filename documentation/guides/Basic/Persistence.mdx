@@ -28,12 +28,20 @@ export const builder = new Builder<ServerErrorType>({
 });
 ```
 
+#### Async persistance storages
+
+:::caution
+
+This feature will be coming soon with implementation for hydration of our cache.
+
+:::
+
 ## Queues Persistance
 
 In the case of persisten queues, there are still a few open topics left in the context of web development. First of all,
 it is about synchronization between browser tabs and the introduction of a "leader system" when it comes to having
-several channels for data synchronization. Due to the freedom of storage that we can place here and their potential
-asynchronicity - we need a few more considerations on how to solve this flow properly.
+several channels for data synchronization. In this case we need to have synchronus data storage to limit the possible
+complications.
 
 :::caution
 
@@ -42,21 +50,25 @@ we will have multiple builders initialized where the **duplicated** requests wil
 
 :::
 
+#### Fetching request persistance
+
 ```tsx
 export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
-  fetchQueue: (instance) =>
-    new FetchQueue(instance, {
+  fetchDispatcher: (instance) =>
+    new Dispatcher(instance, {
       storage: peristanceStorage,
     }),
 });
 ```
 
+#### Submit request persistance
+
 ```tsx
 export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
-  submitQueue: (instance) =>
-    new SubmitQueue(instance, {
+  submitDispatcher: (instance) =>
+    new Dispatcher(instance, {
       storage: peristanceStorage,
     }),
 });

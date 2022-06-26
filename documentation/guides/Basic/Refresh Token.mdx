@@ -1,9 +1,20 @@
+To refresh the token in Hyper Fetch, we can add a special `onError` interceptor to our
+**[Builder](/docs/Docs/Builder)**. It intercepts errors received in our requests and it is asynchronous, which allows
+for efficient handling of such cases.
+
+To properly **`avoid the infinite refresh loop`** of the token, we need to protect ourselves by setting the `used` field
+to **true** thanks to the appropriate method `setUsed`. This will allow us to easily verify whether our commend has
+already gone through the intercept process or not.
+
+#### Example
+
 ```tsx
-export const builder = new Builder({ baseUrl }).onError(async (res, command) => {
-  const status = res[2];
+export const builder = new Builder({ baseUrl }).onError(async (response, command) => {
+  const status = response[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
 
-  // Check if command has the used value - this will ensure you will not go into infinite loop and trigger this operation only once
+  // Check if command has the used value - this will ensure you to
+  // not go into infinite loop and trigger this operation only once
   if (!command.used && refreshToken && status === 401) {
     // Prepare the refresh token command
     const postRefreshToken = builder.createCommand<LoginResponse, LoginData>()({
@@ -18,11 +29,11 @@ export const builder = new Builder({ baseUrl }).onError(async (res, command) => 
       // Safe the new tokens
       localStorage.setItem(TOKEN_STORAGE_FIELD, data.token);
       localStorage.setItem(REFRESH_TOKEN_STORAGE_FIELD, data.refreshToken);
-      // Repeat the request
+      // Repeat the request and set it "used"
       return command.setUsed(true).send();
     }
   }
   // Return the initial response is something goes wrong
-  return res;
+  return response;
 });
 ```

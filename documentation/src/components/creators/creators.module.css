@@ -5,8 +5,10 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 40px;
+  max-width: 500px;
+  margin: auto;
 }
 
 .block {
@@ -50,7 +52,7 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-@media (max-width: 400px) {
+@media (max-width: 325px) {
   .container {
     margin: 0 0 40px;
     padding: 40px 0;
