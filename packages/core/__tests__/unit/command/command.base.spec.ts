@@ -1,5 +1,5 @@
 import { createBuilder, createCommand } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { ClientQueryParamsType } from "../../../src";
 
 describe("Fetch Client [ Base ]", () => {
@@ -26,6 +26,7 @@ describe("Fetch Client [ Base ]", () => {
     jest.spyOn(builder.fetchDispatcher, "add").mockImplementation(spy);
     const header = { it: "works" };
     const c = command.setHeaders(header);
+    createRequestInterceptor(command);
 
     await c.send();
 
@@ -38,6 +39,7 @@ describe("Fetch Client [ Base ]", () => {
     // The queue should receive command with the appropriate header
     const spy = jest.fn(builder.fetchDispatcher.add);
     jest.spyOn(builder.fetchDispatcher, "add").mockImplementation(spy);
+    createRequestInterceptor(command);
 
     expect(command.auth).toBe(true);
 
@@ -60,6 +62,7 @@ describe("Fetch Client [ Base ]", () => {
     const params = { shopId: 11, productId: 1 };
 
     const c = comm.setParams(params);
+    createRequestInterceptor(c);
 
     await c.send();
 
@@ -76,6 +79,7 @@ describe("Fetch Client [ Base ]", () => {
       role: "ADMIN",
     };
     const c = command.setData(data);
+    createRequestInterceptor(c);
 
     await c.send();
 
@@ -92,6 +96,7 @@ describe("Fetch Client [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
+    createRequestInterceptor(comm);
     function dataMapper({ role, userId }: { role: string; userId: number }): string {
       return `${userId}_${role}`;
     }
@@ -111,6 +116,7 @@ describe("Fetch Client [ Base ]", () => {
     const comm = builder.createCommand<unknown, unknown, any, ClientQueryParamsType>()({
       endpoint: "/some-endpoint/",
     });
+    createRequestInterceptor(comm);
     const spy = jest.fn(builder.fetchDispatcher.add);
     jest.spyOn(builder.fetchDispatcher, "add").mockImplementation(spy);
 
