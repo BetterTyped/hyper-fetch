@@ -81,5 +81,8 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to pass query params to submit", async () => {
       // Todo
     });
+    it("should trigger methods when submit modifies the keys", async () => {
+      // Todo
+    });
   });
 });

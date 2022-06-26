@@ -39,7 +39,6 @@ describe("useFetch [ Concurrency ]", () => {
           responseTwo.result.current.onRequestStart(spyTwo);
         });
 
-        await waitForRender();
         await testSuccessState(mock, responseOne);
         await testSuccessState(mock, responseTwo);
 
@@ -56,7 +55,6 @@ describe("useFetch [ Concurrency ]", () => {
         await waitForRender();
         expect(result.current.loading).toBeTrue();
       });
-      it("should stop loading when request in queue get paused", async () => {});
       it("should not start in loading mode when queue is paused", async () => {
         act(() => {
           const queueElement = builder.fetchDispatcher.createStorageElement(command);
@@ -68,6 +66,22 @@ describe("useFetch [ Concurrency ]", () => {
         expect(result.current.loading).toBeFalse();
         await waitForRender();
         expect(result.current.loading).toBeFalse();
+      });
+      it("should share data between hooks", async () => {
+        const mock = createRequestInterceptor(command);
+        const responseOne = renderUseFetch(command);
+        await testSuccessState(mock, responseOne);
+
+        const responseTwo = renderUseFetch(command, { revalidateOnMount: false });
+        await testSuccessState(mock, responseTwo);
+      });
+      it("should share data with disabled hook", async () => {
+        const mock = createRequestInterceptor(command);
+        const responseOne = renderUseFetch(command);
+        const responseTwo = renderUseFetch(command, { disabled: true });
+
+        await testSuccessState(mock, responseOne);
+        await testSuccessState(mock, responseTwo);
       });
     });
   });

@@ -13,7 +13,6 @@ describe("useCommand [ Utils ]", () => {
       expect(isEmpty(NaN)).toBe(false);
       expect(isEmpty("")).toBe(false);
       expect(isEmpty(false)).toBe(false);
-      expect(isEmpty(null)).toBe(false);
       expect(isEmpty(undefined)).toBe(false);
       expect(isEmpty(0)).toBe(false);
       expect(isEmpty(true)).toBe(false);

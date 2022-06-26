@@ -24,7 +24,20 @@ describe("useSubmit [ Retry ]", () => {
   });
 
   describe("when command retry attribute is set to false", () => {
-    it("should not retry request on failure", async () => {});
+    it("should not retry request on failure", async () => {
+      const spy = jest.fn();
+      createRequestInterceptor(command, { status: 400, delay: 5 });
+      const response = renderUseSubmit(command.setRetry(0).setRetryTime(0));
+
+      act(() => {
+        response.result.current.onSubmitRequestStart(spy);
+        response.result.current.submit();
+      });
+
+      await waitForRender(150);
+
+      expect(spy).toBeCalledTimes(1);
+    });
   });
   describe("when command retry attribute is set to true", () => {
     it("should retry request once", async () => {
@@ -68,7 +81,7 @@ describe("useSubmit [ Retry ]", () => {
       });
 
       await waitFor(() => {
-        expect(time[1] - time[0]).toBeLessThan(110);
+        expect(time[1] - time[0]).toBeLessThan(120);
         expect(time[1] - time[0]).toBeGreaterThan(99);
       });
     });

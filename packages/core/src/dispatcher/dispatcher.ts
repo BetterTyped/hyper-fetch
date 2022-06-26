@@ -460,7 +460,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.builder.commandManager.events.emitRemove(requestId);
+    this.builder.commandManager.events.emitRemove(queueKey, requestId);
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);

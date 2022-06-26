@@ -32,7 +32,7 @@ export type TextsOptions = {
   parameters?: string;
   typeDefinitions?: string;
   example?: string;
-  additionalResources?: string;
+  additionalSources?: string;
   import?: string;
   preview?: string;
   returns?: string;

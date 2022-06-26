@@ -7,4 +7,3 @@ jest.config.js
 tsconfig.json
 coverage
 temp
-__tests__

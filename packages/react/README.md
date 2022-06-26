@@ -28,7 +28,7 @@ create modern, optimized, maintainable and high quality solutions.
 
 👑 Window events and request cancellation
 
-## Resources
+## Sources
 
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)

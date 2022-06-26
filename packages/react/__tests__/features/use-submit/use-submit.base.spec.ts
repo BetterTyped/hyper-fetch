@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -42,6 +42,33 @@ describe("useSubmit [ Base ]", () => {
       });
 
       await testSuccessState(mock, response);
+    });
+    it("should listen to the data of last submitted request", async () => {
+      let count = 0;
+      let shouldThrow = false;
+      createRequestInterceptor(command, { fixture: count });
+      const response = renderUseSubmit(command.setRetry(1).setRetryTime(100));
+
+      act(() => {
+        response.result.current.onSubmitRequestStart(() => {
+          count += 1;
+          createRequestInterceptor(command, { fixture: count });
+        });
+        response.result.current.submit();
+        response.result.current.submit();
+        response.result.current.submit();
+        response.result.current.submit();
+      });
+
+      await waitFor(() => {
+        expect(shouldThrow).toBeFalse();
+        const { data } = response.result.current;
+        if (data && data !== 4) {
+          shouldThrow = true;
+        }
+
+        expect(data).toBe(4);
+      });
     });
   });
 });

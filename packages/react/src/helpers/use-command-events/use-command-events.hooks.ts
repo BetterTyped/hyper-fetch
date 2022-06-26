@@ -9,7 +9,7 @@ import {
   ClientResponseType,
   CommandEventDetails,
   CommandResponseDetails,
-  DispatcherLoadingEventType,
+  CommandLoadingEventType,
 } from "@better-typed/hyper-fetch";
 import { useDidUpdate, useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
@@ -130,7 +130,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   // ******************
 
   const handleGetLoadingEvent = (queueKey: string) => {
-    return ({ isLoading }: DispatcherLoadingEventType) => {
+    return ({ isLoading }: CommandLoadingEventType) => {
       const canDisableLoading = !isLoading && !dispatcher.hasRunningRequests(queueKey);
       if (isLoading || canDisableLoading) {
         actions.setLoading(isLoading, false);
@@ -189,16 +189,15 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Data Listeners
   // ******************
 
-  const removeDataListener = () => {
+  const clearDataListener = () => {
     dataEvents.current?.unmount();
+    dataEvents.current = null;
   };
 
-  const addDataListener = (cmd: CommandInstance, clear = true) => {
+  const addDataListener = (cmd: CommandInstance) => {
     // Data handlers
     const loadingUnmount = commandManager.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
-    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, (data) =>
-      setCacheData(data),
-    );
+    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, setCacheData);
     const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort(cmd));
 
     const unmount = () => {
@@ -207,7 +206,7 @@ export const useCommandEvents = <T extends CommandInstance>({
       abortUnmount();
     };
 
-    if (clear) removeDataListener();
+    clearDataListener();
     dataEvents.current = { unmount };
 
     return unmount;
@@ -217,8 +216,28 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Lifecycle Listeners
   // ******************
 
-  const addLifecycleListeners = (requestId: string, cmd: CommandInstance) => {
-    const requestRemove = commandManager.events.onRemove(requestId, handleRemove);
+  const addLifecycleListeners = (cmd: CommandInstance, requestId?: string) => {
+    if (!requestId) {
+      const { queueKey, cacheKey } = cmd;
+      const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart(cmd));
+      const responseStartUnmount = commandManager.events.onResponseStart(queueKey, handleResponseStart(cmd));
+      const uploadUnmount = commandManager.events.onUploadProgress(queueKey, handleUploadProgress);
+      const downloadUnmount = commandManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
+      const responseUnmount = commandManager.events.onResponse(cacheKey, handleResponse(cmd));
+
+      const unmount = () => {
+        downloadUnmount();
+        uploadUnmount();
+        requestStartUnmount();
+        responseStartUnmount();
+        responseUnmount();
+      };
+
+      lifecycleEvents.current.set(queueKey, { unmount });
+
+      return unmount;
+    }
+    const requestRemove = commandManager.events.onRemoveById(requestId, handleRemove);
     const requestStartUnmount = commandManager.events.onRequestStartById(requestId, handleRequestStart(cmd));
     const responseStartUnmount = commandManager.events.onResponseStartById(requestId, handleResponseStart(cmd));
     const responseUnmount = commandManager.events.onResponseById(requestId, handleResponse(cmd));
@@ -268,7 +287,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   useWillUnmount(() => {
     // Unmount listeners
     clearLifecycleListeners();
-    removeDataListener();
+    clearDataListener();
   });
 
   return [
@@ -304,7 +323,7 @@ export const useCommandEvents = <T extends CommandInstance>({
     },
     {
       addDataListener,
-      removeDataListener,
+      clearDataListener,
       addLifecycleListeners,
       removeLifecycleListener,
       clearLifecycleListeners,

@@ -30,9 +30,9 @@ const config = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "resources",
-        path: "resources",
-        routeBasePath: "resources",
+        id: "sources",
+        path: "sources",
+        routeBasePath: "sources",
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
@@ -139,10 +139,10 @@ const config = {
             activeBaseRegex: `/guides/`,
           },
           {
-            to: "/resources/Overview",
-            label: "Resources",
+            to: "/sources/Overview",
+            label: "Sources",
             position: "left",
-            activeBaseRegex: `/resources/`,
+            activeBaseRegex: `/sources/`,
           },
           {
             to: "/blog",

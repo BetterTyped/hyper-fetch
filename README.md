@@ -36,7 +36,7 @@ time.
 🌍 **Opinionated** – Hyper Fetch was built with architecture in mind to tackle multiple problems at once. By observing
 the fetch approach and setup creation, we have developed a structure that should be readable by everyone.
 
-## Resources
+## Sources
 
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)

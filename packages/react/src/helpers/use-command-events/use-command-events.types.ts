@@ -43,9 +43,9 @@ export type UseCommandEventsReturnType<T extends CommandInstance> = [
     onUploadProgress: (callback: OnProgressCallbackType) => void;
   },
   {
-    addDataListener: (command: CommandInstance, clear?: boolean) => VoidFunction;
-    removeDataListener: VoidFunction;
-    addLifecycleListeners: (requestId: string, command: CommandInstance) => VoidFunction;
+    addDataListener: (command: CommandInstance) => VoidFunction;
+    clearDataListener: VoidFunction;
+    addLifecycleListeners: (command: CommandInstance, requestId?: string) => VoidFunction;
     removeLifecycleListener: (requestId: string) => void;
     clearLifecycleListeners: () => void;
   },

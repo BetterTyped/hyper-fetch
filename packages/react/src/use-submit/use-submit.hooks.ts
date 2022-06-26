@@ -9,6 +9,7 @@ import {
 
 import { useDebounce, useDependentState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
+import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -79,9 +80,9 @@ export const useSubmit = <T extends CommandInstance>(
     }
 
     const triggerRequest = () => {
-      addDataListener(commandClone, true);
+      addDataListener(commandClone);
       return commandSendRequest(commandClone, "submit", (requestId) => {
-        addLifecycleListeners(requestId, commandClone);
+        addLifecycleListeners(commandClone, requestId);
       });
     };
 
@@ -133,6 +134,14 @@ export const useSubmit = <T extends CommandInstance>(
     onSubmitOfflineError: callbacks.onOfflineError,
     onSubmitAbort: callbacks.onAbort,
   };
+
+  // ******************
+  // Lifecycle
+  // ******************
+
+  useDidMount(() => {
+    addDataListener(command);
+  });
 
   return {
     submit: handleSubmit,

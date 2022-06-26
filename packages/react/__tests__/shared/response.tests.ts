@@ -72,3 +72,46 @@ export const testCacheState = async <T extends ClientResponseType<any, any>, H e
     expect(response.status).toBe(mock[2]);
   });
 };
+
+export const testLoading = async <
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  H extends RenderHookResult<any, any>,
+>(
+  mock: boolean,
+  render: H,
+) => {
+  await waitFor(() => {
+    const response = getCurrentState(render);
+    if (typeof response.submitting === "boolean") {
+      expect(response.submitting).toBe(mock);
+    } else {
+      expect(response.loading).toBe(mock);
+    }
+  });
+};
+
+export const testData = async <
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  H extends RenderHookResult<any, any>,
+>(
+  mock: T["data"],
+  render: H,
+) => {
+  await waitFor(() => {
+    const response = getCurrentState(render);
+    expect(response.data).toStrictEqual(mock as Record<string, unknown>);
+  });
+};
+
+export const testError = async <
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  H extends RenderHookResult<any, any>,
+>(
+  mock: T["error"],
+  render: H,
+) => {
+  await waitFor(() => {
+    const response = getCurrentState(render);
+    expect(response.error).toStrictEqual(mock as Record<string, unknown>);
+  });
+};

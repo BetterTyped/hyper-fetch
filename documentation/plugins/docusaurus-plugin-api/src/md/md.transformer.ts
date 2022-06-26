@@ -567,7 +567,7 @@ export class MdTransformer {
 
     if (hasHeading && tags.length) {
       output.unshift({
-        [headingSize]: this.pluginOptions.texts?.additionalResources ?? defaultTextsOptions.additionalResources,
+        [headingSize]: this.pluginOptions.texts?.additionalSources ?? defaultTextsOptions.additionalSources,
       });
     }
 

@@ -18,7 +18,7 @@ export const defaultTextsOptions: RequiredKeys<TextsOptions> = {
   parameters: "Parameters",
   typeDefinitions: "Type Definitions",
   example: "Examples",
-  additionalResources: "Additional Resources",
+  additionalSources: "Additional Sources",
   import: "Import",
   preview: "Preview",
   returns: "Returns a",

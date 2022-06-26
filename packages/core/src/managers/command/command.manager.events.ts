@@ -18,10 +18,11 @@ import {
   CommandEventDetails,
   CommandResponseDetails,
   CommandLoadingEventType,
+  getRemoveEventKey,
+  getRemoveIdEventKey,
 } from "managers";
 import { FetchProgressType, ClientResponseType } from "client";
 import { CommandInstance } from "command";
-import { getRemoveEventKey } from "./command.manager.utils";
 
 export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   /**
@@ -82,8 +83,9 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Remove
-  emitRemove: (requestId: string): void => {
-    emitter.emit(getRemoveEventKey(requestId));
+  emitRemove: (queueKey: string, requestId: string): void => {
+    emitter.emit(getRemoveEventKey(queueKey));
+    emitter.emit(getRemoveIdEventKey(requestId));
   },
 
   /**
@@ -162,13 +164,12 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
 
   // Response
   onResponse: <ResponseType, ErrorType>(
-    queueKey: string,
+    cacheKey: string,
     callback: (response: ClientResponseType<ResponseType, ErrorType>, details: CommandResponseDetails) => void,
   ): VoidFunction => {
-    emitter.on(getResponseEventKey(queueKey), callback);
-    return () => emitter.removeListener(getResponseEventKey(queueKey), callback);
+    emitter.on(getResponseEventKey(cacheKey), callback);
+    return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
   },
-
   // Response by requestId
   onResponseById: <ResponseType, ErrorType>(
     requestId: string,
@@ -189,8 +190,12 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Remove
-  onRemove: (requestId: string, callback: () => void): VoidFunction => {
-    emitter.on(getRemoveEventKey(requestId), callback);
-    return () => emitter.removeListener(getRemoveEventKey(requestId), callback);
+  onRemove: (queueKey: string, callback: () => void): VoidFunction => {
+    emitter.on(getRemoveEventKey(queueKey), callback);
+    return () => emitter.removeListener(getRemoveEventKey(queueKey), callback);
+  },
+  onRemoveById: (requestId: string, callback: () => void): VoidFunction => {
+    emitter.on(getRemoveIdEventKey(requestId), callback);
+    return () => emitter.removeListener(getRemoveIdEventKey(requestId), callback);
   },
 });

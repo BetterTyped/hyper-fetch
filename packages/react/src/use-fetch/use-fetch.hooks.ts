@@ -63,7 +63,7 @@ export const useFetch = <T extends CommandInstance>(
     setCacheData,
   });
 
-  const { addDataListener, addLifecycleListeners, clearLifecycleListeners } = listeners;
+  const { addDataListener, addLifecycleListeners, clearDataListener, clearLifecycleListeners } = listeners;
 
   // ******************
   // Fetching
@@ -71,10 +71,7 @@ export const useFetch = <T extends CommandInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug(`Adding request to fetch queue`);
-      clearLifecycleListeners();
-      addDataListener(command);
-      const requestId = dispatcher.add(command);
-      addLifecycleListeners(requestId, command);
+      dispatcher.add(command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -148,6 +145,9 @@ export const useFetch = <T extends CommandInstance>(
   // ******************
 
   const handleMountEvents = () => {
+    addDataListener(command);
+    addLifecycleListeners(command);
+
     const focusUnmount = appManager.events.onFocus(() => {
       if (refreshOnTabFocus) {
         handleFetch();
@@ -170,6 +170,8 @@ export const useFetch = <T extends CommandInstance>(
     const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleFetch);
 
     const unmount = () => {
+      clearDataListener();
+      clearLifecycleListeners();
       focusUnmount();
       blurUnmount();
       onlineUnmount();
