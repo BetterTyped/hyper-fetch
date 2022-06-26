@@ -73,16 +73,59 @@ describe("useSubmit [ Base ]", () => {
       // Todo
     });
     it("should allow to pass data to submit", async () => {
-      // Todo
+      let payload: unknown = null;
+      const myData = { userId: 1 };
+      createRequestInterceptor(command);
+      const response = renderUseSubmit(command);
+
+      await act(async () => {
+        response.result.current.onSubmitRequestStart(({ command: cmd }) => {
+          payload = cmd.data;
+        });
+        response.result.current.submit({ data: myData });
+      });
+
+      expect(payload).toStrictEqual(myData);
     });
     it("should allow to pass params to submit", async () => {
-      // Todo
+      let endpoint: unknown = null;
+      const commandWithParams = createCommand({ endpoint: "/users/:userId" });
+      createRequestInterceptor(commandWithParams.setParams({ userId: 1 }));
+      const response = renderUseSubmit(commandWithParams);
+
+      await act(async () => {
+        response.result.current.onSubmitRequestStart(({ command: cmd }) => {
+          endpoint = cmd.endpoint;
+        });
+        response.result.current.submit({ params: { userId: 1 } });
+      });
+
+      expect(endpoint).toBe("/users/1");
     });
     it("should allow to pass query params to submit", async () => {
-      // Todo
+      let endpoint: unknown = null;
+      createRequestInterceptor(command);
+      const response = renderUseSubmit(command);
+
+      await act(async () => {
+        response.result.current.onSubmitRequestStart(({ command: cmd }) => {
+          endpoint = cmd.endpoint;
+        });
+        response.result.current.submit({ queryParams: "?something=test" });
+      });
+
+      expect(endpoint).toBe("/shared-endpoint?something=test");
     });
-    it("should trigger methods when submit modifies the keys", async () => {
-      // Todo
+    it("should trigger methods when submit modifies the queue keys", async () => {
+      let data: unknown = null;
+      const mock = createRequestInterceptor(command);
+      const response = renderUseSubmit(command);
+
+      await act(async () => {
+        data = await response.result.current.submit({ queryParams: "?something=test" });
+      });
+
+      expect(data).toStrictEqual([mock, null, 200]);
     });
   });
 });

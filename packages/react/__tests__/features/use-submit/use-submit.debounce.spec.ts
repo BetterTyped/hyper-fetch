@@ -46,7 +46,7 @@ describe("useSubmit [ Debounce ]", () => {
         });
 
         expect(startTime - submitTime).toBeGreaterThanOrEqual(100);
-        expect(startTime - submitTime).toBeLessThan(110);
+        expect(startTime - submitTime).toBeLessThan(120);
       });
       it("should debounce multiple request triggers by 100ms", async () => {
         const spy = jest.fn();
@@ -75,7 +75,7 @@ describe("useSubmit [ Debounce ]", () => {
         });
 
         expect(startTime - submitTime).toBeGreaterThanOrEqual(160);
-        expect(startTime - submitTime).toBeLessThan(170);
+        expect(startTime - submitTime).toBeLessThan(180);
         expect(spy).toBeCalledTimes(1);
       });
     });

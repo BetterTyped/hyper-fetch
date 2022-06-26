@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import {
   Command,
   getCommandKey,
@@ -18,7 +18,7 @@ import { useDidMount } from "@better-typed/react-lifecycle-hooks";
  * @returns
  */
 export const useSubmit = <T extends CommandInstance>(
-  commandInstance: T,
+  command: T,
   {
     disabled = useSubmitDefaultOptions.disabled,
     dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
@@ -32,7 +32,6 @@ export const useSubmit = <T extends CommandInstance>(
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
    */
-  const [command, setCommand] = useState(commandInstance);
   const { builder } = command;
   const { cache, submitDispatcher: dispatcher, loggerManager } = builder;
 
@@ -73,7 +72,6 @@ export const useSubmit = <T extends CommandInstance>(
     const options = parameters[0];
     const commandClone = command.clone(options) as T;
 
-    setCommand(commandClone);
     if (disabled) {
       logger.debug(`Cannot add to submit queue`, { disabled, options });
       return [null, null, 0];
