@@ -11,6 +11,7 @@
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
+    "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1",
