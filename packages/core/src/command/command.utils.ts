@@ -74,6 +74,7 @@ export const getSimpleKey = (command: CommandInstance | CommandDump<CommandInsta
  * Cache instance for individual command that collects individual requests responses from
  * the same endpoint (they may differ base on the custom key, endpoint params etc)
  * @param command
+ * @param useInitialValues
  * @returns
  */
 export const getCommandKey = (

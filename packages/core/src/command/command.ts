@@ -401,6 +401,7 @@ export class Command<
   /**
    * Method used to perform requests with usage of cache and queues
    * @param options
+   * @param requestCallback
    */
   public send: FetchMethodType<
     ResponseType,

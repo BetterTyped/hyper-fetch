@@ -76,17 +76,16 @@ export const createStubMethod = (
     return res(...args);
   }
 
-  if (method.toUpperCase() === "POST") {
-    return rest.post(url, callback);
+  switch (method.toUpperCase()) {
+    case "POST":
+      return rest.post(url, callback);
+    case "PUT":
+      return rest.put(url, callback);
+    case "PATCH":
+      return rest.patch(url, callback);
+    case "DELETE":
+      return rest.delete(url, callback);
+    default:
+      return rest.get(url, callback);
   }
-  if (method.toUpperCase() === "PUT") {
-    return rest.put(url, callback);
-  }
-  if (method.toUpperCase() === "PATCH") {
-    return rest.patch(url, callback);
-  }
-  if (method.toUpperCase() === "DELETE") {
-    return rest.delete(url, callback);
-  }
-  return rest.get(url, callback);
 };
