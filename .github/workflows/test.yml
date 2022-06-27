@@ -9,6 +9,9 @@ jobs:
     container: "node:14-alpine"
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
       - run: yarn install
       - run: yarn build
       - uses: paambaati/codeclimate-action@v3.0.0
