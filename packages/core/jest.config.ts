@@ -7,6 +7,7 @@ const config: Config.InitialOptions = {
   testRegex: [".spec.ts"],
   roots: ["<rootDir>/__tests__", "<rootDir>/src"],
   coverageProvider: "v8",
+  coverageReporters: [["lcov", { projectRoot: "../.." }]],
   collectCoverageFrom: ["<rootDir>/src/**/*.ts"],
   coveragePathIgnorePatterns: [".spec", "test", "tests", "types", "constants", "index.ts"],
   moduleDirectories: ["node_modules", "src"],
