@@ -47,4 +47,4 @@ yarn-error.log*
 Thumbs.db
 
 # testing
-*coverage
+coverage

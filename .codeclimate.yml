@@ -1,0 +1,7 @@
+exclude_patterns:
+  - "**/__tests__"
+  - "**/node_modules"
+  - "**/documentation"
+  - "**/examples"
+  - "**/scripts"
+  - "**/dist"

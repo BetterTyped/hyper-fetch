@@ -1,11 +1,15 @@
 # Hyper Fetch
 
 [![BetterTyped](https://badgen.net/badge/icon/Created%20by%20BetterTyped?label&color=black&labelColor=black)](https://bettertyped.com)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/BetterTyped/hyper-fetch/issues)
+[![Maintainability](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/maintainability)](https://codeclimate.com/github/BetterTyped/hyper-fetch/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage)](https://codeclimate.com/github/BetterTyped/hyper-fetch/test_coverage)
 [![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
 [![Stars](https://badgen.net/github/stars/BetterTyped/hyper-fetch?color=green&icon=github)](https://github.com/BetterTyped/hyper-fetch)
 [![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
 [![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
 [![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
+[![HitCount](https://hits.dwyl.com/BetterTyped/hyper-fetch.svg?style=?style=plastic&logo=appveyor)](http://hits.dwyl.com/BetterTyped/hyper-fetch)
 
 ## About
 
@@ -44,7 +48,7 @@ the fetch approach and setup creation, we have developed a structure that should
 
 ## Packages
 
-<table style="width: 100%;">
+<!-- <table style="width: 100%;">
   <thead>
     <tr>
       <th>Package</th>
@@ -56,13 +60,13 @@ the fetch approach and setup creation, we have developed a structure that should
   <tbody>
     <tr>
       <td>
-        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">Hyper Fetch</a>
+        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core" style="white-space:nowrap;">Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch" /></a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch"  style="width:100%;"/></a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg" /></a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg"  style="width:100%;"/></a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">View</a>
@@ -70,20 +74,20 @@ the fetch approach and setup creation, we have developed a structure that should
     </tr>
     <tr>
       <td>
-        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react">React Hyper Fetch</a>
+        <a style="font-weight:bold" href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" style="white-space:nowrap;">React Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" /></a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" style="width:100%;" /></a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" /></a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg"  style="width:100%;"/></a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">View</a>
       </td>
     </tr>
   </tbody>
-</table>
+</table> -->
 
 ## Installation
 
