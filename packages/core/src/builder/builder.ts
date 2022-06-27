@@ -293,17 +293,17 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
    * Private helper to run async on-error response processing
    */
   __modifyErrorResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-    interceptResponse(this.__onErrorCallbacks, response, command);
+    interceptResponse<GlobalErrorType>(this.__onErrorCallbacks, response, command);
 
   /**
    * Private helper to run async on-success response processing
    */
   __modifySuccessResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-    interceptResponse(this.__onSuccessCallbacks, response, command);
+    interceptResponse<GlobalErrorType>(this.__onSuccessCallbacks, response, command);
 
   /**
    * Private helper to run async response processing
    */
   __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-    interceptResponse(this.__onResponseCallbacks, response, command);
+    interceptResponse<GlobalErrorType>(this.__onResponseCallbacks, response, command);
 }

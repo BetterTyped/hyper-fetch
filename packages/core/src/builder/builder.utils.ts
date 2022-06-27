@@ -33,9 +33,9 @@ export const interceptRequest = async (interceptors: RequestInterceptorCallback[
   return newCommand;
 };
 
-export const interceptResponse = async (
+export const interceptResponse = async <GlobalErrorType>(
   interceptors: ResponseInterceptorCallback[],
-  response: ClientResponseType<unknown, unknown>,
+  response: ClientResponseType<any, GlobalErrorType>,
   command: CommandInstance,
 ) => {
   let newResponse = response;

@@ -47,8 +47,8 @@ export type BuilderErrorType = Record<string, any> | string;
 // Interceptors
 
 export type RequestInterceptorCallback = (command: CommandInstance) => Promise<CommandInstance> | CommandInstance;
-export type ResponseInterceptorCallback = (
-  response: ClientResponseType<any, any>,
+export type ResponseInterceptorCallback = <Response = any, Error = any>(
+  response: ClientResponseType<Response | unknown, Error | unknown>,
   command: CommandInstance,
 ) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;
 
