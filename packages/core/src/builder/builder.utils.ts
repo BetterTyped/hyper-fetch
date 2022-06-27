@@ -1,7 +1,14 @@
-import { ClientQueryParam, ClientQueryParamsType, ClientQueryParamValues, QueryStringifyOptions } from "client";
+import {
+  ClientQueryParam,
+  ClientQueryParamsType,
+  ClientQueryParamValues,
+  ClientResponseType,
+  QueryStringifyOptions,
+} from "client";
 import { CommandInstance } from "command";
 import { stringifyDefaultOptions } from "builder";
 import { NegativeTypes } from "types";
+import { RequestInterceptorCallback, ResponseInterceptorCallback } from "./builder.types";
 
 // Utils
 
@@ -13,6 +20,35 @@ export const stringifyValue = (response: string | unknown): string => {
   }
 };
 
+export const interceptRequest = async (interceptors: RequestInterceptorCallback[], command: CommandInstance) => {
+  let newCommand = command;
+  if (!command.commandOptions.disableRequestInterceptors) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const interceptor of interceptors) {
+      // eslint-disable-next-line no-await-in-loop
+      newCommand = (await interceptor(command)) as CommandInstance;
+      if (!newCommand) throw new Error("Request modifier must return command");
+    }
+  }
+  return newCommand;
+};
+
+export const interceptResponse = async (
+  interceptors: ResponseInterceptorCallback[],
+  response: ClientResponseType<unknown, unknown>,
+  command: CommandInstance,
+) => {
+  let newResponse = response;
+  if (!command.commandOptions.disableResponseInterceptors) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const interceptor of interceptors) {
+      // eslint-disable-next-line no-await-in-loop
+      newResponse = await interceptor(response, command);
+      if (!newResponse) throw new Error("Response modifier must return data");
+    }
+  }
+  return newResponse;
+};
 // Mappers
 
 export const getClientHeaders = (command: CommandInstance) => {

@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 import {
   ClientType,
   fetchClient,
@@ -26,6 +24,7 @@ import { Dispatcher } from "dispatcher";
 import { FetchEffectInstance } from "effect";
 import { Command, CommandConfig, CommandInstance } from "command";
 import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
+import { interceptRequest, interceptResponse } from "./builder.utils";
 
 /**
  * **Builder** is a class that allows you to configure the connection with the server and then use it to create
@@ -283,70 +282,28 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   /**
    * Helper used by http client to apply the modifications on response error
    */
-  __modifyAuth = async (command: CommandInstance): Promise<CommandInstance> => {
-    let newCommand = command;
-    if (!command.commandOptions.disableRequestInterceptors) {
-      for (const interceptor of this.__onAuthCallbacks) {
-        newCommand = (await interceptor(command)) as CommandInstance;
-        if (!newCommand) throw new Error("Auth request modifier must return command");
-      }
-    }
-    return newCommand;
-  };
+  __modifyAuth = async (command: CommandInstance) => interceptRequest(this.__onAuthCallbacks, command);
 
   /**
    * Private helper to run async pre-request processing
    */
-  __modifyRequest = async (command: CommandInstance): Promise<CommandInstance> => {
-    let newCommand = command;
-    if (!command.commandOptions.disableRequestInterceptors) {
-      for (const interceptor of this.__onRequestCallbacks) {
-        newCommand = (await interceptor(command)) as CommandInstance;
-        if (!newCommand) throw new Error("Request modifier must return command");
-      }
-    }
-    return newCommand;
-  };
+  __modifyRequest = async (command: CommandInstance) => interceptRequest(this.__onRequestCallbacks, command);
 
   /**
    * Private helper to run async on-error response processing
    */
-  __modifyErrorResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) => {
-    let newResponse = response;
-    if (!command.commandOptions.disableResponseInterceptors) {
-      for (const interceptor of this.__onErrorCallbacks) {
-        newResponse = await interceptor(response, command);
-        if (!newResponse) throw new Error("Response modifier must return data");
-      }
-    }
-    return newResponse;
-  };
+  __modifyErrorResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
+    interceptResponse(this.__onErrorCallbacks, response, command);
 
   /**
    * Private helper to run async on-success response processing
    */
-  __modifySuccessResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) => {
-    let newResponse = response;
-    if (!command.commandOptions.disableResponseInterceptors) {
-      for (const interceptor of this.__onSuccessCallbacks) {
-        newResponse = await interceptor(response, command);
-        if (!newResponse) throw new Error("Response modifier must return data");
-      }
-    }
-    return newResponse;
-  };
+  __modifySuccessResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
+    interceptResponse(this.__onSuccessCallbacks, response, command);
 
   /**
    * Private helper to run async response processing
    */
-  __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) => {
-    let newResponse = response;
-    if (!command.commandOptions.disableResponseInterceptors) {
-      for (const interceptor of this.__onResponseCallbacks) {
-        newResponse = await interceptor(response, command);
-        if (!newResponse) throw new Error("Response modifier must return data");
-      }
-    }
-    return newResponse;
-  };
+  __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
+    interceptResponse(this.__onResponseCallbacks, response, command);
 }

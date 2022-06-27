@@ -18,7 +18,7 @@ export const useQueue = <Command extends CommandInstance>(
   const { abortKey, queueKey, builder } = command;
   const { commandManager } = builder;
 
-  const dispatcher = getCommandDispatcher(command, queueType);
+  const [dispatcher] = getCommandDispatcher(command, queueType);
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
@@ -43,11 +43,15 @@ export const useQueue = <Command extends CommandInstance>(
   // ******************
 
   const getInitialState = () => {
-    const [queue] = dispatcher;
-    const commandQueue = queue.getQueue<Command>(queueKey);
+    const commandQueue = dispatcher.getQueue<Command>(queueKey);
 
     setStopped(commandQueue.stopped);
     setRequests(createRequestsArray(commandQueue.requests));
+  };
+
+  const updateQueueState = (values: { requests: QueueRequest<Command>[]; stopped: boolean }) => {
+    setStopped(values.stopped);
+    setRequests(createRequestsArray(values.requests));
   };
 
   // ******************
@@ -55,11 +59,8 @@ export const useQueue = <Command extends CommandInstance>(
   // ******************
 
   const mountEvents = () => {
-    const [queue] = dispatcher;
-    const unmountChange = queue.events.onQueueChange<Command>(queueKey, (values) => {
-      setStopped(values.stopped);
-      setRequests(createRequestsArray(values.requests));
-    });
+    const unmountChange = dispatcher.events.onQueueChange<Command>(queueKey, updateQueueState);
+    const unmountStatus = dispatcher.events.onQueueStatus<Command>(queueKey, updateQueueState);
 
     const unmountDownload = commandManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, downloading: progress } : el)));
@@ -67,11 +68,6 @@ export const useQueue = <Command extends CommandInstance>(
 
     const unmountUpload = commandManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, uploading: progress } : el)));
-    });
-
-    const unmountStatus = queue.events.onQueueStatus<Command>(queueKey, (values) => {
-      setStopped(values.stopped);
-      setRequests(createRequestsArray(values.requests));
     });
 
     const unmount = () => {
@@ -83,7 +79,6 @@ export const useQueue = <Command extends CommandInstance>(
 
     unmountCallbacks.current?.();
     unmountCallbacks.current = unmount;
-
     return unmount;
   };
 
