@@ -42,9 +42,9 @@ the fetch approach and setup creation, we have developed a structure that should
 
 ## Sources
 
+- #### [Quick Start](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
 
 ## Packages
 
@@ -53,7 +53,6 @@ the fetch approach and setup creation, we have developed a structure that should
     <tr>
       <th>Package</th>
       <th>Stats</th>
-      <th>NPM</th>
     </tr>
   </thead>
   <tbody>
@@ -65,9 +64,6 @@ the fetch approach and setup creation, we have developed a structure that should
         <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch"/></a>
         <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg"/></a>
       </td>
-      <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">View</a>
-      </td>
     </tr>
     <tr>
       <td>
@@ -76,9 +72,6 @@ the fetch approach and setup creation, we have developed a structure that should
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch" /></a>
         <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg"/></a>
-      </td>
-      <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">View</a>
       </td>
     </tr>
   </tbody>
@@ -101,7 +94,3 @@ npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 or
 yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 ```
-
-## Checkout our page!
-
-### [Better Typed](https://bettertyped.com/docs/Overview)

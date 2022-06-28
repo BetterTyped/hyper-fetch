@@ -18,46 +18,34 @@ tracking, structure and architecture solutions.
 
 ## Features
 
-✨ **Simple config** – Hyper Fetch has prepared `setup out of the box` - from caching, queueing to query parameters
-parsing, deduplication and much more. It has built-in http client to help you with often problematic setup, at the same
-time allowing you to use your favorite libraries like Axios or Fetch!
+🚀 Simple usage and powerful features for rapid development
 
-⚡️ **Lighting fast** – Our `caching and request deduplication` solutions allow you to take advantage of fully modern
-fetching approach. This way you not only save your time, but also resources as we dramatically can reduce and optimize
-the frontend to backend communication.
+🏆 Provide the best quality with a friendly working environment
 
-🚀 **Persistance and offline** – Did you ever had the problem with connection or your device crashed? We provide
-solutions to solve data loss problems - with command approach we can store and persist(with some storage based
-limitations) data and restore them in subsequent sessions allowing for fully offline first experience.
+🏭 Built-in support for query params and url parameters handling
 
-💎 **Queueing** – If you need to send requests in an orderly manner, we have solutions that allow you to use one of
-several approaches. `Concurrent` to allow you to send all requests at once, `one-by-one` to send them in order or
-`only-last` to cancel all running requests except the last one and the `deduplicated` to send only one at the given
-time.
+💎 Cache and requests persistance options with rich offline first support
 
-🌍 **Opinionated** – Hyper Fetch was built with architecture in mind to tackle multiple problems at once. By observing
-the fetch approach and setup creation, we have developed a structure that should be readable by everyone.
+🎁 Request queueing, deduplication, cancellation and retries
+
+🔧 Easy access to internal logic for custom integrations and solutions
+
+👑 Track full request lifecycle with ease
+
+📡 Download/Upload progress with ETA and details
+
+🔋 Accelerate your testing with shared commands setup
+
+💡 Written with typescript in mind to create a safe environment
 
 ## Sources
 
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Simple%20Example)
 
-## Packages
+## Other Packages
 
 - #### [React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)
-
-## Installation
-
-### Clean
-
-```bash
-npm install --save @better-typed/hyper-fetch
-or
-yarn add @better-typed/hyper-fetch
-```
-
-## Checkout our page!
-
-### [Better Typed](https://bettertyped.com/docs/Overview)

@@ -12,40 +12,39 @@
 ## About
 
 **`React Hyper Fetch`** is a set of tools and hooks for Hyper Fetch, that combined with React's lifecycle allow to
-create modern, optimized, maintainable and high quality solutions.
+create modern, optimized, maintainable and high quality solutions. We offer many hooks for your use, thanks to which you
+can download or mutate data, observe sent requests and interact with data in the cache.
 
 ## Features
 
-🚀 Simple usage and powerful features
+🚀 Simple usage and powerful features for rapid development
 
-🏭 Cache, request deduplication and auto refetching
+🏆 Provide the best quality with a friendly working environment
 
-💎 Persistance and offline first support
+🏭 Built-in support for query params and url parameters handling
 
-🎁 Queueing and auto refetching
+💎 Cache and requests persistance options with rich offline first support
 
-🔧 Customizable and fully integrated with Hyper Fetch
+🎁 Request queueing, deduplication, cancellation and retries
 
-👑 Window events and request cancellation
+🔧 Easy access to internal logic for custom integrations and solutions
+
+👑 Track full request lifecycle with ease
+
+📡 Download/Upload progress with ETA and details
+
+🔋 Accelerate your testing with shared commands setup
+
+💡 Written with typescript in mind to create a safe environment
 
 ## Sources
 
-- #### [Docs](https://hyperfetch.bettertyped.com/)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
+- #### [Docs](https://hyperfetch.bettertyped.com/docs/React/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Simple%20Example)
 
-## Packages
+## Other Packages
 
 - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-
-## Installation
-
-```bash
-npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
-or
-yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
-```
-
-## Checkout our page!
-
-### [Better Typed](https://bettertyped.com/docs/Overview)
