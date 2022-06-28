@@ -10,19 +10,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Get Yarn cache
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
-      - name: Install packages
+
+      - name: Install peers
+        if: steps.yarn-cache.outputs.cache-hit != 'false'
         run: yarn install
+
+      - name: Install packages
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
+        run: yarn install
+
       - name: Build packages
         run: yarn build
+
       - name: Build docs
         run: yarn build:docs
+
       - name: Deploy to S3 bucket
         run: aws s3 sync ./documentation/build/ s3://${{ secrets.PROD_AWS_S3 }} --delete
+
       - name: Clear cache after deploy
         run: aws cloudfront create-invalidation --distribution-id=${{ secrets.PROD_AWS_CLOUDFRONT_ID }} --paths "/*"
