@@ -13,21 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+
       - name: Get Yarn cache
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
 
-      - uses: actions/cache@v3
+      - name: Run Cache
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "14.x"
 
       - name: Install packages
         if: steps.yarn-cache.outputs.cache-hit != 'true'
