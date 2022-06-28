@@ -59,28 +59,28 @@ the fetch approach and setup creation, we have developed a structure that should
   </thead>
   <tbody>
     <tr>
-      <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core" fontWeight="bold" whiteSpace="nowrap">Hyper Fetch</a>
+      <td width="140">
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core" >Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch" width="140"/></a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/hyper-fetch" minWidth="140"/></a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg" width="107"/></a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg" minWidth="80"/></a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">View</a>
       </td>
     </tr>
     <tr>
-      <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" fontWeight="bold" whiteSpace="nowrap">React Hyper Fetch</a>
+      <td width="140">
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >React Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch"  width="140"/></a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch"  minWidth="140"/></a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" width="107"/></a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg" minWidth="80"/></a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">View</a>
