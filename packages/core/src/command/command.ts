@@ -106,7 +106,7 @@ export class Command<
       effectKey,
       deduplicate = false,
       deduplicateTime = 10,
-    } = { ...this.builder.commandConfig, ...commandOptions };
+    } = { ...this.builder.commandConfig?.(commandOptions), ...commandOptions };
 
     this.endpoint = commandDump?.endpoint ?? endpoint;
     this.headers = commandDump?.headers ?? headers;

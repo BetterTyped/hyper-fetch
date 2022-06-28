@@ -5,7 +5,7 @@ import { ClientDefaultOptionsType, QueryStringifyOptions } from "client";
 import { LoggerManager, LoggerLevelType } from "managers";
 
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createBuilder, createClient, interceptorCallback, middlewareCallback } from "../../utils";
+import { createBuilder, createClient, createCommand, interceptorCallback, middlewareCallback } from "../../utils";
 
 describe("Builder [ Methods ]", () => {
   let builder = createBuilder();
@@ -24,17 +24,11 @@ describe("Builder [ Methods ]", () => {
   });
 
   describe("When using config methods", () => {
-    it("should assign request config [setRequestConfig]", async () => {
-      const options: ClientDefaultOptionsType = { timeout: 1000 };
-      builder.setRequestConfig(options);
-
-      expect(builder.requestConfig).toEqual(options);
-    });
     it("should assign default command config [setCommandConfig]", async () => {
       const options: Partial<CommandConfig<string, ClientDefaultOptionsType>> = { method: "POST" };
-      builder.setCommandConfig(options);
+      builder.setCommandConfig(() => options);
 
-      expect(builder.commandConfig).toEqual(options);
+      expect(builder.commandConfig(createCommand(builder).commandOptions)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptions = { strict: false };

@@ -23,7 +23,7 @@ const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknow
   const controllers = commandManager.abortControllers.get(command.abortKey);
   const abortController = Array.from(controllers || [])[0];
 
-  const timeoutTime = command.options?.timeout || command.builder?.requestConfig?.timeout || defaultTimeout;
+  const timeoutTime = command.options?.timeout || defaultTimeout;
   const isTimeout = timeoutTime < delay;
 
   if (!delay) {

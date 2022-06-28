@@ -44,7 +44,7 @@ tracking, structure and architecture solutions.
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Simple%20Example)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
 
 ## Other Packages
 

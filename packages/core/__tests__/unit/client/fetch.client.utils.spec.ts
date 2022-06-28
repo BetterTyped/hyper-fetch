@@ -1,35 +1,17 @@
-import { getErrorMessage, getRequestConfig, parseErrorResponse, parseResponse } from "client";
+import { getErrorMessage, parseErrorResponse, parseResponse } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createBuilder, createCommand } from "../../utils";
 
 describe("Fetch Client [ Utils ]", () => {
-  // const requestId = "test";
-  const builderConfig = { timeout: 2000, responseText: "something" };
-  const commandConfig = { timeout: 999, statusText: "Error" };
-
-  let builder = createBuilder().setRequestConfig(builderConfig);
-  let command = createCommand(builder, { options: commandConfig });
-
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    builder = createBuilder().setRequestConfig(builderConfig);
-    command = createCommand(builder, { options: commandConfig });
     resetInterceptors();
   });
 
   afterAll(() => {
     stopServer();
-  });
-
-  describe("When getRequestConfig util got triggered", () => {
-    it("should merge global and local config into one", async () => {
-      const config = getRequestConfig(command);
-      expect(config).toStrictEqual({ ...builderConfig, ...commandConfig });
-      expect(config).not.toStrictEqual({ ...commandConfig, ...builderConfig });
-    });
   });
 
   describe("When getErrorMessage util got triggered", () => {

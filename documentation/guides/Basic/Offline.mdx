@@ -1,8 +1,4 @@
----
-sidebar_position: 9
----
-
-`Hyper Fetch` was created with offline and data persistence in mind, thanks to this approach our queues, which are
+We created this library with offline and data persistence in mind, thanks to this approach our queues, which are
 responsible for sending and processing requests, are fully prepared for `creating offline-first applications`.
 
 Currently, the operation of this system is default, which means that the offline mechanics are queued and completely
@@ -12,6 +8,8 @@ requests being executed or queued, and then resume them when the connection is r
 The offline operation is greatly influenced by one of the managers -
 **[AppManager](/api/Hyper-Fetch/Class/AppManager)**, which is responsible for emitting events related to the current
 state of the application - such as offline / online or focused / blurred.
+
+---
 
 ## Custom offline events
 
@@ -24,10 +22,8 @@ export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
-      onlineEvent: (setOnline) =>
-        NetInfo.addEventListener((state) => {
-          setOnline(state.isConnected);
-        }),
+      initiallyOnline: async () => {}
+      onlineEvent: (setOnline) => {}
     }),
 });
 ```

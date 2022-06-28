@@ -3,12 +3,6 @@ import { ExtractError } from "types";
 
 // Utils
 
-export const getRequestConfig = <T extends Record<string, unknown> = Record<string, unknown>>(
-  command: CommandInstance,
-): T => {
-  return { ...command.builder.requestConfig, ...command.commandOptions.options };
-};
-
 export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
   if (errorCase === "timeout") {
     return new Error("Request timeout");

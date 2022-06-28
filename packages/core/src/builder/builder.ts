@@ -58,8 +58,10 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   effects: FetchEffectInstance[] = [];
 
   // Options
-  requestConfig?: RequestConfigType;
-  commandConfig?: Partial<CommandConfig<string, RequestConfigType>>;
+  requestConfig?: (command: CommandInstance) => RequestConfigType;
+  commandConfig?: (
+    commandOptions: CommandConfig<string, RequestConfigType>,
+  ) => Partial<CommandConfig<string, RequestConfigType>>;
   queryParamsConfig?: QueryStringifyOptions;
 
   // Utils
@@ -95,20 +97,12 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   }
 
   /**
-   * It sets the client request config (by default XHR config). This is the global way to setup the configuration for client and trigger it with every command.
-   */
-  setRequestConfig = (requestConfig: RequestConfigType): Builder<GlobalErrorType, RequestConfigType> => {
-    this.requestConfig = requestConfig;
-    return this;
-  };
-
-  /**
    * This method allows to configure global defaults for the command configuration like method, auth, deduplication etc.
    */
   setCommandConfig = (
-    commandConfig: Partial<CommandConfig<string, RequestConfigType>>,
+    callback: (command: CommandInstance) => Partial<CommandConfig<string, RequestConfigType>>,
   ): Builder<GlobalErrorType, RequestConfigType> => {
-    this.commandConfig = commandConfig;
+    this.commandConfig = callback;
     return this;
   };
 

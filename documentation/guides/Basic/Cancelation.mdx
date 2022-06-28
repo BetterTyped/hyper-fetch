@@ -5,32 +5,13 @@ Canceling requests happens in many places in Hyper Fetch. There are cases when w
 from the dispatcher storage (manual aborting) or the case when it stays in memory to be triggered later again (stop
 sending the request, stopping the queue).
 
-#### Dispatcher built-in queue/request stoping
-
-When we stop sending all requests from further on in the queue, we do not want them to be deleted, but canceled, so that
-we can resume them at any time we choose.
-
-```ts
-// Make a request to server
-postFile.send()
-
-...
-
-// Stop the request from being send for later
-// Do not delete it from storage to trigger it later
-builder.fetchDispatcher.stop(postFile.queueKey)
-
-...
-
-// Start sending again
-builder.fetchDispatcher.start(postFile.queueKey)
-```
+---
 
 #### Dispatcher cancelable mode
 
 One of the dispatcher's modes is `cancelable` one. It causes that calling a request while the previous one is in
 progress, we cancel it and let us finish the one just called. To enable this mode, we need to set the `cancelable: true`
-field to command options.
+field to command options. It works the best to prevent `race-conditioning`.
 
 ```ts
 const getUsers = builder.createCommand<UsersList>()({  endpoint: "/users", cancelable: true });
@@ -41,6 +22,8 @@ getUsers.send()
 // Cancel the previous request and trigger new one
 getUsers.send()
 ```
+
+---
 
 #### Manual cancelation by abortKey
 
@@ -77,3 +60,26 @@ getUsers.abort()
 
   </TabItem>
 </Tabs>
+
+---
+
+#### Dispatcher built-in queue/request stoping
+
+When we stop sending all requests from further on in the queue, we do not want them to be deleted, but canceled, so that
+we can resume them at any time we choose.
+
+```ts
+// Make a request to server
+postFile.send()
+
+...
+
+// Stop the request from being send for later
+// Do not delete it from storage to trigger it later
+builder.fetchDispatcher.stop(postFile.queueKey)
+
+...
+
+// Start sending again
+builder.fetchDispatcher.start(postFile.queueKey)
+```

@@ -12,8 +12,7 @@ describe("Fetch Client [ Bindings ]", () => {
   const data = { value: 1 };
   const successResponse: ClientResponseType<unknown, unknown> = [data, null, 200];
   const errorResponse: ClientResponseType<unknown, unknown> = [null, data, 400];
-  const requestConfig: ClientDefaultOptionsType = { timeout: 1000 };
-  const commandConfig: ClientDefaultOptionsType = { responseType: "arraybuffer" };
+  const commandConfig: ClientDefaultOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
   const onTriggerSpy = jest.fn();
   const onErrorSpy = jest.fn();
@@ -30,7 +29,7 @@ describe("Fetch Client [ Bindings ]", () => {
       onStart: onStartSpy,
       onSuccess: onSuccessSpy,
     });
-    const builder = createBuilder({ baseUrl }).setRequestConfig(requestConfig).addEffect([effect]);
+    const builder = createBuilder({ baseUrl }).addEffect([effect]);
     const command = createCommand(builder, { endpoint, options: commandConfig })
       .setData(data)
       .setEffectKey("test")
@@ -71,11 +70,6 @@ describe("Fetch Client [ Bindings ]", () => {
     it("should create correct payload", async () => {
       const { payload } = await getClientBindings(command, requestId);
       expect(payload).toEqual(JSON.stringify(data));
-    });
-
-    it("should create correct request config", async () => {
-      const { config } = await getClientBindings(command, requestId);
-      expect(config).toEqual({ ...requestConfig, ...commandConfig });
     });
 
     it("should create AbortController", async () => {

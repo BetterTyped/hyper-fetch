@@ -43,7 +43,7 @@ can download or mutate data, observe sent requests and interact with data in the
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/React/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Simple%20Example)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
 
 ## Other Packages
 

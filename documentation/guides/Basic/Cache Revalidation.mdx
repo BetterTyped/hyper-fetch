@@ -8,6 +8,8 @@ list of notes in the database, we want the already stored data to be refreshed. 
 We can do it by using appropriate methods. Passing an **`invalidationKey`** which should be a `cacheKey or RegExp` that
 will allow us to find the desired key of the data stored in cache.
 
+---
+
 <Tabs>
   <TabItem value="React" label="React" default>
 
@@ -15,6 +17,8 @@ will allow us to find the desired key of the data stored in cache.
 // With useFetch
 const { revalidate } = useFetch(getUsers);
 
+revalidate()
+// or
 revalidate(getNotes)
 // or
 revalidate(getNotes.cacheKey)
@@ -34,6 +38,8 @@ revalidate(new RegExp(...))
 // With useCache
 const { revalidate } = useCache(getUsers);
 
+revalidate()
+// or
 revalidate(getNotes)
 // or
 revalidate(getNotes.cacheKey)

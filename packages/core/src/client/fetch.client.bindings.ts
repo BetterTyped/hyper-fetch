@@ -1,10 +1,4 @@
-import {
-  getErrorMessage,
-  getRequestConfig,
-  ClientResponseSuccessType,
-  ClientResponseErrorType,
-  ProgressPayloadType,
-} from "client";
+import { getErrorMessage, ClientResponseSuccessType, ClientResponseErrorType, ProgressPayloadType } from "client";
 import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
@@ -41,7 +35,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   const effects = builder.effects.filter((effect) => command.effectKey === effect.getEffectKey());
   const headers = headerMapper(command);
   const payload = payloadMapper(data);
-  const config = getRequestConfig(command);
+  const config = { ...command.commandOptions.options };
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
