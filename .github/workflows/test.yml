@@ -14,21 +14,21 @@ jobs:
         with:
           node-version: "14"
 
-      - name: Get Yarn cache
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      # - name: Get Yarn cache
+      #   id: yarn-cache-dir-path
+      #   run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - name: Run Cache
         uses: actions/cache@v3
         id: yarn-cache
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          path: "**/node_modules"
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
       - name: Install packages
-        # if: steps.yarn-cache.outputs.cache-hit != 'true'
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
 
       - name: Build
