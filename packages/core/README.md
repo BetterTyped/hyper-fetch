@@ -18,25 +18,25 @@ tracking, structure and architecture solutions.
 
 ## Features
 
-🚀 Simple usage and powerful features for rapid development
+##### 🚀 Simple usage and powerful features for rapid development
 
-🏆 Provide the best quality with a friendly working environment
+##### 🏆 Provide the best quality with a friendly working environment
 
-🏭 Built-in support for query params and url parameters handling
+##### 🏭 Built-in support for query params and url parameters handling
 
-💎 Cache and requests persistance options with rich offline first support
+##### 💎 Cache and requests persistance options with rich offline first support
 
-🎁 Request queueing, deduplication, cancellation and retries
+##### 🎁 Request queueing, deduplication, cancellation and retries
 
-🔧 Easy access to internal logic for custom integrations and solutions
+##### 🔧 Easy access to internal logic for custom integrations and solutions
 
-👑 Track full request lifecycle with ease
+##### 👑 Track full request lifecycle with ease
 
-📡 Download/Upload progress with ETA and details
+##### 📡 Download/Upload progress with ETA and details
 
-🔋 Accelerate your testing with shared commands setup
+##### 🔋 Accelerate your testing with shared commands setup
 
-💡 Written with typescript in mind to create a safe environment
+##### 💡 Written with typescript in mind to create a safe environment
 
 ## Sources
 
