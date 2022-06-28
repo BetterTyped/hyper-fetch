@@ -27,6 +27,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: tests
+        id: test
+        run: cd node_modules && ls
+
       - name: Install packages
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install

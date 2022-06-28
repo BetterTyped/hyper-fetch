@@ -24,10 +24,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: tests
-        id: test
-        run: cd node_modules && ls
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
