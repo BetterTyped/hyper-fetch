@@ -30,10 +30,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
 
-      - name: Install peers
-        if: steps.yarn-cache.outputs.cache-hit != 'false'
-        run: yarn install
-
       - name: Install packages
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install

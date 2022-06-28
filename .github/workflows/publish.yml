@@ -29,10 +29,6 @@ jobs:
         with:
           node-version: "14.x"
 
-      - name: Install peers
-        if: steps.yarn-cache.outputs.cache-hit != 'false'
-        run: yarn install
-
       - name: Install packages
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn install
