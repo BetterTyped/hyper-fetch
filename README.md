@@ -1,7 +1,8 @@
 # Hyper Fetch
 
-[![BetterTyped](https://badgen.net/badge/icon/Created%20by%20BetterTyped?label&color=black&labelColor=black)](https://bettertyped.com)
+[![BetterTyped](https://img.shields.io/static/v1?label=&message=Created%20by%20BetterTyped&color=black&logo=BT)](https://github.com/BetterTyped)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/BetterTyped/hyper-fetch/issues)
+[![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Maintainability](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/maintainability)](https://codeclimate.com/github/BetterTyped/hyper-fetch/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage)](https://codeclimate.com/github/BetterTyped/hyper-fetch/test_coverage)
 [![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
@@ -45,6 +46,7 @@ the fetch approach and setup creation, we have developed a structure that should
 - #### [Quick Start](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
 
 ## Packages
 
