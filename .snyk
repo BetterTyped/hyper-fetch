@@ -1,0 +1,9 @@
+exclude:
+  global:
+    - "**/__tests__"
+    - "**/node_modules"
+    - "**/documentation"
+    - "**/examples"
+    - "**/scripts"
+    - "**/dist"
+    - "**/coverage"
