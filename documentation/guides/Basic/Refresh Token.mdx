@@ -8,7 +8,7 @@ already gone through the intercept process or not.
 
 #### Example
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).onError(async (response, command) => {
   const status = response[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);

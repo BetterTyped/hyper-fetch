@@ -14,7 +14,7 @@ valid format to match json requirements.
 
 ## Cache Persistance
 
-```tsx
+```ts
 export const storage = new MMKV({ id: "my-key" });
 
 const peristanceStorage: CacheStorageType = {
@@ -65,7 +65,7 @@ damage.
 
 #### Fetching request persistance
 
-```tsx
+```ts
 export const storage = new MMKV({ id: "my-key" });
 
 const peristanceStorage: DispatcherStorageType = {
@@ -92,7 +92,7 @@ export const builder = new Builder<ServerErrorType>({
 
 #### Submit request persistance
 
-```tsx
+```ts
 export const storage = new MMKV({ id: "my-key" });
 
 const peristanceStorage: DispatcherStorageType = {

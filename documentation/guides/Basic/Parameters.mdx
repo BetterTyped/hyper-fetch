@@ -1,5 +1,22 @@
-:::note
+Url parameters are detected automatically thanks to typescript, which makes it very convenient to manage them and detect
+regression. The assumption is very simple, our parameter to be completed should consist of two parts `:` and a `name`,
+such as: `:userId` or `:productId`. We place them in the enpoint string when we initialize command.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+### Setting url parameters
+
+You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
+creation.
+
+```ts
+const getUsers = builder.createCommand()({ endpoint: "/users/:userId" });
+
+getUsers.setParams({ userId: "John" });
+```
+
+```ts
+const getUsers = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+
+getUsers.setParams({ categoryId: 12, productId: "Z24PBW443" });
+```

@@ -18,21 +18,21 @@ We can setup custom config with instructions how to stingify the values. It can 
 You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
 creation.
 
-```tsx
+```ts
 type QueryParamsType = {
   search: string;
   sort: string;
 };
 
-const getUsers = builder.createCommand<Response, void, void, QueryParamsType>()({ endpoint: "users" });
+const getUsers = builder.createCommand<Response, void, void, QueryParamsType>()({ endpoint: "/users" });
 
 // Setting the query params
 
 getUsers.setQueryParams({ search: "John", sort: "age" });
 ```
 
-```tsx
-const getUsers = builder.createCommand<Response, void, void, string>()({ endpoint: "users" });
+```ts
+const getUsers = builder.createCommand<Response, void, void, string>()({ endpoint: "/users" });
 
 getUsers.setQueryParams("?search=John&sort=age");
 ```

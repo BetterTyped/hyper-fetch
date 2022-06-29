@@ -6,7 +6,7 @@ another for the others.
 It is worth remembering that global configurations are overwritten by command settings, so the options that we set will
 be applied only to commands that do not have them specified in their options.
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).setCommandConfig((commandOptions) => {
   if (commandOptions.method === "GET") {
     return {

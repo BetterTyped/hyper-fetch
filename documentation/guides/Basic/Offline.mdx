@@ -17,7 +17,7 @@ Let's take React Native as an example. The default events detecting whether our 
 online state are based on the window event listeners, when we are talking about a native implementation, we must use
 NetInfo as the source of the connection state.
 
-```tsx
+```ts
 export const builder = new Builder<ServerErrorType>({
   baseUrl: environment.serverUrl,
   appManager: (instance) =>

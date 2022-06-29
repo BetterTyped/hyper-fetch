@@ -11,7 +11,7 @@ Interceptors can be deactivated on selected commands thanks to the options passe
 You can add an interceptor to every command executed within a given builder and overwrite the sent data or execute your
 own logic.
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).onRequest(async (response, command) => {
   // Add your custom logic
 
@@ -27,7 +27,7 @@ With response interceptors, you can call your own logic and change the returned 
 
 ### onSuccess
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).onSuccess(async (response, command) => {
   // Add your custom logic
 
@@ -37,7 +37,7 @@ export const builder = new Builder({ baseUrl }).onSuccess(async (response, comma
 
 ### onError
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).onError(async (response, command) => {
   // Add your custom logic
 
@@ -47,7 +47,7 @@ export const builder = new Builder({ baseUrl }).onError(async (response, command
 
 ### onResponse
 
-```tsx
+```ts
 export const builder = new Builder({ baseUrl }).onResponse(async (response, command) => {
   // Add your custom logic
 
