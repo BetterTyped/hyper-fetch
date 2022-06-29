@@ -10,9 +10,9 @@
     "start:next": "nx serve nextjs",
     "build": "nx run-many --target=build --all --exclude=reactjs,nextjs --parallel=2",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "test": "nx run-many --target=test-pipeline --all --exclude=reactjs,nextjs",
+    "test": "nx run-many --target=test-pipeline --all --exclude=reactjs,nextjs --parallel=1",
     "lint": "nx run-many --target=lint --all --exclude=reactjs,nextjs --parallel=2",
-    "semantic-release": "semantic-release"
+    "release": "nx run-many --target=semantic-release --all --exclude=reactjs,nextjs --parallel=1"
   },
   "private": true,
   "dependencies": {
@@ -35,7 +35,10 @@
     "@nrwl/next": "14.3.6",
     "@nrwl/react": "14.3.6",
     "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^9.0.1",
+    "@semantic-release/release-notes-generator": "^10.0.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
@@ -78,6 +81,7 @@
     "react-dom": "18.2.0",
     "react-router-dom": "^6.3.0",
     "react-test-renderer": "18.2.0",
+    "semantic-release": "^19.0.3",
     "ts-jest": "^28.0.5",
     "ts-node": "~10.8.0",
     "tslib": "^2.3.0",

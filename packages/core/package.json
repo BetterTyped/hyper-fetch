@@ -20,7 +20,8 @@
     "postbuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "precommit": "yarn lint-staged"
+    "precommit": "yarn lint-staged",
+    "semantic-release": "semantic-release --ci"
   },
   "publishConfig": {
     "access": "public",
