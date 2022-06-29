@@ -27,6 +27,7 @@ const config = {
         path: "guides",
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
+        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
       },
     ],
     [

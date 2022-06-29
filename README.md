@@ -1,6 +1,6 @@
 # Hyper Fetch
 
-[![BetterTyped](https://img.shields.io/static/v1?label=&message=Created%20by%20BetterTyped&color=black&logo=BT)](https://github.com/BetterTyped)
+[![BetterTyped](https://img.shields.io/static/v1?label=&message=Created%20by%20BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/BetterTyped/hyper-fetch/issues)
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Maintainability](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/maintainability)](https://codeclimate.com/github/BetterTyped/hyper-fetch/maintainability)
