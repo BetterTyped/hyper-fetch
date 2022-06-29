@@ -86,7 +86,7 @@ if (yarnBin && process.env[envLabel] !== "1") {
       }
 
       executioner(
-        '"${node}" "${yarn}" add ${ignoreWorkspaceRootCheck} --peer --pure-lockfile -W ${packages}',
+        '"${node}" "${yarn}" add ${ignoreWorkspaceRootCheck} --peer --pure-lockfile --prefer-offline -W ${packages}',
         options,
         function (error, result) {
           process.env[envLabel] = "0";
