@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 The use of query params is based on an internal parser. We can freely change its options and format.
 
 ---
@@ -28,11 +32,13 @@ const getUsers = builder.createCommand<Response, void, void, QueryParamsType>()(
 
 // Setting the query params
 
-getUsers.setQueryParams({ search: "John", sort: "age" });
+const command = getUsers.setQueryParams({ search: "John", sort: "age" });
+console.log(command.endpoint); // Output: "/users?search=John&sort=age"
 ```
 
 ```ts
 const getUsers = builder.createCommand<Response, void, void, string>()({ endpoint: "/users" });
 
-getUsers.setQueryParams("?search=John&sort=age");
+const command = getUsers.setQueryParams("search=John&sort=age");
+console.log(command.endpoint); // Output: "/users?search=John&sort=age"
 ```

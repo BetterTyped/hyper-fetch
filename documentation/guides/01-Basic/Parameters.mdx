@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 Url parameters are detected automatically thanks to typescript, which makes it very convenient to manage them and detect
 regression. The assumption is very simple, our parameter to be completed should consist of two parts `:` and a `name`,
 such as: `:userId` or `:productId`. We place them in the enpoint string when we initialize command.
@@ -12,11 +16,13 @@ creation.
 ```ts
 const getUsers = builder.createCommand()({ endpoint: "/users/:userId" });
 
-getUsers.setParams({ userId: "John" });
+const command = getUsers.setParams({ userId: 281 });
+console.log(command.endpoint); // Output: "/users/281"
 ```
 
 ```ts
-const getUsers = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+const getProduct = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
 
-getUsers.setParams({ categoryId: 12, productId: "Z24PBW443" });
+const command = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
+console.log(command.endpoint); // Output: "/entities/12/Z24PBW443"
 ```

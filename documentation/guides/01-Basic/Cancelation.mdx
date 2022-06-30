@@ -1,17 +1,17 @@
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-Canceling requests happens in many places in Hyper Fetch. There are cases when we make the request, abort it and remove
-from the dispatcher storage (manual aborting) or the case when it stays in memory to be triggered later again (stop
-sending the request, stopping the queue).
+Canceling requests happens in many places in Hyper Fetch. There are cases when we make the request and we want to abort
+it manually or the case when queue is aborting it when we stop it, but then it's not removed from memory and it wait for
+next trigger.
 
 ---
 
 #### Dispatcher cancelable mode
 
-One of the dispatcher's modes is `cancelable` one. It causes that calling a request while the previous one is in
-progress, we cancel it and let us finish the one just called. To enable this mode, we need to set the `cancelable: true`
-field to command options. It works the best to prevent `race-conditioning`.
+One of the dispatcher's modes is `cancelable` one. It is triggered when previous request is in progress and we trigger
+the new one and cancel previous at the same time to prevent `race-conditioning` of the responses. To enable this mode,
+we need to set the `cancelable: true` field to command options.
 
 ```ts
 const getUsers = builder.createCommand<UsersList>()({  endpoint: "/users", cancelable: true });

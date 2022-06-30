@@ -40,6 +40,15 @@ const config = {
       },
     ],
     [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "examples",
+        path: "examples",
+        routeBasePath: "examples",
+        sidebarPath: require.resolve("./sidebars.js"),
+      },
+    ],
+    [
       "docusaurus-plugin-api",
       {
         id: "api",
@@ -148,6 +157,11 @@ const config = {
             activeBaseRegex: `/sources/`,
           },
           {
+            to: "/examples/Playground",
+            label: "Examples",
+            position: "left",
+          },
+          {
             to: "/blog",
             label: "Blog",
             position: "left",
@@ -172,7 +186,7 @@ const config = {
               },
               {
                 label: "Documentation",
-                to: "/docs/Docs/Builder",
+                to: "/docs/Architecture/Builder",
               },
               {
                 label: "React",

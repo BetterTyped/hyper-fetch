@@ -1,6 +1,45 @@
+---
+sidebar_position: 6
+---
+
+Authentication in Hyper Fetch consists of two steps. We will introduce changes in the
+**[Builder](/docs/Architecture/Builder)** instance and subsequent commands created from it.
+
+---
+
+#### The first is to determine the impact on the command sent like on the example below.
+
+```ts
+export const builder = new Builder({ baseUrl }).onAuth((command) => {
+  // Redux store or any other storage to get current value of token
+  const state = store.getState();
+  const authToken = state.auth.token;
+
+  // For every authenticated command we want to
+  // add the header with token and return the extended command
+  return command.setHeaders({
+    ...command.headers,
+    Authorization: `Bearer ${authToken}`,
+  });
+});
+```
+
+#### The second step is to put the `auth: true` option in the command to make it available for `onAuth` method of builder.
+
+```ts
+export const getUsers = builder.createCommand()({
+  endpoint: "/users",
+  auth: true,
+});
+```
+
+That's it, from now on, each request made using this command will be authenticated.
+
+### Refresh token
+
 To refresh the token in Hyper Fetch, we can add a special `onError` interceptor to our
-**[Builder](/docs/Docs/Builder)**. It intercepts errors received in our requests and it is asynchronous, which allows
-for efficient handling of such cases.
+**[Builder](/docs/Architecture/Builder)**. It intercepts errors received in our requests and it is asynchronous, which
+allows for efficient handling of such cases.
 
 To properly **`avoid the infinite refresh loop`** of the token, we need to protect ourselves by setting the `used` field
 to **true** thanks to the appropriate method `setUsed`. This will allow us to easily verify whether our commend has

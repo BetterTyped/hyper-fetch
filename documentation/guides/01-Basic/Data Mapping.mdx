@@ -5,7 +5,8 @@ application and introduce **feature regression**.
 
 Another case is sending `FormData`, which is impossible to represent in the form of an exact interface in terms of the
 fields it contains. In order not to send something that is equivalent to the type `any`, we can specify the correct type
-in the command and then map everything to FormData just before it gets added to **[Dispatcher](/docs/Docs/Dispatcher)**.
+in the command and then map everything to FormData just before it gets added to
+**[Dispatcher](/docs/Architecture/Dispatcher)**.
 
 In this way, we ensure very safe typing and flexibility in developing our application.
 
