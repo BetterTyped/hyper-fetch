@@ -45,7 +45,7 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/047-pin.svg",
     description: "Persistance",
-    link: <Link to="/guides/Basic/Persistence">Read more</Link>,
+    link: <Link to="/guides/Advanced/Persistence">Read more</Link>,
   },
   {
     image: "/img/features/063-slide show app.svg",
@@ -70,12 +70,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/012-daily health app.svg",
     description: "Queueing requests",
-    link: <Link to="/guides/Basic/Queueing">Read more</Link>,
+    link: <Link to="/guides/Advanced/Queueing">Read more</Link>,
   },
   {
     image: "/img/features/002-speech bubble.svg",
     description: "Offline handling",
-    link: <Link to="/guides/Basic/Offline">Read more</Link>,
+    link: <Link to="/guides/Advanced/Offline">Read more</Link>,
   },
 ];
 
