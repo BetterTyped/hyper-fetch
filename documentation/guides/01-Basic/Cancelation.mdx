@@ -1,0 +1,85 @@
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Canceling requests happens in many places in Hyper Fetch. There are cases when we make the request and we want to abort
+it manually or the case when queue is aborting it when we stop it, but then it's not removed from memory and it wait for
+next trigger.
+
+---
+
+#### Dispatcher cancelable mode
+
+One of the dispatcher's modes is `cancelable` one. It is triggered when previous request is in progress and we trigger
+the new one and cancel previous at the same time to prevent `race-conditioning` of the responses. To enable this mode,
+we need to set the `cancelable: true` field to command options.
+
+```ts
+const getUsers = builder.createCommand<UsersList>()({  endpoint: "/users", cancelable: true });
+
+// Make a request to server
+getUsers.send()
+...
+// Cancel the previous request and trigger new one
+getUsers.send()
+```
+
+---
+
+#### Manual cancelation by abortKey
+
+Each command has its own abortKey, which may be the same across request groups. Thanks to it, we have the ability to
+abort ongoing requests.
+
+<Tabs>
+  <TabItem value="React" label="React" default>
+
+```tsx
+// With useFetch
+const { abort } = useFetch();
+
+abort();
+
+// With useSubmit
+const { abort, submit } = useSubmit();
+
+submit();
+...
+abort();
+```
+
+  </TabItem>
+  <TabItem value="Typescript" label="Typescript" default>
+
+```ts
+// Make a request to server
+getUsers.send()
+...
+// Cancel the previous request
+getUsers.abort()
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
+#### Dispatcher built-in queue/request stoping
+
+When we stop sending all requests from further on in the queue, we do not want them to be deleted, but canceled, so that
+we can resume them at any time we choose.
+
+```ts
+// Make a request to server
+postFile.send()
+
+...
+
+// Stop the request from being send for later
+// Do not delete it from storage to trigger it later
+builder.fetchDispatcher.stop(postFile.queueKey)
+
+...
+
+// Start sending again
+builder.fetchDispatcher.start(postFile.queueKey)
+```

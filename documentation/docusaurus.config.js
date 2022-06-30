@@ -27,6 +27,7 @@ const config = {
         path: "guides",
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
+        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
       },
     ],
     [
@@ -35,6 +36,15 @@ const config = {
         id: "sources",
         path: "sources",
         routeBasePath: "sources",
+        sidebarPath: require.resolve("./sidebars.js"),
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "examples",
+        path: "examples",
+        routeBasePath: "examples",
         sidebarPath: require.resolve("./sidebars.js"),
       },
     ],
@@ -147,6 +157,11 @@ const config = {
             activeBaseRegex: `/sources/`,
           },
           {
+            to: "/examples/Playground",
+            label: "Examples",
+            position: "left",
+          },
+          {
             to: "/blog",
             label: "Blog",
             position: "left",
@@ -171,7 +186,7 @@ const config = {
               },
               {
                 label: "Documentation",
-                to: "/docs/Docs/Builder",
+                to: "/docs/Architecture/Builder",
               },
               {
                 label: "React",

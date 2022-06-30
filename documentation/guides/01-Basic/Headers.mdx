@@ -1,0 +1,26 @@
+---
+sidebar_position: 5
+---
+
+We can set the headers in two ways - when creating the command, or through one of its methods - `setHeaders`.
+
+---
+
+### Example
+
+```ts
+const getUsers = builder.createCommand()({
+  endpoint: "/users",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+console.log(getUsers.headers); // Output: { "Content-Type": "application/json" }
+```
+
+```ts
+const command = createUser.setHeaders({
+  "Content-Type": "application/json",
+});
+console.log(command.headers); // Output: { "Content-Type": "application/json" }
+```

@@ -1,0 +1,14 @@
+**Retries** are set on the command, we can define their number and the interval between subsequent dispatches. We can
+add these options while creating the command or through the `setRetry` and `setRetryTime` methods.
+
+---
+
+### Example
+
+```ts
+const createUser = builder.createCommand()({ endpoint: "/users", retry: 4, retryTime: DateInterval.second * 3 });
+
+// OR
+
+const newCommand = createUser.setRetry(1).setRetryTime(DateInterval.minute);
+```

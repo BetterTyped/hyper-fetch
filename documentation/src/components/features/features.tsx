@@ -20,12 +20,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/036-browser.svg",
     description: "Built-in http client",
-    link: <Link to="/docs/Docs/Client">Read more</Link>,
+    link: <Link to="/docs/Architecture/Client">Read more</Link>,
   },
   {
     image: "/img/features/051-drive.svg",
     description: "Automatic caching",
-    link: <Link to="/docs/Docs/Cache">Read more</Link>,
+    link: <Link to="/docs/Architecture/Cache">Read more</Link>,
   },
   {
     image: "/img/features/029-find my gadget app.svg",
@@ -55,12 +55,12 @@ const FeatureList: FeatureItem[] = [
   {
     image: "/img/features/069-linkedin.svg",
     description: "App Managers",
-    link: <Link to="/docs/Docs/Managers">Read more</Link>,
+    link: <Link to="/docs/Architecture/Managers">Read more</Link>,
   },
   {
     image: "/img/features/049-messenger.svg",
     description: "React hooks with amazing features",
-    link: <Link to="/docs/Docs/Managers">Read more</Link>,
+    link: <Link to="/docs/Architecture/Managers">Read more</Link>,
   },
   {
     image: "/img/features/070-file hosting.svg",

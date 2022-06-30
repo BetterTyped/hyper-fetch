@@ -11,10 +11,11 @@ sidebar_position: 3
 
 ## Introduction
 
-This hook is created to **retrieve data** from the server. It uses the [`Fetch Dispatcher`](/docs/Docs/Dispatcher) to
-handle requests and the [`Cache`](/docs/Docs/Cache) to manage the overall state of the data.
+This hook is created to **retrieve data** from the server. It uses the
+[`Fetch Dispatcher`](/docs/Architecture/Dispatcher) to handle requests and the [`Cache`](/docs/Architecture/Cache) to
+manage the overall state of the data.
 
-The minimum requirement to use `useFetch` is to have a prepared [`Command`](/docs/Docs/Command).
+The minimum requirement to use `useFetch` is to have a prepared [`Command`](/docs/Architecture/Command).
 
 If you intend to `mutate` data stored on the server, we recommend [`useSubmit`](/docs/React/useSubmit) hook.
 

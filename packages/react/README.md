@@ -1,6 +1,6 @@
 # React Hyper Fetch
 
-[![BetterTyped](https://img.shields.io/static/v1?label=&message=Created%20by%20BetterTyped&color=black&logo=BT)](https://github.com/BetterTyped)
+[![BetterTyped](https://img.shields.io/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
 [![Downloads](https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
 [![NPM](https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
 [![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)

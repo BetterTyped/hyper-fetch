@@ -11,10 +11,10 @@ sidebar_position: 5
 
 ## Introduction
 
-This hook is created to **controll the dispatcher queues**. It uses the [`Dispatcher`](/docs/Docs/Dispatcher) to read
-the actual value of the queue `based on the queueKey` retrived from command passed as first argument.
+This hook is created to **controll the dispatcher queues**. It uses the [`Dispatcher`](/docs/Architecture/Dispatcher) to
+read the actual value of the queue `based on the queueKey` retrived from command passed as first argument.
 
-The minimum requirement to use `useQueue` is to have a prepared [`Command`](/docs/Docs/Command).
+The minimum requirement to use `useQueue` is to have a prepared [`Command`](/docs/Architecture/Command).
 
 ---
 
@@ -54,7 +54,8 @@ pause();
 start();
 ```
 
-Read more about differences between `stop`, `pause` and `start` at the [`Dispatcher`](/docs/Docs/Dispatcher) doc page.
+Read more about differences between `stop`, `pause` and `start` at the [`Dispatcher`](/docs/Architecture/Dispatcher) doc
+page.
 
 ---
 
