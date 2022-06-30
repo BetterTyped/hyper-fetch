@@ -2,15 +2,16 @@
 
 [![BetterTyped](https://img.shields.io/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/BetterTyped/hyper-fetch/issues)
-[![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+[![semantic-release: angular](https://img.shields.io/badge/semantic--release-commitzen-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![Maintainability](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/maintainability)](https://codeclimate.com/github/BetterTyped/hyper-fetch/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage)](https://codeclimate.com/github/BetterTyped/hyper-fetch/test_coverage)
-[![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
+[![License](https://badgen.net/github/license/BetterTyped/hyper-fetch?color=yellow)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
 [![Stars](https://badgen.net/github/stars/BetterTyped/hyper-fetch?color=green&icon=github)](https://github.com/BetterTyped/hyper-fetch)
-[![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
-[![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
+[![REST](https://img.shields.io/badge/-REST-informational?logo=telegram&color=lightgrey)](https://github.com/BetterTyped/hyper-fetch)
+[![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white&color=ff69b4)](https://github.com/BetterTyped/hyper-fetch)
 [![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
 [![HitCount](https://hits.dwyl.com/BetterTyped/hyper-fetch.svg?style=?style=plastic&logo=appveyor)](http://hits.dwyl.com/BetterTyped/hyper-fetch)
+[![Join the chat at https://gitter.im/hyper-fetch/community](https://img.shields.io/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet)](https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## About
 
