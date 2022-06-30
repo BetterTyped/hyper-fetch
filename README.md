@@ -10,7 +10,7 @@
 [![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
 [![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
 [![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
-[![HitCount](https://hits.dwyl.com/BetterTyped/hyper-fetch.svg?style=?style=plastic&logo=appveyor)](http://hits.dwyl.com/BetterTyped/hyper-fetch)
+[![HitCount](https://hits.dwyl.com/BetterTyped/hyper-fetch.svg?style=?style=plastic&logo=appveyor)](http://hits.dwyl.com/BetterTyped/hyper-fetch) [![Join the chat at https://gitter.im/hyper-fetch/community](https://badges.gitter.im/hyper-fetch/community.svg)](https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## About
 
