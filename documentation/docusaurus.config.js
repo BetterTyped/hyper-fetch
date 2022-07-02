@@ -19,6 +19,13 @@ const config = {
   organizationName: "BetterTyped", // Usually your GitHub org/user name.
   projectName: "Hyper Fetch", // Usually your repo name.
 
+  scripts: [
+    {
+      src: "https://survey.survicate.com/workspaces/9f3c2b1e74133251e55420aaadfaf50d/web_surveys.js",
+      async: true,
+    },
+  ],
+
   plugins: [
     [
       "@docusaurus/plugin-content-docs",
