@@ -19,8 +19,8 @@ export const fetchClient: ClientType = async (command, requestId) => {
     onResponseStart,
     onResponseProgress,
     onSuccess,
-    onAbortError,
-    onTimeoutError,
+    // onAbortError,
+    // onTimeoutError,
     onError,
     onResponseEnd,
   } = await getClientBindings(command, requestId);
