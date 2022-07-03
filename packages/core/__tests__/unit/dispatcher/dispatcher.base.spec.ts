@@ -3,8 +3,6 @@ import { createDispatcher, createBuilder, createCommand } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Dispatcher [ Basic ]", () => {
-  const requestId = "test";
-
   let builder = createBuilder();
   let command = createCommand(builder);
 
@@ -55,7 +53,7 @@ describe("Dispatcher [ Basic ]", () => {
       const dispatcherDump = newDispatcher.createStorageElement(command);
 
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
-      newDispatcher.delete(command.queueKey, requestId, command.abortKey);
+      newDispatcher.delete(command.queueKey, dispatcherDump.requestId, command.abortKey);
       newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
       newDispatcher.clearQueue(command.queueKey);
 

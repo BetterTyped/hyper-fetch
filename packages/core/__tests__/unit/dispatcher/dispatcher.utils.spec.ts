@@ -1,9 +1,12 @@
 import {
   canRetryRequest,
+  DispatcherDumpValueType,
+  DispatcherRequestType,
   getDispatcherChangeEventKey,
   getDispatcherDrainedEventKey,
   getDispatcherStatusEventKey,
   getIsEqualTimestamp,
+  getRequestType,
   isFailedRequest,
 } from "dispatcher";
 import { createDispatcher, createBuilder, createClient, createCommand } from "../../utils";
@@ -38,6 +41,23 @@ describe("Dispatcher [ Utils ]", () => {
       expect(dispatcher.getQueueRequestCount(queueKey)).toBe(0);
       dispatcher.incrementQueueRequestCount(queueKey);
       expect(dispatcher.getQueueRequestCount(queueKey)).toBe(1);
+    });
+  });
+  describe("When using getRequest method", () => {
+    it("should give stored request", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      const requestId = dispatcher.add(command);
+      const request = dispatcher.getRequest(command.queueKey, requestId);
+      expect(request).toBeDefined();
+    });
+    it("should not return request from empty store", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      const request = dispatcher.getRequest(command.queueKey, "test");
+      expect(request).not.toBeDefined();
     });
   });
   describe("When using clear methods", () => {
@@ -97,6 +117,20 @@ describe("Dispatcher [ Utils ]", () => {
       expect(getDispatcherDrainedEventKey("test")).toBe(`test-drained-event`);
       expect(getDispatcherStatusEventKey("test")).toBe(`test-status-event`);
       expect(getDispatcherChangeEventKey("test")).toBe(`test-change-event`);
+    });
+  });
+  describe("When using getRequestType util", () => {
+    it("should return deduplicated type", async () => {
+      const command = createCommand(builder, { deduplicate: true });
+      const duplicated: DispatcherDumpValueType<typeof command> = dispatcher.createStorageElement(command);
+      const type = getRequestType(command, duplicated);
+      expect(type).toBe(DispatcherRequestType.deduplicated);
+    });
+    it("should return cancelable type", async () => {
+      const command = createCommand(builder, { cancelable: true });
+      const duplicated: DispatcherDumpValueType<typeof command> = dispatcher.createStorageElement(command);
+      const type = getRequestType(command, duplicated);
+      expect(type).toBe(DispatcherRequestType.previousCanceled);
     });
   });
 });

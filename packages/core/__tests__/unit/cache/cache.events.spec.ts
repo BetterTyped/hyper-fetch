@@ -1,5 +1,6 @@
-import { getCacheEvents } from "cache";
 import EventEmitter from "events";
+
+import { getCacheEvents } from "cache";
 
 describe("Cache [ Events ]", () => {
   const key = "test";
@@ -32,28 +33,3 @@ describe("Cache [ Events ]", () => {
     });
   });
 });
-
-// revalidate: async (pattern: CacheKeyType | RegExp): Promise<void> => {
-//   const keys = await storage.keys();
-
-//   if (typeof pattern === "string" && pattern.startsWith("/") && pattern.endsWith("/")) {
-//     const [matcher] = matchPath(pattern);
-//     emitter.emit(getRevalidateEventKey(pattern));
-
-//     // eslint-disable-next-line no-restricted-syntax
-//     for (const entityKey of keys) {
-//       if (matcher.test(entityKey)) {
-//         emitter.emit(getRevalidateEventKey(entityKey));
-//       }
-//     }
-//   } else if (typeof pattern === "string") {
-//     emitter.emit(getRevalidateEventKey(pattern));
-//   } else {
-//     // eslint-disable-next-line no-restricted-syntax
-//     for (const entityKey of keys) {
-//       if (pattern.test(entityKey)) {
-//         emitter.emit(getRevalidateEventKey(entityKey));
-//       }
-//     }
-//   }
-// },

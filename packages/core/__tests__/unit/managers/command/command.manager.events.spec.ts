@@ -94,5 +94,21 @@ describe("CommandManager [ Events ]", () => {
     it("should not throw when removing non-existing controller key", async () => {
       expect(() => builder.commandManager.abortByKey("fake-key")).not.toThrow();
     });
+
+    it("should emit abort event once", async () => {
+      createRequestInterceptor(command);
+      const spy1 = jest.fn();
+
+      builder.fetchDispatcher.add(command);
+      builder.commandManager.events.onAbort(command.abortKey, spy1);
+
+      await sleep(5);
+      builder.commandManager.abortAll();
+
+      await sleep(50);
+      expect(spy1).toBeCalledTimes(1);
+
+      expect(builder.appManager.isFocused).toBeTrue();
+    });
   });
 });

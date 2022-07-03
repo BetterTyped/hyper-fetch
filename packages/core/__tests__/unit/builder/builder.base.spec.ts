@@ -58,4 +58,61 @@ describe("Builder [ Base ]", () => {
       expect(builder.submitDispatcher).toBe(submitDispatcher);
     });
   });
+  describe("When builder is getting cleared", () => {
+    it("should assign new appManager", async () => {
+      const spy = jest.fn();
+      const appManager = new AppManager(builderInstance);
+      const builder = createBuilder({
+        appManager: () => {
+          spy();
+          return appManager;
+        },
+      });
+      expect(spy).toBeCalledTimes(1);
+      builder.clear();
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should assign new cache", async () => {
+      const spy = jest.fn();
+      const cache = new Cache(builderInstance);
+      const builder = createBuilder({
+        cache: () => {
+          spy();
+          return cache;
+        },
+      });
+
+      expect(spy).toBeCalledTimes(1);
+      builder.clear();
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should assign new fetchDispatcher", async () => {
+      const spy = jest.fn();
+      const fetchDispatcher = new Dispatcher(builderInstance);
+      const builder = createBuilder({
+        fetchDispatcher: () => {
+          spy();
+          return fetchDispatcher;
+        },
+      });
+
+      expect(spy).toBeCalledTimes(1);
+      builder.clear();
+      expect(spy).toBeCalledTimes(2);
+    });
+    it("should assign new submitDispatcher", async () => {
+      const spy = jest.fn();
+      const submitDispatcher = new Dispatcher(builderInstance);
+      const builder = createBuilder({
+        submitDispatcher: () => {
+          spy();
+          return submitDispatcher;
+        },
+      });
+
+      expect(spy).toBeCalledTimes(1);
+      builder.clear();
+      expect(spy).toBeCalledTimes(2);
+    });
+  });
 });

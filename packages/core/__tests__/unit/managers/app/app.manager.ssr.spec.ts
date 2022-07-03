@@ -1,23 +1,27 @@
-import { resetInterceptors, startServer, stopServer } from "../../../server";
+import { hasDocument, hasWindow } from "managers";
 
 describe("AppManager [ SSR ]", () => {
-  beforeAll(() => {
-    startServer();
-  });
-
   beforeEach(() => {
-    resetInterceptors();
     jest.resetAllMocks();
-  });
-
-  afterAll(() => {
-    stopServer();
   });
 
   describe("Given window is not available from beginning", () => {
     describe("When app manager is initialized", () => {
+      it("should not throw without document", async () => {
+        jest.spyOn(window, "document", "get").mockImplementation(() => {
+          throw new Error();
+        });
+
+        expect(hasDocument).not.toThrow();
+        expect(hasDocument()).toBeFalse();
+      });
       it("should not throw without window", async () => {
-        // Todo
+        jest.spyOn(global, "window", "get").mockImplementation(() => {
+          throw new Error();
+        });
+
+        expect(hasWindow).not.toThrow();
+        expect(hasWindow()).toBeFalse();
       });
       it("should initialize and await for window to attach events", async () => {
         // Todo

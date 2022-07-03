@@ -1,5 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
+import { Dispatcher } from "dispatcher";
 import { createDispatcher, createBuilder, createCommand, createClient, sleep } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createRequestInterceptor } from "../../server/server";
@@ -16,11 +17,12 @@ describe("Dispatcher [ Queue ]", () => {
   });
 
   beforeEach(() => {
+    jest.resetAllMocks();
+    resetInterceptors();
+    builder.clear();
     client = createClient({ callback: clientSpy });
     builder = createBuilder().setClient(() => client);
     dispatcher = createDispatcher(builder);
-    resetInterceptors();
-    jest.resetAllMocks();
   });
 
   afterAll(() => {
@@ -160,13 +162,22 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When retrying requests", () => {
     it("should retry failed request", async () => {
-      const command = createCommand(builder, { retry: 1, retryTime: 0 });
+      const spy = jest.fn();
+      const spyDelete = jest.fn();
+      const customBuilder = createBuilder({
+        fetchDispatcher: (instance) => new Dispatcher(instance, { onDeleteFromStorage: spyDelete }),
+      });
+      const command = createCommand(customBuilder, { retry: 1, retryTime: 0 });
       createRequestInterceptor(command, { status: 400, delay: 0 });
 
-      const spy = jest.spyOn(builder, "client");
-      dispatcher.add(command);
+      customBuilder.onRequest((cmd) => {
+        spy();
+        return cmd;
+      });
+      customBuilder.fetchDispatcher.add(command);
 
       await waitFor(() => {
+        expect(spyDelete).toBeCalledTimes(1);
         expect(spy).toBeCalledTimes(2);
       });
     });
@@ -371,6 +382,54 @@ describe("Dispatcher [ Queue ]", () => {
         expect(firstSpy).toBeCalledTimes(0);
         expect(secondSpy).toBeCalledTimes(0);
         expect(dispatcher.getIsActiveQueue(command.queueKey)).toBeFalse();
+      });
+    });
+    it("should not remove requests from queue storage on stop", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      dispatcher.add(command);
+      await sleep(2);
+      dispatcher.stop(command.queueKey);
+
+      expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(1);
+    });
+    it("should not remove request from queue storage on stopRequest", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      const requestId = dispatcher.add(command);
+      await sleep(2);
+      dispatcher.stopRequest(command.queueKey, requestId);
+
+      expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(1);
+    });
+  });
+
+  describe("When command is canceled", () => {
+    it("should remove request from queue", async () => {
+      const command = createCommand(builder);
+      createRequestInterceptor(command);
+
+      dispatcher.add(command);
+      await sleep(1);
+      builder.commandManager.abortAll();
+      await waitFor(() => {
+        expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("When command is not offline", () => {
+    it("should remove request from queue", async () => {
+      const command = createCommand(builder, { offline: false });
+      createRequestInterceptor(command, { status: 400 });
+
+      dispatcher.add(command);
+      await sleep(1);
+      builder.appManager.setOnline(false);
+      await waitFor(() => {
+        expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(0);
       });
     });
   });

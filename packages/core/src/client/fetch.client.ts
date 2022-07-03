@@ -64,10 +64,10 @@ export const fetchClient: ClientType = async (command, requestId) => {
     };
 
     // Error listeners
-    xhr.onabort = () => onAbortError(resolve);
-    xhr.ontimeout = () => onTimeoutError(resolve);
-    xhr.upload.onabort = () => onAbortError(resolve);
-    xhr.upload.ontimeout = () => onTimeoutError(resolve);
+    // xhr.onabort = () => onAbortError(resolve);
+    // xhr.ontimeout = () => onTimeoutError(resolve);
+    // xhr.upload.onabort = () => onAbortError(resolve);
+    // xhr.upload.ontimeout = () => onTimeoutError(resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -75,15 +75,15 @@ export const fetchClient: ClientType = async (command, requestId) => {
       const finishedState = 4;
 
       if (event.target && event.target.readyState === finishedState) {
-        const status = event.target.status || 0;
+        const { status } = event.target;
         const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
 
         if (isSuccess) {
-          const data = parseResponse(event.target?.response);
+          const data = parseResponse(event.target.response);
           onSuccess(data, status, resolve);
         } else {
           // delay to finish after onabort/ontimeout
-          const data = parseErrorResponse(event.target?.response);
+          const data = parseErrorResponse(event.target.response);
           onError(data, status, resolve);
         }
       }

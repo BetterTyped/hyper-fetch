@@ -174,7 +174,9 @@ export const useDependentState = <T extends CommandInstance>({
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        commandManager.events.setLoading(queueKey, "", {
+        commandManager.events.emitLoading(queueKey, "", {
+          queueKey,
+          requestId,
           isLoading: loading,
           isRetry: false,
           isOffline: false,

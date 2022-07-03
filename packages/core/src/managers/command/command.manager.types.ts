@@ -2,6 +2,8 @@ import { CommandInstance } from "command";
 
 // Events
 export type CommandLoadingEventType = {
+  queueKey: string;
+  requestId: string;
   isLoading: boolean;
   isRetry: boolean;
   isOffline: boolean;
@@ -19,3 +21,5 @@ export type CommandResponseDetails = {
   isCanceled: boolean;
   isOffline: boolean;
 };
+
+export type CommandRemoveDetails = { queueKey: string; requestId: string };

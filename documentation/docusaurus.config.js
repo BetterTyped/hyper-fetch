@@ -158,15 +158,15 @@ const config = {
             activeBaseRegex: `/guides/`,
           },
           {
+            to: "/examples/Playground",
+            label: "Examples",
+            position: "left",
+          },
+          {
             to: "/sources/Overview",
             label: "Sources",
             position: "left",
             activeBaseRegex: `/sources/`,
-          },
-          {
-            to: "/examples/Playground",
-            label: "Examples",
-            position: "left",
           },
           {
             to: "/blog",

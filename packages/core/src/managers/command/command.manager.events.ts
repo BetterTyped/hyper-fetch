@@ -30,7 +30,7 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
    */
 
   // Loading
-  setLoading: (queueKey: string, requestId: string, values: CommandLoadingEventType): void => {
+  emitLoading: (queueKey: string, requestId: string, values: CommandLoadingEventType): void => {
     emitter.emit(getLoadingIdEventKey(requestId), values);
     emitter.emit(getLoadingEventKey(queueKey), values);
   },
@@ -83,9 +83,13 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Remove
-  emitRemove: (queueKey: string, requestId: string): void => {
-    emitter.emit(getRemoveEventKey(queueKey));
-    emitter.emit(getRemoveIdEventKey(requestId));
+  emitRemove: <T extends CommandInstance>(
+    queueKey: string,
+    requestId: string,
+    details: CommandEventDetails<T>,
+  ): void => {
+    emitter.emit(getRemoveEventKey(queueKey), details);
+    emitter.emit(getRemoveIdEventKey(requestId), details);
   },
 
   /**
@@ -102,7 +106,7 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
     return () => emitter.removeListener(getLoadingIdEventKey(requestId), callback);
   },
 
-  // Start
+  // Request Start
   onRequestStart: <T extends CommandInstance>(
     queueKey: string,
     callback: (details: CommandEventDetails<T>) => void,
@@ -117,6 +121,7 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
     emitter.on(getRequestStartIdEventKey(requestId), callback);
     return () => emitter.removeListener(getRequestStartIdEventKey(requestId), callback);
   },
+  // Response Start
   onResponseStart: <T extends CommandInstance>(
     queueKey: string,
     callback: (details: CommandEventDetails<T>) => void,
@@ -190,11 +195,17 @@ export const getCommandManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Remove
-  onRemove: (queueKey: string, callback: () => void): VoidFunction => {
+  onRemove: <T extends CommandInstance = CommandInstance>(
+    queueKey: string,
+    callback: (details: CommandEventDetails<T>) => void,
+  ): VoidFunction => {
     emitter.on(getRemoveEventKey(queueKey), callback);
     return () => emitter.removeListener(getRemoveEventKey(queueKey), callback);
   },
-  onRemoveById: (requestId: string, callback: () => void): VoidFunction => {
+  onRemoveById: <T extends CommandInstance = CommandInstance>(
+    requestId: string,
+    callback: (details: CommandEventDetails<T>) => void,
+  ): VoidFunction => {
     emitter.on(getRemoveIdEventKey(requestId), callback);
     return () => emitter.removeListener(getRemoveIdEventKey(requestId), callback);
   },

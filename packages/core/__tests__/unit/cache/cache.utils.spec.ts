@@ -1,4 +1,4 @@
-import { getCacheData } from "cache";
+import { getCacheData, getCacheIdKey, getCacheKey, getRevalidateEventKey } from "cache";
 import { ClientResponseErrorType, ClientResponseSuccessType } from "client";
 
 describe("Cache [ Utils ]", () => {
@@ -24,6 +24,17 @@ describe("Cache [ Utils ]", () => {
       const errorResponse = [null, {}, 400] as ClientResponseErrorType<Record<string, string>>;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);
+    });
+  });
+  describe("when key getters are triggered", () => {
+    it("should get proper key from getRevalidateEventKey", async () => {
+      expect(getRevalidateEventKey("1")).toBe("1_revalidate");
+    });
+    it("should get proper key from getCacheKey", async () => {
+      expect(getCacheKey("1")).toBe("1_cache");
+    });
+    it("should get proper key from getCacheIdKey", async () => {
+      expect(getCacheIdKey("1")).toBe("1_cache_by_id");
     });
   });
 });

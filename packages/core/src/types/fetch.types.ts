@@ -5,7 +5,7 @@ export type ExtractFetchReturn<T extends CommandInstance> = ClientResponseType<E
 
 export type ExtractResponse<T> = T extends Command<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
 
-export type ExtractRequest<T> = T extends Command<any, infer D, any, any, any, any, any, any, any, any> ? D : never;
+export type ExtractRequestData<T> = T extends Command<any, infer D, any, any, any, any, any, any, any, any> ? D : never;
 
 export type ExtractQueryParams<T> = T extends Command<any, any, infer Q, any, any, any, any, any, any, any> ? Q : never;
 

@@ -85,6 +85,15 @@ describe("Cache [ Base ]", () => {
       expect(trigger).toBeCalledTimes(1);
       expect(cache.get(command.cacheKey)).not.toBeDefined();
     });
+
+    it("should allow to get cache keys", async () => {
+      cache.set(command.setCacheKey("1"), response, details);
+      cache.set(command.setCacheKey("2"), response, details);
+      cache.set(command.setCacheKey("3"), response, details);
+
+      expect(cache.keys()).toHaveLength(3);
+      expect(cache.keys()).toStrictEqual(["1", "2", "3"]);
+    });
   });
 
   describe("When CacheStore gets cleared before triggering cache actions", () => {

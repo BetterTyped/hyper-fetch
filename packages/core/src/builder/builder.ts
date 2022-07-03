@@ -235,14 +235,14 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
    */
   createCommand = <
     ResponseType,
-    PayloadType = undefined,
+    RequestDataType = undefined,
     LocalErrorType extends BuilderErrorType | undefined = undefined,
     QueryParamsType extends ClientQueryParamsType | string = string,
   >() => {
     return <EndpointType extends string>(params: CommandConfig<EndpointType, RequestConfigType>) =>
       new Command<
         ResponseType,
-        PayloadType,
+        RequestDataType,
         QueryParamsType,
         GlobalErrorType,
         LocalErrorType,

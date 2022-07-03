@@ -57,9 +57,9 @@ export class CommandManager {
   };
 
   abortAll = () => {
-    const entries = Array.from(this.abortControllers.entries()) || [];
+    const entries = Array.from(this.abortControllers.entries());
     entries.forEach(([abortKey, value]) => {
-      const controllers = Array.from(value.entries()) || [];
+      const controllers = Array.from(value.entries());
       controllers.forEach(([requestId]) => {
         this.useAbortController(abortKey, requestId);
       });

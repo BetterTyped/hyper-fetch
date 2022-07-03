@@ -2,10 +2,16 @@ import {
   NullableKeys,
   NegativeTypes,
   ExtractParams,
-  ExtractRequest,
+  ExtractRequestData,
   HttpMethodsType,
   ExtractQueryParams,
   ExtractClientOptions,
+  ExtractEndpoint,
+  ExtractHasData,
+  ExtractHasParams,
+  ExtractHasQueryParams,
+  ExtractError,
+  ExtractResponse,
 } from "types";
 import { Command } from "command";
 import { ClientResponseType, ClientQueryParamsType } from "client";
@@ -45,9 +51,9 @@ export type CommandDump<
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
   options?: ClientOptions | ExtractClientOptions<Command>;
-  data: CommandData<ExtractRequest<Command>, unknown>;
+  data: CommandData<ExtractRequestData<Command>, unknown>;
   params: Params | NegativeTypes;
-  queryParams: QueryParamsType | ExtractQueryParams<Command> | NegativeTypes;
+  queryParams: QueryParamsType | NegativeTypes;
   abortKey: string;
   cacheKey: string;
   queueKey: string;
@@ -149,13 +155,13 @@ export type CommandConfig<GenericEndpoint extends string, ClientOptions> = {
   deduplicateTime?: number;
 };
 
-export type CommandData<PayloadType, MappedData> =
-  | (MappedData extends undefined ? PayloadType : MappedData)
+export type CommandData<RequestDataType, MappedData> =
+  | (MappedData extends undefined ? RequestDataType : MappedData)
   | NegativeTypes;
 
 export type CommandCurrentType<
   ResponseType,
-  PayloadType,
+  RequestDataType,
   QueryParamsType,
   ErrorType,
   GenericEndpoint extends string,
@@ -165,8 +171,8 @@ export type CommandCurrentType<
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParamsType | NegativeTypes;
-  data?: CommandData<PayloadType, MappedData>;
-  mockCallback?: ((data: PayloadType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
+  data?: CommandData<RequestDataType, MappedData>;
+  mockCallback?: ((data: RequestDataType) => ClientResponseType<ResponseType, ErrorType>) | undefined;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
@@ -191,7 +197,10 @@ export type FetchQueryParamsType<QueryParamsType, HasQuery extends true | false 
       queryParams?: QueryParamsType | string;
     };
 
-export type FetchOptionsType = { headers?: HeadersInit };
+export type FetchOptionsType<ClientOptions> = Omit<
+  Partial<CommandConfig<string, ClientOptions>>,
+  "endpoint" | "method"
+>;
 
 export type FetchParamsType<
   EndpointType extends string,
@@ -202,86 +211,49 @@ export type FetchParamsType<
   ? { params?: NegativeTypes }
   : { params: ExtractRouteParams<EndpointType> };
 
-export type FetchRequestDataType<PayloadType, HasData extends true | false = false> = PayloadType extends NegativeTypes
+export type FetchRequestDataType<
+  RequestDataType,
+  HasData extends true | false = false,
+> = RequestDataType extends NegativeTypes
   ? { data?: NegativeTypes }
   : HasData extends true
   ? { data?: NegativeTypes }
-  : { data: PayloadType };
+  : { data: RequestDataType };
 
 export type CommandQueueOptions = {
   dispatcherType?: "auto" | "fetch" | "submit";
 };
 
-export type FetchType<
-  PayloadType,
-  QueryParamsType,
-  EndpointType extends string,
-  HasData extends true | false,
-  HasParams extends true | false,
-  HasQuery extends true | false,
-  AdditionalOptions = unknown,
-> = FetchQueryParamsType<QueryParamsType, HasQuery> &
-  FetchParamsType<EndpointType, HasParams> &
-  FetchRequestDataType<PayloadType, HasData> &
-  FetchOptionsType &
+export type FetchType<Command extends CommandInstance, AdditionalOptions = unknown> = FetchQueryParamsType<
+  ExtractQueryParams<Command>,
+  ExtractHasQueryParams<Command>
+> &
+  FetchParamsType<ExtractEndpoint<Command>, ExtractHasParams<Command>> &
+  FetchRequestDataType<ExtractRequestData<Command>, ExtractHasData<Command>> &
+  FetchOptionsType<ExtractClientOptions<Command>> &
   AdditionalOptions;
 
-export type FetchMethodType<
-  ResponseType,
-  PayloadType,
-  QueryParamsType,
-  ErrorType,
-  EndpointType extends string,
-  HasData extends true | false,
-  HasParams extends true | false,
-  HasQuery extends true | false,
-  AdditionalOptions = unknown,
-> = FetchType<
-  PayloadType,
-  QueryParamsType,
-  EndpointType,
-  HasData,
-  HasParams,
-  HasQuery,
+export type FetchMethodType<Command extends CommandInstance, AdditionalOptions = unknown> = FetchType<
+  Command,
   AdditionalOptions
 >["data"] extends any
   ? (
-      options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, AdditionalOptions>,
-    ) => Promise<ClientResponseType<ResponseType, ErrorType>>
-  : FetchType<
-      PayloadType,
-      QueryParamsType,
-      EndpointType,
-      HasData,
-      HasParams,
-      HasQuery,
-      AdditionalOptions
-    >["data"] extends NegativeTypes
-  ? FetchType<
-      PayloadType,
-      QueryParamsType,
-      EndpointType,
-      HasData,
-      HasParams,
-      HasQuery,
-      AdditionalOptions
-    >["params"] extends NegativeTypes
+      options?: FetchType<Command, AdditionalOptions>,
+      onInit?: (requestId: string, command: Command) => void,
+    ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
+  : FetchType<Command, AdditionalOptions>["data"] extends NegativeTypes
+  ? FetchType<Command, AdditionalOptions>["params"] extends NegativeTypes
     ? (
-        options?: FetchType<
-          PayloadType,
-          QueryParamsType,
-          EndpointType,
-          HasData,
-          HasParams,
-          HasQuery,
-          AdditionalOptions
-        >,
-      ) => Promise<ClientResponseType<ResponseType, ErrorType>>
+        options?: FetchType<Command, AdditionalOptions>,
+        onInit?: (requestId: string, command: Command) => void,
+      ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
     : (
-        options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, AdditionalOptions>,
-      ) => Promise<ClientResponseType<ResponseType, ErrorType>>
+        options: FetchType<Command, AdditionalOptions>,
+        onInit?: (requestId: string, command: Command) => void,
+      ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
   : (
-      options: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>,
-    ) => Promise<ClientResponseType<ResponseType, ErrorType>>;
+      options: FetchType<Command, ExtractHasQueryParams<Command>>,
+      onInit?: (requestId: string, command: Command) => void,
+    ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>;
 
 export type CommandInstance = Command<any, any, any, any, any, any, any, any, any, any, any>;

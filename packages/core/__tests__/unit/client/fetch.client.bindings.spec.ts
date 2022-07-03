@@ -193,6 +193,28 @@ describe("Fetch Client [ Bindings ]", () => {
         const progressTimestamp = onRequestProgress(progress);
         expect(progressTimestamp).toBeNumber();
       });
+
+      it("should emit correct loaded value", async () => {
+        const { onRequestProgress } = await getClientBindings(command, requestId);
+        let value: number;
+        const unmount = builder.commandManager.events.onUploadProgress(command.queueKey, ({ loaded }) => {
+          value = loaded;
+        });
+        onRequestProgress({});
+        expect(value).toBe(0);
+        unmount();
+      });
+
+      it("should emit correct loaded value", async () => {
+        const { onResponseProgress } = await getClientBindings(command, requestId);
+        let value: number;
+        const unmount = builder.commandManager.events.onDownloadProgress(command.queueKey, ({ loaded }) => {
+          value = loaded;
+        });
+        onResponseProgress({});
+        expect(value).toBe(0);
+        unmount();
+      });
     });
     describe("when onRequestEnd got executed", () => {
       const progress = {
@@ -251,6 +273,23 @@ describe("Fetch Client [ Bindings ]", () => {
         const startTimestamp = onResponseStart(progress);
         unmount();
         testProgressSpy({ ...progress, spy, command, requestId, startTimestamp });
+      });
+      it("should emit correct total value", async () => {
+        const { onResponseStart } = await getClientBindings(command, requestId);
+        let value: number;
+        const unmount = builder.commandManager.events.onDownloadProgress(command.queueKey, ({ total }) => {
+          value = total;
+        });
+        onResponseStart();
+        expect(value).toBe(1);
+        onResponseStart({ total: 0, loaded: 7 });
+        expect(value).toBe(7);
+        onResponseStart({ total: 10, loaded: 0 });
+        expect(value).toBe(10);
+        // If we have previous value stored it needs to take the biggest value
+        onResponseStart({ total: 8, loaded: 0 });
+        expect(value).toBe(10);
+        unmount();
       });
     });
     describe("when onResponseProgress got executed", () => {

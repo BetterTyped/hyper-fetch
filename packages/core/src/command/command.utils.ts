@@ -122,11 +122,8 @@ export const commandSendRequest = <T extends CommandInstance>(
     const requestId = dispatcher.add(command);
     settleCallback?.(requestId, command);
 
-    let unmountResponse: () => void = () => undefined;
-    let unmountRemoveQueueElement: () => void = () => undefined;
-
     // When resolved
-    unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T>>(
+    const unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T>>(
       requestId,
       (response, details) => {
         const isFailed = isFailedRequest(response);
@@ -143,12 +140,11 @@ export const commandSendRequest = <T extends CommandInstance>(
 
         // Unmount Listeners
         unmountResponse();
-        unmountRemoveQueueElement();
       },
     );
 
     // When removed from queue storage we need to clean event listeners and return proper error
-    unmountRemoveQueueElement = commandManager.events.onRemoveById(requestId, () => {
+    const unmountRemoveQueueElement = commandManager.events.onRemoveById(requestId, () => {
       resolve([null, getErrorMessage("deleted") as unknown as ExtractError<T>, 0]);
 
       // Unmount Listeners

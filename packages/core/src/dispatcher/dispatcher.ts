@@ -101,7 +101,7 @@ export class Dispatcher {
    * Return queue state object
    */
   getQueue = <Command extends CommandInstance = CommandInstance>(queueKey: string) => {
-    const initialQueueState = { requests: [], stopped: false };
+    const initialQueueState: DispatcherData<Command> = { requests: [], stopped: false };
     const storedEntity = this.storage.get<Command>(queueKey);
 
     return storedEntity || initialQueueState;
@@ -448,6 +448,11 @@ export class Dispatcher {
    */
   delete = (queueKey: string, requestId: string, abortKey: string) => {
     const queue = this.getQueue(queueKey);
+    const request = queue.requests.find((req) => req.requestId === requestId);
+
+    if (!request) return;
+
+    const command = new Command(this.builder, request.commandDump.commandOptions, request.commandDump);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queueKey, queue);
 
@@ -460,7 +465,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.builder.commandManager.events.emitRemove(queueKey, requestId);
+    this.builder.commandManager.events.emitRemove(queueKey, requestId, { requestId, command });
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -495,7 +500,9 @@ export class Dispatcher {
     this.addRunningRequest(queueKey, requestId, command);
 
     // Propagate the loading to all connected hooks
-    commandManager.events.setLoading(queueKey, requestId, {
+    commandManager.events.emitLoading(queueKey, requestId, {
+      queueKey,
+      requestId,
       isLoading: true,
       isRetry: !!storageElement.retries,
       isOffline,
@@ -527,7 +534,9 @@ export class Dispatcher {
     };
 
     // Turn off loading
-    commandManager.events.setLoading(queueKey, requestId, {
+    commandManager.events.emitLoading(queueKey, requestId, {
+      queueKey,
+      requestId,
       isLoading: false,
       isRetry: !!storageElement.retries,
       isOffline,
@@ -540,7 +549,7 @@ export class Dispatcher {
     // On cancelled
     if (isCanceled) {
       const queue = this.getQueue(queueKey);
-      const request = queue?.requests.find((req) => req.requestId === requestId);
+      const request = queue.requests.find((req) => req.requestId === requestId);
 
       // do not remove cancelled request as it may be result of manual queue pause
       // if abort was done without stop action we can remove request
@@ -564,8 +573,8 @@ export class Dispatcher {
     // On retry
     if (isFailed && canRetry) {
       // Perform retry once request is failed
-      setTimeout(async () => {
-        await this.performRequest({
+      setTimeout(() => {
+        this.performRequest({
           ...storageElement,
           retries: storageElement.retries + 1,
         });

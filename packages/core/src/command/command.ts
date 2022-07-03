@@ -32,7 +32,7 @@ import { HttpMethodsEnum } from "constants/http.constants";
  */
 export class Command<
   ResponseType,
-  PayloadType,
+  RequestDataType,
   QueryParamsType extends ClientQueryParamsType | string,
   GlobalErrorType, // Global Error Type
   LocalErrorType, // Additional Error for specific endpoint
@@ -48,7 +48,7 @@ export class Command<
   auth: boolean;
   method: HttpMethodsType;
   params: ExtractRouteParams<EndpointType> | NegativeTypes;
-  data: CommandData<PayloadType, MappedData>;
+  data: CommandData<RequestDataType, MappedData>;
   queryParams: QueryParamsType | NegativeTypes;
   options?: ClientOptions | undefined;
   cancelable: boolean;
@@ -77,7 +77,7 @@ export class Command<
     readonly commandDump?:
       | CommandCurrentType<
           ResponseType,
-          PayloadType,
+          RequestDataType,
           QueryParamsType,
           GlobalErrorType | LocalErrorType,
           EndpointType,
@@ -85,7 +85,7 @@ export class Command<
           MappedData
         >
       | undefined,
-    readonly dataMapper?: (data: PayloadType) => MappedData,
+    readonly dataMapper?: (data: RequestDataType) => MappedData,
   ) {
     const {
       endpoint,
@@ -149,10 +149,10 @@ export class Command<
     return this.clone<HasData, true, HasQuery>({ params });
   };
 
-  public setData = (data: PayloadType) => {
+  public setData = (data: RequestDataType) => {
     const modifiedData = this.dataMapper?.(data) || data;
     return this.clone<true, HasParams, HasQuery, MappedData>({
-      data: modifiedData as CommandData<PayloadType, MappedData>,
+      data: modifiedData as CommandData<RequestDataType, MappedData>,
     });
   };
 
@@ -224,11 +224,7 @@ export class Command<
     return this.clone({ offline });
   };
 
-  public setDataMapper = <DataMapper>(mapper: (data: PayloadType) => DataMapper) => {
-    if (this.dataMapper) {
-      console.warn("Mapper is already setup on the command.");
-      return this.clone<HasData, HasParams, HasQuery, DataMapper>();
-    }
+  public setDataMapper = <DataMapper>(mapper: (data: RequestDataType) => DataMapper) => {
     return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
   };
 
@@ -248,30 +244,14 @@ export class Command<
     return endpoint;
   };
 
-  public dump(): CommandDump<
-    Command<
-      ResponseType,
-      PayloadType,
-      QueryParamsType,
-      GlobalErrorType,
-      LocalErrorType,
-      EndpointType,
-      ClientOptions,
-      HasData,
-      HasParams,
-      HasQuery,
-      MappedData
-    >,
-    ClientOptions,
-    QueryParamsType
-  > {
+  public dump(): CommandDump<typeof this, ClientOptions, QueryParamsType> {
     return {
       commandOptions: this.commandOptions,
       endpoint: this.endpoint,
       headers: this.headers,
       auth: this.auth,
       method: this.method,
-      params: this.params,
+      params: this.params as any,
       data: this.data,
       queryParams: this.queryParams,
       options: this.options,
@@ -306,17 +286,17 @@ export class Command<
   >(
     options?: CommandCurrentType<
       ResponseType,
-      PayloadType,
+      RequestDataType,
       QueryParamsType,
       GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
       MapperData
     >,
-    mapper?: (data: PayloadType) => MapperData,
+    mapper?: (data: RequestDataType) => MapperData,
   ): Command<
     ResponseType,
-    PayloadType,
+    RequestDataType,
     QueryParamsType,
     GlobalErrorType,
     LocalErrorType,
@@ -330,7 +310,7 @@ export class Command<
     const dump = this.dump();
     const commandDump: CommandCurrentType<
       ResponseType,
-      PayloadType,
+      RequestDataType,
       QueryParamsType,
       GlobalErrorType | LocalErrorType,
       EndpointType,
@@ -353,7 +333,7 @@ export class Command<
 
     const cloned = new Command<
       ResponseType,
-      PayloadType,
+      RequestDataType,
       QueryParamsType,
       GlobalErrorType,
       LocalErrorType,
@@ -376,20 +356,11 @@ export class Command<
   };
 
   /**
-   * Method to use the command WITHOUT adding it to cache and queues. This mean it will make straight requests without side effects like events.
+   * Method to use the command WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
    * @param options
    * @returns
    */
-  public exec: FetchMethodType<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    GlobalErrorType | LocalErrorType,
-    EndpointType,
-    HasData,
-    HasParams,
-    HasQuery
-  > = async (options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery>) => {
+  public exec: FetchMethodType<typeof this> = async (options?: FetchType<typeof this>) => {
     const { client } = this.builder;
     const command = this.clone(options as any);
 
@@ -403,37 +374,14 @@ export class Command<
    * @param options
    * @param requestCallback
    */
-  public send: FetchMethodType<
-    ResponseType,
-    PayloadType,
-    QueryParamsType,
-    GlobalErrorType | LocalErrorType,
-    EndpointType,
-    HasData,
-    HasParams,
-    HasQuery,
-    CommandQueueOptions
-  > = async (
-    options?: FetchType<PayloadType, QueryParamsType, EndpointType, HasData, HasParams, HasQuery, CommandQueueOptions>,
-    onInit?: (
-      requestId: string,
-      command: Command<
-        ResponseType,
-        PayloadType,
-        QueryParamsType,
-        GlobalErrorType,
-        LocalErrorType,
-        EndpointType,
-        ClientOptions,
-        HasData,
-        HasParams,
-        HasQuery,
-        MappedData
-      >,
-    ) => void,
+  public send: FetchMethodType<typeof this, CommandQueueOptions> = async (
+    options?: FetchType<typeof this, CommandQueueOptions>,
+    onInit?: (requestId: string, command: typeof this) => void,
   ) => {
-    const command = this.clone(options as any);
-    return commandSendRequest<typeof command>(command, options?.dispatcherType, onInit);
+    const { dispatcherType, ...rest } = options || {};
+
+    const command = this.clone(rest as any) as typeof this;
+    return commandSendRequest<typeof this>(command, dispatcherType, onInit);
   };
 }
 

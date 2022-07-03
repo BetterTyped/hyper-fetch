@@ -50,7 +50,7 @@ export type QueryStringifyOptions = {
 
 // Progress
 
-export type ProgressPayloadType = {
+export type ProgressRequestDataType = {
   total?: number;
   loaded?: number;
 };

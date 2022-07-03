@@ -1,4 +1,4 @@
-import { getErrorMessage, ClientResponseSuccessType, ClientResponseErrorType, ProgressPayloadType } from "client";
+import { getErrorMessage, ClientResponseSuccessType, ClientResponseErrorType, ProgressRequestDataType } from "client";
 import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
@@ -47,10 +47,10 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
 
   // Progress
 
-  const getTotal = (previousTotal: number, progress?: ProgressPayloadType) => {
+  const getTotal = (previousTotal: number, progress?: ProgressRequestDataType) => {
     if (!progress) return previousTotal;
-    const total = Number(progress?.total || 0);
-    const loaded = Number(progress?.loaded || 0);
+    const total = Number(progress.total || 0);
+    const loaded = Number(progress.loaded || 0);
     return Math.max(total, loaded, previousTotal);
   };
 
@@ -88,7 +88,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
 
   // Request
 
-  const onRequestStart = (progress?: ProgressPayloadType) => {
+  const onRequestStart = (progress?: ProgressRequestDataType) => {
     effects.forEach((action) => action.onStart(command));
 
     if (progress?.total) {
@@ -105,7 +105,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     return requestStartTimestamp;
   };
 
-  const onRequestProgress = (progress: ProgressPayloadType) => {
+  const onRequestProgress = (progress: ProgressRequestDataType) => {
     if (!requestStartTimestamp) {
       requestStartTimestamp = +new Date();
     }
@@ -135,7 +135,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
 
   // Response
 
-  const onResponseStart = (progress?: ProgressPayloadType) => {
+  const onResponseStart = (progress?: ProgressRequestDataType) => {
     responseStartTimestamp = +new Date();
 
     responseTotal = getTotal(responseTotal, progress);
@@ -150,7 +150,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     return responseStartTimestamp;
   };
 
-  const onResponseProgress = (progress: ProgressPayloadType) => {
+  const onResponseProgress = (progress: ProgressRequestDataType) => {
     if (!responseStartTimestamp) {
       responseStartTimestamp = +new Date();
     }
