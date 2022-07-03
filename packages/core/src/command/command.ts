@@ -244,14 +244,30 @@ export class Command<
     return endpoint;
   };
 
-  public dump(): CommandDump<typeof this, ClientOptions, QueryParamsType> {
+  public dump(): CommandDump<
+    Command<
+      ResponseType,
+      RequestDataType,
+      QueryParamsType,
+      GlobalErrorType,
+      LocalErrorType,
+      EndpointType,
+      ClientOptions,
+      HasData,
+      HasParams,
+      HasQuery,
+      MappedData
+    >,
+    ClientOptions,
+    QueryParamsType
+  > {
     return {
       commandOptions: this.commandOptions,
       endpoint: this.endpoint,
       headers: this.headers,
       auth: this.auth,
       method: this.method,
-      params: this.params as any,
+      params: this.params,
       data: this.data,
       queryParams: this.queryParams,
       options: this.options,
@@ -360,7 +376,37 @@ export class Command<
    * @param options
    * @returns
    */
-  public exec: FetchMethodType<typeof this> = async (options?: FetchType<typeof this>) => {
+  public exec: FetchMethodType<
+    Command<
+      ResponseType,
+      RequestDataType,
+      QueryParamsType,
+      GlobalErrorType,
+      LocalErrorType,
+      EndpointType,
+      ClientOptions,
+      HasData,
+      HasParams,
+      HasQuery,
+      MappedData
+    >
+  > = async (
+    options?: FetchType<
+      Command<
+        ResponseType,
+        RequestDataType,
+        QueryParamsType,
+        GlobalErrorType,
+        LocalErrorType,
+        EndpointType,
+        ClientOptions,
+        HasData,
+        HasParams,
+        HasQuery,
+        MappedData
+      >
+    >,
+  ) => {
     const { client } = this.builder;
     const command = this.clone(options as any);
 
@@ -374,14 +420,73 @@ export class Command<
    * @param options
    * @param requestCallback
    */
-  public send: FetchMethodType<typeof this, CommandQueueOptions> = async (
-    options?: FetchType<typeof this, CommandQueueOptions>,
-    onInit?: (requestId: string, command: typeof this) => void,
+  public send: FetchMethodType<
+    Command<
+      ResponseType,
+      RequestDataType,
+      QueryParamsType,
+      GlobalErrorType,
+      LocalErrorType,
+      EndpointType,
+      ClientOptions,
+      HasData,
+      HasParams,
+      HasQuery,
+      MappedData
+    >,
+    CommandQueueOptions
+  > = async (
+    options?: FetchType<
+      Command<
+        ResponseType,
+        RequestDataType,
+        QueryParamsType,
+        GlobalErrorType,
+        LocalErrorType,
+        EndpointType,
+        ClientOptions,
+        HasData,
+        HasParams,
+        HasQuery,
+        MappedData
+      >,
+      CommandQueueOptions
+    >,
+    onInit?: (
+      requestId: string,
+      command: Command<
+        ResponseType,
+        RequestDataType,
+        QueryParamsType,
+        GlobalErrorType,
+        LocalErrorType,
+        EndpointType,
+        ClientOptions,
+        HasData,
+        HasParams,
+        HasQuery,
+        MappedData
+      >,
+    ) => void,
   ) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const command = this.clone(rest as any) as typeof this;
-    return commandSendRequest<typeof this>(command, dispatcherType, onInit);
+    const command = this.clone(rest as any);
+    return commandSendRequest<
+      Command<
+        ResponseType,
+        RequestDataType,
+        QueryParamsType,
+        GlobalErrorType,
+        LocalErrorType,
+        EndpointType,
+        ClientOptions,
+        HasData,
+        HasParams,
+        HasQuery,
+        MappedData
+      >
+    >(command, dispatcherType, onInit);
   };
 }
 
