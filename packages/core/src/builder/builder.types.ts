@@ -25,19 +25,19 @@ export type BuilderConfig = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends BuilderInstance>(builder: B) => Cache;
+  cache?: <B extends BuilderInstance, C extends Cache>(builder: B) => C;
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends BuilderInstance>(builder: B) => AppManager;
+  appManager?: <B extends BuilderInstance, A extends AppManager>(builder: B) => A;
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends BuilderInstance>(builder: B) => Dispatcher;
+  fetchDispatcher?: <B extends BuilderInstance, D extends Dispatcher>(builder: B) => D;
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends BuilderInstance>(builder: B) => Dispatcher;
+  submitDispatcher?: <B extends BuilderInstance, D extends Dispatcher>(builder: B) => D;
 };
 
 export type BuilderInstance = Builder<any, any>;

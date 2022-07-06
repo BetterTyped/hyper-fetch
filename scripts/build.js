@@ -10,7 +10,8 @@ const buildPackage = () => {
     target: "es6",
     entryPoints: [pkg.source],
     bundle: true,
-    // minify: true,
+    minify: true,
+    sourcemap: true,
     plugins: [nodeExternalsPlugin()],
   };
 

@@ -55,7 +55,6 @@ export const useFetch = <T extends CommandInstance>(
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
   const [callbacks, listeners] = useCommandEvents({
-    state,
     logger,
     actions,
     command,
@@ -108,7 +107,7 @@ export const useFetch = <T extends CommandInstance>(
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
     if (invalidateKey && invalidateKey instanceof Command) {
       cache.events.revalidate(getCommandKey(invalidateKey));
-    } else if (invalidateKey) {
+    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
       cache.events.revalidate(invalidateKey);
     } else {
       handleFetch();

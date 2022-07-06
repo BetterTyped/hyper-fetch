@@ -54,7 +54,6 @@ export const useSubmit = <T extends CommandInstance>(
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
   const [callbacks, listeners] = useCommandEvents({
-    state,
     logger,
     actions,
     command,
@@ -112,7 +111,7 @@ export const useSubmit = <T extends CommandInstance>(
 
     if (invalidateKey && invalidateKey instanceof Command) {
       cache.events.revalidate(getCommandKey(invalidateKey));
-    } else {
+    } else if (!(invalidateKey instanceof Command)) {
       cache.events.revalidate(invalidateKey);
     }
   };

@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
-import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue";
+import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest } from "use-queue";
 
 /**
  * This hook allows to control dispatchers request queues
@@ -12,7 +12,7 @@ import { UseQueueOptions, useQueueDefaultOptions, QueueRequest } from "use-queue
  */
 export const useQueue = <Command extends CommandInstance>(
   command: Command,
-  options: UseQueueOptions = useQueueDefaultOptions,
+  options: UseQueueOptionsType = useQueueDefaultOptions,
 ) => {
   const { queueType = useQueueDefaultOptions.queueType } = options;
   const { abortKey, queueKey, builder } = command;

@@ -35,7 +35,6 @@ export const useCache = <T extends CommandInstance>(
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
   const [callbacks] = useCommandEvents({
-    state,
     logger,
     actions,
     command,
@@ -43,11 +42,11 @@ export const useCache = <T extends CommandInstance>(
     setCacheData,
   });
 
-  const revalidate = (revalidateKey?: string | CommandInstance | RegExp) => {
-    if (revalidateKey && revalidateKey instanceof Command) {
-      cache.events.revalidate(`/${getCommandKey(revalidateKey, true)}/`);
-    } else if (revalidateKey) {
-      cache.events.revalidate(revalidateKey);
+  const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
+    if (invalidateKey && invalidateKey instanceof Command) {
+      cache.events.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
+    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
+      cache.events.revalidate(invalidateKey);
     } else {
       cache.events.revalidate(cacheKey);
     }

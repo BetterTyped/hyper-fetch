@@ -1,6 +1,6 @@
 import { FetchProgressType, CommandInstance, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
 
-export type UseQueueOptions = {
+export type UseQueueOptionsType = {
   queueType?: "auto" | "fetch" | "submit";
 };
 

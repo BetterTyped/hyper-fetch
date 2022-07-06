@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import {
   ExtractError,
-  isFailedRequest,
   ExtractResponse,
   CommandInstance,
   getErrorMessage,
@@ -11,7 +10,7 @@ import {
   CommandResponseDetails,
   CommandLoadingEventType,
 } from "@better-typed/hyper-fetch";
-import { useDidUpdate, useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
+import { useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import {
   OnErrorCallbackType,
@@ -35,13 +34,10 @@ export const useCommandEvents = <T extends CommandInstance>({
   command,
   dispatcher,
   logger,
-  state,
   actions,
   setCacheData,
-  initializeCallbacks = false,
 }: UseCommandEventsOptionsType<T>): UseCommandEventsReturnType<T> => {
-  const { cache, appManager, commandManager } = command.builder;
-  const commandDump = command.dump();
+  const { cache, commandManager } = command.builder;
 
   const isMounted = useIsMounted();
 
@@ -110,21 +106,6 @@ export const useCommandEvents = <T extends CommandInstance>({
     onFinishedCallback.current?.({ response: data, command: cmd, details });
   };
 
-  const handleInitialCallbacks = () => {
-    const hasData = state.data && state.error && state.timestamp;
-    if (hasData && initializeCallbacks) {
-      const details = {
-        retries: state.retries,
-        timestamp: new Date(state.timestamp as Date),
-        isFailed: isFailedRequest([state.data, state.error, state.status]),
-        isCanceled: false,
-        isOffline: !appManager.isOnline,
-      };
-
-      handleResponseCallbacks(command, [state.data, state.error, state.status], details);
-    }
-  };
-
   // ******************
   // Lifecycle
   // ******************
@@ -163,7 +144,7 @@ export const useCommandEvents = <T extends CommandInstance>({
     };
   };
 
-  const handleRemove = (requestId: string) => {
+  const handleRemove = ({ requestId }: CommandEventDetails<T>) => {
     removeLifecycleListener(requestId);
   };
 
@@ -194,7 +175,7 @@ export const useCommandEvents = <T extends CommandInstance>({
     dataEvents.current = null;
   };
 
-  const addDataListener = (cmd: CommandInstance) => {
+  const addDataListener = (cmd: T) => {
     // Data handlers
     const loadingUnmount = commandManager.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
     const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, setCacheData);
@@ -216,7 +197,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   // Lifecycle Listeners
   // ******************
 
-  const addLifecycleListeners = (cmd: CommandInstance, requestId?: string) => {
+  const addLifecycleListeners = (cmd: T, requestId?: string) => {
     if (!requestId) {
       const { queueKey, cacheKey } = cmd;
       const requestStartUnmount = commandManager.events.onRequestStart(queueKey, handleRequestStart(cmd));
@@ -275,11 +256,6 @@ export const useCommandEvents = <T extends CommandInstance>({
   // ******************
   // Lifecycle
   // ******************
-
-  /**
-   * On the init if we have data we should call the callback functions
-   */
-  useDidUpdate(handleInitialCallbacks, [commandDump.cacheKey, commandDump.queueKey], true);
 
   /**
    * On unmount we want to clear all the listeners to prevent memory leaks
