@@ -4,12 +4,12 @@ import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "
 
 import { isEqual } from "utils";
 import {
-  UseDependentStateActions,
-  UseDependentStateType,
-  UseDependentStateProps,
-  UseDependentStateReturn,
-} from "./use-dependent-state.types";
-import { getDetailsState, getInitialState, isStaleCacheData } from "./use-dependent-state.utils";
+  UseTrackedStateActions,
+  UseTrackedStateType,
+  UseTrackedStateProps,
+  UseTrackedStateReturn,
+} from "./use-tracked-state.types";
+import { getDetailsState, getInitialState, isStaleCacheData } from "./use-tracked-state.utils";
 
 /**
  *
@@ -19,21 +19,21 @@ import { getDetailsState, getInitialState, isStaleCacheData } from "./use-depend
  * @param dependencies
  * @internal
  */
-export const useDependentState = <T extends CommandInstance>({
+export const UseTrackedState = <T extends CommandInstance>({
   command,
   dispatcher,
   initialData,
   deepCompare,
   dependencyTracking,
   defaultCacheEmitting = true,
-}: UseDependentStateProps<T>): UseDependentStateReturn<T> => {
+}: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { builder, cacheKey, queueKey, cacheTime } = command;
   const { cache, commandManager } = builder;
 
   const forceUpdate = useForceUpdate();
 
-  const state = useRef<UseDependentStateType<T>>(getInitialState(initialData, dispatcher, command));
-  const renderKeys = useRef<Array<keyof UseDependentStateType<T>>>([]);
+  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData, dispatcher, command));
+  const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
 
   // ******************
   // Utils
@@ -49,12 +49,12 @@ export const useDependentState = <T extends CommandInstance>({
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: Array<keyof UseDependentStateType>) => {
+  const renderKeyTrigger = (keys: Array<keyof UseTrackedStateType>) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
     if (shouldRerender) forceUpdate();
   };
 
-  const setRenderKey = (renderKey: keyof UseDependentStateType) => {
+  const setRenderKey = (renderKey: keyof UseTrackedStateType) => {
     if (!renderKeys.current.includes(renderKey)) {
       renderKeys.current.push(renderKey);
     }
@@ -120,7 +120,7 @@ export const useDependentState = <T extends CommandInstance>({
   };
 
   const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
-    const newStateValues: UseDependentStateType<T> = {
+    const newStateValues: UseTrackedStateType<T> = {
       data: cacheData.data[0],
       error: cacheData.data[1],
       status: cacheData.data[2],
@@ -130,12 +130,12 @@ export const useDependentState = <T extends CommandInstance>({
     };
 
     const changedKeys = Object.keys(newStateValues).filter((key) => {
-      const keyValue = key as keyof UseDependentStateType<T>;
+      const keyValue = key as keyof UseTrackedStateType<T>;
       const firstValue = state.current[keyValue];
       const secondValue = newStateValues[keyValue];
 
       return !handleCompare(firstValue, secondValue);
-    }) as unknown as (keyof UseDependentStateType<T>)[];
+    }) as unknown as (keyof UseTrackedStateType<T>)[];
 
     state.current = {
       ...state.current,
@@ -149,7 +149,7 @@ export const useDependentState = <T extends CommandInstance>({
   // Actions
   // ******************
 
-  const actions: UseDependentStateActions<T> = {
+  const actions: UseTrackedStateActions<T> = {
     setData: (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;

@@ -9,7 +9,7 @@ import {
 } from "@better-typed/hyper-fetch";
 import { isEqual } from "utils";
 
-export type UseDependentStateProps<T extends CommandInstance> = {
+export type UseTrackedStateProps<T extends CommandInstance> = {
   command: T;
   logger: LoggerMethodsType;
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null;
@@ -19,17 +19,17 @@ export type UseDependentStateProps<T extends CommandInstance> = {
   deepCompare: boolean | typeof isEqual;
 };
 
-export type UseDependentStateReturn<T extends CommandInstance> = [
-  UseDependentStateType<T>,
-  UseDependentStateActions<T>,
+export type UseTrackedStateReturn<T extends CommandInstance> = [
+  UseTrackedStateType<T>,
+  UseTrackedStateActions<T>,
   {
-    setRenderKey: (renderKey: keyof UseDependentStateType<T>) => void;
+    setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void;
     setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
     getStaleStatus: () => boolean;
   },
 ];
 
-export type UseDependentStateType<T extends CommandInstance = CommandInstance> = {
+export type UseTrackedStateType<T extends CommandInstance = CommandInstance> = {
   data: null | ExtractResponse<T>;
   error: null | ExtractError<T>;
   loading: boolean;
@@ -38,7 +38,7 @@ export type UseDependentStateType<T extends CommandInstance = CommandInstance> =
   timestamp: null | Date;
 };
 
-export type UseDependentStateActions<T extends CommandInstance> = {
+export type UseTrackedStateActions<T extends CommandInstance> = {
   setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
   setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;

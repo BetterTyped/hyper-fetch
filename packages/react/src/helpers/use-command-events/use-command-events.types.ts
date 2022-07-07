@@ -11,7 +11,7 @@ import {
   CommandResponseDetails,
 } from "@better-typed/hyper-fetch";
 
-import { UseDependentStateActions } from "helpers";
+import { UseTrackedStateActions } from "helpers";
 
 // Misc
 export type UseCommandEventsDataMap = { unmount: VoidFunction };
@@ -22,7 +22,7 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerMethodsType;
-  actions: UseDependentStateActions<T>;
+  actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
 };
 

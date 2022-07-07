@@ -6,8 +6,8 @@ import {
   OnProgressCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
-  UseDependentStateActions,
-  UseDependentStateType,
+  UseTrackedStateActions,
+  UseTrackedStateType,
 } from "helpers";
 import { isEqual } from "utils";
 
@@ -28,8 +28,8 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseFetchReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
-  actions: UseDependentStateActions<T>;
+export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<T> & {
+  actions: UseTrackedStateActions<T>;
   onSuccess: (callback: OnSuccessCallbackType<T>) => void;
   onError: (callback: OnErrorCallbackType<T>) => void;
   onFinished: (callback: OnFinishedCallbackType<T>) => void;

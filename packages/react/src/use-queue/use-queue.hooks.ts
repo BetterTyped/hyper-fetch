@@ -66,7 +66,7 @@ export const useQueue = <Command extends CommandInstance>(
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, downloading: progress } : el)));
     });
 
-    const unmountUpload = commandManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
+    const unmountUpload = commandManager.events.onUploadProgress(queueKey, (progress, { requestId }) => {
       setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, uploading: progress } : el)));
     });
 

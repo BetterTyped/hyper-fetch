@@ -7,7 +7,7 @@ import {
   CommandInstance,
 } from "@better-typed/hyper-fetch";
 
-import { useDebounce, useDependentState, useCommandEvents } from "helpers";
+import { useDebounce, UseTrackedState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
@@ -41,7 +41,7 @@ export const useSubmit = <T extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useDependentState<T>({
+  const [state, actions, { setRenderKey, setCacheData }] = UseTrackedState<T>({
     logger,
     command,
     dispatcher,

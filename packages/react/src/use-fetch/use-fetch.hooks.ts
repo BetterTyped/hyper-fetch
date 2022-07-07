@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useDebounce, useCommandEvents, useDependentState } from "helpers";
+import { useDebounce, useCommandEvents, UseTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
 
 /**
@@ -42,7 +42,7 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useDependentState<T>({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = UseTrackedState<T>({
     logger,
     command,
     dispatcher,

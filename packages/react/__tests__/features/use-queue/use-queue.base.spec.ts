@@ -27,7 +27,7 @@ describe("useQueue [ Base ]", () => {
     describe("when queue is processing requests", () => {
       it("should initialize with all processed requests", async () => {
         createRequestInterceptor(command);
-        addQueueElement(command);
+        addQueueElement(command, { stop: true });
         const { result } = renderUseQueue(command);
         expect(result.current.requests).toHaveLength(1);
       });
@@ -35,7 +35,6 @@ describe("useQueue [ Base ]", () => {
         createRequestInterceptor(command);
         addQueueElement(command);
         const { result } = renderUseQueue(command);
-
         await waitFor(() => {
           expect(result.current.requests).toHaveLength(0);
         });
@@ -46,20 +45,60 @@ describe("useQueue [ Base ]", () => {
     describe("when command is added to queue", () => {
       it("should update the requests values", async () => {
         createRequestInterceptor(command);
+        let requestId = "";
+        const progress = {
+          total: 200,
+          loaded: 100,
+          progress: 0.5,
+          timeLeft: 2000,
+          sizeLeft: 100,
+          startTimestamp: +new Date(),
+        };
         const { result } = renderUseQueue(command);
-
         act(() => {
-          addQueueElement(command, { stop: true });
+          requestId = addQueueElement(command, { stop: true });
         });
-
         await waitFor(() => {
           expect(result.current.requests).toHaveLength(1);
         });
-
-        builder.commandManager.events.emitDownloadProgress();
+        act(() => {
+          builder.commandManager.events.emitDownloadProgress(command.queueKey, requestId, progress, {
+            requestId,
+            command,
+          });
+        });
+        await waitFor(() => {
+          expect(result.current.requests[0].downloading).toBe(progress);
+        });
       });
-      it("should update upload progress of requests", async () => {});
-      it("should update download progress of requests", async () => {});
+      it("should update upload progress of requests", async () => {
+        createRequestInterceptor(command);
+        let requestId = "";
+        const progress = {
+          total: 200,
+          loaded: 100,
+          progress: 0.5,
+          timeLeft: 2000,
+          sizeLeft: 100,
+          startTimestamp: +new Date(),
+        };
+        const { result } = renderUseQueue(command);
+        act(() => {
+          requestId = addQueueElement(command, { stop: true });
+        });
+        await waitFor(() => {
+          expect(result.current.requests).toHaveLength(1);
+        });
+        act(() => {
+          builder.commandManager.events.emitUploadProgress(command.queueKey, requestId, progress, {
+            requestId,
+            command,
+          });
+        });
+        await waitFor(() => {
+          expect(result.current.requests[0].uploading).toBe(progress);
+        });
+      });
     });
   });
 });

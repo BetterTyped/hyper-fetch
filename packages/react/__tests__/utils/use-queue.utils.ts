@@ -20,5 +20,5 @@ export const addQueueElement = <T extends CommandInstance>(
   const { stop = false, queueType = "auto" } = options || {};
   const [dispatcher] = getCommandDispatcher(command, queueType);
   if (stop) dispatcher.stop(command.queueKey);
-  dispatcher.add(command);
+  return dispatcher.add(command);
 };

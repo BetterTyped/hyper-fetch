@@ -5,8 +5,8 @@ import {
   OnErrorCallbackType,
   OnFinishedCallbackType,
   OnSuccessCallbackType,
-  UseDependentStateActions,
-  UseDependentStateType,
+  UseTrackedStateActions,
+  UseTrackedStateType,
 } from "helpers";
 
 export type UseCacheOptionsType<T extends CommandInstance> = {
@@ -15,8 +15,8 @@ export type UseCacheOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseCacheReturnType<T extends CommandInstance> = UseDependentStateType<T> & {
-  actions: UseDependentStateActions<T>;
+export type UseCacheReturnType<T extends CommandInstance> = UseTrackedStateType<T> & {
+  actions: UseTrackedStateActions<T>;
   onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
   onCacheError: (callback: OnErrorCallbackType<T>) => void;
   onCacheChange: (callback: OnFinishedCallbackType<T>) => void;

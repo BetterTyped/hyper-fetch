@@ -7,8 +7,8 @@ import {
   OnProgressCallbackType,
   OnStartCallbackType,
   OnSuccessCallbackType,
-  UseDependentStateType,
-  UseDependentStateActions,
+  UseTrackedStateType,
+  UseTrackedStateActions,
 } from "helpers";
 
 export type UseSubmitOptionsType<T extends CommandInstance> = {
@@ -24,8 +24,8 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseDependentStateType<T>, "loading"> & {
-  actions: UseDependentStateActions<T>;
+export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseTrackedStateType<T>, "loading"> & {
+  actions: UseTrackedStateActions<T>;
   onSubmitSuccess: (callback: OnSuccessCallbackType<T>) => void;
   onSubmitError: (callback: OnErrorCallbackType<T>) => void;
   onSubmitFinished: (callback: OnFinishedCallbackType<T>) => void;

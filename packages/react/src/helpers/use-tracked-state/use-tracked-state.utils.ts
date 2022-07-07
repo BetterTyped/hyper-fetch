@@ -9,10 +9,10 @@ import {
   Dispatcher,
 } from "@better-typed/hyper-fetch";
 
-import { initialState, UseDependentStateType } from "helpers";
+import { initialState, UseTrackedStateType } from "helpers";
 
 export const getDetailsState = (
-  state?: UseDependentStateType<CommandInstance>,
+  state?: UseTrackedStateType<CommandInstance>,
   details?: Partial<CacheValueType<unknown, unknown>["details"]>,
 ): CacheValueType<unknown, unknown>["details"] => {
   return {
@@ -72,7 +72,7 @@ export const getInitialState = <T extends CommandInstance>(
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
   dispatcher: Dispatcher,
   command: T,
-): UseDependentStateType<T> => {
+): UseTrackedStateType<T> => {
   const { builder, cacheKey } = command;
   const { cache } = builder;
 
