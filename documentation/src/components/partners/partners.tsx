@@ -9,8 +9,8 @@ export function Partners(): JSX.Element {
       <div className="container">
         <h2 className="page-section-title">Be a partner in our solutions.</h2>
         <div className="page-section-subtitle">
-          BetterTyped was created to create the best open source tools. However, it is an extremely demanding task, so
-          we encourage you to partner and sponsor our work.
+          BetterTyped was created to make the best open source tools. However, it is an extremely demanding task, so we
+          encourage you to partner and sponsor our work.
         </div>
         <div className={clsx(styles.contact)}>
           <a className="button button--primary button--lg" href="mailto:contact@bettertyped.com">
