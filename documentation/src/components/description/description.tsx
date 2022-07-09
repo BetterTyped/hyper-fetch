@@ -11,7 +11,7 @@ export function Description(): JSX.Element {
         <h2 className="page-section-title">No more architecture struggle.</h2>
         <div className="page-section-subtitle">
           We offer the e2e solution, unified data flow, and full integrity with external solutions. Here you will find
-          recipes for most data management problems or requests, and solutions for writing effective tests and
+          recipes for most data management or requesting problems, and solutions for writing effective tests and
           maintenance.
         </div>
         <div className={clsx(styles.row)}>
