@@ -37,19 +37,18 @@ html[data-theme="dark"] .features::after {
 }
 
 .imgWrapper {
+  position: relative;
   margin-top: 6px;
   border-radius: 100%;
-  overflow: hidden;
+  overflow: hidden !important;
   display: flex;
   width: fit-content;
   height: fit-content;
 }
 
 .img {
-  position: relative;
   width: 25px;
   fill: var(--ifm-color-warning-light);
-  z-index: 1;
   margin: -3px;
 }
 

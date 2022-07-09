@@ -42,7 +42,7 @@
       --s: 1;
       top: 30%;
       z-index: 1;
-      stroke: #fff;
+      stroke: var(--ifm-font-color-base);
       stroke-dashoffset: 241px;
       stroke-dasharray: 0px 240px;
       transform: rotate(var(--r)) scaleX(var(--s));
@@ -100,19 +100,21 @@
         animation: morph 2s ease;
       }
     }
+    svg.circle {
+      animation: circle 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.3s;
+    }
+    svg.line {
+      animation: line 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.3s;
+    }
     svg {
-      &.circle {
-        animation: circle 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.3s;
-      }
-      &.line {
-        animation: line 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.3s;
-      }
-      &.white {
-        animation: white 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.45s;
-        &.right {
-          animation-delay: 1.6s;
-        }
-      }
+      animation: light 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.45s;
+    }
+    svg.white.left {
+      animation: light 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.45s;
+    }
+    svg.white.right {
+      animation: light 0.45s cubic-bezier(0.77, 0, 0.175, 1) forwards 1.45s;
+      animation-delay: 1.6s;
     }
   }
 }
@@ -123,7 +125,7 @@
   }
 }
 
-@keyframes white {
+@keyframes light {
   100% {
     stroke-dasharray: 240px 240px;
   }
