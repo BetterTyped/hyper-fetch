@@ -11,7 +11,8 @@ export function Preview(): JSX.Element {
         <h2 className="page-section-title">Simple. Fast. Better.</h2>
         <div className="page-section-subtitle">
           Save time needed to handle state and reducers. Save time on http client setup and it's dependencies.
-          Everything is set up right after installation, it's fully configured the environment!
+          Everything is set up right after installation, it's fully configured environment with no external
+          dependencies!
         </div>
         <div className={clsx(styles.contact)}>
           <iframe
