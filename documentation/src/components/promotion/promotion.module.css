@@ -1,6 +1,14 @@
 .container {
   padding: 80px 0;
   background: var(--section-background);
+  border-top: 1px solid var(--ifm-color-secondary-dark);
+  border-bottom: 1px solid var(--ifm-color-secondary-dark);
+}
+
+html[data-theme="dark"] .container {
+  background-color: var(--section-background);
+  border-top: 1px solid var(--ifm-toc-border-color);
+  border-bottom: 1px solid var(--ifm-toc-border-color);
 }
 
 .row {

@@ -10,13 +10,18 @@ export function Promotion(): JSX.Element {
         <div className={clsx(styles.row)}>
           <h1 className={clsx(styles.title)}>
             Check out{" "}
-            <a href="https://bettertyped.com/" target="_blank">
+            <a href="https://bettertyped.com/" target="_blank" rel="noreferrer">
               BetterTyped
             </a>{" "}
             projects!
           </h1>
 
-          <a className="button button--primary button--lg" href="https://github.com/BetterTyped" target="_blank">
+          <a
+            className="button button--primary button--lg"
+            href="https://github.com/BetterTyped"
+            target="_blank"
+            rel="noreferrer"
+          >
             Take me to Github
           </a>
         </div>

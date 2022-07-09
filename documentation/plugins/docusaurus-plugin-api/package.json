@@ -13,6 +13,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
+    "prebuild": "npx rimraf dist",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
     "prepare": "yarn build",

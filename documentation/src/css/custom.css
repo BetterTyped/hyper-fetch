@@ -66,8 +66,8 @@ html[data-theme="light"] .main-wrapper {
 }
 
 html[data-theme="dark"] .main-wrapper {
-  background-image: radial-gradient(var(--section-background) 1px, transparent 1px),
-    radial-gradient(var(--section-background) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-position: 0 0, 50px 50px;
   background-size: 100px 100px;
 }
@@ -107,36 +107,38 @@ html[data-theme="light"] .menu__link--active {
 
 /* Headings */
 
-.page-section-title,
-.page-section-title-center {
+.page-section-title {
   position: relative;
-  margin-top: 10px;
-  margin-bottom: 40px;
-}
-
-.page-section-title::before,
-.page-section-title-center::before {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 12px;
-  width: 50px;
-  height: 1px;
-  content: "";
-  display: block;
-  background: var(--ifm-color-primary);
-}
-
-.page-section-title-center {
   text-align: center;
+  font-size: 2.3rem;
+  font-weight: 800;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.page-section-title-center::before {
-  left: 50%;
-  transform: translateX(-50%);
+.page-section-subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.3;
+  margin-top: 20px;
+  margin-bottom: 60px;
+  font-weight: 500;
+  color: var(--ifm-color-emphasis-600);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+html[data-theme="dark"] .page-section-subtitle {
+  color: var(--ifm-color-emphasis-400);
 }
 
 /* Navigation */
+
+html[data-theme="dark"] body .navbar {
+  background: var(--ifm-background-color);
+}
 
 .navbar__logo img {
   height: 100%;
@@ -183,13 +185,17 @@ body .DocSearch-Button {
   padding: 0 10px 0 14px;
   color: var(--ifm-navbar-search-input-color);
   background: var(--ifm-navbar-search-input-background-color);
-  border-color: var(--ifm-navbar-search-input-background-color);
+  border-color: var(--ifm-color-emphasis-300);
+  border: 1px solid var(--ifm-color-emphasis-300);
+}
+html[data-theme="dark"] body .DocSearch-Button {
+  border: 1px solid var(--ifm-color-emphasis-300);
 }
 body .DocSearch-Button:hover,
 body .DocSearch-Button:focus {
-  border-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary) !important;
   background: var(--ifm-navbar-search-input-background-color);
-  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+  box-shadow: 0 0 0 1px var(--ifm-color-primary);
 }
 body .DocSearch-Modal,
 body .DocSearch-Footer {

@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Link from "@docusaurus/Link";
 
 import styles from "./description.module.css";
 
@@ -7,8 +8,17 @@ export function Description(): JSX.Element {
   return (
     <section className={clsx(styles.container)}>
       <div className="container">
+        <h2 className="page-section-title">No more architecture struggle.</h2>
+        <div className="page-section-subtitle">
+          We offer the e2e solution, unified data flow, and full integrity with external solutions. Here you will find
+          recipes for most data management problems or requests, and solutions for writing effective tests and
+          maintenance.
+        </div>
         <div className={clsx(styles.row)}>
           <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="box" src="/img/features/070-file hosting.svg" />
+            </div>
             <h3 className={clsx(styles.title)}>Builder and Command</h3>
             <div className={clsx(styles.description)}>
               Builder will allow you to easily set the basic specification of the server you intend to communicate,
@@ -17,6 +27,9 @@ export function Description(): JSX.Element {
             </div>
           </div>
           <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="bolt" src="/img/features/049-messenger.svg" />
+            </div>
             <h3 className={clsx(styles.title)}>Dispatchers and Effects</h3>
             <div className={clsx(styles.description)}>
               Dispatchers help us to handle sending requests based on our preferences - queued, deduplicated, cancelling
@@ -25,6 +38,9 @@ export function Description(): JSX.Element {
             </div>
           </div>
           <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="case" src="/img/features/047-pin.svg" />
+            </div>
             <h3 className={clsx(styles.title)}>Cache and Managers</h3>
             <div className={clsx(styles.description)}>
               The cache allows you to store the results of requests for later use - quickly and easily reduce requests
@@ -32,16 +48,11 @@ export function Description(): JSX.Element {
               requests.
             </div>
           </div>
-          <div className={clsx(styles.block)}>
-            <h3 className={clsx(styles.title)}>Persistance and Offline</h3>
-            <div className={clsx(styles.description)}>
-              Persistence takes a great part of our library architecture, thanks to it you can persist everything -
-              whole requests and cache. We automatically handle offline and hold the request until the connection is
-              restored.
-            </div>
-          </div>
         </div>
       </div>
+      <h3 className={clsx(styles.link)}>
+        You can find more details in <Link to="/docs/Architecture/Builder">Architecture Docs</Link>
+      </h3>
     </section>
   );
 }

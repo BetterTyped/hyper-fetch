@@ -1,16 +1,33 @@
 .features {
-  margin: 50px auto;
+  position: relative;
+  padding: 70px 0 100px;
+}
+
+.features::after {
+  display: block;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 200px;
+  background-image: linear-gradient(var(--ifm-color-emphasis-500), var(--ifm-background-color));
+  top: 0%;
+  left: 0;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+html[data-theme="dark"] .features::after {
+  background-image: linear-gradient(var(--ifm-color-emphasis-200), var(--ifm-background-color));
 }
 
 .list {
   display: grid;
-  gap: 30px 80px;
+  gap: 20px 80px;
   grid-template-columns: 1fr 1fr 1fr;
 }
 
 .feature {
   display: grid;
-  align-items: center;
   gap: 20px;
   grid-template-columns: auto 1fr;
 }
@@ -19,21 +36,26 @@
   margin: 0;
 }
 
-.imageWrapper {
-  padding: 14px;
-  border-radius: 4px;
-  background: var(--ifm-color-emphasis-100);
-  height: 70px;
+.imgWrapper {
+  margin-top: 6px;
+  border-radius: 100%;
+  overflow: hidden;
+  display: flex;
+  width: fit-content;
+  height: fit-content;
 }
 
-.featureSvg {
-  width: 40px;
-  height: 40px;
+.img {
+  position: relative;
+  width: 25px;
+  fill: var(--ifm-color-warning-light);
+  z-index: 1;
+  margin: -3px;
 }
 
 .details {
   padding: 5px 0;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .details a {
@@ -43,6 +65,11 @@
 .description {
   flex: 1 1 auto;
   font-family: "Viga", sans-serif;
+}
+
+.link {
+  margin-top: 100px;
+  text-align: center;
 }
 
 @media (max-width: 1200px) {

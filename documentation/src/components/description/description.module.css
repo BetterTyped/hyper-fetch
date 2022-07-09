@@ -1,40 +1,83 @@
 .container {
-  padding: 100px 0;
-  background: var(--section-background);
+  padding: 100px 20px 100px;
+  background: #dfdfdf;
+  border-top: 1px solid var(--ifm-color-secondary-dark);
+  border-bottom: 1px solid var(--ifm-color-secondary-dark);
+  background-image: radial-gradient(var(--ifm-color-emphasis-500) 1px, transparent 1px),
+    radial-gradient(var(--ifm-color-emphasis-500) 1px, transparent 1px);
+  background-position: 0 0, 60px 60px;
+  background-size: 30px 30px;
+}
+
+html[data-theme="dark"] .container {
+  background-color: var(--section-background);
+  border-top: 1px solid var(--ifm-toc-border-color);
+  border-bottom: 1px solid var(--ifm-toc-border-color);
+  background-image: radial-gradient(rgba(0, 0, 0, 0.05), 1.3px, transparent 1.3px),
+    radial-gradient(rgba(0, 0, 0, 0.05), 1.3px, transparent 1.3px);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 50px 60px;
+  margin-top: 80px;
 }
 
-.title:after {
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-100);
+  width: fit-content;
+  margin-bottom: 20px;
+}
+
+.featureSvg {
+  width: 30px;
+  height: 30px;
+}
+
+.title {
+  white-space: nowrap;
+}
+
+/* .title:after {
   display: block;
   content: "";
   margin-top: 10px;
   width: 80px;
   height: 2px;
   background: var(--ifm-color-primary);
-}
+} */
 
 .description {
-  font-size: 0.9rem;
-  color: var(--ifm-color-emphasis-800);
+  font-size: 1rem;
+  color: var(--ifm-color-emphasis-700);
   opacity: 0.95;
+  font-weight: 500;
+}
+html[data-theme="dark"] .description {
+  color: var(--ifm-color-emphasis-400);
+}
+
+.link {
+  margin-top: 100px;
+  text-align: center;
 }
 
 @media (max-width: 992px) {
+  .title {
+    white-space: unset;
+  }
   .row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 650px) {
-  .row {
-    grid-template-columns: 1fr;
-  }
-
   .title {
     font-size: 1.2em;
   }
