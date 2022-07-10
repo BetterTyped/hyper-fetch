@@ -219,7 +219,7 @@ body .DocSearch-Modal {
 @media (max-width: 750px) {
   body .DocSearch-Button {
     width: 40px;
-    padding: 0 12px;
+    padding: 0 12px 0 10px;
   }
 }
 
@@ -256,15 +256,13 @@ html[data-theme="dark"] .navbar-sidebar .github {
 }
 
 .navbar-sidebar .github::before {
-  display: none;
+  width: 18px;
+  height: 18px;
 }
 
 .navbar-sidebar .github {
-  display: initial;
-}
-
-.navbar-sidebar .github {
-  display: initial;
+  display: flex;
+  gap: 5px;
 }
 
 .navbar-sidebar--show .github {

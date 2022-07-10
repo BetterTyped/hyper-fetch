@@ -95,8 +95,14 @@ html[data-theme="dark"] .addition {
 }
 
 @media (max-width: 650px) {
+  .title {
+    margin: 0;
+  }
+  .projectName {
+    display: none;
+  }
   .tagline {
-    font-size: 3em;
+    font-size: 2.6em;
   }
 }
 

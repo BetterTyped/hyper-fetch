@@ -12,7 +12,7 @@ export function Header(): JSX.Element {
     <header className={clsx(styles.container)}>
       <div className={clsx("container", styles.wrapper)}>
         <h2 className={clsx(styles.title)}>
-          {siteConfig.projectName}
+          <div className={clsx(styles.projectName)}>{siteConfig.projectName}</div>
           <div className={clsx(styles.stars)}>
             <a href="https://github.com/BetterTyped/hyper-fetch" target="_blank" rel="noreferrer">
               <img
