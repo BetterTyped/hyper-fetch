@@ -50,15 +50,16 @@ interface Values {
 const LoginPage: React.FC = () => {
   const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } = useSubmit(postLogin);
 
-  onSubmitSuccess((payload) => {
-    console.log(payload); // { token: string, refreshToken: string }
+  onSubmitSuccess(({ response }) => {
+    console.log(response); // { token: string, refreshToken: string }
   });
 
-  onSubmitError((error) => {
-    console.log(error); // { message: string }
+  onSubmitError(({ response }) => {
+    console.log(response); // { message: string }
   });
 
-  onSubmitFinished(([payload, error, status]) => {
+  onSubmitFinished(({ response }) => {
+    const [payload, error, status] = response;
     console.log(payload); // { token: string, refreshToken: string } | null
     console.log(error); // { message: string } | null
     console.log(status); // 200 / 400 / 404 / 500 ...

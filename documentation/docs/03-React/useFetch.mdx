@@ -45,15 +45,16 @@ import { getUsers } from "server";
 const UsersListPage: React.FC = () => {
   const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
 
-  onSuccess((payload) => {
-    console.log(payload); // [ User, User, User ]
+  onSuccess(({ response }) => {
+    console.log(response); // [ User, User, User ]
   });
 
-  onError((error) => {
-    console.log(error); // { message: string }
+  onError(({ response }) => {
+    console.log(response); // { message: string }
   });
 
-  onFinished(([payload, error, status]) => {
+  onFinished(({ response }) => {
+    const [payload, error, status] = response;
     console.log(payload); // [ User, User, User ] | null
     console.log(error); // { message: string } | null
     console.log(status); // 200 / 400 / 404 / 500 ...
