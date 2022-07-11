@@ -64,7 +64,7 @@
     margin-top: 50px;
     display: flex;
     flex-direction: column;
-    gap: 10px 20px;
+    gap: 20px 20px;
     justify-content: center;
     align-items: center;
   }
