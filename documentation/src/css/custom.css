@@ -465,3 +465,14 @@ footer #mc_embed_signup .button:hover {
     max-width: calc(100vw - 30px);
   }
 }
+
+/* Comparison */
+
+.comparison-table {
+  display: table;
+  width: 100%;
+}
+
+.comparison-table td:first-child {
+  font-weight: 800;
+}
