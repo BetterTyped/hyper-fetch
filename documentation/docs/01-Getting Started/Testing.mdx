@@ -16,6 +16,17 @@ tests or shows the appropriate error - they are easier to maintain and faster to
 - Easy maintenance of the tests
 - Tests are faster to build
 
+## Isolation
+
+Architecture solution makes global module out of builder. This way it will get mixed between test cases from different
+filles if we run them in many workers. To prevent this we need to follow two steps for full isolation.
+
+1. **`Clear builder`** - use built-in method `.clear()` to make sure we initialize builder submodules and clear all it's
+   changes.
+2. **`Clear node / runner cache`** - as for jest, you should use built-in method `.resetModules()` to clean builder
+   global module and reinitialize it again. If you look for some libraries you can checkout your environment runner
+   methods or try libraries like [decache](https://github.com/dwyl/decache).
+
 ## Example
 
 In our approach we are using great mocking library [msw](https://mswjs.io/) and
@@ -28,8 +39,11 @@ You can create the utilities set that takes command and use its method, endpoint
 you to intercept request.
 
 ```tsx
-import { getUsers } from "commands";
+import { builder } from "../api/builder";
+import { getUsers } from "../api";
 
+// 'createInterceptor' is some custom method for handling intercepting in the tests we write
+// In our internal test we used MSW as main intercepting layer
 const getUsersInterceptor = createInterceptor(getUsers, {
   data: [
     { name: "John", age: 18 },
@@ -37,12 +51,20 @@ const getUsersInterceptor = createInterceptor(getUsers, {
   ],
 });
 
+beforeEach(() => {
+  // We need to reset modules cache as builder is globaly exported module
+  // This way it will not get mixed-up with other test cases running in parallel
+  jest.resetModules();
+  // Clean the environment to make sure it's isolated
+  builder.clear();
+});
+
 it("My test", async () => {
+  // Start interceptor listener
   const mock = getUsersInterceptor();
 
-  // Some test
+  // Handle test
   renderApp();
-
   expect(await screen.findByText(mock.data[0])).toBeVisible();
 });
 ```
