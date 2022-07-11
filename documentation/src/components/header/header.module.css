@@ -4,6 +4,8 @@
   position: relative;
   min-height: 400px;
   padding: 80px 0 120px;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 .wrapper {

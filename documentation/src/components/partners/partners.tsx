@@ -17,6 +17,50 @@ export function Partners(): JSX.Element {
             Contact us
           </a>
         </div>
+        <div className={clsx(styles.sponsors)}>
+          <a className={clsx(styles.card)} href="mailto:contact@bettertyped.com">
+            <div className={clsx(styles.plus)}>
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
+                <path
+                  fillRule="evenodd"
+                  d="M 11 2 L 11 11 L 2 11 L 2 13 L 11 13 L 11 22 L 13 22 L 13 13 L 22 13 L 22 11 L 13 11 L 13 2 Z"
+                />
+              </svg>
+            </div>
+            <div className={clsx(styles.content)}>
+              <b className={clsx(styles.title)}>Become a sponsor</b>
+              <div className={clsx(styles.description)}>Support our work</div>
+            </div>
+          </a>
+          <a className={clsx(styles.card)} href="mailto:contact@bettertyped.com">
+            <div className={clsx(styles.plus)}>
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
+                <path
+                  fillRule="evenodd"
+                  d="M 11 2 L 11 11 L 2 11 L 2 13 L 11 13 L 11 22 L 13 22 L 13 13 L 22 13 L 22 11 L 13 11 L 13 2 Z"
+                />
+              </svg>
+            </div>
+            <div className={clsx(styles.content)}>
+              <b className={clsx(styles.title)}>Become a sponsor</b>
+              <div className={clsx(styles.description)}>Support our work</div>
+            </div>
+          </a>
+          <a className={clsx(styles.card)} href="mailto:contact@bettertyped.com">
+            <div className={clsx(styles.plus)}>
+              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
+                <path
+                  fillRule="evenodd"
+                  d="M 11 2 L 11 11 L 2 11 L 2 13 L 11 13 L 11 22 L 13 22 L 13 13 L 22 13 L 22 11 L 13 11 L 13 2 Z"
+                />
+              </svg>
+            </div>
+            <div className={clsx(styles.content)}>
+              <b className={clsx(styles.title)}>Become a sponsor</b>
+              <div className={clsx(styles.description)}>Support our work</div>
+            </div>
+          </a>
+        </div>
       </div>
     </section>
   );

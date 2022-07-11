@@ -88,6 +88,17 @@ html[data-theme="light"] .menu__link--active {
   text-shadow: 0px 0px 9px rgba(255, 255, 255, 1);
 }
 
+@media (max-width: 996px) {
+  .menu__link {
+    padding: 10px var(--ifm-menu-link-padding-horizontal);
+    font-size: 1.1rem;
+  }
+  .navbar-sidebar__back {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}
+
 /* Survey */
 
 #survicate-box .sv__survey {
@@ -189,7 +200,8 @@ body .DocSearch-Button {
   border: 1px solid var(--ifm-color-emphasis-300);
 }
 html[data-theme="dark"] body .DocSearch-Button {
-  border: 1px solid var(--ifm-color-emphasis-300);
+  background: #3b3d4080;
+  border: 1px solid #4c505658;
 }
 body .DocSearch-Button:hover,
 body .DocSearch-Button:focus {
@@ -246,7 +258,7 @@ body .DocSearch-Modal {
   opacity: 0.7;
 }
 
-html[data-theme="dark"] .github {
+html[data-theme="dark"] .github::before {
   filter: invert(100%);
 }
 
@@ -271,6 +283,10 @@ html[data-theme="dark"] .navbar-sidebar .github {
 
 .navbar__inner .github {
   font-size: 0;
+}
+
+html[data-theme="dark"] .theme-doc-sidebar-container {
+  background: #494b5024;
 }
 
 /* Docs */
@@ -337,8 +353,14 @@ html[data-theme="dark"] .footer__copyright {
   color: var(--ifm-color-emphasis-400);
 }
 
-.footer__item {
+.footer__item a {
   font-size: 14px;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-600);
+}
+
+html[data-theme="dark"] .footer__item a {
+  color: var(--ifm-color-emphasis-400);
 }
 
 @media (max-width: 996px) {
@@ -369,29 +391,29 @@ footer form #mc_embed_signup_scroll {
 
 footer form p {
   display: flex;
-  padding-top: 20px;
 }
 
 footer form p a {
   display: flex;
   padding-top: 20px;
-}
-
-footer form * {
-  font-family: "Lato", sans-serif !important;
+  max-width: 140px;
 }
 
 footer #mc_embed_signup input.email {
   padding: 4px 14px;
-  border-radius: 12px;
+  border-radius: 8px;
   height: 40px;
   margin-right: 5px;
   background: var(--ifm-background-color);
   border-color: var(--ifm-color-secondary-light);
+  box-shadow: none;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  font-weight: 600;
 }
 
 html[data-theme="dark"] footer #mc_embed_signup input.email {
   color: white;
+  border: 1px solid var(--ifm-color-emphasis-200);
 }
 
 html[data-theme="dark"] footer #mc_embed_signup input.email::placeholder {
@@ -399,13 +421,13 @@ html[data-theme="dark"] footer #mc_embed_signup input.email::placeholder {
 }
 
 footer #mc_embed_signup .button {
-  color: white;
+  color: var(--ifm-button-color);
   background: var(--ifm-color-primary);
   font-weight: 600;
   box-shadow: 0px 2px 12px var(--box-shadow-primary-light);
   transition: all 150ms ease-in-out;
   padding: 4px 26px !important;
-  border-radius: 12px;
+  border-radius: 8px;
   height: 40px !important;
   width: fit-content !important;
 }

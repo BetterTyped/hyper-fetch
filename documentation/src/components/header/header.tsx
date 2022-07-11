@@ -35,8 +35,8 @@ export function Header(): JSX.Element {
           </b>{" "}
         </h3>
         <div className={clsx(styles.addition)}>
-          For any <span>Javascript / Typescript</span> environment like <span>React</span>, <span>Svelte</span>,{" "}
-          <span>Vue</span> and others.
+          For any <span>Javascript / Typescript</span> environment like <span>React</span>, <span>Angular</span>,{" "}
+          <span>Svelte</span>, <span>Vue</span> and others.
         </div>
 
         <div className={styles.buttons}>
