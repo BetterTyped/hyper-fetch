@@ -38,739 +38,743 @@ if you notice that our data may be corrected while using these libraries please 
 <br />
 <br />
 
-<table className="comparison-table">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Hyper Fetch</th>
-      <th>
-        <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
-          Query
-        </a>
-      </th>
-      <th>
-        <a href="https://swr.vercel.app/">SWR</a>
-      </th>
-      <th>
-        <a href="https://www.apollographql.com/docs/react/">Apollo</a>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Supported environments</td>
-      <td>Any</td>
-      <td>Any</td>
-      <td>React</td>
-      <td>Any</td>
-    </tr>
-    <tr>
-      <td>Protocols</td>
-      <td>Any</td>
-      <td>Any</td>
-      <td>Any</td>
-      <td>GraphQL</td>
-    </tr>
-    <tr>
-      <td>Caching Approach</td>
-      <td>Command Schema</td>
-      <td>Hierarchical Key > Value</td>
-      <td>Unique Key > Value</td>
-      <td>Normalized Schema</td>
-    </tr>
-    <tr>
-      <td>Cache Key Strategy</td>
-      <td>Command Key</td>
-      <td>JSON</td>
-      <td>JSON</td>
-      <td>GraphQL Query</td>
-    </tr>
-    <tr>
-      <td>Data Change Detection</td>
-      <td>Deep Comparison</td>
-      <td>Deep Comparison</td>
-      <td>Deep Comparison</td>
-      <td>Deep Comparison</td>
-    </tr>
-    <tr>
-      <td>Data Memoization</td>
-      <td>Normalized Identity</td>
-      <td>Full Structural Sharing</td>
-      <td>Identity</td>
-      <td>Normalized Identity</td>
-    </tr>
-    <tr>
-      <td>Queue Key Strategy</td>
-      <td>Command Key</td>
-      <td>N/A</td>
-      <td>N/A</td>
-      <td>N/A</td>
-    </tr>
-    <tr>
-      <td>Devtools</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Server Connection Setup{" "}
-        <Tippy content="Be able to prepare global setup for server connection">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Shared Command{" "}
-        <Tippy content="Being able to prepare commands to be reused in the application">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Dependency tracking{" "}
-        <Tippy content="It allows to limit rerendering only to the dependent key changes">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Cache Persistance</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Requests Persistance{" "}
-        <Tippy content="Possibility to keep data prepared for request in persistent storage and resend it on new session">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Download ETA{" "}
-        <Tippy content="Tracking of the download progress to be able to access size left and time ETA">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅ </td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>🔵</td>
-    </tr>
-    <tr>
-      <td>
-        Uploading ETA{" "}
-        <Tippy content="Tracking of the upload progress to be able to access size left and time ETA">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>🔵</td>
-    </tr>
-    <tr>
-      <td>
-        Pooling{" "}
-        <Tippy content="Fetch new data at interval">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Dependent Queries{" "}
-        <Tippy content="Be able to hold on one request until another is finished">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Paginated Queries</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Query Params Parsing{" "}
-        <Tippy content="Built-in query parsing from object or string">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>🔵</td>
-    </tr>
-    <tr>
-      <td>
-        Queueing{" "}
-        <Tippy content="Allows to group requests in queues and control sending process">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Retries{" "}
-        <Tippy content="When request fails try again to trigger it">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔵</td>
-    </tr>
-    <tr>
-      <td>
-        Default Client{" "}
-        <Tippy content="Library includes prepared client for requesting">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Infinite Queries{" "}
-        <Tippy content="When we want to dynamicaly 'load more' content on the list">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        SSR{" "}
-        <Tippy content="Server Side Rendering">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Initial Data{" "}
-        <Tippy content="Initialize with prepared placeholder data">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Cache Hydration{" "}
-        <Tippy content="Allows to hydrate cache storage with data from other sources">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅ </td>
-      <td>✅ </td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Garbage Collecting{" "}
-        <Tippy content="Stale data gets removed from memory">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Pre Request Intercepting{" "}
-        <Tippy content="Intercept and modify every request before being triggered">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Post Request Intercepting{" "}
-        <Tippy content="Intercept and modify every response before being saved and emitted">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Prefetching{" "}
-        <Tippy content="Prefetch your data before your components being mounted">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Cancellation{" "}
-        <Tippy content="Cancel ongoing request">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Queue Cancellation{" "}
-        <Tippy content="Cancel group of ongoing requests by their queue key">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Authentication{" "}
-        <Tippy content="Has built-in solutions for authentication like intercepting and possibilities to turn on/off">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Stale While Revalidate{" "}
-        <Tippy content="Load cache data and refresh it in background">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Refresh Data</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Offline Request Pause{" "}
-        <Tippy content="When app goes offline, it waits until connection is back and retries paused requests">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Network Status Refetching{" "}
-        <Tippy content="Trigger refetch when your app goes online">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Window Focus Refetching{" "}
-        <Tippy content="Trigger refetch when you switch tabs or windows">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Normalized Caching{" "}
-        <Tippy content="Storing cached data in flat architecture to prevent duplication">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Automatic Refetch After Mutation{" "}
-        <Tippy content="Refresh cache data once you post mutation request">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Query Matching{" "}
-        <Tippy content="Make operations on queued queries by their keys - you can cancel, stop or delete them from queue.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Cache Matching{" "}
-        <Tippy content="Make operations on queries by their keys. Refetch groups of requests with partial names/regex or full keys.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Query Lifecycle Events{" "}
-        <Tippy content="Receive every lifecycle response from any requests. Request start, progress, response start, sucess, error, finished.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Data Flow Standard{" "}
-        <Tippy content="Having a standard for data exchange and for easy reading/dumping">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Request Start/Stop{" "}
-        <Tippy content="Possibility to control particular request in queue.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Request Queue Start/Stop/Pause{" "}
-        <Tippy content="Possibility to control all requests in queue.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Request Data Mapping{" "}
-        <Tippy content="Before we send a request we can map the data it's transfering to different format before it gets to server">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>N/A</td>
-    </tr>
-    <tr>
-      <td>
-        Cache Invalidation{" "}
-        <Tippy content="Invalidate cache data to refetch it.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        File Uploading{" "}
-        <Tippy content="File upload with built in client">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔵</td>
-      <td>🔵</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Global Response Side-Effects{" "}
-        <Tippy content="We can hook global listeners for particular request to listen and trigger side effects while it's being send">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Scroll Recovery{" "}
-        <Tippy content="Going back to previous cache will restore scroll as data will be immidietly shown to the user.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Simple Command Execution{" "}
-        <Tippy content="Possibility to trigger requests commands">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Requests Manager{" "}
-        <Tippy content="Possibility to show requests being uploaded in whole system. Working like uploading managers, but much more advanced.">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Tabs Storages Synchronization{" "}
-        <Tippy content="Be able to synchronize tabs data">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Tabs Dispatching Synchronization{" "}
-        <Tippy content="Be able to synchronize queries queues between tabs which is required to present full persistance in browser">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-  </tbody>
-</table>
+<div className="comparison-table">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Hyper Fetch</th>
+        <th>
+          <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
+            Query
+          </a>
+        </th>
+        <th>
+          <a href="https://swr.vercel.app/">SWR</a>
+        </th>
+        <th>
+          <a href="https://www.apollographql.com/docs/react/">Apollo</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Supported environments</td>
+        <td>Any</td>
+        <td>Any</td>
+        <td>React</td>
+        <td>Any</td>
+      </tr>
+      <tr>
+        <td>Protocols</td>
+        <td>Any</td>
+        <td>Any</td>
+        <td>Any</td>
+        <td>GraphQL</td>
+      </tr>
+      <tr>
+        <td>Caching Approach</td>
+        <td>Command Schema</td>
+        <td>Hierarchical Key > Value</td>
+        <td>Unique Key > Value</td>
+        <td>Normalized Schema</td>
+      </tr>
+      <tr>
+        <td>Cache Key Strategy</td>
+        <td>Command Key</td>
+        <td>JSON</td>
+        <td>JSON</td>
+        <td>GraphQL Query</td>
+      </tr>
+      <tr>
+        <td>Data Change Detection</td>
+        <td>Deep Comparison</td>
+        <td>Deep Comparison</td>
+        <td>Deep Comparison</td>
+        <td>Deep Comparison</td>
+      </tr>
+      <tr>
+        <td>Data Memoization</td>
+        <td>Normalized Identity</td>
+        <td>Full Structural Sharing</td>
+        <td>Identity</td>
+        <td>Normalized Identity</td>
+      </tr>
+      <tr>
+        <td>Queue Key Strategy</td>
+        <td>Command Key</td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>Devtools</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Server Connection Setup{" "}
+          <Tippy content="Be able to prepare global setup for server connection">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Shared Command{" "}
+          <Tippy content="Being able to prepare commands to be reused in the application">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Dependency tracking{" "}
+          <Tippy content="It allows to limit rerendering only to the dependent key changes">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>Cache Persistance</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Requests Persistance{" "}
+          <Tippy content="Possibility to keep data prepared for request in persistent storage and resend it on new session">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Download ETA{" "}
+          <Tippy content="Tracking of the download progress to be able to access size left and time ETA">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅ </td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>🔵</td>
+      </tr>
+      <tr>
+        <td>
+          Uploading ETA{" "}
+          <Tippy content="Tracking of the upload progress to be able to access size left and time ETA">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>🔵</td>
+      </tr>
+      <tr>
+        <td>
+          Pooling{" "}
+          <Tippy content="Fetch new data at interval">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Dependent Queries{" "}
+          <Tippy content="Be able to hold on one request until another is finished">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>Paginated Queries</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Query Params Parsing{" "}
+          <Tippy content="Built-in query parsing from object or string">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>🔵</td>
+      </tr>
+      <tr>
+        <td>
+          Queueing{" "}
+          <Tippy content="Allows to group requests in queues and control sending process">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Retries{" "}
+          <Tippy content="When request fails try again to trigger it">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔵</td>
+      </tr>
+      <tr>
+        <td>
+          Default Client{" "}
+          <Tippy content="Library includes prepared client for requesting">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Infinite Queries{" "}
+          <Tippy content="When we want to dynamicaly 'load more' content on the list">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          SSR{" "}
+          <Tippy content="Server Side Rendering">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Initial Data{" "}
+          <Tippy content="Initialize with prepared placeholder data">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Cache Hydration{" "}
+          <Tippy content="Allows to hydrate cache storage with data from other sources">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅ </td>
+        <td>✅ </td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Garbage Collecting{" "}
+          <Tippy content="Stale data gets removed from memory">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Pre Request Intercepting{" "}
+          <Tippy content="Intercept and modify every request before being triggered">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Post Request Intercepting{" "}
+          <Tippy content="Intercept and modify every response before being saved and emitted">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Prefetching{" "}
+          <Tippy content="Prefetch your data before your components being mounted">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Cancellation{" "}
+          <Tippy content="Cancel ongoing request">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Queue Cancellation{" "}
+          <Tippy content="Cancel group of ongoing requests by their queue key">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Authentication{" "}
+          <Tippy content="Has built-in solutions for authentication like intercepting and possibilities to turn on/off">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Stale While Revalidate{" "}
+          <Tippy content="Load cache data and refresh it in background">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>Refresh Data</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Offline Request Pause{" "}
+          <Tippy content="When app goes offline, it waits until connection is back and retries paused requests">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Network Status Refetching{" "}
+          <Tippy content="Trigger refetch when your app goes online">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Window Focus Refetching{" "}
+          <Tippy content="Trigger refetch when you switch tabs or windows">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Normalized Caching{" "}
+          <Tippy content="Storing cached data in flat architecture to prevent duplication">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Automatic Refetch After Mutation{" "}
+          <Tippy content="Refresh cache data once you post mutation request">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Query Matching{" "}
+          <Tippy content="Make operations on queued queries by their keys - you can cancel, stop or delete them from queue.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Cache Matching{" "}
+          <Tippy content="Make operations on queries by their keys. Refetch groups of requests with partial names/regex or full keys.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Query Lifecycle Events{" "}
+          <Tippy content="Receive every lifecycle response from any requests. Request start, progress, response start, sucess, error, finished.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Data Flow Standard{" "}
+          <Tippy content="Having a standard for data exchange and for easy reading/dumping">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Request Start/Stop{" "}
+          <Tippy content="Possibility to control particular request in queue.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Request Queue Start/Stop/Pause{" "}
+          <Tippy content="Possibility to control all requests in queue.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Request Data Mapping{" "}
+          <Tippy content="Before we send a request we can map the data it's transfering to different format before it gets to server">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>N/A</td>
+      </tr>
+      <tr>
+        <td>
+          Cache Invalidation{" "}
+          <Tippy content="Invalidate cache data to refetch it.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          File Uploading{" "}
+          <Tippy content="File upload with built in client">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔵</td>
+        <td>🔵</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Global Response Side-Effects{" "}
+          <Tippy content="We can hook global listeners for particular request to listen and trigger side effects while it's being send">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Scroll Recovery{" "}
+          <Tippy content="Going back to previous cache will restore scroll as data will be immidietly shown to the user.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Simple Command Execution{" "}
+          <Tippy content="Possibility to trigger requests commands">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Requests Manager{" "}
+          <Tippy content="Possibility to show requests being uploaded in whole system. Working like uploading managers, but much more advanced.">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Tabs Storages Synchronization{" "}
+          <Tippy content="Be able to synchronize tabs data">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Tabs Dispatching Synchronization{" "}
+          <Tippy content="Be able to synchronize queries queues between tabs which is required to present full persistance in browser">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 ---
 
 ## Typescript features
 
-<table className="comparison-table">
-  <thead>
-    <tr>
-      <th></th>
-      <th>Hyper Fetch</th>
-      <th>
-        <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
-          Query
-        </a>
-      </th>
-      <th>
-        <a href="https://swr.vercel.app/">SWR</a>
-      </th>
-      <th>
-        <a href="https://www.apollographql.com/docs/react/">Apollo</a>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        Response types{" "}
-        <Tippy content="What data type you expect to receive from server">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Request data types{" "}
-        <Tippy content="Pass the type to specify the data schema to be send">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Global error types{" "}
-        <Tippy content="Specify possible error responses for all requests in the system">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Local error types{" "}
-        <Tippy content="Being able to specify particular endpoint errors apart from global error type">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>🔴</td>
-    </tr>
-    <tr>
-      <td>
-        Query params types{" "}
-        <Tippy content="Being able to pass type checking for endpoint query params">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Params types{" "}
-        <Tippy content="Being able to automaticaly track the record of endpoint string">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>
-        Command state tracking types{" "}
-        <Tippy content="Types to check if you already set the data/params/query params on given command to prevent data corruption">
-          <span>ℹ️</span>
-        </Tippy>
-      </td>
-      <td>✅</td>
-      <td>🔴</td>
-      <td>🔴</td>
-      <td>✅</td>
-    </tr>
-  </tbody>
-</table>
+<div className="comparison-table">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Hyper Fetch</th>
+        <th>
+          <a href="https://tanstack.com/query/v4/?from=reactQueryV3&original=https://react-query-v3.tanstack.com/">
+            Query
+          </a>
+        </th>
+        <th>
+          <a href="https://swr.vercel.app/">SWR</a>
+        </th>
+        <th>
+          <a href="https://www.apollographql.com/docs/react/">Apollo</a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          Response types{" "}
+          <Tippy content="What data type you expect to receive from server">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Request data types{" "}
+          <Tippy content="Pass the type to specify the data schema to be send">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Global error types{" "}
+          <Tippy content="Specify possible error responses for all requests in the system">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Local error types{" "}
+          <Tippy content="Being able to specify particular endpoint errors apart from global error type">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>🔴</td>
+      </tr>
+      <tr>
+        <td>
+          Query params types{" "}
+          <Tippy content="Being able to pass type checking for endpoint query params">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Params types{" "}
+          <Tippy content="Being able to automaticaly track the record of endpoint string">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+      <tr>
+        <td>
+          Command state tracking types{" "}
+          <Tippy content="Types to check if you already set the data/params/query params on given command to prevent data corruption">
+            <span>ℹ️</span>
+          </Tippy>
+        </td>
+        <td>✅</td>
+        <td>🔴</td>
+        <td>🔴</td>
+        <td>✅</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

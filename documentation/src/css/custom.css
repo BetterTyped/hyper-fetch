@@ -469,10 +469,19 @@ footer #mc_embed_signup .button:hover {
 /* Comparison */
 
 .comparison-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.comparison-table table {
   display: table;
   width: 100%;
 }
 
 .comparison-table td:first-child {
   font-weight: 800;
+}
+
+.comparison-table th {
+  white-space: nowrap;
 }
