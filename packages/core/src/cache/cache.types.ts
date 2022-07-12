@@ -3,8 +3,17 @@ import { ClientResponseType } from "client";
 import { CommandResponseDetails } from "managers";
 
 export type CacheOptionsType = {
+  /**
+   * Assign your custom sync storage
+   */
   storage?: CacheStorageType;
+  /**
+   * Initialization callback
+   */
   onInitialization?: (cache: Cache) => void;
+  /**
+   * Callback for every change in the storage
+   */
   onChange?: <Response = any, Error = any>(
     key: string,
     value: CacheValueType<Response, Error>,

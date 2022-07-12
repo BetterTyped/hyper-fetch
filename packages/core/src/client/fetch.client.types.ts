@@ -40,11 +40,29 @@ export type ClientHeadersProps = {
 // Stringify
 
 export type QueryStringifyOptions = {
+  /**
+   * Strict URI encoding
+   */
   strict?: boolean;
+  /**
+   * Encode keys and values
+   */
   encode?: boolean;
+  /**
+   * Array encoding type
+   */
   arrayFormat?: "bracket" | "index" | "comma" | "separator" | "bracket-separator" | "none";
+  /**
+   * Array format separator
+   */
   arraySeparator?: string;
+  /**
+   * Skip keys with null values
+   */
   skipNull?: boolean;
+  /**
+   * Skip keys with empty string
+   */
   skipEmptyString?: boolean;
 };
 

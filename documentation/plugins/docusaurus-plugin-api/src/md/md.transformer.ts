@@ -118,8 +118,11 @@ export class MdTransformer {
       headers.splice(2, 1);
       let namedParameterCount = 0;
       const params = list.map((parameter) => {
+        const element =
+          parameter.type && "declaration" in parameter.type ? parameter.type.declaration || parameter : parameter;
+
         const param = new MdTransformer(
-          parameter,
+          element,
           this.pluginOptions,
           this.npmName,
           this.packageName,
@@ -129,11 +132,14 @@ export class MdTransformer {
         const name = getParamName(parameter, namedParameterCount);
 
         const signature = param._getCallSignature();
+
         const comment = parameter.comment || signature?.comment;
 
         if (parameter.name === "__namedParameters") {
           namedParameterCount++;
         }
+
+        if (param.reflection.name === "onRevalidation") console.log(comment, signature);
 
         return {
           value: [

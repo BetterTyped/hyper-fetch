@@ -1,0 +1,53 @@
+---
+sidebar_position: 0
+---
+
+We try to provide the deepest possible knowledge about the architecture of our library to encourage you to write any
+adapters, plugins and additions to our library.
+
+## General Flow
+
+The flow of the request through the Hyper Fetch system is presented below. We show there the steps shown from the moment
+of adding a command to the dispatcher to passing data to the component.
+
+```mermaid
+flowchart TD;
+    subgraph Builder
+      Command
+      Command_Manager
+      App_Manager
+      Cache
+      Dispatcher
+      Client
+      Request_Start
+      Upload
+      Response_Start
+      Download
+      Response
+    end
+
+    App_Manager(App Manager);
+    Command_Manager(Command Manager);
+    Command(Command);
+    Command -- Add to queue --> Dispatcher
+    Dispatcher -. Check online status .-> App_Manager
+    Dispatcher -- Trigger Command --> Client
+    Client --> Request_Start{{Request Start}}
+    Request_Start --> Upload{{Upload}}
+    Upload --> Response_Start{{Response Start}}
+    Response_Start --> Download{{Download}}
+    Download --> Response{{Response}}
+    Response -- Save Data --> Cache[(Cache)]
+    Cache -- Emit Data --> Component
+
+    Request_Start -. Emit Event .-> Command_Manager
+    Upload -. Emit Event .-> Command_Manager
+    Response_Start -. Emit Event .-> Command_Manager
+    Download -. Emit Event .-> Command_Manager
+    Response -. Emit Event .-> Command_Manager
+    Command_Manager -. onRequestStart .-> Event
+    Command_Manager -. onUpload .-> Event
+    Command_Manager -. onResponseStart .-> Event
+    Command_Manager -. onDownload .-> Event
+    Command_Manager -. onResponse .-> Event
+```
