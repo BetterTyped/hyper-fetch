@@ -1,0 +1,27 @@
+It works on the basis that only one request from a given queue can be sent at a time and all previous requests are
+immediately canceled. This way, we can be sure that only the last inquiry will be processed.
+
+---
+
+#### Setup
+
+```ts
+export const getRandomDataSet = builder.createCommand()({
+  endpoint: "/data",
+  cancelable: true,
+});
+```
+
+#### Example
+
+The example is written in typescript, but it also works in React hooks.
+
+```ts
+// Multiple commands being triggered
+getRandomDataSet.send(); // will be canceled
+getRandomDataSet.send(); // will be canceled
+getRandomDataSet.send(); // will be canceled
+getRandomDataSet.send();
+
+// only last one will be processed
+```
