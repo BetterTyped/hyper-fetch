@@ -150,8 +150,8 @@ export class MdTransformer {
         const paramComment = parameter.comment || signature?.comment;
         const paramType =
           typeof parameter?.type === "string" || parameter?.kindString === "Call signature"
-            ? this._getLinkedType(parameter as any)
-            : this._getLinkedType(parameter.type);
+            ? getType(parameter as any, this.packageLink, this.reflectionTree, false, false)
+            : getType(parameter.type, this.packageLink, this.reflectionTree, false, false);
 
         if (parameter.name === "__namedParameters") {
           namedParameterCount++;

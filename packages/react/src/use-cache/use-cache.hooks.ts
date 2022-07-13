@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useCommandEvents, UseTrackedState } from "helpers";
-import { UseCacheOptionsType, useCacheDefaultOptions } from "use-cache";
+import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "use-cache";
 
 export const useCache = <T extends CommandInstance>(
   command: T,
@@ -11,7 +11,7 @@ export const useCache = <T extends CommandInstance>(
     initialData = useCacheDefaultOptions.initialData,
     deepCompare = useCacheDefaultOptions.deepCompare,
   }: UseCacheOptionsType<T> = useCacheDefaultOptions,
-) => {
+): UseCacheReturnType<T> => {
   const { cacheKey, builder } = command;
 
   const { cache, loggerManager } = builder;

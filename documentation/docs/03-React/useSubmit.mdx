@@ -102,11 +102,9 @@ function options.
 const { submit } = useSubmit(patchUser);
 
 const handleSubmit = (id: number, name: string) => {
-  submit({ data: { name }, params: { userId: id } });
+  submit({ data: { name }, params: { userId: id }, queryParams: { search: "test" } });
 };
 ```
-
-{@import Hyper-Fetch FetchType returns}
 
 ---
 

@@ -191,17 +191,23 @@ export type ExtractRouteParams<T extends string> = string extends T
   ? { [k in Param]: ParamType }
   : NegativeTypes;
 
+export type FetchOptionsType<ClientOptions> = Omit<
+  Partial<CommandConfig<string, ClientOptions>>,
+  "endpoint" | "method"
+>;
+
+/**
+ * It will check if the query params are already set
+ */
 export type FetchQueryParamsType<QueryParamsType, HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
       queryParams?: QueryParamsType | string;
     };
 
-export type FetchOptionsType<ClientOptions> = Omit<
-  Partial<CommandConfig<string, ClientOptions>>,
-  "endpoint" | "method"
->;
-
+/**
+ * If the command endpoint parameters are not filled it will throw an error
+ */
 export type FetchParamsType<
   EndpointType extends string,
   HasParams extends true | false = false,
@@ -211,6 +217,9 @@ export type FetchParamsType<
   ? { params?: NegativeTypes }
   : { params: ExtractRouteParams<EndpointType> };
 
+/**
+ * If the command data is not filled it will throw an error
+ */
 export type FetchRequestDataType<
   RequestDataType,
   HasData extends true | false = false,

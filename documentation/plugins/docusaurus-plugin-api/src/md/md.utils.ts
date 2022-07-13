@@ -202,7 +202,7 @@ export const getType = (
   }
   // Something<Some, Thing>
   if (type && "typeArguments" in type && type.typeArguments?.length) {
-    return `${getTypeName(type, packageLink, reflectionTree, true)}`;
+    return `${getTypeName(type, packageLink, reflectionTree, true, link)}`;
   }
   // `${string}:${infer Param}/${infer Rest}`
   if (type?.type === "template-literal") {

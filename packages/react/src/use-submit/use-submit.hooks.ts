@@ -6,10 +6,10 @@ import {
   commandSendRequest,
   CommandInstance,
 } from "@better-typed/hyper-fetch";
+import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
 import { useDebounce, UseTrackedState, useCommandEvents } from "helpers";
-import { UseSubmitOptionsType, useSubmitDefaultOptions } from "use-submit";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
+import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "use-submit";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -27,7 +27,7 @@ export const useSubmit = <T extends CommandInstance>(
     debounceTime = useSubmitDefaultOptions.debounceTime,
     deepCompare = useSubmitDefaultOptions.deepCompare,
   }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
-) => {
+): UseSubmitReturnType<T> => {
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
@@ -169,8 +169,7 @@ export const useSubmit = <T extends CommandInstance>(
     abort: callbacks.abort,
     ...actions,
     ...handlers,
-    isDebouncing: false,
-    isRefreshed: false,
+    isDebouncing: requestDebounce.active,
     revalidate,
   };
 };
