@@ -9,12 +9,16 @@ structure, our tests can be largely based on the configuration we prepare for ou
 are no longer sensitive to micro changes (like changing endpoints or types). Everything here reacts and adapts to our
 tests or shows the appropriate error - they are easier to maintain and faster to write.
 
+---
+
 ## Benefits
 
 - Our setup is always up to date with the production solution
 - No duplication of the configurations and setups
 - Easy maintenance of the tests
 - Tests are faster to build
+
+---
 
 ## Isolation
 
@@ -26,6 +30,8 @@ filles if we run them in many workers. To prevent this we need to follow two ste
 2. **`Clear node / runner cache`** - as for jest, you should use built-in method `.resetModules()` to clean builder
    global module and reinitialize it again. If you look for some libraries you can checkout your environment runner
    methods or try libraries like [decache](https://github.com/dwyl/decache).
+
+---
 
 ## Example
 
