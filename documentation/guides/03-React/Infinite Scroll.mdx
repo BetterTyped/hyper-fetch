@@ -1,5 +1,40 @@
-:::note
+Fetching elements into single list requires certain approach when writting component logic. At the moment, `Hyper Fetch`
+does not have a dedicated infinite pages hook.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+### Example
+
+```tsx
+function Page({ offset }) {
+  const { data, error, loading } = useFetch(getList.setQueryParams({ offset }));
+
+  return (
+    <div>
+      {data.map((element) => (
+        <div>{element}</div>
+      ))}
+    </div>
+  );
+}
+
+function Component() {
+  const [page, setPage] = useState(1);
+
+  const pages = [];
+  for (let i = 0; i < page; i++) {
+    pages.push(<Page index={i} offset={i * 10} />);
+  }
+
+  const loadMore = () => {
+    setPage((page) => page + 1);
+  };
+
+  return (
+    <div>
+      {pages}
+      <button onClick={loadMore}>Load More</button>
+    </div>
+  );
+}
+```

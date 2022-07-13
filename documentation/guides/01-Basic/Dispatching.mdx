@@ -9,7 +9,7 @@ import TabItem from "@theme/TabItem";
 
 Using Hyper Fetch is very simple, below are all the steps required from installation to execute the first request.
 
-### 1. Initialize Builder
+### Initialize Builder
 
 The first step in implementing Hyper Fetch is to initialize the **[Builder](/docs/Architecture/Builder)**. It manage the
 basic configuration for connection to the server and all the elements that make up Hyper Fetch, which are instances of -
@@ -21,7 +21,7 @@ import { Builder } from "@better-typed/hyper-fetch";
 export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 ```
 
-### 2. Create Command
+### Create Command
 
 Then, having already prepared connection to the server, we use the builder method to create
 **[commands](/docs/Architecture/Command)** and assign types to them.
@@ -43,7 +43,7 @@ type RequestType = { email: string; password: string };
 const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
 ```
 
-### 3. Use the command
+### Use the command
 
 <Tabs>
   <TabItem value="React" label="React" default>

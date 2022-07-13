@@ -18,8 +18,6 @@ we have the stable connection between hook's command and the cache.
 ```tsx
 const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUseres);
 
-revalidate();
-
 onSuccess((payload) => {
   console.log(payload); // [ User, User, User ]
 });

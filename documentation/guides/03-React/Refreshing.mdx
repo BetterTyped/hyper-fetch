@@ -1,5 +1,13 @@
-:::note
+In many cases, we need to periodically update our data so that the user has access to the latest version of what is on
+the server. It's very easy, just set the appropriate interval and turn on refreshing.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+### Example
+
+```tsx
+import { useFetch } from "@better-typed/react-hyper-fetch";
+import { DateInterval } from "@better-typed/hyper-fetch";
+
+const { data, error, loading } = useFetch(getPaginatedList, { refresh: true, refreshTime: DateInterval.second * 10 });
+```

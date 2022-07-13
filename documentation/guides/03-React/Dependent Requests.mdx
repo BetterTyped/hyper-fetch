@@ -1,5 +1,20 @@
-:::note
+`Dependent requests` are needed when fetching some data from the server depends on other data that we need to receive
+first. This way we need to hold requesting until we get necessary data.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+### Example
+
+```tsx
+import { getCurrentUser } from "api/users";
+import { getUserProducts } from "api/products";
+
+...
+
+const { data: user } = useFetch(getCurrentUser)
+
+const { data: products } = useFetch(getUser.setParams({ userId: user?.id }), {
+  disabled: !user
+})
+
+```

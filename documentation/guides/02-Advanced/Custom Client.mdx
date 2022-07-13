@@ -3,6 +3,10 @@ will let you to easily connect into the library logic flow, so this way you will
 handling the internals on the library. We propose to use the `getClientBindings` util so you skip the sensitive and
 highly advanced part of connecting into hyper fetch flow.
 
+---
+
+### Example
+
 ```tsx
 const customHttpClient = async () => {
   const {
@@ -40,6 +44,10 @@ const customHttpClient = async () => {
 };
 ```
 
+---
+
+### Setup
+
 Connect any client to communicate with the server and handle it as you want, the only thing that has to match is the
 interface of the output.
 
@@ -51,7 +59,7 @@ const builder = new Builder({ baseUrl }).setClient(customHttpClient);
 
 ---
 
-## Typescript
+### Typescript
 
 You can pass custom options to your client from global setup and while command initialization. To make sure we pass
 correct configuration through this places we can specify the type for them. It is passed to the builder instance.

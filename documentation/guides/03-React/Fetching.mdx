@@ -2,16 +2,12 @@
 sidebar_position: 1
 ---
 
-:::note
+For fetching data use the [`useFetch`](/docs/React/useFetch) hook that automates command handling. There are tons of
+[options](/docs/React/useFetch#options) to adjust this hook so check out the [documentation](/docs/React/useFetch).
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
-
-## useFetch
-
-For fetching data use the `useFetch` hook that automates command handling. There are tons of options to adjust this hook
-so check out the documentation.
+### Example
 
 ```tsx
 import { getUsers, getUser } from "server/user";
@@ -21,9 +17,5 @@ import { getUsers, getUser } from "server/user";
 const { data, error, isLoading } = useFetch(getUsers)
 
 const { data, error, isLoading } = useFetch(getUser.setParams({ userId: 1 }))
-
-
-...
-
 
 ```

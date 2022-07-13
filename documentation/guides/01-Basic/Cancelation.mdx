@@ -7,7 +7,7 @@ next trigger.
 
 ---
 
-#### Dispatcher cancelable mode
+### Dispatcher cancelable mode
 
 One of the dispatcher's modes is `cancelable` one. It is triggered when previous request is in progress and we trigger
 the new one and cancel previous at the same time to prevent `race-conditioning` of the responses. To enable this mode,
@@ -25,7 +25,7 @@ getUsers.send()
 
 ---
 
-#### Manual cancelation by abortKey
+### Manual cancelation by abortKey
 
 Each command has its own abortKey, which may be the same across request groups. Thanks to it, we have the ability to
 abort ongoing requests.
@@ -63,7 +63,7 @@ getUsers.abort()
 
 ---
 
-#### Dispatcher built-in queue/request stoping
+### Dispatcher built-in queue/request stoping
 
 When we stop sending all requests from further on in the queue, we do not want them to be deleted, but canceled, so that
 we can resume them at any time we choose.

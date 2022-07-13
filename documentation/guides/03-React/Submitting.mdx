@@ -2,10 +2,13 @@
 sidebar_position: 2
 ---
 
-## useSubmit
+For submitting and mutating data on server use the [`useSubmit`](/docs/React/useSubmit) hook that automates command
+handling. There are tons of [options](/docs/React/useFetch#options) to adjust this hook so check out the
+[documentation](/docs/React/useSubmit).
 
-For submitting and mutating data on server use the `useSubmit` hook that automates command handling. There are tons of
-options to adjust this hook so check out the documentation.
+---
+
+### Example
 
 ```tsx
 import { postUser, patchUser, deleteUser } from "server/user";
@@ -18,9 +21,7 @@ const { submit: submitPatch, isSubmitting } = useSubmit(patchUser.setParams({ us
 
 const { submit: submitDelete, isSubmitting: isSubmittingDelete } = useSubmit(patchUser)
 
-
 ...
-
 
 const handlePost = (values: { email: string, password: string }) => {
   submitPost({ data: values })
@@ -30,11 +31,7 @@ const handlePatch = (values: { email: string }) => {
   submitPatch({ data: values })
 }
 
-
-
 return (
   <button type="button" onClick={() => submitDelete({ params: { userId: 1 } })} disabled={isSubmittingDelete}>Delete</button>
 )
-
-
 ```

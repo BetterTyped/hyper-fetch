@@ -45,7 +45,7 @@ To properly **`avoid the infinite refresh loop`** of the token, we need to prote
 to **true** thanks to the appropriate method `setUsed`. This will allow us to easily verify whether our commend has
 already gone through the intercept process or not.
 
-#### Example
+### Example
 
 ```ts
 export const builder = new Builder({ baseUrl }).onError(async (response, command) => {

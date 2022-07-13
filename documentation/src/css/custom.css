@@ -94,7 +94,7 @@ html[data-theme="light"] .menu__link--active {
     font-size: 1.1rem;
   }
   .navbar-sidebar__back {
-    padding: 1rem 1.5rem;
+    padding: 0.7rem 1.5rem;
     font-size: 1.1rem;
   }
 }
@@ -287,6 +287,10 @@ html[data-theme="dark"] .navbar-sidebar .github {
 
 html[data-theme="dark"] .theme-doc-sidebar-container {
   background: #494b5024;
+}
+
+.theme-doc-sidebar-container .menu {
+  padding-bottom: 60px;
 }
 
 /* Docs */
