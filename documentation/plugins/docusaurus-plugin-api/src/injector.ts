@@ -75,7 +75,7 @@ export const docsInjector = () => {
           const fileData = JSON.parse(readFileSync(apiJsonDocsPath, "utf-8"));
 
           const reflection = getMatchingElement(fileData, elementName);
-          const formatter = new MdTransformer(reflection, pluginOptions, "", fileData.name, []);
+          const formatter = new MdTransformer(reflection, pluginOptions, "", fileData.name, fileData.children);
 
           const displayOptionsArgs = [];
           if (MD_OPTIONS_METHODS.includes(displayOption)) {

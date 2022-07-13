@@ -26,20 +26,52 @@ export type UseCommandEventsOptionsType<T extends CommandInstance> = {
   setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
 };
 
+export type UseCommandEventsActionsType<T extends CommandInstance> = {
+  /**
+   * Callback which allows to cancel ongoing requests from given queueKey.
+   */
+  abort: () => void;
+  /**
+   * Helper hook listening on success response.
+   */
+  onSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  /**
+   * Helper hook listening on error response.
+   */
+  onError: (callback: OnErrorCallbackType<T>) => void;
+  /**
+   * Helper hook listening on aborting of requests. Abort events are not triggering onError callbacks.
+   */
+  onAbort: (callback: OnErrorCallbackType<T>) => void;
+  /**
+   * Helper hook listening on request going into offline awaiting for network connection to be restored. It will not trigger onError when 'offline' mode is set on command.
+   */
+  onOfflineError: (callback: OnErrorCallbackType<T>) => void;
+  /**
+   * Helper hook listening on any response.
+   */
+  onFinished: (callback: OnFinishedCallbackType<T>) => void;
+  /**
+   * Helper hook listening on request start.
+   */
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  /**
+   * Helper hook listening on response start(before we receive all data from server).
+   */
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  /**
+   * Helper hook listening on download progress ETA. We can later match given requests by their id's or command instance which holds all data which is being transferred.
+   */
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  /**
+   * Helper hook listening on upload progress ETA. We can later match given requests by their id's or command instance which holds all data which is being transferred.
+   */
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
+};
+
 // Return
 export type UseCommandEventsReturnType<T extends CommandInstance> = [
-  {
-    abort: () => void;
-    onSuccess: (callback: OnSuccessCallbackType<T>) => void;
-    onError: (callback: OnErrorCallbackType<T>) => void;
-    onAbort: (callback: OnErrorCallbackType<T>) => void;
-    onOfflineError: (callback: OnErrorCallbackType<T>) => void;
-    onFinished: (callback: OnFinishedCallbackType<T>) => void;
-    onRequestStart: (callback: OnStartCallbackType<T>) => void;
-    onResponseStart: (callback: OnStartCallbackType<T>) => void;
-    onDownloadProgress: (callback: OnProgressCallbackType) => void;
-    onUploadProgress: (callback: OnProgressCallbackType) => void;
-  },
+  UseCommandEventsActionsType<T>,
   {
     addDataListener: (command: CommandInstance) => VoidFunction;
     clearDataListener: VoidFunction;

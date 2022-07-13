@@ -3,7 +3,7 @@ import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useDebounce, useCommandEvents, UseTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions } from "use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "use-fetch";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -29,7 +29,7 @@ export const useFetch = <T extends CommandInstance>(
     debounceTime = useFetchDefaultOptions.debounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   }: UseFetchOptionsType<T> = useFetchDefaultOptions,
-) => {
+): UseFetchReturnType<T> => {
   const updateKey = JSON.stringify(command.dump());
   const requestDebounce = useDebounce(debounceTime);
   const refreshDebounce = useDebounce(refreshTime);

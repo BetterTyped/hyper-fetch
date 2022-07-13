@@ -93,6 +93,33 @@ export class MdTransformer {
     return output;
   }
 
+  getDeepTypeStructure(
+    type: JSONOutput.SomeType | JSONOutput.ReferenceType | JSONOutput.DeclarationReflection,
+  ): JSONOutput.DeclarationReflection[] {
+    let params: JSONOutput.DeclarationReflection[] = [];
+
+    if (type.type === "intersection") {
+      type.types.forEach((t) => {
+        params = params.concat(this.getDeepTypeStructure(t));
+      });
+    } else if (type.type === "reference") {
+      const refType: any = this.reflectionTree.find((t) => type.id === t.id);
+      const deepType =
+        typeof refType?.type === "string" || refType?.kindString === "Call signature" ? refType : refType?.type;
+      if (deepType) params = params.concat(this.getDeepTypeStructure(deepType));
+    } else if (type && "declaration" in type && type.declaration) {
+      type.declaration.children?.forEach((t) => {
+        if (t) params = params.concat(this.getDeepTypeStructure(t));
+      });
+    } else if (type && "signatures" in type && type.signatures) {
+      params.push(type.signatures[0] as JSONOutput.DeclarationReflection);
+    } else {
+      params.push(type as JSONOutput.DeclarationReflection);
+    }
+
+    return params.filter(Boolean);
+  }
+
   getReturns(options: MdOptions = defaultOptions) {
     const {
       headingSize = defaultOptions.headingSize,
@@ -111,42 +138,27 @@ export class MdTransformer {
       output.push({ [descriptionSize]: getMdDescription(returns || "") });
     }
 
-    if (signature?.type && "declaration" in signature.type && signature.type.declaration) {
-      const list = signature.type.declaration?.children || [];
+    if (signature?.type) {
+      const list = this.getDeepTypeStructure(signature.type);
 
       const headers = [...(this.pluginOptions.texts?.paramTableHeaders ?? defaultTextsOptions.paramTableHeaders)];
       headers.splice(2, 1);
       let namedParameterCount = 0;
       const params = list.map((parameter) => {
-        const element =
-          parameter.type && "declaration" in parameter.type ? parameter.type.declaration || parameter : parameter;
-
-        const param = new MdTransformer(
-          element,
-          this.pluginOptions,
-          this.npmName,
-          this.packageName,
-          this.reflectionTree,
-        );
-
         const name = getParamName(parameter, namedParameterCount);
 
-        const signature = param._getCallSignature();
-
-        const comment = parameter.comment || signature?.comment;
+        const paramComment = parameter.comment || signature?.comment;
+        const paramType =
+          typeof parameter?.type === "string" || parameter?.kindString === "Call signature"
+            ? this._getLinkedType(parameter as any)
+            : this._getLinkedType(parameter.type);
 
         if (parameter.name === "__namedParameters") {
           namedParameterCount++;
         }
 
-        if (param.reflection.name === "onRevalidation") console.log(comment, signature);
-
         return {
-          value: [
-            getMdBoldText(name),
-            getMdQuoteText(this._getLinkedType(parameter?.type) || "-"),
-            comment?.shortText || "-",
-          ],
+          value: [getMdBoldText(name), getMdQuoteText(paramType || "-"), paramComment?.shortText || "-"],
         };
       });
 

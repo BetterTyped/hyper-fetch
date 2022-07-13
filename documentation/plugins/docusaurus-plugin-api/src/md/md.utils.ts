@@ -127,15 +127,15 @@ export const getType = (
     if ("objectType" in type.checkType && type.checkType.objectType) {
       return getTypeName(type.checkType.objectType, packageLink, reflectionTree, showGenerics, link);
     }
-    return `${getTypeName(type.checkType, packageLink, reflectionTree, showGenerics, link)} extends ${getType(
-      type.extendsType,
-      packageLink,
-      reflectionTree,
-    )} ? ${getType(type.trueType, packageLink, reflectionTree, showGenerics, link)} : ${getType(
-      type.falseType,
-      packageLink,
-      reflectionTree,
-    )}`;
+    // return `${getTypeName(type.checkType, packageLink, reflectionTree, showGenerics, link)} extends ${getType(
+    //   type.extendsType,
+    //   packageLink,
+    //   reflectionTree,
+    // )} ? ${getType(type.trueType, packageLink, reflectionTree, showGenerics, link)} : ${getType(
+    //   type.falseType,
+    //   packageLink,
+    //   reflectionTree,
+    // )}`;
   }
   // SomeType[Indexed]
   if (type && "objectType" in type && type.objectType) {
@@ -214,9 +214,9 @@ export const getType = (
   // { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
   if (type?.type === "mapped") {
     // NonNullable<Something>???? - check
-    // if (type && "templateType" in type && type.templateType) {
-    //   return getTypeName(type.templateType, packageLink, reflectionTree, showGenerics, link);
-    // }
+    if (type && "templateType" in type && type.templateType) {
+      return getTypeName(type.templateType, packageLink, reflectionTree, showGenerics, link);
+    }
     return `[${type.parameter} in ${getType(type.parameterType, packageLink, reflectionTree, showGenerics, link)}]`;
   }
   return getTypeName(type, packageLink, reflectionTree, showGenerics, link);
