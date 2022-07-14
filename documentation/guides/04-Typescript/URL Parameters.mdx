@@ -1,5 +1,20 @@
-:::note
+---
+sidebar_position: 5
+---
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+The types generated from the endpoint value string are extremely useful. Thanks to this, our command is able to suggest
+the required parameters to execute the query itself.
 
-:::
+---
+
+### Example
+
+```ts
+const getUser = builder.createCommand<ResponseType>()({
+  endpoint: "/users/:userId",
+});
+
+getUser.send({ params: { userId: 1 } });
+// Or
+getUser.setParams({ userId: 1 }).send();
+```

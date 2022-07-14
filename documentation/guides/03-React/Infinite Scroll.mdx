@@ -21,18 +21,15 @@ function Page({ offset }) {
 function Component() {
   const [page, setPage] = useState(1);
 
-  const pages = [];
-  for (let i = 0; i < page; i++) {
-    pages.push(<Page index={i} offset={i * 10} />);
-  }
-
   const loadMore = () => {
     setPage((page) => page + 1);
   };
 
   return (
     <div>
-      {pages}
+      {Array.from(Array(page).keys()).map((key) => (
+        <Page key={key} offset={key * 10} />
+      ))}
       <button onClick={loadMore}>Load More</button>
     </div>
   );

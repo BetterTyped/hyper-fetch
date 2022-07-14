@@ -2,8 +2,31 @@
 sidebar_position: 1
 ---
 
-:::note
+Isolation is extremely important for making both deterministic and valid tests. Due to the approach to architecture
+where the builder is a global module, we need to bring some of our attention to it.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+---
 
-:::
+## Clear
+
+The `builder.clear()` command allows us to isolate our test cases within one file. It will reinitialize the subsystems
+of our builder.
+
+---
+
+## Node cache cleanup
+
+To properly insulate our tests, we need to be sure that the node instance require.cache will be reset. This way our
+global builder module will be restarted and we will have the environment prepared.
+
+### Jest
+
+```ts
+beforeEach(() => {
+  // We need to reset modules cache as builder is globaly exported module
+  // This way it will not get mixed-up with other test cases running in parallel
+  jest.resetModules();
+  // Clean the environment to make sure it's isolated
+  builder.clear();
+});
+```

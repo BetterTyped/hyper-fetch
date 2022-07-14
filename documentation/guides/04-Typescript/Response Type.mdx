@@ -1,5 +1,21 @@
-:::note
+---
+sidebar_position: 3
+---
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+Response type defines the data that will be returned to us from the server
 
-:::
+---
+
+### Example
+
+```ts
+type ResponseType = Array<{
+  name: string;
+  email: string;
+  age: number;
+}>;
+
+const getUsers = builder.createCommand<ResponseType>()({
+  endpoint: "/users",
+});
+```

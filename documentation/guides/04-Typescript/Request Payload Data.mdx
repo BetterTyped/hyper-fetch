@@ -1,5 +1,23 @@
-:::note
+---
+sidebar_position: 4
+---
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+One of the basic functionality of typescript in this type of library, that is specifying the request type of payload. We
+define here the data that we want to send to the server.
 
-:::
+---
+
+### Example
+
+```ts
+type RequestPayloadDataType = {
+  name: string;
+  email: string;
+  age: number;
+};
+
+const postUser = builder.createCommand<ResponseType, RequestPayloadDataType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```

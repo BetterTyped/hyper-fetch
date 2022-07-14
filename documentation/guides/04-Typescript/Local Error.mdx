@@ -1,9 +1,28 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
-:::note
+When our endpoint can return an error that is only valid for it, we can use local errors that are closely related to one
+command. It does not replace the global error but extends it.
 
-This section is currently **Work in Progress**. It will be ready for version 1.0.0 of Hyper Fetch.
+The most common case are forms which, apart from basic errors from the server, can return specific field errors of a
+given form. This error is only applicable to that particular location.
 
-:::
+---
+
+### Example
+
+```ts
+type LocalErrorType = {
+  errors: {
+    name?: string;
+    email?: string;
+    age?: string;
+  };
+};
+
+const postUser = builder.createCommand<ResponseType, RequestType, LocalErrorType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```
