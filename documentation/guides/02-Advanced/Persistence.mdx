@@ -41,11 +41,30 @@ export const builder = new Builder<ServerErrorType>({
 
 #### Async persistance storages
 
-:::caution
+Example below shows the **`IndexedDb`** persistance storage. This way we will use the persistant data by `lazy loading`
+it to our components. Every time we use the `cache.get(cacheKey)` method, we send a request to our `lazyStorage` and at
+the same time return the last data we have, when our promise responds, we will receive an appropriate event that will
+propagate the data in our components. This way we are NOT loading whole persistant data into our memory, but only part
+of it, not to mention that it will get garbage collected when it's cacheTime expire.
 
-This feature will be coming soon with implementation for hydration of our cache.
+```ts
+import { get, set, del, keys } from "idb-keyval";
 
-:::
+const asyncStorage: CacheAsyncStorageType = {
+  set: (key, data) => set(idbValidKey, client),
+  get: (key) => get(idbValidKey),
+  keys: () => keys(),
+  delete: (key) => del(key),
+};
+
+export const builder = new Builder<ServerErrorType>({
+  baseUrl: "localhost:3000",
+  cache: (instance) =>
+    new Cache(instance, {
+      lazyStorage: asyncStorage,
+    }),
+});
+```
 
 ---
 
