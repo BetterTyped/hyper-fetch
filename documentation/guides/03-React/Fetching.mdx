@@ -7,7 +7,7 @@ For fetching data use the [`useFetch`](/docs/React/useFetch) hook that automates
 
 ---
 
-### Example
+### Examples
 
 ```tsx
 import { getUsers, getUser } from "server/user";
@@ -15,6 +15,13 @@ import { getUsers, getUser } from "server/user";
 ...
 
 const { data, error, isLoading } = useFetch(getUsers)
+
+```
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
 
 const { data, error, isLoading } = useFetch(getUser.setParams({ userId: 1 }))
 
