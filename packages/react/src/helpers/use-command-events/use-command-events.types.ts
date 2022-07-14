@@ -5,7 +5,7 @@ import {
   ExtractResponse,
   LoggerMethodsType,
   FetchProgressType,
-  ExtractFetchReturn,
+  ExtractClientReturnType,
   CommandEventDetails,
   CommandInstance,
   CommandResponseDetails,
@@ -96,7 +96,7 @@ export type OnErrorCallbackType<Command extends CommandInstance> = (
   params: CallbackParameters<Command, ExtractError<Command>>,
 ) => void;
 export type OnFinishedCallbackType<Command extends CommandInstance> = (
-  params: CallbackParameters<Command, ExtractFetchReturn<Command>>,
+  params: CallbackParameters<Command, ExtractClientReturnType<Command>>,
 ) => void;
 export type OnStartCallbackType<Command extends CommandInstance> = (params: {
   details: CommandEventDetails<Command>;

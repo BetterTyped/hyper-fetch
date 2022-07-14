@@ -1,7 +1,10 @@
 import { ClientResponseType } from "client";
 import { ExtractRouteParams, Command, CommandInstance } from "command";
 
-export type ExtractFetchReturn<T extends CommandInstance> = ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
+export type ExtractClientReturnType<T extends CommandInstance> = ClientResponseType<
+  ExtractResponse<T>,
+  ExtractError<T>
+>;
 
 export type ExtractResponse<T> = T extends Command<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
 

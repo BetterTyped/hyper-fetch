@@ -2,7 +2,7 @@ import { useRef } from "react";
 import {
   Command,
   getCommandKey,
-  ExtractFetchReturn,
+  ExtractClientReturnType,
   commandSendRequest,
   CommandInstance,
 } from "@better-typed/hyper-fetch";
@@ -83,7 +83,7 @@ export const useSubmit = <T extends CommandInstance>(
       });
     };
 
-    return new Promise<ExtractFetchReturn<T> | [null, null, null]>((resolve) => {
+    return new Promise<ExtractClientReturnType<T> | [null, null, null]>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Adding request to submit queue`, { disabled, options });
 

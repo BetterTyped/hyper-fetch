@@ -5,7 +5,7 @@ import {
   ClientResponseType,
   ExtractResponse,
   ExtractError,
-  ExtractFetchReturn,
+  ExtractClientReturnType,
   Dispatcher,
 } from "@better-typed/hyper-fetch";
 
@@ -33,7 +33,7 @@ export const isStaleCacheData = (cacheTime: NullableType<number>, cacheTimestamp
 
 export const getValidCacheData = <T extends CommandInstance>(
   command: T,
-  initialData: NullableType<ExtractFetchReturn<T>>,
+  initialData: NullableType<ExtractClientReturnType<T>>,
   cacheData: NullableType<CacheValueType<ExtractResponse<T>, ExtractError<T>>>,
 ): CacheValueType<ExtractResponse<T>, ExtractError<T>> | null => {
   const isStale = isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
