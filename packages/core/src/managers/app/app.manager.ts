@@ -19,7 +19,7 @@ export class AppManager {
   isOnline: boolean;
   isFocused: boolean;
 
-  constructor(private builder: BuilderInstance, private options?: AppManagerOptionsType) {
+  constructor(public builder: BuilderInstance, public options?: AppManagerOptionsType) {
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,

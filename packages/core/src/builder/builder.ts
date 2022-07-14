@@ -83,7 +83,7 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   // Logger
   logger = this.loggerManager.init("Builder");
 
-  constructor(private options: BuilderConfig) {
+  constructor(public options: BuilderConfig) {
     const { baseUrl, isNodeJS, client, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.baseUrl = baseUrl;
     this.isNodeJS = isNodeJS;

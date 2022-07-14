@@ -30,7 +30,7 @@ export class Dispatcher {
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
-  constructor(private builder: BuilderInstance, public options?: DispatcherOptionsType) {
+  constructor(public builder: BuilderInstance, public options?: DispatcherOptionsType) {
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }
@@ -530,7 +530,7 @@ export class Dispatcher {
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
-      timestamp: new Date(),
+      timestamp: +new Date(),
     };
 
     // Turn off loading

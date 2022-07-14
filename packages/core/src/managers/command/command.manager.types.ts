@@ -16,7 +16,7 @@ export type CommandEventDetails<T extends CommandInstance> = {
 
 export type CommandResponseDetails = {
   retries: number;
-  timestamp: Date;
+  timestamp: number;
   isFailed: boolean;
   isCanceled: boolean;
   isOffline: boolean;

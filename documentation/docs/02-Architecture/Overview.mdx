@@ -5,7 +5,9 @@ sidebar_position: 0
 We try to provide the deepest possible knowledge about the architecture of our library to encourage you to write any
 adapters, plugins and additions to our library.
 
-## General Flow
+---
+
+## Full Flow
 
 The flow of the request through the Hyper Fetch system is presented below. We show there the steps shown from the moment
 of adding a command to the dispatcher to passing data to the component.
@@ -47,4 +49,35 @@ flowchart TD;
 
     Command_Manager -. Events .-> Component
     App_Manager -. Events .-> Component
+```
+
+---
+
+## Cache
+
+Cache keeps data saved under `cacheKey` values which allow us to easily use it.
+
+```mermaid
+graph TD
+  C[(Cache Storage)]
+  C -->|"GET_/users?page=1"| D[Cache Key #1]
+  C -->|"GET_/users/1"| E[Cache Key #2]
+  C -->|"GET_/users"| F[Cache Key #3]
+  C -->|unique key| G[Cache Key ...]
+```
+
+#### Response event flow
+
+Below diagram shows how mutation is propagated in our system.
+
+```mermaid
+graph TD
+    A(new Data #3)
+    C[(Cache Storage)]
+    B[Cache Listeners]
+    C -.-> D[Data#1]
+    C -.-> D2[Data#2]
+    A -->|data mutation| C
+    C -->|mutation| E[Data#3]
+    E -->|emit new data| B
 ```
