@@ -214,7 +214,7 @@ export const UseTrackedState = <T extends CommandInstance>({
         cache.set(
           command,
           [currentState.data, currentState.error, currentState.status],
-          getDetailsState(state.current, { timestamp }),
+          getDetailsState(state.current, { timestamp: +timestamp }),
         );
       } else {
         state.current.timestamp = timestamp;

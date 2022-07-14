@@ -7,7 +7,7 @@ describe("Cache [ Base ]", () => {
   const response: ClientResponseSuccessType<unknown> = [{ data: 123 }, null, 200];
   const details: CommandResponseDetails = {
     retries: 0,
-    timestamp: new Date(),
+    timestamp: +new Date(),
     isFailed: false,
     isCanceled: false,
     isOffline: false,
@@ -41,19 +41,11 @@ describe("Cache [ Base ]", () => {
 
       expect(cache.get(command.cacheKey)).toBeDefined();
     });
-
-    it("should trigger onInitialization callback", async () => {
-      const spy = jest.fn();
-      const newCache = createCache(builder, { onInitialization: spy });
-
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(newCache);
-    });
   });
   describe("When managing cache data", () => {
     it("should add element to cache and emit set event", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.get(command.cacheKey, trigger);
+      const unmount = cache.events.onData(command.cacheKey, trigger);
 
       cache.set(command.setCache(true), response, details);
       unmount();
@@ -62,12 +54,20 @@ describe("Cache [ Base ]", () => {
       expect(cache.get(command.cacheKey)).toBeDefined();
     });
 
-    it("should delete cache and send revalidate event", async () => {
+    it("should delete cache", async () => {
+      cache.set(command.setCache(true), response, details);
+      cache.delete(command.cacheKey);
+      await sleep(1);
+
+      expect(cache.get(command.cacheKey)).not.toBeDefined();
+    });
+
+    it("should revalidate and remove cache", async () => {
       const trigger = jest.fn();
       const unmount = cache.events.onRevalidate(command.cacheKey, trigger);
 
       cache.set(command.setCache(true), response, details);
-      cache.delete(command.cacheKey);
+      await cache.revalidate(command.cacheKey);
       await sleep(1);
 
       expect(cache.get(command.cacheKey)).not.toBeDefined();
@@ -77,7 +77,7 @@ describe("Cache [ Base ]", () => {
 
     it("should not add to cache when useCache is set to false", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.get(command.cacheKey, trigger);
+      const unmount = cache.events.onData(command.cacheKey, trigger);
 
       cache.set(command.setCache(false), response, details);
       unmount();

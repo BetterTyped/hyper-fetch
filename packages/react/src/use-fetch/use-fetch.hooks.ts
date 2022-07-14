@@ -106,9 +106,9 @@ export const useFetch = <T extends CommandInstance>(
 
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
     if (invalidateKey && invalidateKey instanceof Command) {
-      cache.events.revalidate(getCommandKey(invalidateKey));
+      cache.revalidate(getCommandKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Command)) {
-      cache.events.revalidate(invalidateKey);
+      cache.revalidate(invalidateKey);
     } else {
       handleFetch();
       handleRefresh();

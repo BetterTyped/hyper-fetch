@@ -157,7 +157,7 @@ export const useCommandEvents = <T extends CommandInstance>({
       ];
       const details: CommandResponseDetails = {
         retries: 0,
-        timestamp: new Date(),
+        timestamp: +new Date(),
         isFailed: false,
         isCanceled: true,
         isOffline: false,
@@ -178,7 +178,7 @@ export const useCommandEvents = <T extends CommandInstance>({
   const addDataListener = (cmd: T) => {
     // Data handlers
     const loadingUnmount = commandManager.events.onLoading(cmd.queueKey, handleGetLoadingEvent(cmd.queueKey));
-    const getResponseUnmount = cache.events.get<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, setCacheData);
+    const getResponseUnmount = cache.events.onData<ExtractResponse<T>, ExtractError<T>>(cmd.cacheKey, setCacheData);
     const abortUnmount = commandManager.events.onAbort(cmd.abortKey, handleAbort(cmd));
 
     const unmount = () => {

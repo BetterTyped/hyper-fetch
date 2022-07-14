@@ -22,11 +22,7 @@ export type CacheOptionsType = {
   /**
    * Callback for every change in the storage
    */
-  onChange?: <Response = any, Error = any>(
-    key: string,
-    value: CacheValueType<Response, Error>,
-    details: CommandResponseDetails,
-  ) => void;
+  onChange?: <Response = any, Error = any>(key: string, data: CacheValueType<Response, Error>) => void;
   /**
    * Callback for every delete in the storage
    */
@@ -47,7 +43,6 @@ export type CacheAsyncStorageType = {
   get: <Response, Error>(key: string) => Promise<CacheValueType<Response, Error> | undefined>;
   keys: () => Promise<string[] | IterableIterator<string> | string[]>;
   delete: (key: string) => Promise<void>;
-  clear: () => Promise<void>;
 };
 
 export type CacheStorageType = {

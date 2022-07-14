@@ -110,9 +110,9 @@ export const useSubmit = <T extends CommandInstance>(
     if (!invalidateKey) return;
 
     if (invalidateKey && invalidateKey instanceof Command) {
-      cache.events.revalidate(getCommandKey(invalidateKey));
+      cache.revalidate(getCommandKey(invalidateKey));
     } else if (!(invalidateKey instanceof Command)) {
-      cache.events.revalidate(invalidateKey);
+      cache.revalidate(invalidateKey);
     }
   };
 

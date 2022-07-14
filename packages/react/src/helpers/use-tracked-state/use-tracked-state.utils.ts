@@ -17,7 +17,7 @@ export const getDetailsState = (
 ): CacheValueType<unknown, unknown>["details"] => {
   return {
     retries: state?.retries || 0,
-    timestamp: new Date(),
+    timestamp: +new Date(),
     isFailed: false,
     isCanceled: false,
     isOffline: false,
@@ -47,6 +47,7 @@ export const getValidCacheData = <T extends CommandInstance>(
       data: initialData,
       details: getDetailsState(),
       cacheTime: 1000,
+      clearKey: command.builder.cache.clearKey,
     };
   }
 
@@ -65,6 +66,7 @@ export const responseToCacheValue = <T>(
     data: response,
     details: getDetailsState(),
     cacheTime: 1000,
+    clearKey: "",
   };
 };
 

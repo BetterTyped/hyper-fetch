@@ -3,7 +3,14 @@ import EventEmitter from "events";
 import { ClientResponseType } from "client";
 import { BuilderInstance } from "builder";
 import { CommandResponseDetails } from "managers";
-import { CacheOptionsType, CacheStorageType, getCacheData, getCacheEvents, CacheValueType } from "cache";
+import {
+  CacheOptionsType,
+  CacheAsyncStorageType,
+  CacheStorageType,
+  getCacheData,
+  getCacheEvents,
+  CacheValueType,
+} from "cache";
 import { CommandDump, CommandInstance } from "command";
 
 /**
@@ -18,15 +25,17 @@ export class Cache {
   public events: ReturnType<typeof getCacheEvents>;
 
   public storage: CacheStorageType;
+  public lazyStorage?: CacheAsyncStorageType;
   public clearKey: string;
-  private collectors = new Map<string, ReturnType<typeof setTimeout>>();
+  public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(public builder: BuilderInstance, public options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
-    this.events = getCacheEvents(this.emitter, this.storage);
+    this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
     this.clearKey = this.options?.clearKey || "";
+    this.lazyStorage = this.options?.lazyStorage;
 
     this.getLazyKeys().then((keys) => {
       keys.forEach(this.scheduleGarbageCollector);
@@ -54,7 +63,7 @@ export class Cache {
 
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey };
 
-    this.events.set<Response, Error>(cacheKey, newCacheData);
+    this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
 
     // If request should not use cache - just emit response data
     if (!cache) {
@@ -64,7 +73,8 @@ export class Cache {
     // Only success data is valid for the cache store
     if (!details.isFailed) {
       this.storage.set<Response, Error>(cacheKey, newCacheData);
-      this.options?.lazyStorage.set<Response, Error>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error>(cacheKey, newCacheData);
+      this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
     }
   };
@@ -75,7 +85,7 @@ export class Cache {
    * @returns
    */
   get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error> | undefined => {
-    this.getLazyResource(cacheKey);
+    this.getLazyResource<Response, Error>(cacheKey);
     const cachedData = this.storage.get<Response, Error>(cacheKey);
     return cachedData;
   };
@@ -95,31 +105,54 @@ export class Cache {
    * @param cacheKey
    */
   delete = (cacheKey: string): void => {
-    this.events.revalidate(cacheKey);
     this.storage.delete(cacheKey);
-    this.options?.onDelete(cacheKey);
-    this.options?.lazyStorage.delete(cacheKey);
+    this.options?.onDelete?.(cacheKey);
+    this.lazyStorage?.delete(cacheKey);
+  };
+
+  /**
+   * Revalidate cache by cacheKey or partial matching with RegExp
+   * @param cacheKey
+   */
+  revalidate = async (cacheKey: string | RegExp) => {
+    const keys = await this.getLazyKeys();
+
+    if (typeof cacheKey === "string") {
+      this.events.emitRevalidation(cacheKey);
+      this.delete(cacheKey);
+    } else {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const entityKey of keys) {
+        if (cacheKey.test(entityKey)) {
+          this.events.emitRevalidation(entityKey);
+          this.delete(entityKey);
+        }
+      }
+    }
   };
 
   /**
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error>(cacheKey: string) => {
-    const data = await this.options?.lazyStorage.get<Response, Error>(cacheKey);
-    const syncData = this.storage.get(cacheKey);
+  getLazyResource = async <Response, Error>(cacheKey: string): Promise<CacheValueType<Response, Error> | undefined> => {
+    const data = await this.lazyStorage?.get<Response, Error>(cacheKey);
+    const syncData = this.storage.get<Response, Error>(cacheKey);
 
     // No data in lazy storage
-    if (!data) return syncData;
+    if (!this.lazyStorage || !data) return syncData;
 
     const now = +new Date();
-    const isNewestData = syncData && syncData.details.timestamp < data.details.timestamp;
-    const isStaleData = data.cacheTime >= now - data.details.timestamp;
+    const isNewestData = syncData ? syncData.details.timestamp < data.details.timestamp : true;
+    const isStaleData = data.cacheTime <= now - data.details.timestamp;
     const isValidData = data.clearKey === this.clearKey;
 
+    if (!isValidData) {
+      this.lazyStorage.delete(cacheKey);
+    }
     if (isNewestData && !isStaleData && isValidData) {
       this.storage.set<Response, Error>(cacheKey, data);
-      this.events.set<Response, Error>(cacheKey, data);
+      this.events.emitCacheData<Response, Error>(cacheKey, data);
       return data;
     }
     return syncData;
@@ -130,7 +163,7 @@ export class Cache {
    * @param cacheKey
    */
   getLazyKeys = async () => {
-    const keys = await this.options?.lazyStorage?.keys();
+    const keys = await this.lazyStorage?.keys();
     const asyncKeys = Array.from(keys || []);
     const syncKeys = Array.from(this.storage.keys());
 
@@ -145,16 +178,12 @@ export class Cache {
   scheduleGarbageCollector = async (cacheKey: string) => {
     // We need to make sure that all of the values will be removed, also that we have the proper data
     const cacheData = await this.getLazyResource(cacheKey);
-    if (cacheData) {
-      const timeLeft = cacheData.cacheTime + cacheData.details.timestamp - Date.now();
-      // If clearKey is not matching, just delete resource
-      if (cacheData.clearKey !== this.clearKey) {
-        return this.delete(cacheKey);
-      }
 
+    if (cacheData) {
+      const timeLeft = cacheData.cacheTime + cacheData.details.timestamp - +new Date();
       if (timeLeft >= 0) {
-        clearTimeout(this.collectors.get(cacheKey));
-        this.collectors.set(
+        clearTimeout(this.garbageCollectors.get(cacheKey));
+        this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
             this.delete(cacheKey);
@@ -169,8 +198,7 @@ export class Cache {
   /**
    * Clear cache storages
    */
-  clear = (): void => {
+  clear = async (): Promise<void> => {
     this.storage.clear();
-    this.options?.lazyStorage.clear();
   };
 }
