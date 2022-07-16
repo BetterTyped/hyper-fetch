@@ -2,7 +2,7 @@ import { FetchEffect } from "effect";
 import { StringifyCallbackType } from "builder";
 import { CommandConfig, Command } from "command";
 import { ClientDefaultOptionsType, QueryStringifyOptions } from "client";
-import { LoggerManager, LoggerLevelType } from "managers";
+import { LoggerManager } from "managers";
 
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createClient, createCommand, interceptorCallback, middlewareCallback } from "../../utils";
@@ -47,10 +47,9 @@ describe("Builder [ Methods ]", () => {
       expect(builder.stringifyQueryParams).toEqual(callback);
     });
     it("should assign logger levels [setLoggerLevel]", async () => {
-      const options: LoggerLevelType[] = [];
-      builder.setLoggerLevel(options);
+      builder.setLoggerSeverity(1);
 
-      expect(builder.loggerManager.levels).toEqual(options);
+      expect(builder.loggerManager.severity).toEqual(1);
     });
     it("should assign new client [setClient]", async () => {
       const callback = createClient();

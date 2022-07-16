@@ -16,22 +16,22 @@ export const FormPage: React.FC = () => {
   const resultPatch = useSubmit(patchUser.setData({ email: "test", age: 12, name: "name" }));
 
   // Queue
-  const resultQueued = useSubmit(postFile.setData({ id: 44, name: "queue" }));
+  const resultQueued = useSubmit(postFile.setData({ file: {} as unknown as File }));
   const { stopped, requests, stop, start } = useQueue(postFile);
 
   return (
     <Viewer name="Form">
-      <Request name="Post" result={result}>
+      <Request name="Post" result={result as any}>
         <Button type="button" variant="contained" onClick={() => result.submit()}>
           Submit
         </Button>
       </Request>
-      <Request name="Patch" result={resultPatch}>
+      <Request name="Patch" result={resultPatch as any}>
         <Button type="button" variant="contained" onClick={() => resultPatch.submit()}>
           Submit
         </Button>
       </Request>
-      <Request name="Queue" result={resultQueued}>
+      <Request name="Queue" result={resultQueued as any}>
         <Button type="button" variant="contained" onClick={() => resultQueued.submit()} sx={{ mr: 2 }}>
           Add to Queue
         </Button>

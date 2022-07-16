@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ClientResponseType, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
+import { ClientResponseType, CommandInstance } from "@better-typed/hyper-fetch";
 
 import { UseFetchReturnType } from "use-fetch";
 import { UseSubmitReturnType } from "use-submit";
@@ -18,7 +18,7 @@ export const testInitialState = <H extends RenderHookResult<any, any>>(render: H
 };
 
 export const testSuccessState = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
@@ -44,7 +44,7 @@ export const testErrorState = async <
 >(
   mock: T["error"],
   render: H,
-  data: ExtractResponse<T> | null = null,
+  data: any | null = null,
 ) => {
   await waitFor(() => {
     const response = getCurrentState(render);
@@ -73,13 +73,7 @@ export const testCacheState = async <T extends ClientResponseType<any, any>, H e
   });
 };
 
-export const testLoading = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
-  H extends RenderHookResult<any, any>,
->(
-  mock: boolean,
-  render: H,
-) => {
+export const testLoading = async <H extends RenderHookResult<any, any>>(mock: boolean, render: H) => {
   await waitFor(() => {
     const response = getCurrentState(render);
     if (typeof response.submitting === "boolean") {
@@ -91,7 +85,7 @@ export const testLoading = async <
 };
 
 export const testData = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
@@ -104,7 +98,7 @@ export const testData = async <
 };
 
 export const testError = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<T>,
+  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["error"],

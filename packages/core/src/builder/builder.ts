@@ -23,7 +23,7 @@ import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { FetchEffectInstance } from "effect";
 import { Command, CommandConfig, CommandInstance } from "command";
-import { AppManager, CommandManager, LoggerManager, LoggerLevelType } from "managers";
+import { AppManager, CommandManager, LoggerManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./builder.utils";
 
 /**
@@ -115,10 +115,10 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   };
 
   /**
-   * Set the logger level of the messages displayed to the console
+   * Set the logger severity of the messages displayed to the console
    */
-  setLoggerLevel = (levels: LoggerLevelType[]): Builder<GlobalErrorType, RequestConfigType> => {
-    this.loggerManager.setLevels(levels);
+  setLoggerSeverity = (severity: SeverityType): Builder<GlobalErrorType, RequestConfigType> => {
+    this.loggerManager.setSeverity(severity);
     return this;
   };
 

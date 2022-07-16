@@ -1,5 +1,7 @@
+import EventEmitter from "events";
+
 import { BuilderInstance } from "builder";
-import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logger, LoggerMethodsType } from "managers";
+import { logger, LoggerType, SeverityType, LoggerMessageType, LoggerOptionsType, LoggerFunctionType } from "managers";
 
 /**
  * This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each builder.
@@ -7,49 +9,61 @@ import { LoggerLevelType, LoggerMessageType, LoggerOptionsType, LoggerType, logg
  * like Builder, Command etc. Which can give you better feedback on the logging itself.
  */
 export class LoggerManager {
-  logger: LoggerType;
-  levels: LoggerLevelType[];
+  logger: LoggerFunctionType;
+  severity: SeverityType;
+
+  public emitter = new EventEmitter();
 
   constructor(private builder: BuilderInstance, private options?: LoggerOptionsType) {
     this.logger = this.options?.logger || logger;
-    this.levels = this.options?.levels || ["error", "success", "warning", "http", "info"];
+    this.severity = this.options?.severity || 2;
   }
 
-  setLevels = (levels: LoggerLevelType[]) => {
-    this.levels = levels;
+  setSeverity = (severity: SeverityType) => {
+    this.severity = severity;
   };
 
-  init = (module: string): LoggerMethodsType => {
+  init = (module: string): LoggerType => {
     return {
-      success: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("success")) return;
-
-        this.logger({ level: "success", module, message, additionalData });
-      },
       error: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("error")) return;
-
-        this.logger({ level: "error", module, message, additionalData });
+        this.logger({
+          level: "error",
+          module,
+          message,
+          additionalData,
+          severity: this.severity,
+          enabled: this.builder.debug,
+        });
       },
       warning: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("warning")) return;
-
-        this.logger({ level: "warning", module, message, additionalData });
-      },
-      http: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("http")) return;
-
-        this.logger({ level: "http", module, message, additionalData });
+        this.logger({
+          level: "warning",
+          module,
+          message,
+          additionalData,
+          severity: this.severity,
+          enabled: this.builder.debug,
+        });
       },
       info: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("info")) return;
-
-        this.logger({ level: "info", module, message, additionalData });
+        this.logger({
+          level: "info",
+          module,
+          message,
+          additionalData,
+          severity: this.severity,
+          enabled: this.builder.debug,
+        });
       },
       debug: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
-        if (!this.builder.debug || !this.levels.includes("debug")) return;
-
-        this.logger({ level: "debug", module, message, additionalData });
+        this.logger({
+          level: "debug",
+          module,
+          message,
+          additionalData,
+          severity: this.severity,
+          enabled: this.builder.debug,
+        });
       },
     };
   };

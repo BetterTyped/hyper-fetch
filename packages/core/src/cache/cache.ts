@@ -2,7 +2,7 @@ import EventEmitter from "events";
 
 import { ClientResponseType } from "client";
 import { BuilderInstance } from "builder";
-import { CommandResponseDetails } from "managers";
+import { CommandResponseDetails, LoggerType } from "managers";
 import {
   CacheOptionsType,
   CacheAsyncStorageType,
@@ -28,6 +28,7 @@ export class Cache {
   public lazyStorage?: CacheAsyncStorageType;
   public clearKey: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
+  private logger: LoggerType;
 
   constructor(public builder: BuilderInstance, public options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
@@ -36,6 +37,7 @@ export class Cache {
 
     this.clearKey = this.options?.clearKey || "";
     this.lazyStorage = this.options?.lazyStorage;
+    this.logger = this.builder.loggerManager.init("Cache");
 
     this.getLazyKeys().then((keys) => {
       keys.forEach(this.scheduleGarbageCollector);
@@ -54,6 +56,7 @@ export class Cache {
     response: ClientResponseType<Response, Error>,
     details: CommandResponseDetails,
   ): void => {
+    this.logger.debug("Processing cache response", { command, response, details });
     const { cacheKey, cache, cacheTime } = command;
     const cachedData = this.storage.get<Response, Error>(cacheKey);
 
@@ -64,14 +67,16 @@ export class Cache {
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey };
 
     this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
+    this.logger.debug("Emitting cache response", { command, response, details });
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      return;
+      return this.logger.debug("Prevented saving response to cache", { command, response, details });
     }
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {
+      this.logger.debug("Saving response to cache storage", { command, response, details });
       this.storage.set<Response, Error>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
@@ -105,6 +110,7 @@ export class Cache {
    * @param cacheKey
    */
   delete = (cacheKey: string): void => {
+    this.logger.debug("Deleting cache element", { cacheKey });
     this.storage.delete(cacheKey);
     this.options?.onDelete?.(cacheKey);
     this.lazyStorage?.delete(cacheKey);
@@ -115,6 +121,7 @@ export class Cache {
    * @param cacheKey
    */
   revalidate = async (cacheKey: string | RegExp) => {
+    this.logger.debug("Revalidating cache element", { cacheKey });
     const keys = await this.getLazyKeys();
 
     if (typeof cacheKey === "string") {
@@ -186,6 +193,7 @@ export class Cache {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
+            this.logger.info("Garbage collecting cache element", { cacheKey });
             this.delete(cacheKey);
           }, timeLeft),
         );

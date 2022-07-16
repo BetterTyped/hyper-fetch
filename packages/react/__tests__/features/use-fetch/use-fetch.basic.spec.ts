@@ -1,6 +1,6 @@
 import { act } from "@testing-library/react";
 
-import { createCommand, renderUseFetch, createCacheData, waitForRender, builder } from "../../utils";
+import { createCommand, renderUseFetch, createCacheData, builder } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testBuilderIsolation } from "../../shared";
 
@@ -32,7 +32,6 @@ describe("useFetch [ Basic ]", () => {
       const view = renderUseFetch(command);
 
       testInitialState(view);
-      await waitForRender();
     });
     it("should load cached data", async () => {
       await testBuilderIsolation(builder);
@@ -42,18 +41,16 @@ describe("useFetch [ Basic ]", () => {
         details: { retries: 2 },
       });
       const view = renderUseFetch(command);
-      await waitForRender();
       await testCacheState(cache, view);
     });
     it("should not load stale cache data", async () => {
       await testBuilderIsolation(builder);
-      const timestamp = new Date(+new Date() - 11);
+      const timestamp = +new Date() - 11;
       const mock = createRequestInterceptor(command, { delay: 20 });
       createCacheData(command, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
 
       const view = renderUseFetch(command.setCacheTime(10));
 
-      await waitForRender();
       await testCacheState([null, null, null], view);
     });
     it("should allow to use initial data", async () => {
@@ -63,7 +60,13 @@ describe("useFetch [ Basic ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      // Todo
+      const spy = jest.spyOn(builder.fetchDispatcher, "add");
+      await testBuilderIsolation(builder);
+      const mock = createRequestInterceptor(command);
+      const view = renderUseFetch(command);
+
+      await testSuccessState(mock, view);
+      expect(spy).toBeCalledTimes(1);
     });
   });
   describe("when hook get success response", () => {
@@ -72,7 +75,6 @@ describe("useFetch [ Basic ]", () => {
       const mock = createRequestInterceptor(command);
       const view = renderUseFetch(command);
 
-      await waitForRender();
       await testSuccessState(mock, view);
     });
     it("should clear previous error state once success response is returned", async () => {
@@ -80,7 +82,6 @@ describe("useFetch [ Basic ]", () => {
       const errorMock = createRequestInterceptor(command, { status: 400 });
       const view = renderUseFetch(command);
 
-      await waitForRender();
       await testErrorState(errorMock, view);
       const mock = createRequestInterceptor(command);
 
@@ -100,7 +101,6 @@ describe("useFetch [ Basic ]", () => {
       const mock = createRequestInterceptor(command, { status: 400 });
       const view = renderUseFetch(command);
 
-      await waitForRender();
       await testErrorState(mock, view);
     });
     it("should keep previous success state once error response is returned", async () => {
@@ -108,7 +108,6 @@ describe("useFetch [ Basic ]", () => {
       const mock = createRequestInterceptor(command);
       const view = renderUseFetch(command);
 
-      await waitForRender();
       await testSuccessState(mock, view);
 
       const errorMock = createRequestInterceptor(command, { status: 400 });

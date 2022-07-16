@@ -187,8 +187,6 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
   ): Promise<ClientResponseSuccessType<ExtractResponse<T>>> => {
     let response = [responseData, null, status] as ClientResponseSuccessType<ExtractResponse<T>>;
-    command.builder.loggerManager.init("Client").http(`Success response`, { response });
-
     response = await command.builder.__modifyResponse(response, command);
     response = await command.builder.__modifySuccessResponse(response, command);
 
@@ -208,7 +206,6 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
     resolve: (value: ClientResponseErrorType<ExtractError<T>>) => void,
   ): Promise<ClientResponseErrorType<ExtractError<T>>> => {
     let responseData = [null, error, status] as ClientResponseErrorType<ExtractError<T>>;
-    command.builder.loggerManager.init("Client").http(`Error response`, { response: responseData });
 
     responseData = await command.builder.__modifyResponse(responseData, command);
     responseData = await command.builder.__modifyErrorResponse(responseData, command);

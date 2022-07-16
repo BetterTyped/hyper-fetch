@@ -1,3 +1,5 @@
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
 /* eslint-disable react/require-default-props */
 import * as React from "react";
@@ -7,9 +9,10 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
 
 import { UseFetchReturnType, UseSubmitReturnType } from "@better-typed/react-hyper-fetch";
-import { CommandInstance } from "@better-typed/hyper-fetch";
+import { CommandInstance, FetchProgressType } from "@better-typed/hyper-fetch";
 import { useSnackbar } from "notistack";
 
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
@@ -24,14 +27,29 @@ type Props = {
   children?: React.ReactNode;
 };
 
+function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(props.value)}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
 export function Request({ name, children, result }: Props) {
-  const { data, error, loading, submitting, timestamp } = result;
+  const { data, error, timestamp } = result;
 
   const { enqueueSnackbar } = useSnackbar();
 
   const [fetched, setFetched] = React.useState(false);
+  const [downloadProgress, setDownloadProgress] = React.useState<Record<string, FetchProgressType>>({});
+  const [uploadProgress, setUploadProgress] = React.useState<Record<string, FetchProgressType>>({});
 
-  const isLoading = submitting || loading;
+  const isLoading = "loading" in result ? result.loading : result.submitting;
 
   const loadingComponent = isLoading ? (
     <Box sx={{ display: "flex", gap: "10px" }}>
@@ -73,14 +91,15 @@ export function Request({ name, children, result }: Props) {
     "---"
   );
 
-  const onSuccess = result?.onSuccess || result?.onSubmitSuccess;
-  const onError = result?.onError || result?.onSubmitError;
-  const onAbort = result?.onAbort || result?.onSubmitAbort;
-  const onFinished = result?.onFinished || result?.onSubmitFinished;
-  const onRequestStart = result?.onRequestStart || result?.onSubmitRequestStart;
-  const onResponseStart = result?.onResponseStart || result?.onSubmitResponseStart;
-  const onDownloadProgress = result?.onDownloadProgress || result?.onSubmitDownloadProgress;
-  const onUploadProgress = result?.onUploadProgress || result?.onSubmitUploadProgress;
+  const onSuccess = "onSuccess" in result ? result?.onSuccess : result?.onSubmitSuccess;
+  const onError = "onError" in result ? result?.onError : result?.onSubmitError;
+  const onAbort = "onAbort" in result ? result?.onAbort : result?.onSubmitAbort;
+  const onFinished = "onFinished" in result ? result?.onFinished : result?.onSubmitFinished;
+  const onRequestStart = "onRequestStart" in result ? result?.onRequestStart : result?.onSubmitRequestStart;
+  const onResponseStart = "onResponseStart" in result ? result?.onResponseStart : result?.onSubmitResponseStart;
+  const onDownloadProgress =
+    "onDownloadProgress" in result ? result?.onDownloadProgress : result?.onSubmitDownloadProgress;
+  const onUploadProgress = "onUploadProgress" in result ? result?.onUploadProgress : result?.onSubmitUploadProgress;
 
   onRequestStart(() => {
     setFetched(true);
@@ -107,12 +126,26 @@ export function Request({ name, children, result }: Props) {
     enqueueSnackbar("Finished", { variant: "warning" });
   });
 
-  onDownloadProgress((progress) => {
-    console.log("DOWNLOAD PROGRESS", progress);
+  onDownloadProgress((progress, details) => {
+    setDownloadProgress((prev) => ({ ...prev, [details.requestId]: progress }));
+    if (progress.total === progress.loaded) {
+      setTimeout(() => {
+        setUploadProgress((prev) => {
+          const newProgress = { ...prev };
+          delete newProgress[details.requestId];
+          return newProgress;
+        });
+        setDownloadProgress((prev) => {
+          const newProgress = { ...prev };
+          delete newProgress[details.requestId];
+          return newProgress;
+        });
+      }, 4000);
+    }
   });
 
-  onUploadProgress((progress) => {
-    console.log("UPLOAD PROGRESS", progress);
+  onUploadProgress((progress, details) => {
+    setUploadProgress((prev) => ({ ...prev, [details.requestId]: progress }));
   });
 
   return (
@@ -178,6 +211,29 @@ export function Request({ name, children, result }: Props) {
             />
           </ListItemButton>
         </ListItem>
+        <Divider />
+        <Typography variant="subtitle2" textTransform="uppercase" fontWeight="800">
+          Uploads
+        </Typography>
+        {Object.keys(uploadProgress).map((key) => (
+          <LinearProgressWithLabel key={key} value={uploadProgress[key].progress} />
+        ))}
+        {!Object.keys(uploadProgress).length && (
+          <Typography variant="caption" color="GrayText">
+            No uploaded entities
+          </Typography>
+        )}
+        <Typography variant="subtitle2" textTransform="uppercase" fontWeight="800">
+          Downloads
+        </Typography>
+        {Object.keys(downloadProgress).map((key) => (
+          <LinearProgressWithLabel key={key} value={downloadProgress[key].progress} />
+        ))}
+        {!Object.keys(downloadProgress).length && (
+          <Typography variant="caption" color="GrayText">
+            No downloaded entities
+          </Typography>
+        )}
         <Divider />
       </List>
     </Box>

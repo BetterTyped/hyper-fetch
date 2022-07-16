@@ -14,7 +14,7 @@ import {
 } from "dispatcher";
 import { BuilderInstance } from "builder";
 import { getUniqueRequestId } from "utils";
-import { CommandResponseDetails } from "managers";
+import { CommandResponseDetails, LoggerType } from "managers";
 import { CommandInstance, Command } from "command";
 import { getErrorMessage } from "client";
 
@@ -30,7 +30,11 @@ export class Dispatcher {
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
+  private logger: LoggerType;
+
   constructor(public builder: BuilderInstance, public options?: DispatcherOptionsType) {
+    this.logger = builder.loggerManager.init("Dispatcher");
+
     if (this.options?.storage) {
       this.storage = this.options.storage;
     }
@@ -416,6 +420,8 @@ export class Dispatcher {
     const [latestRequest] = queue.requests.slice(-1);
     const requestType = getRequestType(command, latestRequest);
 
+    this.logger.debug("Adding request to queue", { requestType, command, requestId });
+
     switch (requestType) {
       case DispatcherRequestType.oneByOne: {
         // Requests will go one by one
@@ -447,6 +453,7 @@ export class Dispatcher {
    * Delete from the storage and cancel request
    */
   delete = (queueKey: string, requestId: string, abortKey: string) => {
+    this.logger.debug("Deleting request", { queueKey, requestId, abortKey });
     const queue = this.getQueue(queueKey);
     const request = queue.requests.find((req) => req.requestId === requestId);
 
@@ -480,8 +487,9 @@ export class Dispatcher {
    */
   performRequest = async (storageElement: DispatcherDumpValueType) => {
     const command = new Command(this.builder, storageElement.commandDump.commandOptions, storageElement.commandDump);
-
     const { commandDump, requestId } = storageElement;
+    this.logger.info("Performing request", { command, requestId });
+
     const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = commandDump;
     const { client, commandManager, cache, appManager } = this.builder;
 
@@ -493,7 +501,7 @@ export class Dispatcher {
     const isStopped = storageElement.stopped;
 
     if (isOffline || isAlreadyRunning || isStopped) {
-      return;
+      return this.logger.warning("Unable to perform request", { isOffline, isAlreadyRunning, isStopped });
     }
 
     // Additionally keep the running request to possibly abort it later
@@ -545,6 +553,7 @@ export class Dispatcher {
     commandManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
     cache.set(command, response, requestDetails);
+    this.logger.info("Request finished", { requestId, command, response, requestDetails });
 
     // On cancelled
     if (isCanceled) {
@@ -554,32 +563,41 @@ export class Dispatcher {
       // do not remove cancelled request as it may be result of manual queue pause
       // if abort was done without stop action we can remove request
       if (!queue.stopped && !request?.stopped) {
-        this.delete(queueKey, requestId, abortKey);
+        this.logger.debug("Request paused", { response, requestDetails, command });
+        return this.delete(queueKey, requestId, abortKey);
       }
-      return;
+      return this.logger.debug("Request canceled", { response, requestDetails, command });
     }
     // On offline
     if (isFailed && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
-      if (!offline) this.delete(queueKey, requestId, abortKey);
+      if (!offline) {
+        this.logger.warning("Removing non-offline request", { response, requestDetails, command });
+        return this.delete(queueKey, requestId, abortKey);
+      }
+      this.logger.debug("Awaiting for network restoration", { response, requestDetails, command });
       // do not remove request from store as we want to re-send it later
       return;
     }
     // On success
     if (!isFailed) {
+      this.logger.debug("Successful response, removing request from queue.", { response, requestDetails, command });
       this.delete(queueKey, requestId, abortKey);
       return;
     }
     // On retry
     if (isFailed && canRetry) {
+      this.logger.debug("Waiting for retry", { response, requestDetails, command });
       // Perform retry once request is failed
       setTimeout(() => {
+        this.logger.warning("Error response, performing retry");
         this.performRequest({
           ...storageElement,
           retries: storageElement.retries + 1,
         });
       }, retryTime || 0);
     } else {
+      this.logger.error("All retries have been used. Removing request from queue.");
       this.delete(queueKey, requestId, abortKey);
     }
   };

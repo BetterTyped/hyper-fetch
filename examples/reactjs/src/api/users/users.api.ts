@@ -6,7 +6,7 @@ import { builder } from "../builder";
 export const getUser = builder.createCommand<UserModel>()({
   endpoint: "/api/user/:userId",
   cache: true,
-  cacheTime: DateInterval.second * 10,
+  cacheTime: DateInterval.second * 5,
 });
 
 export const getUsers = builder.createCommand<UserModel[]>()({

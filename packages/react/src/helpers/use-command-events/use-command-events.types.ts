@@ -3,7 +3,7 @@ import {
   ExtractError,
   CacheValueType,
   ExtractResponse,
-  LoggerMethodsType,
+  LoggerType,
   FetchProgressType,
   ExtractClientReturnType,
   CommandEventDetails,
@@ -21,7 +21,7 @@ export type UseCommandEventsLifecycleMap = Map<string, { unmount: VoidFunction }
 export type UseCommandEventsOptionsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
-  logger: LoggerMethodsType;
+  logger: LoggerType;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
 };
@@ -102,4 +102,7 @@ export type OnStartCallbackType<Command extends CommandInstance> = (params: {
   details: CommandEventDetails<Command>;
   command: Command;
 }) => void;
-export type OnProgressCallbackType = (progress: FetchProgressType) => void;
+export type OnProgressCallbackType = <Command extends CommandInstance>(
+  progress: FetchProgressType,
+  details: CommandEventDetails<Command>,
+) => void;

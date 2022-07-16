@@ -5,13 +5,13 @@ import {
   ExtractResponse,
   ClientResponseType,
   CommandInstance,
-  LoggerMethodsType,
+  LoggerType,
 } from "@better-typed/hyper-fetch";
 import { isEqual } from "utils";
 
 export type UseTrackedStateProps<T extends CommandInstance> = {
   command: T;
-  logger: LoggerMethodsType;
+  logger: LoggerType;
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;

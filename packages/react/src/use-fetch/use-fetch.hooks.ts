@@ -69,7 +69,7 @@ export const useFetch = <T extends CommandInstance>(
   // ******************
   const handleFetch = () => {
     if (!disabled) {
-      logger.debug(`Adding request to fetch queue`);
+      logger.debug(`Fetching data`);
       dispatcher.add(command);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
@@ -121,7 +121,8 @@ export const useFetch = <T extends CommandInstance>(
 
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
-    if (revalidateOnMount || hasStaleData) {
+    const isFetching = dispatcher.getIsActiveQueue(queueKey);
+    if (revalidateOnMount || (hasStaleData && !isFetching)) {
       handleFetch();
     }
   };

@@ -42,7 +42,7 @@ export const UseTrackedState = <T extends CommandInstance>({
   const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
 
-    return isStaleCacheData(cacheTime, cacheData?.details.timestamp);
+    return isStaleCacheData(cacheTime, cacheData?.details.timestamp || state.current?.timestamp);
   };
 
   // ******************

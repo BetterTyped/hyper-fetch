@@ -119,12 +119,12 @@ export const useCommandEvents = <T extends CommandInstance>({
     };
   };
 
-  const handleDownloadProgress = (progress: FetchProgressType) => {
-    onDownloadProgressCallback?.current?.(progress);
+  const handleDownloadProgress = (progress: FetchProgressType, details: CommandEventDetails<T>) => {
+    onDownloadProgressCallback?.current?.(progress, details);
   };
 
-  const handleUploadProgress = (progress: FetchProgressType) => {
-    onUploadProgressCallback?.current?.(progress);
+  const handleUploadProgress = (progress: FetchProgressType, details: CommandEventDetails<T>) => {
+    onUploadProgressCallback?.current?.(progress, details);
   };
 
   const handleRequestStart = (cmd: T) => {
