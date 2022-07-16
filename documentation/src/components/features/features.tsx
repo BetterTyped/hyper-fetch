@@ -20,24 +20,20 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    description: "Built-in http client",
-    link: <Link to="/docs/Architecture/Client">Read more</Link>,
+    description: "Simple setup",
+    link: <Link to="/docs/Getting Started/Quick Start">Read more</Link>,
   },
   {
     description: "Automatic caching",
     link: <Link to="/docs/Architecture/Cache">Read more</Link>,
   },
   {
-    description: "Rich Typescript support",
-    // link: <Link to="">Read more</Link>,
+    description: "Built-in client",
+    link: <Link to="/docs/Architecture/Client">Read more</Link>,
   },
   {
-    description: "Simple setup",
-    link: <Link to="/docs/Getting Started/Quick Start">Read more</Link>,
-  },
-  {
-    description: "React hooks",
-    link: <Link to="/docs/React/Overview">Read more</Link>,
+    description: "Request cancelation",
+    link: <Link to="/guides/Advanced/Cancelation">Read more</Link>,
   },
   {
     description: "Persistance",
@@ -48,24 +44,28 @@ const FeatureList: FeatureItem[] = [
     link: <Link to="/docs/Getting%20Started/Testing">Read more</Link>,
   },
   {
-    description: "App Managers",
-    link: <Link to="/docs/Architecture/Managers">Read more</Link>,
+    description: "Window Focus/Blur Events",
+    link: <Link to="/docs/Architecture/Managers#appmanager">Read more</Link>,
   },
   {
-    description: "React hooks with amazing features",
-    link: <Link to="/docs/Architecture/Managers">Read more</Link>,
+    description: "SSR Support",
+    link: <Link to="/docs/Getting%20Started/Environment">Read more</Link>,
   },
   {
-    description: "Authentication solutions",
+    description: "Authentication",
     link: <Link to="/guides/Basic/Authentication">Read more</Link>,
   },
   {
-    description: "Queueing requests",
+    description: "Queueing",
     link: <Link to="/guides/Advanced/Queueing">Read more</Link>,
   },
   {
-    description: "Offline handling",
+    description: "Offline first ready",
     link: <Link to="/guides/Advanced/Offline">Read more</Link>,
+  },
+  {
+    description: "Prefetching",
+    link: <Link to="/guides/Advanced/Prefetching">Read more</Link>,
   },
 ];
 

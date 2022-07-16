@@ -72,7 +72,7 @@ export const useSubmit = <T extends CommandInstance>(
     const commandClone = command.clone(options) as T;
 
     if (disabled) {
-      logger.debug(`Cannot add to submit queue`, { disabled, options });
+      logger.warning(`Cannot submit request`, { disabled, options });
       return [null, null, 0];
     }
 
@@ -85,7 +85,7 @@ export const useSubmit = <T extends CommandInstance>(
 
     return new Promise<ExtractClientReturnType<T> | [null, null, null]>((resolve) => {
       const performSubmit = async () => {
-        logger.debug(`Adding request to submit queue`, { disabled, options });
+        logger.debug(`Submitting request`, { disabled, options });
 
         if (debounce) {
           requestDebounce.debounce(async () => {

@@ -127,9 +127,15 @@ describe("Command [ Setters ]", () => {
     expect(updatedCommand.offline).toBeFalse();
   });
   it("should allow for setting data mapper", async () => {
-    const mapper = () => null;
-    expect(command.dataMapper).not.toBeDefined();
-    const updatedCommand = command.setDataMapper(mapper);
+    const mapper = (data: { name: string; email: string }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      return formData;
+    };
+    const mapperCommand = builder.createCommand<null, { name: string; email: string }>()({ endpoint: "test" });
+    expect(mapperCommand.dataMapper).not.toBeDefined();
+    const updatedCommand = mapperCommand.setDataMapper(mapper);
     expect(updatedCommand.dataMapper).toBe(mapper);
   });
 });
