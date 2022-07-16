@@ -97,6 +97,9 @@ html[data-theme="dark"] .addition {
 }
 
 @media (max-width: 650px) {
+  .container {
+    padding-top: 40px;
+  }
   .title {
     margin: 0;
   }
