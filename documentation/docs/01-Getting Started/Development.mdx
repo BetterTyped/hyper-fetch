@@ -38,5 +38,14 @@ src
 
 Application debugging is possible in few ways.
 
-1. We can use the builder `setDebug (true)` method for this. It will start logging the action in the console.
-2. Creating your own dev tools based on events sent from the logger.
+** 1. Use built-in Logger **
+
+We can use the builder `setDebug(true)` method for this. It will start logging the action in the console. To adjust what
+type of logs will be shown, you can use the `setLoggerSeverity(3)` to get debug logs displayed in the console. Those
+will show you exact data and information flow in the library while working on your application.
+
+** 1. Create own logger **
+
+You can create your own dev tools based on events sent from the
+[commandManager](/docs/Architecture/Managers#commandmanager). There is no limitation and you can receive all necessary
+data to create everything you may need.

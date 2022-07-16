@@ -83,6 +83,12 @@ but we an set the custom value for easier usage.
 
 {@import Hyper-Fetch getCommandManagerEvents returns}
 
+```ts
+builder.commandManager.events.onResponse((response, details) => {
+  // ...
+});
+```
+
 ---
 
 ## LoggerManager
@@ -96,3 +102,9 @@ but we an set the custom value for easier usage.
 
 LoggerManager is the main instance of the logging system in hyper-fetch. On its basis, we initiate single loggers in
 subsystems that are used in isolation, but still have access to the parent configuration in the builder.
+
+```ts
+const logger = builder.loggerManager.init("My Module")
+
+logger.error(...) // output in console => [My Module] Some message
+```
