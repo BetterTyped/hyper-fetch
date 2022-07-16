@@ -45,7 +45,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     description: "Window Focus/Blur Events",
-    link: <Link to="/docs/Architecture/Managers#appmanager">Read more</Link>,
+    link: <Link to="/guides/React/Window%20Focus%20&%20Blur">Read more</Link>,
   },
   {
     description: "SSR Support",

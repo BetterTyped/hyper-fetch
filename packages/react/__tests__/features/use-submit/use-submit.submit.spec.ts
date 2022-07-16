@@ -90,14 +90,14 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to pass params to submit", async () => {
       let endpoint: unknown = null;
       const commandWithParams = createCommand({ endpoint: "/users/:userId" });
-      createRequestInterceptor(commandWithParams.setParams({ userId: 1 }));
+      createRequestInterceptor(commandWithParams.setParams({ userId: 1 } as any));
       const response = renderUseSubmit(commandWithParams);
 
       await act(async () => {
         response.result.current.onSubmitRequestStart(({ command: cmd }) => {
           endpoint = cmd.endpoint;
         });
-        response.result.current.submit({ params: { userId: 1 } });
+        response.result.current.submit({ params: { userId: 1 } } as any);
       });
 
       expect(endpoint).toBe("/users/1");
@@ -126,6 +126,11 @@ describe("useSubmit [ Base ]", () => {
       });
 
       expect(data).toStrictEqual([mock, null, 200]);
+    });
+    it("should throw when hook is disabled", async () => {
+      const response = renderUseSubmit(command, { disabled: true });
+
+      expect(response.result.current.submit).toThrow();
     });
   });
 });

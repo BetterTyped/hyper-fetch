@@ -45,4 +45,51 @@ describe("useFetch [ Revalidate ]", () => {
     await testSuccessState(submitMock, responseSubmit);
     await testSuccessState(fetchMock, responseFetch);
   });
+  it("should allow to revalidate by Command", async () => {
+    const spy = jest.spyOn(builder.cache, "revalidate");
+
+    const { result } = renderUseSubmit(commandSubmit);
+
+    act(() => {
+      result.current.revalidate(commandSubmit);
+    });
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+  });
+  it("should allow to revalidate by RegExp", async () => {
+    const spy = jest.spyOn(builder.cache, "revalidate");
+
+    const { result } = renderUseSubmit(commandSubmit);
+
+    act(() => {
+      result.current.revalidate(new RegExp(commandSubmit.cacheKey));
+    });
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith(new RegExp(commandSubmit.cacheKey));
+  });
+  it("should allow to revalidate by cacheKey", async () => {
+    const spy = jest.spyOn(builder.cache, "revalidate");
+
+    const { result } = renderUseSubmit(commandSubmit);
+
+    act(() => {
+      result.current.revalidate(commandSubmit.cacheKey);
+    });
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+  });
+  it("should not allow to revalidate without key", async () => {
+    const spy = jest.spyOn(builder.cache, "revalidate");
+
+    const { result } = renderUseSubmit(commandSubmit);
+
+    act(() => {
+      result.current.revalidate(undefined as string);
+    });
+
+    expect(spy).toBeCalledTimes(0);
+  });
 });

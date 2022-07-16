@@ -60,7 +60,7 @@ describe("useFetch [ Basic ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(builder.fetchDispatcher, "add");
+      const spy = jest.spyOn(builder, "client");
       await testBuilderIsolation(builder);
       const mock = createRequestInterceptor(command);
       const view = renderUseFetch(command);

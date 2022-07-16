@@ -39,11 +39,11 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
   /**
    * Enable/disable data refresh if user leaves current tab.
    */
-  refreshOnTabBlur?: boolean;
+  refreshOnBlur?: boolean;
   /**
    * Enable/disable data refresh if user enters current tab.
    */
-  refreshOnTabFocus?: boolean;
+  refreshOnFocus?: boolean;
   /**
    * Enable/disable data refresh if network is restored.
    */
@@ -72,5 +72,5 @@ export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: string | CommandInstance) => void;
+    revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
   };

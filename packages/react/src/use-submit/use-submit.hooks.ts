@@ -5,6 +5,9 @@ import {
   ExtractClientReturnType,
   commandSendRequest,
   CommandInstance,
+  ClientResponseType,
+  ExtractResponse,
+  ExtractError,
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
@@ -37,6 +40,7 @@ export const useSubmit = <T extends CommandInstance>(
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce(debounceTime);
+  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => void>(null);
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
@@ -73,7 +77,7 @@ export const useSubmit = <T extends CommandInstance>(
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, options });
-      return [null, null, 0];
+      throw new Error("Cannot submit request. Option 'disabled' is enabled");
     }
 
     const triggerRequest = () => {
@@ -83,14 +87,23 @@ export const useSubmit = <T extends CommandInstance>(
       });
     };
 
-    return new Promise<ExtractClientReturnType<T> | [null, null, null]>((resolve) => {
+    return new Promise<ExtractClientReturnType<T>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, options });
-
         if (debounce) {
-          requestDebounce.debounce(async () => {
-            const value = await triggerRequest();
+          // We need to keep the resolve of debounced requests to prevent memory leaks
+          debounceResolve.current = (value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => {
+            debounceResolve.current?.(value);
             resolve(value);
+          };
+          // Start debouncing
+          requestDebounce.debounce(async () => {
+            // Cleanup debounce resolve
+            const callback = debounceResolve.current;
+            debounceResolve.current = null;
+
+            const value = await triggerRequest();
+            callback(value);
           });
         } else {
           const value = await triggerRequest();

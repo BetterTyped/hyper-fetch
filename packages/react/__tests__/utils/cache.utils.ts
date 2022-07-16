@@ -16,7 +16,7 @@ export const createCacheData = <T extends CommandInstance>(
   const dataValue = rest?.data || [{ data: 1 } as ExtractResponse<T>, null, 200];
   const detailsValue = {
     retries: 0,
-    timestamp: new Date(),
+    timestamp: +new Date(),
     isFailed: false,
     isCanceled: false,
     isRefreshed: false,
@@ -29,6 +29,7 @@ export const createCacheData = <T extends CommandInstance>(
     data: dataValue,
     details: detailsValue,
     cacheTime: 1000,
+    clearKey: command.builder.cache.clearKey,
   });
   return [dataValue, detailsValue] as const;
 };

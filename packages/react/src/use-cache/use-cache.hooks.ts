@@ -43,9 +43,9 @@ export const useCache = <T extends CommandInstance>(
   });
 
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
-    if (invalidateKey && invalidateKey instanceof Command) {
-      cache.revalidate(`/${getCommandKey(invalidateKey, true)}/`);
-    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
+    if (invalidateKey instanceof Command) {
+      cache.revalidate(getCommandKey(invalidateKey, true));
+    } else if (invalidateKey) {
       cache.revalidate(invalidateKey);
     } else {
       cache.revalidate(cacheKey);

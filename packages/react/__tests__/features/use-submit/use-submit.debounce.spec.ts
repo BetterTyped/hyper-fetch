@@ -1,3 +1,4 @@
+import { CommandInstance, ExtractClientReturnType } from "@better-typed/hyper-fetch";
 import { act, waitFor } from "@testing-library/react";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
@@ -77,6 +78,30 @@ describe("useSubmit [ Debounce ]", () => {
         expect(startTime - submitTime).toBeGreaterThanOrEqual(160);
         expect(startTime - submitTime).toBeLessThan(180);
         expect(spy).toBeCalledTimes(1);
+      });
+      it("should resolve debounced methods", async () => {
+        createRequestInterceptor(command);
+        const response = renderUseSubmit(command, options);
+
+        let value: ExtractClientReturnType<CommandInstance>[] = [];
+        await act(async () => {
+          const promiseOne = await response.result.current.submit();
+          await waitForRender(1);
+          const promiseTwo = await response.result.current.submit();
+          await waitForRender(1);
+          const promiseThree = await response.result.current.submit();
+          await waitForRender(1);
+          const promiseFour = await response.result.current.submit();
+
+          value = [promiseOne, promiseTwo, promiseThree, promiseFour];
+        });
+
+        expect(value).toHaveLength(4);
+        const isResponse = (res: ExtractClientReturnType<CommandInstance>) => {
+          return !!res[0] && !res[1] && res[2] === 200;
+        };
+        expect(value).toSatisfyAny(isResponse);
+        expect(value).toHaveLength(4);
       });
     });
   });

@@ -5,7 +5,7 @@ import { UseFetchReturnType } from "use-fetch";
 import { UseSubmitReturnType } from "use-submit";
 import { getCurrentState } from "../utils";
 
-export const testInitialState = <H extends RenderHookResult<any, any>>(render: H) => {
+export const testInitialState = <H extends RenderHookResult<any, any>>(render: H, expectedLoading = true) => {
   const response = getCurrentState(render);
   expect(response.data).toBe(null);
   expect(response.status).toBe(null);
@@ -13,7 +13,7 @@ export const testInitialState = <H extends RenderHookResult<any, any>>(render: H
   if (typeof response.submitting === "boolean") {
     expect(response.submitting).toBe(false);
   } else {
-    expect(response.loading).toBe(true);
+    expect(response.loading).toBe(expectedLoading);
   }
 };
 
@@ -29,6 +29,8 @@ export const testSuccessState = async <
     expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
     expect(response.status).toBe(200);
+    expect(response.retries).toBeNumber();
+    expect(response.timestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
     } else {
@@ -51,6 +53,8 @@ export const testErrorState = async <
     const status = response.status || 0;
     expect(response.error).toStrictEqual(mock);
     expect(response.error).toBeDefined();
+    expect(response.retries).toBeNumber();
+    expect(response.timestamp).toBeDate();
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);

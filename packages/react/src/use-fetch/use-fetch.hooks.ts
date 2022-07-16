@@ -22,8 +22,8 @@ export const useFetch = <T extends CommandInstance>(
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
     refreshBlurred = useFetchDefaultOptions.refreshBlurred,
-    refreshOnTabBlur = useFetchDefaultOptions.refreshOnTabBlur,
-    refreshOnTabFocus = useFetchDefaultOptions.refreshOnTabFocus,
+    refreshOnBlur = useFetchDefaultOptions.refreshOnBlur,
+    refreshOnFocus = useFetchDefaultOptions.refreshOnFocus,
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
@@ -149,13 +149,13 @@ export const useFetch = <T extends CommandInstance>(
     addLifecycleListeners(command);
 
     const focusUnmount = appManager.events.onFocus(() => {
-      if (refreshOnTabFocus) {
+      if (refreshOnFocus) {
         handleFetch();
         handleRefresh();
       }
     });
     const blurUnmount = appManager.events.onBlur(() => {
-      if (refreshOnTabBlur) {
+      if (refreshOnBlur) {
         handleFetch();
         handleRefresh();
       }

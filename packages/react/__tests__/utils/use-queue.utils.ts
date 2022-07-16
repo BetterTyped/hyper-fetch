@@ -1,5 +1,5 @@
-import { CommandInstance, getCommandDispatcher } from "@better-typed/hyper-fetch";
 import { renderHook } from "@testing-library/react";
+import { CommandInstance, getCommandDispatcher, getProgressData } from "@better-typed/hyper-fetch";
 
 import { useQueue, UseQueueOptionsType } from "use-queue";
 
@@ -21,4 +21,46 @@ export const addQueueElement = <T extends CommandInstance>(
   const [dispatcher] = getCommandDispatcher(command, queueType);
   if (stop) dispatcher.stop(command.queueKey);
   return dispatcher.add(command);
+};
+
+export const emitDownloadProgress = <T extends CommandInstance>(
+  requestId: string,
+  command: T,
+  options?: {
+    total: number;
+    loaded: number;
+  },
+) => {
+  const values = options || { total: 50, loaded: 25 };
+  const startTimestamp = new Date(+new Date() - 20000);
+  const progressTimestamp = new Date();
+
+  const progress = getProgressData(startTimestamp, progressTimestamp, values);
+  command.builder.commandManager.events.emitDownloadProgress(command.queueKey, requestId, progress, {
+    requestId,
+    command,
+  });
+
+  return [startTimestamp, progressTimestamp];
+};
+
+export const emitUploadProgress = <T extends CommandInstance>(
+  requestId: string,
+  command: T,
+  options?: {
+    total: number;
+    loaded: number;
+  },
+) => {
+  const values = options || { total: 50, loaded: 25 };
+  const startTimestamp = new Date(+new Date() - 20000);
+  const progressTimestamp = new Date();
+
+  const progress = getProgressData(startTimestamp, progressTimestamp, values);
+  command.builder.commandManager.events.emitUploadProgress(command.queueKey, requestId, progress, {
+    requestId,
+    command,
+  });
+
+  return [startTimestamp, progressTimestamp];
 };

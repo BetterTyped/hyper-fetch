@@ -44,7 +44,7 @@ export function Header(): JSX.Element {
             Get Started
           </Link>
           <Link className="button button--secondary button--lg" to="/guides/Basic/Dispatching">
-            Examples
+            Guides
           </Link>
         </div>
       </div>

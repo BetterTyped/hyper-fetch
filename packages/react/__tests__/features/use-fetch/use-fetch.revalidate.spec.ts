@@ -30,7 +30,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = { something: "123" };
     builder.cache.set(command, [customMock, null, 200], {
       retries: 0,
-      timestamp: new Date(),
+      timestamp: +new Date(),
       isFailed: false,
       isCanceled: false,
       isOffline: false,
@@ -44,7 +44,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = { something: "123" };
     builder.cache.set(command, [customMock, null, 200], {
       retries: 0,
-      timestamp: new Date(),
+      timestamp: +new Date(),
       isFailed: false,
       isCanceled: false,
       isOffline: false,

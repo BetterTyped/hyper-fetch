@@ -1,4 +1,10 @@
-import { CacheValueType, ExtractError, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
+import {
+  CacheValueType,
+  ExtractError,
+  ExtractResponse,
+  CommandInstance,
+  ExtractClientReturnType,
+} from "@better-typed/hyper-fetch";
 
 import { isEqual } from "utils";
 import {
@@ -83,7 +89,7 @@ export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseTrackedStat
     /**
      * Method responsible for triggering requests. It return Promise which will be resolved with the request.
      */
-    submit: (...parameters: Parameters<T["send"]>) => void;
+    submit: (...parameters: Parameters<T["send"]>) => Promise<ExtractClientReturnType<T>>;
     /**
      * Request loading state
      */

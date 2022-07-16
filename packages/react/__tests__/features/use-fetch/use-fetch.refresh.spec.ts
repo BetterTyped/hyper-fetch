@@ -8,8 +8,8 @@ describe("useFetch [ Refreshing ]", () => {
     refreshTime: 100,
     refreshBlurred: true,
     refreshOnReconnect: true,
-    refreshOnTabBlur: true,
-    refreshOnTabFocus: true,
+    refreshOnBlur: true,
+    refreshOnFocus: true,
   };
 
   let command = createCommand();
@@ -50,7 +50,7 @@ describe("useFetch [ Refreshing ]", () => {
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
     createRequestInterceptor(command);
-    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnTabBlur: false });
+    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnBlur: false });
 
     act(() => {
       result.current.onRequestStart(spy);
@@ -64,7 +64,7 @@ describe("useFetch [ Refreshing ]", () => {
   it("should not refresh blurred tab", async () => {
     const spy = jest.fn();
     createRequestInterceptor(command);
-    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnTabBlur: false, refreshBlurred: false });
+    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnBlur: false, refreshBlurred: false });
 
     act(() => {
       result.current.onRequestStart(spy);

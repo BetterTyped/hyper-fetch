@@ -41,5 +41,5 @@ export type UseCacheReturnType<T extends CommandInstance> = UseTrackedStateType<
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: string | CommandInstance) => void;
+    revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
   };
