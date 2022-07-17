@@ -1,6 +1,7 @@
 import { act } from "@testing-library/react";
+import { ClientResponseType } from "@better-typed/hyper-fetch";
 
-import { createCommand, renderUseFetch, createCacheData, builder } from "../../utils";
+import { createCommand, renderUseFetch, createCacheData, builder, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testBuilderIsolation } from "../../shared";
 
@@ -54,7 +55,10 @@ describe("useFetch [ Basic ]", () => {
       await testCacheState([null, null, null], view);
     });
     it("should allow to use initial data", async () => {
-      // Todo
+      const initialData: ClientResponseType<unknown, unknown> = [{ test: [1, 2, 3] }, null, 200];
+      const view = renderUseFetch(command, { disabled: true, initialData });
+
+      await testSuccessState(initialData[0], view);
     });
     it("should prefer cache data over initial data", async () => {
       // Todo
@@ -66,6 +70,7 @@ describe("useFetch [ Basic ]", () => {
       const view = renderUseFetch(command);
 
       await testSuccessState(mock, view);
+      await sleep(50);
       expect(spy).toBeCalledTimes(1);
     });
   });

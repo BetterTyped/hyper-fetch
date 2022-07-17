@@ -23,6 +23,9 @@ describe("useFetch [ Pagination ]", () => {
     it("should allow to see previous results until new page is loaded", async () => {
       // TODO
     });
+    it("should not override previous results by initialData", async () => {
+      // TODO
+    });
     it("should cache pages on change", async () => {
       // TODO
     });

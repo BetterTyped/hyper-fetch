@@ -5,7 +5,7 @@ import { isEqual } from "utils";
 
 export const renderUseTrackedState = <Command extends CommandInstance>(
   command: Command,
-  options?: UseTrackedStateProps<Command>,
+  options?: Partial<UseTrackedStateProps<Command>>,
 ) => {
   const { builder } = command;
   const { fetchDispatcher: dispatcher, loggerManager } = builder;

@@ -32,9 +32,9 @@ export const useQueue = <Command extends CommandInstance>(
   const createRequestsArray = (queueElements: DispatcherDumpValueType<Command>[]): QueueRequest<Command>[] => {
     return queueElements.map<QueueRequest<Command>>((req) => ({
       ...req,
-      stopRequest: () => dispatcher[0].stopRequest(queueKey, req.requestId),
-      startRequest: () => dispatcher[0].startRequest(queueKey, req.requestId),
-      deleteRequest: () => dispatcher[0].delete(queueKey, req.requestId, abortKey),
+      stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
+      startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
+      deleteRequest: () => dispatcher.delete(queueKey, req.requestId, abortKey),
     }));
   };
 
@@ -97,8 +97,8 @@ export const useQueue = <Command extends CommandInstance>(
   return {
     stopped,
     requests,
-    stop: () => dispatcher[0].stop(queueKey),
-    pause: () => dispatcher[0].pause(queueKey),
-    start: () => dispatcher[0].start(queueKey),
+    stop: () => dispatcher.stop(queueKey),
+    pause: () => dispatcher.pause(queueKey),
+    start: () => dispatcher.start(queueKey),
   };
 };

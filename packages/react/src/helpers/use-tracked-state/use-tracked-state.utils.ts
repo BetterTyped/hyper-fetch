@@ -25,9 +25,8 @@ export const getDetailsState = (
   };
 };
 
-export const isStaleCacheData = (cacheTime: NullableType<number>, cacheTimestamp: NullableType<Date | number>) => {
+export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType<Date | number>) => {
   if (!cacheTimestamp) return true;
-  if (!cacheTime) return false;
   return +new Date() > +cacheTimestamp + cacheTime;
 };
 
@@ -78,6 +77,6 @@ export const getInitialState = <T extends CommandInstance>(
     status: cacheState?.data?.[2] || initialState.status,
     retries: cacheState?.details.retries || initialState.retries,
     timestamp: getTimestamp(cacheState?.details.timestamp || initialState.timestamp),
-    loading: initialLoading ?? initialState.loading,
+    loading: initialLoading,
   };
 };

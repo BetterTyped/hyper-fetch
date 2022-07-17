@@ -2,11 +2,13 @@ import { act, waitFor } from "@testing-library/react";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import {
   addQueueElement,
+  builder,
   createCommand,
   emitDownloadProgress,
   emitUploadProgress,
   renderUseQueue,
   sleep,
+  waitForRender,
 } from "../../utils";
 
 describe("useQueue [ Actions ]", () => {
@@ -27,47 +29,96 @@ describe("useQueue [ Actions ]", () => {
   beforeEach(() => {
     jest.resetModules();
     command = createCommand({ method: "POST" });
+    builder.clear();
   });
 
   describe("given queue is running", () => {
     describe("when stop gets triggered", () => {
-      it("should cancel ongoing requests", async () => {
-        // Todo
-      });
       it("should change stopped value", async () => {
-        // Todo
+        const { result } = renderUseQueue(command);
+        act(() => {
+          result.current.stop();
+        });
+        await waitFor(() => {
+          expect(result.current.stopped).toBeTrue();
+        });
       });
     });
     describe("when pause gets triggered", () => {
-      it("should finish ongoing requests", async () => {
-        // Todo
-      });
       it("should change stopped value", async () => {
-        // Todo
+        const { result } = renderUseQueue(command);
+        act(() => {
+          result.current.pause();
+        });
+        await waitFor(() => {
+          expect(result.current.stopped).toBeTrue();
+        });
       });
     });
     describe("when stopping request", () => {
       it("should cancel request and mark it as stopped", async () => {
-        // Todo
+        createRequestInterceptor(command);
+        addQueueElement(command, { stop: true });
+        const { result } = renderUseQueue(command);
+
+        act(() => {
+          result.current.requests[0].stopRequest();
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests[0].stopped).toBeTrue();
+        });
       });
-      it("should take another requests and trigger them", async () => {
-        // Todo
+    });
+    describe("when deleting request", () => {
+      it("should remove request from array", async () => {
+        createRequestInterceptor(command);
+        addQueueElement(command, { stop: true });
+        const { result } = renderUseQueue(command);
+
+        act(() => {
+          result.current.requests[0].deleteRequest();
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests[0]).toBeUndefined();
+        });
       });
     });
   });
 
   describe("given queue is stopped", () => {
     describe("when start gets triggered", () => {
-      it("should send all queued requests", async () => {
-        // Todo
-      });
-      it("should not send stopped requests", async () => {
-        // Todo
+      it("should change start status", async () => {
+        const { result } = renderUseQueue(command);
+        act(() => {
+          result.current.stop();
+        });
+        await waitForRender();
+        act(() => {
+          result.current.start();
+        });
+
+        expect(result.current.stopped).toBeFalse();
       });
     });
     describe("when starting request", () => {
-      it("should not send a request", async () => {
-        // Todo
+      it("should allow to change request stopped status", async () => {
+        createRequestInterceptor(command);
+        addQueueElement(command, { stop: true });
+        const { result } = renderUseQueue(command);
+
+        act(() => {
+          result.current.requests[0].stopRequest();
+        });
+        await waitForRender();
+        act(() => {
+          result.current.requests[0].startRequest();
+        });
+
+        await waitFor(() => {
+          expect(result.current.requests[0].stopped).toBeFalse();
+        });
       });
     });
   });
