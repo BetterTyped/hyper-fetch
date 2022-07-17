@@ -9,11 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Setup Node
-      #   uses: actions/setup-node@master
-      #   with:
-      #     node-version: "14"
-
       - name: Get Yarn cache
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
