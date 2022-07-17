@@ -20,8 +20,7 @@
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "precommit": "yarn lint-staged",
-    "semantic-release": "semantic-release --ci"
+    "precommit": "yarn lint-staged"
   },
   "peerDependencies": {
     "@better-typed/hyper-fetch": "*",
