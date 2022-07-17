@@ -41,7 +41,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
         with:
-          coverageCommand: yarn test --coverage
+          coverageCommand: yarn test-pipeline --coverage
           coverageLocations: |
             ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
             ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
