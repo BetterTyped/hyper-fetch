@@ -5,7 +5,7 @@ import { builder, createCommand, renderUseSubmit, waitForRender } from "../../ut
 
 describe("useSubmit [ Debounce ]", () => {
   const options = { debounce: true, debounceTime: 50 };
-  const maxDelay = 20;
+  const maxDelay = 30;
 
   let command = createCommand({ method: "POST" });
 
