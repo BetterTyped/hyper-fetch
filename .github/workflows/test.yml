@@ -9,10 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@master
-        with:
-          node-version: "14"
+      # - name: Setup Node
+      #   uses: actions/setup-node@master
+      #   with:
+      #     node-version: "14"
 
       - name: Get Yarn cache
         id: yarn-cache-dir-path
@@ -42,11 +42,11 @@ jobs:
       - name: Test
         run: yarn test --coverage
 
-      - name: Send Report
-        uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
-        with:
-          coverageLocations: |
-            ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
-            ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
+      # - name: Send Report
+      #   uses: paambaati/codeclimate-action@v3.0.0
+      #   env:
+      #     CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
+      #   with:
+      #     coverageLocations: |
+      #       ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
+      #       ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
