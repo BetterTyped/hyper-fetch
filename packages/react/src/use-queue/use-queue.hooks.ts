@@ -38,6 +38,10 @@ export const useQueue = <Command extends CommandInstance>(
     }));
   };
 
+  const mergeRequestData = (requestId: string, data: Partial<QueueRequest<Command>>) => {
+    setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, ...data } : el)));
+  };
+
   // ******************
   // State
   // ******************
@@ -63,11 +67,11 @@ export const useQueue = <Command extends CommandInstance>(
     const unmountStatus = dispatcher.events.onQueueStatus<Command>(queueKey, updateQueueState);
 
     const unmountDownload = commandManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
-      setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, downloading: progress } : el)));
+      mergeRequestData(requestId, { downloading: progress });
     });
 
     const unmountUpload = commandManager.events.onUploadProgress(queueKey, (progress, { requestId }) => {
-      setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, uploading: progress } : el)));
+      mergeRequestData(requestId, { uploading: progress });
     });
 
     const unmount = () => {

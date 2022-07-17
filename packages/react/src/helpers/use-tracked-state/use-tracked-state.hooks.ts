@@ -19,7 +19,7 @@ import { getDetailsState, getInitialState, isStaleCacheData } from "./use-tracke
  * @param dependencies
  * @internal
  */
-export const UseTrackedState = <T extends CommandInstance>({
+export const useTrackedState = <T extends CommandInstance>({
   command,
   dispatcher,
   initialData,

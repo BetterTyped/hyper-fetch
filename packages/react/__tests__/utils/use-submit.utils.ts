@@ -4,5 +4,8 @@ import { renderHook } from "@testing-library/react";
 import { useSubmit, UseSubmitOptionsType } from "use-submit";
 
 export const renderUseSubmit = <T extends CommandInstance>(command: T, options?: UseSubmitOptionsType<T>) => {
-  return renderHook(() => useSubmit(command, { dependencyTracking: false, ...options }));
+  return renderHook((rerenderOptions: UseSubmitOptionsType<CommandInstance> & { command?: CommandInstance }) => {
+    const { command: cmd, ...rest } = rerenderOptions || {};
+    return useSubmit(cmd || command, { dependencyTracking: false, ...options, ...rest });
+  });
 };

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useCommandEvents, UseTrackedState } from "helpers";
+import { useCommandEvents, useTrackedState } from "helpers";
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "use-cache";
 
 export const useCache = <T extends CommandInstance>(
@@ -22,7 +22,7 @@ export const useCache = <T extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = UseTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<T>({
     logger,
     command,
     dispatcher,

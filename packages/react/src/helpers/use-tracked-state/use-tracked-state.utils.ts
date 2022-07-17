@@ -58,18 +58,6 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const responseToCacheValue = <T>(
-  response: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
-): NullableType<CacheValueType> => {
-  if (!response) return null;
-  return {
-    data: response,
-    details: getDetailsState(),
-    cacheTime: 1000,
-    clearKey: "",
-  };
-};
-
 export const getInitialState = <T extends CommandInstance>(
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
   dispatcher: Dispatcher,

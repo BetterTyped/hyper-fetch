@@ -18,7 +18,7 @@ export type UseCommandEventsDataMap = { unmount: VoidFunction };
 export type UseCommandEventsLifecycleMap = Map<string, { unmount: VoidFunction }>;
 
 // Props
-export type UseCommandEventsOptionsType<T extends CommandInstance> = {
+export type UseCommandEventsPropsType<T extends CommandInstance> = {
   command: T;
   dispatcher: Dispatcher;
   logger: LoggerType;
@@ -91,18 +91,18 @@ export type CallbackParameters<Command, ResponseType> = {
 
 export type OnSuccessCallbackType<Command extends CommandInstance> = (
   params: CallbackParameters<Command, ExtractResponse<Command>>,
-) => void;
+) => void | Promise<void>;
 export type OnErrorCallbackType<Command extends CommandInstance> = (
   params: CallbackParameters<Command, ExtractError<Command>>,
-) => void;
+) => void | Promise<void>;
 export type OnFinishedCallbackType<Command extends CommandInstance> = (
   params: CallbackParameters<Command, ExtractClientReturnType<Command>>,
-) => void;
+) => void | Promise<void>;
 export type OnStartCallbackType<Command extends CommandInstance> = (params: {
   details: CommandEventDetails<Command>;
   command: Command;
-}) => void;
+}) => void | Promise<void>;
 export type OnProgressCallbackType = <Command extends CommandInstance>(
   progress: FetchProgressType,
   details: CommandEventDetails<Command>,
-) => void;
+) => void | Promise<void>;

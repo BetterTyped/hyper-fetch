@@ -10,7 +10,7 @@ import {
   CommandResponseDetails,
   CommandLoadingEventType,
 } from "@better-typed/hyper-fetch";
-import { useIsMounted, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
+import { useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import {
   OnErrorCallbackType,
@@ -20,7 +20,7 @@ import {
   OnFinishedCallbackType,
   UseCommandEventsDataMap,
   UseCommandEventsReturnType,
-  UseCommandEventsOptionsType,
+  UseCommandEventsPropsType,
   UseCommandEventsLifecycleMap,
 } from "helpers";
 
@@ -36,10 +36,8 @@ export const useCommandEvents = <T extends CommandInstance>({
   logger,
   actions,
   setCacheData,
-}: UseCommandEventsOptionsType<T>): UseCommandEventsReturnType<T> => {
+}: UseCommandEventsPropsType<T>): UseCommandEventsReturnType<T> => {
   const { cache, commandManager } = command.builder;
-
-  const isMounted = useIsMounted();
 
   // ******************
   // Callbacks
@@ -86,8 +84,6 @@ export const useCommandEvents = <T extends CommandInstance>({
     data: ClientResponseType<ExtractResponse<T>, ExtractError<T>>,
     details: CommandResponseDetails,
   ) => {
-    if (!isMounted) return logger.debug("Callback cancelled, component is unmounted");
-
     const { isOffline, isFailed, isCanceled } = details;
 
     if (command.offline && isOffline && isFailed) {
@@ -120,21 +116,21 @@ export const useCommandEvents = <T extends CommandInstance>({
   };
 
   const handleDownloadProgress = (progress: FetchProgressType, details: CommandEventDetails<T>) => {
-    onDownloadProgressCallback?.current?.(progress, details);
+    onDownloadProgressCallback.current?.(progress, details);
   };
 
   const handleUploadProgress = (progress: FetchProgressType, details: CommandEventDetails<T>) => {
-    onUploadProgressCallback?.current?.(progress, details);
+    onUploadProgressCallback.current?.(progress, details);
   };
 
   const handleRequestStart = (cmd: T) => {
     return (details: CommandEventDetails<T>) => {
-      onRequestStartCallback?.current?.({ command: cmd, details });
+      onRequestStartCallback.current?.({ command: cmd, details });
     };
   };
   const handleResponseStart = (cmd: T) => {
     return (details: CommandEventDetails<T>) => {
-      onResponseStartCallback?.current?.({ command: cmd, details });
+      onResponseStartCallback.current?.({ command: cmd, details });
     };
   };
 

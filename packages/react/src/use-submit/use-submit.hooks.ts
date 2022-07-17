@@ -11,7 +11,7 @@ import {
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
-import { useDebounce, UseTrackedState, useCommandEvents } from "helpers";
+import { useDebounce, useTrackedState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "use-submit";
 
 /**
@@ -40,12 +40,12 @@ export const useSubmit = <T extends CommandInstance>(
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce(debounceTime);
-  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => void>(null);
+  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => void>(() => null);
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = UseTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<T>({
     logger,
     command,
     dispatcher,
@@ -93,14 +93,14 @@ export const useSubmit = <T extends CommandInstance>(
         if (debounce) {
           // We need to keep the resolve of debounced requests to prevent memory leaks
           debounceResolve.current = (value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => {
-            debounceResolve.current?.(value);
+            debounceResolve.current(value);
             resolve(value);
           };
           // Start debouncing
           requestDebounce.debounce(async () => {
             // Cleanup debounce resolve
             const callback = debounceResolve.current;
-            debounceResolve.current = null;
+            debounceResolve.current = () => null;
 
             const value = await triggerRequest();
             callback(value);

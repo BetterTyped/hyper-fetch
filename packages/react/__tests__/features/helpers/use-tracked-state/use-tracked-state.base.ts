@@ -1,6 +1,6 @@
 import { startServer, resetInterceptors, stopServer } from "../../../server";
 
-describe("useCommand [ Base ]", () => {
+describe("useTrackingState [ Events ]", () => {
   beforeAll(() => {
     startServer();
   });
