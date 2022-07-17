@@ -43,5 +43,5 @@ jobs:
         with:
           coverageCommand: yarn test --coverage
           coverageLocations: |
-            ${{github.workspace}}/packages/core/coverage/lcov.info
-            ${{github.workspace}}/packages/react/coverage/lcov.info
+            ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
+            ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
