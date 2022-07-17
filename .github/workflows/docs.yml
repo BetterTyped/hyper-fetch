@@ -37,9 +37,6 @@ jobs:
       - name: Build packages
         run: yarn build
 
-      - name: Test
-        run: yarn test --coverage
-
       - name: Build docs
         run: yarn build:docs
 

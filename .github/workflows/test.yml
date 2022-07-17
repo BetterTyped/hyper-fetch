@@ -36,6 +36,9 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Clear Jest
+        run: yarn jest --clearCache
+
       - name: Test
         uses: paambaati/codeclimate-action@v3.0.0
         env:
