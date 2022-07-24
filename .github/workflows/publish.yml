@@ -3,6 +3,7 @@ name: Release packages
 on:
   push:
     branches:
+      - main
       - beta
       - alpha
 
