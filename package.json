@@ -118,8 +118,7 @@
     "persistence",
     "cache",
     "builder",
-    "command",
-    "swr"
+    "command"
   ],
   "msw": {
     "workerDirectory": "src"
