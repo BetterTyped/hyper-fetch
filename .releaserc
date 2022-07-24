@@ -16,8 +16,34 @@
   ],
   "release": {
     "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "releaseRules": [
+            {
+              "scope": "no-release",
+              "release": false
+            },
+            {
+              "breaking": true,
+              "release": "major"
+            },
+            {
+              "type": "feat",
+              "release": "minor"
+            },
+            {
+              "type": "refactor",
+              "scope": "core-*",
+              "release": "minor"
+            },
+            {
+              "type": "*",
+              "release": "patch"
+            }
+          ]
+        }
+      ],
       [
         "@semantic-release/changelog",
         {
@@ -32,6 +58,7 @@
           ]
         }
       ],
+      "@semantic-release/release-notes-generator",
       "@semantic-release/github",
       "@semantic-release/npm"
     ]
