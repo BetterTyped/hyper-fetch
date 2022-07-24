@@ -12,7 +12,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Wait on check
+      - name: Wait on tests
         uses: lewagon/wait-on-check-action@v1.1.2
         with:
           ref: ${{ github.ref }}
