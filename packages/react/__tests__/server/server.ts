@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
-
 import { ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
+
 import { getInterceptEndpoint, createStubMethod } from "./server.utils";
 import { ErrorMockType, errorResponses, StatusCodesType, StatusErrorCodesType } from "./server.constants";
 

@@ -3,6 +3,7 @@ import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "use-queue";
+import { useConfigProvider } from "config-provider";
 
 /**
  * This hook allows to control dispatchers request queues
@@ -14,7 +15,14 @@ export const useQueue = <Command extends CommandInstance>(
   command: Command,
   options: UseQueueOptionsType = useQueueDefaultOptions,
 ): UseQueueReturnType<Command> => {
-  const { queueType = useQueueDefaultOptions.queueType } = options;
+  // Build the configuration options
+  const [globalConfig] = useConfigProvider();
+  const { queueType } = {
+    ...useQueueDefaultOptions,
+    ...globalConfig.useQueueConfig,
+    ...options,
+  };
+
   const { abortKey, queueKey, builder } = command;
   const { commandManager } = builder;
 

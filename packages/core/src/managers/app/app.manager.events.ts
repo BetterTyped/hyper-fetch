@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+
 import { AppEvents } from "managers";
 
 export const getAppManagerEvents = (emitter: EventEmitter) => ({

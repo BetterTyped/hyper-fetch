@@ -7,6 +7,7 @@ import {
   CommandInstance,
   LoggerType,
 } from "@better-typed/hyper-fetch";
+
 import { isEqual } from "utils";
 
 export type UseTrackedStateProps<T extends CommandInstance> = {

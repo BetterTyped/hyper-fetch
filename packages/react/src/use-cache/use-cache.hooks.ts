@@ -3,21 +3,25 @@ import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@
 
 import { useCommandEvents, useTrackedState } from "helpers";
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "use-cache";
+import { useConfigProvider } from "config-provider";
 
 export const useCache = <T extends CommandInstance>(
   command: T,
-  {
-    dependencyTracking = useCacheDefaultOptions.dependencyTracking,
-    initialData = useCacheDefaultOptions.initialData,
-    deepCompare = useCacheDefaultOptions.deepCompare,
-  }: UseCacheOptionsType<T> = useCacheDefaultOptions,
+  options: UseCacheOptionsType<T> = useCacheDefaultOptions,
 ): UseCacheReturnType<T> => {
   const { cacheKey, builder } = command;
 
   const { cache, loggerManager } = builder;
   const logger = useRef(loggerManager.init("useCache")).current;
-
   const [dispatcher] = getCommandDispatcher(command);
+
+  // Build the configuration options
+  const [globalConfig] = useConfigProvider();
+  const { dependencyTracking, initialData, deepCompare } = {
+    ...useCacheDefaultOptions,
+    ...globalConfig.useCacheConfig,
+    ...options,
+  };
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues

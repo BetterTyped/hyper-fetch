@@ -4,6 +4,7 @@ import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fet
 
 import { useDebounce, useCommandEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "use-fetch";
+import { useConfigProvider } from "config-provider";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -13,7 +14,11 @@ import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from 
  */
 export const useFetch = <T extends CommandInstance>(
   command: T,
-  {
+  options: UseFetchOptionsType<T> = useFetchDefaultOptions,
+): UseFetchReturnType<T> => {
+  // Build the configuration options
+  const [globalConfig] = useConfigProvider();
+  const {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
@@ -28,8 +33,12 @@ export const useFetch = <T extends CommandInstance>(
     debounce = useFetchDefaultOptions.debounce,
     debounceTime = useFetchDefaultOptions.debounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
-  }: UseFetchOptionsType<T> = useFetchDefaultOptions,
-): UseFetchReturnType<T> => {
+  } = {
+    ...useFetchDefaultOptions,
+    ...globalConfig.useFetchConfig,
+    ...options,
+  };
+
   const updateKey = JSON.stringify(command.dump());
   const requestDebounce = useDebounce(debounceTime);
   const refreshDebounce = useDebounce(refreshTime);

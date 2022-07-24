@@ -9,8 +9,8 @@ import {
   RestHandler,
   RestRequest,
 } from "msw";
-
 import { defaultTimeout, getErrorMessage, CommandInstance } from "@better-typed/hyper-fetch";
+
 import { sleep } from "../utils";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {

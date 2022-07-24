@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import React from "react";
 import { Stack } from "@mui/material";
 import * as ReactDOM from "react-dom/client";
 import { SnackbarProvider } from "notistack";

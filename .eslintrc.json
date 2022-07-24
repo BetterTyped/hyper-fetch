@@ -50,7 +50,33 @@
     "@typescript-eslint/no-throw-literal": 0,
     "no-underscore-dangle": 0,
     "react/function-component-definition": 0,
-    "testing-library/render-result-naming-convention": "off"
+    "testing-library/render-result-naming-convention": "off",
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["builtin", "external"],
+          ["internal", "parent", "sibling", "index"]
+        ],
+        "pathGroups": [
+          { "pattern": "assets/**", "group": "sibling", "position": "after" },
+          {
+            "pattern": "@external/**/*.css",
+            "group": "sibling",
+            "position": "after"
+          },
+          {
+            "pattern": "*.css",
+            "group": "index",
+            "patternOptions": { "matchBase": true },
+            "position": "after"
+          }
+        ],
+        "warnOnUnassignedImports": true,
+        "pathGroupsExcludedImportTypes": ["css"],
+        "newlines-between": "always"
+      }
+    ]
   },
   "overrides": [
     {

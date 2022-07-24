@@ -1,5 +1,4 @@
 import { LoggerManager } from "managers";
-
 import { createBuilder } from "../../../utils";
 
 describe("Logger [ Base ]", () => {

@@ -13,6 +13,7 @@ import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
 import { useDebounce, useTrackedState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "use-submit";
+import { useConfigProvider } from "config-provider";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -22,15 +23,16 @@ import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } fr
  */
 export const useSubmit = <T extends CommandInstance>(
   command: T,
-  {
-    disabled = useSubmitDefaultOptions.disabled,
-    dependencyTracking = useSubmitDefaultOptions.dependencyTracking,
-    initialData = useSubmitDefaultOptions.initialData,
-    debounce = useSubmitDefaultOptions.debounce,
-    debounceTime = useSubmitDefaultOptions.debounceTime,
-    deepCompare = useSubmitDefaultOptions.deepCompare,
-  }: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
+  options: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
 ): UseSubmitReturnType<T> => {
+  // Build the configuration options
+  const [globalConfig] = useConfigProvider();
+  const { disabled, dependencyTracking, initialData, debounce, debounceTime, deepCompare } = {
+    ...useSubmitDefaultOptions,
+    ...globalConfig.useSubmitConfig,
+    ...options,
+  };
+
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
@@ -72,11 +74,11 @@ export const useSubmit = <T extends CommandInstance>(
   // ******************
 
   const handleSubmit = (...parameters: Parameters<T["send"]>) => {
-    const options = parameters[0];
-    const commandClone = command.clone(options) as T;
+    const submitOptions = parameters[0];
+    const commandClone = command.clone(submitOptions) as T;
 
     if (disabled) {
-      logger.warning(`Cannot submit request`, { disabled, options });
+      logger.warning(`Cannot submit request`, { disabled, submitOptions });
       throw new Error("Cannot submit request. Option 'disabled' is enabled");
     }
 
@@ -89,7 +91,7 @@ export const useSubmit = <T extends CommandInstance>(
 
     return new Promise<ExtractClientReturnType<T>>((resolve) => {
       const performSubmit = async () => {
-        logger.debug(`Submitting request`, { disabled, options });
+        logger.debug(`Submitting request`, { disabled, submitOptions });
         if (debounce) {
           // We need to keep the resolve of debounced requests to prevent memory leaks
           debounceResolve.current = (value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => {

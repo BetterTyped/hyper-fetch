@@ -3,7 +3,6 @@ import { StringifyCallbackType } from "builder";
 import { CommandConfig, Command } from "command";
 import { ClientDefaultOptionsType, QueryStringifyOptions } from "client";
 import { LoggerManager } from "managers";
-
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createBuilder, createClient, createCommand, interceptorCallback, middlewareCallback } from "../../utils";
 

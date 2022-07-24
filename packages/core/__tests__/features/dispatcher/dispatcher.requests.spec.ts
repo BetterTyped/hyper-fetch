@@ -1,4 +1,5 @@
 import { waitFor } from "@testing-library/dom";
+
 import { createDispatcher, createBuilder, createCommand, createClient, sleep } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createRequestInterceptor } from "../../server/server";
@@ -213,7 +214,8 @@ describe("Dispatcher [ Requests ]", () => {
         const requestId = dispatcher.add(command);
         dispatcher.stopRequest(command.queueKey, requestId);
 
-        await sleep(20);
+        await sleep(30);
+
         dispatcher.startRequest(command.queueKey, requestId);
 
         await waitFor(() => {
