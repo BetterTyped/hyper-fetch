@@ -1,23 +1,19 @@
 name: Release packages
 
 on:
-  push:
-    branches:
-      - main
-      - beta
-      - alpha
+  workflow_run:
+    workflows: ["Tests"]
+    branches: [main, beta, alpha]
+    types:
+      - completed
 
 jobs:
   release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@main
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: "14.x"
 
       - name: Get Yarn cache
         id: yarn-cache-dir-path
@@ -37,21 +33,6 @@ jobs:
 
       - name: Build
         run: yarn build
-
-      - name: Lint
-        run: yarn lint
-
-      - name: Test
-        run: yarn test --coverage
-
-      - name: Send Report
-        uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: c206a2ed5aa86c7480a13634e91e440a27a98a5d134653f8ea9a7d5f987e68c3
-        with:
-          coverageLocations: |
-            ${{github.workspace}}/packages/core/coverage/lcov.info:lcov
-            ${{github.workspace}}/packages/react/coverage/lcov.info:lcov
 
       - name: Publish
         run: yarn release
