@@ -1,18 +1,25 @@
 name: Release packages
 
 on:
-  workflow_run:
-    workflows: ["tests"]
-    branches: [main, beta, alpha]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+      - beta
+      - alpha
 
 jobs:
   release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - name: Wait on check
+        uses: lewagon/wait-on-check-action@v1.1.2
+        with:
+          ref: ${{ github.ref }}
+          check-name: "Run tests"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
       - uses: actions/checkout@main
 
       - name: Get Yarn cache
