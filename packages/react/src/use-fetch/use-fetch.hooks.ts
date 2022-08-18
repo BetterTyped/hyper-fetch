@@ -3,7 +3,7 @@ import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useDebounce, useCommandEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "use-fetch";
 import { useConfigProvider } from "config-provider";
 
 /**
@@ -91,7 +91,9 @@ export const useFetch = <T extends CommandInstance>(
 
   function handleRefresh() {
     if (!refresh) return;
-    logger.debug(`Starting refresh counter, request will be send in ${refreshTime}ms`);
+    const time = getRefreshTime(refreshTime, state);
+
+    logger.debug(`Starting refresh counter, request will be send in ${time}ms`);
 
     refreshDebounce.debounce(() => {
       const isBlurred = !appManager.isFocused;
@@ -110,7 +112,7 @@ export const useFetch = <T extends CommandInstance>(
 
       // Start new refresh counter
       handleRefresh();
-    });
+    }, time);
   }
 
   const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {

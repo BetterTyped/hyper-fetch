@@ -17,7 +17,7 @@ export const useQueue = <Command extends CommandInstance>(
 ): UseQueueReturnType<Command> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
-  const { queueType } = {
+  const { queueType = "auto" } = {
     ...useQueueDefaultOptions,
     ...globalConfig.useQueueConfig,
     ...options,
