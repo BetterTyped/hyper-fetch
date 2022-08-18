@@ -14,7 +14,8 @@ import {
   ExtractResponse,
 } from "types";
 import { Command } from "command";
-import { ClientResponseType, ClientQueryParamsType } from "client";
+import { ClientResponseType, ClientQueryParamsType, FetchProgressType } from "client";
+import { CommandEventDetails, CommandResponseDetails } from "managers";
 
 // Progress
 export type ClientProgressEvent = { total: number; loaded: number };
@@ -233,36 +234,44 @@ export type CommandQueueOptions = {
   dispatcherType?: "auto" | "fetch" | "submit";
 };
 
-export type FetchType<Command extends CommandInstance, AdditionalOptions = unknown> = FetchQueryParamsType<
+export type FetchType<Command extends CommandInstance> = FetchQueryParamsType<
   ExtractQueryParams<Command>,
   ExtractHasQueryParams<Command>
 > &
   FetchParamsType<ExtractEndpoint<Command>, ExtractHasParams<Command>> &
   FetchRequestDataType<ExtractRequestData<Command>, ExtractHasData<Command>> &
-  FetchOptionsType<ExtractClientOptions<Command>> &
-  AdditionalOptions;
+  Omit<FetchOptionsType<ExtractClientOptions<Command>>, "params" | "data"> &
+  CommandQueueOptions;
 
-export type FetchMethodType<Command extends CommandInstance, AdditionalOptions = unknown> = FetchType<
-  Command,
-  AdditionalOptions
->["data"] extends any
+export type FetchSendActionsType<Command extends CommandInstance> = {
+  onSettle?: (requestId: string, command: Command) => void;
+  onRequestStart?: (details: CommandEventDetails<Command>) => void;
+  onResponseStart?: (details: CommandEventDetails<Command>) => void;
+  onUploadProgress?: (values: FetchProgressType, details: CommandEventDetails<Command>) => void;
+  onDownloadProgress?: (values: FetchProgressType, details: CommandEventDetails<Command>) => void;
+  onResponse?: (
+    response: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>,
+    details: CommandResponseDetails,
+  ) => void;
+  onAbort?: (command: CommandInstance) => void;
+  onRemove?: (details: CommandEventDetails<Command>) => void;
+};
+
+export type FetchMethodType<Command extends CommandInstance> = FetchType<Command>["data"] extends any
   ? (
-      options?: FetchType<Command, AdditionalOptions>,
-      onInit?: (requestId: string, command: Command) => void,
+      options?: FetchType<Command>,
+      actions?: FetchSendActionsType<Command>,
     ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
-  : FetchType<Command, AdditionalOptions>["data"] extends NegativeTypes
-  ? FetchType<Command, AdditionalOptions>["params"] extends NegativeTypes
+  : FetchType<Command>["data"] extends NegativeTypes
+  ? FetchType<Command>["params"] extends NegativeTypes
     ? (
-        options?: FetchType<Command, AdditionalOptions>,
-        onInit?: (requestId: string, command: Command) => void,
+        options?: FetchType<Command>,
+        actions?: FetchSendActionsType<Command>,
       ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
-    : (
-        options: FetchType<Command, AdditionalOptions>,
-        onInit?: (requestId: string, command: Command) => void,
-      ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
+    : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
   : (
-      options: FetchType<Command, ExtractHasQueryParams<Command>>,
-      onInit?: (requestId: string, command: Command) => void,
+      options: FetchType<Command>,
+      actions?: FetchSendActionsType<Command>,
     ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>;
 
 export type CommandInstance = Command<any, any, any, any, any, any, any, any, any, any, any>;
