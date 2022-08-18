@@ -253,7 +253,6 @@ export type FetchSendActionsType<Command extends CommandInstance> = {
     response: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>,
     details: CommandResponseDetails,
   ) => void;
-  onAbort?: (command: CommandInstance) => void;
   onRemove?: (details: CommandEventDetails<Command>) => void;
 };
 
