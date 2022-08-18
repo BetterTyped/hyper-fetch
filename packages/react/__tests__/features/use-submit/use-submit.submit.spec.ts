@@ -36,6 +36,17 @@ describe("useSubmit [ Base ]", () => {
 
       expect(data).toStrictEqual([mock, null, 200]);
     });
+    it("should call onSettle", async () => {
+      const spy = jest.fn();
+      createRequestInterceptor(command);
+      const response = renderUseSubmit(command);
+
+      await act(async () => {
+        await response.result.current.submit({ onSettle: spy });
+      });
+
+      expect(spy).toBeCalledTimes(1);
+    });
     it("should return data from submit method on retries", async () => {
       let data: unknown = null;
       let mock: unknown = {};

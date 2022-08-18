@@ -10,7 +10,6 @@ import {
   ExtractRouteParams,
   commandSendRequest,
   CommandCurrentType,
-  CommandQueueOptions,
 } from "command";
 import { Builder } from "builder";
 import { getUniqueRequestId } from "utils";
@@ -433,8 +432,7 @@ export class Command<
       HasParams,
       HasQuery,
       MappedData
-    >,
-    CommandQueueOptions
+    >
   > = async (
     options?: FetchType<
       Command<
@@ -449,25 +447,8 @@ export class Command<
         HasParams,
         HasQuery,
         MappedData
-      >,
-      CommandQueueOptions
+      >
     >,
-    onInit?: (
-      requestId: string,
-      command: Command<
-        ResponseType,
-        RequestDataType,
-        QueryParamsType,
-        GlobalErrorType,
-        LocalErrorType,
-        EndpointType,
-        ClientOptions,
-        HasData,
-        HasParams,
-        HasQuery,
-        MappedData
-      >,
-    ) => void,
   ) => {
     const { dispatcherType, ...rest } = options || {};
 
@@ -486,7 +467,7 @@ export class Command<
         HasQuery,
         MappedData
       >
-    >(command, dispatcherType, onInit);
+    >(command, options);
   };
 }
 

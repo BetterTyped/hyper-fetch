@@ -1,5 +1,5 @@
 import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
-import { ClientProgressEvent, CommandInstance, CommandDump } from "command";
+import { ClientProgressEvent, CommandInstance, CommandDump, FetchType } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
 import { ExtractError, ExtractResponse } from "types";
@@ -110,20 +110,32 @@ export const getCommandDispatcher = <Command extends CommandInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const commandSendRequest = <T extends CommandInstance>(
-  command: T,
-  dispatcherType: "auto" | "fetch" | "submit" = "auto",
-  settleCallback?: (requestId: string, command: T) => void,
-) => {
+export const commandSendRequest = <Command extends CommandInstance>(command: Command, options?: FetchType<Command>) => {
   const { commandManager } = command.builder;
-  const [dispatcher] = getCommandDispatcher(command, dispatcherType);
+  const [dispatcher] = getCommandDispatcher(command, options?.dispatcherType);
 
-  return new Promise<ClientResponseType<ExtractResponse<T>, ExtractError<T>>>((resolve) => {
+  return new Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>((resolve) => {
     const requestId = dispatcher.add(command);
-    settleCallback?.(requestId, command);
+    options?.onSettle?.(requestId, command);
+
+    const unmountRequestStart = commandManager.events.onRequestStartById<Command>(requestId, (...props) =>
+      options?.onRequestStart?.(...props),
+    );
+
+    const unmountResponseStart = commandManager.events.onResponseStartById<Command>(requestId, (...props) =>
+      options?.onResponseStart?.(...props),
+    );
+
+    const unmountUpload = commandManager.events.onUploadProgressById<Command>(requestId, (...props) =>
+      options?.onUploadProgress?.(...props),
+    );
+
+    const unmountDownload = commandManager.events.onDownloadProgressById<Command>(requestId, (...props) =>
+      options?.onDownloadProgress?.(...props),
+    );
 
     // When resolved
-    const unmountResponse = commandManager.events.onResponseById<ExtractResponse<T>, ExtractError<T>>(
+    const unmountResponse = commandManager.events.onResponseById<ExtractResponse<Command>, ExtractError<Command>>(
       requestId,
       (response, details) => {
         const isFailed = isFailedRequest(response);
@@ -136,20 +148,32 @@ export const commandSendRequest = <T extends CommandInstance>(
         // When command is in retry mode we need to listen for retries end
         if (isFailed && willRetry) return;
 
+        options?.onResponse?.(response, details);
         resolve(response);
 
         // Unmount Listeners
-        unmountResponse();
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
       },
     );
 
     // When removed from queue storage we need to clean event listeners and return proper error
-    const unmountRemoveQueueElement = commandManager.events.onRemoveById(requestId, () => {
-      resolve([null, getErrorMessage("deleted") as unknown as ExtractError<T>, 0]);
+    const unmountRemoveQueueElement = commandManager.events.onRemoveById<Command>(requestId, (...props) => {
+      options?.onRemove?.(...props);
+      resolve([null, getErrorMessage("deleted") as unknown as ExtractError<Command>, 0]);
 
       // Unmount Listeners
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      umountAll();
+    });
+
+    function umountAll() {
+      unmountRequestStart();
+      unmountResponseStart();
+      unmountUpload();
+      unmountDownload();
       unmountResponse();
       unmountRemoveQueueElement();
-    });
+    }
   });
 };

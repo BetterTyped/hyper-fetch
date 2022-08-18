@@ -8,6 +8,7 @@ import {
   ClientResponseType,
   ExtractResponse,
   ExtractError,
+  FetchType,
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
@@ -21,10 +22,10 @@ import { useConfigProvider } from "config-provider";
  * @param options
  * @returns
  */
-export const useSubmit = <T extends CommandInstance>(
-  command: T,
-  options: UseSubmitOptionsType<T> = useSubmitDefaultOptions,
-): UseSubmitReturnType<T> => {
+export const useSubmit = <Command extends CommandInstance>(
+  command: Command,
+  options: UseSubmitOptionsType<Command> = useSubmitDefaultOptions,
+): UseSubmitReturnType<Command> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const { disabled, dependencyTracking, initialData, debounce, debounceTime, deepCompare } = {
@@ -42,12 +43,14 @@ export const useSubmit = <T extends CommandInstance>(
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce(debounceTime);
-  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => void>(() => null);
+  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => void>(
+    () => null,
+  );
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<Command>({
     logger,
     command,
     dispatcher,
@@ -73,9 +76,9 @@ export const useSubmit = <T extends CommandInstance>(
   // Submitting
   // ******************
 
-  const handleSubmit = (...parameters: Parameters<T["send"]>) => {
-    const submitOptions = parameters[0];
-    const commandClone = command.clone(submitOptions) as T;
+  const handleSubmit = (...parameters: Parameters<Command["send"]>) => {
+    const submitOptions = parameters[0] as FetchType<Command> | undefined;
+    const commandClone = command.clone(submitOptions as any) as Command;
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, submitOptions });
@@ -84,17 +87,22 @@ export const useSubmit = <T extends CommandInstance>(
 
     const triggerRequest = () => {
       addDataListener(commandClone);
-      return commandSendRequest(commandClone, "submit", (requestId) => {
-        addLifecycleListeners(commandClone, requestId);
+      return commandSendRequest(commandClone, {
+        dispatcherType: "submit",
+        ...submitOptions,
+        onSettle: (requestId, cmd) => {
+          addLifecycleListeners(commandClone, requestId);
+          submitOptions?.onSettle?.(requestId, cmd);
+        },
       });
     };
 
-    return new Promise<ExtractClientReturnType<T>>((resolve) => {
+    return new Promise<ExtractClientReturnType<Command>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
         if (debounce) {
           // We need to keep the resolve of debounced requests to prevent memory leaks
-          debounceResolve.current = (value: ClientResponseType<ExtractResponse<T>, ExtractError<T>>) => {
+          debounceResolve.current = (value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => {
             debounceResolve.current(value);
             resolve(value);
           };
