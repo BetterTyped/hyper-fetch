@@ -1,10 +1,6 @@
-import { CommandInstance } from "@better-typed/hyper-fetch";
-
-import { UseTrackedStateType } from "helpers";
-
-export const getRefreshTime = (refreshTime: number, state?: UseTrackedStateType<CommandInstance>) => {
-  if (state) {
-    const timeDiff = Date.now() - +state.timestamp;
+export const getRefreshTime = (refreshTime: number, dataTimestamp?: Date) => {
+  if (dataTimestamp) {
+    const timeDiff = Date.now() - +dataTimestamp;
     return timeDiff < refreshTime ? refreshTime - timeDiff : refreshTime;
   }
   return refreshTime;

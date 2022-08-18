@@ -241,6 +241,7 @@ export type FetchType<Command extends CommandInstance> = FetchQueryParamsType<
   FetchParamsType<ExtractEndpoint<Command>, ExtractHasParams<Command>> &
   FetchRequestDataType<ExtractRequestData<Command>, ExtractHasData<Command>> &
   Omit<FetchOptionsType<ExtractClientOptions<Command>>, "params" | "data"> &
+  FetchSendActionsType<Command> &
   CommandQueueOptions;
 
 export type FetchSendActionsType<Command extends CommandInstance> = {
@@ -257,20 +258,11 @@ export type FetchSendActionsType<Command extends CommandInstance> = {
 };
 
 export type FetchMethodType<Command extends CommandInstance> = FetchType<Command>["data"] extends any
-  ? (
-      options?: FetchType<Command>,
-      actions?: FetchSendActionsType<Command>,
-    ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
+  ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
   : FetchType<Command>["data"] extends NegativeTypes
   ? FetchType<Command>["params"] extends NegativeTypes
-    ? (
-        options?: FetchType<Command>,
-        actions?: FetchSendActionsType<Command>,
-      ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
+    ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
     : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
-  : (
-      options: FetchType<Command>,
-      actions?: FetchSendActionsType<Command>,
-    ) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>;
+  : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>;
 
 export type CommandInstance = Command<any, any, any, any, any, any, any, any, any, any, any>;

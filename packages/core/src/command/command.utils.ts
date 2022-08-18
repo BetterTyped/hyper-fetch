@@ -1,5 +1,5 @@
 import { FetchProgressType, ClientResponseType, getErrorMessage } from "client";
-import { ClientProgressEvent, CommandInstance, CommandDump, FetchSendActionsType } from "command";
+import { ClientProgressEvent, CommandInstance, CommandDump, FetchType } from "command";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
 import { ExtractError, ExtractResponse } from "types";
@@ -110,32 +110,28 @@ export const getCommandDispatcher = <Command extends CommandInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const commandSendRequest = <Command extends CommandInstance>(
-  command: Command,
-  dispatcherType: "auto" | "fetch" | "submit" = "auto",
-  actions?: FetchSendActionsType<Command>,
-) => {
+export const commandSendRequest = <Command extends CommandInstance>(command: Command, options?: FetchType<Command>) => {
   const { commandManager } = command.builder;
-  const [dispatcher] = getCommandDispatcher(command, dispatcherType);
+  const [dispatcher] = getCommandDispatcher(command, options?.dispatcherType);
 
   return new Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>((resolve) => {
     const requestId = dispatcher.add(command);
-    actions?.onSettle?.(requestId, command);
+    options?.onSettle?.(requestId, command);
 
     const unmountRequestStart = commandManager.events.onRequestStartById<Command>(requestId, (...props) =>
-      actions?.onRequestStart?.(...props),
+      options?.onRequestStart?.(...props),
     );
 
     const unmountResponseStart = commandManager.events.onResponseStartById<Command>(requestId, (...props) =>
-      actions?.onResponseStart?.(...props),
+      options?.onResponseStart?.(...props),
     );
 
     const unmountUpload = commandManager.events.onUploadProgressById<Command>(requestId, (...props) =>
-      actions?.onUploadProgress?.(...props),
+      options?.onUploadProgress?.(...props),
     );
 
     const unmountDownload = commandManager.events.onDownloadProgressById<Command>(requestId, (...props) =>
-      actions?.onDownloadProgress?.(...props),
+      options?.onDownloadProgress?.(...props),
     );
 
     // When resolved
@@ -152,7 +148,7 @@ export const commandSendRequest = <Command extends CommandInstance>(
         // When command is in retry mode we need to listen for retries end
         if (isFailed && willRetry) return;
 
-        actions?.onResponse?.(response, details);
+        options?.onResponse?.(response, details);
         resolve(response);
 
         // Unmount Listeners
@@ -163,7 +159,7 @@ export const commandSendRequest = <Command extends CommandInstance>(
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = commandManager.events.onRemoveById<Command>(requestId, (...props) => {
-      actions?.onRemove?.(...props);
+      options?.onRemove?.(...props);
       resolve([null, getErrorMessage("deleted") as unknown as ExtractError<Command>, 0]);
 
       // Unmount Listeners

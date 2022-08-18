@@ -87,7 +87,7 @@ describe("Command [ Sending ]", () => {
     it("should call remove error", async () => {
       const spy = jest.fn();
       createRequestInterceptor(command, { delay: 10, status: 400 });
-      const request = command.send({}, { onRemove: spy });
+      const request = command.send({ onRemove: spy });
       await sleep(2);
 
       const runningRequests = builder.fetchDispatcher.getAllRunningRequest();
@@ -104,17 +104,14 @@ describe("Command [ Sending ]", () => {
       const spy5 = jest.fn();
       const spy6 = jest.fn();
 
-      await command.send(
-        {},
-        {
-          onSettle: spy1,
-          onRequestStart: spy2,
-          onResponseStart: spy3,
-          onUploadProgress: spy4,
-          onDownloadProgress: spy5,
-          onResponse: spy6,
-        },
-      );
+      await command.send({
+        onSettle: spy1,
+        onRequestStart: spy2,
+        onResponseStart: spy3,
+        onUploadProgress: spy4,
+        onDownloadProgress: spy5,
+        onResponse: spy6,
+      });
 
       expect(spy1).toBeCalledTimes(1);
       expect(spy2).toBeCalledTimes(1);

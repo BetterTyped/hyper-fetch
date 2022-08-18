@@ -91,7 +91,7 @@ export const useFetch = <T extends CommandInstance>(
 
   function handleRefresh() {
     if (!refresh) return;
-    const time = getRefreshTime(refreshTime, state);
+    const time = getRefreshTime(refreshTime, state.timestamp);
 
     logger.debug(`Starting refresh counter, request will be send in ${time}ms`);
 

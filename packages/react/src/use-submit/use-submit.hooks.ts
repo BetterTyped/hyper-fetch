@@ -9,7 +9,6 @@ import {
   ExtractResponse,
   ExtractError,
   FetchType,
-  FetchSendActionsType,
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 
@@ -79,7 +78,6 @@ export const useSubmit = <Command extends CommandInstance>(
 
   const handleSubmit = (...parameters: Parameters<Command["send"]>) => {
     const submitOptions = parameters[0] as FetchType<Command> | undefined;
-    const submitActions = parameters[1] as FetchSendActionsType<Command> | undefined;
     const commandClone = command.clone(submitOptions as any) as Command;
 
     if (disabled) {
@@ -89,11 +87,12 @@ export const useSubmit = <Command extends CommandInstance>(
 
     const triggerRequest = () => {
       addDataListener(commandClone);
-      return commandSendRequest(commandClone, "submit", {
-        ...submitActions,
+      return commandSendRequest(commandClone, {
+        dispatcherType: "submit",
+        ...submitOptions,
         onSettle: (requestId, cmd) => {
           addLifecycleListeners(commandClone, requestId);
-          submitActions?.onSettle?.(requestId, cmd);
+          submitOptions?.onSettle?.(requestId, cmd);
         },
       });
     };
