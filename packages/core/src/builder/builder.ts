@@ -182,7 +182,9 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   /**
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
-  onError = (callback: ResponseInterceptorCallback): Builder<GlobalErrorType, RequestConfigType> => {
+  onError = <ErrorType = null>(
+    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
+  ): Builder<GlobalErrorType, RequestConfigType> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
@@ -190,7 +192,9 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   /**
    * Method for intercepting success responses.
    */
-  onSuccess = (callback: ResponseInterceptorCallback): Builder<GlobalErrorType, RequestConfigType> => {
+  onSuccess = <ErrorType = null>(
+    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
+  ): Builder<GlobalErrorType, RequestConfigType> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
@@ -206,7 +210,9 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   /**
    * Method for intercepting any responses.
    */
-  onResponse = (callback: ResponseInterceptorCallback): Builder<GlobalErrorType, RequestConfigType> => {
+  onResponse = <ErrorType = null>(
+    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
+  ): Builder<GlobalErrorType, RequestConfigType> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
