@@ -25,7 +25,7 @@ function UserTableRow({ user }) {
   });
 
   onSubmitSuccess(() => {
-    // When it's successfull, just revalidate users list to pull new page data
+    // When it's successful, just revalidate users list to pull new page data
     revalidate(new RegExp("/users"));
   });
 

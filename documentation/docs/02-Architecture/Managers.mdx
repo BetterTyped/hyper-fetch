@@ -16,7 +16,7 @@ The library contains several managers, they are mainly used to support smaller s
 <br />
 
 This class is responsible for the state of our application in terms of `online` or `offline` status and whether the
-application window is `focused` or `blured`.
+application window is `focused` or `blurred`.
 
 For example, if we want to use hyper-fetch in a `react native environment`, our default web browser events won't work,
 we need to set the ones that are most optimal for the current environment.
@@ -52,7 +52,7 @@ unmountOfflineListener()
 
 <br />
 
-The `CommandManager` is responsible for holding the cancelation tokens needed to terminate the requests and for the
+The `CommandManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
 events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
 
 :::info

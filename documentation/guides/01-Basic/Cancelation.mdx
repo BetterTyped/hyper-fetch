@@ -25,7 +25,7 @@ getUsers.send()
 
 ---
 
-### Manual cancelation by abortKey
+### Manual cancellation by abortKey
 
 Each command has its own abortKey, which may be the same across request groups. Thanks to it, we have the ability to
 abort ongoing requests.
@@ -63,7 +63,7 @@ getUsers.abort()
 
 ---
 
-### Dispatcher built-in queue/request stoping
+### Dispatcher built-in queue/request stopping
 
 When we stop sending all requests from further on in the queue, we do not want them to be deleted, but canceled, so that
 we can resume them at any time we choose.

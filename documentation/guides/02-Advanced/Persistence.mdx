@@ -1,11 +1,11 @@
-**`Persistance`** is possible thanks to setting the appropriate cache or queues storage - which will be able to store
+**`Persistence`** is possible thanks to setting the appropriate cache or queues storage - which will be able to store
 between sessions in the application or its launches. To enable the persistence of data, we must replace the default
 storages with the ones we choose, which will meet our requirements - we do not have many requirements here, except for
 the type that we accept.
 
 :::note
 
-Persistance storages can handle only json data. Remember that all file objects need to be translated to base64 or other
+Persistence storages can handle only json data. Remember that all file objects need to be translated to base64 or other
 valid format to match json requirements.
 
 :::
@@ -17,7 +17,7 @@ valid format to match json requirements.
 ```ts
 export const storage = new MMKV({ id: "my-key" });
 
-const peristanceStorage: CacheStorageType = {
+const persistenceStorage: CacheStorageType = {
   set: (key, data) => {
     storage.set(key, JSON.stringify(data));
   },
@@ -34,17 +34,17 @@ export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
-      storage: peristanceStorage,
+      storage: persistenceStorage,
     }),
 });
 ```
 
-#### Async persistance storages
+#### Async persistence storages
 
-Example below shows the **`IndexedDb`** persistance storage. This way we will use the persistant data by `lazy loading`
+Example below shows the **`IndexedDb`** persistence storage. This way we will use the persistent data by `lazy loading`
 it to our components. Every time we use the `cache.get(cacheKey)` method, we send a request to our `lazyStorage` and at
 the same time return the last data we have, when our promise responds, we will receive an appropriate event that will
-propagate the data in our components. This way we are NOT loading whole persistant data into our memory, but only part
+propagate the data in our components. This way we are NOT loading whole persistent data into our memory, but only part
 of it, not to mention that it will get garbage collected when it's cacheTime expire.
 
 ```ts
@@ -72,22 +72,22 @@ export const builder = new Builder<ServerErrorType>({
 
 At the moment, they should work best in environments such as React Native with non-multi windows applications. To make
 it possible to be used in browsers, we have to solve the problems of synchronization and shared dispatch of requests. In
-this case we need to have synchronus data storage to avoid data corruption and duplicated requests.
+this case we need to have synchronous data storage to avoid data corruption and duplicated requests.
 
 :::caution
 
-Persistant queues shouldn't be used on the browser. This is due to the many tabs/windows concurrency reasons. This way,
+Persistent queues shouldn't be used on the browser. This is due to the many tabs/windows concurrency reasons. This way,
 we will have multiple builders initialized where the **duplicated** requests will be send and it may cause major db data
 damage.
 
 :::
 
-### Fetching request persistance
+### Fetching request persistence
 
 ```ts
 export const storage = new MMKV({ id: "my-key" });
 
-const peristanceStorage: DispatcherStorageType = {
+const persistenceStorage: DispatcherStorageType = {
   set: (key, data) => {
     storage.set(key, JSON.stringify(data));
   },
@@ -104,17 +104,17 @@ export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   fetchDispatcher: (instance) =>
     new Dispatcher(instance, {
-      storage: peristanceStorage,
+      storage: persistenceStorage,
     }),
 });
 ```
 
-### Submit request persistance
+### Submit request persistence
 
 ```ts
 export const storage = new MMKV({ id: "my-key" });
 
-const peristanceStorage: DispatcherStorageType = {
+const persistenceStorage: DispatcherStorageType = {
   set: (key, data) => {
     storage.set(key, JSON.stringify(data));
   },
@@ -131,7 +131,7 @@ export const builder = new Builder<ServerErrorType>({
   baseUrl: "localhost:3000",
   submitDispatcher: (instance) =>
     new Dispatcher(instance, {
-      storage: peristanceStorage,
+      storage: persistenceStorage,
     }),
 });
 ```

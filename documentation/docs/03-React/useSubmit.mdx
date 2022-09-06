@@ -17,7 +17,7 @@ manage the overall state of the data.
 
 The minimum requirement to use `useSubmit` is to have a prepared [`Command`](/docs/Architecture/Command).
 
-If you intend to `retrive` data from the server, we recommend [`useFetch`](/docs/React/useFetch) hook.
+If you intend to `retrieve` data from the server, we recommend [`useFetch`](/docs/React/useFetch) hook.
 
 ---
 
@@ -32,11 +32,11 @@ const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } =
 ## How it works?
 
 **`useSubmit`** executes the command when a `submit()` function returned from it gets triggered. It uses dependency
-tracking to limit rerendering and help with the performance. Under the hood the communication with the core systems is
+tracking to limit re-rendering and help with the performance. Under the hood the communication with the core systems is
 established by the events emitters. There are many helpful `"helper hooks"` that get returned from the hook like
 `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished` and many more to help you handle interesting events in the
 request flow and lifecycle. We used this approach to not overload the base hook with the callbacks logic which cause low
-readibility of the code and increase complication level. Thanks to this we can easily organize our code.
+readability of the code and increase complication level. Thanks to this we can easily organize our code.
 
 ```tsx
 import { useSubmit } from "@better-typed/react-hyper-fetch";
