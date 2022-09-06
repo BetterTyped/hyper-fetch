@@ -23,7 +23,7 @@ tests or shows the appropriate error - they are easier to maintain and faster to
 ## Isolation
 
 Architecture solution makes global module out of builder. This way it will get mixed between test cases from different
-filles if we run them in many workers. To prevent this we need to follow two steps for full isolation.
+files if we run them in many workers. To prevent this we need to follow two steps for full isolation.
 
 1. **`Clear builder`** - use built-in method `.clear()` to make sure we initialize builder submodules and clear all it's
    changes.
@@ -36,9 +36,9 @@ filles if we run them in many workers. To prevent this we need to follow two ste
 ## Example
 
 In our approach we are using great mocking library [msw](https://mswjs.io/) and
-[testin-library](https://testing-library.com/) but this solution works with other libraries like
+[testing-library](https://testing-library.com/) but this solution works with other libraries like
 [Cypress](https://www.cypress.io/). Thanks to it we can simulate the real requests and make our tests as close to
-production environment as we can. Together we can create really powerfull flow that allow us to create tests with ease
+production environment as we can. Together we can create really powerful flow that allow us to create tests with ease
 and fun.
 
 You can create the utilities set that takes command and use its method, endpoint and types to create function that allow
@@ -58,7 +58,7 @@ const getUsersInterceptor = createInterceptor(getUsers, {
 });
 
 beforeEach(() => {
-  // We need to reset modules cache as builder is globaly exported module
+  // We need to reset modules cache as builder is globally exported module
   // This way it will not get mixed-up with other test cases running in parallel
   jest.resetModules();
   // Clean the environment to make sure it's isolated

@@ -11,8 +11,8 @@ sidebar_position: 5
 
 ## Introduction
 
-This hook is created to **controll the dispatcher queues**. It uses the [`Dispatcher`](/docs/Architecture/Dispatcher) to
-read the actual value of the queue `based on the queueKey` retrived from command passed as first argument.
+This hook is created to **control the dispatcher queues**. It uses the [`Dispatcher`](/docs/Architecture/Dispatcher) to
+read the actual value of the queue `based on the queueKey` retrieved from command passed as first argument.
 
 The minimum requirement to use `useQueue` is to have a prepared [`Command`](/docs/Architecture/Command).
 
@@ -35,7 +35,7 @@ your application, and possibilities to manipulate whole queues and single reques
 
 :::caution
 
-Remember to make sure your command `queueKey` is static when you use this hook, because of the autogeneration of keys it
+Remember to make sure your command `queueKey` is static when you use this hook, because of the auto-generation of keys it
 may return wrong values if your command has the params or query params used. To avoid it, it is recommended to provide
 custom `queueKey` when command gets created.
 

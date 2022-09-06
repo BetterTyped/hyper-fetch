@@ -12,7 +12,7 @@ sidebar_position: 4
 ## Introduction
 
 **`Cache`** is responsible for storing response data from the requests. It uses an event system that successively
-transmits data and takes care of reavalidation in the system. Data is stored under `cacheKey` in the storage which by
+transmits data and takes care of validation in the system. Data is stored under `cacheKey` in the storage which by
 default is a Map object, but can be replaced to any other compatible interface.
 
 ---
@@ -64,9 +64,9 @@ export const builder = new Builder<ServerErrorType>({
 
 ---
 
-## Presistance
+## Persistence
 
-We can achieve the persistance of the stored data by changing the cache storage to persistent one. It needs to match the
+We can achieve the persistence of the stored data by changing the cache storage to persistent one. It needs to match the
 provided interface.
 
 #### [Read More](/guides/Advanced/Persistence)
@@ -82,7 +82,7 @@ our internal testing.
 
 ## Lifecycle
 
-Cache options can be provided with some lifefcycle methods. These are events such as `onInitialization`.
+Cache options can be provided with some lifecycle methods. These are events such as `onInitialization`.
 
 ---
 

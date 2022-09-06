@@ -23,7 +23,7 @@ global builder module will be restarted and we will have the environment prepare
 
 ```ts
 beforeEach(() => {
-  // We need to reset modules cache as builder is globaly exported module
+  // We need to reset modules cache as builder is globally exported module
   // This way it will not get mixed-up with other test cases running in parallel
   jest.resetModules();
   // Clean the environment to make sure it's isolated
