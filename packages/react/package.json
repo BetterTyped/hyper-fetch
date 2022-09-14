@@ -18,7 +18,7 @@
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
-    "linter": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"
   },
