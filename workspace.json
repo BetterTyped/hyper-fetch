@@ -12,6 +12,7 @@
           "options": {
             "syncVersions": true,
             "preset": "conventional",
+            "tagPrefix": "hyper-fetch@v",
             "postTargets": ["core:npm", "core:github", "react:npm", "react:github"]
           }
         },
