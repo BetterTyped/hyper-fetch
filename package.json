@@ -12,7 +12,7 @@
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "nx run-many --target=test-pipeline --all --exclude=reactjs,nextjs --parallel=1",
     "lint": "nx run-many --target=lint --all --exclude=reactjs,nextjs --parallel=2",
-    "release": "yarn workspaces run semantic-release -e semantic-release-monorepo"
+    "release": "nx run workspace:version"
   },
   "private": true,
   "dependencies": {
@@ -26,20 +26,16 @@
     "regenerator-runtime": "0.13.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.2",
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@jest/types": "^28.1.1",
+    "@jscutlery/semver": "^2.27.0",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.4",
     "@nrwl/next": "14.3.6",
     "@nrwl/react": "14.3.6",
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^8.0.5",
-    "@semantic-release/npm": "^9.0.1",
-    "@semantic-release/release-notes-generator": "^10.0.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
@@ -83,8 +79,6 @@
     "react-dom": "18.2.0",
     "react-router-dom": "^6.3.0",
     "react-test-renderer": "18.2.0",
-    "semantic-release": "^19.0.3",
-    "semantic-release-monorepo": "^7.0.5",
     "ts-jest": "^28.0.5",
     "ts-node": "~10.8.0",
     "tslib": "^2.3.0",

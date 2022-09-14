@@ -3,8 +3,29 @@
   "version": 2,
   "projects": {
     "core": "packages/core",
-    "nextjs": "examples/nextjs",
     "react": "packages/react",
-    "reactjs": "examples/reactjs"
+    "workspace": {
+      "root": ".",
+      "targets": {
+        "version": {
+          "executor": "@jscutlery/semver:version",
+          "options": {
+            "syncVersions": true,
+            "preset": "conventional",
+            "postTargets": ["core:npm", "core:github", "react:npm", "react:github"]
+          }
+        },
+        "npm": {
+          "executor": "npm publish"
+        },
+        "github": {
+          "executor": "@jscutlery/semver:github",
+          "options": {
+            "tag": "${tag}",
+            "notes": "${notes}"
+          }
+        }
+      }
+    }
   }
 }
