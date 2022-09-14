@@ -26,11 +26,6 @@ jobs:
 
       - uses: actions/checkout@main
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-
       - name: Get Yarn cache
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -53,5 +48,5 @@ jobs:
       - name: Publish
         run: yarn release
         env:
-          GITHUB_TOKEN: ${{ secrets.PROD_GITHUB_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

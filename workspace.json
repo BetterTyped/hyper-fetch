@@ -10,13 +10,15 @@
         "version": {
           "executor": "@jscutlery/semver:version",
           "options": {
+            "baseBranch": "main",
             "syncVersions": true,
             "preset": "conventional",
             "tagPrefix": "hyper-fetch@v",
             "postTargets": ["workspace:npm", "workspace:github"],
             "commitMessageFormat": "Release version ${version}",
             "skipCommitTypes": ["docs", "ci", "style", "chore"],
-            "skipCommit": true
+            "skipCommit": true,
+            "push": true
           }
         },
         "npm": {
