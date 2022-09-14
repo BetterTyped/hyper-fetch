@@ -1,29 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
 
-// /// <reference lib="webworker" />
-// import { precacheAndRoute } from "workbox-precaching";
-// import { clientsClaim, setCacheNameDetails } from "workbox-core";
-
-// setCacheNameDetails({
-//   prefix: "project name",
-//   suffix: "v1",
-// });
-
-// // Tells the Service Worker to skip the waiting state and become active.
-// self.skipWaiting();
-
-// // Will make the Service Worker control the all clients right away
-// // (even if they're controlling other tabs or windows). Without this,
-// // we could be seeing different versions in different tabs or windows.
-// clientsClaim();
-
-// // Download and cache all the files webpack created
-// // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// // @ts-ignore
-// const precacheManifest = [].concat(self.__WB_MANIFEST || []);
-// precacheAndRoute(precacheManifest);
-
 /**
  * Mock Service Worker (0.42.1).
  * @see https://github.com/mswjs/msw
