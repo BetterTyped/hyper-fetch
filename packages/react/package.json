@@ -1,6 +1,6 @@
 {
   "name": "@better-typed/react-hyper-fetch",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": false,
   "description": "React hooks and utils for the hyper-fetch",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
