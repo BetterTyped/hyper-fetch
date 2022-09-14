@@ -8,7 +8,7 @@
     "start": "nx run-many --target=start --all --parallel=2",
     "start:react": "nx serve reactjs",
     "start:next": "nx serve nextjs",
-    "build:packages": "nx run-many --target=build:package --projects=core,react --parallel=2",
+    "build": "nx run-many --target=build --projects=core,react --parallel=2",
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "nx run-many --target=test-pipeline --projects=core,react --parallel=1",
     "lint": "nx run-many --target=lint --projects=core,react --parallel=2",
