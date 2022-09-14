@@ -7,6 +7,10 @@ on:
       - beta
       - alpha
 
+defaults:
+  run:
+    shell: sh
+
 jobs:
   release:
     name: Release
@@ -21,6 +25,11 @@ jobs:
           wait-interval: 10
 
       - uses: actions/checkout@main
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
       - name: Get Yarn cache
         id: yarn-cache-dir-path
