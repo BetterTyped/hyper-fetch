@@ -1,6 +1,6 @@
 {
   "name": "@better-typed/react-hyper-fetch",
-  "version": "1.3.1",
+  "version": "0.0.0",
   "private": false,
   "description": "React hooks and utils for the hyper-fetch",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
@@ -20,7 +20,8 @@
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
-    "precommit": "yarn lint-staged"
+    "precommit": "yarn lint-staged",
+    "publish": "npm publish"
   },
   "peerDependencies": {
     "@better-typed/hyper-fetch": "*",

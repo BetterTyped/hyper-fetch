@@ -13,7 +13,7 @@
     "test": "nx run-many --target=test-pipeline --projects=core,react --parallel=1",
     "lint": "nx run-many --target=lint --projects=core,react --parallel=2",
     "release": "nx run workspace:version",
-    "publish": "nx run-many --target=publish --projects=core,react --parallel=2"
+    "publish:packages": "nx run-many --target=publish --projects=core,react --parallel=2"
   },
   "private": true,
   "dependencies": {
