@@ -17,7 +17,6 @@
   "private": true,
   "dependencies": {
     "@nrwl/cli": "14.3.5",
-    "@nrwl/cypress": "14.3.6",
     "@nrwl/jest": "14.3.6",
     "@nrwl/js": "14.3.5",
     "@nrwl/web": "14.3.6",
@@ -79,6 +78,7 @@
     "ts-jest": "^28.0.5",
     "ts-node": "~10.8.0",
     "tslib": "^2.3.0",
+    "ttypescript": "^1.5.13",
     "typescript": "~4.7.2"
   },
   "workspaces": {
