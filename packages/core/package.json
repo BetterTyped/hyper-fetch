@@ -1,6 +1,6 @@
 {
   "name": "@better-typed/hyper-fetch",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "private": false,
   "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
@@ -18,7 +18,7 @@
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
-    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "linter": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged"
   },

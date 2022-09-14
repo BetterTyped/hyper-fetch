@@ -3,4 +3,4 @@
 
 yarn commitlint --edit "$1"
 yarn nx run-many --target=precommit --all --exclude=reactjs,nextjs
-yarn nx run-many --target=lint --all --exclude=reactjs,nextjs --parallel=2
+yarn nx run-many --target=linter --all --exclude=reactjs,nextjs --parallel=2
