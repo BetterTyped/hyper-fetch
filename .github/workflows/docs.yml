@@ -9,20 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Get Yarn cache
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Run Cache
-        uses: actions/cache@v3
-        id: yarn-cache
+      - name: Set up Node
+        uses: actions/setup-node@v3
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: "16"
+          cache: "yarn"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -32,7 +26,7 @@ jobs:
           aws-region: ${{ secrets.PROD_AWS_REGION }}
 
       - name: Install packages
-        run: yarn --prefer-offline
+        run: yarn install --frozen-lockfile
 
       - name: Build packages
         run: yarn build
