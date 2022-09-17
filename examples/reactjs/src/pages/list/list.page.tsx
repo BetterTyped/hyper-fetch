@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import Pagination from "@mui/material/Pagination";
 import { useFetch } from "@better-typed/react-hyper-fetch";
 import TextField from "@mui/material/TextField";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import { Button, IconButton, Stack } from "@mui/material";
 
 import { getUsers } from "api";
 import { Request } from "components/request";
-import { Button, IconButton, Stack } from "@mui/material";
-
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { Viewer } from "components/viewer";
 
 const initialDate = +new Date();
@@ -21,8 +20,8 @@ export const ListPage: React.FC = () => {
   const result = useFetch(getUsers.setQueryParams({ page, search } as any), {
     refresh: false,
     initialData: [[], null, 200],
-    debounce: true,
-    debounceTime: 600,
+    bounce: true,
+    bounceTime: 600,
     dependencies: [search, dep],
   });
 

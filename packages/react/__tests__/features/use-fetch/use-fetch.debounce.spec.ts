@@ -4,8 +4,8 @@ import { act } from "react-dom/test-utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
 
-describe("useFetch [ Debounce ]", () => {
-  const hookOptions = { debounce: true, debounceTime: 50 };
+describe("useFetch [ Bounce ]", () => {
+  const hookOptions = { bounce: true, bounceTime: 50 };
   let command = createCommand();
   beforeAll(() => {
     startServer();

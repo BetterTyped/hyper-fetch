@@ -1,12 +1,17 @@
-export const useSubmitDefaultOptions = {
-  disabled: false, // disables submitting possibility
-  dependencyTracking: true, // if true -> accessors rerender only when used. If false -> rerenders on every change
-  cacheOnMount: true, // should use data from cache (?) on initialization - to be checked whether is useful
+import { CommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
+
+import { UseSubmitOptionsType } from "./use-submit.types";
+
+type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<CommandInstance>, "initialData">> & {
+  initialData: null;
+};
+
+export const useSubmitDefaultOptions: DefaultOptionsType = {
+  disabled: false,
+  dependencyTracking: true,
   initialData: null,
-  debounce: false,
-  debounceTime: 400, // milliseconds
-  suspense: false, // TBD
-  shouldThrow: false, // TBD
-  invalidate: [],
+  bounce: false,
+  bounceType: "debounce",
+  bounceTime: 400,
   deepCompare: true,
 };

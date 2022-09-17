@@ -11,10 +11,12 @@ import {
   FetchType,
 } from "@better-typed/hyper-fetch";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
+import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
 
-import { useDebounce, useTrackedState, useCommandEvents } from "helpers";
+import { useTrackedState, useCommandEvents } from "helpers";
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "use-submit";
 import { useConfigProvider } from "config-provider";
+import { getBounceData } from "utils";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -28,7 +30,7 @@ export const useSubmit = <Command extends CommandInstance>(
 ): UseSubmitReturnType<Command> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
-  const { disabled, dependencyTracking, initialData, debounce, debounceTime, deepCompare } = {
+  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = {
     ...useSubmitDefaultOptions,
     ...globalConfig.useSubmitConfig,
     ...options,
@@ -42,10 +44,14 @@ export const useSubmit = <Command extends CommandInstance>(
   const { cache, submitDispatcher: dispatcher, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const requestDebounce = useDebounce(debounceTime);
-  const debounceResolve = useRef<(value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => void>(
+  const requestDebounce = useDebounce(bounceTime);
+  const requestThrottle = useThrottle(bounceTime);
+  const bounceResolver = useRef<(value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => void>(
     () => null,
   );
+
+  const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
+  const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
@@ -100,17 +106,22 @@ export const useSubmit = <Command extends CommandInstance>(
     return new Promise<ExtractClientReturnType<Command>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
-        if (debounce) {
-          // We need to keep the resolve of debounced requests to prevent memory leaks
-          debounceResolve.current = (value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => {
-            debounceResolve.current(value);
+        if (bounce) {
+          // We need to keep the resolve of debounced requests to prevent memory leaks - we need to always resolve promise.
+          // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
+          // This way we can close previous promise, making sure our logic will not stuck in memory.
+          bounceResolver.current = (value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => {
+            // Trigger previous awaiting calls to resolve together in bounced batches
+            bounceResolver.current(value);
             resolve(value);
           };
-          // Start debouncing
-          requestDebounce.debounce(async () => {
-            // Cleanup debounce resolve
-            const callback = debounceResolve.current;
-            debounceResolve.current = () => null;
+
+          // Start bounce
+          bounceFunction(async () => {
+            // We will always resolve previous calls as we stack the callbacks together until bounce function trigger
+            const callback = bounceResolver.current;
+            // Clean bounce resolvers to start the new stack
+            bounceResolver.current = () => null;
 
             const value = await triggerRequest();
             callback(value);
@@ -192,7 +203,7 @@ export const useSubmit = <Command extends CommandInstance>(
     abort: callbacks.abort,
     ...actions,
     ...handlers,
-    isDebouncing: requestDebounce.active,
+    bounce: getBounceData(bounceData),
     revalidate,
   };
 };

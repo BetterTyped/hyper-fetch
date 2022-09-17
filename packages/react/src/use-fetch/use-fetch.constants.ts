@@ -18,7 +18,8 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   refreshOnBlur: false,
   refreshOnFocus: false,
   refreshOnReconnect: false,
-  debounce: false,
-  debounceTime: 400,
+  bounce: false,
+  bounceType: "debounce",
+  bounceTime: 400,
   deepCompare: true,
 };

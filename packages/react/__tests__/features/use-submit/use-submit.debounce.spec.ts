@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Debounce ]", () => {
-  const options = { debounce: true, debounceTime: 50 };
+  const options = { bounce: true, bounceTime: 50 };
   const maxDelay = 40;
 
   let command = createCommand({ method: "POST" });
@@ -48,10 +48,10 @@ describe("useSubmit [ Debounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(options.debounceTime);
-        expect(startTime - submitTime).toBeLessThan(options.debounceTime + maxDelay);
+        expect(startTime - submitTime).toBeGreaterThanOrEqual(options.bounceTime);
+        expect(startTime - submitTime).toBeLessThan(options.bounceTime + maxDelay);
       });
-      it("should debounce multiple request triggers by debounceTime", async () => {
+      it("should debounce multiple request triggers by bounceTime", async () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
@@ -77,8 +77,8 @@ describe("useSubmit [ Debounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(options.debounceTime + 30);
-        expect(startTime - submitTime).toBeLessThan(options.debounceTime + maxDelay + 30);
+        expect(startTime - submitTime).toBeGreaterThanOrEqual(options.bounceTime + 30);
+        expect(startTime - submitTime).toBeLessThan(options.bounceTime + maxDelay + 30);
         expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
@@ -106,7 +106,7 @@ describe("useSubmit [ Debounce ]", () => {
         expect(value).toHaveLength(4);
       });
       it("should change debounce time", async () => {
-        const newDebounceTime = 200;
+        const newBounceTime = 200;
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
@@ -114,7 +114,7 @@ describe("useSubmit [ Debounce ]", () => {
         const response = renderUseSubmit(command, options);
 
         await act(async () => {
-          await response.rerender({ debounceTime: newDebounceTime });
+          await response.rerender({ bounceTime: newBounceTime });
         });
 
         await waitForRender(1);
@@ -138,8 +138,8 @@ describe("useSubmit [ Debounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(newDebounceTime + 30);
-        expect(startTime - submitTime).toBeLessThan(newDebounceTime + maxDelay + 30);
+        expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime + 30);
+        expect(startTime - submitTime).toBeLessThan(newBounceTime + maxDelay + 30);
         expect(spy).toBeCalledTimes(1);
       });
     });
@@ -173,7 +173,7 @@ describe("useSubmit [ Debounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeLessThan(options.debounceTime + 30);
+        expect(startTime - submitTime).toBeLessThan(options.bounceTime + 30);
         expect(spy).toBeCalledTimes(4);
       });
     });

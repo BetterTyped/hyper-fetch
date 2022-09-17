@@ -1,10 +1,12 @@
 import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
+import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
 import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
-import { useDebounce, useCommandEvents, useTrackedState } from "helpers";
+import { useCommandEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "use-fetch";
 import { useConfigProvider } from "config-provider";
+import { getBounceData } from "utils";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -30,8 +32,9 @@ export const useFetch = <T extends CommandInstance>(
     refreshOnBlur = useFetchDefaultOptions.refreshOnBlur,
     refreshOnFocus = useFetchDefaultOptions.refreshOnFocus,
     refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
-    debounce = useFetchDefaultOptions.debounce,
-    debounceTime = useFetchDefaultOptions.debounceTime,
+    bounce = useFetchDefaultOptions.bounce,
+    bounceType = useFetchDefaultOptions.bounceType,
+    bounceTime = useFetchDefaultOptions.bounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   } = {
     ...useFetchDefaultOptions,
@@ -40,13 +43,16 @@ export const useFetch = <T extends CommandInstance>(
   };
 
   const updateKey = JSON.stringify(command.dump());
-  const requestDebounce = useDebounce(debounceTime);
+  const requestDebounce = useDebounce(bounceTime);
+  const requestThrottle = useThrottle(bounceTime);
   const refreshDebounce = useDebounce(refreshTime);
 
   const { cacheKey, queueKey, builder } = command;
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = builder;
 
   const logger = useRef(loggerManager.init("useFetch")).current;
+  const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
+  const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
@@ -143,9 +149,9 @@ export const useFetch = <T extends CommandInstance>(
      * While debouncing we need to make sure that first request is not debounced when the cache is not available
      * This way it will not wait for debouncing but fetch data right away
      */
-    if (debounce) {
-      logger.debug("Debouncing request", { queueKey, command });
-      requestDebounce.debounce(() => handleFetch());
+    if (bounce) {
+      logger.debug(`Bounce request with ${bounceType}`, { queueKey, command });
+      bounceFunction(() => handleFetch());
     } else {
       handleFetch();
     }
@@ -242,9 +248,9 @@ export const useFetch = <T extends CommandInstance>(
       setRenderKey("timestamp");
       return state.timestamp;
     },
+    bounce: getBounceData(bounceData),
     ...actions,
     ...callbacks,
-    isDebouncing: requestDebounce.active,
     revalidate,
   };
 };

@@ -51,11 +51,15 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
-  debounce?: boolean;
+  bounce?: boolean;
   /**
-   * How long it should debounce requests.
+   * Possibility to choose between debounce and throttle approaches
    */
-  debounceTime?: number;
+  bounceType?: "debounce" | "throttle";
+  /**
+   * How long it should bounce requests.
+   */
+  bounceTime?: number;
   /**
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
@@ -66,9 +70,18 @@ export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<
   UseTrackedStateActions<T> &
   UseCommandEventsActionsType<T> & {
     /**
-     * Is debounce active at given moment
+     * Data related to current state of the bounce usage
      */
-    isDebouncing: boolean;
+    bounce: {
+      /**
+       * Active state of the bounce method
+       */
+      active: boolean;
+      /**
+       * Method to stop the active bounce method execution
+       */
+      reset: () => void;
+    };
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */

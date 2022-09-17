@@ -4,12 +4,10 @@ import { DateInterval } from "@better-typed/hyper-fetch";
 import { useFetch } from "@better-typed/react-hyper-fetch";
 import { Stack, Button, Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { Viewer } from "components/viewer";
 import { Request } from "components/request";
 import { getUser } from "api";
-
-import RefreshIcon from "@mui/icons-material/Refresh";
 
 const refreshTime = DateInterval.second * 10;
 const initialDate = +new Date();

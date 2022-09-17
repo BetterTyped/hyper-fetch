@@ -31,7 +31,7 @@ describe("useConfigProvider [ Base ]", () => {
         });
       });
       it("should allow to modify received values", async () => {
-        const customConfig = { useFetchConfig: { debounceTime: 99999 } };
+        const customConfig = { useFetchConfig: { bounceTime: 99999 } };
         render(<App />);
 
         act(() => {
