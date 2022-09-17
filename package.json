@@ -34,7 +34,6 @@
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@jest/types": "^28.1.1",
-    "@jscutlery/semver": "^2.27.0",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.4",
     "@nrwl/next": "14.3.6",
