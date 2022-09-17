@@ -1,7 +1,10 @@
 {
   "name": "hyper-fetch",
-  "version": "1.3.1",
+  "version": "0.0.0",
   "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
     "postinstall": "yarn install-peers && yarn husky install",
@@ -12,16 +15,16 @@
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "nx run-many --target=test-pipeline --projects=core,react --parallel=1",
     "lint": "nx run-many --target=lint --projects=core,react --parallel=2",
-    "release": "nx run workspace:version --verbose",
-    "publish:packages": "nx run-many --target=publish --projects=core,react --parallel=2"
+    "release": "nx run-many --target=release --projects=core,react --parallel=2"
   },
   "private": true,
   "dependencies": {
-    "@nrwl/cli": "14.3.6",
+    "@nrwl/cli": "14.3.5",
+    "@nrwl/cypress": "14.3.6",
     "@nrwl/jest": "14.3.6",
-    "@nrwl/js": "14.3.6",
+    "@nrwl/js": "14.3.5",
     "@nrwl/web": "14.3.6",
-    "@nrwl/workspace": "14.3.6",
+    "@nrwl/workspace": "14.3.5",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.7"
   },
@@ -36,6 +39,11 @@
     "@mui/material": "^5.8.4",
     "@nrwl/next": "14.3.6",
     "@nrwl/react": "14.3.6",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^9.0.1",
+    "@semantic-release/release-notes-generator": "^10.0.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.0",
@@ -76,16 +84,12 @@
     "react-countdown": "^2.3.2",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.3.0",
+    "semantic-release": "^19.0.5",
     "ts-jest": "^28.0.5",
     "ts-node": "~10.8.0",
     "tslib": "^2.3.0",
     "ttypescript": "^1.5.13",
     "typescript": "~4.7.2"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
   },
   "config": {
     "commitizen": {

@@ -21,7 +21,7 @@
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged",
-    "publish": "npm publish"
+    "release": "yarn semantic-release --extends ../../.releaserc.json --dry-run"
   },
   "publishConfig": {
     "access": "public",

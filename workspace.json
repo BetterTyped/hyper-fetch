@@ -3,38 +3,6 @@
   "version": 2,
   "projects": {
     "core": "packages/core",
-    "react": "packages/react",
-    "workspace": {
-      "root": ".",
-      "targets": {
-        "version": {
-          "executor": "@jscutlery/semver:version",
-          "options": {
-            "baseBranch": "main",
-            "syncVersions": true,
-            "preset": "conventional",
-            "tagPrefix": "hyper-fetch@v",
-            "postTargets": ["workspace:npm", "workspace:github"],
-            "commitMessageFormat": "Release version ${version}",
-            "skipCommitTypes": ["docs", "ci", "style", "chore"],
-            "skipCommit": true,
-            "push": true
-          }
-        },
-        "npm": {
-          "executor": "nx:run-commands",
-          "options": {
-            "command": "yarn publish"
-          }
-        },
-        "github": {
-          "executor": "@jscutlery/semver:github",
-          "options": {
-            "tag": "${tag}",
-            "notes": "${notes}"
-          }
-        }
-      }
-    }
+    "react": "packages/react"
   }
 }
