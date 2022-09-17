@@ -29,11 +29,15 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
-  debounce?: boolean;
+  bounce?: boolean;
   /**
-   * How long it should debounce requests.
+   * Possibility to choose between debounce and throttle approaches
    */
-  debounceTime?: number;
+  bounceType?: "debounce" | "throttle";
+  /**
+   * How long it should bounce requests.
+   */
+  bounceTime?: number;
   /**
    * If `true` it will rerender only when values used by our component gets changed. Otherwise it will rerender on any change.
    */
@@ -95,9 +99,18 @@ export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseTrackedStat
      */
     submitting: boolean;
     /**
-     * Is debounce active at given moment
+     * Data related to current state of the bounce usage
      */
-    isDebouncing: boolean;
+    bounce: {
+      /**
+       * Active state of the bounce method
+       */
+      active: boolean;
+      /**
+       * Method to stop the active bounce method execution
+       */
+      reset: () => void;
+    };
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
