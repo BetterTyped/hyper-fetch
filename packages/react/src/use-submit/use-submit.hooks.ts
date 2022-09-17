@@ -107,12 +107,13 @@ export const useSubmit = <Command extends CommandInstance>(
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
         if (bounce) {
+          const bouncedResolve = bounceResolver.current;
           // We need to keep the resolve of debounced requests to prevent memory leaks - we need to always resolve promise.
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => {
             // Trigger previous awaiting calls to resolve together in bounced batches
-            bounceResolver.current(value);
+            bouncedResolve(value);
             resolve(value);
           };
 
