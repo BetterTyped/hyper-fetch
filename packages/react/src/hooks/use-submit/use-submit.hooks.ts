@@ -13,10 +13,11 @@ import {
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
 
+import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
 import { useTrackedState, useCommandEvents } from "helpers";
-import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "use-submit";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
+import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -141,13 +142,21 @@ export const useSubmit = <Command extends CommandInstance>(
   // Revalidation
   // ******************
 
-  const revalidate = (invalidateKey: string | CommandInstance | RegExp) => {
-    if (!invalidateKey) return;
-
+  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Command) {
       cache.revalidate(getCommandKey(invalidateKey));
-    } else if (!(invalidateKey instanceof Command)) {
+    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
       cache.revalidate(invalidateKey);
+    }
+  };
+
+  const revalidate = (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => {
+    if (!invalidateKey) return;
+
+    if (invalidateKey && Array.isArray(invalidateKey)) {
+      invalidateKey.forEach(handleRevalidation);
+    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
+      handleRevalidation(invalidateKey);
     }
   };
 

@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
+import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useCommandEvents, useTrackedState } from "helpers";
-import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "use-cache";
 import { useConfigProvider } from "config-provider";
 
 export const useCache = <T extends CommandInstance>(

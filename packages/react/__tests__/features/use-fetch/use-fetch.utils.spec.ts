@@ -1,4 +1,4 @@
-import { getRefreshTime } from "use-fetch";
+import { getRefreshTime } from "hooks/use-fetch";
 
 describe("useFetch [ Utils ]", () => {
   const refreshTime = 1000;

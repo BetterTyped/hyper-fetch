@@ -1,7 +1,7 @@
 import { CommandInstance } from "@better-typed/hyper-fetch";
 import { renderHook } from "@testing-library/react";
 
-import { useFetch, UseFetchOptionsType } from "use-fetch";
+import { useFetch, UseFetchOptionsType } from "hooks/use-fetch";
 
 export const renderUseFetch = <T extends CommandInstance>(command: T, options?: UseFetchOptionsType<T>) => {
   return renderHook((rerenderOptions: UseFetchOptionsType<CommandInstance> & { command?: CommandInstance }) => {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { useFetch } from "use-fetch";
+import { useFetch } from "hooks/use-fetch";
 import { createCommand, builder, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 

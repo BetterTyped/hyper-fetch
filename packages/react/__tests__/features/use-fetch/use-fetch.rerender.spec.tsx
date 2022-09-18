@@ -1,7 +1,7 @@
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 import { render } from "@testing-library/react";
 
-import { useFetch } from "use-fetch";
+import { useFetch } from "hooks/use-fetch";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { builder, createCommand, sleep, waitForRender } from "../../utils";
 

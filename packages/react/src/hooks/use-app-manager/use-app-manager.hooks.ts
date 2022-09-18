@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { BuilderInstance } from "@better-typed/hyper-fetch";
 
-import { UseAppManagerReturnType } from "use-app-manager";
+import { UseAppManagerReturnType } from "hooks/use-app-manager";
 
 export const useAppManager = <B extends BuilderInstance>(builder: B): UseAppManagerReturnType => {
   const [online, setIsOnline] = useState(builder.appManager.isOnline);

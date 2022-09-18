@@ -1,8 +1,8 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
 import { ClientResponseType, CommandInstance } from "@better-typed/hyper-fetch";
 
-import { UseFetchReturnType } from "use-fetch";
-import { UseSubmitReturnType } from "use-submit";
+import { UseFetchReturnType } from "hooks/use-fetch";
+import { UseSubmitReturnType } from "hooks/use-submit";
 import { getCurrentState } from "../utils";
 
 export const testInitialState = <H extends RenderHookResult<any, any>>(render: H, expectedLoading = true) => {

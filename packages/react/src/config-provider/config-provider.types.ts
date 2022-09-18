@@ -1,10 +1,10 @@
 import React from "react";
 import { CommandInstance } from "@better-typed/hyper-fetch";
 
-import { UseFetchOptionsType } from "use-fetch";
-import { UseSubmitOptionsType } from "use-submit";
-import { UseCacheOptionsType } from "use-cache";
-import { UseQueueOptionsType } from "use-queue";
+import { UseFetchOptionsType } from "hooks/use-fetch";
+import { UseSubmitOptionsType } from "hooks/use-submit";
+import { UseCacheOptionsType } from "hooks/use-cache";
+import { UseQueueOptionsType } from "hooks/use-queue";
 
 export type ConfigProviderOptionsType = {
   useFetchConfig?: Partial<UseFetchOptionsType<CommandInstance>>;

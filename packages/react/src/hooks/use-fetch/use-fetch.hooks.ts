@@ -4,9 +4,10 @@ import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks"
 import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
 
 import { useCommandEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "hooks/use-fetch";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
+import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -121,11 +122,19 @@ export const useFetch = <T extends CommandInstance>(
     }, time);
   }
 
-  const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
+  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Command) {
       cache.revalidate(getCommandKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Command)) {
       cache.revalidate(invalidateKey);
+    }
+  };
+
+  const revalidate = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
+    if (invalidateKey && Array.isArray(invalidateKey)) {
+      invalidateKey.forEach(handleRevalidation);
+    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
+      handleRevalidation(invalidateKey);
     } else {
       handleFetch();
       handleRefresh();

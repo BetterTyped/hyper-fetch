@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react";
 import { CommandInstance, getCommandDispatcher, getProgressData } from "@better-typed/hyper-fetch";
 
-import { useQueue, UseQueueOptionsType } from "use-queue";
+import { useQueue, UseQueueOptionsType } from "hooks/use-queue";
 
 export const renderUseQueue = <T extends CommandInstance>(command: T, options?: UseQueueOptionsType) => {
   return renderHook((rerenderOptions: UseQueueOptionsType & { command?: CommandInstance }) => {

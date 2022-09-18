@@ -1,7 +1,7 @@
 import { CommandInstance } from "@better-typed/hyper-fetch";
 import { renderHook } from "@testing-library/react";
 
-import { useCache, UseCacheOptionsType } from "use-cache";
+import { useCache, UseCacheOptionsType } from "hooks/use-cache";
 
 export const renderUseCache = <T extends CommandInstance>(command: T, options?: UseCacheOptionsType<T>) => {
   return renderHook((rerenderOptions: UseCacheOptionsType<CommandInstance> & { command?: CommandInstance }) => {
