@@ -12,6 +12,7 @@ const buildPackage = () => {
     bundle: true,
     minify: true,
     sourcemap: true,
+    treeShaking: true,
     plugins: [nodeExternalsPlugin()],
   };
 
