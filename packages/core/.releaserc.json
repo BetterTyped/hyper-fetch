@@ -1,0 +1,5 @@
+{
+  "release": {
+    "plugins": ["@semantic-release/github"]
+  }
+}
