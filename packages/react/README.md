@@ -3,6 +3,7 @@
 [![BetterTyped](https://img.shields.io/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
 [![Downloads](https://img.shields.io/npm/dm/@better-typed/react-hyper-fetch)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
 [![NPM](https://img.shields.io/npm/v/@better-typed/react-hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
+[![Size](https://shields.api-test.nl/bundlephobia/min/@better-typed/react-hyper-fetch)](https://www.npmjs.com/package/@better-typed/react-hyper-fetch)
 [![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
 [![Stars](https://badgen.net/github/stars/BetterTyped/hyper-fetch?color=green&icon=github)](https://github.com/BetterTyped/react-hyper-fetch)
 [![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
@@ -11,31 +12,35 @@
 
 ## About
 
-**`React Hyper Fetch`** is a set of tools and hooks for Hyper Fetch, that combined with React's lifecycle allow to
-create modern, optimized, maintainable and high quality solutions. We offer many hooks for your use, thanks to which you
-can download or mutate data, observe sent requests and interact with data in the cache.
+**`React Hyper Fetch`** is a set of hooks for Hyper Fetch. Combined with React's lifecycle it allow to `create modern`,
+`optimized`, `maintainable` and `high quality solutions`. We offer many hooks for your use, thanks to which you can
+fetch or mutate data, observe sent requests and interact with data in the cache.
 
 ## Features
 
-##### 🚀 Simple usage and powerful features for rapid development
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
 
-##### 🏆 Provide the best quality with a friendly working environment
+🎯 **Request cancelation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancelation)
 
-##### 🏭 Built-in support for query params and url parameters handling
+✨ **Window Focus/Blur Events** - [Read more](https://hyperfetch.bettertyped.com/guides/React/Window%20Focus%20&%20Blur)
 
-##### 💎 Cache and requests persistance options with rich offline first support
+🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Queueing)
 
-##### 🎁 Request queueing, deduplication, cancellation and retries
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Cache)
 
-##### 🔧 Easy access to internal logic for custom integrations and solutions
+🪄 **Persistance** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
 
-##### 👑 Track full request lifecycle with ease
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Environment)
 
-##### 📡 Download/Upload progress with ETA and details
+🔋 **Offline first ready** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
 
-##### 🔋 Accelerate your testing with shared commands setup
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Client)
 
-##### 💡 Written with typescript in mind to create a safe environment
+🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
+
+🧩 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Authentication)
+
+💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Prefetching)
 
 ## Sources
 
