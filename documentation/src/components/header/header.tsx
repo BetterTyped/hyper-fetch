@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import React from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
@@ -21,15 +22,9 @@ export function Header(): JSX.Element {
               />
             </a>
           </div>
-          {/* <div className={clsx(styles.powered)}>
-            Powered by{" "}
-            <a href="https://bettertyped.com/" target="_blank" rel="noreferrer">
-              BetterTyped
-            </a>
-          </div> */}
         </h2>
         <h3 className={clsx(styles.tagline)}>
-          Ultimate tool for{" "}
+          Ultimate framework for{" "}
           <b className={clsx(styles.gradientLetters)}>
             data exchange, asynchronous state management, complex persistance and queueing.
           </b>{" "}
