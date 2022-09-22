@@ -18,7 +18,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 ## Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 🎯 **Request cancelation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancelation)
 
@@ -32,13 +32,13 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Environment)
 
-🔋 **Offline first ready** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
 
 📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Client)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
 
-🧩 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Authentication)
 
 💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Prefetching)
 
