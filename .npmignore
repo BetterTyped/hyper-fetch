@@ -1,3 +1,5 @@
 node_modules
 __tests__
 coverage
+jest.config.ts
+project.json
