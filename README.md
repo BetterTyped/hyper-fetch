@@ -25,7 +25,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 🎯 **Request cancelation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancelation)
 
