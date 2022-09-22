@@ -4,8 +4,6 @@
 
 </h1>
 
-<p align="center">
-
 [![BetterTyped](https://custom-icon-badges.demolab.com/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
 [![semantic-release: angular](https://custom-icon-badges.demolab.com/badge/semantic--release-commitzen-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 [![License](https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
@@ -18,20 +16,10 @@
 [![Join the chat at https://gitter.im/hyper-fetch/community](https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet)](https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Hits](https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=11b8cc)](https://hits.sh/github.com/BetterTyped/hyper-fetch/)
 
-</p>
-<p align="center">
-
-### Use one to fetch them all
-
-</p>
-<p align="center">
-
 **`Hyper Fetch`** is a data-exchange framework. What makes it unique is the **typesafe design** and the **ease of use**.
 This library is `backend and framework agnostic`, with aim to provide as many great and useful features as possible. In
 particular `caching`, `queuing`, `persistence`, `offline first support`, `request deduplication`, `authentication`,
 `progress tracking`, `structure and architecture` guidelines.
-
-</p>
 
 ---
 
