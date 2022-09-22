@@ -243,7 +243,7 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
     ResponseType,
     RequestDataType = undefined,
     LocalErrorType extends BuilderErrorType | undefined = undefined,
-    QueryParamsType extends ClientQueryParamsType | string = string,
+    QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType | string,
   >() => {
     return <EndpointType extends string>(params: CommandConfig<EndpointType, RequestConfigType>) =>
       new Command<
