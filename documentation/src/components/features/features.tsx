@@ -21,7 +21,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     description: "Simple setup",
-    link: <Link to="/docs/Getting Started/Quick Start">Read more</Link>,
+    link: <Link to="/guides/Basic/Setup">Read more</Link>,
   },
   {
     description: "Automatic caching",

@@ -2,67 +2,11 @@
 sidebar_position: 1
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-
 ---
 
-Using Hyper Fetch is very simple, below are all the steps required from installation to execute the first request.
+### Trigger request
 
-### Initialize Builder
-
-The first step in implementing Hyper Fetch is to initialize the **[Builder](/docs/Architecture/Builder)**. It manage the
-basic configuration for connection to the server and all the elements that make up Hyper Fetch, which are instances of -
-**dispatchers**, **cache** and **app managers**. We start by determining the `baseUrl` of our server.
-
-```tsx title="/src/server/builder.ts"
-import { Builder } from "@better-typed/hyper-fetch";
-
-export const builder = new Builder({ baseUrl: "http://localhost:3000" });
-```
-
-### Create Command
-
-Then, having already prepared connection to the server, we use the builder method to create
-**[commands](/docs/Architecture/Command)** and assign types to them.
-
-:::caution
-
-We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
-[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
-resolved.
-
-:::
-
-```tsx title="/src/server/auth/auth.ts"
-import { builder } from "../builder.ts";
-
-type ResponseType = { token: string; refreshToken: string };
-type RequestType = { email: string; password: string };
-
-const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
-```
-
-### Use the command
-
-<Tabs>
-  <TabItem value="React" label="React" default>
-
-```tsx
-import { useSubmit, useFetch } from "@better-typed/react-hyper-fetch";
-
-import { postUser, getUsers } from "server/auth";
-
-// Submitting (mutation)
-const { submit, submitting } = useSubmit(postUser.setData({ name: "John" }));
-submit();
-
-// Fetching
-const { data, error, loading } = useFetch(getUsers);
-```
-
-  </TabItem>
-  <TabItem value="Typescript" label="Typescript">
+We can execute queries using the built-in `send()` function or use React hooks.
 
 ```tsx
 import { postLogin } from "server/auth";
@@ -70,7 +14,7 @@ import { postLogin } from "server/auth";
 ...
 
 const handleLogin = async (values: {email: string, password: string}) => {
-  const [data, error, status] = await postLogin.send({data: values})
+  const [data, error, status] = await postLogin.setData(values).send();
 
   if(data) {
     // perform login
@@ -86,5 +30,35 @@ const handleLogin = async (values: {email: string, password: string}) => {
 
 ```
 
-  </TabItem>
-</Tabs>
+### Method `send()`
+
+The send method takes full advantage of the potential of our features. We have implemented `debouncing`, `retries`,
+`cancelation` and `offline awaiting` solutions.
+
+We can also dynamically transfer data to execute the request.
+
+```tsx
+import { postData } from "server/auth";
+
+...
+
+const handleSend = async (values: ValuesType) => {
+  const [data, error, status] = await postData.send({
+    data: values,
+    params: { accountId: 2 },
+    queryParams: { param1: "test", param2: [1,2,3] }
+  })
+
+  if(data) {
+    // perform success action
+    ...
+  } else {
+    // handle error
+    ...
+  }
+
+}
+
+...
+
+```

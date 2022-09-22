@@ -1,9 +1,16 @@
+---
+sidebar_position: 8
+---
+
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-Canceling requests happens in many places in Hyper Fetch. There are cases when we make the request and we want to abort
-it manually or the case when queue is aborting it when we stop it, but then it's not removed from memory and it wait for
-next trigger.
+---
+
+### Request Cancelation
+
+Canceling requests is needed for various reasons. There are cases when we make the request and we want to abort it
+manually or the case when dispatcher is automatically aborting it based on our setup.
 
 ---
 

@@ -2,18 +2,11 @@
 sidebar_position: 4
 ---
 
-The use of query params is based on an internal parser. We can freely change its options and format.
-
 ---
 
-### Custom query params format
+### Request query parameters
 
-We can setup custom config with instructions how to stringify the values. It can be setup on the builder with
-`setQueryParamsConfig` method.
-
-#### Available options:
-
-{@import Hyper-Fetch QueryStringifyOptions returns}
+The use of query params is based on built-in parser. We can freely change its options and format to match our needs.
 
 ---
 
@@ -42,3 +35,14 @@ const getUsers = builder.createCommand<Response, void, void, string>()({ endpoin
 const command = getUsers.setQueryParams("search=John&sort=age");
 console.log(command.endpoint); // Output: "/users?search=John&sort=age"
 ```
+
+### Custom query params format
+
+We can setup custom config with instructions how to stringify the values. It can be setup on the builder with
+`setQueryParamsConfig` method.
+
+#### Available options:
+
+{@import Hyper-Fetch QueryStringifyOptions returns}
+
+---

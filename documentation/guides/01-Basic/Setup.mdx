@@ -1,0 +1,39 @@
+---
+sidebar_position: 0
+---
+
+---
+
+### Initialize Builder
+
+The first step is to initialize the **[Builder](/docs/Architecture/Builder)**. It manage the basic configuration for
+connection to the server and all the elements that make up Hyper Fetch, which are instances of - **dispatchers**,
+**cache** and **app managers**. We start by determining the `baseUrl` of our server.
+
+```tsx title="/src/server/builder.ts"
+import { Builder } from "@better-typed/hyper-fetch";
+
+export const builder = new Builder({ baseUrl: "http://localhost:3000" });
+```
+
+### Create Command
+
+Then, having already prepared connection setup for the server, we use the builder method to create
+**[commands](/docs/Architecture/Command)** and assign types to them.
+
+:::caution
+
+We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
+[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
+resolved.
+
+:::
+
+```tsx title="/src/server/auth/auth.ts"
+import { builder } from "../builder.ts";
+
+type ResponseType = { token: string; refreshToken: string };
+type RequestType = { email: string; password: string };
+
+const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
+```

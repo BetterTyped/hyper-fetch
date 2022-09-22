@@ -7,7 +7,9 @@ Authentication in Hyper Fetch consists of two steps. We will introduce changes i
 
 ---
 
-#### The first is to determine the impact on the command sent like on the example below.
+#### First, we need to add code for request authentication
+
+In the example below we are doing it by adding a token header to the currently sent command.
 
 ```ts
 export const builder = new Builder({ baseUrl }).onAuth((command) => {
@@ -33,13 +35,12 @@ export const getUsers = builder.createCommand()({
 });
 ```
 
-That's it, from now on, each request made using this command will be authenticated.
+That's it, from now on, each request made using this command will be authenticated with our token.
 
 ### Refresh token
 
-To refresh the token in Hyper Fetch, we can add a special `onError` interceptor to our
-**[Builder](/docs/Architecture/Builder)**. It intercepts errors received in our requests and it is asynchronous, which
-allows for efficient handling of such cases.
+To refresh the token, we can add a special `onError` interceptor to our **[Builder](/docs/Architecture/Builder)**. It
+intercepts errors received in our requests and it is asynchronous, which allows for efficient handling of such cases.
 
 To properly **`avoid the infinite refresh loop`** of the token, we need to protect ourselves by setting the `used` field
 to **true** thanks to the appropriate method `setUsed`. This will allow us to easily verify whether our commend has
