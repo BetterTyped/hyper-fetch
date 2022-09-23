@@ -16,6 +16,7 @@ import {
   UseTrackedStateType,
   UseTrackedStateActions,
 } from "helpers";
+import { InvalidationKeyType } from "types";
 
 export type UseSubmitOptionsType<T extends CommandInstance> = {
   /**
@@ -114,5 +115,5 @@ export type UseSubmitReturnType<T extends CommandInstance> = Omit<UseTrackedStat
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey: string | CommandInstance | RegExp) => void;
+    revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

@@ -93,6 +93,25 @@ describe("useFetch [ Revalidate ]", () => {
       await testSuccessState(customMock, responseTwo);
     });
   });
+  it("should allow to revalidate hook by keys array", async () => {
+    const responseOne = renderUseFetch(command.setCacheKey("Maciej"));
+    const responseTwo = renderUseFetch(command.setCacheKey("Kacper"));
+
+    await waitFor(async () => {
+      await testSuccessState(mock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+
+    act(() => {
+      responseOne.result.current.revalidate(["Maciej"]);
+    });
+
+    await waitFor(async () => {
+      await testSuccessState(customMock, responseOne);
+      await testSuccessState(mock, responseTwo);
+    });
+  });
   it("should allow to revalidate hook by key", async () => {
     const responseOne = renderUseFetch(command.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(command.setCacheKey("Kacper"));

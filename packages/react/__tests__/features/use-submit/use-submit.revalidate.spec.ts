@@ -82,6 +82,18 @@ describe("useFetch [ Revalidate ]", () => {
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith(commandSubmit.cacheKey);
   });
+  it("should allow to revalidate by cacheKey", async () => {
+    const spy = jest.spyOn(builder.cache, "revalidate");
+
+    const { result } = renderUseSubmit(commandSubmit);
+
+    act(() => {
+      result.current.revalidate([commandSubmit.cacheKey]);
+    });
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+  });
   it("should not allow to revalidate without key", async () => {
     const spy = jest.spyOn(builder.cache, "revalidate");
 
