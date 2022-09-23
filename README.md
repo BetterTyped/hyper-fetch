@@ -27,7 +27,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
-🎯 **Request cancelation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancelation)
+🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancellation)
 
 ✨ **Window Focus/Blur Events** - [Read more](https://hyperfetch.bettertyped.com/guides/React/Window%20Focus%20&%20Blur)
 
@@ -54,7 +54,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 - #### [Quick Start](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 ## Installation
 
@@ -246,4 +246,4 @@ const handleSubmit = (values: ValuesType, { setSubmitting }: FormikHelpers) => {
 return <Form onSubmit={handleSubmit}>...</Form>;
 ```
 
-#### [Find out more examples](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
+#### [Find out more examples](https://hyperfetch.bettertyped.com/guides/Basic/Setup)

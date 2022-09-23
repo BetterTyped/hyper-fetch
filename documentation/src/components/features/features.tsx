@@ -32,8 +32,8 @@ const FeatureList: FeatureItem[] = [
     link: <Link to="/docs/Architecture/Client">Read more</Link>,
   },
   {
-    description: "Request cancelation",
-    link: <Link to="/guides/Advanced/Cancelation">Read more</Link>,
+    description: "Request cancellation",
+    link: <Link to="/guides/Advanced/Cancellation">Read more</Link>,
   },
   {
     description: "Persistance",

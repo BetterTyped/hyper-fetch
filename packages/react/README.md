@@ -20,7 +20,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
-🎯 **Request cancelation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancelation)
+🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancellation)
 
 ✨ **Window Focus/Blur Events** - [Read more](https://hyperfetch.bettertyped.com/guides/React/Window%20Focus%20&%20Blur)
 
@@ -48,7 +48,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/React/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Dispatching)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 ## Other Packages
 
