@@ -4,17 +4,38 @@
 
 </h1>
 
-[![BetterTyped](https://custom-icon-badges.demolab.com/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
-[![semantic-release: angular](https://custom-icon-badges.demolab.com/badge/semantic--release-commitzen-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
-[![License](https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
-[![Maintainability](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/maintainability)](https://codeclimate.com/github/BetterTyped/hyper-fetch/maintainability)
-[![Stars](https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star)](https://github.com/BetterTyped/hyper-fetch)
-[![REST](https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=telegram&color=grey)](https://github.com/BetterTyped/hyper-fetch)
-[![GraphQL](https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
-[![TypeScript](https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage)](https://codeclimate.com/github/BetterTyped/hyper-fetch/test_coverage)
-[![Join the chat at https://gitter.im/hyper-fetch/community](https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet)](https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Hits](https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=11b8cc)](https://hits.sh/github.com/BetterTyped/hyper-fetch/)
+<p align="center">
+  <a href="https://bettertyped.com/">
+    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
+    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+  </a>
+  <a href="https://github.com/semantic-release/semantic-release">
+    <img src="https://custom-icon-badges.demolab.com/badge/semantic--release-commitzen-e10079?logo=semantic-release&color=e76f51" />
+  </a>
+  <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
+    <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
+  </a>
+  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
+  </a>
+  <a href="https://hits.sh/github.com/BetterTyped/hyper-fetch/">
+    <img src="https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=64BC4B&logo=bookmeter" />
+  </a>
+</p>
 
 **`Hyper Fetch`** is a data-exchange framework. What makes it unique is the **typesafe design** and the **ease of use**.
 This library is `backend and framework agnostic`, with aim to provide as many great and useful features as possible. In
@@ -86,22 +107,34 @@ yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
   <tbody>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core" >Hyper Fetch</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">⚡ Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/hyper-fetch?logoColor=fff&logo=trending-up"/></a>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/hyper-fetch.svg?logo=npm"/></a>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch"><img alt="npm bundle size" src="https://shields.api-test.nl/bundlephobia/min/@better-typed/hyper-fetch?logo=file-code&logoColor=white"></a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/hyper-fetch?logoColor=fff&logo=trending-up"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/hyper-fetch.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@better-typed/hyper-fetch?color=E10098&logo=package" />
+        </a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >React Hyper Fetch</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >⚛️ React Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/react-hyper-fetch?logoColor=fff&logo=trending-up" /></a>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/react-hyper-fetch.svg?logo=npm"/></a>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch"><img alt="npm bundle size" src="https://shields.api-test.nl/bundlephobia/min/@better-typed/react-hyper-fetch?logo=file-code&logoColor=white"></a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/react-hyper-fetch?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/react-hyper-fetch.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@better-typed/react-hyper-fetch?color=E10098&logo=package" />
+        </a>
       </td>
     </tr>
   </tbody>
@@ -246,4 +279,4 @@ const handleSubmit = (values: ValuesType, { setSubmitting }: FormikHelpers) => {
 return <Form onSubmit={handleSubmit}>...</Form>;
 ```
 
-#### [Find out more examples](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+# [Find out more examples](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
