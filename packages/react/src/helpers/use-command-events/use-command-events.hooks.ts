@@ -106,10 +106,10 @@ export const useCommandEvents = <T extends CommandInstance>({
   // ******************
 
   const handleGetLoadingEvent = (queueKey: string) => {
-    return ({ isLoading }: CommandLoadingEventType) => {
-      const canDisableLoading = !isLoading && !dispatcher.hasRunningRequests(queueKey);
-      if (isLoading || canDisableLoading) {
-        actions.setLoading(isLoading, false);
+    return ({ loading }: CommandLoadingEventType) => {
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queueKey);
+      if (loading || canDisableLoading) {
+        actions.setLoading(loading, false);
       }
     };
   };
