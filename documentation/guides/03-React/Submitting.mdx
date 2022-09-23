@@ -16,7 +16,7 @@ logic at the end of sending, such as resetting the form or displaying notificati
 considerably and eliminates the need for reefs in the case of forms.
 
 ```tsx
-const { submit, isSubmitting } = useSubmit(postUser);
+const { submit, submitting } = useSubmit(postUser);
 
 const handlePost = async (values: { email: string; password: string }, { resetForm }: FormikHelpers) => {
   // We can await for response from submit method
@@ -35,7 +35,7 @@ import { postUser, patchUser, deleteUser } from "server/user";
 // ...
 
 function Page() {
-  const { submit, isSubmitting } = useSubmit(postUser);
+  const { submit, submitting } = useSubmit(postUser);
 
   const handlePost = async (values: { email: string; password: string }, { resetForm }: FormikHelpers) => {
     // We can await for response from submit method
@@ -47,7 +47,7 @@ function Page() {
     <Form onSubmit={handlePost}>
       <Input name="email" />
       <Input name="password" />
-      <Button disabled={isSubmitting}>Submit</Button>
+      <Button disabled={submitting}>Submit</Button>
     </Form>
   );
 }
@@ -59,7 +59,7 @@ import { postUser, patchUser, deleteUser } from "server/user";
 // ...
 
 function Page() {
-  const { submit, isSubmitting } = useSubmit(patchUser.setParams({ userId: 1 }));
+  const { submit, submitting } = useSubmit(patchUser.setParams({ userId: 1 }));
 
   const handlePatch = (values: { email: string }) => {
     submit({ data: values });
@@ -69,7 +69,7 @@ function Page() {
     <Form onSubmit={handlePatch}>
       <Input name="email" />
       <Input name="password" />
-      <Button disabled={isSubmitting}>Submit</Button>
+      <Button disabled={submitting}>Submit</Button>
     </Form>
   );
 }
@@ -77,7 +77,7 @@ function Page() {
 // Or
 
 function Page() {
-  const { submit, isSubmitting } = useSubmit(patchUser);
+  const { submit, submitting } = useSubmit(patchUser);
 
   const handlePatch = async (values: { email: string }, { resetForm }: FormikHelpers) => {
     // We can await for response from submit method
@@ -89,7 +89,7 @@ function Page() {
     <Form onSubmit={handlePatch}>
       <Input name="email" />
       <Input name="password" />
-      <Button disabled={isSubmitting}>Submit</Button>
+      <Button disabled={submitting}>Submit</Button>
     </Form>
   );
 }
@@ -101,10 +101,10 @@ import { postUser, patchUser, deleteUser } from "server/user";
 // ...
 
 function Page() {
-  const { submit, isSubmitting } = useSubmit(deleteUser);
+  const { submit, submitting } = useSubmit(deleteUser);
 
   return (
-    <button type="button" onClick={() => submit({ params: { userId: 1 } })} disabled={isSubmitting}>
+    <button type="button" onClick={() => submit({ params: { userId: 1 } })} disabled={submitting}>
       Delete
     </button>
   );
@@ -113,10 +113,10 @@ function Page() {
 // Or
 
 function Page() {
-  const { submit, isSubmitting } = useSubmit(deleteUser.setParams({ userId: 1 }));
+  const { submit, submitting } = useSubmit(deleteUser.setParams({ userId: 1 }));
 
   return (
-    <button type="button" onClick={() => submit()} disabled={isSubmitting}>
+    <button type="button" onClick={() => submit()} disabled={submitting}>
       Delete
     </button>
   );

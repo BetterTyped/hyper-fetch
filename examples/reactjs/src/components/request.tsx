@@ -49,9 +49,9 @@ export function Request({ name, children, result }: Props) {
   const [downloadProgress, setDownloadProgress] = React.useState<Record<string, FetchProgressType>>({});
   const [uploadProgress, setUploadProgress] = React.useState<Record<string, FetchProgressType>>({});
 
-  const isLoading = "loading" in result ? result.loading : result.submitting;
+  const loading = "loading" in result ? result.loading : result.submitting;
 
-  const loadingComponent = isLoading ? (
+  const loadingComponent = loading ? (
     <Box sx={{ display: "flex", gap: "10px" }}>
       True <CircularProgress size="4" />
     </Box>

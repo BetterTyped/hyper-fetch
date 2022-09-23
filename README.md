@@ -158,7 +158,7 @@ Use specially prepared hooks
 import { useFetch } from "@better-typed/react-hyper-fetch";
 
 // Lifecycle fetching
-const { data, error, isLoading, onSuccess, onError } = useFetch(getData);
+const { data, error, loading, onSuccess, onError } = useFetch(getData);
 
 onSuccess((data) => {
   console.log(data);
@@ -174,7 +174,7 @@ onError((error) => {
 ```tsx
 import { useSubmit } from "@better-typed/react-hyper-fetch";
 
-const { submit, data, error, isSubmitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
 
 onSuccess((data) => {
   console.log(data);
@@ -192,7 +192,7 @@ return <button onClick={() => submit()}>Trigger request!</button>;
 ```tsx
 import { useSubmit } from "@better-typed/react-hyper-fetch";
 
-const { submit, data, error, isSubmitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
 
 onSuccess((data) => {
   console.log(data);
@@ -223,7 +223,7 @@ return (
 import { useSubmit } from "@better-typed/react-hyper-fetch";
 
 // Manual triggering
-const { submit, data, error, isSubmitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
 
 onSuccess((data) => {
   console.log(data);

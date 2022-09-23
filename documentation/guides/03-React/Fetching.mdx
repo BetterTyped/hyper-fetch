@@ -14,7 +14,7 @@ import { getUsers, getUser } from "server/user";
 
 ...
 
-const { data, error, isLoading } = useFetch(getUsers)
+const { data, error, loading } = useFetch(getUsers)
 
 ```
 
@@ -23,6 +23,6 @@ import { getUsers, getUser } from "server/user";
 
 ...
 
-const { data, error, isLoading } = useFetch(getUser.setParams({ userId: 1 }))
+const { data, error, loading } = useFetch(getUser.setParams({ userId: 1 }))
 
 ```
