@@ -8,7 +8,7 @@ import {
   CommandEventDetails,
   CommandResponseDetails,
   CommandLoadingEventType,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 
 import {

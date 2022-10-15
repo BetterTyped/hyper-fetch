@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
-import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
+import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {

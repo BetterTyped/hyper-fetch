@@ -1,5 +1,5 @@
 import React from "react";
-import { CommandInstance } from "@better-typed/hyper-fetch";
+import { CommandInstance } from "@hyper-fetch/core";
 
 import { UseFetchOptionsType } from "hooks/use-fetch";
 import { UseSubmitOptionsType } from "hooks/use-submit";

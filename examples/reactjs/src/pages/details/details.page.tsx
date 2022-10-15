@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Countdown from "react-countdown";
-import { DateInterval } from "@better-typed/hyper-fetch";
-import { useFetch } from "@better-typed/react-hyper-fetch";
+import { DateInterval } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
 import { Stack, Button, Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import RefreshIcon from "@mui/icons-material/Refresh";

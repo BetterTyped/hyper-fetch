@@ -9,7 +9,7 @@ import {
   CommandEventDetails,
   CommandInstance,
   CommandResponseDetails,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 
 import { UseTrackedStateActions } from "helpers";
 

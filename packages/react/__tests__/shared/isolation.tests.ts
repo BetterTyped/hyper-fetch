@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/react";
-import { BuilderInstance } from "@better-typed/hyper-fetch";
+import { BuilderInstance } from "@hyper-fetch/core";
 
 export const testBuilderIsolation = async (builder: BuilderInstance) => {
   await waitFor(() => {

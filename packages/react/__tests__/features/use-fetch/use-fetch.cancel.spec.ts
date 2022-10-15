@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@better-typed/hyper-fetch";
+import { getErrorMessage } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { testErrorState } from "../../shared";

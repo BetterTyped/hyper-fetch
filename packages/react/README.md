@@ -14,8 +14,8 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/react-hyper-fetch.svg?logo=npm&color=e76f51" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -32,8 +32,8 @@
   <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
   </a>
-  <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@better-typed/react-hyper-fetch?color=64BC4B&logo=package" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/react?color=64BC4B&logo=package" />
   </a>
 </p>
 
@@ -74,7 +74,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/docs/React/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/core)
 - #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 ## Other Packages

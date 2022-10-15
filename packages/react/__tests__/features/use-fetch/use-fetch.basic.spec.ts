@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react";
-import { ClientResponseType } from "@better-typed/hyper-fetch";
+import { ClientResponseType } from "@hyper-fetch/core";
 
 import { createCommand, renderUseFetch, createCacheData, builder, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";

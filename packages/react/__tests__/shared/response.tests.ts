@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ClientResponseType, CommandInstance } from "@better-typed/hyper-fetch";
+import { ClientResponseType, CommandInstance } from "@hyper-fetch/core";
 
 import { UseFetchReturnType } from "hooks/use-fetch";
 import { UseSubmitReturnType } from "hooks/use-submit";

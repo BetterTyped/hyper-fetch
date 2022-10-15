@@ -1,4 +1,4 @@
-import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@better-typed/hyper-fetch";
+import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@hyper-fetch/core";
 
 import { UseCommandEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { InvalidationKeyType } from "types";

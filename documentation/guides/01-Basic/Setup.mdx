@@ -11,7 +11,7 @@ connection to the server and all the elements that make up Hyper Fetch, which ar
 **cache** and **app managers**. We start by determining the `baseUrl` of our server.
 
 ```tsx title="/src/server/builder.ts"
-import { Builder } from "@better-typed/hyper-fetch";
+import { Builder } from "@hyper-fetch/core";
 
 export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 ```

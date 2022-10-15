@@ -18,7 +18,7 @@ basic configuration for connection to the server and all the elements that make 
 **dispatchers**, **cache** and **app managers**. We start by determining the `baseUrl` of our server.
 
 ```tsx title="/src/server/builder.ts"
-import { Builder } from "@better-typed/hyper-fetch";
+import { Builder } from "@hyper-fetch/core";
 
 export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 ```
@@ -51,7 +51,7 @@ const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "
   <TabItem value="React" label="React" default>
 
 ```tsx
-import { useSubmit, useFetch } from "@better-typed/react-hyper-fetch";
+import { useSubmit, useFetch } from "@hyper-fetch/react";
 
 import { postUser, getUsers } from "server/auth";
 

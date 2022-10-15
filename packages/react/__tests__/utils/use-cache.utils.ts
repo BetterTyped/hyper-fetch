@@ -1,4 +1,4 @@
-import { CommandInstance } from "@better-typed/hyper-fetch";
+import { CommandInstance } from "@hyper-fetch/core";
 import { renderHook } from "@testing-library/react";
 
 import { useCache, UseCacheOptionsType } from "hooks/use-cache";

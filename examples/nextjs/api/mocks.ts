@@ -1,5 +1,5 @@
 import { rest } from "msw";
-import { CommandInstance, DateInterval } from "@better-typed/hyper-fetch";
+import { CommandInstance, DateInterval } from "@hyper-fetch/core";
 
 import { getRandomUser, getRandomUsers } from "utils";
 import { builder } from "./builder";

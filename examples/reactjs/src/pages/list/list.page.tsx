@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Pagination from "@mui/material/Pagination";
-import { useFetch } from "@better-typed/react-hyper-fetch";
+import { useFetch } from "@hyper-fetch/react";
 import TextField from "@mui/material/TextField";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Button, IconButton, Stack } from "@mui/material";

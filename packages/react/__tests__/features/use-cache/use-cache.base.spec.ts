@@ -1,5 +1,5 @@
 import { act } from "react-dom/test-utils";
-import { CacheValueType } from "@better-typed/hyper-fetch";
+import { CacheValueType } from "@hyper-fetch/core";
 
 import { startServer, resetInterceptors, stopServer } from "../../server";
 import { builder, createCommand } from "../../utils";

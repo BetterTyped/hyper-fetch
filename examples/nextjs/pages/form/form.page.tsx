@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { useSubmit, useQueue } from "@better-typed/react-hyper-fetch";
+import { useSubmit, useQueue } from "@hyper-fetch/react";
 import { patchUser, postUser, postFile } from "api";
 import { Request } from "components/request";
 import { Viewer } from "components/viewer";

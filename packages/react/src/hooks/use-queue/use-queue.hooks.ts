@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@better-typed/hyper-fetch";
+import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@hyper-fetch/core";
 import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";

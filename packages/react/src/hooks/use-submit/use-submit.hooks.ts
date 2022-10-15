@@ -9,7 +9,7 @@ import {
   ExtractResponse,
   ExtractError,
   FetchType,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
 

@@ -4,7 +4,7 @@ import {
   CommandInstance,
   ExtractResponse,
   ExtractError,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 
 export const createCacheData = <T extends CommandInstance>(
   command: T,

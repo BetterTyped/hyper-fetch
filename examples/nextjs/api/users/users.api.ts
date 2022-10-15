@@ -1,4 +1,4 @@
-import { DateInterval } from "@better-typed/hyper-fetch";
+import { DateInterval } from "@hyper-fetch/core";
 
 import { PostUserModel, UserModel } from "models";
 import { builder } from "../builder";

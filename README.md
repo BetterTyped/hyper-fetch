@@ -15,7 +15,7 @@
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
   <a href="https://github.com/semantic-release/semantic-release">
-    <img src="https://custom-icon-badges.demolab.com/badge/semantic--release-commitzen-e10079?logo=semantic-release&color=e76f51" />
+    <img src="https://custom-icon-badges.demolab.com/badge/semver-commitzen-e10079?logo=semantic-release&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -82,17 +82,17 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
 ```bash
-npm install --save @better-typed/hyper-fetch
+npm install --save @hyper-fetch/core
 or
-yarn add @better-typed/hyper-fetch
+yarn add @hyper-fetch/core
 ```
 
 #### React Hooks
 
 ```bash
-npm install --save @better-typed/hyper-fetch @better-typed/react-hyper-fetch
+npm install --save @hyper-fetch/core @hyper-fetch/react
 or
-yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
+yarn add @hyper-fetch/core @hyper-fetch/react
 ```
 
 ## Packages
@@ -110,14 +110,14 @@ yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
         <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">⚡ Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/hyper-fetch?logoColor=fff&logo=trending-up"/>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/core?logoColor=fff&logo=trending-up"/>
         </a>
-        <a href="https://www.npmjs.com/package/@better-typed/hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/hyper-fetch.svg?logo=npm"/>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@better-typed/hyper-fetch?color=E10098&logo=package" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/core?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -126,14 +126,14 @@ yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
         <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >⚛️ React Hyper Fetch</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/dm/@better-typed/react-hyper-fetch?logoColor=fff&logo=trending-up" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/react?logoColor=fff&logo=trending-up" />
         </a>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/npm/v/@better-typed/react-hyper-fetch.svg?logo=npm"/>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/@better-typed/react-hyper-fetch">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@better-typed/react-hyper-fetch?color=E10098&logo=package" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/react">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/react?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -145,7 +145,7 @@ yarn add @better-typed/hyper-fetch @better-typed/react-hyper-fetch
 #### Simple Setup
 
 ```tsx
-import { Builder } from "@better-typed/hyper-fetch";
+import { Builder } from "@hyper-fetch/core";
 
 // Create global setup
 export const builder = new Builder({ baseUrl: "http://localhost:3000" });
@@ -188,7 +188,7 @@ Use specially prepared hooks
 #### Fetch with lifecycle
 
 ```tsx
-import { useFetch } from "@better-typed/react-hyper-fetch";
+import { useFetch } from "@hyper-fetch/react";
 
 // Lifecycle fetching
 const { data, error, loading, onSuccess, onError } = useFetch(getData);
@@ -205,7 +205,7 @@ onError((error) => {
 #### Manually trigger requests
 
 ```tsx
-import { useSubmit } from "@better-typed/react-hyper-fetch";
+import { useSubmit } from "@hyper-fetch/react";
 
 const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
 
@@ -223,7 +223,7 @@ return <button onClick={() => submit()}>Trigger request!</button>;
 #### Pass dynamic data to submit method
 
 ```tsx
-import { useSubmit } from "@better-typed/react-hyper-fetch";
+import { useSubmit } from "@hyper-fetch/react";
 
 const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
 
@@ -253,7 +253,7 @@ return (
 #### Use submit promise response
 
 ```tsx
-import { useSubmit } from "@better-typed/react-hyper-fetch";
+import { useSubmit } from "@hyper-fetch/react";
 
 // Manual triggering
 const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);

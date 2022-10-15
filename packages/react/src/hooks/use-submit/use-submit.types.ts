@@ -4,7 +4,7 @@ import {
   ExtractResponse,
   CommandInstance,
   ExtractClientReturnType,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {

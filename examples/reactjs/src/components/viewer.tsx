@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
-import { useAppManager } from "@better-typed/react-hyper-fetch";
+import { useAppManager } from "@hyper-fetch/react";
 
 import { Sidebar } from "components/sidebar";
 import { DASHBOARD_PAGE } from "constants/routing.constants";

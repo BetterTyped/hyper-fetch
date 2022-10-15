@@ -4,8 +4,8 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { QueueRequest } from "@better-typed/react-hyper-fetch";
-import { CommandInstance } from "@better-typed/hyper-fetch";
+import { QueueRequest } from "@hyper-fetch/react";
+import { CommandInstance } from "@hyper-fetch/core";
 
 type Props = {
   request: QueueRequest<CommandInstance>;
