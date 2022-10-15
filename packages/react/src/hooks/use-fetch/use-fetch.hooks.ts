@@ -225,7 +225,7 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * Fetching logic for updates handling
    */
-  useDidUpdate(updateFetchData, [updateKey, ...dependencies]);
+  useDidUpdate(updateFetchData, [updateKey, disabled, ...dependencies]);
 
   /**
    * Refresh lifecycle handler

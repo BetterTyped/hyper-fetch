@@ -128,6 +128,25 @@ describe("useFetch [ Basic ]", () => {
     });
   });
   describe("when dependencies change", () => {
+    // Solves Issue #22
+    it("should fetch data when disabled prop changes", async () => {
+      const spy = jest.fn();
+      await testBuilderIsolation(builder);
+      const mock = createRequestInterceptor(command);
+      const view = renderUseFetch(command, { disabled: true });
+
+      act(() => {
+        view.result.current.onRequestStart(spy);
+      });
+
+      await sleep(20);
+      expect(spy).toBeCalledTimes(0);
+
+      view.rerender({ disabled: false });
+
+      await testSuccessState(mock, view);
+      expect(spy).toBeCalledTimes(1);
+    });
     it("should fetch when dependencies change", async () => {
       // Todo
     });
