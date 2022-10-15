@@ -31,7 +31,7 @@ export const useSubmit = <Command extends CommandInstance>(
 ): UseSubmitReturnType<Command> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
-  const val = useMemo(
+  const mergedOptions = useMemo(
     () => ({
       ...useSubmitDefaultOptions,
       ...globalConfig.useSubmitConfig,
@@ -39,7 +39,7 @@ export const useSubmit = <Command extends CommandInstance>(
     }),
     [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
   );
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = val;
+  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
