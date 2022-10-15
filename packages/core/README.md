@@ -1,10 +1,6 @@
-<h1 align="center">
+# ⚡ Hyper Fetch
 
-⚡ <br /> Hyper Fetch
-
-</h1>
-
-<p align="center">
+<p>
   <a href="https://bettertyped.com/">
     <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
   </a>
