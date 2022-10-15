@@ -128,6 +128,7 @@ describe("useFetch [ Basic ]", () => {
     });
   });
   describe("when dependencies change", () => {
+    // Solves Issue #22
     it("should fetch data when disabled prop changes", async () => {
       const spy = jest.fn();
       await testBuilderIsolation(builder);
