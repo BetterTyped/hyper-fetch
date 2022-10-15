@@ -1,4 +1,4 @@
-import { CommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
+import { CommandInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseSubmitOptionsType } from "./use-submit.types";
 

@@ -1,4 +1,4 @@
-import { CommandInstance, ExtractClientReturnType } from "@better-typed/hyper-fetch";
+import { CommandInstance, ExtractClientReturnType } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";

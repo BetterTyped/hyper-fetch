@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { BuilderInstance } from "@better-typed/hyper-fetch";
+import { BuilderInstance } from "@hyper-fetch/core";
 
 import { UseAppManagerReturnType } from "hooks/use-app-manager";
 

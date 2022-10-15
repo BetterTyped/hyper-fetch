@@ -1,3 +1,3 @@
-import { Builder } from "@better-typed/hyper-fetch";
+import { Builder } from "@hyper-fetch/core";
 
 export const builder = new Builder({ baseUrl: "shared-test-builder/" });

@@ -1,4 +1,4 @@
-import { RequiredKeys } from "@better-typed/hyper-fetch";
+import { RequiredKeys } from "@hyper-fetch/core";
 
 import { UseQueueOptionsType } from "hooks/use-queue";
 

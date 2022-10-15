@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
-import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@better-typed/hyper-fetch";
+import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -177,7 +177,7 @@ export const useTrackedState = <T extends CommandInstance>({
         commandManager.events.emitLoading(queueKey, "", {
           queueKey,
           requestId: "",
-          isLoading: loading,
+          loading,
           isRetry: false,
           isOffline: false,
         });

@@ -1,4 +1,4 @@
-import { getErrorMessage } from "@better-typed/hyper-fetch";
+import { getErrorMessage } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";

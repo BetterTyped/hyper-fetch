@@ -42,6 +42,13 @@ export class Cache {
     this.getLazyKeys().then((keys) => {
       keys.forEach(this.scheduleGarbageCollector);
     });
+
+    // Going back from offline should re-trigger garbage collection
+    this.builder.appManager.events.onOnline(() => {
+      this.getLazyKeys().then((keys) => {
+        keys.forEach(this.scheduleGarbageCollector);
+      });
+    });
   }
 
   /**
@@ -193,11 +200,13 @@ export class Cache {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            this.logger.info("Garbage collecting cache element", { cacheKey });
-            this.delete(cacheKey);
+            if (this.builder.appManager.isOnline) {
+              this.logger.info("Garbage collecting cache element", { cacheKey });
+              this.delete(cacheKey);
+            }
           }, timeLeft),
         );
-      } else {
+      } else if (this.builder.appManager.isOnline) {
         this.delete(cacheKey);
       }
     }

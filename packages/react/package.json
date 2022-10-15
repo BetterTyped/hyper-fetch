@@ -1,5 +1,5 @@
 {
-  "name": "@better-typed/react-hyper-fetch",
+  "name": "@hyper-fetch/react",
   "version": "0.0.0",
   "private": false,
   "description": "React hooks and utils for the hyper-fetch",
@@ -24,7 +24,7 @@
     "release": "yarn semantic-release --extends ../../.releaserc.json  -t 'react-hyper-fetch-v${version}'"
   },
   "peerDependencies": {
-    "@better-typed/hyper-fetch": "*",
+    "@hyper-fetch/core": "*",
     "react": ">= 16.8.0"
   },
   "dependencies": {

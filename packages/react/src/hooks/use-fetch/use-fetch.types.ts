@@ -1,6 +1,7 @@
-import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@better-typed/hyper-fetch";
+import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@hyper-fetch/core";
 
 import { UseCommandEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
 
 export type UseFetchOptionsType<T extends CommandInstance> = {
@@ -85,5 +86,5 @@ export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<
     /**
      * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
+    revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

@@ -19,6 +19,7 @@
   },
   "private": true,
   "dependencies": {
+    "@hyper-fetch/core": "*",
     "@nrwl/cli": "14.3.5",
     "@nrwl/cypress": "14.3.6",
     "@nrwl/jest": "14.3.6",

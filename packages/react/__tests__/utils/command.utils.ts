@@ -1,4 +1,4 @@
-import { CommandConfig, ClientDefaultOptionsType } from "@better-typed/hyper-fetch";
+import { CommandConfig, ClientDefaultOptionsType } from "@hyper-fetch/core";
 
 import { builder } from "./builder.utils";
 

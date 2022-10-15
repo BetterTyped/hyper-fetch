@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
-import { CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
+import { CommandInstance, Command, getCommandKey } from "@hyper-fetch/core";
 
 import { useCommandEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "hooks/use-fetch";

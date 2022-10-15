@@ -181,34 +181,24 @@ export class Dispatcher {
 
     const isStopped = queue && queue.stopped;
     const isOffline = !this.builder.appManager.isOnline;
-    const isQueued = queueElement?.commandDump.queued;
-    const isOngoing = runningRequests.length;
+    const isConcurrent = !queueElement?.commandDump.queued;
+    const isInactive = !runningRequests.length;
     const isEmpty = !queueElement;
 
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
-    if (isStopped) {
-      return;
-    }
-    if (isOffline) {
-      return;
-    }
-    if (isEmpty) {
-      return;
-    }
-    if (!isQueued) {
+    if (isStopped || isOffline || isEmpty) {
+      this.logger.debug("Skipping queue trigger", { isStopped, isOffline, isEmpty });
+    } else if (isConcurrent) {
       queue.requests.forEach((element) => {
         if (!this.hasRunningRequest(queueKey, element.requestId)) {
           this.performRequest(element);
         }
       });
-      return;
+    } else if (isInactive) {
+      await this.performRequest(queueElement);
+      this.flushQueue(queueKey);
     }
-    if (isOngoing) {
-      return;
-    }
-    await this.performRequest(queueElement);
-    this.flushQueue(queueKey);
   };
 
   /**
@@ -511,7 +501,7 @@ export class Dispatcher {
     commandManager.events.emitLoading(queueKey, requestId, {
       queueKey,
       requestId,
-      isLoading: true,
+      loading: true,
       isRetry: !!storageElement.retries,
       isOffline,
     });
@@ -545,7 +535,7 @@ export class Dispatcher {
     commandManager.events.emitLoading(queueKey, requestId, {
       queueKey,
       requestId,
-      isLoading: false,
+      loading: false,
       isRetry: !!storageElement.retries,
       isOffline,
     });
@@ -575,15 +565,17 @@ export class Dispatcher {
         this.logger.warning("Removing non-offline request", { response, requestDetails, command });
         return this.delete(queueKey, requestId, abortKey);
       }
-      this.logger.debug("Awaiting for network restoration", { response, requestDetails, command });
       // do not remove request from store as we want to re-send it later
-      return;
+      return this.logger.debug("Awaiting for network restoration", { response, requestDetails, command });
     }
     // On success
     if (!isFailed) {
-      this.logger.debug("Successful response, removing request from queue.", { response, requestDetails, command });
       this.delete(queueKey, requestId, abortKey);
-      return;
+      return this.logger.debug("Successful response, removing request from queue.", {
+        response,
+        requestDetails,
+        command,
+      });
     }
     // On retry
     if (isFailed && canRetry) {

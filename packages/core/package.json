@@ -1,5 +1,5 @@
 {
-  "name": "@better-typed/hyper-fetch",
+  "name": "@hyper-fetch/core",
   "version": "0.0.0",
   "private": false,
   "description": "Cache, Queue and Persist your requests no matter if you are online or offline!",

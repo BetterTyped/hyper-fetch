@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { CommandInstance, getCommandDispatcher, getProgressData } from "@better-typed/hyper-fetch";
+import { CommandInstance, getCommandDispatcher, getProgressData } from "@hyper-fetch/core";
 
 import { useQueue, UseQueueOptionsType } from "hooks/use-queue";
 

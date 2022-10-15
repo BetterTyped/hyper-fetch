@@ -71,7 +71,7 @@ describe("CommandManager [ Base ]", () => {
       const values = {
         queueKey,
         requestId,
-        isLoading: false,
+        loading: false,
         isRetry: false,
         isOffline: false,
       };

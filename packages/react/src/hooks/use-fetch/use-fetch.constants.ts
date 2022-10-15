@@ -1,4 +1,4 @@
-import { DateInterval, CommandInstance, RequiredKeys } from "@better-typed/hyper-fetch";
+import { DateInterval, CommandInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseFetchOptionsType } from "hooks/use-fetch";
 

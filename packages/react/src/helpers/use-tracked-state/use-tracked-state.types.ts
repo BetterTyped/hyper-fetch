@@ -6,7 +6,7 @@ import {
   ClientResponseType,
   CommandInstance,
   LoggerType,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 

@@ -11,8 +11,8 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
 
-import { UseFetchReturnType, UseSubmitReturnType } from "@better-typed/react-hyper-fetch";
-import { CommandInstance, FetchProgressType } from "@better-typed/hyper-fetch";
+import { UseFetchReturnType, UseSubmitReturnType } from "@hyper-fetch/react";
+import { CommandInstance, FetchProgressType } from "@hyper-fetch/core";
 import { useSnackbar } from "notistack";
 
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";

@@ -9,7 +9,7 @@ import {
   RestHandler,
   RestRequest,
 } from "msw";
-import { defaultTimeout, getErrorMessage, CommandInstance } from "@better-typed/hyper-fetch";
+import { defaultTimeout, getErrorMessage, CommandInstance } from "@hyper-fetch/core";
 
 import { sleep } from "../utils";
 

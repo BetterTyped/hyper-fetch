@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@better-typed/hyper-fetch";
+import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@hyper-fetch/core";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useCommandEvents, useTrackedState } from "helpers";

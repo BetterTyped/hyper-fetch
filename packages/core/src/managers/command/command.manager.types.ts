@@ -4,7 +4,7 @@ import { CommandInstance } from "command";
 export type CommandLoadingEventType = {
   queueKey: string;
   requestId: string;
-  isLoading: boolean;
+  loading: boolean;
   isRetry: boolean;
   isOffline: boolean;
 };

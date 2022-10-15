@@ -1,14 +1,41 @@
-# Hyper Fetch
+<h1 align="center">
 
-[![BetterTyped](https://img.shields.io/static/v1?label=Created%20by&message=BetterTyped&color=blue&logo=BT)](https://github.com/BetterTyped)
-[![Downloads](https://img.shields.io/npm/dm/@better-typed/hyper-fetch)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-[![NPM](https://img.shields.io/npm/v/@better-typed/hyper-fetch.svg)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-[![Size](https://shields.api-test.nl/bundlephobia/min/@better-typed/hyper-fetch)](https://www.npmjs.com/package/@better-typed/hyper-fetch)
-[![License](https://badgen.net/github/license/BetterTyped/hyper-fetch)](https://github.com/BetterTyped/hyper-fetch/blob/main/License.md)
-[![Stars](https://badgen.net/github/stars/BetterTyped/hyper-fetch?color=green&icon=github)](https://github.com/BetterTyped/hyper-fetch)
-[![REST](https://img.shields.io/badge/-REST-informational?logo=telegram)](https://github.com/BetterTyped/hyper-fetch)
-[![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
-[![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white)](https://github.com/BetterTyped/hyper-fetch)
+⚡ <br /> Hyper Fetch
+
+</h1>
+
+<p align="center">
+  <a href="https://bettertyped.com/">
+    <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=118ab2" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
+    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm&color=e76f51" />
+  </a>
+  <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
+    <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
+  </a>
+  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
+    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
+  </a>
+  <a href="https://www.npmjs.com/package/@hyper-fetch/core">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/core?color=64BC4B&logo=package" />
+  </a>
+</p>
 
 ## About
 
@@ -48,7 +75,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@better-typed/hyper-fetch)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/core)
 - #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
 
 ## Other Packages

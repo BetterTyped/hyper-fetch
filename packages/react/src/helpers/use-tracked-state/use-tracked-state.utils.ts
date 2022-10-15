@@ -7,7 +7,7 @@ import {
   ExtractError,
   ExtractClientReturnType,
   Dispatcher,
-} from "@better-typed/hyper-fetch";
+} from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
 
