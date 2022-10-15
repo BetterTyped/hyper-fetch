@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import {
   Command,
   getCommandKey,
@@ -31,11 +31,15 @@ export const useSubmit = <Command extends CommandInstance>(
 ): UseSubmitReturnType<Command> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = {
-    ...useSubmitDefaultOptions,
-    ...globalConfig.useSubmitConfig,
-    ...options,
-  };
+  const val = useMemo(
+    () => ({
+      ...useSubmitDefaultOptions,
+      ...globalConfig.useSubmitConfig,
+      ...options,
+    }),
+    [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
+  );
+  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = val;
 
   /**
    * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
