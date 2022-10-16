@@ -164,7 +164,7 @@ export const getData = builder.createCommand<ResponseType, RequestType, LocalErr
 #### Triggering request
 
 ```tsx
-// Set the information to command (it returns command clone)
+// Set the information to command (methods return command clone - NOT mutating the source)
 const command = postData
   .setParams({ accountId: 104 }) // Set Params
   .setQueryParams({ paramOne: "test", paramTwo: "test2" })
@@ -183,7 +183,7 @@ const [data, error, status] = await command.send({
 
 ### React
 
-Use specially prepared hooks
+Use prepared hooks
 
 #### Fetch with lifecycle
 
