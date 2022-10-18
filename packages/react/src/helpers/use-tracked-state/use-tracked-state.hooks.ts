@@ -177,7 +177,7 @@ export const useTrackedState = <T extends CommandInstance>({
         commandManager.events.emitLoading(queueKey, "", {
           queueKey,
           requestId: "",
-          loading,
+          isLoading: loading,
           isRetry: false,
           isOffline: false,
         });

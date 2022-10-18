@@ -36,7 +36,7 @@ const FeatureList: FeatureItem[] = [
     link: <Link to="/guides/Advanced/Cancellation">Read more</Link>,
   },
   {
-    description: "Persistance",
+    description: "Persistence",
     link: <Link to="/guides/Advanced/Persistence">Read more</Link>,
   },
   {

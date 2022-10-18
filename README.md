@@ -56,7 +56,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Cache)
 
-🪄 **Persistance** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
+🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
 
 🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Environment)
 

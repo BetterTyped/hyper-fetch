@@ -4,45 +4,47 @@ sidebar_position: 6
 
 ## Introduction
 
-Testing is one of the best things Hyper Fetch has to offer. With our architecture approach and focus on global singleton
-structure, our tests can be largely based on the configuration we prepare for our application. Thanks to this, the tests
-are no longer sensitive to micro changes (like changing endpoints or types). Everything here reacts and adapts to our
-tests or shows the appropriate error - they are easier to maintain and faster to write.
+Testing is one of the best things in Hyper Fetch. With our architecture and focus on global singleton structure,
+tests can be largely based on the application’s configuration.
+This means tests are no longer sensitive to micro-changes (like changing endpoints or types).
+Everything reacts and adapts to tests or shows the appropriate error – making tests easier to maintain and faster to write.
 
 ---
 
 ## Benefits
 
-- Our setup is always up to date with the production solution
-- No duplication of the configurations and setups
-- Easy maintenance of the tests
-- Tests are faster to build
+- Our setup is always up-to-date with the production solution.
+- No configuration or setup duplication.
+- Easy test maintenance.
+- Faster test builds.
 
 ---
 
 ## Isolation
 
-Architecture solution makes global module out of builder. This way it will get mixed between test cases from different
-files if we run them in many workers. To prevent this we need to follow two steps for full isolation.
+The `Builder` can become a global module, which will cause it to get mixed between test cases from different files if we run them in many workers.
+Thus, we need to isolate it. This takes two steps:
 
-1. **`Clear builder`** - use built-in method `.clear()` to make sure we initialize builder submodules and clear all it's
-   changes.
-2. **`Clear node / runner cache`** - as for jest, you should use built-in method `.resetModules()` to clean builder
-   global module and reinitialize it again. If you look for some libraries you can checkout your environment runner
-   methods or try libraries like [decache](https://github.com/dwyl/decache).
+1. ** Clear the Builder**
+
+Use the built-in method `.clear()` to ensure builder submodules are initialized and clear of any changes.
+
+2. **Clear the node / runner cache**
+
+As you would with Jest, use the built-in method `.resetModules()` to clean the builder global module and reinitialize it.
+Depending on the libraries used, you can check out your environment runner methods or try libraries like **decache**.
 
 ---
 
 ## Example
 
-In our approach we are using great mocking library [msw](https://mswjs.io/) and
-[testing-library](https://testing-library.com/) but this solution works with other libraries like
-[Cypress](https://www.cypress.io/). Thanks to it we can simulate the real requests and make our tests as close to
-production environment as we can. Together we can create really powerful flow that allow us to create tests with ease
-and fun.
+In this example, we’re using the great mocking libraries [msw](https://mswjs.io/) and [testing-library](https://testing-library.com/),
+but this solution works with other libraries like [Cypress](https://www.cypress.io/).
+This allows us to simulate real requests and make our tests as close to the production environment as possible.
+We can thus create a really powerful flow that allows us to easily develop tests.
 
-You can create the utilities set that takes command and use its method, endpoint and types to create function that allow
-you to intercept request.
+You can build a utilities set that takes a command and uses its method,
+endpoint and types to create functions that allow you to intercept requests.
 
 ```tsx
 import { builder } from "../api/builder";
