@@ -76,7 +76,13 @@ export const buildDocs = async (
      * Scan and parse docs to json
      */
     trace(`Starting project parsing...`, packageName);
-    await parseTypescriptToJson(packageDocsJsonPaths, entries, tsconfigPath, options);
+    await parseTypescriptToJson(
+      packageDocsDir,
+      packageDocsJsonPaths,
+      entries,
+      tsconfigPath,
+      options,
+    );
     trace(`Successfully parsed docs.`, packageName);
 
     /**
