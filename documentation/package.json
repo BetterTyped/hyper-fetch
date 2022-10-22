@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "preinstall": "cd ./plugins/docusaurus-plugin-api && yarn install && yarn link",
+    "preinstall": "cd ./plugins/docusaurus-docgen && yarn install && yarn link",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "prepare": "yarn link docusaurus-plugin-api",
+    "prepare": "yarn link docusaurus-docgen",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
@@ -39,6 +39,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.20",
     "@tsconfig/docusaurus": "^1.0.4",
+    "@types/node": "^18.11.3",
     "rollup-plugin-delete": "^2.0.0",
     "typescript": "^4.3.5"
   },

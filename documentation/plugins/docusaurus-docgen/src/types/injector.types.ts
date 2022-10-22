@@ -1,4 +1,4 @@
-export enum displayOptions {
+export enum DisplayOptions {
   name = "name",
   mainLine = "mainLine",
   badges = "badges",

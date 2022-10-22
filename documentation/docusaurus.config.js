@@ -57,7 +57,7 @@ const config = {
       },
     ],
     [
-      "docusaurus-plugin-api",
+      "docusaurus-docgen",
       {
         id: "api",
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
