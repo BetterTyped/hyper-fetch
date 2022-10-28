@@ -1,6 +1,7 @@
 {
   "include": ["src", "types"],
   "compilerOptions": {
+    "jsx": "react",
     "module": "esnext",
     "target": "esnext",
     "lib": ["esNext", "dom", "dom.iterable"],

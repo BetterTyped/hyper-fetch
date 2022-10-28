@@ -1,18 +1,19 @@
 import * as path from "path";
 
-import { asyncForEach } from "../utils/loop.utils";
-import { PkgMeta, PluginOptions } from "../types/package.types";
 import {
   libraryDir,
   optionsPath,
   docsJsonPath,
   packageConfigPath,
 } from "../constants/paths.constants";
+import { asyncForEach } from "../utils/loop.utils";
+import { PkgMeta, PluginOptions } from "../types/package.types";
 import { success, trace } from "../utils/log.utils";
 import { cleanFileName, createFile } from "../utils/file.utils";
-import { generateMonorepoPage } from "./pages/monorepo.page";
-import { generatePackagePage } from "./pages/package.page";
+import { generateMonorepoPage } from "./pages/presentation/monorepo.page";
+import { generatePackagePage } from "./pages/presentation/package.page";
 import { parseTypescriptToJson } from "./parser/parser";
+import { apiGenerator } from "./generator/api-generator";
 
 export const buildDocs = async (
   docsGenerationDir: string,
@@ -30,7 +31,8 @@ export const buildDocs = async (
   /**
    * Save generation options
    */
-  createFile(path.join(generatedFilesDir, "..", libraryDir, optionsPath), JSON.stringify(options));
+  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, optionsPath);
+  createFile(optionsFilePath, JSON.stringify(options));
 
   /**
    * Generate docs for each package
@@ -49,22 +51,20 @@ export const buildDocs = async (
       ? path.join(docsGenerationDir, packageName)
       : docsGenerationDir;
     // Returns [packageDir]/docs.json
-    const packageDocsJsonPaths = path.join(packageDocsDir, docsJsonPath);
+    const packageDocsJsonPath = path.join(packageDocsDir, docsJsonPath);
     // Package tsconfig file
     const tsconfigPath = tsConfigPath ?? path.join(tsconfigDir, tsconfigName);
     // Generate meta
     const pkgMeta: PkgMeta = {
-      directory: packageDocsJsonPaths,
+      directory: packageDocsJsonPath,
     };
     // Package entry files
     const entries = Array.isArray(entryPath)
       ? entryPath.map((entry) => path.join(dir, entry))
       : [path.join(dir, entryPath)];
 
-    createFile(
-      path.join(generatedFilesDir, "..", libraryDir, packageConfigPath),
-      JSON.stringify(pkgMeta),
-    );
+    const packageOptionsPath = path.join(generatedFilesDir, "..", libraryDir, packageConfigPath);
+    createFile(packageOptionsPath, JSON.stringify(pkgMeta));
 
     /**
      * Generate package page from readme or custom setup
@@ -76,21 +76,15 @@ export const buildDocs = async (
      * Scan and parse docs to json
      */
     trace(`Starting project parsing...`, packageName);
-    await parseTypescriptToJson(
-      packageDocsDir,
-      packageDocsJsonPaths,
-      entries,
-      tsconfigPath,
-      options,
-    );
+    await parseTypescriptToJson(packageDocsJsonPath, entries, tsconfigPath, options);
     trace(`Successfully parsed docs.`, packageName);
 
     /**
      * Generate docs files
      */
     trace(`Generating docs files...`, packageName);
-    // const json = await import(packageDocsDir);
-    // await apiGenerator(json, options, packageName, docsGenerationDir);
+    const parsedApiJson = await import(packageDocsJsonPath);
+    await apiGenerator({ packageName, parsedApiJson, packageDocsDir, docsGenerationDir, options });
     trace(`Successfully generated docs files.`, packageName);
   });
   success(`Successfully builded docs!`);

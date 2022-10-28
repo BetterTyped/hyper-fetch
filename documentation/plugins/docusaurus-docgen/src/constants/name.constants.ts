@@ -1,1 +1,1 @@
-export const name = "docusaurus-plugin-api";
+export const name = "docgen";

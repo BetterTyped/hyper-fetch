@@ -1,4 +1,4 @@
-# ⚙️ React Window hooks
+# ⚙️ Docgen
 
 <p>
   <a href="https://bettertyped.com/">
@@ -16,168 +16,49 @@
   <a href="https://github.com/BetterTyped/react-window-hooks">
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
-  <a href="https://www.npmjs.com/package/@better-hooks/window">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@better-hooks/window.svg?logo=npm&color=E10098" />
+  <a href="https://www.npmjs.com/package/@docgen">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@docgen.svg?logo=npm&color=E10098" />
   </a>
-  <a href="https://www.npmjs.com/package/@better-hooks/window">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@better-hooks/window?color=blueviolet&logo=package" />
+  <a href="https://www.npmjs.com/package/@docgen">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@docgen?color=blueviolet&logo=package" />
   </a>
-  <a href="https://www.npmjs.com/package/@better-hooks/window">
-    <img src="https://custom-icon-badges.demolab.com/npm/dm/@better-hooks/window?logoColor=fff&logo=trending-up" />
+  <a href="https://www.npmjs.com/package/@docgen">
+    <img src="https://custom-icon-badges.demolab.com/npm/dm/@docgen?logoColor=fff&logo=trending-up" />
   </a>
 </p>
 
 ## About
 
-Handle window events and observe window size
+Todo
 
 ## Key Features
 
 🔮 **Simple usage**
 
-🚀 **Fast and light**
+🚀 **Based on Typedoc**
 
-✨ **Lifecycle Window events**
+✨ **Customization support**
 
-💎 **Lifecycle Document events**
+💎 **Import documentation partials**
 
-🎯 **Window size**
+🎯 **Readability focus**
 
-🪄 **Window scroll position**
+🪄 **Quality output**
 
-💡 **Window focus**
+💡 **Better user experience**
 
-🎊 **SSR Support**
+🎊 **MD Support**
 
 ## Installation
 
 ```bash
-npm install --save @better-hooks/window
+npm install --save @docgen
 ```
 
 or
 
 ```bash
-yarn add @better-hooks/window
+yarn add @docgen
 ```
 
 ---
-
-## Examples
-
-#### useWindowEvent
-
-```tsx
-import React from "react";
-import { useWindowEvent } from "@better-hooks/window";
-
-const MyComponent: React.FC = () => {
-  // Unmounts event with component lifecycle
-  useWindowEvent("scroll", () => {
-    // ... Do something
-  });
-
-  useWindowEvent("wheel", () => {
-    // ... Do something
-  });
-
-  useWindowEvent("resize", () => {
-    // ... Do something
-  });
-
-  return (
-    // ...
-  )
-}
-
-```
-
----
-
-#### useDocumentEvent
-
-```tsx
-import React from "react";
-import { useDocumentEvent } from "@better-hooks/window";
-
-const MyComponent: React.FC = () => {
-  // Unmounts event with component lifecycle
-  useDocumentEvent("visibilitychange", () => {
-    // ... Do something
-  });
-
-  useDocumentEvent("scroll", () => {
-    // ... Do something
-  });
-
-  return (
-    // ...
-  )
-}
-
-```
-
----
-
-#### useWindowSize
-
-```tsx
-import React from "react";
-import { useWindowSize } from "@better-hooks/window";
-
-const MyComponent: React.FC = () => {
-  // Updates with resizing
-  const [width, height] = useWindowSize()
-
-  return (
-    // ...
-  )
-}
-
-```
-
----
-
-#### useWindowScroll
-
-```tsx
-import React from "react";
-import { useWindowScroll } from "@better-hooks/window";
-
-const MyComponent: React.FC = () => {
-  // Updates when scrolling
-  const [x, y] = useWindowScroll()
-
-  return (
-    // ...
-  )
-}
-
-```
-
----
-
-#### useWindowFocus
-
-```tsx
-import React from "react";
-import { useWindowFocus } from "@better-hooks/window";
-
-const MyComponent: React.FC = () => {
-  // Updates when user leave our page
-  const focus = useWindowFocus()
-
-  useEffect(() => {
-    if(focus) {
-      // User is using our page
-    } else {
-      // User has minimized window or leaved our page to different tab
-    }
-  }, [focus])
-
-  return (
-    // ...
-  )
-}
-
-```

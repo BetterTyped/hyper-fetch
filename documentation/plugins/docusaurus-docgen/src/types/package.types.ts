@@ -3,12 +3,10 @@ import type { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-cont
 
 export type PluginOptions = {
   id: string;
-  readOnce: boolean;
-  docs: DocsPluginOptions;
   packages: PackageOption[];
+  contentDocsOptions: DocsPluginOptions;
   tsConfigPath?: string;
   typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
-  texts?: TextsOptions;
 };
 
 export type PackageOption = {
@@ -21,22 +19,6 @@ export type PackageOption = {
   tsconfigDir?: string;
   readmeName?: string;
   readmeDir?: string;
-};
-
-export type TextsOptions = {
-  monorepoTitle?: string;
-  monorepoDescription?: string;
-  reference?: string;
-  methods?: string;
-  parameters?: string;
-  typeDefinitions?: string;
-  example?: string;
-  additionalSources?: string;
-  import?: string;
-  preview?: string;
-  returns?: string;
-  deprecated?: string;
-  paramTableHeaders: [string, string, string, string];
 };
 
 export type PkgMeta = {

@@ -24,6 +24,7 @@
     "react": ">= 16.8.0"
   },
   "scripts": {
+    "start": "rollup -c -w",
     "build": "rollup -c",
     "prepare": "install-peers",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
@@ -76,6 +77,7 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/rimraf": "^3.0.2",
+    "@types/turndown": "^5.0.1",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "@zerollup/ts-transform-paths": "^1.7.18",
@@ -125,7 +127,10 @@
     "fs-extra": "^10.0.0",
     "json2md": "^1.12.0",
     "mdx-mermaid": "^1.2.1",
-    "remark-admonitions": "^1.2.1"
+    "node-html-markdown": "^1.2.2",
+    "remark-admonitions": "^1.2.1",
+    "turndown": "^7.1.1",
+    "turndown-plugin-gfm": "^1.0.2"
   },
   "files": [
     "dist"

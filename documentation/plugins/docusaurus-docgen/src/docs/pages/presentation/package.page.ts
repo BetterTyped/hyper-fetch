@@ -1,10 +1,10 @@
 import * as path from "path";
 import json2md from "json2md";
 
-import { error } from "../../utils/log.utils";
-import { PackageOption } from "../../types/package.types";
-import { createFile, readFile } from "../../utils/file.utils";
-import { defaultPackageOptions } from "../../constants/options.constants";
+import { error } from "../../../utils/log.utils";
+import { PackageOption } from "../../../types/package.types";
+import { createFile, readFile } from "../../../utils/file.utils";
+import { defaultPackageOptions } from "../../../constants/options.constants";
 
 export const generatePackagePage = (packageDocsDir: string, options: PackageOption) => {
   const readmePath = path.join(

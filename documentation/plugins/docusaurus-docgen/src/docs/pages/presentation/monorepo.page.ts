@@ -1,11 +1,11 @@
 import * as path from "path";
 import json2md from "json2md";
 
-import { error } from "../../utils/log.utils";
-import { PluginOptions } from "../../types/package.types";
-import { createFile } from "../../utils/file.utils";
+import { error } from "../../../utils/log.utils";
+import { PluginOptions } from "../../../types/package.types";
+import { createFile } from "../../../utils/file.utils";
 // import { getMdCard, getMdDescription, getMdRow } from "../md/md.styles";
-import { defaultTextsOptions } from "../../constants/options.constants";
+import { defaultTextsOptions } from "../../../constants/options.constants";
 
 export const generateMonorepoPage = (apiDocsRoot: string, options: PluginOptions) => {
   const monorepo = options?.texts;

@@ -1,10 +1,8 @@
 import * as TypeDoc from "typedoc";
-// import { load } from "typedoc-plugin-markdown";
 
 import { PluginOptions } from "../../types/package.types";
 
 export const parseTypescriptToJson = async (
-  packageDocsDir: string,
   packageDocsPath: string,
   entryPoints: string[],
   tsconfig: string,
@@ -32,13 +30,10 @@ export const parseTypescriptToJson = async (
     entryPoints,
   });
 
-  // load(app);
-
   // 4. Generate json output
   const project = app.convert();
   if (project) {
     await app.generateJson(project, packageDocsPath);
-    await app.generateDocs(project, packageDocsDir);
   } else {
     throw new Error(`Cannot generate docs for dir: ${packageDocsPath}.`);
   }

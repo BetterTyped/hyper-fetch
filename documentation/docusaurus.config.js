@@ -76,7 +76,7 @@ const config = {
             entryPath: "src/index.ts",
           },
         ],
-        docs: {
+        contentDocsOptions: {
           path: "api",
           routeBasePath: "api",
           sidebarPath: require.resolve("./sidebars.js"),

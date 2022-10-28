@@ -27,7 +27,7 @@ export async function plugin(
     generatedFilesDir,
     "..",
     libraryDir,
-    options.docs.routeBasePath,
+    options.contentDocsOptions.routeBasePath,
   );
 
   // Prepare api directory to exist
@@ -36,10 +36,10 @@ export async function plugin(
   trace("Initializing plugin...");
   const instance = await pluginBase(context, {
     ...DEFAULT_OPTIONS,
-    ...options.docs,
-    path: path.join(libraryDir, options.docs.routeBasePath),
+    ...options.contentDocsOptions,
+    path: path.join(libraryDir, options.contentDocsOptions.routeBasePath),
     id: options.id,
-    remarkPlugins: [...(options?.docs?.remarkPlugins || []), mermaid, admonitions],
+    remarkPlugins: [...(options?.contentDocsOptions?.remarkPlugins || []), mermaid, admonitions],
   });
   info("Successfully initialized plugin.");
 
