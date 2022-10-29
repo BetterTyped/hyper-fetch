@@ -3,6 +3,7 @@ import { JSONOutput } from "typedoc";
 
 import { HeadingType } from "types/components.types";
 import { PagePropsType } from "types/page.types";
+import { NonParsing } from "./non-parsing";
 
 export const Description: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection> &
@@ -12,12 +13,7 @@ export const Description: React.FC<
 
   return (
     <div className="api-docs__description">
-      {comment?.summary.map(({ text }) => (
-        <>
-          {"\n"}
-          {text}
-        </>
-      ))}
+      <NonParsing>{comment?.summary.map(({ text }) => text).join("\n")}</NonParsing>
     </div>
   );
 };

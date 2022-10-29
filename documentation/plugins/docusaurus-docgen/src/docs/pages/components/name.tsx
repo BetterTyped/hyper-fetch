@@ -13,13 +13,24 @@ export const Name: React.FC<PagePropsType & Partial<HeadingType>> = ({
 
   const icon = getStatusIcon(reflection);
 
+  if (headingSize === "h1") {
+    return (
+      <>
+        {`
+      
+# ${icon}${name}
+
+`}
+      </>
+    );
+  }
+
   return (
     <>
       <Tag className="api-docs__name">
         {icon}
         {name}
       </Tag>
-      <hr />
     </>
   );
 };

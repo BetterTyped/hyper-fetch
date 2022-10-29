@@ -17,12 +17,12 @@ export const ClassPage: React.FC<PagePropsType> = (props) => {
       <Description {...props} />
       {/* <Section>Preview</Section>
       <Preview {...props} /> */}
-      {/* <Section>Parameters</Section>
+      <Section>Parameters</Section>
       <Parameters {...props} />
       <Section>Properties</Section>
       <Properties {...props} />
       <Section>Methods</Section>
-      <Methods {...props} /> */}
+      <Methods {...props} />
     </>
   );
 };
