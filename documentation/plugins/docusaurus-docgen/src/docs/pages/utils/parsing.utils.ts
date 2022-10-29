@@ -25,7 +25,8 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
   const typeSignature = typeSignatures ? `<${typeSignatures.join(", ")}>` : "";
 
   const callSignatures =
-    signature.parameters?.length && signature.parameters.map((param) => param.name);
+    signature.parameters?.length &&
+    signature.parameters.map((param) => (param.flags?.isRest ? `...${param.name}` : param.name));
   const callSignature = callSignatures ? callSignatures.join(", ") : "";
 
   return [name, typeSignature, callSignature];

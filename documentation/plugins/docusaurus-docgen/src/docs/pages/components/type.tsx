@@ -3,6 +3,7 @@ import React from "react";
 import { JSONOutput } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
+import { Signature } from "./signature";
 
 function parens(element: JSX.Element, needsParens?: boolean): JSX.Element {
   if (!needsParens) {
@@ -238,8 +239,7 @@ export function Type({
       }
 
       if (decl?.signatures && decl.signatures.length === 1) {
-        return <>todo</>;
-        // return <MemberSignatureTitle hideName useArrow sig={decl.signatures[0]} />;
+        return <Signature {...props} hideName useArrow reflection={decl.signatures[0]} />;
       }
 
       if (decl?.signatures && decl.signatures.length > 0) {
@@ -250,7 +250,7 @@ export function Type({
               <React.Fragment key={sig.id ?? i}>
                 <>
                   {i > 0 && <span className="api-type__symbol">; </span>}
-                  {/* <MemberSignatureTitle sig={sig} /> */}
+                  <Signature {...props} reflection={sig} />
                   {sig}
                 </>
               </React.Fragment>

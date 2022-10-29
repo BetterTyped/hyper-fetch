@@ -17,7 +17,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 86,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86"
 				}
 			],
 			"typeParameters": [
@@ -56,7 +56,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 89,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L89"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L89"
 								}
 							],
 							"type": {
@@ -76,7 +76,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 88,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L88"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L88"
 								}
 							],
 							"type": {
@@ -95,7 +95,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 87,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L87"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L87"
 								}
 							],
 							"type": {
@@ -120,7 +120,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 86,
 							"character": 56,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86"
 						}
 					]
 				}
@@ -137,7 +137,7 @@
 					"fileName": "types/invalidation.types.ts",
 					"line": 3,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/types/invalidation.types.ts#L3"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/types/invalidation.types.ts#L3"
 				}
 			],
 			"type": {
@@ -171,7 +171,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 95,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L95"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L95"
 				}
 			],
 			"typeParameters": [
@@ -200,7 +200,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 95,
 							"character": 67,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L95"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L95"
 						}
 					],
 					"signatures": [
@@ -279,7 +279,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 98,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98"
 				}
 			],
 			"typeParameters": [
@@ -308,7 +308,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 98,
 							"character": 70,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98"
 						}
 					],
 					"signatures": [
@@ -387,7 +387,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 105,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105"
 				}
 			],
 			"type": {
@@ -403,7 +403,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 105,
 							"character": 37,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105"
 						}
 					],
 					"signatures": [
@@ -494,7 +494,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 101,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
 				}
 			],
 			"typeParameters": [
@@ -523,7 +523,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 101,
 							"character": 67,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
 						}
 					],
 					"signatures": [
@@ -560,7 +560,7 @@
 															"fileName": "helpers/use-command-events/use-command-events.types.ts",
 															"line": 103,
 															"character": 2,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L103"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L103"
 														}
 													],
 													"type": {
@@ -580,7 +580,7 @@
 															"fileName": "helpers/use-command-events/use-command-events.types.ts",
 															"line": 102,
 															"character": 2,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L102"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L102"
 														}
 													],
 													"type": {
@@ -610,7 +610,7 @@
 													"fileName": "helpers/use-command-events/use-command-events.types.ts",
 													"line": 101,
 													"character": 76,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101"
 												}
 											]
 										}
@@ -654,7 +654,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 92,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92"
 				}
 			],
 			"typeParameters": [
@@ -683,7 +683,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 92,
 							"character": 69,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92"
 						}
 					],
 					"signatures": [
@@ -762,7 +762,7 @@
 					"fileName": "hooks/use-queue/use-queue.types.ts",
 					"line": 7,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L7"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L7"
 				}
 			],
 			"typeParameters": [
@@ -812,7 +812,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 27,
 											"character": 2,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L27"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L27"
 										}
 									],
 									"type": {
@@ -828,7 +828,7 @@
 													"fileName": "hooks/use-queue/use-queue.types.ts",
 													"line": 27,
 													"character": 17,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L27"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L27"
 												}
 											],
 											"signatures": [
@@ -876,7 +876,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 15,
 											"character": 2,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L15"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L15"
 										}
 									],
 									"type": {
@@ -895,7 +895,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 19,
 											"character": 2,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L19"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L19"
 										}
 									],
 									"type": {
@@ -911,7 +911,7 @@
 													"fileName": "hooks/use-queue/use-queue.types.ts",
 													"line": 19,
 													"character": 16,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L19"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L19"
 												}
 											],
 											"signatures": [
@@ -949,7 +949,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 23,
 											"character": 2,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L23"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L23"
 										}
 									],
 									"type": {
@@ -965,7 +965,7 @@
 													"fileName": "hooks/use-queue/use-queue.types.ts",
 													"line": 23,
 													"character": 15,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L23"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L23"
 												}
 											],
 											"signatures": [
@@ -1013,7 +1013,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 11,
 											"character": 2,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L11"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L11"
 										}
 									],
 									"type": {
@@ -1039,7 +1039,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 7,
 									"character": 95,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L7"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L7"
 								}
 							]
 						}
@@ -1058,7 +1058,7 @@
 					"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 					"line": 1,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L1"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L1"
 				}
 			],
 			"type": {
@@ -1089,7 +1089,7 @@
 									"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 									"line": 5,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L5"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L5"
 								}
 							],
 							"type": {
@@ -1116,7 +1116,7 @@
 									"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 									"line": 9,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L9"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L9"
 								}
 							],
 							"type": {
@@ -1135,7 +1135,7 @@
 									"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 									"line": 17,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L17"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L17"
 								}
 							],
 							"type": {
@@ -1151,7 +1151,7 @@
 											"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 											"line": 17,
 											"character": 14,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L17"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L17"
 										}
 									],
 									"signatures": [
@@ -1202,7 +1202,7 @@
 									"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 									"line": 13,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L13"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L13"
 								}
 							],
 							"type": {
@@ -1218,7 +1218,7 @@
 											"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 											"line": 13,
 											"character": 13,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L13"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L13"
 										}
 									],
 									"signatures": [
@@ -1275,7 +1275,7 @@
 							"fileName": "hooks/use-app-manager/use-app-manager.types.ts",
 							"line": 1,
 							"character": 38,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L1"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L1"
 						}
 					]
 				}
@@ -1292,7 +1292,7 @@
 					"fileName": "hooks/use-cache/use-cache.types.ts",
 					"line": 12,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L12"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L12"
 				}
 			],
 			"typeParameters": [
@@ -1338,7 +1338,7 @@
 									"fileName": "hooks/use-cache/use-cache.types.ts",
 									"line": 24,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L24"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L24"
 								}
 							],
 							"type": {
@@ -1388,7 +1388,7 @@
 									"fileName": "hooks/use-cache/use-cache.types.ts",
 									"line": 16,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L16"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L16"
 								}
 							],
 							"type": {
@@ -1417,7 +1417,7 @@
 									"fileName": "hooks/use-cache/use-cache.types.ts",
 									"line": 20,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L20"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L20"
 								}
 							],
 							"type": {
@@ -1481,7 +1481,7 @@
 							"fileName": "hooks/use-cache/use-cache.types.ts",
 							"line": 12,
 							"character": 61,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L12"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L12"
 						}
 					]
 				}
@@ -1498,7 +1498,7 @@
 					"fileName": "hooks/use-cache/use-cache.types.ts",
 					"line": 27,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L27"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L27"
 				}
 			],
 			"typeParameters": [
@@ -1561,7 +1561,7 @@
 											"fileName": "hooks/use-cache/use-cache.types.ts",
 											"line": 40,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L40"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L40"
 										}
 									],
 									"type": {
@@ -1577,7 +1577,7 @@
 													"fileName": "hooks/use-cache/use-cache.types.ts",
 													"line": 40,
 													"character": 19,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L40"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L40"
 												}
 											],
 											"signatures": [
@@ -1636,7 +1636,7 @@
 											"fileName": "hooks/use-cache/use-cache.types.ts",
 											"line": 36,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L36"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L36"
 										}
 									],
 									"type": {
@@ -1652,7 +1652,7 @@
 													"fileName": "hooks/use-cache/use-cache.types.ts",
 													"line": 36,
 													"character": 18,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L36"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L36"
 												}
 											],
 											"signatures": [
@@ -1711,7 +1711,7 @@
 											"fileName": "hooks/use-cache/use-cache.types.ts",
 											"line": 32,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L32"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L32"
 										}
 									],
 									"type": {
@@ -1727,7 +1727,7 @@
 													"fileName": "hooks/use-cache/use-cache.types.ts",
 													"line": 32,
 													"character": 20,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L32"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L32"
 												}
 											],
 											"signatures": [
@@ -1786,7 +1786,7 @@
 											"fileName": "hooks/use-cache/use-cache.types.ts",
 											"line": 44,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L44"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L44"
 										}
 									],
 									"type": {
@@ -1802,7 +1802,7 @@
 													"fileName": "hooks/use-cache/use-cache.types.ts",
 													"line": 44,
 													"character": 16,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L44"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L44"
 												}
 											],
 											"signatures": [
@@ -1876,7 +1876,7 @@
 									"fileName": "hooks/use-cache/use-cache.types.ts",
 									"line": 28,
 									"character": 30,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.types.ts#L28"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.types.ts#L28"
 								}
 							]
 						}
@@ -1895,7 +1895,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 29,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29"
 				}
 			],
 			"typeParameters": [
@@ -1931,7 +1931,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 33,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L33"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L33"
 								}
 							],
 							"type": {
@@ -1947,7 +1947,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 33,
 											"character": 9,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L33"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L33"
 										}
 									],
 									"signatures": [
@@ -1985,7 +1985,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 45,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L45"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L45"
 								}
 							],
 							"type": {
@@ -2001,7 +2001,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 45,
 											"character": 11,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L45"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L45"
 										}
 									],
 									"signatures": [
@@ -2060,7 +2060,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 65,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L65"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L65"
 								}
 							],
 							"type": {
@@ -2076,7 +2076,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 65,
 											"character": 22,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L65"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L65"
 										}
 									],
 									"signatures": [
@@ -2128,7 +2128,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 41,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L41"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L41"
 								}
 							],
 							"type": {
@@ -2144,7 +2144,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 41,
 											"character": 11,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L41"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L41"
 										}
 									],
 									"signatures": [
@@ -2203,7 +2203,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 53,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L53"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L53"
 								}
 							],
 							"type": {
@@ -2219,7 +2219,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 53,
 											"character": 14,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L53"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L53"
 										}
 									],
 									"signatures": [
@@ -2278,7 +2278,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 49,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L49"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L49"
 								}
 							],
 							"type": {
@@ -2294,7 +2294,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 49,
 											"character": 18,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L49"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L49"
 										}
 									],
 									"signatures": [
@@ -2353,7 +2353,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 57,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L57"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L57"
 								}
 							],
 							"type": {
@@ -2369,7 +2369,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 57,
 											"character": 18,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L57"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L57"
 										}
 									],
 									"signatures": [
@@ -2428,7 +2428,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 61,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L61"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L61"
 								}
 							],
 							"type": {
@@ -2444,7 +2444,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 61,
 											"character": 19,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L61"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L61"
 										}
 									],
 									"signatures": [
@@ -2503,7 +2503,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 37,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L37"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L37"
 								}
 							],
 							"type": {
@@ -2519,7 +2519,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 37,
 											"character": 13,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L37"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L37"
 										}
 									],
 									"signatures": [
@@ -2578,7 +2578,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 69,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L69"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L69"
 								}
 							],
 							"type": {
@@ -2594,7 +2594,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 69,
 											"character": 20,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L69"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L69"
 										}
 									],
 									"signatures": [
@@ -2658,7 +2658,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 29,
 							"character": 69,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29"
 						}
 					]
 				}
@@ -2675,7 +2675,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 17,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
 				}
 			],
 			"type": {
@@ -2698,7 +2698,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 17,
 									"character": 40,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
 								}
 							],
 							"type": {
@@ -2722,7 +2722,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 17,
 							"character": 38,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L17"
 						}
 					]
 				}
@@ -2739,7 +2739,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 18,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
 				}
 			],
 			"type": {
@@ -2769,7 +2769,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 18,
 											"character": 57,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
 										}
 									],
 									"type": {
@@ -2793,7 +2793,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 18,
 									"character": 55,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18"
 								}
 							]
 						}
@@ -2815,7 +2815,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 21,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21"
 				}
 			],
 			"typeParameters": [
@@ -2851,7 +2851,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 25,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L25"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L25"
 								}
 							],
 							"type": {
@@ -2878,7 +2878,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 22,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L22"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L22"
 								}
 							],
 							"type": {
@@ -2898,7 +2898,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 23,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L23"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L23"
 								}
 							],
 							"type": {
@@ -2917,7 +2917,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 24,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L24"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L24"
 								}
 							],
 							"type": {
@@ -2936,7 +2936,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 26,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L26"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L26"
 								}
 							],
 							"type": {
@@ -2952,7 +2952,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 26,
 											"character": 16,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L26"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L26"
 										}
 									],
 									"signatures": [
@@ -3026,7 +3026,7 @@
 							"fileName": "helpers/use-command-events/use-command-events.types.ts",
 							"line": 21,
 							"character": 67,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21"
 						}
 					]
 				}
@@ -3043,7 +3043,7 @@
 					"fileName": "helpers/use-command-events/use-command-events.types.ts",
 					"line": 73,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L73"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L73"
 				}
 			],
 			"typeParameters": [
@@ -3094,7 +3094,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 76,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L76"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L76"
 										}
 									],
 									"type": {
@@ -3110,7 +3110,7 @@
 													"fileName": "helpers/use-command-events/use-command-events.types.ts",
 													"line": 76,
 													"character": 21,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L76"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L76"
 												}
 											],
 											"signatures": [
@@ -3155,7 +3155,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 78,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L78"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L78"
 										}
 									],
 									"type": {
@@ -3171,7 +3171,7 @@
 													"fileName": "helpers/use-command-events/use-command-events.types.ts",
 													"line": 78,
 													"character": 27,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L78"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L78"
 												}
 											],
 											"signatures": [
@@ -3229,7 +3229,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 77,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L77"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L77"
 										}
 									],
 									"type": {
@@ -3250,7 +3250,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 80,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L80"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L80"
 										}
 									],
 									"type": {
@@ -3266,7 +3266,7 @@
 													"fileName": "helpers/use-command-events/use-command-events.types.ts",
 													"line": 80,
 													"character": 29,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L80"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L80"
 												}
 											],
 											"signatures": [
@@ -3296,7 +3296,7 @@
 											"fileName": "helpers/use-command-events/use-command-events.types.ts",
 											"line": 79,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L79"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L79"
 										}
 									],
 									"type": {
@@ -3312,7 +3312,7 @@
 													"fileName": "helpers/use-command-events/use-command-events.types.ts",
 													"line": 79,
 													"character": 29,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L79"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L79"
 												}
 											],
 											"signatures": [
@@ -3362,7 +3362,7 @@
 									"fileName": "helpers/use-command-events/use-command-events.types.ts",
 									"line": 75,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L75"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L75"
 								}
 							]
 						}
@@ -3381,7 +3381,7 @@
 					"fileName": "hooks/use-fetch/use-fetch.types.ts",
 					"line": 7,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7"
 				}
 			],
 			"typeParameters": [
@@ -3427,7 +3427,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 55,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L55"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L55"
 								}
 							],
 							"type": {
@@ -3456,7 +3456,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 63,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L63"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L63"
 								}
 							],
 							"type": {
@@ -3485,7 +3485,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 59,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L59"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L59"
 								}
 							],
 							"type": {
@@ -3523,7 +3523,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 67,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L67"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L67"
 								}
 							],
 							"type": {
@@ -3565,7 +3565,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 11,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L11"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L11"
 								}
 							],
 							"type": {
@@ -3605,7 +3605,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 19,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L19"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L19"
 								}
 							],
 							"type": {
@@ -3634,7 +3634,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 15,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L15"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L15"
 								}
 							],
 							"type": {
@@ -3663,7 +3663,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 27,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L27"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L27"
 								}
 							],
 							"type": {
@@ -3732,7 +3732,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 31,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L31"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L31"
 								}
 							],
 							"type": {
@@ -3761,7 +3761,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 39,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L39"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L39"
 								}
 							],
 							"type": {
@@ -3790,7 +3790,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 43,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L43"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L43"
 								}
 							],
 							"type": {
@@ -3819,7 +3819,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 47,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L47"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L47"
 								}
 							],
 							"type": {
@@ -3848,7 +3848,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 51,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L51"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L51"
 								}
 							],
 							"type": {
@@ -3877,7 +3877,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 35,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L35"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L35"
 								}
 							],
 							"type": {
@@ -3914,7 +3914,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 23,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L23"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L23"
 								}
 							],
 							"type": {
@@ -3950,7 +3950,7 @@
 							"fileName": "hooks/use-fetch/use-fetch.types.ts",
 							"line": 7,
 							"character": 61,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7"
 						}
 					]
 				}
@@ -3967,7 +3967,7 @@
 					"fileName": "hooks/use-fetch/use-fetch.types.ts",
 					"line": 70,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70"
 				}
 			],
 			"typeParameters": [
@@ -4050,7 +4050,7 @@
 											"fileName": "hooks/use-fetch/use-fetch.types.ts",
 											"line": 76,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L76"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L76"
 										}
 									],
 									"type": {
@@ -4081,7 +4081,7 @@
 															"fileName": "hooks/use-fetch/use-fetch.types.ts",
 															"line": 80,
 															"character": 6,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L80"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L80"
 														}
 													],
 													"type": {
@@ -4100,7 +4100,7 @@
 															"fileName": "hooks/use-fetch/use-fetch.types.ts",
 															"line": 84,
 															"character": 6,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L84"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L84"
 														}
 													],
 													"type": {
@@ -4116,7 +4116,7 @@
 																	"fileName": "hooks/use-fetch/use-fetch.types.ts",
 																	"line": 84,
 																	"character": 13,
-																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L84"
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L84"
 																}
 															],
 															"signatures": [
@@ -4158,7 +4158,7 @@
 													"fileName": "hooks/use-fetch/use-fetch.types.ts",
 													"line": 76,
 													"character": 12,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L76"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L76"
 												}
 											]
 										}
@@ -4175,7 +4175,7 @@
 											"fileName": "hooks/use-fetch/use-fetch.types.ts",
 											"line": 89,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L89"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L89"
 										}
 									],
 									"type": {
@@ -4191,7 +4191,7 @@
 													"fileName": "hooks/use-fetch/use-fetch.types.ts",
 													"line": 89,
 													"character": 16,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L89"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L89"
 												}
 											],
 											"signatures": [
@@ -4262,7 +4262,7 @@
 									"fileName": "hooks/use-fetch/use-fetch.types.ts",
 									"line": 72,
 									"character": 35,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L72"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L72"
 								}
 							]
 						}
@@ -4281,7 +4281,7 @@
 					"fileName": "hooks/use-queue/use-queue.types.ts",
 					"line": 3,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L3"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L3"
 				}
 			],
 			"type": {
@@ -4306,7 +4306,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 4,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L4"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L4"
 								}
 							],
 							"type": {
@@ -4341,7 +4341,7 @@
 							"fileName": "hooks/use-queue/use-queue.types.ts",
 							"line": 3,
 							"character": 34,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L3"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L3"
 						}
 					]
 				}
@@ -4358,7 +4358,7 @@
 					"fileName": "hooks/use-queue/use-queue.types.ts",
 					"line": 30,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L30"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L30"
 				}
 			],
 			"typeParameters": [
@@ -4394,7 +4394,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 46,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L46"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L46"
 								}
 							],
 							"type": {
@@ -4410,7 +4410,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 46,
 											"character": 9,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L46"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L46"
 										}
 									],
 									"signatures": [
@@ -4456,7 +4456,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 38,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L38"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L38"
 								}
 							],
 							"type": {
@@ -4486,7 +4486,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 50,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L50"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L50"
 								}
 							],
 							"type": {
@@ -4502,7 +4502,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 50,
 											"character": 9,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L50"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L50"
 										}
 									],
 									"signatures": [
@@ -4540,7 +4540,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 42,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L42"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L42"
 								}
 							],
 							"type": {
@@ -4556,7 +4556,7 @@
 											"fileName": "hooks/use-queue/use-queue.types.ts",
 											"line": 42,
 											"character": 8,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L42"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L42"
 										}
 									],
 									"signatures": [
@@ -4602,7 +4602,7 @@
 									"fileName": "hooks/use-queue/use-queue.types.ts",
 									"line": 34,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L34"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L34"
 								}
 							],
 							"type": {
@@ -4628,7 +4628,7 @@
 							"fileName": "hooks/use-queue/use-queue.types.ts",
 							"line": 30,
 							"character": 60,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.types.ts#L30"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.types.ts#L30"
 						}
 					]
 				}
@@ -4645,7 +4645,7 @@
 					"fileName": "hooks/use-submit/use-submit.types.ts",
 					"line": 21,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L21"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L21"
 				}
 			],
 			"typeParameters": [
@@ -4691,7 +4691,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 33,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L33"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L33"
 								}
 							],
 							"type": {
@@ -4720,7 +4720,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 41,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L41"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L41"
 								}
 							],
 							"type": {
@@ -4749,7 +4749,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 37,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L37"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L37"
 								}
 							],
 							"type": {
@@ -4787,7 +4787,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 49,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L49"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L49"
 								}
 							],
 							"type": {
@@ -4837,7 +4837,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 45,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L45"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L45"
 								}
 							],
 							"type": {
@@ -4866,7 +4866,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 25,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L25"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L25"
 								}
 							],
 							"type": {
@@ -4895,7 +4895,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 29,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L29"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L29"
 								}
 							],
 							"type": {
@@ -4963,7 +4963,7 @@
 							"fileName": "hooks/use-submit/use-submit.types.ts",
 							"line": 21,
 							"character": 62,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L21"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L21"
 						}
 					]
 				}
@@ -4980,7 +4980,7 @@
 					"fileName": "hooks/use-submit/use-submit.types.ts",
 					"line": 52,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L52"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L52"
 				}
 			],
 			"typeParameters": [
@@ -5055,7 +5055,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 57,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L57"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L57"
 										}
 									],
 									"type": {
@@ -5071,7 +5071,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 57,
 													"character": 11,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L57"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L57"
 												}
 											],
 											"signatures": [
@@ -5117,7 +5117,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 105,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L105"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L105"
 										}
 									],
 									"type": {
@@ -5148,7 +5148,7 @@
 															"fileName": "hooks/use-submit/use-submit.types.ts",
 															"line": 109,
 															"character": 6,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L109"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L109"
 														}
 													],
 													"type": {
@@ -5167,7 +5167,7 @@
 															"fileName": "hooks/use-submit/use-submit.types.ts",
 															"line": 113,
 															"character": 6,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L113"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L113"
 														}
 													],
 													"type": {
@@ -5183,7 +5183,7 @@
 																	"fileName": "hooks/use-submit/use-submit.types.ts",
 																	"line": 113,
 																	"character": 13,
-																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L113"
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L113"
 																}
 															],
 															"signatures": [
@@ -5225,7 +5225,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 105,
 													"character": 12,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L105"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L105"
 												}
 											]
 										}
@@ -5242,7 +5242,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 89,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L89"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L89"
 										}
 									],
 									"type": {
@@ -5258,7 +5258,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 89,
 													"character": 19,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L89"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L89"
 												}
 											],
 											"signatures": [
@@ -5317,7 +5317,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 81,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L81"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L81"
 										}
 									],
 									"type": {
@@ -5333,7 +5333,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 81,
 													"character": 30,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L81"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L81"
 												}
 											],
 											"signatures": [
@@ -5385,7 +5385,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 65,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L65"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L65"
 										}
 									],
 									"type": {
@@ -5401,7 +5401,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 65,
 													"character": 19,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L65"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L65"
 												}
 											],
 											"signatures": [
@@ -5460,7 +5460,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 69,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L69"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L69"
 										}
 									],
 									"type": {
@@ -5476,7 +5476,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 69,
 													"character": 22,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L69"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L69"
 												}
 											],
 											"signatures": [
@@ -5535,7 +5535,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 93,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L93"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L93"
 										}
 									],
 									"type": {
@@ -5551,7 +5551,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 93,
 													"character": 26,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L93"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L93"
 												}
 											],
 											"signatures": [
@@ -5610,7 +5610,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 73,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L73"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L73"
 										}
 									],
 									"type": {
@@ -5626,7 +5626,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 73,
 													"character": 26,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L73"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L73"
 												}
 											],
 											"signatures": [
@@ -5685,7 +5685,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 77,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L77"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L77"
 										}
 									],
 									"type": {
@@ -5701,7 +5701,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 77,
 													"character": 27,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L77"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L77"
 												}
 											],
 											"signatures": [
@@ -5760,7 +5760,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 61,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L61"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L61"
 										}
 									],
 									"type": {
@@ -5776,7 +5776,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 61,
 													"character": 21,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L61"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L61"
 												}
 											],
 											"signatures": [
@@ -5835,7 +5835,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 85,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L85"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L85"
 										}
 									],
 									"type": {
@@ -5851,7 +5851,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 85,
 													"character": 28,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L85"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L85"
 												}
 											],
 											"signatures": [
@@ -5903,7 +5903,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 118,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L118"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L118"
 										}
 									],
 									"type": {
@@ -5919,7 +5919,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 118,
 													"character": 16,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L118"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L118"
 												}
 											],
 											"signatures": [
@@ -5984,7 +5984,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 97,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L97"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L97"
 										}
 									],
 									"type": {
@@ -6000,7 +6000,7 @@
 													"fileName": "hooks/use-submit/use-submit.types.ts",
 													"line": 97,
 													"character": 12,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L97"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L97"
 												}
 											],
 											"signatures": [
@@ -6092,7 +6092,7 @@
 											"fileName": "hooks/use-submit/use-submit.types.ts",
 											"line": 101,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L101"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L101"
 										}
 									],
 									"type": {
@@ -6127,7 +6127,7 @@
 									"fileName": "hooks/use-submit/use-submit.types.ts",
 									"line": 53,
 									"character": 30,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.types.ts#L53"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.types.ts#L53"
 								}
 							]
 						}
@@ -6146,7 +6146,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 					"line": 60,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60"
 				}
 			],
 			"typeParameters": [
@@ -6182,7 +6182,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 64,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L64"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L64"
 								}
 							],
 							"type": {
@@ -6198,7 +6198,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 64,
 											"character": 11,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L64"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L64"
 										}
 									],
 									"signatures": [
@@ -6269,7 +6269,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 68,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L68"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L68"
 								}
 							],
 							"type": {
@@ -6285,7 +6285,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 68,
 											"character": 12,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L68"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L68"
 										}
 									],
 									"signatures": [
@@ -6356,7 +6356,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 72,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L72"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L72"
 								}
 							],
 							"type": {
@@ -6372,7 +6372,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 72,
 											"character": 14,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L72"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L72"
 										}
 									],
 									"signatures": [
@@ -6436,7 +6436,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 80,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L80"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L80"
 								}
 							],
 							"type": {
@@ -6452,7 +6452,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 80,
 											"character": 14,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L80"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L80"
 										}
 									],
 									"signatures": [
@@ -6516,7 +6516,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 76,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L76"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L76"
 								}
 							],
 							"type": {
@@ -6532,7 +6532,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 76,
 											"character": 13,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L76"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L76"
 										}
 									],
 									"signatures": [
@@ -6605,7 +6605,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 84,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L84"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L84"
 								}
 							],
 							"type": {
@@ -6621,7 +6621,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 84,
 											"character": 16,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L84"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L84"
 										}
 									],
 									"signatures": [
@@ -6695,7 +6695,7 @@
 							"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 							"line": 60,
 							"character": 64,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60"
 						}
 					]
 				}
@@ -6712,7 +6712,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 					"line": 13,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13"
 				}
 			],
 			"typeParameters": [
@@ -6748,7 +6748,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 14,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L14"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L14"
 								}
 							],
 							"type": {
@@ -6768,7 +6768,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 20,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L20"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L20"
 								}
 							],
 							"type": {
@@ -6802,7 +6802,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 19,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L19"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L19"
 								}
 							],
 							"type": {
@@ -6821,7 +6821,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 18,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L18"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L18"
 								}
 							],
 							"type": {
@@ -6840,7 +6840,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 17,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L17"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L17"
 								}
 							],
 							"type": {
@@ -6859,7 +6859,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 16,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L16"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L16"
 								}
 							],
 							"type": {
@@ -6911,7 +6911,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 15,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L15"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L15"
 								}
 							],
 							"type": {
@@ -6939,7 +6939,7 @@
 							"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 							"line": 13,
 							"character": 62,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13"
 						}
 					]
 				}
@@ -6956,7 +6956,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 					"line": 23,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23"
 				}
 			],
 			"typeParameters": [
@@ -7019,7 +7019,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 29,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L29"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L29"
 										}
 									],
 									"type": {
@@ -7035,7 +7035,7 @@
 													"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 													"line": 29,
 													"character": 20,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L29"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L29"
 												}
 											],
 											"signatures": [
@@ -7065,7 +7065,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 28,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L28"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L28"
 										}
 									],
 									"type": {
@@ -7081,7 +7081,7 @@
 													"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 													"line": 28,
 													"character": 18,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L28"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L28"
 												}
 											],
 											"signatures": [
@@ -7148,7 +7148,7 @@
 											"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 											"line": 27,
 											"character": 4,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L27"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L27"
 										}
 									],
 									"type": {
@@ -7164,7 +7164,7 @@
 													"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 													"line": 27,
 													"character": 18,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L27"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L27"
 												}
 											],
 											"signatures": [
@@ -7224,7 +7224,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 26,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L26"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L26"
 								}
 							]
 						}
@@ -7243,7 +7243,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 					"line": 33,
 					"character": 12,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33"
 				}
 			],
 			"typeParameters": [
@@ -7291,7 +7291,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 37,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L37"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L37"
 								}
 							],
 							"type": {
@@ -7334,7 +7334,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 41,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L41"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L41"
 								}
 							],
 							"type": {
@@ -7377,7 +7377,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 45,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L45"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L45"
 								}
 							],
 							"type": {
@@ -7404,7 +7404,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 53,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L53"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L53"
 								}
 							],
 							"type": {
@@ -7431,7 +7431,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 49,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L49"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L49"
 								}
 							],
 							"type": {
@@ -7467,7 +7467,7 @@
 									"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 									"line": 57,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L57"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L57"
 								}
 							],
 							"type": {
@@ -7505,7 +7505,7 @@
 							"fileName": "helpers/use-tracked-state/use-tracked-state.types.ts",
 							"line": 33,
 							"character": 79,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33"
 						}
 					]
 				}
@@ -7524,7 +7524,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.constants.ts",
 					"line": 3,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3"
 				}
 			],
 			"type": {
@@ -7547,7 +7547,7 @@
 					"fileName": "hooks/use-cache/use-cache.constants.ts",
 					"line": 1,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1"
 				}
 			],
 			"type": {
@@ -7570,7 +7570,7 @@
 									"fileName": "hooks/use-cache/use-cache.constants.ts",
 									"line": 4,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.constants.ts#L4"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.constants.ts#L4"
 								}
 							],
 							"type": {
@@ -7590,7 +7590,7 @@
 									"fileName": "hooks/use-cache/use-cache.constants.ts",
 									"line": 2,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.constants.ts#L2"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.constants.ts#L2"
 								}
 							],
 							"type": {
@@ -7610,7 +7610,7 @@
 									"fileName": "hooks/use-cache/use-cache.constants.ts",
 									"line": 3,
 									"character": 2,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.constants.ts#L3"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.constants.ts#L3"
 								}
 							],
 							"type": {
@@ -7635,7 +7635,7 @@
 							"fileName": "hooks/use-cache/use-cache.constants.ts",
 							"line": 1,
 							"character": 38,
-							"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1"
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1"
 						}
 					]
 				}
@@ -7655,7 +7655,7 @@
 					"fileName": "hooks/use-fetch/use-fetch.constants.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.constants.ts#L9"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.constants.ts#L9"
 				}
 			],
 			"type": {
@@ -7677,7 +7677,7 @@
 					"fileName": "hooks/use-queue/use-queue.constants.ts",
 					"line": 5,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.constants.ts#L5"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.constants.ts#L5"
 				}
 			],
 			"type": {
@@ -7706,7 +7706,7 @@
 					"fileName": "hooks/use-submit/use-submit.constants.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.constants.ts#L9"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.constants.ts#L9"
 				}
 			],
 			"type": {
@@ -7726,7 +7726,7 @@
 					"fileName": "utils/bounce.utils.ts",
 					"line": 1,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L1"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L1"
 				}
 			],
 			"signatures": [
@@ -7763,7 +7763,7 @@
 													"fileName": "utils/bounce.utils.ts",
 													"line": 3,
 													"character": 2,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L3"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L3"
 												}
 											],
 											"type": {
@@ -7782,7 +7782,7 @@
 													"fileName": "utils/bounce.utils.ts",
 													"line": 2,
 													"character": 2,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L2"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L2"
 												}
 											],
 											"type": {
@@ -7798,7 +7798,7 @@
 															"fileName": "utils/bounce.utils.ts",
 															"line": 2,
 															"character": 9,
-															"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L2"
+															"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L2"
 														}
 													],
 													"signatures": [
@@ -7832,7 +7832,7 @@
 											"fileName": "utils/bounce.utils.ts",
 											"line": 1,
 											"character": 42,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L1"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L1"
 										}
 									]
 								}
@@ -7859,7 +7859,7 @@
 											"fileName": "utils/bounce.utils.ts",
 											"line": 4,
 											"character": 25,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L4"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L4"
 										}
 									],
 									"type": {
@@ -7878,7 +7878,7 @@
 											"fileName": "utils/bounce.utils.ts",
 											"line": 4,
 											"character": 6,
-											"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L4"
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L4"
 										}
 									],
 									"type": {
@@ -7894,7 +7894,7 @@
 													"fileName": "utils/bounce.utils.ts",
 													"line": 4,
 													"character": 13,
-													"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L4"
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L4"
 												}
 											],
 											"signatures": [
@@ -7928,7 +7928,7 @@
 									"fileName": "utils/bounce.utils.ts",
 									"line": 4,
 									"character": 4,
-									"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/bounce.utils.ts#L4"
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/bounce.utils.ts#L4"
 								}
 							]
 						}
@@ -7947,7 +7947,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.utils.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14"
 				}
 			],
 			"signatures": [
@@ -8018,7 +8018,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.utils.ts",
 					"line": 60,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60"
 				}
 			],
 			"signatures": [
@@ -8178,7 +8178,7 @@
 					"fileName": "hooks/use-fetch/use-fetch.utils.ts",
 					"line": 1,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1"
 				}
 			],
 			"signatures": [
@@ -8234,7 +8234,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.utils.ts",
 					"line": 56,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L56"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L56"
 				}
 			],
 			"signatures": [
@@ -8290,7 +8290,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.utils.ts",
 					"line": 33,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33"
 				}
 			],
 			"signatures": [
@@ -8473,7 +8473,7 @@
 					"fileName": "utils/deep-equal.utils.ts",
 					"line": 6,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/deep-equal.utils.ts#L6"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/deep-equal.utils.ts#L6"
 				}
 			],
 			"signatures": [
@@ -8541,7 +8541,7 @@
 					"fileName": "utils/deep-equal.utils.ts",
 					"line": 19,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/utils/deep-equal.utils.ts#L19"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/utils/deep-equal.utils.ts#L19"
 				}
 			],
 			"signatures": [
@@ -8628,7 +8628,7 @@
 					"fileName": "helpers/use-tracked-state/use-tracked-state.utils.ts",
 					"line": 28,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28"
 				}
 			],
 			"signatures": [
@@ -8691,7 +8691,7 @@
 					"fileName": "hooks/use-app-manager/use-app-manager.hooks.ts",
 					"line": 7,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7"
 				}
 			],
 			"signatures": [
@@ -8762,7 +8762,7 @@
 					"fileName": "hooks/use-cache/use-cache.hooks.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8"
 				}
 			],
 			"signatures": [
@@ -8896,7 +8896,7 @@
 					"fileName": "hooks/use-fetch/use-fetch.hooks.ts",
 					"line": 18,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18"
 				}
 			],
 			"signatures": [
@@ -9060,7 +9060,7 @@
 					"fileName": "hooks/use-queue/use-queue.hooks.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-queue/use-queue.hooks.ts#L14"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-queue/use-queue.hooks.ts#L14"
 				}
 			],
 			"signatures": [
@@ -9201,7 +9201,7 @@
 					"fileName": "hooks/use-submit/use-submit.hooks.ts",
 					"line": 28,
 					"character": 13,
-					"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28"
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28"
 				}
 			],
 			"signatures": [
@@ -9406,7 +9406,7 @@
 			"fileName": "index.ts",
 			"line": 1,
 			"character": 0,
-			"url": "https://github.com/BetterTyped/hyper-fetch/blob/4c8aed61/packages/react/src/index.ts#L1"
+			"url": "https://github.com/BetterTyped/hyper-fetch/blob/0752a849/packages/react/src/index.ts#L1"
 		}
 	]
 }

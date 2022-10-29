@@ -25,15 +25,15 @@ It is also the place of
 
 </div><div class="api-docs__properties" data-reactroot=""><table>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>events</th><th><code><span class="api-type__symbol">&#123; </span><span>emitAbort<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitDownloadProgress<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitLoading<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitRemove<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitRequestStart<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitResponse<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitResponseStart<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitUploadProgress<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onAbort<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onAbortById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onDownloadProgress<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onDownloadProgressById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onLoading<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onLoadingById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onRemove<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onRemoveById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onRequestStart<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onRequestStartById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onResponse<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onResponseById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onResponseStart<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onResponseStartById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onUploadProgress<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onUploadProgressById<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol"> &#125;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>events</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type ">EventEmitter</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>abortControllers</th><th><code><span class="api-type__type ">Map</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">string</span><span class="api-type__symbol">, </span><span class="api-type__type ">Map</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">string</span><span class="api-type__symbol">, </span><span class="api-type__type ">AbortController</span><span class="api-type__symbol">&ampgt;</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>abortControllers</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
@@ -47,11 +47,19 @@ It is also the place of
 
 ### `abortAll()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 abortAll()
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -61,19 +69,33 @@ abortAll()
 
 #### Parameters
 
+</div><div class="api-docs__section">
+
+#### Return
+
 </div><div class="api-docs__returns">
 
-Returns `void`
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `abortByKey()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 abortByKey(abortKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -91,19 +113,33 @@ abortByKey(abortKey)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `abortByRequestId()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 abortByRequestId(abortKey, requestId)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -125,19 +161,33 @@ abortByRequestId(abortKey, requestId)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `addAbortController()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 addAbortController(abortKey, requestId)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -159,19 +209,33 @@ addAbortController(abortKey, requestId)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `getAbortController()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 getAbortController(abortKey, requestId)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -193,19 +257,33 @@ getAbortController(abortKey, requestId)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `AbortController`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+AbortController
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `removeAbortController()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 removeAbortController(abortKey, requestId)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -227,19 +305,33 @@ removeAbortController(abortKey, requestId)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `useAbortController()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 useAbortController(abortKey, requestId)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -261,8 +353,14 @@ useAbortController(abortKey, requestId)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div></div>

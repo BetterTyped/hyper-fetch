@@ -28,7 +28,7 @@
 
 </div><div class="api-docs__properties" data-reactroot=""><table>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>config</th><th><code><span class="api-type__type ">FetchEffectConfig</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">T</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>config</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
@@ -42,11 +42,19 @@
 
 ### `getEffectKey()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 getEffectKey()
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -56,19 +64,33 @@ getEffectKey()
 
 #### Parameters
 
+</div><div class="api-docs__section">
+
+#### Return
+
 </div><div class="api-docs__returns">
 
-Returns `string`
+```ts
+string
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `onError()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 onError(response, command)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -90,19 +112,33 @@ onError(response, command)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `onFinished()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 onFinished(response, command)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -124,19 +160,33 @@ onFinished(response, command)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `onStart()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 onStart(command)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -154,19 +204,33 @@ onStart(command)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `onSuccess()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 onSuccess(response, command)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -188,19 +252,33 @@ onSuccess(response, command)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `onTrigger()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 onTrigger(command)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -218,8 +296,14 @@ onTrigger(command)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div></div>

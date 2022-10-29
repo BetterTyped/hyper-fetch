@@ -1,7 +1,11 @@
 import { renderer } from "./renderer";
-import { ClassPage } from "../pages/class.page";
-import { KindTypes } from "../../constants/api.constants";
 import { PagePropsType } from "types/page.types";
+import { KindTypes } from "../../constants/api.constants";
+import { ClassPage } from "../pages/class.page";
+import { FunctionPage } from "../pages/function.page";
+import { EnumPage } from "../pages/enum.page";
+import { VarPage } from "../pages/var.page";
+import { TypePage } from "../pages/type.page copy";
 
 export const pageGenerator = (props: PagePropsType) => {
   switch (props.reflection.kindString) {
@@ -9,20 +13,16 @@ export const pageGenerator = (props: PagePropsType) => {
       return renderer(props, ClassPage);
     }
     case KindTypes.enum: {
-      return "test";
-      // return enumFormatter(props);
+      return renderer(props, EnumPage);
     }
     case KindTypes.var: {
-      return "test";
-      // return variableFormatter(props);
+      return renderer(props, VarPage);
     }
     case KindTypes.fn: {
-      return "test";
-      // return functionFormatter(props);
+      return renderer(props, FunctionPage);
     }
     case KindTypes.type: {
-      return "test";
-      // return typeFormatter(props);
+      return renderer(props, TypePage);
     }
     default: {
       return "test";

@@ -30,7 +30,7 @@ export const Properties: React.FC<PagePropsType> = (props) => {
                 <th>{prop.name}</th>
                 <th>
                   <code>
-                    <Type {...props} reflection={prop.type} />
+                    <Type {...props} reflection={prop} />
                   </code>
                 </th>
                 <th>

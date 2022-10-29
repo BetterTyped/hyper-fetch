@@ -49,18 +49,23 @@ const transform = (html: string) => {
     },
   });
 
-  const nodes = parsedHtml.getElementsByTagName("*");
+  const nodes = parsedHtml.getElementsByTagName("*") as unknown as HTMLElement[];
   const parsed: HTMLElement[] = [];
 
-  function childOf(child) {
-    while ((child = child.parentNode) && child !== parsed);
-    return !!child;
+  function childOf(child: HTMLElement) {
+    let element = child;
+    while (element && !parsed.includes(element)) {
+      element = element?.parentNode as HTMLElement;
+    }
+    return !!element;
   }
 
   Array.from(nodes).forEach((node) => {
     const hasNonParsingChild = node.querySelector(`.${noParsingClass}`);
     if (node.tagName === "TABLE") {
       parsed.push(node);
+      // TODO Parse children of table td nodes
+      // eslint-disable-next-line no-param-reassign
       node.innerHTML = `\n\n${node.outerHTML}\n\n`;
       return;
     }
@@ -74,6 +79,7 @@ const transform = (html: string) => {
       return;
     }
     parsed.push(node);
+    // eslint-disable-next-line no-param-reassign
     node.innerHTML = `\n\n${NodeHtmlMarkdown.translate(node.outerHTML)}\n\n`;
   });
 

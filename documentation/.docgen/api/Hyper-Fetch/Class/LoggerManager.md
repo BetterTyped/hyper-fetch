@@ -34,15 +34,15 @@ like Builder, Command etc. Which can give you better feedback on the logging its
 
 </div><div class="api-docs__properties" data-reactroot=""><table>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>severity</th><th><code><span class="api-type__type ">SeverityType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>severity</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>logger</th><th><code><span class="api-type__type ">LoggerFunctionType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>logger</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type ">EventEmitter</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
@@ -56,11 +56,19 @@ like Builder, Command etc. Which can give you better feedback on the logging its
 
 ### `init()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 init(module)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -78,19 +86,33 @@ init(module)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `LoggerType`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+LoggerType
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `setSeverity()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 setSeverity(severity)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -108,8 +130,14 @@ setSeverity(severity)
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div></div>

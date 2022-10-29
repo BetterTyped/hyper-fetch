@@ -15,14 +15,15 @@ export const Returns: React.FC<
 
   return (
     <div className="api-docs__returns">
-      Returns{" "}
-      <code>
-        {returnTag?.content || signature ? (
-          <Type {...props} reflection={signature?.type} />
-        ) : (
-          "void"
-        )}
-      </code>
+      <pre>
+        <code className="language-ts">
+          {returnTag?.content || signature ? (
+            <Type {...props} reflection={signature?.type} />
+          ) : (
+            "void"
+          )}
+        </code>
+      </pre>
     </div>
   );
 };

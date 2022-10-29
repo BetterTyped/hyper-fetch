@@ -32,35 +32,35 @@ Cache class handles the data exchange with the dispatchers.
 
 </div><div class="api-docs__properties" data-reactroot=""><table>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>storage</th><th><code><span class="api-type__type ">CacheStorageType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>storage</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type ">CacheOptionsType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>lazyStorage</th><th><code><span class="api-type__type ">CacheAsyncStorageType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>lazyStorage</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>garbageCollectors</th><th><code><span class="api-type__type ">Map</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">string</span><span class="api-type__symbol">, </span><span class="api-type__type ">Timeout</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>garbageCollectors</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>events</th><th><code><span class="api-type__symbol">&#123; </span><span>emitCacheData<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>emitRevalidation<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onData<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol">; </span><span>onRevalidate<span class="api-type__symbol">: </span>todo</span><span class="api-type__symbol"> &#125;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>events</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type ">EventEmitter</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>clearKey</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>clearKey</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>builder</th><th><code><span class="api-type__type ">BuilderInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div></th></tr><tr><th>builder</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
@@ -74,11 +74,19 @@ Cache class handles the data exchange with the dispatchers.
 
 ### `clear()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 clear()
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -88,19 +96,33 @@ Clear cache storages
 
 #### Parameters
 
+</div><div class="api-docs__section">
+
+#### Return
+
 </div><div class="api-docs__returns">
 
-Returns `Promise<void>`
+```ts
+Promise<void>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `delete()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 delete(cacheKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -118,19 +140,33 @@ Delete record from storages and trigger revalidation
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `get()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 get<Response, Error>(cacheKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -148,19 +184,33 @@ Get particular record from storage by cacheKey. It will trigger lazyStorage to e
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `CacheValueType<Response, Error>`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+CacheValueType<Response, Error>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `getLazyKeys()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 getLazyKeys()
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -170,19 +220,33 @@ Used to receive keys from sync storage and lazy storage
 
 #### Parameters
 
+</div><div class="api-docs__section">
+
+#### Return
+
 </div><div class="api-docs__returns">
 
-Returns `Promise<string[]>`
+```ts
+Promise<string[]>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `getLazyResource()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 getLazyResource<Response, Error>(cacheKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -200,19 +264,33 @@ Used to receive data from lazy storage
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `Promise<CacheValueType<Response, Error>>`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Promise<CacheValueType<Response, Error>>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `keys()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 keys()
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -222,19 +300,33 @@ Get sync storage keys, lazyStorage keys will not be included
 
 #### Parameters
 
+</div><div class="api-docs__section">
+
+#### Return
+
 </div><div class="api-docs__returns">
 
-Returns `string[]`
+```ts
+string[]
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `revalidate()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 revalidate(cacheKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -252,19 +344,33 @@ Revalidate cache by cacheKey or partial matching with RegExp
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `Promise<void>`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Promise<void>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `scheduleGarbageCollector()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 scheduleGarbageCollector(cacheKey)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -282,19 +388,33 @@ Schedule garbage collection for given key
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `Promise<void>`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Promise<void>
+```
 
 </div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
 
 ### `set()`
 
-</h3><div class="api-docs__call-preview">
+</h3><div class="api-docs__section">
 
-```tsx
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
 set<Response, Error>(command, response, details)
 ```
+
+</div><div class="api-docs__section">
+
+#### Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
@@ -320,8 +440,14 @@ Set the cache data to the storage
 
 </span></div></th></tr></tbody></table>
 
-</table></div><div class="api-docs__returns">
+</table></div><div class="api-docs__section">
 
-Returns `void`
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+void
+```
 
 </div><hr/></div></div>
