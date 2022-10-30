@@ -6,6 +6,7 @@ import { PagePropsType } from "types/page.types";
 import { getCallPreview, getMethods, getProperties, getSignature } from "../utils/parsing.utils";
 import { Type } from "./type";
 import { Code } from "./code";
+import { GenericParameters } from "./generic-parameters";
 
 export const Preview: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection>
@@ -133,11 +134,16 @@ export const Preview: React.FC<
 
     if (!children?.length && !type) return null;
 
+    const generics = "typeParameters" in reflection && reflection.typeParameters && (
+      <GenericParameters generics={reflection.typeParameters} />
+    );
+
     if (!children?.length && type) {
       return (
         <div className="api-docs__preview type single">
           <Code>
-            type {name} = <Type {...props} reflection={type} />;
+            type {name}
+            {generics} = <Type {...props} reflection={type} />;
           </Code>
         </div>
       );
@@ -146,7 +152,8 @@ export const Preview: React.FC<
     return (
       <div className="api-docs__preview type">
         <Code>
-          {`type ${name} = &lbrace;\n`}
+          type {name}
+          {generics} = &lbrace;{"\n"}
           {children.map(([elementName, elementType], index) => (
             <React.Fragment key={index}>
               {"  "}

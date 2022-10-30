@@ -3,13 +3,13 @@ import type { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-cont
 
 export type PluginOptions = {
   id: string;
-  packages: PackageOption[];
+  packages: PackageOptions[];
   contentDocsOptions: DocsPluginOptions;
   tsConfigPath?: string;
   typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
 };
 
-export type PackageOption = {
+export type PackageOptions = {
   title: string;
   dir: string;
   entryPath: string | string[];
@@ -19,6 +19,7 @@ export type PackageOption = {
   tsconfigDir?: string;
   readmeName?: string;
   readmeDir?: string;
+  showImports?: boolean;
 };
 
 export type PkgMeta = {

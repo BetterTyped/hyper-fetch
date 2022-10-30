@@ -26,7 +26,15 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
 
   const callSignatures =
     signature.parameters?.length &&
-    signature.parameters.map((param) => (param.flags?.isRest ? `...${param.name}` : param.name));
+    signature.parameters.map((param, index) =>
+      // eslint-disable-next-line no-nested-ternary
+      param.flags?.isRest
+        ? `...${param.name}`
+        : param.name === "__namedParameter"
+        ? // TODO to object with keys
+          `params$${index}`
+        : param.name,
+    );
   const callSignature = callSignatures ? callSignatures.join(", ") : "";
 
   return [name, typeSignature, callSignature];

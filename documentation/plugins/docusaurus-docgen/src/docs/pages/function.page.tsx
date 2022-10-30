@@ -3,6 +3,7 @@ import React from "react";
 import { PagePropsType } from "types/page.types";
 import { Definition } from "./components/definition";
 import { Description } from "./components/description";
+import { Import } from "./components/import";
 import { Name } from "./components/name";
 import { Parameters } from "./components/parameters";
 import { Preview } from "./components/preview";
@@ -17,12 +18,13 @@ export const FunctionPage: React.FC<PagePropsType> = (props) => {
       <Name {...props} />
       <Separator />
       <Sources {...props} />
-      <Section title="Preview">
-        <Preview {...props} />
-      </Section>
+      <Import {...props} />
       <Section title="Description">
         <Description {...props} />
         <Definition {...props} />
+      </Section>
+      <Section title="Preview">
+        <Preview {...props} />
       </Section>
       <Section title="Parameters">
         <Parameters {...props} />

@@ -18,27 +18,33 @@ import { apiGenerator } from "./generator/api-generator";
 export const buildDocs = async (
   docsGenerationDir: string,
   generatedFilesDir: string,
-  options: PluginOptions,
+  pluginOptions: PluginOptions,
 ) => {
-  const { packages, tsConfigPath } = options;
+  const { packages, tsConfigPath } = pluginOptions;
   const isMonorepo = packages.length > 1;
 
   if (isMonorepo) {
-    trace(`Generating monorepo page for ${options.packages.length} packages`);
-    generateMonorepoPage(docsGenerationDir, options);
+    trace(`Generating monorepo page for ${pluginOptions.packages.length} packages`);
+    generateMonorepoPage(docsGenerationDir, pluginOptions);
   }
 
   /**
    * Save generation options
    */
   const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, optionsPath);
-  createFile(optionsFilePath, JSON.stringify(options));
+  createFile(optionsFilePath, JSON.stringify(pluginOptions));
 
   /**
    * Generate docs for each package
    */
-  await asyncForEach(packages, async (pkg) => {
-    const { dir, title, entryPath, tsconfigName = "/tsconfig.json", tsconfigDir = pkg.dir } = pkg;
+  await asyncForEach(packages, async (packageOptions) => {
+    const {
+      dir,
+      title,
+      entryPath,
+      tsconfigName = "/tsconfig.json",
+      tsconfigDir = packageOptions.dir,
+    } = packageOptions;
 
     /**
      * Get directories required for package generation
@@ -70,13 +76,13 @@ export const buildDocs = async (
      * Generate package page from readme or custom setup
      */
     trace(`Generating package page`, packageName);
-    generatePackagePage(packageDocsDir, pkg);
+    generatePackagePage(packageDocsDir, packageOptions);
 
     /**
      * Scan and parse docs to json
      */
     trace(`Starting project parsing...`, packageName);
-    await parseTypescriptToJson(packageDocsJsonPath, entries, tsconfigPath, options);
+    await parseTypescriptToJson(packageDocsJsonPath, entries, tsconfigPath, pluginOptions);
     trace(`Successfully parsed docs.`, packageName);
 
     /**
@@ -84,7 +90,14 @@ export const buildDocs = async (
      */
     trace(`Generating docs files...`, packageName);
     const parsedApiJson = await import(packageDocsJsonPath);
-    await apiGenerator({ packageName, parsedApiJson, packageDocsDir, docsGenerationDir, options });
+    await apiGenerator({
+      packageName,
+      parsedApiJson,
+      packageDocsDir,
+      docsGenerationDir,
+      pluginOptions,
+      packageOptions,
+    });
     trace(`Successfully generated docs files.`, packageName);
   });
   success(`Successfully builded docs!`);

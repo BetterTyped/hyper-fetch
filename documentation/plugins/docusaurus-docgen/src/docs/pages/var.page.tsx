@@ -3,6 +3,7 @@ import React from "react";
 import { PagePropsType } from "types/page.types";
 import { Definition } from "./components/definition";
 import { Description } from "./components/description";
+import { Import } from "./components/import";
 import { Name } from "./components/name";
 import { Preview } from "./components/preview";
 import { Section } from "./components/section";
@@ -15,6 +16,7 @@ export const VarPage: React.FC<PagePropsType> = (props) => {
       <Name {...props} />
       <Separator />
       <Sources {...props} />
+      <Import {...props} />
       <Section title="Preview">
         <Preview {...props} />
       </Section>

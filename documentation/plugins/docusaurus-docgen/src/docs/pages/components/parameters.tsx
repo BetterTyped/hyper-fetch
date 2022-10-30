@@ -1,17 +1,19 @@
 import React from "react";
 
+import { HeadingType } from "types/components.types";
 import { PagePropsType } from "types/page.types";
 import { getSignature } from "../utils/parsing.utils";
 import { Code } from "./code";
 import { Type } from "./type";
 
-export const Parameters: React.FC<PagePropsType> = (props) => {
-  const { reflection } = props;
+export const Parameters: React.FC<PagePropsType & Partial<HeadingType>> = (props) => {
+  const { reflection, headingSize = "h3" } = props;
   const signature = getSignature(reflection);
 
   if (!signature?.parameters) return null;
 
   const { parameters } = signature;
+  const Tag = headingSize;
 
   return (
     <div className="api-docs__parameters">
@@ -20,7 +22,6 @@ export const Parameters: React.FC<PagePropsType> = (props) => {
           <tr>
             <th>Name</th>
             <th>Type</th>
-            <th>Default</th>
           </tr>
         </thead>
         <tbody>
@@ -32,7 +33,7 @@ export const Parameters: React.FC<PagePropsType> = (props) => {
                     param.flags.isOptional ? "optional" : "required"
                   }`}
                 >
-                  <b>{param.name} </b>
+                  <Tag>{param.name} </Tag>
                   <Code fenced={false}>{param.flags.isOptional ? "Optional" : "Required"}</Code>
                 </td>
                 <td className="api-docs__param-type">
@@ -40,7 +41,6 @@ export const Parameters: React.FC<PagePropsType> = (props) => {
                     <Type {...props} reflection={param.type} />
                   </Code>
                 </td>
-                <td className="api-docs__param-default">{param.defaultValue}</td>
               </tr>
             );
           })}

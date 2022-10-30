@@ -4,7 +4,7 @@ import { JSONOutput } from "typedoc";
 import { trace, error } from "../../utils/log.utils";
 import { createFile, getKindName } from "../../utils/file.utils";
 import { pageGenerator } from "./page-generator";
-import { PluginOptions } from "../../types/package.types";
+import { PackageOptions, PluginOptions } from "../../types/package.types";
 
 const docsExtension = ".md";
 
@@ -13,14 +13,16 @@ type ApiGeneratorProps = {
   parsedApiJson: JSONOutput.ProjectReflection;
   packageDocsDir: string;
   docsGenerationDir: string;
-  options: PluginOptions;
+  pluginOptions: PluginOptions;
+  packageOptions: PackageOptions;
 };
 
 export const apiGenerator = ({
   packageName,
   parsedApiJson,
   packageDocsDir,
-  options,
+  pluginOptions,
+  packageOptions,
 }: ApiGeneratorProps) => {
   const reflectionsTree = (parsedApiJson.children || []).map((child) => ({
     ...child,
@@ -38,7 +40,8 @@ export const apiGenerator = ({
     const data = pageGenerator({
       reflection,
       reflectionsTree,
-      pluginOptions: options,
+      pluginOptions,
+      packageOptions,
       npmName: parsedApiJson.name,
       packageName,
     });

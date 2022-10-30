@@ -36,7 +36,7 @@ export const Method: React.FC<PagePropsType> = (props) => {
         <Definition {...props} reflection={reflection} />
       </Section>
       <Section headingSize="h4" title="Parameters">
-        <Parameters {...props} />
+        <Parameters {...props} headingSize="h4" />
       </Section>
       <Section headingSize="h4" title="Return">
         <Returns {...props} />

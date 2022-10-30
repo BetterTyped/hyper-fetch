@@ -3,6 +3,7 @@ import React from "react";
 import { PagePropsType } from "types/page.types";
 import { Definition } from "./components/definition";
 import { Description } from "./components/description";
+import { Import } from "./components/import";
 import { Methods } from "./components/methods";
 import { Name } from "./components/name";
 import { Parameters } from "./components/parameters";
@@ -17,6 +18,7 @@ export const ClassPage: React.FC<PagePropsType> = (props) => {
       <Name {...props} />
       <Separator />
       <Sources {...props} />
+      <Import {...props} />
       <Section title="Description">
         <Description {...props} />
         <Definition {...props} />
