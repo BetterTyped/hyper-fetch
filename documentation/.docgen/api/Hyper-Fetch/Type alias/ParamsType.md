@@ -2,7 +2,11 @@
       
 # ParamsType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type ParamsType = Record<string, ParamType>;
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L185)
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.types.ts#L185)
 
 </div>

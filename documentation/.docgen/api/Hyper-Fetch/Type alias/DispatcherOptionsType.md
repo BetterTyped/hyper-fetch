@@ -2,7 +2,11 @@
       
 # DispatcherOptionsType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -28,6 +32,6 @@ type DispatcherOptionsType = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [dispatcher/dispatcher.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.types.ts#L4)
+Defined in [dispatcher/dispatcher.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.types.ts#L4)
 
 </div>

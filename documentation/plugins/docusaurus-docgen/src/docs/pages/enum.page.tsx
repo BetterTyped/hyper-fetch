@@ -6,11 +6,13 @@ import { Description } from "./components/description";
 import { Name } from "./components/name";
 import { Preview } from "./components/preview";
 import { Section } from "./components/section";
+import { Separator } from "./components/separator";
 
 export const EnumPage: React.FC<PagePropsType> = (props) => {
   return (
     <>
       <Name {...props} />
+      <Separator />
       <Section>Preview</Section>
       <Preview {...props} />
       <Section>Description</Section>

@@ -2,7 +2,11 @@
       
 # isStaleCacheData
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,25 +26,37 @@ isStaleCacheData(cacheTime, cacheTimestamp)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>cacheTime</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**cacheTime**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>cacheTimestamp</th><th><code><span class="api-type__type">number</span><span class="api-type__symbol"> | </span><span class="api-type__type ">Date</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**cacheTimestamp**
+
+</td><td>
+
+`number | Date`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

@@ -8,11 +8,13 @@ import { Parameters } from "./components/parameters";
 import { Preview } from "./components/preview";
 import { Returns } from "./components/returns";
 import { Section } from "./components/section";
+import { Separator } from "./components/separator";
 
 export const FunctionPage: React.FC<PagePropsType> = (props) => {
   return (
     <>
       <Name {...props} />
+      <Separator />
       <Section>Preview</Section>
       <Preview {...props} />
       <Section>Description</Section>

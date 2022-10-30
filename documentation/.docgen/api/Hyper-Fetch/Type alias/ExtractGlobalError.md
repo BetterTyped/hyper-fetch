@@ -2,7 +2,11 @@
       
 # ExtractGlobalError
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type ExtractGlobalError = T extends Command<any, any, any, infer  E, any, any, a
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/fetch.types.ts#L19)
+Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/types/fetch.types.ts#L19)
 
 </div>

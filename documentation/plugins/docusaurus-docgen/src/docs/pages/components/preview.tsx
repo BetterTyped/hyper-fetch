@@ -4,7 +4,6 @@ import { JSONOutput } from "typedoc";
 import { KindTypes } from "../../../constants/api.constants";
 import { PagePropsType } from "types/page.types";
 import { getCallPreview, getMethods, getProperties, getSignature } from "../utils/parsing.utils";
-import { transformMarkdown } from "../../../utils/md.utils";
 import { Type } from "./type";
 import { Code } from "./code";
 
@@ -23,28 +22,24 @@ export const Preview: React.FC<
     return (
       <div className="api-docs__preview class">
         <Code>
-          {`${name}${typeSignature}(${callSignature}) &lbrace;
-  ${properties
-    .map(
-      (prop) =>
-        `${prop.name}: ${transformMarkdown(
-          <div>
-            <Type {...props} reflection={prop.type} />
-          </div>,
-        )};`,
-    )
-    .join("\n  ")}
-  ${methods
-    .map(
-      (method) =>
-        `${method.name}: ${transformMarkdown(
-          <div>
-            <Type {...props} reflection={getSignature(method) || method} />
-          </div>,
-        )};`,
-    )
-    .join("\n  ")}
-&rbrace;`}
+          {`${name}${typeSignature}(${callSignature}) &lbrace;\n`}
+          {properties.map((prop, index) => (
+            <React.Fragment key={index}>
+              {"  "}
+              {prop.name}:
+              <Type {...props} reflection={prop.type} />
+              {"\n"}
+            </React.Fragment>
+          ))}
+          {methods.map((method, index) => (
+            <React.Fragment key={index}>
+              {"  "}
+              {method.name}:
+              <Type {...props} reflection={getSignature(method) || method} />
+              {"\n"}
+            </React.Fragment>
+          ))}
+          {`&rbrace;`}
         </Code>
       </div>
     );
@@ -152,13 +147,13 @@ export const Preview: React.FC<
       <div className="api-docs__preview type">
         <Code>
           {`type ${name} = &lbrace;\n`}
-          {children.map(([elementName, elementType]) => (
-            <>
+          {children.map(([elementName, elementType], index) => (
+            <React.Fragment key={index}>
               {"  "}
               {elementName}
               {elementType.flags?.isOptional && "?"}: <Type {...props} reflection={elementType} />;{" "}
               {"\n"}
-            </>
+            </React.Fragment>
           ))}
           {`&rbrace;`}
         </Code>

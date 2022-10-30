@@ -2,7 +2,11 @@
       
 # getBounceData
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,21 +26,25 @@ getBounceData(bounceData)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [utils/bounce.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/utils/bounce.utils.ts#L1)
+Defined in [utils/bounce.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/utils/bounce.utils.ts#L1)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>bounceData</th><th><code><span class="api-type__symbol">&#123; </span><span>active<span class="api-type__symbol">: </span><span class="api-type__type">boolean</span></span><span class="api-type__symbol">; </span><span>reset<span class="api-type__symbol">: </span><span class="api-docs__signature-symbol">(</span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type">void</span></span><span class="api-type__symbol"> &#125;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**bounceData**
+
+</td><td>
+
+`{ active: boolean; reset: () => void }`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

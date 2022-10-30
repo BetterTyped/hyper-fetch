@@ -2,7 +2,11 @@
       
 # UseCacheReturnType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type UseCacheReturnType = UseTrackedStateType<T> & UseTrackedStateActions<T> & {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [hooks/use-cache/use-cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+Defined in [hooks/use-cache/use-cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
 
 </div>

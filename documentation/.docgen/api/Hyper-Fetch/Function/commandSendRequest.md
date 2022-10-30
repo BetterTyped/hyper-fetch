@@ -2,7 +2,11 @@
       
 # commandSendRequest
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,25 +26,37 @@ commandSendRequest<Command>(command, options)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [command/command.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.utils.ts#L113)
+Defined in [command/command.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.utils.ts#L113)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>command</th><th><code><span class="api-type__type ">Command</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**command**
+
+</td><td>
+
+`Command`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type ">FetchType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">Command</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**options**
+
+</td><td>
+
+`FetchType<Command>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

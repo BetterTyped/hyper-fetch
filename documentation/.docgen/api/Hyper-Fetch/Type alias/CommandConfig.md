@@ -2,7 +2,11 @@
       
 # CommandConfig
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -43,6 +47,6 @@ Configuration options for command creation
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L76)
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.types.ts#L76)
 
 </div>

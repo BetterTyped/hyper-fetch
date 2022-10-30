@@ -2,7 +2,11 @@
       
 # AppManager
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Description
 
@@ -15,25 +19,37 @@ With the app manager it is not a problem to get the valid answer for this questi
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L15)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L15)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>builder</th><th><code><span class="api-type__type ">BuilderInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**builder**
+
+</td><td>
+
+`BuilderInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type ">AppManagerOptionsType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**options**
+
+</td><td>
+
+`AppManagerOptionsType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Properties
 
@@ -51,7 +67,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L22)
 
 </div><div class="api-docs__section">
 
@@ -77,7 +93,7 @@ AppManagerOptionsType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L19)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L19)
 
 </div><div class="api-docs__section">
 
@@ -103,7 +119,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L20)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L20)
 
 </div><div class="api-docs__section">
 
@@ -129,7 +145,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L17)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L17)
 
 </div><div class="api-docs__section">
 
@@ -155,7 +171,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L16)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L16)
 
 </div><div class="api-docs__section">
 
@@ -181,7 +197,7 @@ EventEmitter
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L22)
 
 </div><div class="api-docs__section">
 
@@ -221,21 +237,25 @@ setFocused(isFocused)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L55)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L55)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>isFocused</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**isFocused**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -269,21 +289,25 @@ setOnline(isOnline)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L65)
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L65)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>isOnline</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**isOnline**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 

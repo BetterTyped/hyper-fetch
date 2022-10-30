@@ -2,7 +2,11 @@
       
 # CallbackParameters
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -26,6 +30,6 @@ type CallbackParameters = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86)
+Defined in [helpers/use-command-events/use-command-events.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86)
 
 </div>

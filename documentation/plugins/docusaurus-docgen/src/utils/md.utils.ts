@@ -64,9 +64,13 @@ const transform = (html: string) => {
     const hasNonParsingChild = node.querySelector(`.${noParsingClass}`);
     if (node.tagName === "TABLE") {
       parsed.push(node);
-      // TODO Parse children of table td nodes
-      // eslint-disable-next-line no-param-reassign
-      node.innerHTML = `\n\n${node.outerHTML}\n\n`;
+      const cells = node.getElementsByTagName(`td`);
+      if (cells) {
+        Array.from(cells).forEach((cell) => {
+          // eslint-disable-next-line no-param-reassign
+          cell.innerHTML = `\n\n${NodeHtmlMarkdown.translate(cell.outerHTML)}\n\n`;
+        });
+      }
       return;
     }
     if (hasNonParsingChild) {

@@ -2,7 +2,11 @@
       
 # LoggerManager
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Description
 
@@ -14,25 +18,37 @@ like Builder, Command etc. Which can give you better feedback on the logging its
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L11)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L11)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>builder</th><th><code><span class="api-type__type ">BuilderInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**builder**
+
+</td><td>
+
+`BuilderInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type ">LoggerOptionsType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**options**
+
+</td><td>
+
+`LoggerOptionsType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Properties
 
@@ -50,7 +66,7 @@ Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hy
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L13)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L13)
 
 </div><div class="api-docs__section">
 
@@ -76,7 +92,7 @@ SeverityType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L12)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L12)
 
 </div><div class="api-docs__section">
 
@@ -102,7 +118,7 @@ LoggerFunctionType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L15)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L15)
 
 </div><div class="api-docs__section">
 
@@ -142,21 +158,25 @@ init(module)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L26)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L26)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>module</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**module**
+
+</td><td>
+
+`string`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -190,21 +210,25 @@ setSeverity(severity)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L22)
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.ts#L22)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>severity</th><th><code><span class="api-type__type ">SeverityType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**severity**
+
+</td><td>
+
+`SeverityType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 

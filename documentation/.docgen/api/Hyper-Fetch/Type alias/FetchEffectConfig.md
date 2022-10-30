@@ -2,7 +2,11 @@
       
 # FetchEffectConfig
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -29,6 +33,6 @@ type FetchEffectConfig = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [effect/fetch.effect.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/effect/fetch.effect.types.ts#L10)
+Defined in [effect/fetch.effect.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/effect/fetch.effect.types.ts#L10)
 
 </div>

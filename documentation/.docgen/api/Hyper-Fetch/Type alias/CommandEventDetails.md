@@ -2,7 +2,11 @@
       
 # CommandEventDetails
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -25,6 +29,6 @@ type CommandEventDetails = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/command/command.manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/command/command.manager.types.ts#L12)
+Defined in [managers/command/command.manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.types.ts#L12)
 
 </div>

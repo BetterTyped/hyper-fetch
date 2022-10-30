@@ -2,7 +2,11 @@
       
 # getClientPayload
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,21 +26,25 @@ getClientPayload(data)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [builder/builder.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.utils.ts#L64)
+Defined in [builder/builder.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.utils.ts#L64)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>data</th><th><code><span class="api-type__type">unknown</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**data**
+
+</td><td>
+
+`unknown`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

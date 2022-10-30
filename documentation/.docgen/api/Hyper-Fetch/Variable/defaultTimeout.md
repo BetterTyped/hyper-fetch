@@ -2,7 +2,11 @@
       
 # defaultTimeout
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -16,6 +20,6 @@
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [client/fetch.client.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/client/fetch.client.constants.ts#L3)
+Defined in [client/fetch.client.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/client/fetch.client.constants.ts#L3)
 
 </div>

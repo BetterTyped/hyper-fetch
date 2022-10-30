@@ -2,7 +2,11 @@
       
 # Command
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Description
 
@@ -18,33 +22,61 @@ We should not use this class directly in the standard development flow. We can i
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L32)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L32)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>builder</th><th><code><span class="api-type__type ">Builder</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol">, </span><span class="api-type__type ">ClientOptions</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**builder**
 
+</td><td>
 
+`Builder<GlobalErrorType, ClientOptions>`
 
-</span></div></th></tr><tr><th>commandOptions</th><th><code><span class="api-type__type ">CommandConfig</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">EndpointType</span><span class="api-type__symbol">, </span><span class="api-type__type ">ClientOptions</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>commandDump</th><th><code><span class="api-type__type ">CommandCurrentType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">ResponseType</span><span class="api-type__symbol">, </span><span class="api-type__type ">RequestDataType</span><span class="api-type__symbol">, </span><span class="api-type__type ">QueryParamsType</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol"> | </span><span class="api-type__type ">LocalErrorType</span><span class="api-type__symbol">, </span><span class="api-type__type ">EndpointType</span><span class="api-type__symbol">, </span><span class="api-type__type ">ClientOptions</span><span class="api-type__symbol">, </span><span class="api-type__type ">MappedData</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>dataMapper</th><th><code><span class="api-docs__signature-symbol">(</span><span>data<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">RequestDataType</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">MappedData</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**commandOptions**
+
+</td><td>
+
+`CommandConfig<EndpointType, ClientOptions>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
+</td></tr><tr><td>
 
-</table></div><div class="api-docs__section" data-reactroot="">
+**commandDump**
+
+</td><td>
+
+`CommandCurrentType<ResponseType, RequestDataType, QueryParamsType, GlobalErrorType | LocalErrorType, EndpointType, ClientOptions, MappedData>`
+
+</td><td>
+
+
+
+</td></tr><tr><td>
+
+**dataMapper**
+
+</td><td>
+
+`(data: RequestDataType) => MappedData`
+
+</td><td>
+
+
+
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Properties
 
@@ -62,7 +94,7 @@ Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L64)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L64)
 
 </div><div class="api-docs__section">
 
@@ -88,7 +120,7 @@ Method used to perform requests with usage of cache and queues
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L422)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L422)
 
 </div><div class="api-docs__section">
 
@@ -114,7 +146,7 @@ FetchMethodType<Command<ResponseType, RequestDataType, QueryParamsType, GlobalEr
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L55)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L55)
 
 </div><div class="api-docs__section">
 
@@ -140,7 +172,7 @@ number
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L54)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L54)
 
 </div><div class="api-docs__section">
 
@@ -166,7 +198,7 @@ number
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L58)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L58)
 
 </div><div class="api-docs__section">
 
@@ -192,7 +224,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L62)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L62)
 
 </div><div class="api-docs__section">
 
@@ -218,7 +250,7 @@ string
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L51)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L51)
 
 </div><div class="api-docs__section">
 
@@ -244,7 +276,7 @@ QueryParamsType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L49)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L49)
 
 </div><div class="api-docs__section">
 
@@ -270,7 +302,7 @@ ExtractRouteParams<EndpointType>
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L52)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L52)
 
 </div><div class="api-docs__section">
 
@@ -296,7 +328,7 @@ ClientOptions
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L59)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L59)
 
 </div><div class="api-docs__section">
 
@@ -322,7 +354,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L48)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L48)
 
 </div><div class="api-docs__section">
 
@@ -348,7 +380,7 @@ HttpMethodsType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L46)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L46)
 
 </div><div class="api-docs__section">
 
@@ -374,7 +406,7 @@ Method to use the command WITHOUT adding it to cache and queues. This mean it wi
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L378)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L378)
 
 </div><div class="api-docs__section">
 
@@ -400,7 +432,7 @@ FetchMethodType<Command<ResponseType, RequestDataType, QueryParamsType, GlobalEr
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L45)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L45)
 
 </div><div class="api-docs__section">
 
@@ -426,7 +458,7 @@ EndpointType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L63)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L63)
 
 </div><div class="api-docs__section">
 
@@ -452,7 +484,7 @@ string
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L66)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L66)
 
 </div><div class="api-docs__section">
 
@@ -478,7 +510,7 @@ number
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L65)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L65)
 
 </div><div class="api-docs__section">
 
@@ -504,7 +536,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L87)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L87)
 
 </div><div class="api-docs__section">
 
@@ -530,7 +562,7 @@ Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L50)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L50)
 
 </div><div class="api-docs__section">
 
@@ -556,7 +588,7 @@ MappedData extends undefined ? RequestDataType : MappedData
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L75)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L75)
 
 </div><div class="api-docs__section">
 
@@ -582,7 +614,7 @@ CommandConfig<EndpointType, ClientOptions>
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L76)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L76)
 
 </div><div class="api-docs__section">
 
@@ -608,7 +640,7 @@ CommandCurrentType<ResponseType, RequestDataType, QueryParamsType, GlobalErrorTy
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L53)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L53)
 
 </div><div class="api-docs__section">
 
@@ -634,7 +666,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L57)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L57)
 
 </div><div class="api-docs__section">
 
@@ -660,7 +692,7 @@ number
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L61)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L61)
 
 </div><div class="api-docs__section">
 
@@ -686,7 +718,7 @@ string
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L56)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L56)
 
 </div><div class="api-docs__section">
 
@@ -712,7 +744,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L74)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L74)
 
 </div><div class="api-docs__section">
 
@@ -738,7 +770,7 @@ Builder<GlobalErrorType, ClientOptions>
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L47)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L47)
 
 </div><div class="api-docs__section">
 
@@ -764,7 +796,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L60)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L60)
 
 </div><div class="api-docs__section">
 
@@ -804,7 +836,7 @@ abort()
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L366)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L366)
 
 </div><div class="api-docs__section">
 
@@ -844,25 +876,37 @@ clone<D, P, Q, MapperData>(options, mapper)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L296)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L296)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>options</th><th><code><span class="api-type__type ">CommandCurrentType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">ResponseType</span><span class="api-type__symbol">, </span><span class="api-type__type ">RequestDataType</span><span class="api-type__symbol">, </span><span class="api-type__type ">QueryParamsType</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol"> | </span><span class="api-type__type ">LocalErrorType</span><span class="api-type__symbol">, </span><span class="api-type__type ">EndpointType</span><span class="api-type__symbol">, </span><span class="api-type__type ">ClientOptions</span><span class="api-type__symbol">, </span><span class="api-type__type ">MapperData</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**options**
+
+</td><td>
+
+`CommandCurrentType<ResponseType, RequestDataType, QueryParamsType, GlobalErrorType | LocalErrorType, EndpointType, ClientOptions, MapperData>`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>mapper</th><th><code><span class="api-docs__signature-symbol">(</span><span>data<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">RequestDataType</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">MapperData</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**mapper**
+
+</td><td>
+
+`(data: RequestDataType) => MapperData`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -896,7 +940,7 @@ dump()
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L246)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L246)
 
 </div><div class="api-docs__section">
 
@@ -936,21 +980,25 @@ setAbortKey(abortKey)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L190)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L190)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>abortKey</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**abortKey**
+
+</td><td>
+
+`string`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -984,21 +1032,25 @@ setAuth(auth)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L143)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L143)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>auth</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**auth**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1032,21 +1084,25 @@ setCache(cache)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L178)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L178)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>cache</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**cache**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1080,21 +1136,25 @@ setCacheKey(cacheKey)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L195)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L195)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>cacheKey</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**cacheKey**
+
+</td><td>
+
+`string`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1128,21 +1188,25 @@ setCacheTime(cacheTime)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L182)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L182)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>cacheTime</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**cacheTime**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1176,21 +1240,25 @@ setCancelable(cancelable)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L166)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L166)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>cancelable</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**cancelable**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1224,21 +1292,25 @@ setData(data)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L151)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L151)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>data</th><th><code><span class="api-type__type ">RequestDataType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**data**
+
+</td><td>
+
+`RequestDataType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1272,21 +1344,25 @@ setDataMapper<DataMapper>(mapper)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L226)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L226)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>mapper</th><th><code><span class="api-docs__signature-symbol">(</span><span>data<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">RequestDataType</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">DataMapper</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**mapper**
+
+</td><td>
+
+`(data: RequestDataType) => DataMapper`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1320,21 +1396,25 @@ setDeduplicate(deduplicate)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L210)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L210)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>deduplicate</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**deduplicate**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1368,21 +1448,25 @@ setDeduplicateTime(deduplicateTime)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L214)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L214)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>deduplicateTime</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**deduplicateTime**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1416,21 +1500,25 @@ setEffectKey(effectKey)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L205)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L205)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>effectKey</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**effectKey**
+
+</td><td>
+
+`string`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1464,21 +1552,25 @@ setHeaders(headers)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L139)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L139)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>headers</th><th><code><span class="api-type__type ">HeadersInit</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**headers**
+
+</td><td>
+
+`HeadersInit`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1512,21 +1604,25 @@ setOffline(offline)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L222)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L222)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>offline</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**offline**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1560,21 +1656,25 @@ setOptions(options)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L162)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L162)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>options</th><th><code><span class="api-type__type ">ClientOptions</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**options**
+
+</td><td>
+
+`ClientOptions`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1608,21 +1708,25 @@ setParams(params)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L147)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L147)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>params</th><th><code><span class="api-type__type ">ExtractRouteParams</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">EndpointType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**params**
+
+</td><td>
+
+`ExtractRouteParams<EndpointType>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1656,21 +1760,25 @@ setQueryParams(queryParams)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L158)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L158)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>queryParams</th><th><code><span class="api-type__type ">QueryParamsType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**queryParams**
+
+</td><td>
+
+`QueryParamsType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1704,21 +1812,25 @@ setQueueKey(queueKey)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L200)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L200)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>queueKey</th><th><code><span class="api-type__type">string</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**queueKey**
+
+</td><td>
+
+`string`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1752,21 +1864,25 @@ setQueued(queued)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L186)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L186)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>queued</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**queued**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1800,21 +1916,25 @@ setRetry(retry)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L170)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L170)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>retry</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**retry**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1848,21 +1968,25 @@ setRetryTime(retryTime)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L174)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L174)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>retryTime</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**retryTime**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1896,21 +2020,25 @@ setUsed(used)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.ts#L218)
+Defined in [command/command.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.ts#L218)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>used</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**used**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 

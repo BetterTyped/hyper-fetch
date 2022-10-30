@@ -2,7 +2,11 @@
       
 # LoggerType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type LoggerType = Record<LoggerLevelType, (message: LoggerMessageType, ...additi
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/logger/logger.manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.types.ts#L7)
+Defined in [managers/logger/logger.manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.types.ts#L7)
 
 </div>

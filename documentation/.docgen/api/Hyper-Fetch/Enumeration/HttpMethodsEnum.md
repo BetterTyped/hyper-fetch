@@ -2,7 +2,11 @@
       
 # HttpMethodsEnum
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -28,6 +32,6 @@ enum HttpMethodsEnum {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [constants/http.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/constants/http.constants.ts#L1)
+Defined in [constants/http.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/constants/http.constants.ts#L1)
 
 </div>

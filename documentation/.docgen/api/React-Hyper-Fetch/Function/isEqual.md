@@ -2,7 +2,11 @@
       
 # isEqual
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,25 +26,37 @@ isEqual(firstValue, secondValue)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [utils/deep-equal.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/utils/deep-equal.utils.ts#L19)
+Defined in [utils/deep-equal.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/utils/deep-equal.utils.ts#L19)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>firstValue</th><th><code><span class="api-type__type">unknown</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**firstValue**
+
+</td><td>
+
+`unknown`
+
+</td><td>
 
 unknown
 
-</span></div></th></tr><tr><th>secondValue</th><th><code><span class="api-type__type">unknown</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**secondValue**
+
+</td><td>
+
+`unknown`
+
+</td><td>
 
 unknown
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

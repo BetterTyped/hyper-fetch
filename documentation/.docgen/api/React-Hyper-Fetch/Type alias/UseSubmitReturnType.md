@@ -2,7 +2,11 @@
       
 # UseSubmitReturnType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type UseSubmitReturnType = Omit<UseTrackedStateType<T>, loading> & UseTrackedSta
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [hooks/use-submit/use-submit.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
+Defined in [hooks/use-submit/use-submit.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
 
 </div>

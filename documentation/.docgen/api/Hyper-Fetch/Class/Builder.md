@@ -2,7 +2,11 @@
       
 # Builder
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Description
 
@@ -14,21 +18,25 @@ method specified in the command.
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L35)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L35)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>options</th><th><code><span class="api-type__type ">BuilderConfig</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**options**
+
+</td><td>
+
+`BuilderConfig`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Properties
 
@@ -46,7 +54,7 @@ Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L56)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L56)
 
 </div><div class="api-docs__section">
 
@@ -72,7 +80,7 @@ Method to stringify query params from objects.
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L73)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L73)
 
 </div><div class="api-docs__section">
 
@@ -98,7 +106,7 @@ StringifyCallbackType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L62)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L62)
 
 </div><div class="api-docs__section">
 
@@ -124,7 +132,7 @@ Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L66)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L66)
 
 </div><div class="api-docs__section">
 
@@ -150,7 +158,7 @@ Method to get request data and transform them to the required format. It handles
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L82)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L82)
 
 </div><div class="api-docs__section">
 
@@ -176,7 +184,7 @@ ClientPayloadMappingCallback
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L87)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L87)
 
 </div><div class="api-docs__section">
 
@@ -202,7 +210,7 @@ BuilderConfig
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L50)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L50)
 
 </div><div class="api-docs__section">
 
@@ -228,7 +236,7 @@ LoggerManager
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L85)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L85)
 
 </div><div class="api-docs__section">
 
@@ -254,7 +262,7 @@ LoggerType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L37)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L37)
 
 </div><div class="api-docs__section">
 
@@ -280,7 +288,7 @@ Method to get default headers and to map them based on the data format exchange,
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L78)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L78)
 
 </div><div class="api-docs__section">
 
@@ -306,7 +314,7 @@ ClientHeaderMappingCallback
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L55)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L55)
 
 </div><div class="api-docs__section">
 
@@ -332,7 +340,7 @@ Dispatcher
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L59)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L59)
 
 </div><div class="api-docs__section">
 
@@ -358,7 +366,7 @@ FetchEffectInstance[]
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L38)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L38)
 
 </div><div class="api-docs__section">
 
@@ -384,7 +392,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L48)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L48)
 
 </div><div class="api-docs__section">
 
@@ -410,7 +418,7 @@ CommandManager
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L63)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L63)
 
 </div><div class="api-docs__section">
 
@@ -436,7 +444,7 @@ Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L53)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L53)
 
 </div><div class="api-docs__section">
 
@@ -462,7 +470,7 @@ ClientType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L54)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L54)
 
 </div><div class="api-docs__section">
 
@@ -488,7 +496,7 @@ Cache
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L36)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L36)
 
 </div><div class="api-docs__section">
 
@@ -514,7 +522,7 @@ string
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L49)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L49)
 
 </div><div class="api-docs__section">
 
@@ -540,7 +548,7 @@ AppManager
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L44)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L44)
 
 </div><div class="api-docs__section">
 
@@ -566,7 +574,7 @@ RequestInterceptorCallback[]
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L41)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L41)
 
 </div><div class="api-docs__section">
 
@@ -592,7 +600,7 @@ ResponseInterceptorCallback<any, any>[]
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L45)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L45)
 
 </div><div class="api-docs__section">
 
@@ -618,7 +626,7 @@ RequestInterceptorCallback[]
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L43)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L43)
 
 </div><div class="api-docs__section">
 
@@ -644,7 +652,7 @@ ResponseInterceptorCallback<any, any>[]
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L42)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L42)
 
 </div><div class="api-docs__section">
 
@@ -684,21 +692,25 @@ Add persistent effects which trigger on the request lifecycle
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L224)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L224)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>effect</th><th><code><span class="api-type__type ">FetchEffectInstance</span><span class="api-type__symbol"> | </span><span class="api-type__type ">FetchEffectInstance</span><span class="api-type__symbol">[]</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**effect**
+
+</td><td>
+
+`FetchEffectInstance | FetchEffectInstance[]`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -732,7 +744,7 @@ Clears the builder instance and remove all listeners on it&#x27;s dependencies
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L264)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L264)
 
 </div><div class="api-docs__section">
 
@@ -772,7 +784,7 @@ Create commands based on the builder setup
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L243)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L243)
 
 </div><div class="api-docs__section">
 
@@ -812,21 +824,25 @@ Method of manipulating commands before sending the request. We can for example a
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L178)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L178)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-type__type ">RequestInterceptorCallback</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`RequestInterceptorCallback`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -860,21 +876,25 @@ Method for intercepting error responses. It can be used for example to refresh t
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L186)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L186)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-type__type ">ResponseInterceptorCallback</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol"> | </span><span class="api-type__type ">ErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`ResponseInterceptorCallback<any, GlobalErrorType | ErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -908,21 +928,25 @@ Method of manipulating commands before sending the request.
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L206)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L206)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-type__type ">RequestInterceptorCallback</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`RequestInterceptorCallback`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -956,21 +980,25 @@ Method for intercepting any responses.
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L214)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L214)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-type__type ">ResponseInterceptorCallback</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol"> | </span><span class="api-type__type ">ErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`ResponseInterceptorCallback<any, GlobalErrorType | ErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1004,21 +1032,25 @@ Method for intercepting success responses.
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L196)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L196)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-type__type ">ResponseInterceptorCallback</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol"> | </span><span class="api-type__type ">ErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`ResponseInterceptorCallback<any, GlobalErrorType | ErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1052,21 +1084,25 @@ Remove effects from builder
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L233)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L233)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>effect</th><th><code><span class="api-type__type">string</span><span class="api-type__symbol"> | </span><span class="api-type__type ">FetchEffectInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**effect**
+
+</td><td>
+
+`string | FetchEffectInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1100,21 +1136,25 @@ Set custom http client to handle graphql, rest, firebase or other
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L170)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L170)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-docs__signature-symbol">(</span><span>builder<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">BuilderInstance</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">ClientType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`(builder: BuilderInstance) => ClientType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1148,21 +1188,25 @@ This method allows to configure global defaults for the command configuration li
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L103)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L103)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-docs__signature-symbol">(</span><span>command<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">CommandInstance</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">Partial</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">CommandConfig</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">string</span><span class="api-type__symbol">, </span><span class="api-type__type ">RequestConfigType</span><span class="api-type__symbol">&ampgt;</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`(command: CommandInstance) => Partial<CommandConfig<string, RequestConfigType>>`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1196,21 +1240,25 @@ This method enables the logger usage and display the logs in console
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L113)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L113)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>debug</th><th><code><span class="api-type__type">boolean</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**debug**
+
+</td><td>
+
+`boolean`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1244,21 +1292,25 @@ Set the custom header mapping function
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L154)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L154)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>headerMapper</th><th><code><span class="api-type__type ">ClientHeaderMappingCallback</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**headerMapper**
+
+</td><td>
+
+`ClientHeaderMappingCallback`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1292,21 +1344,25 @@ Set the new logger instance to the builder
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L129)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L129)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>callback</th><th><code><span class="api-docs__signature-symbol">(</span><span>builder<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">BuilderInstance</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type ">LoggerManager</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**callback**
+
+</td><td>
+
+`(builder: BuilderInstance) => LoggerManager`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1340,21 +1396,25 @@ Set the logger severity of the messages displayed to the console
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L121)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L121)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>severity</th><th><code><span class="api-type__type ">SeverityType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**severity**
+
+</td><td>
+
+`SeverityType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1388,21 +1448,25 @@ Set the request payload mapping function which get triggered before request get 
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L162)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L162)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>payloadMapper</th><th><code><span class="api-type__type ">ClientPayloadMappingCallback</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**payloadMapper**
+
+</td><td>
+
+`ClientPayloadMappingCallback`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1436,21 +1500,25 @@ Set config for the query params stringify method, we can set here, among others,
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L137)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L137)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>queryParamsConfig</th><th><code><span class="api-type__type ">QueryStringifyOptions</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**queryParamsConfig**
+
+</td><td>
+
+`QueryStringifyOptions`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1484,21 +1552,25 @@ Set the custom query params stringify method to the builder
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L146)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L146)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>stringifyFn</th><th><code><span class="api-type__type ">StringifyCallbackType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**stringifyFn**
+
+</td><td>
+
+`StringifyCallbackType`
+
+</td><td>
 
 Custom callback handling query params stringify
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1532,21 +1604,25 @@ Helper used by http client to apply the modifications on response error
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L286)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L286)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1580,25 +1656,37 @@ Private helper to run async on-error response processing
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L296)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L296)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>response</th><th><code><span class="api-type__type ">ClientResponseType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**response**
+
+</td><td>
+
+`ClientResponseType<any, GlobalErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1632,21 +1720,25 @@ Private helper to run async pre-request processing
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L291)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L291)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1680,25 +1772,37 @@ Private helper to run async response processing
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L308)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L308)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>response</th><th><code><span class="api-type__type ">ClientResponseType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**response**
+
+</td><td>
+
+`ClientResponseType<any, GlobalErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 
@@ -1732,25 +1836,37 @@ Private helper to run async on-success response processing
 
 </span></div><div class="api-docs__definition">
 
-Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.ts#L302)
+Defined in [builder/builder.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.ts#L302)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>response</th><th><code><span class="api-type__type ">ClientResponseType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**response**
+
+</td><td>
+
+`ClientResponseType<any, GlobalErrorType>`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 #### Return
 

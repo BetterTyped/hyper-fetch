@@ -2,7 +2,11 @@
       
 # logger
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,21 +26,25 @@ logger(log)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/logger/logger.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.utils.ts#L10)
+Defined in [managers/logger/logger.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.utils.ts#L10)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>log</th><th><code><span class="api-type__type ">LogType</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**log**
+
+</td><td>
+
+`LogType`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

@@ -2,6 +2,7 @@ import React from "react";
 
 import { PagePropsType } from "types/page.types";
 import { getSignature } from "../utils/parsing.utils";
+import { Code } from "./code";
 import { Description } from "./description";
 import { Type } from "./type";
 
@@ -27,15 +28,17 @@ export const Parameters: React.FC<PagePropsType> = (props) => {
           {parameters.map((param, index) => {
             return (
               <tr key={index}>
-                <th>{param.name}</th>
-                <th>
+                <td>
+                  <b>{param.name}</b>
+                </td>
+                <td>
                   <code>
                     <Type {...props} reflection={param.type} />
                   </code>
-                </th>
-                <th>
+                </td>
+                <td>
                   <Description {...props} reflection={param} />
-                </th>
+                </td>
               </tr>
             );
           })}

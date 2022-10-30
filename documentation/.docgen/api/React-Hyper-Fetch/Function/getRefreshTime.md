@@ -2,7 +2,11 @@
       
 # getRefreshTime
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,25 +26,37 @@ getRefreshTime(refreshTime, dataTimestamp)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [hooks/use-fetch/use-fetch.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1)
+Defined in [hooks/use-fetch/use-fetch.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>refreshTime</th><th><code><span class="api-type__type">number</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**refreshTime**
+
+</td><td>
+
+`number`
+
+</td><td>
 
 
 
-</span></div></th></tr><tr><th>dataTimestamp</th><th><code><span class="api-type__type ">Date</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td></tr><tr><td>
+
+**dataTimestamp**
+
+</td><td>
+
+`Date`
+
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
-
-</table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

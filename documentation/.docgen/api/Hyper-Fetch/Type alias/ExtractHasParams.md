@@ -2,7 +2,11 @@
       
 # ExtractHasParams
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type ExtractHasParams = T extends Command<any, any, any, any, any, any, any, any
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/fetch.types.ts#L35)
+Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/types/fetch.types.ts#L35)
 
 </div>

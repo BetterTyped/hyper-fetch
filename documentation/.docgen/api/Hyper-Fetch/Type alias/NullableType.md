@@ -2,7 +2,11 @@
       
 # NullableType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type NullableType = T | NegativeTypes;
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [types/helpers.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/helpers.types.ts#L3)
+Defined in [types/helpers.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/types/helpers.types.ts#L3)
 
 </div>

@@ -8,11 +8,13 @@ import { Name } from "./components/name";
 import { Parameters } from "./components/parameters";
 import { Properties } from "./components/properties";
 import { Section } from "./components/section";
+import { Separator } from "./components/separator";
 
 export const ClassPage: React.FC<PagePropsType> = (props) => {
   return (
     <>
       <Name {...props} />
+      <Separator />
       <Section>Description</Section>
       <Description {...props} />
       <Definition {...props} />

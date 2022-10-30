@@ -2,7 +2,11 @@
       
 # CacheStorageType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -28,6 +32,6 @@ type CacheStorageType = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [cache/cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/cache/cache.types.ts#L48)
+Defined in [cache/cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/cache/cache.types.ts#L48)
 
 </div>

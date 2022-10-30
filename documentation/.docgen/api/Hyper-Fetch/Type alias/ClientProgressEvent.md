@@ -2,7 +2,11 @@
       
 # ClientProgressEvent
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -25,6 +29,6 @@ type ClientProgressEvent = {
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L21)
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.types.ts#L21)
 
 </div>

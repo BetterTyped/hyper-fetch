@@ -2,7 +2,11 @@
       
 # getInitialState
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,29 +26,49 @@ getInitialState<T>(initialData, dispatcher, command)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>initialData</th><th><code><span class="api-type__type ">ClientResponseType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">ExtractResponse</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">T</span><span class="api-type__symbol">&ampgt;</span><span class="api-type__symbol">, </span><span class="api-type__type ">ExtractError</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type ">T</span><span class="api-type__symbol">&ampgt;</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**initialData**
 
+</td><td>
 
+`ClientResponseType<ExtractResponse<T>, ExtractError<T>>`
 
-</span></div></th></tr><tr><th>dispatcher</th><th><code><span class="api-type__type ">Dispatcher</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>command</th><th><code><span class="api-type__type ">T</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
+</td></tr><tr><td>
 
-</table></div><div class="api-docs__section" data-reactroot="">
+**dispatcher**
+
+</td><td>
+
+`Dispatcher`
+
+</td><td>
+
+
+
+</td></tr><tr><td>
+
+**command**
+
+</td><td>
+
+`T`
+
+</td><td>
+
+
+
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

@@ -2,7 +2,11 @@
       
 # onDocumentEvent
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,29 +26,49 @@ onDocumentEvent<K>(key, listener, options)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [managers/app/app.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.utils.ts#L26)
+Defined in [managers/app/app.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.utils.ts#L26)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>key</th><th><code><span class="api-type__type ">K</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**key**
 
+</td><td>
 
+`K`
 
-</span></div></th></tr><tr><th>listener</th><th><code><span class="api-docs__signature-symbol">(</span><span>this<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">Document</span></span><span class="api-docs__signature-symbol">, </span><span>ev<span class="api-docs__signature-symbol">: </span><span class="api-type__type ">DocumentEventMap</span><span class="api-type__symbol">[</span><span class="api-type__type ">K</span><span class="api-type__symbol">]</span></span><span class="api-docs__signature-symbol">)</span><span class="api-docs__signature-symbol"> =&ampgt; </span><span class="api-type__type">any</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type">boolean</span><span class="api-type__symbol"> | </span><span class="api-type__type ">AddEventListenerOptions</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
+</td></tr><tr><td>
 
-</table></div><div class="api-docs__section" data-reactroot="">
+**listener**
+
+</td><td>
+
+`(this: Document, ev: DocumentEventMap[K]) => any`
+
+</td><td>
+
+
+
+</td></tr><tr><td>
+
+**options**
+
+</td><td>
+
+`boolean | AddEventListenerOptions`
+
+</td><td>
+
+
+
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

@@ -2,7 +2,11 @@
       
 # interceptResponse
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,29 +26,49 @@ interceptResponse<GlobalErrorType>(interceptors, response, command)
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [builder/builder.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.utils.ts#L36)
+Defined in [builder/builder.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.utils.ts#L36)
 
 </div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table>
+</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>interceptors</th><th><code><span class="api-type__type ">ResponseInterceptorCallback</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type">any</span><span class="api-type__symbol">&ampgt;</span><span class="api-type__symbol">[]</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+**interceptors**
 
+</td><td>
 
+`ResponseInterceptorCallback<any, any>[]`
 
-</span></div></th></tr><tr><th>response</th><th><code><span class="api-type__type ">ClientResponseType</span><span class="api-type__symbol">&amplt;</span><span class="api-type__type">any</span><span class="api-type__symbol">, </span><span class="api-type__type ">GlobalErrorType</span><span class="api-type__symbol">&ampgt;</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>command</th><th><code><span class="api-type__type ">CommandInstance</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</td><td>
 
 
 
-</span></div></th></tr></tbody></table>
+</td></tr><tr><td>
 
-</table></div><div class="api-docs__section" data-reactroot="">
+**response**
+
+</td><td>
+
+`ClientResponseType<any, GlobalErrorType>`
+
+</td><td>
+
+
+
+</td></tr><tr><td>
+
+**command**
+
+</td><td>
+
+`CommandInstance`
+
+</td><td>
+
+
+
+</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
 
 ## Returns
 

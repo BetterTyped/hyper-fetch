@@ -2,7 +2,11 @@
       
 # BuilderErrorType
 
-<div class="api-docs__section" data-reactroot="">
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Preview
 
@@ -22,6 +26,6 @@ type BuilderErrorType = Record<string, any> | string;
 
 </span></div><div class="api-docs__definition" data-reactroot="">
 
-Defined in [builder/builder.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.types.ts#L45)
+Defined in [builder/builder.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/builder/builder.types.ts#L45)
 
 </div>
