@@ -5,7 +5,7 @@ import { ClassPage } from "../pages/class.page";
 import { FunctionPage } from "../pages/function.page";
 import { EnumPage } from "../pages/enum.page";
 import { VarPage } from "../pages/var.page";
-import { TypePage } from "../pages/type.page copy";
+import { TypePage } from "../pages/type.page";
 
 export const pageGenerator = (props: PagePropsType) => {
   switch (props.reflection.kindString) {

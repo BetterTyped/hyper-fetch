@@ -20,4 +20,8 @@ type FetchRequestDataType = RequestDataType extends NegativeTypes ? { data?: Neg
 
 If the command data is not filled it will throw an error
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L224)
+
+</div>

@@ -188,11 +188,7 @@ export function Type({
       return (
         <>
           {ref?.permalink ? (
-            <a
-              className={`api-type__type ${genericClass}`}
-              data-tsd-kind={ref.kindString}
-              href={ref.permalink}
-            >
+            <a className={`api-type__type ${genericClass}`} href={ref.permalink}>
               {type.name}
             </a>
           ) : (

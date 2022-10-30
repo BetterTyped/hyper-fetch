@@ -20,7 +20,11 @@ getDispatcherEvents(emitter)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [dispatcher/dispatcher.events.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.events.ts#L11)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

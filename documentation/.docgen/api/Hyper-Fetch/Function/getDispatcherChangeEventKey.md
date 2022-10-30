@@ -20,7 +20,11 @@ getDispatcherChangeEventKey(key)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [dispatcher/dispatcher.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.utils.ts#L13)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

@@ -20,7 +20,11 @@ getClientPayload(data)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [builder/builder.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.utils.ts#L64)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

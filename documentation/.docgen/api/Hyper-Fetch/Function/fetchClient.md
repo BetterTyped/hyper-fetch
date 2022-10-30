@@ -20,7 +20,11 @@ fetchClient(command, requestId)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [client/fetch.client.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/client/fetch.client.ts#L4)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

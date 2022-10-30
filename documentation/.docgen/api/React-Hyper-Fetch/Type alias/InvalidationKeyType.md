@@ -20,4 +20,8 @@ type InvalidationKeyType = string | CommandInstance | RegExp;
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/invalidation.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/types/invalidation.types.ts#L3)
+
+</div>

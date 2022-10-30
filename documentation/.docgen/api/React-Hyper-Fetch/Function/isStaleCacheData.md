@@ -20,7 +20,11 @@ isStaleCacheData(cacheTime, cacheTimestamp)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

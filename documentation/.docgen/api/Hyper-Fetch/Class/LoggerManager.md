@@ -12,7 +12,11 @@ This class is used across the Hyper Fetch library to provide unified logging sys
 We can set up the logging level based on available values. This manager enable to initialize the logging instance per individual module
 like Builder, Command etc. Which can give you better feedback on the logging itself.
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L11)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
@@ -32,23 +36,85 @@ like Builder, Command etc. Which can give you better feedback on the logging its
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><table>
+</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>severity</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+### `severity`
 
+</h3><div class="api-docs__section">
 
+#### Description
 
-</span></div></th></tr><tr><th>logger</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr></tbody></table>
+</span></div><div class="api-docs__definition">
 
-</table></div><div class="api-docs__section" data-reactroot="">
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L13)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+SeverityType
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `logger`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L12)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+LoggerFunctionType
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `emitter`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L15)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+EventEmitter
+```
+
+</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
 
 ## Methods
 
@@ -74,7 +140,11 @@ init(module)
 
 
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L26)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -118,7 +188,11 @@ setSeverity(severity)
 
 
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.ts#L22)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 

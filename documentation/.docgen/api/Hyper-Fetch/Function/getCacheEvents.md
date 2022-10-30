@@ -20,7 +20,11 @@ getCacheEvents(emitter)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [cache/cache.events.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/cache/cache.events.ts#L6)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

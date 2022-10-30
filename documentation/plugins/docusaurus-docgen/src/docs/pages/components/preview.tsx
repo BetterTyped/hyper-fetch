@@ -6,6 +6,7 @@ import { PagePropsType } from "types/page.types";
 import { getCallPreview, getMethods, getProperties, getSignature } from "../utils/parsing.utils";
 import { transformMarkdown } from "../../../utils/md.utils";
 import { Type } from "./type";
+import { Code } from "./code";
 
 export const Preview: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection>
@@ -21,9 +22,8 @@ export const Preview: React.FC<
 
     return (
       <div className="api-docs__preview class">
-        <pre>
-          <code className="language-ts">
-            {`${name}${typeSignature}(${callSignature}) &lbrace;
+        <Code>
+          {`${name}${typeSignature}(${callSignature}) &lbrace;
   ${properties
     .map(
       (prop) =>
@@ -45,8 +45,7 @@ export const Preview: React.FC<
     )
     .join("\n  ")}
 &rbrace;`}
-          </code>
-        </pre>
+        </Code>
       </div>
     );
   }
@@ -62,12 +61,10 @@ export const Preview: React.FC<
 
     return (
       <div className="api-docs__preview fn">
-        <pre>
-          <code className="language-ts">
-            {name}
-            {typeSignature}({callSignature})
-          </code>
-        </pre>
+        <Code>
+          {name}
+          {typeSignature}({callSignature})
+        </Code>
       </div>
     );
   }
@@ -86,16 +83,14 @@ export const Preview: React.FC<
 
     return (
       <div className="api-docs__preview enum">
-        <pre>
-          <code className="language-ts">
-            {`enum ${name} &lbrace;\n`}
-            {children.map((element) => {
-              const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
-              return `  ${element[0]} = ${value}; \n`;
-            })}
-            {`&rbrace;`}
-          </code>
-        </pre>
+        <Code>
+          {`enum ${name} &lbrace;\n`}
+          {children.map((element) => {
+            const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
+            return `  ${element[0]} = ${value}; \n`;
+          })}
+          {`&rbrace;`}
+        </Code>
       </div>
     );
   }
@@ -114,16 +109,14 @@ export const Preview: React.FC<
 
     return (
       <div className="api-docs__preview var">
-        <pre>
-          <code className="language-ts">
-            {`const ${name} = &lbrace;\n`}
-            {children.map((element) => {
-              const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
-              return `  ${element[0]}: ${value}, \n`;
-            })}
-            {`&rbrace;`}
-          </code>
-        </pre>
+        <Code>
+          {`const ${name} = &lbrace;\n`}
+          {children.map((element) => {
+            const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
+            return `  ${element[0]}: ${value}, \n`;
+          })}
+          {`&rbrace;`}
+        </Code>
       </div>
     );
   }
@@ -148,31 +141,27 @@ export const Preview: React.FC<
     if (!children?.length && type) {
       return (
         <div className="api-docs__preview type single">
-          <pre>
-            <code className="language-ts">
-              type {name} = <Type {...props} reflection={type} />;
-            </code>
-          </pre>
+          <Code>
+            type {name} = <Type {...props} reflection={type} />;
+          </Code>
         </div>
       );
     }
 
     return (
       <div className="api-docs__preview type">
-        <pre>
-          <code className="language-ts">
-            {`type ${name} = &lbrace;\n`}
-            {children.map(([elementName, elementType]) => (
-              <>
-                {"  "}
-                {elementName}
-                {elementType.flags?.isOptional && "?"}: <Type {...props} reflection={elementType} />
-                ; {"\n"}
-              </>
-            ))}
-            {`&rbrace;`}
-          </code>
-        </pre>
+        <Code>
+          {`type ${name} = &lbrace;\n`}
+          {children.map(([elementName, elementType]) => (
+            <>
+              {"  "}
+              {elementName}
+              {elementType.flags?.isOptional && "?"}: <Type {...props} reflection={elementType} />;{" "}
+              {"\n"}
+            </>
+          ))}
+          {`&rbrace;`}
+        </Code>
       </div>
     );
   }

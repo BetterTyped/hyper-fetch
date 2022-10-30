@@ -30,4 +30,8 @@ enum DateInterval {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [constants/time.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/constants/time.constants.ts#L1)
+
+</div>

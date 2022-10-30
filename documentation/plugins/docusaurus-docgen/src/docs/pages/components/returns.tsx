@@ -3,6 +3,7 @@ import { JSONOutput } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
 import { getSignature, getTag } from "../utils/parsing.utils";
+import { Code } from "./code";
 import { Type } from "./type";
 
 export const Returns: React.FC<
@@ -15,15 +16,13 @@ export const Returns: React.FC<
 
   return (
     <div className="api-docs__returns">
-      <pre>
-        <code className="language-ts">
-          {returnTag?.content || signature ? (
-            <Type {...props} reflection={signature?.type} />
-          ) : (
-            "void"
-          )}
-        </code>
-      </pre>
+      <Code>
+        {returnTag?.content || signature ? (
+          <Type {...props} reflection={signature?.type} />
+        ) : (
+          "void"
+        )}
+      </Code>
     </div>
   );
 };

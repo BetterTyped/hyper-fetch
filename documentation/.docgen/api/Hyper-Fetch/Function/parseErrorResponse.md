@@ -20,7 +20,11 @@ parseErrorResponse<T>(response)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [client/fetch.client.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/client/fetch.client.utils.ts#L26)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

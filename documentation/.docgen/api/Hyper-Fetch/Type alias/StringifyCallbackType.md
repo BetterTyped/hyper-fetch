@@ -20,4 +20,8 @@ type StringifyCallbackType = (queryParams: ClientQueryParamsType | string | Nega
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [builder/builder.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.types.ts#L57)
+
+</div>

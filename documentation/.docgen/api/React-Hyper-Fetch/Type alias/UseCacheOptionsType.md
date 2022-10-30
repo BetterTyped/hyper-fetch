@@ -24,4 +24,8 @@ type UseCacheOptionsType = {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-cache/use-cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
+
+</div>

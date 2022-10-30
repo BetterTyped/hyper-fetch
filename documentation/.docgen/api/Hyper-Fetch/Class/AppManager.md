@@ -13,7 +13,11 @@ App manager handles main application states - focus and online. Those two values
 - Is our application online or offline?
 With the app manager it is not a problem to get the valid answer for this question.
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L15)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
@@ -33,35 +37,163 @@ With the app manager it is not a problem to get the valid answer for this questi
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><table>
+</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>options</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+### `options`
 
+</h3><div class="api-docs__section">
 
+#### Description
 
-</span></div></th></tr><tr><th>isOnline</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>isFocused</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>events</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L22)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+AppManagerOptionsType
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `isOnline`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L19)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+boolean
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `isFocused`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>builder</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L20)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+boolean
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `events`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr></tbody></table>
+</span></div><div class="api-docs__definition">
 
-</table></div><div class="api-docs__section" data-reactroot="">
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L17)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+{ emitBlur: () => void; emitFocus: () => void; emitOffline: () => void; emitOnline: () => void; onBlur: (callback: () => void) => VoidFunction; onFocus: (callback: () => void) => VoidFunction; onOffline: (callback: () => void) => VoidFunction; onOnline: (callback: () => void) => VoidFunction }
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `emitter`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L16)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+EventEmitter
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `builder`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L22)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+BuilderInstance
+```
+
+</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
 
 ## Methods
 
@@ -87,7 +219,11 @@ setFocused(isFocused)
 
 
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L55)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -131,7 +267,11 @@ setOnline(isOnline)
 
 
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.ts#L65)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 

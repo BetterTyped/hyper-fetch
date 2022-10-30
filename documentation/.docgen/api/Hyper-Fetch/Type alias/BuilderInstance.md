@@ -20,4 +20,8 @@ type BuilderInstance = Builder<any, any>;
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [builder/builder.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.types.ts#L43)
+
+</div>

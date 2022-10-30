@@ -25,4 +25,8 @@ type UseAppManagerReturnType = {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-app-manager/use-app-manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-app-manager/use-app-manager.types.ts#L1)
+
+</div>

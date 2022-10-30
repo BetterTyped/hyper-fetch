@@ -20,7 +20,11 @@ getCommandManagerEvents(emitter)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/command/command.manager.events.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/command/command.manager.events.ts#L27)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

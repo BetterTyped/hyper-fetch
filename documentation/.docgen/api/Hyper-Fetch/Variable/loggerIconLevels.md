@@ -14,4 +14,8 @@
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/logger/logger.manager.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.constants.ts#L12)
+
+</div>

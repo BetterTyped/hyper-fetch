@@ -14,4 +14,8 @@
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
+
+</div>

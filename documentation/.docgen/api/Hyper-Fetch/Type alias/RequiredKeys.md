@@ -20,4 +20,8 @@ type RequiredKeys = { [ P in keyof T ]-?: Exclude<T[P], NegativeTypes> };
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/helpers.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/helpers.types.ts#L13)
+
+</div>

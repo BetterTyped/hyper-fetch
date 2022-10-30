@@ -26,4 +26,8 @@ type CacheStorageType = {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [cache/cache.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/cache/cache.types.ts#L48)
+
+</div>

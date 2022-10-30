@@ -20,4 +20,8 @@ type QueueRequest = DispatcherDumpValueType<Command> & { deleteRequest: () => vo
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-queue/use-queue.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-queue/use-queue.types.ts#L7)
+
+</div>

@@ -1,6 +1,7 @@
 import React from "react";
 
 import { PagePropsType } from "types/page.types";
+import { Definition } from "./components/definition";
 import { Description } from "./components/description";
 import { Methods } from "./components/methods";
 import { Name } from "./components/name";
@@ -14,6 +15,7 @@ export const ClassPage: React.FC<PagePropsType> = (props) => {
       <Name {...props} />
       <Section>Description</Section>
       <Description {...props} />
+      <Definition {...props} />
       <Section>Parameters</Section>
       <Parameters {...props} />
       <Section>Properties</Section>

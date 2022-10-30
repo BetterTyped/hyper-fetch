@@ -20,4 +20,8 @@ type UseTrackedStateReturn = [UseTrackedStateType<T>, UseTrackedStateActions<T>,
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
+
+</div>

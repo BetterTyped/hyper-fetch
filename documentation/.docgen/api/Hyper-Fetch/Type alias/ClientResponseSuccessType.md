@@ -20,4 +20,8 @@ type ClientResponseSuccessType = [GenericDataType, null, number | null];
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [client/fetch.client.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/client/fetch.client.types.ts#L18)
+
+</div>

@@ -20,4 +20,8 @@ type FetchOptionsType = Omit<Partial<CommandConfig<string, ClientOptions>>, endp
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L195)
+
+</div>

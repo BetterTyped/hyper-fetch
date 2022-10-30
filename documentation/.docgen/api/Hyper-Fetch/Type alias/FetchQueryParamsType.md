@@ -20,4 +20,8 @@ type FetchQueryParamsType = HasQuery extends true ? { queryParams?: NegativeType
 
 It will check if the query params are already set
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.types.ts#L203)
+
+</div>

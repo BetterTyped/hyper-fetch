@@ -20,7 +20,11 @@ useFetch<T>(command, options)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-fetch/use-fetch.hooks.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

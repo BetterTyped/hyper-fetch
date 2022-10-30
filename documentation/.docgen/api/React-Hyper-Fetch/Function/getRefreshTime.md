@@ -20,7 +20,11 @@ getRefreshTime(refreshTime, dataTimestamp)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-fetch/use-fetch.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

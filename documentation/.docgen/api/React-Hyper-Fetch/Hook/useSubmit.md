@@ -20,7 +20,11 @@ useSubmit<Command>(command, options)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-submit/use-submit.hooks.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

@@ -2,6 +2,7 @@ import React from "react";
 
 import { PagePropsType } from "types/page.types";
 import { getSignature } from "../utils/parsing.utils";
+import { Definition } from "./definition";
 import { Description } from "./description";
 import { Name } from "./name";
 import { Parameters } from "./parameters";
@@ -25,6 +26,7 @@ export const Method: React.FC<PagePropsType> = (props) => {
       <Preview {...props} reflection={methodSignature || reflection} />
       <Section headingSize="h4">Description</Section>
       <Description {...props} reflection={methodSignature || reflection} />
+      <Definition {...props} reflection={reflection} />
       <Section headingSize="h4">Parameters</Section>
       <Parameters {...props} />
       <Section headingSize="h4">Return</Section>

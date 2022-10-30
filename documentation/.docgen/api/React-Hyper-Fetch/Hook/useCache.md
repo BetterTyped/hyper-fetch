@@ -20,7 +20,11 @@ useCache<T>(command, options)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-cache/use-cache.hooks.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

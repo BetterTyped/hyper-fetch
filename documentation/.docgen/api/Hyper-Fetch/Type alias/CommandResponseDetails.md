@@ -26,4 +26,8 @@ type CommandResponseDetails = {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/command/command.manager.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/command/command.manager.types.ts#L17)
+
+</div>

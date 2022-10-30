@@ -20,7 +20,11 @@ useAppManager<B>(builder)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [hooks/use-app-manager/use-app-manager.hooks.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

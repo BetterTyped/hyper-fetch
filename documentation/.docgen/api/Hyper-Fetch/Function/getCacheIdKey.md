@@ -20,7 +20,11 @@ getCacheIdKey(key)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [cache/cache.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/cache/cache.utils.ts#L27)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

@@ -20,4 +20,8 @@ type NullableKeys = { [ P in keyof T ]-?: NullableType<T[P]> };
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/helpers.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/helpers.types.ts#L5)
+
+</div>

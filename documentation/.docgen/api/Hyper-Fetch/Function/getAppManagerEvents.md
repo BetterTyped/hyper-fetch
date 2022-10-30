@@ -20,7 +20,11 @@ getAppManagerEvents(emitter)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/app/app.manager.events.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.events.ts#L5)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

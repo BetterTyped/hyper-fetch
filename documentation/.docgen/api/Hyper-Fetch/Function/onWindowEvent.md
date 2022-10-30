@@ -20,7 +20,11 @@ onWindowEvent<K>(key, listener, options)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/app/app.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/app/app.manager.utils.ts#L16)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

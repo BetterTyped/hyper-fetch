@@ -2,8 +2,7 @@ import React from "react";
 
 import { PagePropsType } from "types/page.types";
 import { getProperties } from "../utils/parsing.utils";
-import { Description } from "./description";
-import { Type } from "./type";
+import { Property } from "./property";
 
 export const Properties: React.FC<PagePropsType> = (props) => {
   const { reflection } = props;
@@ -15,32 +14,9 @@ export const Properties: React.FC<PagePropsType> = (props) => {
 
   return (
     <div className="api-docs__properties">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {properties.map((prop, index) => {
-            return (
-              <tr key={index}>
-                <th>{prop.name}</th>
-                <th>
-                  <code>
-                    <Type {...props} reflection={prop} />
-                  </code>
-                </th>
-                <th>
-                  <Description {...props} reflection={prop} />
-                </th>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {properties.map((prop, index) => (
+        <Property key={index} {...props} reflection={prop} />
+      ))}
     </div>
   );
 };

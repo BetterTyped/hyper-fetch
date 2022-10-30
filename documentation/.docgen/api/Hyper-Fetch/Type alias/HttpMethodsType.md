@@ -20,4 +20,8 @@ type HttpMethodsType = GET | POST | PUT | PATCH | DELETE;
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/http.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/http.types.ts#L1)
+
+</div>

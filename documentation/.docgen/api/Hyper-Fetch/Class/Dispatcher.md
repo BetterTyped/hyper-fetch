@@ -11,7 +11,11 @@
 Dispatcher class was made to store controlled request Fetches, and firing them all-at-once or one-by-one in command queue.
 Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L25)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 
@@ -31,31 +35,137 @@ Generally requests should be flushed at the same time, the queue provide mechani
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><table>
+</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
 
-<table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><th>storage</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+### `storage`
 
+</h3><div class="api-docs__section">
 
+#### Description
 
-</span></div></th></tr><tr><th>options</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div></th></tr><tr><th>events</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>emitter</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L28)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+DispatcherStorageType
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `options`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr><tr><th>builder</th><th><code><span class="api-type__type">void</span></code></th><th><div class="api-docs__description"><span class="api-docs__do-not-parse">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L35)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+DispatcherOptionsType
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `events`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div></th></tr></tbody></table>
+</span></div><div class="api-docs__definition">
 
-</table></div><div class="api-docs__section" data-reactroot="">
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L27)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+{ onDrained: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; onQueueChange: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; onQueueStatus: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; setDrained: <Command>(queueKey: string, values: DispatcherData<Command>) => void; setQueueChanged: <Command>(queueKey: string, values: DispatcherData<Command>) => void; setQueueStatus: <Command>(queueKey: string, values: DispatcherData<Command>) => void }
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `emitter`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L26)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+EventEmitter
+```
+
+</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+
+### `builder`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L35)
+
+</div><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+BuilderInstance
+```
+
+</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
 
 ## Methods
 
@@ -81,7 +191,11 @@ add(command)
 
 Add command to the dispatcher handler
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L401)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -125,7 +239,11 @@ addQueueElement<Command>(queueKey, dispatcherDump)
 
 Add new element to storage
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L137)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -173,7 +291,11 @@ addRunningRequest(queueKey, requestId, command)
 
 Add request to the running requests list
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L298)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -225,7 +347,11 @@ cancelRunningRequest(queueKey, requestId)
 
 Cancel started request, but do NOT remove it from main storage
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L331)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -273,7 +399,11 @@ cancelRunningRequests(queueKey)
 
 Cancel all started requests, but do NOT remove it from main storage
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L322)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -317,7 +447,11 @@ clear()
 
 Clear all running requests and storage
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L223)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -353,7 +487,11 @@ clearQueue(queueKey)
 
 Clear requests from queue cache
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L162)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -397,7 +535,11 @@ createStorageElement<Command>(command)
 
 Create storage element from command
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L380)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -441,7 +583,11 @@ delete(queueKey, requestId, abortKey)
 
 Delete from the storage and cancel request
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L445)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -493,7 +639,11 @@ deleteRunningRequest(queueKey, requestId)
 
 Delete request by id, but do NOT clear it from queue and do NOT cancel them
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L353)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -541,7 +691,11 @@ deleteRunningRequests(queueKey)
 
 Delete all started requests, but do NOT clear it from queue and do NOT cancel them
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L346)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -585,7 +739,11 @@ flush()
 
 Flush all available requests from all queues
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L207)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -621,7 +779,11 @@ flushQueue(queueKey)
 
 Method used to flush the queue requests
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L177)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -665,7 +827,11 @@ getAllRunningRequest()
 
 Get currently running requests from all queueKeys
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L276)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -701,7 +867,11 @@ getIsActiveQueue(queueKey)
 
 Get value of the active queue status based on the stopped status
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L127)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -745,7 +915,11 @@ getQueue<Command>(queueKey)
 
 Return queue state object
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L107)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -789,7 +963,11 @@ getQueueRequestCount(queueKey)
 
 Get count of requests from the same queueKey
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L364)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -833,7 +1011,11 @@ getQueuesKeys()
 
 Return all
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L100)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -869,7 +1051,11 @@ getRequest<Command>(queueKey, requestId)
 
 Return request from queue state
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L117)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -917,7 +1103,11 @@ getRunningRequest(queueKey, requestId)
 
 Get running request by id
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L290)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -965,7 +1155,11 @@ getRunningRequests(queueKey)
 
 Get currently running requests
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L283)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1009,7 +1203,11 @@ hasRunningRequest(queueKey, requestId)
 
 Check if request is currently processing
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L314)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1057,7 +1255,11 @@ hasRunningRequests(queueKey)
 
 Get the value based on the currently running requests
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L307)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1101,7 +1303,11 @@ incrementQueueRequestCount(queueKey)
 
 Add request count to the queueKey
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L371)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1145,7 +1351,11 @@ pause(queueKey)
 
 Pause request queue, but not cancel already started requests
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L73)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1190,7 +1400,11 @@ performRequest(storageElement)
 Request can run for some time, once it&#x27;s done, we have to check if it&#x27;s successful or if it was aborted
 It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L478)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1234,7 +1448,11 @@ setQueue<Command>(queueKey, queue)
 
 Set new queue storage value
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L149)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1282,7 +1500,11 @@ start(queueKey)
 
 Start request handling by queueKey
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L59)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1326,7 +1548,11 @@ startRequest(queueKey, requestId)
 
 Start particular request
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L241)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1374,7 +1600,11 @@ stop(queueKey)
 
 Stop request queue and cancel all started requests - those will be treated like not started
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L85)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 
@@ -1418,7 +1648,11 @@ stopRequest(queueKey, requestId)
 
 Stop particular request
 
-</span></div><div class="api-docs__section">
+</span></div><div class="api-docs__definition">
+
+Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.ts#L258)
+
+</div><div class="api-docs__section">
 
 #### Parameters
 

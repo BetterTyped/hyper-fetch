@@ -20,7 +20,11 @@ logger(log)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [managers/logger/logger.manager.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/managers/logger/logger.manager.utils.ts#L10)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

@@ -20,4 +20,8 @@ type ExtractHasData = T extends Command<any, any, any, any, any, any, any, infer
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/fetch.types.ts#L33)
+
+</div>

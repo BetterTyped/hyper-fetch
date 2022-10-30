@@ -20,7 +20,11 @@ getBounceData(bounceData)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [utils/bounce.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/react/src/utils/bounce.utils.ts#L1)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

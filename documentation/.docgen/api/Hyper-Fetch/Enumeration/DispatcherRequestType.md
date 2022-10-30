@@ -25,4 +25,8 @@ enum DispatcherRequestType {
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [dispatcher/dispatcher.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/dispatcher/dispatcher.constants.ts#L1)
+
+</div>

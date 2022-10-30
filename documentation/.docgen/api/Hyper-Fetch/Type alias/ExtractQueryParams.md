@@ -20,4 +20,8 @@ type ExtractQueryParams = T extends Command<any, any, infer  Q, any, any, any, a
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [types/fetch.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/types/fetch.types.ts#L13)
+
+</div>

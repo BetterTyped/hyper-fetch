@@ -20,7 +20,11 @@ getProgressValue(__namedParameters)
 
 
 
-</span></div><div class="api-docs__section" data-reactroot="">
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [command/command.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/command/command.utils.ts#L19)
+
+</div><div class="api-docs__section" data-reactroot="">
 
 ## Parameters
 

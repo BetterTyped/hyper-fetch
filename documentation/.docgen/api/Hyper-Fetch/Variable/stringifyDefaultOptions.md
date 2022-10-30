@@ -14,4 +14,8 @@
 
 
 
-</span></div>
+</span></div><div class="api-docs__definition" data-reactroot="">
+
+Defined in [builder/builder.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/089b54eb/packages/core/src/builder/builder.constants.ts#L1)
+
+</div>
