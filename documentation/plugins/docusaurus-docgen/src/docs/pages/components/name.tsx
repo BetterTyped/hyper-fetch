@@ -16,11 +16,11 @@ export const Name: React.FC<PagePropsType & Partial<HeadingType>> = ({
   if (headingSize === "h1") {
     return (
       <>
-        {`
-      
-# ${icon}${name}
-
-`}
+        {"\n"}
+        {"\n"}
+        {`# ${icon}${name}`}
+        {"\n"}
+        {"\n"}
       </>
     );
   }

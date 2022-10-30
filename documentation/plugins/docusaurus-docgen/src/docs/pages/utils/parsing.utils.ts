@@ -32,26 +32,71 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
   return [name, typeSignature, callSignature];
 };
 
-export const getProperties = (reflection: JSONOutput.DeclarationReflection) => {
-  return (reflection.children || [])
-    .sort((a, b) => {
-      const nameA = a.name.startsWith("_");
-      const nameB = b.name.startsWith("_");
-
-      if (nameA && nameB) {
-        return 0;
-      }
-      if (nameA) {
-        return 1;
-      }
-      return -1;
-    })
-    .filter((property) => ["Property"].includes(property.kindString || ""));
+const getReference = (id: number, tree: JSONOutput.DeclarationReflection[]) => {
+  return tree.find((element) => element.id === id);
 };
-export const getMethods = (reflection: JSONOutput.DeclarationReflection) => {
-  const disabledNames = ["constructor"];
-  const disabledKinds = ["Property"];
 
+const isFunctionType = (
+  reflection: any,
+  reflectionsTree: JSONOutput.DeclarationReflection[],
+): boolean => {
+  const element = reflection as unknown as JSONOutput.DeclarationReflection;
+
+  if (typeof element.type === "object" && element.type && "id" in element.type && element.type.id) {
+    const referenceType = getReference(element.type.id, reflectionsTree);
+
+    if (referenceType?.type?.type === "conditional") {
+      if (
+        referenceType.type?.trueType &&
+        isFunctionType(referenceType.type.trueType, reflectionsTree)
+      ) {
+        return true;
+      }
+      if (
+        referenceType.type?.falseType &&
+        isFunctionType(referenceType.type.falseType, reflectionsTree)
+      ) {
+        return true;
+      }
+      if (
+        referenceType.type?.checkType &&
+        isFunctionType(referenceType.type.trueType, reflectionsTree)
+      ) {
+        return true;
+      }
+    }
+    if (referenceType) {
+      return isFunctionType(referenceType, reflectionsTree);
+    }
+  }
+  if (
+    typeof element.type === "object" &&
+    element?.type &&
+    "declaration" in element.type &&
+    element.type.declaration
+  ) {
+    return !!element.type.declaration.signatures;
+  }
+  if ((element as any)?.declaration) {
+    return !!(element as any).declaration?.signatures;
+  }
+  return false;
+};
+
+const isMethod = (
+  reflection: JSONOutput.DeclarationReflection,
+  reflectionsTree: JSONOutput.DeclarationReflection[],
+) => {
+  if (reflection.kindString === "Method") {
+    return true;
+  }
+  return isFunctionType(reflection, reflectionsTree);
+};
+
+export const getProperties = (
+  reflection: JSONOutput.DeclarationReflection,
+  reflectionsTree: JSONOutput.DeclarationReflection[],
+) => {
   return (reflection.children || [])
     .sort((a, b) => {
       const nameA = a.name.startsWith("_");
@@ -65,10 +110,33 @@ export const getMethods = (reflection: JSONOutput.DeclarationReflection) => {
       }
       return -1;
     })
-    .filter(
-      (method) =>
-        !disabledNames.includes(method.name) && !disabledKinds.includes(method.kindString || ""),
-    );
+    .filter((element) => element.name !== "constructor")
+    .filter((element) => {
+      return !isMethod(element, reflectionsTree);
+    });
+};
+
+export const getMethods = (
+  reflection: JSONOutput.DeclarationReflection,
+  reflectionsTree: JSONOutput.DeclarationReflection[],
+) => {
+  return (reflection.children || [])
+    .sort((a, b) => {
+      const nameA = a.name.startsWith("_");
+      const nameB = b.name.startsWith("_");
+
+      if (nameA && nameB) {
+        return 0;
+      }
+      if (nameA) {
+        return 1;
+      }
+      return -1;
+    })
+    .filter((element) => element.name !== "constructor")
+    .filter((element) => {
+      return isMethod(element, reflectionsTree);
+    });
 };
 
 // Comments

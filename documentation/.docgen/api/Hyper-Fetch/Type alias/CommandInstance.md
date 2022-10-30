@@ -1,5 +1,5 @@
 
-      
+
 # CommandInstance
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type CommandInstance = Command<any, any, any, any, any, any, any, any, any, any,
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:268](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.types.ts#L268)
+Defined in [command/command.types.ts:268](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.types.ts#L268)
 
-</div>
+</p>

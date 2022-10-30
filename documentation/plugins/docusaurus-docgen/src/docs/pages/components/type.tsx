@@ -23,7 +23,7 @@ export function Type({
   needsParens,
   ...props
 }: PagePropsType<any> & { needsParens?: boolean }): React.ReactElement | null {
-  const { reflection, reflectionTree } = props;
+  const { reflection, reflectionsTree } = props;
   if (!reflection) {
     return null;
   }
@@ -182,7 +182,7 @@ export function Type({
 
     case "reference": {
       const type = reflection as unknown as JSONOutput.ReferenceType;
-      const ref: any = type.id ? reflectionTree[type.id] : null;
+      const ref: any = type.id ? reflectionsTree[type.id] : null;
       const genericClass = ref?.id && !ref.sources ? "api-type__type-generic" : "";
 
       return (

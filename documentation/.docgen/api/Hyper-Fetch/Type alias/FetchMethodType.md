@@ -1,5 +1,5 @@
 
-      
+
 # FetchMethodType
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type FetchMethodType = FetchType<Command>[data] extends any ? (options?: FetchTy
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:260](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.types.ts#L260)
+Defined in [command/command.types.ts:260](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.types.ts#L260)
 
-</div>
+</p>

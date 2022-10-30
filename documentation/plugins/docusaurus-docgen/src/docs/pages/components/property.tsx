@@ -19,7 +19,10 @@ export const Property: React.FC<PagePropsType> = (props) => {
     <div className="api-docs__property" property-data={name}>
       <Name
         {...props}
-        reflection={{ ...reflection, name: (<code>{name}</code>) as unknown as string }}
+        reflection={{
+          ...reflection,
+          name: (<Code fenced={false}>{name}</Code>) as unknown as string,
+        }}
         headingSize="h3"
       />
       <Sources {...props} />

@@ -1,5 +1,5 @@
 
-      
+
 # hasWindow
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,15 +24,11 @@ hasWindow()
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.utils.ts#L1)
+Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/managers/app/app.manager.utils.ts#L1)
 
-</div><div class="api-docs__section">
-
-## Parameters
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Returns
 

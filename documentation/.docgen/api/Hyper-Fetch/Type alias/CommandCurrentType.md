@@ -1,5 +1,5 @@
 
-      
+
 # CommandCurrentType
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type CommandCurrentType = { data?: CommandData<RequestDataType, MappedData>; hea
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.types.ts#L163)
+Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.types.ts#L163)
 
-</div>
+</p>

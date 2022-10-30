@@ -1,5 +1,5 @@
 
-      
+
 # FetchEffect
 
 <div class="api-docs__separator" data-reactroot="">
@@ -14,23 +14,23 @@
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L6)
+Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L6)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="config"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="config"><td class="api-docs__param-name required">
 
-**config**
+**config** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `FetchEffectConfig<T>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -50,11 +50,11 @@ Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L7)
+Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L7)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Type
 
@@ -90,15 +90,11 @@ getEffectKey()
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L9)
+Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L9)
 
-</div><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Return
 
@@ -130,35 +126,35 @@ onError(response, command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L22)
+Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L22)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="response"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-**response**
+**response** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `ClientResponseErrorType<ExtractError<T>>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="command"><td>
+</td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `T`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -194,35 +190,35 @@ onFinished(response, command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L25)
+Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L25)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="response"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-**response**
+**response** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `ClientResponseType<ResponseType, ExtractError<T>>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="command"><td>
+</td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `T`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -258,23 +254,23 @@ onStart(command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L16)
+Defined in [effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L16)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `T`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -310,35 +306,35 @@ onSuccess(response, command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L19)
+Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L19)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="response"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-**response**
+**response** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `ClientResponseSuccessType<ResponseType>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="command"><td>
+</td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `T`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -374,23 +370,23 @@ onTrigger(command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.ts#L13)
+Defined in [effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/effect/fetch.effect.ts#L13)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `T`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

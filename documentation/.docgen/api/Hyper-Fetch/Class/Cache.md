@@ -1,5 +1,5 @@
 
-      
+
 # Cache
 
 <div class="api-docs__separator" data-reactroot="">
@@ -14,35 +14,35 @@
 
 Cache class handles the data exchange with the dispatchers.
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L23)
+Defined in [cache/cache.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L23)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="builder"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="builder"><td class="api-docs__param-name required">
 
-**builder**
+**builder** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `BuilderInstance`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="options"><td>
+</td></tr><tr param-data="options"><td class="api-docs__param-name optional">
 
-**options**
+**options** `Optional`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `CacheOptionsType`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -50,35 +50,9 @@ Defined in [cache/cache.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/1
 
 ## Properties
 
-</div><div class="api-docs__properties"><div class="api-docs__property" property-data="storage"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="builder"><h3 class="api-docs__name">
 
-### `storage`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><div class="api-docs__definition">
-
-Defined in [cache/cache.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L27)
-
-</div><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-CacheStorageType
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
-
-### `options`
+### `builder`
 
 </h3><div class="api-docs__section">
 
@@ -88,122 +62,18 @@ CacheStorageType
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L33)
+Defined in [cache/cache.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L33)
 
-</div><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-CacheOptionsType
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="lazyStorage"><h3 class="api-docs__name">
-
-### `lazyStorage`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><div class="api-docs__definition">
-
-Defined in [cache/cache.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L28)
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Type
 
 </div><div class="api-docs__property-type">
 
 ```ts
-CacheAsyncStorageType
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="garbageCollectors"><h3 class="api-docs__name">
-
-### `garbageCollectors`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><div class="api-docs__definition">
-
-Defined in [cache/cache.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L30)
-
-</div><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-Map<string, Timeout>
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
-
-### `events`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><div class="api-docs__definition">
-
-Defined in [cache/cache.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L25)
-
-</div><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-{ emitCacheData: <Response, Error>(cacheKey: string, data: CacheValueType<Response, Error>) => void; emitRevalidation: (cacheKey: string) => void; onData: <Response, Error>(cacheKey: string, callback: (data: CacheValueType<Response, Error>) => void) => VoidFunction; onRevalidate: (cacheKey: string, callback: () => void) => VoidFunction }
-```
-
-</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
-
-### `emitter`
-
-</h3><div class="api-docs__section">
-
-#### Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><div class="api-docs__definition">
-
-Defined in [cache/cache.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L24)
-
-</div><div class="api-docs__section">
-
-#### Type
-
-</div><div class="api-docs__property-type">
-
-```ts
-EventEmitter
+BuilderInstance
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="clearKey"><h3 class="api-docs__name">
@@ -218,11 +88,11 @@ EventEmitter
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L29)
+Defined in [cache/cache.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L29)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Type
 
@@ -232,9 +102,9 @@ Defined in [cache/cache.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/1
 string
 ```
 
-</div><hr/></div><div class="api-docs__property" property-data="builder"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
 
-### `builder`
+### `emitter`
 
 </h3><div class="api-docs__section">
 
@@ -244,18 +114,148 @@ string
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L33)
+Defined in [cache/cache.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L24)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Type
 
 </div><div class="api-docs__property-type">
 
 ```ts
-BuilderInstance
+EventEmitter
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
+
+### `events`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L25)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+{ emitCacheData: <Response,Error>(cacheKey: string, data: CacheValueType<Response, Error>) => void; emitRevalidation: (cacheKey: string) => void; onData: <Response,Error>(cacheKey: string, callback: (data: CacheValueType<Response, Error>) => void) => VoidFunction; onRevalidate: (cacheKey: string, callback: () => void) => VoidFunction }
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="garbageCollectors"><h3 class="api-docs__name">
+
+### `garbageCollectors`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L30)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+Map<string, Timeout>
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="lazyStorage"><h3 class="api-docs__name">
+
+### `lazyStorage`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L28)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+CacheAsyncStorageType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
+
+### `options`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L33)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+CacheOptionsType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="storage"><h3 class="api-docs__name">
+
+### `storage`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L27)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+CacheStorageType
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
@@ -284,15 +284,11 @@ clear()
 
 Clear cache storages
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:218](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L218)
+Defined in [cache/cache.ts:218](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L218)
 
-</div><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Return
 
@@ -324,23 +320,23 @@ delete(cacheKey)
 
 Delete record from storages and trigger revalidation
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:119](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L119)
+Defined in [cache/cache.ts:119](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L119)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="cacheKey"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-**cacheKey**
+**cacheKey** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `string`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -376,23 +372,23 @@ get<Response, Error>(cacheKey)
 
 Get particular record from storage by cacheKey. It will trigger lazyStorage to emit lazy load event for reading it&#x27;s data.
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:99](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L99)
+Defined in [cache/cache.ts:99](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L99)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="cacheKey"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-**cacheKey**
+**cacheKey** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `string`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -428,15 +424,11 @@ getLazyKeys()
 
 Used to receive keys from sync storage and lazy storage
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:179](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L179)
+Defined in [cache/cache.ts:179](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L179)
 
-</div><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Return
 
@@ -468,23 +460,23 @@ getLazyResource<Response, Error>(cacheKey)
 
 Used to receive data from lazy storage
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:152](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L152)
+Defined in [cache/cache.ts:152](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L152)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="cacheKey"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-**cacheKey**
+**cacheKey** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `string`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -520,15 +512,11 @@ keys()
 
 Get sync storage keys, lazyStorage keys will not be included
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:109](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L109)
+Defined in [cache/cache.ts:109](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L109)
 
-</div><div class="api-docs__section">
-
-#### Parameters
-
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Return
 
@@ -560,23 +548,23 @@ revalidate(cacheKey)
 
 Revalidate cache by cacheKey or partial matching with RegExp
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:130](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L130)
+Defined in [cache/cache.ts:130](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L130)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="cacheKey"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-**cacheKey**
+**cacheKey** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `string | RegExp`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -612,23 +600,23 @@ scheduleGarbageCollector(cacheKey)
 
 Schedule garbage collection for given key
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:192](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L192)
+Defined in [cache/cache.ts:192](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L192)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="cacheKey"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="cacheKey"><td class="api-docs__param-name required">
 
-**cacheKey**
+**cacheKey** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `string`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -664,47 +652,47 @@ set<Response, Error>(command, response, details)
 
 Set the cache data to the storage
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.ts#L61)
+Defined in [cache/cache.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.ts#L61)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `CommandInstance | CommandDump<CommandInstance, unknown, ClientQueryParamsType, null>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="response"><td>
+</td></tr><tr param-data="response"><td class="api-docs__param-name required">
 
-**response**
+**response** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `ClientResponseType<Response, Error>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="details"><td>
+</td></tr><tr param-data="details"><td class="api-docs__param-name required">
 
-**details**
+**details** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `CommandResponseDetails`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

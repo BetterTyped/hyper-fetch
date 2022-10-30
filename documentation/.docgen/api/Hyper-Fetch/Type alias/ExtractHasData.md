@@ -1,5 +1,5 @@
 
-      
+
 # ExtractHasData
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type ExtractHasData = T extends Command<any, any, any, any, any, any, any, infer
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/types/fetch.types.ts#L33)
+Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/types/fetch.types.ts#L33)
 
-</div>
+</p>

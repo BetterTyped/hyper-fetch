@@ -11,15 +11,15 @@ export const GenericParameters = ({ generics }: GenericParametersProps) => {
   }
 
   return (
-    <span className="tsd-generics">
-      <span className="tsd-signature-symbol">&lt;</span>
+    <span className="api-docs__generics">
+      &lt;
       {generics.map((param, i) => (
         <React.Fragment key={param.id}>
-          {i > 0 && <span className="tsd-signature-symbol">, </span>}
+          {i > 0 && ","}
           {param.name}
         </React.Fragment>
       ))}
-      <span className="tsd-signature-symbol">&gt;</span>
+      &gt;
     </span>
   );
 };

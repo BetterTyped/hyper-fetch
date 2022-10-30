@@ -1,5 +1,5 @@
 
-      
+
 # getIsEqualTimestamp
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,47 +24,47 @@ getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
+Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="currentTimestamp"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="currentTimestamp"><td class="api-docs__param-name required">
 
-**currentTimestamp**
+**currentTimestamp** `Required`
 
-</td><td>
-
-`number`
-
-</td><td>
-
-
-
-</td></tr><tr param-data="threshold"><td>
-
-**threshold**
-
-</td><td>
+</td><td class="api-docs__param-type">
 
 `number`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="queueTimestamp"><td>
+</td></tr><tr param-data="threshold"><td class="api-docs__param-name required">
 
-**queueTimestamp**
+**threshold** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `number`
 
-</td><td>
+</td><td class="api-docs__param-default">
+
+
+
+</td></tr><tr param-data="queueTimestamp"><td class="api-docs__param-name optional">
+
+**queueTimestamp** `Optional`
+
+</td><td class="api-docs__param-type">
+
+`number`
+
+</td><td class="api-docs__param-default">
 
 
 

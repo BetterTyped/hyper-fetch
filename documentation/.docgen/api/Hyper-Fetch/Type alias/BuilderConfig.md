@@ -1,5 +1,5 @@
 
-      
+
 # BuilderConfig
 
 <div class="api-docs__separator" data-reactroot="">
@@ -14,13 +14,13 @@
 
 ```ts
 type BuilderConfig = {
-  appManager: <B, A>(builder: B) => A; 
+  appManager: <B,A>(builder: B) => A; 
   baseUrl: string; 
-  cache: <B, C>(builder: B) => C; 
+  cache: <B,C>(builder: B) => C; 
   client: ClientType; 
-  fetchDispatcher: <B, D>(builder: B) => D; 
+  fetchDispatcher: <B,D>(builder: B) => D; 
   isNodeJS: boolean; 
-  submitDispatcher: <B, D>(builder: B) => D; 
+  submitDispatcher: <B,D>(builder: B) => D; 
 }
 ```
 
@@ -32,8 +32,8 @@ type BuilderConfig = {
 
 Configuration setup for the builder
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/builder/builder.types.ts#L12)
+Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/builder/builder.types.ts#L12)
 
-</div>
+</p>

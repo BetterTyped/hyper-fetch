@@ -13,14 +13,14 @@ export const Generics: React.FC<PagePropsType<JSONOutput.DeclarationReflection>>
 
   return (
     <div className="api-docs__generics">
-      <span className="api-docs__symbol">&lt;</span>
-      {signature.typeParameter.map((param, i) => (
+      &lt;
+      {signature.typeParameter.map((param, index) => (
         <React.Fragment key={param.id}>
-          {i > 0 && <span className="api-docs__symbol">, </span>}
+          {index > 0 && ","}
           {param.name}
         </React.Fragment>
       ))}
-      <span className="api-docs__symbol">&gt;</span>
+      &gt;
     </div>
   );
 };

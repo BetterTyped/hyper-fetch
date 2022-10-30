@@ -1,6 +1,7 @@
 import React from "react";
 
 import { PagePropsType } from "types/page.types";
+import { Code } from "./code";
 import { Description } from "./description";
 import { Name } from "./name";
 import { Type } from "./type";
@@ -11,13 +12,13 @@ export const Parameter: React.FC<PagePropsType> = (props) => {
 
   return (
     <div className="api-docs__parameter">
-      <code>
+      <Code fenced={false}>
         <Name {...props} reflection={{ ...reflection, name: `${name}()` }} headingSize="h3" />
-      </code>
+      </Code>
       <Description {...props} />
-      <code>
+      <Code fenced={false}>
         <Type {...props} reflection={type} />
-      </code>
+      </Code>
       <hr />
     </div>
   );

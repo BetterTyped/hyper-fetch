@@ -1,5 +1,5 @@
 
-      
+
 # UseTrackedStateReturn
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type UseTrackedStateReturn = [UseTrackedStateType<T>, UseTrackedStateActions<T>,
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
 
-</div>
+</p>

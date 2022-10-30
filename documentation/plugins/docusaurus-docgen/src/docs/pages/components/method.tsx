@@ -2,6 +2,7 @@ import React from "react";
 
 import { PagePropsType } from "types/page.types";
 import { getSignature } from "../utils/parsing.utils";
+import { Code } from "./code";
 import { Definition } from "./definition";
 import { Description } from "./description";
 import { Name } from "./name";
@@ -20,7 +21,10 @@ export const Method: React.FC<PagePropsType> = (props) => {
     <div className="api-docs__method" method-data={name}>
       <Name
         {...props}
-        reflection={{ ...reflection, name: (<code>{name}()</code>) as unknown as string }}
+        reflection={{
+          ...reflection,
+          name: (<Code fenced={false}>{name}()</Code>) as unknown as string,
+        }}
         headingSize="h3"
       />
       <Sources {...props} />

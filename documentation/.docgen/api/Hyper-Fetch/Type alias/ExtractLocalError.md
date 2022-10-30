@@ -1,5 +1,5 @@
 
-      
+
 # ExtractLocalError
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type ExtractLocalError = T extends Command<any, any, any, any, infer  E, any, an
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/types/fetch.types.ts#L21)
+Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/types/fetch.types.ts#L21)
 
-</div>
+</p>

@@ -22,7 +22,7 @@ export const apiGenerator = ({
   packageDocsDir,
   options,
 }: ApiGeneratorProps) => {
-  const reflectionTree = (parsedApiJson.children || []).map((child) => ({
+  const reflectionsTree = (parsedApiJson.children || []).map((child) => ({
     ...child,
     kindString: getKindName(child.kindString || "", child.name),
   }));
@@ -37,7 +37,7 @@ export const apiGenerator = ({
 
     const data = pageGenerator({
       reflection,
-      reflectionTree,
+      reflectionsTree,
       pluginOptions: options,
       npmName: parsedApiJson.name,
       packageName,

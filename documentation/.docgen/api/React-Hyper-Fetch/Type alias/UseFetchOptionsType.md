@@ -1,5 +1,5 @@
 
-      
+
 # UseFetchOptionsType
 
 <div class="api-docs__separator" data-reactroot="">
@@ -40,8 +40,8 @@ type UseFetchOptionsType = {
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
+Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
 
-</div>
+</p>

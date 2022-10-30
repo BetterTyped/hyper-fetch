@@ -5,12 +5,12 @@ import { getMethods } from "../utils/parsing.utils";
 import { Method } from "./method";
 
 export const Methods: React.FC<PagePropsType> = (props) => {
-  const { reflection } = props;
+  const { reflection, reflectionsTree } = props;
   const { children } = reflection;
 
   if (!children) return null;
 
-  const methods = getMethods(reflection);
+  const methods = getMethods(reflection, reflectionsTree);
 
   return (
     <div className="api-docs__methods">

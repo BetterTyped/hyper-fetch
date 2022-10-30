@@ -1,5 +1,5 @@
 
-      
+
 # getErrorMessage
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,23 +24,23 @@ getErrorMessage(errorCase)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/client/fetch.client.utils.ts#L6)
+Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/client/fetch.client.utils.ts#L6)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="errorCase"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="errorCase"><td class="api-docs__param-name optional">
 
-**errorCase**
+**errorCase** `Optional`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `abort | timeout | deleted`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

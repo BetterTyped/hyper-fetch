@@ -22,7 +22,11 @@ const replaceBrackets = (html: string) => {
 
 const replaceCodeBrackets = (html: string) => {
   return html.replace(/(?<=`)([\s\S]*?)(?=`)/g, (substring) => {
-    return substring.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    return substring
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amplt;/g, "<")
+      .replace(/&ampgt;/g, ">");
   });
 };
 
@@ -52,9 +56,9 @@ const transform = (html: string) => {
   const nodes = parsedHtml.getElementsByTagName("*") as unknown as HTMLElement[];
   const parsed: HTMLElement[] = [];
 
-  function childOf(child: HTMLElement) {
+  function childOf(child: HTMLElement, elements: HTMLElement[]) {
     let element = child;
-    while (element && !parsed.includes(element)) {
+    while (element && !elements.includes(element)) {
       element = element?.parentNode as HTMLElement;
     }
     return !!element;
@@ -62,6 +66,14 @@ const transform = (html: string) => {
 
   Array.from(nodes).forEach((node) => {
     const hasNonParsingChild = node.querySelector(`.${noParsingClass}`);
+    const hasTableChild = !!Array.from(node.getElementsByTagName("TABLE")).length;
+
+    if (node.tagName === "CODE" && node.parentElement?.tagName === "PRE") {
+      return;
+    }
+    if (hasTableChild) {
+      return;
+    }
     if (node.tagName === "TABLE") {
       parsed.push(node);
       const cells = node.getElementsByTagName(`td`);
@@ -79,7 +91,7 @@ const transform = (html: string) => {
     if (node.classList.contains(noParsingClass)) {
       return;
     }
-    if (childOf(node)) {
+    if (childOf(node, parsed)) {
       return;
     }
     parsed.push(node);

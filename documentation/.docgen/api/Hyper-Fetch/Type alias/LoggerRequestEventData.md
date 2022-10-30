@@ -1,5 +1,5 @@
 
-      
+
 # LoggerRequestEventData
 
 <div class="api-docs__separator" data-reactroot="">
@@ -27,8 +27,8 @@ type LoggerRequestEventData = {
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/logger/logger.manager.types.ts#L29)
+Defined in [managers/logger/logger.manager.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/managers/logger/logger.manager.types.ts#L29)
 
-</div>
+</p>

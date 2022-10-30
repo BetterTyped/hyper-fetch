@@ -1,5 +1,5 @@
 
-      
+
 # getCommandDispatcher
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,37 +24,37 @@ getCommandDispatcher<Command>(command, dispatcherType)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.utils.ts#L101)
+Defined in [command/command.utils.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.utils.ts#L101)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `Command`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="dispatcherType"><td>
+</td></tr><tr param-data="dispatcherType"><td class="api-docs__param-name required">
 
-**dispatcherType**
+**dispatcherType** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `submit | auto | fetch`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
-
+"auto"
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 

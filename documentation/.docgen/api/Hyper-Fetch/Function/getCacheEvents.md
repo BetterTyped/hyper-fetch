@@ -1,5 +1,5 @@
 
-      
+
 # getCacheEvents
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,23 +24,23 @@ getCacheEvents(emitter)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.events.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/cache/cache.events.ts#L6)
+Defined in [cache/cache.events.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/cache/cache.events.ts#L6)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="emitter"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
 
-**emitter**
+**emitter** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `EventEmitter`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
@@ -51,7 +51,7 @@ Defined in [cache/cache.events.ts:6](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__returns">
 
 ```ts
-{ emitCacheData: <Response, Error>(cacheKey: string, data: CacheValueType<Response, Error>) => void; emitRevalidation: (cacheKey: string) => void; onData: <Response, Error>(cacheKey: string, callback: (data: CacheValueType<Response, Error>) => void) => VoidFunction; onRevalidate: (cacheKey: string, callback: () => void) => VoidFunction }
+{ emitCacheData: <Response,Error>(cacheKey: string, data: CacheValueType<Response, Error>) => void; emitRevalidation: (cacheKey: string) => void; onData: <Response,Error>(cacheKey: string, callback: (data: CacheValueType<Response, Error>) => void) => VoidFunction; onRevalidate: (cacheKey: string, callback: () => void) => VoidFunction }
 ```
 
 </div>

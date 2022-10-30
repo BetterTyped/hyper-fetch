@@ -1,5 +1,5 @@
 
-      
+
 # ExtractQueryParams
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type ExtractQueryParams = T extends Command<any, any, infer  Q, any, any, any, a
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/types/fetch.types.ts#L13)
+Defined in [types/fetch.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/types/fetch.types.ts#L13)
 
-</div>
+</p>

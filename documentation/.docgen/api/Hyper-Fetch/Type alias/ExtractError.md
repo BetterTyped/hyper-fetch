@@ -1,5 +1,5 @@
 
-      
+
 # ExtractError
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type ExtractError = T extends Command<any, any, any, infer  G, infer  L, any, an
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/types/fetch.types.ts#L15)
+Defined in [types/fetch.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/types/fetch.types.ts#L15)
 
-</div>
+</p>

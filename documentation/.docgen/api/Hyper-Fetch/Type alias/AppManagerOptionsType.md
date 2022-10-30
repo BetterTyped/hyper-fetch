@@ -1,5 +1,5 @@
 
-      
+
 # AppManagerOptionsType
 
 <div class="api-docs__separator" data-reactroot="">
@@ -29,8 +29,8 @@ type AppManagerOptionsType = {
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.types.ts#L3)
+Defined in [managers/app/app.manager.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/managers/app/app.manager.types.ts#L3)
 
-</div>
+</p>

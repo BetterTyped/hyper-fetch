@@ -1,5 +1,5 @@
 
-      
+
 # getRequestEta
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,47 +24,47 @@ getRequestEta(startDate, progressDate, __namedParameters)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.utils.ts#L24)
+Defined in [command/command.utils.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.utils.ts#L24)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="startDate"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="startDate"><td class="api-docs__param-name required">
 
-**startDate**
+**startDate** `Required`
 
-</td><td>
-
-`Date`
-
-</td><td>
-
-
-
-</td></tr><tr param-data="progressDate"><td>
-
-**progressDate**
-
-</td><td>
+</td><td class="api-docs__param-type">
 
 `Date`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="__namedParameters"><td>
+</td></tr><tr param-data="progressDate"><td class="api-docs__param-name required">
 
-**\_\_namedParameters**
+**progressDate** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
+
+`Date`
+
+</td><td class="api-docs__param-default">
+
+
+
+</td></tr><tr param-data="__namedParameters"><td class="api-docs__param-name required">
+
+**\_\_namedParameters** `Required`
+
+</td><td class="api-docs__param-type">
 
 `ClientProgressEvent`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

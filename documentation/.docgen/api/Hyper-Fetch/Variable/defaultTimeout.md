@@ -1,5 +1,5 @@
 
-      
+
 # defaultTimeout
 
 <div class="api-docs__separator" data-reactroot="">
@@ -25,8 +25,8 @@ const defaultTimeout = {
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/client/fetch.client.constants.ts#L3)
+Defined in [client/fetch.client.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/client/fetch.client.constants.ts#L3)
 
-</div>
+</p>

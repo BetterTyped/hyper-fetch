@@ -1,5 +1,5 @@
 
-      
+
 # ClientHeaderMappingCallback
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type ClientHeaderMappingCallback = <T>(command: T) => HeadersInit;
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/client/fetch.client.types.ts#L33)
+Defined in [client/fetch.client.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/client/fetch.client.types.ts#L33)
 
-</div>
+</p>

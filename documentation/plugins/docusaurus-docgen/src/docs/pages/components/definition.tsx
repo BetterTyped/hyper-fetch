@@ -11,11 +11,11 @@ export const Definition: React.FC<PagePropsType> = (props) => {
   if (!source) return null;
 
   return (
-    <div className="api-docs__definition">
+    <p className="api-docs__definition">
       Defined in{" "}
       <a href={source.url}>
         {source.fileName}:{source.line}
       </a>
-    </div>
+    </p>
   );
 };

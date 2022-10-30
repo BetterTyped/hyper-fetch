@@ -1,5 +1,5 @@
 
-      
+
 # getClientHeaders
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,23 +24,23 @@ getClientHeaders(command)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/builder/builder.utils.ts#L54)
+Defined in [builder/builder.utils.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/builder/builder.utils.ts#L54)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `CommandInstance`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

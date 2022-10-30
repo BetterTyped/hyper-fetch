@@ -1,5 +1,5 @@
 
-      
+
 # commandSendRequest
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,35 +24,35 @@ commandSendRequest<Command>(command, options)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.utils.ts#L113)
+Defined in [command/command.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/command/command.utils.ts#L113)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-**command**
+**command** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `Command`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="options"><td>
+</td></tr><tr param-data="options"><td class="api-docs__param-name optional">
 
-**options**
+**options** `Optional`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `FetchType<Command>`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

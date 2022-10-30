@@ -1,5 +1,5 @@
 
-      
+
 # NegativeTypes
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,8 +24,8 @@ type NegativeTypes = null | undefined;
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/types/helpers.types.ts#L1)
+Defined in [types/helpers.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/types/helpers.types.ts#L1)
 
-</div>
+</p>

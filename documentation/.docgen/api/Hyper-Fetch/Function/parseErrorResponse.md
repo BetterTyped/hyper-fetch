@@ -1,5 +1,5 @@
 
-      
+
 # parseErrorResponse
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,23 +24,23 @@ parseErrorResponse<T>(response)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/client/fetch.client.utils.ts#L26)
+Defined in [client/fetch.client.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/client/fetch.client.utils.ts#L26)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="response"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-**response**
+**response** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `unknown`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

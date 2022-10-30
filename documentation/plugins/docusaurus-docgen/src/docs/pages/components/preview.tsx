@@ -10,14 +10,14 @@ import { Code } from "./code";
 export const Preview: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection>
 > = (props) => {
-  const { reflection } = props;
+  const { reflection, reflectionsTree } = props;
   if (reflection.kindString === KindTypes.class) {
     const signature = getSignature(reflection);
     if (!signature) return null;
 
     const [name, typeSignature, callSignature] = getCallPreview(signature);
-    const properties = getProperties(reflection);
-    const methods = getMethods(reflection);
+    const properties = getProperties(reflection, reflectionsTree);
+    const methods = getMethods(reflection, reflectionsTree);
 
     return (
       <div className="api-docs__preview class">
@@ -96,7 +96,7 @@ export const Preview: React.FC<
     );
   }
   if (reflection.kindString === KindTypes.var) {
-    const { name, type, flags } = reflection;
+    const { name, flags } = reflection;
 
     // if (!children) return null;
 

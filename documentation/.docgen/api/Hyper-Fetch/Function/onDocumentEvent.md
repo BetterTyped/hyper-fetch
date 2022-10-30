@@ -1,5 +1,5 @@
 
-      
+
 # onDocumentEvent
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,47 +24,47 @@ onDocumentEvent<K>(key, listener, options)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.utils.ts#L26)
+Defined in [managers/app/app.manager.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/core/src/managers/app/app.manager.utils.ts#L26)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="key"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="key"><td class="api-docs__param-name required">
 
-**key**
+**key** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `K`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="listener"><td>
+</td></tr><tr param-data="listener"><td class="api-docs__param-name required">
 
-**listener**
+**listener** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `(this: Document, ev: DocumentEventMap[K]) => any`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 
-</td></tr><tr param-data="options"><td>
+</td></tr><tr param-data="options"><td class="api-docs__param-name optional">
 
-**options**
+**options** `Optional`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `boolean | AddEventListenerOptions`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
 
 

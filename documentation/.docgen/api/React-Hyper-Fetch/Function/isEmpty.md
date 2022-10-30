@@ -1,5 +1,5 @@
 
-      
+
 # isEmpty
 
 <div class="api-docs__separator" data-reactroot="">
@@ -24,25 +24,25 @@ isEmpty(value)
 
 
 
-</span></div><div class="api-docs__definition">
+</span></div><p class="api-docs__definition">
 
-Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/react/src/utils/deep-equal.utils.ts#L6)
+Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/d6c03b85/packages/react/src/utils/deep-equal.utils.ts#L6)
 
-</div><div class="api-docs__section">
+</p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="value"><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Default</th></tr></thead><tbody><tr param-data="value"><td class="api-docs__param-name required">
 
-**value**
+**value** `Required`
 
-</td><td>
+</td><td class="api-docs__param-type">
 
 `unknown`
 
-</td><td>
+</td><td class="api-docs__param-default">
 
-any object or primitive
+
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
