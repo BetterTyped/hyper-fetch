@@ -69,10 +69,15 @@ export const Preview: React.FC<
     const children =
       reflection &&
       "children" in reflection &&
-      reflection?.children?.map<[string, string]>((child) => [
-        child.name,
-        child.defaultValue || "",
-      ]);
+      reflection?.children?.map<[string, string | number | boolean]>((child) => {
+        const type = child.type && "value" in child.type && child.type.value;
+
+        if (typeof type === "object" && type && "value" in type) {
+          return [child.name, type.value || ""];
+        }
+
+        return [child.name, type || ""];
+      });
 
     if (!children) return null;
 
@@ -81,7 +86,8 @@ export const Preview: React.FC<
         <Code>
           {`enum ${name} &lbrace;\n`}
           {children.map((element) => {
-            const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
+            const isString = typeof element[1] === "string";
+            const value = !isString ? element[1] : `"${element[1]}"`;
             return `  ${element[0]} = ${value}; \n`;
           })}
           {`&rbrace;`}
@@ -90,26 +96,20 @@ export const Preview: React.FC<
     );
   }
   if (reflection.kindString === KindTypes.var) {
-    const { name } = reflection;
+    const { name, type, flags } = reflection;
 
-    const children =
-      reflection &&
-      "children" in reflection &&
-      reflection?.children?.map<[string, string]>((child) => [
-        child.name,
-        child.defaultValue || "",
-      ]);
+    // if (!children) return null;
 
-    if (!children) return null;
+    const varType = flags?.isConst ? "const" : "let";
 
     return (
       <div className="api-docs__preview var">
         <Code>
-          {`const ${name} = &lbrace;\n`}
-          {children.map((element) => {
+          {`${varType} ${name} = &lbrace;\n`}
+          {/* {children.map((element) => {
             const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
             return `  ${element[0]}: ${value}, \n`;
-          })}
+          })} */}
           {`&rbrace;`}
         </Code>
       </div>

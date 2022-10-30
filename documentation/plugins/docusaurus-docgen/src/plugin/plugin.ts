@@ -5,14 +5,12 @@ import * as path from "path";
 import mermaid from "mdx-mermaid";
 import admonitions from "remark-admonitions";
 
-import { prepareApiDirectory } from "../utils/file.utils";
+import { copyLibFiles, prepareApiDirectory } from "../utils/file.utils";
 import { PluginOptions } from "../types/package.types";
 import { trace, info, warning } from "../utils/log.utils";
 import { libraryDir } from "../constants/paths.constants";
 import { buildDocs } from "../docs/docs";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions
-const { DEFAULT_OPTIONS } = require("./lib/options");
+import { name } from "../constants/name.constants";
 
 let generated = false;
 let generating = false;
@@ -29,6 +27,11 @@ export async function plugin(
     libraryDir,
     options.contentDocsOptions.routeBasePath,
   );
+
+  // Prepare dependencies
+  copyLibFiles();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions, import/no-dynamic-require
+  const { DEFAULT_OPTIONS } = require(`.bin/${name}/options`);
 
   // Prepare api directory to exist
   if (!generated) prepareApiDirectory(docsGenerationDir);

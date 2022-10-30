@@ -6,20 +6,27 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__preview var">
+
+```ts
+const useCacheDefaultOptions = {
+}
+```
+
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
+Defined in [hooks/use-cache/use-cache.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
 
 </div>

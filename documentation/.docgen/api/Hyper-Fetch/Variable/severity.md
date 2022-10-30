@@ -6,20 +6,27 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__preview var">
+
+```ts
+const severity = {
+}
+```
+
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/logger/logger.manager.constants.ts#L19)
+Defined in [managers/logger/logger.manager.constants.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/logger/logger.manager.constants.ts#L19)
 
 </div>

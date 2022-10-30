@@ -6,33 +6,33 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview fn" data-reactroot="">
+</div><div class="api-docs__preview fn">
 
 ```ts
 getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
+Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="currentTimestamp"><td>
 
 **currentTimestamp**
 
@@ -44,7 +44,7 @@ Defined in [dispatcher/dispatcher.utils.ts](https://github.com/BetterTyped/hyper
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="threshold"><td>
 
 **threshold**
 
@@ -56,7 +56,7 @@ Defined in [dispatcher/dispatcher.utils.ts](https://github.com/BetterTyped/hyper
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="queueTimestamp"><td>
 
 **queueTimestamp**
 
@@ -68,11 +68,11 @@ Defined in [dispatcher/dispatcher.utils.ts](https://github.com/BetterTyped/hyper
 
 
 
-</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Returns
 
-</div><div class="api-docs__returns" data-reactroot="">
+</div><div class="api-docs__returns">
 
 ```ts
 boolean

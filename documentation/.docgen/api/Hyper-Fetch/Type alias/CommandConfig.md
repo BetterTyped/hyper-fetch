@@ -6,11 +6,11 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type" data-reactroot="">
+</div><div class="api-docs__preview type">
 
 ```ts
 type CommandConfig = {
@@ -37,16 +37,16 @@ type CommandConfig = {
 }
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 Configuration options for command creation
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.types.ts#L76)
+Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.types.ts#L76)
 
 </div>

@@ -3,6 +3,7 @@ import * as path from "path";
 import fsExtra from "fs-extra";
 
 import { warning, info } from "./log.utils";
+import { name as libraryName } from "../constants/name.constants";
 
 export const readFile = (filePath: string): string | null => {
   try {
@@ -53,4 +54,27 @@ export const getKindName = (kind: string, name: string) => {
     return "Hook";
   }
   return kind;
+};
+function copyFolderSync(from: string, to: string) {
+  if (!fs.existsSync(to)) {
+    fs.mkdirSync(to);
+  }
+  try {
+    fs.readdirSync(from).forEach((element) => {
+      if (fs.lstatSync(path.join(from, element)).isFile()) {
+        fs.copyFileSync(path.join(from, element), path.join(to, element));
+      } else {
+        copyFolderSync(path.join(from, element), path.join(to, element));
+      }
+    });
+  } catch (err) {
+    return;
+  }
+}
+
+export const copyLibFiles = () => {
+  copyFolderSync(
+    "node_modules/@docusaurus/plugin-content-docs/lib/",
+    `node_modules/.bin/${libraryName}/`,
+  );
 };

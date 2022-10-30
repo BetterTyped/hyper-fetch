@@ -24,6 +24,10 @@ export const pageGenerator = (props: PagePropsType) => {
     case KindTypes.type: {
       return renderer(props, TypePage);
     }
+    case KindTypes.interface: {
+      return "test";
+      // return renderer(props, TypePage);
+    }
     default: {
       return "test";
       // return defaultFormatter(props);

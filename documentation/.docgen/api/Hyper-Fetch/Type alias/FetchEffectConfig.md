@@ -6,11 +6,11 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type" data-reactroot="">
+</div><div class="api-docs__preview type">
 
 ```ts
 type FetchEffectConfig = {
@@ -23,16 +23,16 @@ type FetchEffectConfig = {
 }
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [effect/fetch.effect.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/effect/fetch.effect.types.ts#L10)
+Defined in [effect/fetch.effect.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/effect/fetch.effect.types.ts#L10)
 
 </div>

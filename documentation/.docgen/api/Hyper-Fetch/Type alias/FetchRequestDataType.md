@@ -6,26 +6,26 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type single" data-reactroot="">
+</div><div class="api-docs__preview type single">
 
 ```ts
 type FetchRequestDataType = RequestDataType extends NegativeTypes ? { data?: NegativeTypes } : HasData extends true ? { data?: NegativeTypes } : { data: RequestDataType };
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 If the command data is not filled it will throw an error
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [command/command.types.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/command/command.types.ts#L224)
+Defined in [command/command.types.ts:224](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/command/command.types.ts#L224)
 
 </div>

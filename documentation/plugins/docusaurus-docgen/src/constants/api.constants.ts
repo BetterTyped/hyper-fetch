@@ -5,4 +5,5 @@ export enum KindTypes {
   fn = "Function",
   type = "Type alias",
   method = "Method",
+  interface = "Interface",
 }

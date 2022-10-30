@@ -6,33 +6,33 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview fn" data-reactroot="">
+</div><div class="api-docs__preview fn">
 
 ```ts
 getAppManagerEvents(emitter)
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.events.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.events.ts#L5)
+Defined in [managers/app/app.manager.events.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.events.ts#L5)
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="emitter"><td>
 
 **emitter**
 
@@ -44,11 +44,11 @@ Defined in [managers/app/app.manager.events.ts](https://github.com/BetterTyped/h
 
 
 
-</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Returns
 
-</div><div class="api-docs__returns" data-reactroot="">
+</div><div class="api-docs__returns">
 
 ```ts
 { emitBlur: () => void; emitFocus: () => void; emitOffline: () => void; emitOnline: () => void; onBlur: (callback: () => void) => VoidFunction; onFocus: (callback: () => void) => VoidFunction; onOffline: (callback: () => void) => VoidFunction; onOnline: (callback: () => void) => VoidFunction }

@@ -6,24 +6,24 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 Dispatcher class was made to store controlled request Fetches, and firing them all-at-once or one-by-one in command queue.
 Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L25)
+Defined in [dispatcher/dispatcher.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L25)
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="builder"><td>
 
 **builder**
 
@@ -35,7 +35,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="options"><td>
 
 **options**
 
@@ -47,11 +47,11 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="storage"><h3 class="api-docs__name">
 
 ### `storage`
 
@@ -65,7 +65,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L28)
+Defined in [dispatcher/dispatcher.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L28)
 
 </div><div class="api-docs__section">
 
@@ -77,7 +77,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherStorageType
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
 
 ### `options`
 
@@ -91,7 +91,7 @@ DispatcherStorageType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L35)
+Defined in [dispatcher/dispatcher.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L35)
 
 </div><div class="api-docs__section">
 
@@ -103,7 +103,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherOptionsType
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
 
 ### `events`
 
@@ -117,7 +117,7 @@ DispatcherOptionsType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L27)
+Defined in [dispatcher/dispatcher.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L27)
 
 </div><div class="api-docs__section">
 
@@ -129,7 +129,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 { onDrained: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; onQueueChange: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; onQueueStatus: <Command>(queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction; setDrained: <Command>(queueKey: string, values: DispatcherData<Command>) => void; setQueueChanged: <Command>(queueKey: string, values: DispatcherData<Command>) => void; setQueueStatus: <Command>(queueKey: string, values: DispatcherData<Command>) => void }
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
 
 ### `emitter`
 
@@ -143,7 +143,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L26)
+Defined in [dispatcher/dispatcher.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L26)
 
 </div><div class="api-docs__section">
 
@@ -155,7 +155,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 EventEmitter
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="builder"><h3 class="api-docs__name">
 
 ### `builder`
 
@@ -169,7 +169,7 @@ EventEmitter
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L35)
+Defined in [dispatcher/dispatcher.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L35)
 
 </div><div class="api-docs__section">
 
@@ -181,11 +181,11 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 BuilderInstance
 ```
 
-</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
+</div><hr/></div></div><div class="api-docs__section">
 
 ## Methods
 
-</div><div class="api-docs__methods" data-reactroot=""><div class="api-docs__method"><h3 class="api-docs__name">
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="add"><h3 class="api-docs__name">
 
 ### `add()`
 
@@ -209,13 +209,13 @@ Add command to the dispatcher handler
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L401)
+Defined in [dispatcher/dispatcher.ts:401](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L401)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
 
 **command**
 
@@ -237,7 +237,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 string
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="addQueueElement"><h3 class="api-docs__name">
 
 ### `addQueueElement()`
 
@@ -261,13 +261,13 @@ Add new element to storage
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L137)
+Defined in [dispatcher/dispatcher.ts:137](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L137)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -279,7 +279,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="dispatcherDump"><td>
 
 **dispatcherDump**
 
@@ -301,7 +301,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="addRunningRequest"><h3 class="api-docs__name">
 
 ### `addRunningRequest()`
 
@@ -325,13 +325,13 @@ Add request to the running requests list
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L298)
+Defined in [dispatcher/dispatcher.ts:298](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L298)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -343,7 +343,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -355,7 +355,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="command"><td>
 
 **command**
 
@@ -377,7 +377,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="cancelRunningRequest"><h3 class="api-docs__name">
 
 ### `cancelRunningRequest()`
 
@@ -401,13 +401,13 @@ Cancel started request, but do NOT remove it from main storage
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L331)
+Defined in [dispatcher/dispatcher.ts:331](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L331)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -419,7 +419,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -441,7 +441,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="cancelRunningRequests"><h3 class="api-docs__name">
 
 ### `cancelRunningRequests()`
 
@@ -465,13 +465,13 @@ Cancel all started requests, but do NOT remove it from main storage
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L322)
+Defined in [dispatcher/dispatcher.ts:322](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L322)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -493,7 +493,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="clear"><h3 class="api-docs__name">
 
 ### `clear()`
 
@@ -517,7 +517,7 @@ Clear all running requests and storage
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L223)
+Defined in [dispatcher/dispatcher.ts:223](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L223)
 
 </div><div class="api-docs__section">
 
@@ -533,7 +533,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="clearQueue"><h3 class="api-docs__name">
 
 ### `clearQueue()`
 
@@ -557,13 +557,13 @@ Clear requests from queue cache
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L162)
+Defined in [dispatcher/dispatcher.ts:162](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L162)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -585,7 +585,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 { requests: any[]; stopped: boolean }
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="createStorageElement"><h3 class="api-docs__name">
 
 ### `createStorageElement()`
 
@@ -609,13 +609,13 @@ Create storage element from command
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L380)
+Defined in [dispatcher/dispatcher.ts:380](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L380)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="command"><td>
 
 **command**
 
@@ -637,7 +637,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherDumpValueType<Command>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="delete"><h3 class="api-docs__name">
 
 ### `delete()`
 
@@ -661,13 +661,13 @@ Delete from the storage and cancel request
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L445)
+Defined in [dispatcher/dispatcher.ts:445](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L445)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -679,7 +679,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -691,7 +691,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -713,7 +713,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherData<CommandInstance>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="deleteRunningRequest"><h3 class="api-docs__name">
 
 ### `deleteRunningRequest()`
 
@@ -737,13 +737,13 @@ Delete request by id, but do NOT clear it from queue and do NOT cancel them
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L353)
+Defined in [dispatcher/dispatcher.ts:353](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L353)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -755,7 +755,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -777,7 +777,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="deleteRunningRequests"><h3 class="api-docs__name">
 
 ### `deleteRunningRequests()`
 
@@ -801,13 +801,13 @@ Delete all started requests, but do NOT clear it from queue and do NOT cancel th
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L346)
+Defined in [dispatcher/dispatcher.ts:346](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L346)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -829,7 +829,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="flush"><h3 class="api-docs__name">
 
 ### `flush()`
 
@@ -853,7 +853,7 @@ Flush all available requests from all queues
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L207)
+Defined in [dispatcher/dispatcher.ts:207](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L207)
 
 </div><div class="api-docs__section">
 
@@ -869,7 +869,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 Promise<void>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="flushQueue"><h3 class="api-docs__name">
 
 ### `flushQueue()`
 
@@ -893,13 +893,13 @@ Method used to flush the queue requests
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L177)
+Defined in [dispatcher/dispatcher.ts:177](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L177)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -921,7 +921,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 Promise<void>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getAllRunningRequest"><h3 class="api-docs__name">
 
 ### `getAllRunningRequest()`
 
@@ -945,7 +945,7 @@ Get currently running requests from all queueKeys
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L276)
+Defined in [dispatcher/dispatcher.ts:276](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L276)
 
 </div><div class="api-docs__section">
 
@@ -961,7 +961,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 RunningRequestValueType[]
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getIsActiveQueue"><h3 class="api-docs__name">
 
 ### `getIsActiveQueue()`
 
@@ -985,13 +985,13 @@ Get value of the active queue status based on the stopped status
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L127)
+Defined in [dispatcher/dispatcher.ts:127](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L127)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1013,7 +1013,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 boolean
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getQueue"><h3 class="api-docs__name">
 
 ### `getQueue()`
 
@@ -1037,13 +1037,13 @@ Return queue state object
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L107)
+Defined in [dispatcher/dispatcher.ts:107](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L107)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1065,7 +1065,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherData<Command>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getQueueRequestCount"><h3 class="api-docs__name">
 
 ### `getQueueRequestCount()`
 
@@ -1089,13 +1089,13 @@ Get count of requests from the same queueKey
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L364)
+Defined in [dispatcher/dispatcher.ts:364](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L364)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1117,7 +1117,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 number
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getQueuesKeys"><h3 class="api-docs__name">
 
 ### `getQueuesKeys()`
 
@@ -1141,7 +1141,7 @@ Return all
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L100)
+Defined in [dispatcher/dispatcher.ts:100](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L100)
 
 </div><div class="api-docs__section">
 
@@ -1157,7 +1157,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 string[]
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getRequest"><h3 class="api-docs__name">
 
 ### `getRequest()`
 
@@ -1181,13 +1181,13 @@ Return request from queue state
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L117)
+Defined in [dispatcher/dispatcher.ts:117](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L117)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1199,7 +1199,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -1221,7 +1221,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherDumpValueType<Command>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getRunningRequest"><h3 class="api-docs__name">
 
 ### `getRunningRequest()`
 
@@ -1245,13 +1245,13 @@ Get running request by id
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L290)
+Defined in [dispatcher/dispatcher.ts:290](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L290)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1263,7 +1263,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -1285,7 +1285,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 RunningRequestValueType
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getRunningRequests"><h3 class="api-docs__name">
 
 ### `getRunningRequests()`
 
@@ -1309,13 +1309,13 @@ Get currently running requests
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L283)
+Defined in [dispatcher/dispatcher.ts:283](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L283)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1337,7 +1337,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 RunningRequestValueType[]
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="hasRunningRequest"><h3 class="api-docs__name">
 
 ### `hasRunningRequest()`
 
@@ -1361,13 +1361,13 @@ Check if request is currently processing
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L314)
+Defined in [dispatcher/dispatcher.ts:314](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L314)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1379,7 +1379,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -1401,7 +1401,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 boolean
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="hasRunningRequests"><h3 class="api-docs__name">
 
 ### `hasRunningRequests()`
 
@@ -1425,13 +1425,13 @@ Get the value based on the currently running requests
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L307)
+Defined in [dispatcher/dispatcher.ts:307](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L307)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1453,7 +1453,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 boolean
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="incrementQueueRequestCount"><h3 class="api-docs__name">
 
 ### `incrementQueueRequestCount()`
 
@@ -1477,13 +1477,13 @@ Add request count to the queueKey
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L371)
+Defined in [dispatcher/dispatcher.ts:371](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L371)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1505,7 +1505,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="pause"><h3 class="api-docs__name">
 
 ### `pause()`
 
@@ -1529,13 +1529,13 @@ Pause request queue, but not cancel already started requests
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L73)
+Defined in [dispatcher/dispatcher.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L73)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1557,7 +1557,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="performRequest"><h3 class="api-docs__name">
 
 ### `performRequest()`
 
@@ -1582,13 +1582,13 @@ It can be different once the previous call was set as cancelled and removed from
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L478)
+Defined in [dispatcher/dispatcher.ts:478](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L478)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="storageElement"><td>
 
 **storageElement**
 
@@ -1610,7 +1610,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 Promise<void | DispatcherData<CommandInstance>>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="setQueue"><h3 class="api-docs__name">
 
 ### `setQueue()`
 
@@ -1634,13 +1634,13 @@ Set new queue storage value
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L149)
+Defined in [dispatcher/dispatcher.ts:149](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L149)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1652,7 +1652,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="queue"><td>
 
 **queue**
 
@@ -1674,7 +1674,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 DispatcherData<Command>
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="start"><h3 class="api-docs__name">
 
 ### `start()`
 
@@ -1698,13 +1698,13 @@ Start request handling by queueKey
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L59)
+Defined in [dispatcher/dispatcher.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L59)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1726,7 +1726,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="startRequest"><h3 class="api-docs__name">
 
 ### `startRequest()`
 
@@ -1750,13 +1750,13 @@ Start particular request
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L241)
+Defined in [dispatcher/dispatcher.ts:241](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L241)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1768,7 +1768,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -1790,7 +1790,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="stop"><h3 class="api-docs__name">
 
 ### `stop()`
 
@@ -1814,13 +1814,13 @@ Stop request queue and cancel all started requests - those will be treated like 
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L85)
+Defined in [dispatcher/dispatcher.ts:85](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L85)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1842,7 +1842,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="stopRequest"><h3 class="api-docs__name">
 
 ### `stopRequest()`
 
@@ -1866,13 +1866,13 @@ Stop particular request
 
 </span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.ts#L258)
+Defined in [dispatcher/dispatcher.ts:258](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.ts#L258)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="queueKey"><td>
 
 **queueKey**
 
@@ -1884,7 +1884,7 @@ Defined in [dispatcher/dispatcher.ts](https://github.com/BetterTyped/hyper-fetch
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 

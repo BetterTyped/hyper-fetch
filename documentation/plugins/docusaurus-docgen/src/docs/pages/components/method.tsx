@@ -9,6 +9,7 @@ import { Parameters } from "./parameters";
 import { Preview } from "./preview";
 import { Returns } from "./returns";
 import { Section } from "./section";
+import { Sources } from "./sources";
 
 export const Method: React.FC<PagePropsType> = (props) => {
   const { reflection } = props;
@@ -16,21 +17,26 @@ export const Method: React.FC<PagePropsType> = (props) => {
   const methodSignature = getSignature(reflection);
 
   return (
-    <div className="api-docs__method">
+    <div className="api-docs__method" method-data={name}>
       <Name
         {...props}
         reflection={{ ...reflection, name: (<code>{name}()</code>) as unknown as string }}
         headingSize="h3"
       />
-      <Section headingSize="h4">Preview</Section>
-      <Preview {...props} reflection={methodSignature || reflection} />
-      <Section headingSize="h4">Description</Section>
-      <Description {...props} reflection={methodSignature || reflection} />
-      <Definition {...props} reflection={reflection} />
-      <Section headingSize="h4">Parameters</Section>
-      <Parameters {...props} />
-      <Section headingSize="h4">Return</Section>
-      <Returns {...props} />
+      <Sources {...props} />
+      <Section headingSize="h4" title="Preview">
+        <Preview {...props} reflection={methodSignature || reflection} />
+      </Section>
+      <Section headingSize="h4" title="Description">
+        <Description {...props} reflection={methodSignature || reflection} />
+        <Definition {...props} reflection={reflection} />
+      </Section>
+      <Section headingSize="h4" title="Parameters">
+        <Parameters {...props} />
+      </Section>
+      <Section headingSize="h4" title="Return">
+        <Returns {...props} />
+      </Section>
       <hr />
     </div>
   );

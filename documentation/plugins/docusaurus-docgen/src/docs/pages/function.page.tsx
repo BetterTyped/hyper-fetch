@@ -9,21 +9,27 @@ import { Preview } from "./components/preview";
 import { Returns } from "./components/returns";
 import { Section } from "./components/section";
 import { Separator } from "./components/separator";
+import { Sources } from "./components/sources";
 
 export const FunctionPage: React.FC<PagePropsType> = (props) => {
   return (
     <>
       <Name {...props} />
       <Separator />
-      <Section>Preview</Section>
-      <Preview {...props} />
-      <Section>Description</Section>
-      <Description {...props} />
-      <Definition {...props} />
-      <Section>Parameters</Section>
-      <Parameters {...props} />
-      <Section>Returns</Section>
-      <Returns {...props} />
+      <Sources {...props} />
+      <Section title="Preview">
+        <Preview {...props} />
+      </Section>
+      <Section title="Description">
+        <Description {...props} />
+        <Definition {...props} />
+      </Section>
+      <Section title="Parameters">
+        <Parameters {...props} />
+      </Section>
+      <Section title="Returns">
+        <Returns {...props} />
+      </Section>
     </>
   );
 };

@@ -12,7 +12,10 @@ export const Definition: React.FC<PagePropsType> = (props) => {
 
   return (
     <div className="api-docs__definition">
-      Defined in <a href={source.url}>{source.fileName}</a>
+      Defined in{" "}
+      <a href={source.url}>
+        {source.fileName}:{source.line}
+      </a>
     </div>
   );
 };

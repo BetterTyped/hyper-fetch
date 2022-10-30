@@ -6,11 +6,11 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 **Command Manager** is used to emit 
 `command lifecycle events`
@@ -19,19 +19,19 @@ It is also the place of
 `request aborting`
  system, here we store all the keys and controllers that are isolated for each builder instance.
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L9)
+Defined in [managers/command/command.manager.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L9)
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
 
 ### `events`
 
@@ -45,7 +45,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L11)
+Defined in [managers/command/command.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L11)
 
 </div><div class="api-docs__section">
 
@@ -57,7 +57,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 { emitAbort: (abortKey: string, requestId: string, command: CommandInstance) => void; emitDownloadProgress: (queueKey: string, requestId: string, values: FetchProgressType, details: CommandEventDetails<CommandInstance>) => void; emitLoading: (queueKey: string, requestId: string, values: CommandLoadingEventType) => void; emitRemove: <T>(queueKey: string, requestId: string, details: CommandEventDetails<T>) => void; emitRequestStart: (queueKey: string, requestId: string, details: CommandEventDetails<CommandInstance>) => void; emitResponse: (cacheKey: string, requestId: string, response: ClientResponseType<unknown, unknown>, details: CommandResponseDetails) => void; emitResponseStart: (queueKey: string, requestId: string, details: CommandEventDetails<CommandInstance>) => void; emitUploadProgress: (queueKey: string, requestId: string, values: FetchProgressType, details: CommandEventDetails<CommandInstance>) => void; onAbort: (abortKey: string, callback: (command: CommandInstance) => void) => VoidFunction; onAbortById: (requestId: string, callback: (command: CommandInstance) => void) => VoidFunction; onDownloadProgress: <T>(queueKey: string, callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void) => VoidFunction; onDownloadProgressById: <T>(requestId: string, callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void) => VoidFunction; onLoading: (queueKey: string, callback: (values: CommandLoadingEventType) => void) => VoidFunction; onLoadingById: (requestId: string, callback: (values: CommandLoadingEventType) => void) => VoidFunction; onRemove: <T>(queueKey: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onRemoveById: <T>(requestId: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onRequestStart: <T>(queueKey: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onRequestStartById: <T>(requestId: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onResponse: <ResponseType, ErrorType>(cacheKey: string, callback: (response: ClientResponseType<ResponseType, ErrorType>, details: CommandResponseDetails) => void) => VoidFunction; onResponseById: <ResponseType, ErrorType>(requestId: string, callback: (response: ClientResponseType<ResponseType, ErrorType>, details: CommandResponseDetails) => void) => VoidFunction; onResponseStart: <T>(queueKey: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onResponseStartById: <T>(requestId: string, callback: (details: CommandEventDetails<T>) => void) => VoidFunction; onUploadProgress: <T>(queueKey: string, callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void) => VoidFunction; onUploadProgressById: <T>(requestId: string, callback: (values: FetchProgressType, details: CommandEventDetails<T>) => void) => VoidFunction }
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
 
 ### `emitter`
 
@@ -71,7 +71,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L10)
+Defined in [managers/command/command.manager.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L10)
 
 </div><div class="api-docs__section">
 
@@ -83,7 +83,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 EventEmitter
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="abortControllers"><h3 class="api-docs__name">
 
 ### `abortControllers`
 
@@ -97,7 +97,7 @@ EventEmitter
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L13)
+Defined in [managers/command/command.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L13)
 
 </div><div class="api-docs__section">
 
@@ -109,11 +109,11 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 Map<string, Map<string, AbortController>>
 ```
 
-</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
+</div><hr/></div></div><div class="api-docs__section">
 
 ## Methods
 
-</div><div class="api-docs__methods" data-reactroot=""><div class="api-docs__method"><h3 class="api-docs__name">
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="abortAll"><h3 class="api-docs__name">
 
 ### `abortAll()`
 
@@ -137,7 +137,7 @@ abortAll()
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L59)
+Defined in [managers/command/command.manager.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L59)
 
 </div><div class="api-docs__section">
 
@@ -153,7 +153,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="abortByKey"><h3 class="api-docs__name">
 
 ### `abortByKey()`
 
@@ -177,13 +177,13 @@ abortByKey(abortKey)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L44)
+Defined in [managers/command/command.manager.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L44)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -205,7 +205,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="abortByRequestId"><h3 class="api-docs__name">
 
 ### `abortByRequestId()`
 
@@ -229,13 +229,13 @@ abortByRequestId(abortKey, requestId)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L55)
+Defined in [managers/command/command.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L55)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -247,7 +247,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -269,7 +269,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="addAbortController"><h3 class="api-docs__name">
 
 ### `addAbortController()`
 
@@ -293,13 +293,13 @@ addAbortController(abortKey, requestId)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L15)
+Defined in [managers/command/command.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L15)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -311,7 +311,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -333,7 +333,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="getAbortController"><h3 class="api-docs__name">
 
 ### `getAbortController()`
 
@@ -357,13 +357,13 @@ getAbortController(abortKey, requestId)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L29)
+Defined in [managers/command/command.manager.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L29)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -375,7 +375,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -397,7 +397,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 AbortController
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="removeAbortController"><h3 class="api-docs__name">
 
 ### `removeAbortController()`
 
@@ -421,13 +421,13 @@ removeAbortController(abortKey, requestId)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L33)
+Defined in [managers/command/command.manager.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L33)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -439,7 +439,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 
@@ -461,7 +461,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="useAbortController"><h3 class="api-docs__name">
 
 ### `useAbortController()`
 
@@ -485,13 +485,13 @@ useAbortController(abortKey, requestId)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/command/command.manager.ts#L39)
+Defined in [managers/command/command.manager.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/command/command.manager.ts#L39)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="abortKey"><td>
 
 **abortKey**
 
@@ -503,7 +503,7 @@ Defined in [managers/command/command.manager.ts](https://github.com/BetterTyped/
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="requestId"><td>
 
 **requestId**
 

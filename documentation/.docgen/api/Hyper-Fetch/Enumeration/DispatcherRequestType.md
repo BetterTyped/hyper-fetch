@@ -6,31 +6,31 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview enum" data-reactroot="">
+</div><div class="api-docs__preview enum">
 
 ```ts
 enum DispatcherRequestType {
-  allAtOnce = ; 
-  deduplicated = ; 
-  oneByOne = ; 
-  previousCanceled = ; 
+  allAtOnce = "all-at-once"; 
+  deduplicated = "deduplicated"; 
+  oneByOne = "one-by-one"; 
+  previousCanceled = "previous-canceled"; 
 }
 ```
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.constants.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/dispatcher/dispatcher.constants.ts#L1)
+Defined in [dispatcher/dispatcher.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/dispatcher/dispatcher.constants.ts#L1)
 
 </div>

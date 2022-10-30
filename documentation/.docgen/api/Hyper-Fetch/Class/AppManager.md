@@ -6,26 +6,26 @@
 
 ---
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Description
 
-</div><div class="api-docs__description" data-reactroot=""><span class="api-docs__do-not-parse">
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
 App manager handles main application states - focus and online. Those two values can answer questions:
 - Is the tab or current view instance focused and visible for user?
 - Is our application online or offline?
 With the app manager it is not a problem to get the valid answer for this question.
 
-</span></div><div class="api-docs__definition" data-reactroot="">
+</span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L15)
+Defined in [managers/app/app.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L15)
 
-</div><div class="api-docs__section" data-reactroot="">
+</div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters" data-reactroot=""><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="builder"><td>
 
 **builder**
 
@@ -37,7 +37,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 
 
-</td></tr><tr><td>
+</td></tr><tr param-data="options"><td>
 
 **options**
 
@@ -49,11 +49,11 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 
 
-</td></tr></tbody></table></div><div class="api-docs__section" data-reactroot="">
+</td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Properties
 
-</div><div class="api-docs__properties" data-reactroot=""><div class="api-docs__property"><h3 class="api-docs__name">
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
 
 ### `options`
 
@@ -67,7 +67,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L22)
 
 </div><div class="api-docs__section">
 
@@ -79,7 +79,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 AppManagerOptionsType
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="isOnline"><h3 class="api-docs__name">
 
 ### `isOnline`
 
@@ -93,7 +93,7 @@ AppManagerOptionsType
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L19)
+Defined in [managers/app/app.manager.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L19)
 
 </div><div class="api-docs__section">
 
@@ -105,7 +105,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 boolean
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="isFocused"><h3 class="api-docs__name">
 
 ### `isFocused`
 
@@ -119,7 +119,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L20)
+Defined in [managers/app/app.manager.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L20)
 
 </div><div class="api-docs__section">
 
@@ -131,7 +131,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 boolean
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
 
 ### `events`
 
@@ -145,7 +145,7 @@ boolean
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L17)
+Defined in [managers/app/app.manager.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L17)
 
 </div><div class="api-docs__section">
 
@@ -157,7 +157,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 { emitBlur: () => void; emitFocus: () => void; emitOffline: () => void; emitOnline: () => void; onBlur: (callback: () => void) => VoidFunction; onFocus: (callback: () => void) => VoidFunction; onOffline: (callback: () => void) => VoidFunction; onOnline: (callback: () => void) => VoidFunction }
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
 
 ### `emitter`
 
@@ -171,7 +171,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L16)
+Defined in [managers/app/app.manager.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L16)
 
 </div><div class="api-docs__section">
 
@@ -183,7 +183,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 EventEmitter
 ```
 
-</div><hr/></div><div class="api-docs__property"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__property" property-data="builder"><h3 class="api-docs__name">
 
 ### `builder`
 
@@ -197,7 +197,7 @@ EventEmitter
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L22)
 
 </div><div class="api-docs__section">
 
@@ -209,11 +209,11 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 BuilderInstance
 ```
 
-</div><hr/></div></div><div class="api-docs__section" data-reactroot="">
+</div><hr/></div></div><div class="api-docs__section">
 
 ## Methods
 
-</div><div class="api-docs__methods" data-reactroot=""><div class="api-docs__method"><h3 class="api-docs__name">
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="setFocused"><h3 class="api-docs__name">
 
 ### `setFocused()`
 
@@ -237,13 +237,13 @@ setFocused(isFocused)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L55)
+Defined in [managers/app/app.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L55)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="isFocused"><td>
 
 **isFocused**
 
@@ -265,7 +265,7 @@ Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fe
 void
 ```
 
-</div><hr/></div><div class="api-docs__method"><h3 class="api-docs__name">
+</div><hr/></div><div class="api-docs__method" method-data="setOnline"><h3 class="api-docs__name">
 
 ### `setOnline()`
 
@@ -289,13 +289,13 @@ setOnline(isOnline)
 
 </span></div><div class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts](https://github.com/BetterTyped/hyper-fetch/blob/982ac882/packages/core/src/managers/app/app.manager.ts#L65)
+Defined in [managers/app/app.manager.ts:65](https://github.com/BetterTyped/hyper-fetch/blob/1a97772c/packages/core/src/managers/app/app.manager.ts#L65)
 
 </div><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody><tr param-data="isOnline"><td>
 
 **isOnline**
 
