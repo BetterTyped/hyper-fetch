@@ -14,6 +14,18 @@ import { CallbackParameters } from "@hyper-fetch/react"
 
 </div><div class="api-docs__section">
 
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [helpers/use-command-events/use-command-events.types.ts:86](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86)
+
+</p><div class="api-docs__section">
+
 ## Preview
 
 </div><div class="api-docs__preview type">
@@ -26,16 +38,4 @@ type CallbackParameters<Command,ResponseType> = {
 }
 ```
 
-</div><div class="api-docs__section">
-
-## Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [helpers/use-command-events/use-command-events.types.ts:86](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L86)
-
-</p>
+</div>

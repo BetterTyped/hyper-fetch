@@ -22,7 +22,7 @@ import { getTime } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.utils.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.utils.ts#L4)
+Defined in [managers/logger/logger.manager.utils.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/managers/logger/logger.manager.utils.ts#L4)
 
 </p><div class="api-docs__section">
 

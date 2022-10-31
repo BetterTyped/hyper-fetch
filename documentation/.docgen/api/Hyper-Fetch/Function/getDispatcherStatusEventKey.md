@@ -22,7 +22,7 @@ import { getDispatcherStatusEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/dispatcher/dispatcher.utils.ts#L10)
+Defined in [dispatcher/dispatcher.utils.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/dispatcher/dispatcher.utils.ts#L10)
 
 </p><div class="api-docs__section">
 

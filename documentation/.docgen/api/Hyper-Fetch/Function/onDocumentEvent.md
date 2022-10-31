@@ -22,7 +22,7 @@ import { onDocumentEvent } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/app/app.manager.utils.ts#L26)
+Defined in [managers/app/app.manager.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/managers/app/app.manager.utils.ts#L26)
 
 </p><div class="api-docs__section">
 

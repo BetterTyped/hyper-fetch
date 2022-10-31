@@ -14,16 +14,6 @@ import { RequiredKeys } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type RequiredKeys<T> = { [ P in keyof T ]-?: Exclude<T[P], NegativeTypes> };
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type RequiredKeys<T> = { [ P in keyof T ]-?: Exclude<T[P], NegativeTypes> };
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/helpers.types.ts#L13)
+Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/types/helpers.types.ts#L13)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type RequiredKeys<T> = { [ P in keyof T ]-?: Exclude<T[P], NegativeTypes> };
+```
+
+</div>

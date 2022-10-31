@@ -22,7 +22,7 @@ import { useFetch } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -66,34 +66,35 @@ useFetch<T>(command, options)
 
 ```ts
 {
-    "data": "\"null\" | \"ExtractResponse\"",
-    "error": "\"null\" | \"ExtractError\"",
-    "loading": "boolean",
-    "retries": "number",
-    "status": "\"null\" | \"number\"",
-    "timestamp": "\"null\" | \"Date\"",
-    "setData": "void",
-    "setError": "void",
-    "setLoading": "void",
-    "setRetries": "void",
-    "setStatus": "void",
-    "setTimestamp": "void",
-    "abort": "void",
-    "onAbort": "void",
-    "onDownloadProgress": "void",
-    "onError": "void",
-    "onFinished": "void",
-    "onOfflineError": "void",
-    "onRequestStart": "void",
-    "onResponseStart": "void",
-    "onSuccess": "void",
-    "onUploadProgress": "void",
-    "bounce": {
-        "active": "boolean",
-        "reset": "void"
-    },
-    "revalidate": "void"
-}
+  data: null | ExtractResponse;
+  error: null | ExtractError;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
+  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
+  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  abort: () => void;
+  onAbort: (callback: OnErrorCallbackType) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onError: (callback: OnErrorCallbackType) => void;
+  onFinished: (callback: OnFinishedCallbackType) => void;
+  onOfflineError: (callback: OnErrorCallbackType) => void;
+  onRequestStart: (callback: OnStartCallbackType) => void;
+  onResponseStart: (callback: OnStartCallbackType) => void;
+  onSuccess: (callback: OnSuccessCallbackType) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
+  bounce: {
+      active: boolean;
+      reset: () => void;
+  };
+  revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+};
+
 ```
 
 </div>

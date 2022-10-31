@@ -22,7 +22,7 @@ import { getRequestEta } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.utils.ts#L24)
+Defined in [command/command.utils.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/command/command.utils.ts#L24)
 
 </p><div class="api-docs__section">
 
@@ -76,9 +76,10 @@ getRequestEta(startDate, progressDate, __namedParameters)
 
 ```ts
 {
-    "sizeLeft": "number",
-    "timeLeft": "number"
-}
+  sizeLeft: number;
+  timeLeft: number;
+};
+
 ```
 
 </div>

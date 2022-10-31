@@ -22,7 +22,7 @@ import { getCommandManagerEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/command/command.manager.events.ts#L27)
+Defined in [managers/command/command.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/managers/command/command.manager.events.ts#L27)
 
 </p><div class="api-docs__section">
 
@@ -56,31 +56,32 @@ getCommandManagerEvents(emitter)
 
 ```ts
 {
-    "emitAbort": "void",
-    "emitDownloadProgress": "void",
-    "emitLoading": "void",
-    "emitRemove": "void",
-    "emitRequestStart": "void",
-    "emitResponse": "void",
-    "emitResponseStart": "void",
-    "emitUploadProgress": "void",
-    "onAbort": "void",
-    "onAbortById": "void",
-    "onDownloadProgress": "void",
-    "onDownloadProgressById": "void",
-    "onLoading": "void",
-    "onLoadingById": "void",
-    "onRemove": "void",
-    "onRemoveById": "void",
-    "onRequestStart": "void",
-    "onRequestStartById": "void",
-    "onResponse": "void",
-    "onResponseById": "void",
-    "onResponseStart": "void",
-    "onResponseStartById": "void",
-    "onUploadProgress": "void",
-    "onUploadProgressById": "void"
-}
+  emitAbort: (abortKey: string, requestId: string, command: CommandInstance) => void;
+  emitDownloadProgress: (queueKey: string, requestId: string, values: FetchProgressType, details: CommandEventDetails) => void;
+  emitLoading: (queueKey: string, requestId: string, values: CommandLoadingEventType) => void;
+  emitRemove: (queueKey: string, requestId: string, details: CommandEventDetails) => void;
+  emitRequestStart: (queueKey: string, requestId: string, details: CommandEventDetails) => void;
+  emitResponse: (cacheKey: string, requestId: string, response: ClientResponseType, details: CommandResponseDetails) => void;
+  emitResponseStart: (queueKey: string, requestId: string, details: CommandEventDetails) => void;
+  emitUploadProgress: (queueKey: string, requestId: string, values: FetchProgressType, details: CommandEventDetails) => void;
+  onAbort: (abortKey: string, callback: (command: CommandInstance) => void) => VoidFunction;
+  onAbortById: (requestId: string, callback: (command: CommandInstance) => void) => VoidFunction;
+  onDownloadProgress: (queueKey: string, callback: (values: FetchProgressType, details: CommandEventDetails) => void) => VoidFunction;
+  onDownloadProgressById: (requestId: string, callback: (values: FetchProgressType, details: CommandEventDetails) => void) => VoidFunction;
+  onLoading: (queueKey: string, callback: (values: CommandLoadingEventType) => void) => VoidFunction;
+  onLoadingById: (requestId: string, callback: (values: CommandLoadingEventType) => void) => VoidFunction;
+  onRemove: (queueKey: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onRemoveById: (requestId: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onRequestStart: (queueKey: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onRequestStartById: (requestId: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onResponse: (cacheKey: string, callback: (response: ClientResponseType, details: CommandResponseDetails) => void) => VoidFunction;
+  onResponseById: (requestId: string, callback: (response: ClientResponseType, details: CommandResponseDetails) => void) => VoidFunction;
+  onResponseStart: (queueKey: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onResponseStartById: (requestId: string, callback: (details: CommandEventDetails) => void) => VoidFunction;
+  onUploadProgress: (queueKey: string, callback: (values: FetchProgressType, details: CommandEventDetails) => void) => VoidFunction;
+  onUploadProgressById: (requestId: string, callback: (values: FetchProgressType, details: CommandEventDetails) => void) => VoidFunction;
+};
+
 ```
 
 </div>

@@ -14,16 +14,6 @@ import { UseTrackedStateReturn } from "@hyper-fetch/react"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<T>, { getStaleStatus: () => boolean; setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void; setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void }];
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<T>, { getStaleStatus: () => boolean; setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void; setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void }];
+```
+
+</div>

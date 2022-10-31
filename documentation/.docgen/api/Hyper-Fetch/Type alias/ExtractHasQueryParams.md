@@ -14,16 +14,6 @@ import { ExtractHasQueryParams } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type ExtractHasQueryParams<T> = T extends Command<any, any, any, any, any, any, any, any, any, infer  Q> ? Q : never;
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type ExtractHasQueryParams<T> = T extends Command<any, any, any, any, any, any, 
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L37)
+Defined in [types/fetch.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/types/fetch.types.ts#L37)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ExtractHasQueryParams<T> = T extends Command<any, any, any, any, any, any, any, any, any, infer  Q> ? Q : never;
+```
+
+</div>

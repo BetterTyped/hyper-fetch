@@ -14,16 +14,6 @@ import { ResponseInterceptorCallback } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type ResponseInterceptorCallback<Response,Error> = (response: ClientResponseType<Response, Error>, command: CommandInstance) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type ResponseInterceptorCallback<Response,Error> = (response: ClientResponseType
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:50](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/builder/builder.types.ts#L50)
+Defined in [builder/builder.types.ts:50](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/builder/builder.types.ts#L50)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ResponseInterceptorCallback<Response,Error> = (response: ClientResponseType<Response, Error>, command: CommandInstance) => Promise<ClientResponseType<any, any>> | ClientResponseType<any, any>;
+```
+
+</div>

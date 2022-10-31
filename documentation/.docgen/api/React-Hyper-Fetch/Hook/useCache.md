@@ -22,7 +22,7 @@ import { useCache } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -66,23 +66,24 @@ useCache<T>(command, options)
 
 ```ts
 {
-    "data": "\"null\" | \"ExtractResponse\"",
-    "error": "\"null\" | \"ExtractError\"",
-    "loading": "boolean",
-    "retries": "number",
-    "status": "\"null\" | \"number\"",
-    "timestamp": "\"null\" | \"Date\"",
-    "setData": "void",
-    "setError": "void",
-    "setLoading": "void",
-    "setRetries": "void",
-    "setStatus": "void",
-    "setTimestamp": "void",
-    "onCacheChange": "void",
-    "onCacheError": "void",
-    "onCacheSuccess": "void",
-    "revalidate": "void"
-}
+  data: null | ExtractResponse;
+  error: null | ExtractError;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
+  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
+  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  onCacheChange: (callback: OnFinishedCallbackType) => void;
+  onCacheError: (callback: OnErrorCallbackType) => void;
+  onCacheSuccess: (callback: OnSuccessCallbackType) => void;
+  revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
+};
+
 ```
 
 </div>

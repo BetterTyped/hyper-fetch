@@ -22,7 +22,7 @@ import { FetchEffect } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L6)
+Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -56,7 +56,7 @@ Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L7)
+Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -96,7 +96,7 @@ getEffectKey()
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L9)
+Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -132,7 +132,7 @@ onError(response, command)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L22)
+Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -192,7 +192,7 @@ onFinished(response, command)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L25)
+Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L25)
 
 </p><div class="api-docs__section">
 
@@ -252,7 +252,7 @@ onStart(command)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L16)
+Defined in [effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -302,7 +302,7 @@ onSuccess(response, command)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L19)
+Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -362,7 +362,7 @@ onTrigger(command)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.ts#L13)
+Defined in [effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/effect/fetch.effect.ts#L13)
 
 </p><div class="api-docs__section">
 

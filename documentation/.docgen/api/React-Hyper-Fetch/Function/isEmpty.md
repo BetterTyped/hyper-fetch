@@ -22,7 +22,7 @@ import { isEmpty } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/utils/deep-equal.utils.ts#L6)
+Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/utils/deep-equal.utils.ts#L6)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { parseResponse } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/client/fetch.client.utils.ts#L18)
+Defined in [client/fetch.client.utils.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/client/fetch.client.utils.ts#L18)
 
 </p><div class="api-docs__section">
 

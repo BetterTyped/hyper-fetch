@@ -14,16 +14,6 @@ import { HttpMethodsType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type HttpMethodsType = GET | POST | PUT | PATCH | DELETE;
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type HttpMethodsType = GET | POST | PUT | PATCH | DELETE;
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/http.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/http.types.ts#L1)
+Defined in [types/http.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/types/http.types.ts#L1)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type HttpMethodsType = GET | POST | PUT | PATCH | DELETE;
+```
+
+</div>

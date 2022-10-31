@@ -14,16 +14,6 @@ import { OnStartCallbackType } from "@hyper-fetch/react"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type OnStartCallbackType<Command> = (params: { command: Command; details: CommandEventDetails<Command> }) => void | Promise<void>;
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type OnStartCallbackType<Command> = (params: { command: Command; details: Comman
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101)
+Defined in [helpers/use-command-events/use-command-events.types.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type OnStartCallbackType<Command> = (params: { command: Command; details: CommandEventDetails<Command> }) => void | Promise<void>;
+```
+
+</div>

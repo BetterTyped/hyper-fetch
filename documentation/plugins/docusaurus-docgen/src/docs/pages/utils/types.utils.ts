@@ -10,10 +10,33 @@ function parens(element: string, needsParens?: boolean) {
   return `(${element})`;
 }
 
+const getSignatureType = (
+  reflection: JSONOutput.SignatureReflection,
+  reflectionsTree: JSONOutput.DeclarationReflection[],
+  { useArrow }: { useArrow?: boolean },
+) => {
+  const params =
+    reflection.parameters?.map((param) => {
+      const paramName = param.name;
+      const rest = param.flags?.isRest ? "..." : "";
+      const optional = param.flags?.isOptional ? "?" : "";
+
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      return `${rest}${paramName}${optional}: ${getType(param.type, reflectionsTree)}`;
+    }) || [];
+
+  const sign = useArrow ? " => " : ": ";
+
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  return `(${params.join(", ")})${sign}${getType(reflection.type, reflectionsTree)}`;
+};
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 type StringType = string | Record<string, string | StringType>;
 
 export const getType = (
-  reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType,
+  reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType | undefined,
   reflectionsTree: JSONOutput.DeclarationReflection[],
   options?: { needsParens?: boolean; deepScan?: boolean },
 ): StringType => {
@@ -162,7 +185,7 @@ export const getType = (
       }
 
       if (decl?.signatures && decl.signatures.length === 1) {
-        return `${getType(decl.signatures[0], reflectionsTree)}`;
+        return getSignatureType(decl.signatures[0], reflectionsTree, { useArrow: true });
       }
 
       if (decl?.signatures && decl.signatures.length > 0) {
@@ -238,11 +261,35 @@ const getTypeValue = (
   if (reflection.type?.type && typeof reflection.type?.type === "string")
     return reflection.type as unknown as JSONOutput.DeclarationReflection;
   if (signature?.type && typeof signature.type === "string") return signature;
+  if (signature?.type?.type && typeof signature?.type?.type === "string")
+    return signature?.type as unknown as JSONOutput.DeclarationReflection;
   if (reflection.type)
     return getTypeValue(reflection.type as unknown as JSONOutput.DeclarationReflection);
   if (signature?.type)
     return getTypeValue(signature.type as unknown as JSONOutput.DeclarationReflection);
   return reflection;
+};
+
+const objectToString = (obj: Record<string, StringType>, level = 0) => {
+  const addIndent = (spaces: number) => {
+    let strOutput = "";
+    for (let i = 0; i < spaces; i += 1) {
+      strOutput += "  ";
+    }
+    return strOutput;
+  };
+  let strOutput = "";
+
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "object") {
+      strOutput += `${addIndent(level + 1) + key}: `;
+      strOutput += objectToString(obj[key], level + 2);
+    } else {
+      strOutput += `${addIndent(level + 1) + key}: ${obj[key]};\n`;
+    }
+  });
+
+  return `{\n${strOutput}${addIndent(level - 1)}};\n`.replace(/"/g, "");
 };
 
 export const getTypePresentation = (
@@ -255,7 +302,7 @@ export const getTypePresentation = (
 
   if (typeof type === "string") return type;
 
-  const template = JSON.stringify(type, null, 4);
+  const template = objectToString(type);
 
   return template;
 };

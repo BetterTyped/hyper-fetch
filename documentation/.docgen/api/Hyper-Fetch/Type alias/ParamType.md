@@ -14,16 +14,6 @@ import { ParamType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type ParamType = string | number;
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type ParamType = string | number;
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:184](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L184)
+Defined in [command/command.types.ts:184](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/command/command.types.ts#L184)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ParamType = string | number;
+```
+
+</div>

@@ -14,16 +14,6 @@ import { NonNullableKeys } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type NonNullableKeys<T> = { [ P in keyof T ]-?: NonNullable<T[P]> };
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type NonNullableKeys<T> = { [ P in keyof T ]-?: NonNullable<T[P]> };
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/helpers.types.ts#L9)
+Defined in [types/helpers.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/types/helpers.types.ts#L9)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type NonNullableKeys<T> = { [ P in keyof T ]-?: NonNullable<T[P]> };
+```
+
+</div>

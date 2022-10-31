@@ -14,16 +14,6 @@ import { ClientResponseSuccessType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
-## Preview
-
-</div><div class="api-docs__preview type single">
-
-```ts
-type ClientResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
-```
-
-</div><div class="api-docs__section">
-
 ## Description
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
@@ -32,6 +22,16 @@ type ClientResponseSuccessType<GenericDataType> = [GenericDataType, null, number
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/client/fetch.client.types.ts#L18)
+Defined in [client/fetch.client.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/client/fetch.client.types.ts#L18)
 
-</p>
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ClientResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
+```
+
+</div>

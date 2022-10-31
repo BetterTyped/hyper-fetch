@@ -22,7 +22,7 @@ import { getCacheIdKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.utils.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/cache/cache.utils.ts#L27)
+Defined in [cache/cache.utils.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/cache/cache.utils.ts#L27)
 
 </p><div class="api-docs__section">
 

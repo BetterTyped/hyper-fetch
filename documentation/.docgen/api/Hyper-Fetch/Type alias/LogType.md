@@ -14,6 +14,18 @@ import { LogType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__section">
 
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/managers/logger/logger.manager.types.ts#L15)
+
+</p><div class="api-docs__section">
+
 ## Preview
 
 </div><div class="api-docs__preview type">
@@ -29,16 +41,4 @@ type LogType = {
 }
 ```
 
-</div><div class="api-docs__section">
-
-## Description
-
-</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
-
-
-
-</span></div><p class="api-docs__definition">
-
-Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.types.ts#L15)
-
-</p>
+</div>

@@ -22,7 +22,7 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -66,34 +66,35 @@ useSubmit<Command>(command, options)
 
 ```ts
 {
-    "0": "O",
-    "1": "m",
-    "2": "i",
-    "3": "t",
-    "setData": "void",
-    "setError": "void",
-    "setLoading": "void",
-    "setRetries": "void",
-    "setStatus": "void",
-    "setTimestamp": "void",
-    "abort": "void",
-    "bounce": {
-        "active": "boolean",
-        "reset": "void"
-    },
-    "onSubmitAbort": "void",
-    "onSubmitDownloadProgress": "void",
-    "onSubmitError": "void",
-    "onSubmitFinished": "void",
-    "onSubmitOfflineError": "void",
-    "onSubmitRequestStart": "void",
-    "onSubmitResponseStart": "void",
-    "onSubmitSuccess": "void",
-    "onSubmitUploadProgress": "void",
-    "revalidate": "void",
-    "submit": "void",
-    "submitting": "boolean"
-}
+  0: O;
+  1: m;
+  2: i;
+  3: t;
+  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
+  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  abort: () => void;
+  bounce: {
+      active: boolean;
+      reset: () => void;
+  };
+  onSubmitAbort: (callback: OnErrorCallbackType) => void;
+  onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onSubmitError: (callback: OnErrorCallbackType) => void;
+  onSubmitFinished: (callback: OnFinishedCallbackType) => void;
+  onSubmitOfflineError: (callback: OnErrorCallbackType) => void;
+  onSubmitRequestStart: (callback: OnStartCallbackType) => void;
+  onSubmitResponseStart: (callback: OnStartCallbackType) => void;
+  onSubmitSuccess: (callback: OnSuccessCallbackType) => void;
+  onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
+  revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+  submit: (...parameters: Parameters) => Promise;
+  submitting: boolean;
+};
+
 ```
 
 </div>
