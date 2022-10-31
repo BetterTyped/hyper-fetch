@@ -22,7 +22,7 @@ import { getResponseEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.utils.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/command/command.manager.utils.ts#L10)
+Defined in [managers/command/command.manager.utils.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/command/command.manager.utils.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ getResponseEventKey(key)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+string
 ```
 
 </div>

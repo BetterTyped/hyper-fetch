@@ -1,6 +1,6 @@
 import { JSONOutput, ReflectionKind } from "typedoc";
 
-import { getReference } from "./parsing.utils";
+import { getReference, getSignature } from "./parsing.utils";
 
 function parens(element: string, needsParens?: boolean) {
   if (!needsParens) {
@@ -10,11 +10,13 @@ function parens(element: string, needsParens?: boolean) {
   return `(${element})`;
 }
 
+type StringType = string | Record<string, string | StringType>;
+
 export const getType = (
   reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType,
   reflectionsTree: JSONOutput.DeclarationReflection[],
   options?: { needsParens?: boolean; deepScan?: boolean },
-): string | Record<string, string> => {
+): StringType => {
   const { needsParens, deepScan } = options || {};
   if (!reflection) {
     return "";
@@ -24,16 +26,19 @@ export const getType = (
     case "array": {
       const type = reflection as unknown as JSONOutput.ArrayType;
 
-      return `${getType(type.elementType, reflectionsTree, { needsParens: true })}[]`;
+      return `${getType(type.elementType, reflectionsTree, { needsParens: true, deepScan })}[]`;
     }
 
     case "conditional": {
       const type = reflection as unknown as JSONOutput.ConditionalType;
 
-      const checkType = getType(type.checkType, reflectionsTree, { needsParens: true });
-      const extendsType = getType(type.extendsType, reflectionsTree, { needsParens: true });
-      const trueType = getType(type.trueType, reflectionsTree, { needsParens: true });
-      const falseType = getType(type.falseType, reflectionsTree, { needsParens: true });
+      const checkType = getType(type.checkType, reflectionsTree, { needsParens: true, deepScan });
+      const extendsType = getType(type.extendsType, reflectionsTree, {
+        needsParens: true,
+        deepScan,
+      });
+      const trueType = getType(type.trueType, reflectionsTree, { needsParens: true, deepScan });
+      const falseType = getType(type.falseType, reflectionsTree, { needsParens: true, deepScan });
 
       return parens(
         `${checkType} extends ${extendsType} ? ${trueType} : ${falseType}`,
@@ -44,8 +49,8 @@ export const getType = (
     case "indexedAccess": {
       const type = reflection as unknown as JSONOutput.IndexedAccessType;
 
-      const objectType = getType(type.objectType, reflectionsTree, { needsParens: true });
-      const indexType = getType(type.indexType, reflectionsTree, { needsParens: true });
+      const objectType = getType(type.objectType, reflectionsTree, { needsParens: true, deepScan });
+      const indexType = getType(type.indexType, reflectionsTree, { needsParens: true, deepScan });
 
       return `${objectType}[${indexType}]`;
     }
@@ -61,7 +66,7 @@ export const getType = (
 
       let newType: Record<string, string> = {};
       type.types.forEach((t) => {
-        const parsed = getType(t, reflectionsTree) as Record<string, string>;
+        const parsed = getType(t, reflectionsTree, { deepScan }) as Record<string, string>;
         newType = { ...newType, ...parsed };
       });
       return newType;
@@ -84,7 +89,9 @@ export const getType = (
 
       const parameterType = getType(type.parameterType, reflectionsTree);
       const templateType = getType(type.templateType, reflectionsTree);
-      const nameType = type.nameType ? ` as ${getType(type.nameType, reflectionsTree)}` : "";
+      const nameType = type.nameType
+        ? ` as ${getType(type.nameType, reflectionsTree, { deepScan })}`
+        : "";
 
       const optionalSymbol = type.optionalModifier === "+" ? "?:" : "";
       const minusSymbol = type.optionalModifier === "-" ? "-?:" : "";
@@ -98,7 +105,7 @@ export const getType = (
     case "optional": {
       const type = reflection as unknown as JSONOutput.OptionalType;
 
-      const elementType = getType(type.elementType, reflectionsTree);
+      const elementType = getType(type.elementType, reflectionsTree, { deepScan });
 
       return `${elementType}?`;
     }
@@ -106,7 +113,9 @@ export const getType = (
     case "predicate": {
       const type = reflection as unknown as JSONOutput.PredicateType;
 
-      const targetType = type.targetType ? ` is ${getType(type.targetType, reflectionsTree)}` : "";
+      const targetType = type.targetType
+        ? ` is ${getType(type.targetType, reflectionsTree, { deepScan })}`
+        : "";
       const asserts = type.asserts ? "asserts " : "";
 
       return `${asserts} ${type.name}${targetType}`;
@@ -114,7 +123,7 @@ export const getType = (
 
     case "query": {
       const type = reflection as unknown as JSONOutput.QueryType;
-      const queryType = getType(type.queryType, reflectionsTree);
+      const queryType = getType(type.queryType, reflectionsTree, { deepScan });
 
       return `typeof ${queryType}`;
     }
@@ -123,17 +132,17 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.ReferenceType;
       const reference = type.id ? getReference(type.id, reflectionsTree) : null;
 
-      if (!reference) return "";
+      if (!reference) return type.name;
 
-      if (
-        (reference.kind === ReflectionKind.TypeAlias ||
-          reference.kind === ReflectionKind.Interface) &&
-        deepScan
-      ) {
-        return getType(reference, reflectionsTree);
+      const isDeepScanType = [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(
+        reference.kind,
+      );
+
+      if (deepScan && reference.type && isDeepScanType) {
+        return getType(reference.type, reflectionsTree, { deepScan });
       }
 
-      return `${type.name}`;
+      return type.name;
     }
 
     case "reflection": {
@@ -144,8 +153,10 @@ export const getType = (
       if (decl?.children && decl.children.length > 0) {
         let newType: Record<string, string> = {};
         decl.children.forEach((t) => {
-          const parsed = getType(t, reflectionsTree) as Record<string, string>;
-          newType = { ...newType, ...parsed };
+          const parsed = t.type
+            ? (getType(t.type, reflectionsTree, { deepScan }) as string)
+            : "any";
+          newType = { ...newType, [t.name]: parsed };
         });
         return newType;
       }
@@ -157,7 +168,7 @@ export const getType = (
       if (decl?.signatures && decl.signatures.length > 0) {
         let newType: Record<string, string> = {};
         decl.signatures.forEach((t) => {
-          const parsed = getType(t, reflectionsTree) as Record<string, string>;
+          const parsed = getType(t, reflectionsTree, { deepScan }) as Record<string, string>;
           newType = { ...newType, ...parsed };
         });
         return newType;
@@ -169,23 +180,25 @@ export const getType = (
     case "rest": {
       const type = reflection as unknown as JSONOutput.RestType;
 
-      return `... ${getType(type.elementType, reflectionsTree)}`;
+      return `... ${getType(type.elementType, reflectionsTree, { deepScan })}`;
     }
 
     case "tuple": {
       const type = reflection as unknown as JSONOutput.TupleType;
-      return `[${type.elements?.map((t) => getType(t, reflectionsTree))}]`;
+      return `[${type.elements?.map((t) => getType(t, reflectionsTree, { deepScan }))}]`;
     }
 
     case "typeOperator": {
       const type = reflection as unknown as JSONOutput.TypeOperatorType;
-      return `${type.operator} ${getType(type.target, reflectionsTree)}`;
+      return `${type.operator} ${getType(type.target, reflectionsTree, { deepScan })}`;
     }
 
     case "union": {
       const type = reflection as unknown as JSONOutput.UnionType;
 
-      return `${type.types.map((t) => JSON.stringify(getType(t, reflectionsTree))).join(" | ")}`;
+      return `${type.types
+        .map((t) => JSON.stringify(getType(t, reflectionsTree, { deepScan })))
+        .join(" | ")}`;
     }
 
     case "unknown": {
@@ -197,10 +210,9 @@ export const getType = (
     case "named-tuple-member": {
       const type = reflection as unknown as unknown as JSONOutput.NamedTupleMemberType;
 
-      return `${type.name}${type.isOptional ? "?:" : ":"} ${getType(
-        type.element,
-        reflectionsTree,
-      )}`;
+      return `${type.name}${type.isOptional ? "?:" : ":"} ${getType(type.element, reflectionsTree, {
+        deepScan,
+      })}`;
     }
 
     case "template-literal": {
@@ -212,24 +224,38 @@ export const getType = (
       return `\`${head}${tail}\``;
     }
 
-    default:
+    default: {
       return `void`;
+    }
   }
 };
 
+const getTypeValue = (
+  reflection: JSONOutput.DeclarationReflection,
+): JSONOutput.DeclarationReflection => {
+  const signature = getSignature(reflection);
+  if (reflection.type && typeof reflection.type === "string") return reflection;
+  if (reflection.type?.type && typeof reflection.type?.type === "string")
+    return reflection.type as unknown as JSONOutput.DeclarationReflection;
+  if (signature?.type && typeof signature.type === "string") return signature;
+  if (reflection.type)
+    return getTypeValue(reflection.type as unknown as JSONOutput.DeclarationReflection);
+  if (signature?.type)
+    return getTypeValue(signature.type as unknown as JSONOutput.DeclarationReflection);
+  return reflection;
+};
+
 export const getTypePresentation = (
-  reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType,
+  reflection: JSONOutput.DeclarationReflection,
   reflectionsTree: JSONOutput.DeclarationReflection[],
 ) => {
-  const type = getType(reflection, reflectionsTree);
+  const typeValue = getTypeValue(reflection);
+
+  const type = getType(typeValue, reflectionsTree, { deepScan: true });
 
   if (typeof type === "string") return type;
 
-  const template = `{\n
-${Object.keys(type).forEach((t) => {
-  return `  ${t}: ${type[t]};\n`;
-})}
-}`;
+  const template = JSON.stringify(type, null, 4);
 
   return template;
 };

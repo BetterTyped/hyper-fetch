@@ -39,6 +39,6 @@ type QueryStringifyOptions = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:42](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/client/fetch.client.types.ts#L42)
+Defined in [client/fetch.client.types.ts:42](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/client/fetch.client.types.ts#L42)
 
 </p>

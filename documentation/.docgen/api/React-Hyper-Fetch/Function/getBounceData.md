@@ -22,7 +22,7 @@ import { getBounceData } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [utils/bounce.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/utils/bounce.utils.ts#L1)
+Defined in [utils/bounce.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/utils/bounce.utils.ts#L1)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,10 @@ getBounceData(bounceData)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "active": "boolean",
+    "reset": "void"
+}
 ```
 
 </div>

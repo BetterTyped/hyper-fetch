@@ -42,6 +42,6 @@ enum DateInterval {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [constants/time.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/constants/time.constants.ts#L1)
+Defined in [constants/time.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/constants/time.constants.ts#L1)
 
 </p>

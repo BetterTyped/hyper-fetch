@@ -32,6 +32,6 @@ type NullableKeys<T> = { [ P in keyof T ]-?: NullableType<T[P]> };
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/helpers.types.ts#L5)
+Defined in [types/helpers.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/helpers.types.ts#L5)
 
 </p>

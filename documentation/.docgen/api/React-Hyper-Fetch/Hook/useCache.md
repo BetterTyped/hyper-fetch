@@ -22,7 +22,7 @@ import { useCache } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,24 @@ useCache<T>(command, options)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "data": "\"null\" | \"ExtractResponse\"",
+    "error": "\"null\" | \"ExtractError\"",
+    "loading": "boolean",
+    "retries": "number",
+    "status": "\"null\" | \"number\"",
+    "timestamp": "\"null\" | \"Date\"",
+    "setData": "void",
+    "setError": "void",
+    "setLoading": "void",
+    "setRetries": "void",
+    "setStatus": "void",
+    "setTimestamp": "void",
+    "onCacheChange": "void",
+    "onCacheError": "void",
+    "onCacheSuccess": "void",
+    "revalidate": "void"
+}
 ```
 
 </div>

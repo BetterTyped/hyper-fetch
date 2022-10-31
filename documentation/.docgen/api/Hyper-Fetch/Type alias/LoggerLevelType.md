@@ -32,6 +32,6 @@ type LoggerLevelType = error | warning | info | debug;
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/logger/logger.manager.types.ts#L24)
+Defined in [managers/logger/logger.manager.types.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.types.ts#L24)
 
 </p>

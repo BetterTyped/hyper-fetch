@@ -32,6 +32,6 @@ type UseFetchReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> 
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70)
+Defined in [hooks/use-fetch/use-fetch.types.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70)
 
 </p>

@@ -33,6 +33,6 @@ const initialState = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
+Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
 
 </p>

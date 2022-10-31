@@ -32,6 +32,6 @@ type CommandData<RequestDataType,MappedData> = (MappedData extends undefined ? R
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:159](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L159)
+Defined in [command/command.types.ts:159](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L159)
 
 </p>

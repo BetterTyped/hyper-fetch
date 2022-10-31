@@ -53,6 +53,6 @@ Configuration options for command creation
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L76)
+Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L76)
 
 </p>

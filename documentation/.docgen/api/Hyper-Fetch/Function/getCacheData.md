@@ -22,7 +22,7 @@ import { getCacheData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.utils.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/cache/cache.utils.ts#L5)
+Defined in [cache/cache.utils.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/cache/cache.utils.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ getCacheData<T>(previousResponse, response)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+["GenericDataType" | "null","GenericErrorType" | "null","number" | "null"]
 ```
 
 </div>

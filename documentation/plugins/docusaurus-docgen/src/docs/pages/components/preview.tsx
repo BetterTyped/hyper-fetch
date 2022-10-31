@@ -1,7 +1,6 @@
 import React from "react";
-import { JSONOutput } from "typedoc";
+import { JSONOutput, ReflectionKind } from "typedoc";
 
-import { KindTypes } from "../../../constants/api.constants";
 import { PagePropsType } from "types/page.types";
 import { getCallPreview, getMethods, getProperties, getSignature } from "../utils/parsing.utils";
 import { Type } from "./type";
@@ -12,7 +11,7 @@ export const Preview: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection>
 > = (props) => {
   const { reflection, reflectionsTree } = props;
-  if (reflection.kindString === KindTypes.class) {
+  if (reflection.kind === ReflectionKind.Class) {
     const signature = getSignature(reflection);
     if (!signature) return null;
 
@@ -46,9 +45,9 @@ export const Preview: React.FC<
     );
   }
   if (
-    reflection.kindString === KindTypes.fn ||
-    reflection.kindString === "Method" ||
-    reflection.kindString === "Call signature"
+    reflection.kind === ReflectionKind.Function ||
+    reflection.kind === ReflectionKind.Method ||
+    reflection.kind === ReflectionKind.CallSignature
   ) {
     const signature = getSignature(reflection);
     if (!signature) return null;
@@ -64,7 +63,7 @@ export const Preview: React.FC<
       </div>
     );
   }
-  if (reflection.kindString === KindTypes.enum) {
+  if (reflection.kind === ReflectionKind.Enum) {
     const { name } = reflection;
 
     const children =
@@ -96,7 +95,7 @@ export const Preview: React.FC<
       </div>
     );
   }
-  if (reflection.kindString === KindTypes.var) {
+  if (reflection.kind === ReflectionKind.Variable) {
     const { name, flags } = reflection;
 
     // if (!children) return null;
@@ -116,7 +115,7 @@ export const Preview: React.FC<
       </div>
     );
   }
-  if (reflection.kindString === KindTypes.type) {
+  if (reflection.kind === ReflectionKind.TypeAlias) {
     const { name, type } = reflection;
 
     const children =

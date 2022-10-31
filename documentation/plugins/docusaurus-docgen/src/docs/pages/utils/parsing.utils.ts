@@ -1,4 +1,4 @@
-import { JSONOutput } from "typedoc";
+import { JSONOutput, ReflectionKind } from "typedoc";
 
 export const getSignature = (reflection: JSONOutput.DeclarationReflection) => {
   const parametersKinds = ["Call", "Constructor"];
@@ -95,7 +95,7 @@ const isMethod = (
   reflection: JSONOutput.DeclarationReflection,
   reflectionsTree: JSONOutput.DeclarationReflection[],
 ) => {
-  if (reflection.kindString === "Method") {
+  if (reflection.kind === ReflectionKind.Method) {
     return true;
   }
   return isFunctionType(reflection, reflectionsTree);

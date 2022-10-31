@@ -22,7 +22,7 @@ import { getClientBindings } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.bindings.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/client/fetch.client.bindings.ts#L5)
+Defined in [client/fetch.client.bindings.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/client/fetch.client.bindings.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ getClientBindings(cmd, requestId)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+Promise
 ```
 
 </div>

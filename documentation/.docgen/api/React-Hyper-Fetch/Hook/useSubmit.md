@@ -22,7 +22,7 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,35 @@ useSubmit<Command>(command, options)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "0": "O",
+    "1": "m",
+    "2": "i",
+    "3": "t",
+    "setData": "void",
+    "setError": "void",
+    "setLoading": "void",
+    "setRetries": "void",
+    "setStatus": "void",
+    "setTimestamp": "void",
+    "abort": "void",
+    "bounce": {
+        "active": "boolean",
+        "reset": "void"
+    },
+    "onSubmitAbort": "void",
+    "onSubmitDownloadProgress": "void",
+    "onSubmitError": "void",
+    "onSubmitFinished": "void",
+    "onSubmitOfflineError": "void",
+    "onSubmitRequestStart": "void",
+    "onSubmitResponseStart": "void",
+    "onSubmitSuccess": "void",
+    "onSubmitUploadProgress": "void",
+    "revalidate": "void",
+    "submit": "void",
+    "submitting": "boolean"
+}
 ```
 
 </div>

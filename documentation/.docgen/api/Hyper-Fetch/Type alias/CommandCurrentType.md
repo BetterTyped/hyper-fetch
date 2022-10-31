@@ -32,6 +32,6 @@ type CommandCurrentType<ResponseType,RequestDataType,QueryParamsType,ErrorType,G
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L163)
+Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L163)
 
 </p>

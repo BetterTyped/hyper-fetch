@@ -1,6 +1,7 @@
+import { ReflectionKind } from "typedoc";
+
 import { renderer } from "./renderer";
 import { PagePropsType } from "types/page.types";
-import { KindTypes } from "../../constants/api.constants";
 import { ClassPage } from "../pages/class.page";
 import { FunctionPage } from "../pages/function.page";
 import { EnumPage } from "../pages/enum.page";
@@ -8,23 +9,23 @@ import { VarPage } from "../pages/var.page";
 import { TypePage } from "../pages/type.page";
 
 export const pageGenerator = (props: PagePropsType) => {
-  switch (props.reflection.kindString) {
-    case KindTypes.class: {
+  switch (props.reflection.kind) {
+    case ReflectionKind.Class: {
       return renderer(props, ClassPage);
     }
-    case KindTypes.enum: {
+    case ReflectionKind.Enum: {
       return renderer(props, EnumPage);
     }
-    case KindTypes.var: {
+    case ReflectionKind.Variable: {
       return renderer(props, VarPage);
     }
-    case KindTypes.fn: {
+    case ReflectionKind.Function: {
       return renderer(props, FunctionPage);
     }
-    case KindTypes.type: {
+    case ReflectionKind.TypeAlias: {
       return renderer(props, TypePage);
     }
-    case KindTypes.interface: {
+    case ReflectionKind.Interface: {
       return "test";
       // return renderer(props, TypePage);
     }

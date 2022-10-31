@@ -22,7 +22,7 @@ import { getIsEqualTimestamp } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
+Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -75,7 +75,7 @@ getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+boolean
 ```
 
 </div>

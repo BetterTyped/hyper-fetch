@@ -37,6 +37,6 @@ type CacheAsyncStorageType = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:41](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/cache/cache.types.ts#L41)
+Defined in [cache/cache.types.ts:41](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/cache/cache.types.ts#L41)
 
 </p>

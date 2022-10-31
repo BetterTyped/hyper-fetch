@@ -22,7 +22,7 @@ import { getCommandManagerEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/command/command.manager.events.ts#L27)
+Defined in [managers/command/command.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/command/command.manager.events.ts#L27)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,32 @@ getCommandManagerEvents(emitter)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "emitAbort": "void",
+    "emitDownloadProgress": "void",
+    "emitLoading": "void",
+    "emitRemove": "void",
+    "emitRequestStart": "void",
+    "emitResponse": "void",
+    "emitResponseStart": "void",
+    "emitUploadProgress": "void",
+    "onAbort": "void",
+    "onAbortById": "void",
+    "onDownloadProgress": "void",
+    "onDownloadProgressById": "void",
+    "onLoading": "void",
+    "onLoadingById": "void",
+    "onRemove": "void",
+    "onRemoveById": "void",
+    "onRequestStart": "void",
+    "onRequestStartById": "void",
+    "onResponse": "void",
+    "onResponseById": "void",
+    "onResponseStart": "void",
+    "onResponseStartById": "void",
+    "onUploadProgress": "void",
+    "onUploadProgressById": "void"
+}
 ```
 
 </div>

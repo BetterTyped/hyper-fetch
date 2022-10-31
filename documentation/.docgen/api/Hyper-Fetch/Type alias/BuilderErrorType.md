@@ -32,6 +32,6 @@ type BuilderErrorType = Record<string, any> | string;
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:45](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/builder/builder.types.ts#L45)
+Defined in [builder/builder.types.ts:45](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/builder/builder.types.ts#L45)
 
 </p>

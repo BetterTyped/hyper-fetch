@@ -22,7 +22,7 @@ import { fetchClient } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/client/fetch.client.ts#L4)
+Defined in [client/fetch.client.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/client/fetch.client.ts#L4)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ fetchClient(command, requestId)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+Promise
 ```
 
 </div>

@@ -32,6 +32,6 @@ type UseSubmitReturnType<T> = Omit<UseTrackedStateType<T>, loading> & UseTracked
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.types.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
+Defined in [hooks/use-submit/use-submit.types.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
 
 </p>

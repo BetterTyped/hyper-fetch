@@ -22,7 +22,7 @@ import { useQueue } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-queue/use-queue.hooks.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-queue/use-queue.hooks.ts#L14)
+Defined in [hooks/use-queue/use-queue.hooks.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-queue/use-queue.hooks.ts#L14)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,13 @@ useQueue<Command>(command, options)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "pause": "void",
+    "requests": "[object Object][]",
+    "start": "void",
+    "stop": "void",
+    "stopped": "boolean"
+}
 ```
 
 </div>

@@ -32,6 +32,6 @@ type ExtractEndpoint<T> = T extends Command<any, any, any, any, any, infer  E, a
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/fetch.types.ts#L27)
+Defined in [types/fetch.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L27)
 
 </p>

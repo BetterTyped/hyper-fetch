@@ -33,6 +33,6 @@ const useSubmitDefaultOptions = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.constants.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-submit/use-submit.constants.ts#L9)
+Defined in [hooks/use-submit/use-submit.constants.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-submit/use-submit.constants.ts#L9)
 
 </p>

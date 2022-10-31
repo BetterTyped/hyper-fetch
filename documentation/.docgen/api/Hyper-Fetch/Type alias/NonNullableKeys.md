@@ -32,6 +32,6 @@ type NonNullableKeys<T> = { [ P in keyof T ]-?: NonNullable<T[P]> };
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/helpers.types.ts#L9)
+Defined in [types/helpers.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/helpers.types.ts#L9)
 
 </p>

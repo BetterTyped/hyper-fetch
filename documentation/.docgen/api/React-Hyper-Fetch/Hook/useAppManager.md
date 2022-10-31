@@ -22,7 +22,7 @@ import { useAppManager } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-app-manager/use-app-manager.hooks.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7)
+Defined in [hooks/use-app-manager/use-app-manager.hooks.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,12 @@ useAppManager<B>(builder)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "isFocused": "boolean",
+    "isOnline": "boolean",
+    "setFocused": "void",
+    "setOnline": "void"
+}
 ```
 
 </div>

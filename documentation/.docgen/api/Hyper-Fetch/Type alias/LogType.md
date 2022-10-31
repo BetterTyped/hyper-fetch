@@ -39,6 +39,6 @@ type LogType = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/logger/logger.manager.types.ts#L15)
+Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.types.ts#L15)
 
 </p>

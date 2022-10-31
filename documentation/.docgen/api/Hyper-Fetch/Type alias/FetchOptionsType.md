@@ -32,6 +32,6 @@ type FetchOptionsType<ClientOptions> = Omit<Partial<CommandConfig<string, Client
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:195](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L195)
+Defined in [command/command.types.ts:195](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L195)
 
 </p>

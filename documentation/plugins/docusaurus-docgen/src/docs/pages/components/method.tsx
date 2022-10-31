@@ -39,7 +39,7 @@ export const Method: React.FC<PagePropsType> = (props) => {
         <Parameters {...props} headingSize="h4" />
       </Section>
       <Section headingSize="h4" title="Return">
-        <Returns {...props} />
+        <Returns {...props} reflection={methodSignature || reflection} />
       </Section>
       <hr />
     </div>

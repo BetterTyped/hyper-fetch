@@ -32,6 +32,6 @@ type ExtractRouteParams<T> = string extends T ? NegativeTypes : T extends `${str
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:187](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L187)
+Defined in [command/command.types.ts:187](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L187)
 
 </p>

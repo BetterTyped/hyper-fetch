@@ -32,6 +32,6 @@ type ExtractError<T> = T extends Command<any, any, any, infer  G, infer  L, any,
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/fetch.types.ts#L15)
+Defined in [types/fetch.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L15)
 
 </p>

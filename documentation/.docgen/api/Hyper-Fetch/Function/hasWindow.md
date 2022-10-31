@@ -22,7 +22,7 @@ import { hasWindow } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/app/app.manager.utils.ts#L1)
+Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/app/app.manager.utils.ts#L1)
 
 </p><div class="api-docs__section">
 
@@ -41,7 +41,7 @@ hasWindow()
 </div><div class="api-docs__returns">
 
 ```ts
-void
+boolean
 ```
 
 </div>

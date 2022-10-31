@@ -32,6 +32,6 @@ type RequiredKeys<T> = { [ P in keyof T ]-?: Exclude<T[P], NegativeTypes> };
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/helpers.types.ts#L13)
+Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/helpers.types.ts#L13)
 
 </p>

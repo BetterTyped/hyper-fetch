@@ -32,6 +32,6 @@ type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> 
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
 
 </p>

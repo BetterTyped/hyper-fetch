@@ -22,7 +22,7 @@ import { stringifyQueryParams } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:150](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/builder/builder.utils.ts#L150)
+Defined in [builder/builder.utils.ts:150](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/builder/builder.utils.ts#L150)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ stringifyQueryParams(queryParams, options)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+string
 ```
 
 </div>

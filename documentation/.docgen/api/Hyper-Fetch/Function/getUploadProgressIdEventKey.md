@@ -22,7 +22,7 @@ import { getUploadProgressIdEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.utils.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/command/command.manager.utils.ts#L17)
+Defined in [managers/command/command.manager.utils.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/command/command.manager.utils.ts#L17)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ getUploadProgressIdEventKey(key)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+string
 ```
 
 </div>

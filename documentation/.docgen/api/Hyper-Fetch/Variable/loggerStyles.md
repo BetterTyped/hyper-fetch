@@ -33,6 +33,6 @@ const loggerStyles = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.constants.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/logger/logger.manager.constants.ts#L5)
+Defined in [managers/logger/logger.manager.constants.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.constants.ts#L5)
 
 </p>

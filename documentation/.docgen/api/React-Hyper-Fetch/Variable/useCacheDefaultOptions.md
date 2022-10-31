@@ -33,6 +33,6 @@ const useCacheDefaultOptions = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
+Defined in [hooks/use-cache/use-cache.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
 
 </p>

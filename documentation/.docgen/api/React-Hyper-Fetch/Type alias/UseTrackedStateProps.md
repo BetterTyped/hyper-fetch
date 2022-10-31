@@ -40,6 +40,6 @@ type UseTrackedStateProps<T> = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13)
 
 </p>

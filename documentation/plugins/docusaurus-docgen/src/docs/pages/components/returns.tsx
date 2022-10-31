@@ -13,7 +13,6 @@ export const Returns: React.FC<
   const { comment } = reflection;
   const returnTag = getTag(comment, "@returns");
 
-  // Deeply extract types to build full object by references
   return (
     <div className="api-docs__returns">
       <>

@@ -43,6 +43,6 @@ type UseCommandEventsActionsType<T> = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29)
+Defined in [helpers/use-command-events/use-command-events.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L29)
 
 </p>

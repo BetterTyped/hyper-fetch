@@ -32,6 +32,6 @@ If the command endpoint parameters are not filled it will throw an error
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:212](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.types.ts#L212)
+Defined in [command/command.types.ts:212](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.types.ts#L212)
 
 </p>

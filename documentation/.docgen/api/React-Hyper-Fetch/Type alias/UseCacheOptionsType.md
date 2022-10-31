@@ -36,6 +36,6 @@ type UseCacheOptionsType<T> = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
+Defined in [hooks/use-cache/use-cache.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
 
 </p>

@@ -32,6 +32,6 @@ type ExtractResponse<T> = T extends Command<infer  D, any, any, any, any, any, a
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/fetch.types.ts#L9)
+Defined in [types/fetch.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L9)
 
 </p>

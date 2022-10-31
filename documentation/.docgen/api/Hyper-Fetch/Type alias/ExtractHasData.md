@@ -32,6 +32,6 @@ type ExtractHasData<T> = T extends Command<any, any, any, any, any, any, any, in
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/fetch.types.ts#L33)
+Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L33)
 
 </p>

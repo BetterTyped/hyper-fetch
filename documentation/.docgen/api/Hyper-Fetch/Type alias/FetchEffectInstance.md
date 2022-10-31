@@ -32,6 +32,6 @@ type FetchEffectInstance = FetchEffect<CommandInstance>;
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.types.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/effect/fetch.effect.types.ts#L8)
+Defined in [effect/fetch.effect.types.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/effect/fetch.effect.types.ts#L8)
 
 </p>

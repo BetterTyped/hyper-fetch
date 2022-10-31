@@ -22,7 +22,7 @@ import { getRefreshTime } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1)
+Defined in [hooks/use-fetch/use-fetch.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-fetch/use-fetch.utils.ts#L1)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ getRefreshTime(refreshTime, dataTimestamp)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+number
 ```
 
 </div>

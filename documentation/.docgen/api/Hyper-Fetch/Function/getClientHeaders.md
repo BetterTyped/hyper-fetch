@@ -22,7 +22,7 @@ import { getClientHeaders } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/builder/builder.utils.ts#L54)
+Defined in [builder/builder.utils.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/builder/builder.utils.ts#L54)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ getClientHeaders(command)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+HeadersInit
 ```
 
 </div>

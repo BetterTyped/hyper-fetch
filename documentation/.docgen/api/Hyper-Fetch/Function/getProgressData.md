@@ -22,7 +22,7 @@ import { getProgressData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/command/command.utils.ts#L39)
+Defined in [command/command.utils.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/command/command.utils.ts#L39)
 
 </p><div class="api-docs__section">
 
@@ -75,7 +75,14 @@ getProgressData(requestStartTime, progressDate, progressEvent)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "loaded": "number",
+    "progress": "number",
+    "sizeLeft": "number",
+    "startTimestamp": "number",
+    "timeLeft": "\"number\" | \"null\"",
+    "total": "number"
+}
 ```
 
 </div>

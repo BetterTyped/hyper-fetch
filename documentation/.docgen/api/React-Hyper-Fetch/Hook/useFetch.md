@@ -22,7 +22,7 @@ import { useFetch } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,35 @@ useFetch<T>(command, options)
 </div><div class="api-docs__returns">
 
 ```ts
-void
+{
+    "data": "\"null\" | \"ExtractResponse\"",
+    "error": "\"null\" | \"ExtractError\"",
+    "loading": "boolean",
+    "retries": "number",
+    "status": "\"null\" | \"number\"",
+    "timestamp": "\"null\" | \"Date\"",
+    "setData": "void",
+    "setError": "void",
+    "setLoading": "void",
+    "setRetries": "void",
+    "setStatus": "void",
+    "setTimestamp": "void",
+    "abort": "void",
+    "onAbort": "void",
+    "onDownloadProgress": "void",
+    "onError": "void",
+    "onFinished": "void",
+    "onOfflineError": "void",
+    "onRequestStart": "void",
+    "onResponseStart": "void",
+    "onSuccess": "void",
+    "onUploadProgress": "void",
+    "bounce": {
+        "active": "boolean",
+        "reset": "void"
+    },
+    "revalidate": "void"
+}
 ```
 
 </div>

@@ -32,6 +32,6 @@ type ExtractHasQueryParams<T> = T extends Command<any, any, any, any, any, any, 
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/types/fetch.types.ts#L37)
+Defined in [types/fetch.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/types/fetch.types.ts#L37)
 
 </p>

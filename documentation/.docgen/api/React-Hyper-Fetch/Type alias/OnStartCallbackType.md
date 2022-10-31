@@ -32,6 +32,6 @@ type OnStartCallbackType<Command> = (params: { command: Command; details: Comman
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101)
+Defined in [helpers/use-command-events/use-command-events.types.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L101)
 
 </p>

@@ -35,6 +35,6 @@ type DispatcherData<Command> = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.types.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/dispatcher/dispatcher.types.ts#L20)
+Defined in [dispatcher/dispatcher.types.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/dispatcher/dispatcher.types.ts#L20)
 
 </p>

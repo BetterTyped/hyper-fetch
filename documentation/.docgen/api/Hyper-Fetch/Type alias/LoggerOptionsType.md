@@ -35,6 +35,6 @@ type LoggerOptionsType = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/core/src/managers/logger/logger.manager.types.ts#L12)
+Defined in [managers/logger/logger.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/core/src/managers/logger/logger.manager.types.ts#L12)
 
 </p>

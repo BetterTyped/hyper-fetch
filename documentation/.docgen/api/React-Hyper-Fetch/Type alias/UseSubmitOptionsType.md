@@ -40,6 +40,6 @@ type UseSubmitOptionsType<T> = {
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/0bdb96c0/packages/react/src/hooks/use-submit/use-submit.types.ts#L21)
+Defined in [hooks/use-submit/use-submit.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/479dcad6/packages/react/src/hooks/use-submit/use-submit.types.ts#L21)
 
 </p>
