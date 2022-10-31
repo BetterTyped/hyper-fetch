@@ -40,7 +40,7 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
   return [name, typeSignature, callSignature];
 };
 
-const getReference = (id: number, tree: JSONOutput.DeclarationReflection[]) => {
+export const getReference = (id: number, tree: JSONOutput.DeclarationReflection[]) => {
   return tree.find((element) => element.id === id);
 };
 

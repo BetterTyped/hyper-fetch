@@ -187,13 +187,7 @@ export function Type({
 
       return (
         <>
-          {ref?.permalink ? (
-            <a className={`api-type__type ${genericClass}`} href={ref.permalink}>
-              {type.name}
-            </a>
-          ) : (
-            <span className={`api-type__type ${genericClass}`}>{type.name}</span>
-          )}
+          <span className={`api-type__type ${genericClass}`}>{type.name}</span>
           {type.typeArguments && type.typeArguments.length > 0 && (
             <>
               <span className="api-type__symbol">&lt;</span>
@@ -298,12 +292,6 @@ export function Type({
         </>
       );
     }
-
-    // case 'typeParameter': {
-    // 	const type = reflection as unknown as JSONOutput.TypeParameterType;
-
-    // 	return <span className="api-type__type">{type.name}</span>;
-    // }
 
     case "union": {
       const type = reflection as unknown as JSONOutput.UnionType;
