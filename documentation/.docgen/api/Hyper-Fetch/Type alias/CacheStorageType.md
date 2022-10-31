@@ -22,7 +22,7 @@ import { CacheStorageType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:48](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/cache/cache.types.ts#L48)
+Defined in [cache/cache.types.ts:48](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/cache/cache.types.ts#L48)
 
 </p><div class="api-docs__section">
 

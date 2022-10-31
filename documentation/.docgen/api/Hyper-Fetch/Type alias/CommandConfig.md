@@ -22,7 +22,7 @@ Configuration options for command creation
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/command/command.types.ts#L76)
+Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.types.ts#L76)
 
 </p><div class="api-docs__section">
 

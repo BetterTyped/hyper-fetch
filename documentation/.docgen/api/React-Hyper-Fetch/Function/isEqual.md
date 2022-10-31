@@ -22,7 +22,7 @@ import { isEqual } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [utils/deep-equal.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/utils/deep-equal.utils.ts#L19)
+Defined in [utils/deep-equal.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/utils/deep-equal.utils.ts#L19)
 
 </p><div class="api-docs__section">
 

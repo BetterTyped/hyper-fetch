@@ -22,7 +22,7 @@ import { useQueueDefaultOptions } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-queue/use-queue.constants.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/hooks/use-queue/use-queue.constants.ts#L5)
+Defined in [hooks/use-queue/use-queue.constants.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/hooks/use-queue/use-queue.constants.ts#L5)
 
 </p><div class="api-docs__section">
 

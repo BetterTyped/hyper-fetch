@@ -22,7 +22,7 @@ import { CommandEventDetails } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/managers/command/command.manager.types.ts#L12)
+Defined in [managers/command/command.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/managers/command/command.manager.types.ts#L12)
 
 </p><div class="api-docs__section">
 

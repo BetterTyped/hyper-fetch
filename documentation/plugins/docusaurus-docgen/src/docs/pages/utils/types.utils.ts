@@ -283,13 +283,13 @@ const objectToString = (obj: Record<string, StringType>, level = 0) => {
   Object.keys(obj).forEach((key) => {
     if (typeof obj[key] === "object") {
       strOutput += `${addIndent(level + 1) + key}: `;
-      strOutput += objectToString(obj[key], level + 2);
+      strOutput += `${objectToString(obj[key], level + 2)};\n`;
     } else {
       strOutput += `${addIndent(level + 1) + key}: ${obj[key]};\n`;
     }
   });
 
-  return `{\n${strOutput}${addIndent(level - 1)}};\n`.replace(/"/g, "");
+  return `{\n${strOutput}${addIndent(level - 1)}}`.replace(/"/g, "");
 };
 
 export const getTypePresentation = (

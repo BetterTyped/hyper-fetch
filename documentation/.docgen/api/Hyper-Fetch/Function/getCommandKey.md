@@ -22,7 +22,7 @@ import { getCommandKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:80](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/command/command.utils.ts#L80)
+Defined in [command/command.utils.ts:80](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.utils.ts#L80)
 
 </p><div class="api-docs__section">
 

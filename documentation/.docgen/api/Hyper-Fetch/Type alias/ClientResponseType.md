@@ -22,7 +22,7 @@ import { ClientResponseType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/client/fetch.client.types.ts#L13)
+Defined in [client/fetch.client.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/client/fetch.client.types.ts#L13)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { OnSuccessCallbackType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:92](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92)
+Defined in [helpers/use-command-events/use-command-events.types.ts:92](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L92)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { UseSubmitReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.types.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
+Defined in [hooks/use-submit/use-submit.types.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/hooks/use-submit/use-submit.types.ts#L52)
 
 </p><div class="api-docs__section">
 

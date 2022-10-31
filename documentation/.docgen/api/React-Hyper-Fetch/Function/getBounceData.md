@@ -22,7 +22,7 @@ import { getBounceData } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [utils/bounce.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/react/src/utils/bounce.utils.ts#L1)
+Defined in [utils/bounce.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/utils/bounce.utils.ts#L1)
 
 </p><div class="api-docs__section">
 

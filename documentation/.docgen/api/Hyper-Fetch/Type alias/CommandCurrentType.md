@@ -22,7 +22,7 @@ import { CommandCurrentType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/command/command.types.ts#L163)
+Defined in [command/command.types.ts:163](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.types.ts#L163)
 
 </p><div class="api-docs__section">
 

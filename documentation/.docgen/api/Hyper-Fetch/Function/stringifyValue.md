@@ -22,7 +22,7 @@ import { stringifyValue } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/a5ae46b5/packages/core/src/builder/builder.utils.ts#L15)
+Defined in [builder/builder.utils.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/builder/builder.utils.ts#L15)
 
 </p><div class="api-docs__section">
 
