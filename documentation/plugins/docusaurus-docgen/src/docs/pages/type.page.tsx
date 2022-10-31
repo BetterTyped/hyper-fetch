@@ -17,12 +17,12 @@ export const TypePage: React.FC<PagePropsType> = (props) => {
       <Separator />
       <Sources {...props} />
       <Import {...props} />
-      <Section title="Preview">
-        <Preview {...props} />
-      </Section>
       <Section title="Description">
         <Description {...props} />
         <Definition {...props} />
+      </Section>
+      <Section title="Preview">
+        <Preview {...props} />
       </Section>
     </>
   );
