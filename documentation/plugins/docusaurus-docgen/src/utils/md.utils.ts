@@ -65,9 +65,16 @@ const transform = (html: string) => {
   }
 
   Array.from(nodes).forEach((node) => {
+    const nonParsingElements = Array.from(parsedHtml.querySelectorAll(`.${noParsingClass}`));
     const hasNonParsingChild = node.querySelector(`.${noParsingClass}`);
+    const isNonParsingChild = nonParsingElements?.length
+      ? childOf(node, nonParsingElements as unknown as HTMLElement[])
+      : false;
     const hasTableChild = !!Array.from(node.getElementsByTagName("TABLE")).length;
 
+    if (isNonParsingChild) {
+      return;
+    }
     if (node.tagName === "CODE" && node.parentElement?.tagName === "PRE") {
       return;
     }

@@ -386,10 +386,26 @@ aside {
   font-weight: 600;
 }
 
-/* Api link */
+/* Api */
 
-.api-card-column {
+.api-docs__monorepo-card-image {
+  margin-right: 10px;
+}
+
+.api-docs__monorepo-column {
   margin-bottom: 15px;
+}
+
+.api-docs__monorepo-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.api-docs__monorepo-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .api-link {
