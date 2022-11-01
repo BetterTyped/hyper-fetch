@@ -24,13 +24,13 @@ like Builder, Command etc. Which can give you better feedback on the logging its
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L11)
+Defined in [managers/logger/logger.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L11)
 
 </p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="builder"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="builder"><td class="api-docs__param-name required">
 
 ### builder 
 
@@ -68,7 +68,7 @@ Defined in [managers/logger/logger.manager.ts:11](https://github.com/BetterTyped
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L15)
+Defined in [managers/logger/logger.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -94,7 +94,7 @@ EventEmitter
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L13)
+Defined in [managers/logger/logger.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -124,7 +124,7 @@ SeverityType
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L12)
+Defined in [managers/logger/logger.manager.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -160,13 +160,13 @@ init(module)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L26)
+Defined in [managers/logger/logger.manager.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L26)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="module"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="module"><td class="api-docs__param-name required">
 
 #### module 
 
@@ -210,13 +210,13 @@ setSeverity(severity)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.ts#L22)
+Defined in [managers/logger/logger.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.ts#L22)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="severity"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="severity"><td class="api-docs__param-name required">
 
 #### severity 
 

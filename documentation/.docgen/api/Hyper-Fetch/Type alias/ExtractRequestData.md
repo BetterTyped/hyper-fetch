@@ -22,7 +22,7 @@ import { ExtractRequestData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/types/fetch.types.ts#L11)
+Defined in [types/fetch.types.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/fetch.types.ts#L11)
 
 </p><div class="api-docs__section">
 

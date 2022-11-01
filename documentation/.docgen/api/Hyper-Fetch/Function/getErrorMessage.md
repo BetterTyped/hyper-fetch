@@ -22,7 +22,7 @@ import { getErrorMessage } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/client/fetch.client.utils.ts#L6)
+Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/client/fetch.client.utils.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getErrorMessage(errorCase)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="errorCase"><td class="api-docs__param-name optional">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="errorCase"><td class="api-docs__param-name optional">
 
 ### errorCase 
 

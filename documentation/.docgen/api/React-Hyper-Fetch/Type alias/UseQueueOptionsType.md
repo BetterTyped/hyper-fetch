@@ -22,7 +22,7 @@ import { UseQueueOptionsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-queue/use-queue.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/hooks/use-queue/use-queue.types.ts#L3)
+Defined in [hooks/use-queue/use-queue.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/hooks/use-queue/use-queue.types.ts#L3)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { getProgressValue } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/command/command.utils.ts#L19)
+Defined in [command/command.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/command/command.utils.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getProgressValue(__namedParameters)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="__namedParameters"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="__namedParameters"><td class="api-docs__param-name required">
 
 ### \_\_namedParameters 
 

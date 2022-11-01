@@ -22,7 +22,7 @@ import { CommandLoadingEventType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.types.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.types.ts#L4)
+Defined in [managers/command/command.manager.types.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.types.ts#L4)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { UseCommandEventsLifecycleMap } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18)
+Defined in [helpers/use-command-events/use-command-events.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L18)
 
 </p><div class="api-docs__section">
 

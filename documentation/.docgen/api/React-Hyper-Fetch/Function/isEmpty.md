@@ -22,7 +22,7 @@ import { isEmpty } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/utils/deep-equal.utils.ts#L6)
+Defined in [utils/deep-equal.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/utils/deep-equal.utils.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -38,13 +38,15 @@ isEmpty(value)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="value"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="value"><td class="api-docs__param-name required">
 
 ### value 
 
 `Required`
 
 </td><td class="api-docs__param-type">
+
+any object or primitive
 
 `unknown`
 

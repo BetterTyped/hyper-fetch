@@ -22,7 +22,7 @@ import { getDetailsState } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getDetailsState(state, details)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="state"><td class="api-docs__param-name optional">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="state"><td class="api-docs__param-name optional">
 
 ### state 
 

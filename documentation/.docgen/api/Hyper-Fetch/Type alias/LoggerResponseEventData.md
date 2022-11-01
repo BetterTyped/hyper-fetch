@@ -22,7 +22,7 @@ import { LoggerResponseEventData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/logger/logger.manager.types.ts#L30)
+Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.types.ts#L30)
 
 </p><div class="api-docs__section">
 

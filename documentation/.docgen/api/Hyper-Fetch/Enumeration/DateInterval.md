@@ -22,7 +22,7 @@ import { DateInterval } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [constants/time.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/constants/time.constants.ts#L1)
+Defined in [constants/time.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/constants/time.constants.ts#L1)
 
 </p><div class="api-docs__section">
 

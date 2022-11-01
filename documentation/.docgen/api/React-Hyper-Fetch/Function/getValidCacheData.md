@@ -22,7 +22,7 @@ import { getValidCacheData } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getValidCacheData<T>(command, initialData, cacheData)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
 
 ### command 
 

@@ -22,7 +22,7 @@ import { NegativeTypes } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/types/helpers.types.ts#L1)
+Defined in [types/helpers.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/helpers.types.ts#L1)
 
 </p><div class="api-docs__section">
 

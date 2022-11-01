@@ -22,7 +22,7 @@ import { getDispatcherChangeEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/dispatcher/dispatcher.utils.ts#L13)
+Defined in [dispatcher/dispatcher.utils.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/dispatcher/dispatcher.utils.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getDispatcherChangeEventKey(key)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="key"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="key"><td class="api-docs__param-name required">
 
 ### key 
 

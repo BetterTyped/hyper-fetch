@@ -4,6 +4,7 @@ import { HeadingType } from "types/components.types";
 import { PagePropsType } from "types/page.types";
 import { getSignature } from "../utils/parsing.utils";
 import { Code } from "./code";
+import { Description } from "./description";
 import { Type } from "./type";
 
 export const Parameters: React.FC<PagePropsType & Partial<HeadingType>> = (props) => {
@@ -21,7 +22,7 @@ export const Parameters: React.FC<PagePropsType & Partial<HeadingType>> = (props
         <thead>
           <tr>
             <th>Name</th>
-            <th>Type</th>
+            <th>Details</th>
           </tr>
         </thead>
         <tbody>
@@ -37,6 +38,7 @@ export const Parameters: React.FC<PagePropsType & Partial<HeadingType>> = (props
                   <Code fenced={false}>{param.flags.isOptional ? "Optional" : "Required"}</Code>
                 </td>
                 <td className="api-docs__param-type">
+                  <Description {...props} reflection={param} />
                   <Code fenced={false}>
                     <Type {...props} reflection={param.type} />
                   </Code>

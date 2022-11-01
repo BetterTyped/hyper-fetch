@@ -22,7 +22,7 @@ import { stringifyKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/command/command.utils.ts#L7)
+Defined in [command/command.utils.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/command/command.utils.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ stringifyKey(value)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="value"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="value"><td class="api-docs__param-name required">
 
 ### value 
 

@@ -22,7 +22,7 @@ import { hasWindow } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/app/app.manager.utils.ts#L1)
+Defined in [managers/app/app.manager.utils.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.utils.ts#L1)
 
 </p><div class="api-docs__section">
 

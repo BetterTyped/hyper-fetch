@@ -22,7 +22,7 @@ import { FetchEffectInstance } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.types.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/effect/fetch.effect.types.ts#L8)
+Defined in [effect/fetch.effect.types.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/effect/fetch.effect.types.ts#L8)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { ExtractEndpoint } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/types/fetch.types.ts#L27)
+Defined in [types/fetch.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/fetch.types.ts#L27)
 
 </p><div class="api-docs__section">
 

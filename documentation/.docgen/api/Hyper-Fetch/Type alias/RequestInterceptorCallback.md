@@ -22,7 +22,7 @@ import { RequestInterceptorCallback } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/builder/builder.types.ts#L49)
+Defined in [builder/builder.types.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/builder/builder.types.ts#L49)
 
 </p><div class="api-docs__section">
 

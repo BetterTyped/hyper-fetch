@@ -22,7 +22,7 @@ import { getAppManagerEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.events.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/app/app.manager.events.ts#L5)
+Defined in [managers/app/app.manager.events.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.events.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -38,7 +38,7 @@ getAppManagerEvents(emitter)
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
 
 ### emitter 
 

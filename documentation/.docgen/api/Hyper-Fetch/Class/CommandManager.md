@@ -27,7 +27,7 @@ It is also the place of
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L9)
+Defined in [managers/command/command.manager.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -47,7 +47,7 @@ Defined in [managers/command/command.manager.ts:9](https://github.com/BetterType
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L13)
+Defined in [managers/command/command.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -73,7 +73,7 @@ Map<string, Map<string, AbortController>>
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L10)
+Defined in [managers/command/command.manager.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -99,7 +99,7 @@ EventEmitter
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L11)
+Defined in [managers/command/command.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -139,7 +139,7 @@ abortAll()
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L59)
+Defined in [managers/command/command.manager.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L59)
 
 </p><div class="api-docs__section">
 
@@ -175,13 +175,13 @@ abortByKey(abortKey)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L44)
+Defined in [managers/command/command.manager.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L44)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
@@ -225,13 +225,13 @@ abortByRequestId(abortKey, requestId)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L55)
+Defined in [managers/command/command.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L55)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
@@ -285,13 +285,13 @@ addAbortController(abortKey, requestId)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L15)
+Defined in [managers/command/command.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L15)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
@@ -345,13 +345,13 @@ getAbortController(abortKey, requestId)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L29)
+Defined in [managers/command/command.manager.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L29)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
@@ -405,13 +405,13 @@ removeAbortController(abortKey, requestId)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L33)
+Defined in [managers/command/command.manager.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L33)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
@@ -465,13 +465,13 @@ useAbortController(abortKey, requestId)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.ts#L39)
+Defined in [managers/command/command.manager.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.ts#L39)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
 #### abortKey 
 
