@@ -37,13 +37,13 @@ export async function plugin(
   if (!generated) prepareApiDirectory(docsGenerationDir);
 
   trace("Initializing plugin...");
-  const instance = await pluginBase(context, {
+  const instance = (await pluginBase(context as any, {
     ...DEFAULT_OPTIONS,
     ...options.contentDocsOptions,
     path: path.join(libraryDir, options.contentDocsOptions.routeBasePath),
     id: options.id,
     remarkPlugins: [...(options?.contentDocsOptions?.remarkPlugins || []), mermaid, admonitions],
-  });
+  })) as any;
   info("Successfully initialized plugin.");
 
   return {

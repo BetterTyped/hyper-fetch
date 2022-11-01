@@ -1,5 +1,4 @@
 import * as path from "path";
-import json2md from "json2md";
 
 import { error } from "../../../utils/log.utils";
 import { createFile, readFile } from "../../../utils/file.utils";
@@ -14,8 +13,15 @@ export const generatePackagePage = (packageDocsDir: string, options: PackageOpti
   );
   let data = readFile(readmePath);
 
+  // TODO
   if (!data) {
-    data = json2md([{ h1: "Overview" }, { p: "Packages overview" }]);
+    data = `---
+sidebar_position: 1
+---
+    
+# Overview
+
+`;
   }
 
   try {
