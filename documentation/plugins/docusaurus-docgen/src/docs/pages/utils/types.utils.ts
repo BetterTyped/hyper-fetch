@@ -35,6 +35,45 @@ const getSignatureType = (
   return `(${params.join(", ")})${sign}${getType(reflection.type, reflectionsTree)}`;
 };
 
+const getTypeValue = (
+  reflection: JSONOutput.DeclarationReflection,
+): JSONOutput.DeclarationReflection => {
+  const signature = getSignature(reflection);
+  if (reflection.type && typeof reflection.type === "string") return reflection;
+  if (reflection.type?.type && typeof reflection.type?.type === "string")
+    return reflection.type as unknown as JSONOutput.DeclarationReflection;
+  if (signature?.type && typeof signature.type === "string") return signature;
+  if (signature?.type?.type && typeof signature?.type?.type === "string")
+    return signature?.type as unknown as JSONOutput.DeclarationReflection;
+  if (reflection.type)
+    return getTypeValue(reflection.type as unknown as JSONOutput.DeclarationReflection);
+  if (signature?.type)
+    return getTypeValue(signature.type as unknown as JSONOutput.DeclarationReflection);
+  return reflection;
+};
+
+const objectToString = (obj: Record<string, StringType>, level = 0) => {
+  const addIndent = (spaces: number) => {
+    let strOutput = "";
+    for (let i = 0; i < spaces; i += 1) {
+      strOutput += "  ";
+    }
+    return strOutput;
+  };
+  let strOutput = "";
+
+  Object.keys(obj).forEach((key) => {
+    if (typeof obj[key] === "object") {
+      strOutput += `${addIndent(level + 1) + key}: `;
+      strOutput += `${objectToString(obj[key], level + 2)};\n`;
+    } else {
+      strOutput += `${addIndent(level + 1) + key}: ${obj[key]};\n`;
+    }
+  });
+
+  return `{\n${strOutput}${addIndent(level - 1)}}`.replace(/"/g, "");
+};
+
 export const getType = (
   reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType | undefined,
   reflectionsTree: JSONOutput.DeclarationReflection[],
@@ -48,8 +87,13 @@ export const getType = (
   switch (String(reflection.type)) {
     case "array": {
       const type = reflection as unknown as JSONOutput.ArrayType;
+      const value = getType(type.elementType, reflectionsTree, { needsParens: true, deepScan });
 
-      return `${getType(type.elementType, reflectionsTree, { needsParens: true, deepScan })}[]`;
+      if (typeof value === "string") {
+        return `${value}[]`;
+      }
+
+      return `${objectToString(value, 2)}[]`;
     }
 
     case "conditional": {
@@ -88,9 +132,13 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.IntersectionType;
 
       let newType: Record<string, string> = {};
-      type.types.forEach((t) => {
-        const parsed = getType(t, reflectionsTree, { deepScan }) as Record<string, string>;
-        newType = { ...newType, ...parsed };
+      type.types.forEach((t, index) => {
+        const parsed = getType(t, reflectionsTree, { deepScan });
+        if (typeof parsed === "string") {
+          newType[`...params${index + 1}`] = parsed;
+        } else {
+          newType = { ...newType, ...parsed };
+        }
       });
       return newType;
     }
@@ -158,16 +206,18 @@ export const getType = (
       const isDeepScanType =
         reference && [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(reference.kind);
 
-      if (reference && deepScan && reference.type && isDeepScanType) {
+      if (deepScan && reference && reference.type && isDeepScanType) {
         return getType(reference.type, reflectionsTree, { deepScan });
       }
 
       if (deepScan && type.typeArguments && type.name === "Omit") {
         const [baseType, ...args] = type.typeArguments;
 
-        const types = getType(baseType as unknown as JSONOutput.ReferenceType, reflectionsTree, {
-          deepScan,
-        }) as Record<string, string>;
+        const types = getType(
+          baseType.type as unknown as JSONOutput.ReferenceType,
+          reflectionsTree,
+          { deepScan },
+        ) as Record<string, string>;
 
         args.forEach((arg) => {
           if ("value" in arg && arg.value && types[String(arg.value)]) {
@@ -181,9 +231,11 @@ export const getType = (
       if (deepScan && type.typeArguments && type.name === "Pick") {
         const [baseType, ...args] = type.typeArguments;
 
-        const types = getType(baseType as unknown as JSONOutput.ReferenceType, reflectionsTree, {
-          deepScan,
-        }) as Record<string, string>;
+        const types = getType(
+          baseType.type as unknown as JSONOutput.ReferenceType,
+          reflectionsTree,
+          { deepScan },
+        ) as Record<string, string>;
 
         Object.keys(types).forEach((key) => {
           const found = args.some((arg) => {
@@ -236,8 +288,11 @@ export const getType = (
 
       if (decl?.signatures && decl.signatures.length > 0) {
         let newType: Record<string, string> = {};
-        decl.signatures.forEach((t) => {
-          const parsed = getType(t, reflectionsTree, { deepScan }) as Record<string, string>;
+        decl.signatures.forEach((t, index) => {
+          const parsed = getType(t, reflectionsTree, { deepScan });
+          if (typeof parsed === "string") {
+            newType[`...params${index + 1}`] = parsed;
+          }
           newType = { ...newType, ...parsed };
         });
         return newType;
@@ -254,7 +309,9 @@ export const getType = (
 
     case "tuple": {
       const type = reflection as unknown as JSONOutput.TupleType;
-      return `[${type.elements?.map((t) => getType(t, reflectionsTree, { deepScan })).join(", ")}]`;
+      return `[${type.elements
+        ?.map((t) => getType(t, reflectionsTree, { deepScan: false }))
+        .join(", ")}]`;
     }
 
     case "typeOperator": {
@@ -297,45 +354,6 @@ export const getType = (
       return `void`;
     }
   }
-};
-
-const getTypeValue = (
-  reflection: JSONOutput.DeclarationReflection,
-): JSONOutput.DeclarationReflection => {
-  const signature = getSignature(reflection);
-  if (reflection.type && typeof reflection.type === "string") return reflection;
-  if (reflection.type?.type && typeof reflection.type?.type === "string")
-    return reflection.type as unknown as JSONOutput.DeclarationReflection;
-  if (signature?.type && typeof signature.type === "string") return signature;
-  if (signature?.type?.type && typeof signature?.type?.type === "string")
-    return signature?.type as unknown as JSONOutput.DeclarationReflection;
-  if (reflection.type)
-    return getTypeValue(reflection.type as unknown as JSONOutput.DeclarationReflection);
-  if (signature?.type)
-    return getTypeValue(signature.type as unknown as JSONOutput.DeclarationReflection);
-  return reflection;
-};
-
-const objectToString = (obj: Record<string, StringType>, level = 0) => {
-  const addIndent = (spaces: number) => {
-    let strOutput = "";
-    for (let i = 0; i < spaces; i += 1) {
-      strOutput += "  ";
-    }
-    return strOutput;
-  };
-  let strOutput = "";
-
-  Object.keys(obj).forEach((key) => {
-    if (typeof obj[key] === "object") {
-      strOutput += `${addIndent(level + 1) + key}: `;
-      strOutput += `${objectToString(obj[key], level + 2)};\n`;
-    } else {
-      strOutput += `${addIndent(level + 1) + key}: ${obj[key]};\n`;
-    }
-  });
-
-  return `{\n${strOutput}${addIndent(level - 1)}}`.replace(/"/g, "");
 };
 
 export const getTypePresentation = (
