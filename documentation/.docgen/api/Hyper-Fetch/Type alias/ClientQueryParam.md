@@ -22,7 +22,7 @@ import { ClientQueryParam } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/client/fetch.client.types.ts#L24)
+Defined in [client/fetch.client.types.ts:24](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.types.ts#L24)
 
 </p><div class="api-docs__section">
 

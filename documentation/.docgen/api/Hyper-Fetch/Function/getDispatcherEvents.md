@@ -22,7 +22,7 @@ import { getDispatcherEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/dispatcher/dispatcher.events.ts#L11)
+Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/dispatcher/dispatcher.events.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -56,12 +56,12 @@ getDispatcherEvents(emitter)
 
 ```ts
 {
-  onDrained: (queueKey: string, callback: (values: DispatcherData) => void) => VoidFunction;
-  onQueueChange: (queueKey: string, callback: (values: DispatcherData) => void) => VoidFunction;
-  onQueueStatus: (queueKey: string, callback: (values: DispatcherData) => void) => VoidFunction;
-  setDrained: (queueKey: string, values: DispatcherData) => void;
-  setQueueChanged: (queueKey: string, values: DispatcherData) => void;
-  setQueueStatus: (queueKey: string, values: DispatcherData) => void;
+  onDrained: (queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction;
+  onQueueChange: (queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction;
+  onQueueStatus: (queueKey: string, callback: (values: DispatcherData<Command>) => void) => VoidFunction;
+  setDrained: (queueKey: string, values: DispatcherData<Command>) => void;
+  setQueueChanged: (queueKey: string, values: DispatcherData<Command>) => void;
+  setQueueStatus: (queueKey: string, values: DispatcherData<Command>) => void;
 }
 ```
 

@@ -22,7 +22,7 @@ import { RequiredKeys } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/helpers.types.ts#L13)
+Defined in [types/helpers.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/helpers.types.ts#L13)
 
 </p><div class="api-docs__section">
 

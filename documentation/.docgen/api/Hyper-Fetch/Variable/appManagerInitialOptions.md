@@ -22,7 +22,7 @@ import { appManagerInitialOptions } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.constants.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.constants.ts#L12)
+Defined in [managers/app/app.manager.constants.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.constants.ts#L12)
 
 </p><div class="api-docs__section">
 

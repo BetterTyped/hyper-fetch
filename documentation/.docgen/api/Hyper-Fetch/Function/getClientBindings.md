@@ -22,7 +22,7 @@ import { getClientBindings } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.bindings.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/client/fetch.client.bindings.ts#L5)
+Defined in [client/fetch.client.bindings.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.bindings.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,28 @@ getClientBindings(cmd, requestId)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise
+Promise<{
+  config: any;
+  createAbortListener: (callback: () => void, resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => () => void;
+  fullUrl: string;
+  getAbortController: () => AbortController;
+  getRequestStartTimestamp: () => number;
+  getResponseStartTimestamp: () => number;
+  headers: HeadersInit;
+  onAbortError: (resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => Promise<[null, GenericErrorType, number | null]>;
+  onBeforeRequest: () => void;
+  onError: (error: Error | ExtractError<T>, status: number, resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => Promise<[null, GenericErrorType, number | null]>;
+  onRequestEnd: () => number;
+  onRequestProgress: (progress: ProgressRequestDataType) => number;
+  onRequestStart: (progress?: ProgressRequestDataType) => number;
+  onResponseEnd: () => number;
+  onResponseProgress: (progress: ProgressRequestDataType) => number;
+  onResponseStart: (progress?: ProgressRequestDataType) => number;
+  onSuccess: (responseData: unknown, status: number, resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => Promise<[GenericDataType, null, number | null]>;
+  onTimeoutError: (resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => Promise<[null, GenericErrorType, number | null]>;
+  onUnexpectedError: (resolve: (value: ClientResponseErrorType<T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never>) => void) => Promise<[null, GenericErrorType, number | null]>;
+  payload: string | FormData;
+}>
 ```
 
 </div>

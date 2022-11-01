@@ -22,7 +22,7 @@ import { ExtractLocalError } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/fetch.types.ts#L21)
+Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/fetch.types.ts#L21)
 
 </p><div class="api-docs__section">
 

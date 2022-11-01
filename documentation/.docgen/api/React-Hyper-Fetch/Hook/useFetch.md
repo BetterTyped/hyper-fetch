@@ -22,7 +22,7 @@ import { useFetch } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -70,27 +70,27 @@ Hook options
 
 ```ts
 {
-  data: null | ExtractResponse;
-  error: null | ExtractError;
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
   loading: boolean;
   retries: number;
   status: null | number;
   timestamp: null | Date;
-  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
-  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   setRetries: (retries: number, emitToCache?: boolean) => void;
   setStatus: (status: number | null, emitToCache?: boolean) => void;
   setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
   abort: () => void;
-  onAbort: (callback: OnErrorCallbackType) => void;
+  onAbort: (callback: OnErrorCallbackType<T>) => void;
   onDownloadProgress: (callback: OnProgressCallbackType) => void;
-  onError: (callback: OnErrorCallbackType) => void;
-  onFinished: (callback: OnFinishedCallbackType) => void;
-  onOfflineError: (callback: OnErrorCallbackType) => void;
-  onRequestStart: (callback: OnStartCallbackType) => void;
-  onResponseStart: (callback: OnStartCallbackType) => void;
-  onSuccess: (callback: OnSuccessCallbackType) => void;
+  onError: (callback: OnErrorCallbackType<T>) => void;
+  onFinished: (callback: OnFinishedCallbackType<T>) => void;
+  onOfflineError: (callback: OnErrorCallbackType<T>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onSuccess: (callback: OnSuccessCallbackType<T>) => void;
   onUploadProgress: (callback: OnProgressCallbackType) => void;
   bounce: {
       active: boolean;

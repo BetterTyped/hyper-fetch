@@ -22,7 +22,7 @@ import { interceptRequest } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/builder/builder.utils.ts#L23)
+Defined in [builder/builder.utils.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/builder/builder.utils.ts#L23)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ interceptRequest(interceptors, command)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise
+Promise<Command<any, any, any, any, any, any, any, any, any, any, any>>
 ```
 
 </div>

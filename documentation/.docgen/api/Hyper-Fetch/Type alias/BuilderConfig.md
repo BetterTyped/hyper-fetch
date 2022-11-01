@@ -22,7 +22,7 @@ Configuration setup for the builder
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/builder/builder.types.ts#L12)
+Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/builder/builder.types.ts#L12)
 
 </p><div class="api-docs__section">
 

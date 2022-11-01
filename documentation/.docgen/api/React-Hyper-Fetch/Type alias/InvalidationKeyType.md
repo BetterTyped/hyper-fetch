@@ -22,7 +22,7 @@ import { InvalidationKeyType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/invalidation.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/types/invalidation.types.ts#L3)
+Defined in [types/invalidation.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/types/invalidation.types.ts#L3)
 
 </p><div class="api-docs__section">
 

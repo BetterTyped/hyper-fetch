@@ -22,7 +22,7 @@ import { LoggerType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/logger/logger.manager.types.ts#L7)
+Defined in [managers/logger/logger.manager.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/logger/logger.manager.types.ts#L7)
 
 </p><div class="api-docs__section">
 

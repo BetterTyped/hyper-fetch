@@ -155,17 +155,63 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.ReferenceType;
       const reference = type.id ? getReference(type.id, reflectionsTree) : null;
 
-      if (!reference) return type.name;
+      const isDeepScanType =
+        reference && [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(reference.kind);
 
-      const isDeepScanType = [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(
-        reference.kind,
-      );
-
-      if (deepScan && reference.type && isDeepScanType) {
+      if (reference && deepScan && reference.type && isDeepScanType) {
         return getType(reference.type, reflectionsTree, { deepScan });
       }
 
-      return type.name;
+      if (deepScan && type.typeArguments && type.name === "Omit") {
+        const [baseType, ...args] = type.typeArguments;
+
+        const types = getType(baseType as unknown as JSONOutput.ReferenceType, reflectionsTree, {
+          deepScan,
+        }) as Record<string, string>;
+
+        args.forEach((arg) => {
+          if ("value" in arg && arg.value && types[String(arg.value)]) {
+            delete types[String(arg.value)];
+          }
+        });
+
+        return types;
+      }
+
+      if (deepScan && type.typeArguments && type.name === "Pick") {
+        const [baseType, ...args] = type.typeArguments;
+
+        const types = getType(baseType as unknown as JSONOutput.ReferenceType, reflectionsTree, {
+          deepScan,
+        }) as Record<string, string>;
+
+        Object.keys(types).forEach((key) => {
+          const found = args.some((arg) => {
+            if ("value" in arg && arg.value && arg.value === key) return true;
+            return false;
+          });
+          if (found) {
+            delete types[key];
+          }
+        });
+
+        return types;
+      }
+
+      const typeArgs =
+        type.typeArguments && type.typeArguments.length
+          ? `<${type.typeArguments
+              .map((t) =>
+                // eslint-disable-next-line @typescript-eslint/no-use-before-define
+                getTypePresentation(
+                  t as unknown as JSONOutput.DeclarationReflection,
+                  reflectionsTree,
+                ),
+              )
+              .join(", ")}>`
+          : "";
+
+      return `${type.name}${typeArgs}`;
     }
 
     case "reflection": {
@@ -300,7 +346,7 @@ export const getTypePresentation = (
 
   const type = getType(typeValue, reflectionsTree, { deepScan: true });
 
-  if (typeof type === "string") return type;
+  if (typeof type === "string") return type.replace(/"/g, "");
 
   const template = objectToString(type);
 

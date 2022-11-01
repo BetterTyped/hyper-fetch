@@ -22,7 +22,7 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -66,12 +66,13 @@ useSubmit<Command>(command, options)
 
 ```ts
 {
-  0: O;
-  1: m;
-  2: i;
-  3: t;
-  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
-  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
+  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   setRetries: (retries: number, emitToCache?: boolean) => void;
   setStatus: (status: number | null, emitToCache?: boolean) => void;
@@ -81,17 +82,17 @@ useSubmit<Command>(command, options)
       active: boolean;
       reset: () => void;
   };
-  onSubmitAbort: (callback: OnErrorCallbackType) => void;
+  onSubmitAbort: (callback: OnErrorCallbackType<T>) => void;
   onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
-  onSubmitError: (callback: OnErrorCallbackType) => void;
-  onSubmitFinished: (callback: OnFinishedCallbackType) => void;
-  onSubmitOfflineError: (callback: OnErrorCallbackType) => void;
-  onSubmitRequestStart: (callback: OnStartCallbackType) => void;
-  onSubmitResponseStart: (callback: OnStartCallbackType) => void;
-  onSubmitSuccess: (callback: OnSuccessCallbackType) => void;
+  onSubmitError: (callback: OnErrorCallbackType<T>) => void;
+  onSubmitFinished: (callback: OnFinishedCallbackType<T>) => void;
+  onSubmitOfflineError: (callback: OnErrorCallbackType<T>) => void;
+  onSubmitRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onSubmitResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onSubmitSuccess: (callback: OnSuccessCallbackType<T>) => void;
   onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
   revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
-  submit: (...parameters: Parameters) => Promise;
+  submit: (...parameters: Parameters<T[send]>) => Promise<ExtractClientReturnType<T>>;
   submitting: boolean;
 }
 ```

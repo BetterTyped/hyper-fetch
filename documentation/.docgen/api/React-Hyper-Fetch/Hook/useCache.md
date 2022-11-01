@@ -22,7 +22,7 @@ import { useCache } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -66,21 +66,21 @@ useCache<T>(command, options)
 
 ```ts
 {
-  data: null | ExtractResponse;
-  error: null | ExtractError;
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
   loading: boolean;
   retries: number;
   status: null | number;
   timestamp: null | Date;
-  setData: (data: ExtractResponse, emitToCache?: boolean) => void;
-  setError: (error: ExtractError, emitToCache?: boolean) => void;
+  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   setRetries: (retries: number, emitToCache?: boolean) => void;
   setStatus: (status: number | null, emitToCache?: boolean) => void;
   setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
-  onCacheChange: (callback: OnFinishedCallbackType) => void;
-  onCacheError: (callback: OnErrorCallbackType) => void;
-  onCacheSuccess: (callback: OnSuccessCallbackType) => void;
+  onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
+  onCacheError: (callback: OnErrorCallbackType<T>) => void;
+  onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
   revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
 }
 ```

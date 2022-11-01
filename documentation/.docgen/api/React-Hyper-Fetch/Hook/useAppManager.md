@@ -22,7 +22,7 @@ import { useAppManager } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-app-manager/use-app-manager.hooks.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7)
+Defined in [hooks/use-app-manager/use-app-manager.hooks.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-app-manager/use-app-manager.hooks.ts#L7)
 
 </p><div class="api-docs__section">
 

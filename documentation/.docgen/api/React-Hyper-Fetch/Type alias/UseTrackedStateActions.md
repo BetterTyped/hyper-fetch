@@ -22,7 +22,7 @@ import { UseTrackedStateActions } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60)
 
 </p><div class="api-docs__section">
 

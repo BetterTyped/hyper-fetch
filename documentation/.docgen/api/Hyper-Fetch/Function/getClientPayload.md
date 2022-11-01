@@ -22,7 +22,7 @@ import { getClientPayload } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:64](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/builder/builder.utils.ts#L64)
+Defined in [builder/builder.utils.ts:64](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/builder/builder.utils.ts#L64)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ getClientPayload(data)
 </div><div class="api-docs__returns">
 
 ```ts
-"string" | "FormData"
+string | FormData
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { CacheOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/cache/cache.types.ts#L5)
+Defined in [cache/cache.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/cache/cache.types.ts#L5)
 
 </p><div class="api-docs__section">
 

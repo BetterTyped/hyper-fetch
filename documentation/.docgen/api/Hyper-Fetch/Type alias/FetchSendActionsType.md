@@ -22,7 +22,7 @@ import { FetchSendActionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:247](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/command/command.types.ts#L247)
+Defined in [command/command.types.ts:247](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L247)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { parseErrorResponse } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/client/fetch.client.utils.ts#L26)
+Defined in [client/fetch.client.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.utils.ts#L26)
 
 </p><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ parseErrorResponse<T>(response)
 </div><div class="api-docs__returns">
 
 ```ts
-T extends Command ? "G" | "L" : never
+T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never
 ```
 
 </div>

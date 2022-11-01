@@ -25,7 +25,7 @@ With the app manager it is not a problem to get the valid answer for this questi
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L15)
+Defined in [managers/app/app.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -69,7 +69,7 @@ Defined in [managers/app/app.manager.ts:15](https://github.com/BetterTyped/hyper
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -95,7 +95,7 @@ BuilderInstance
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L16)
+Defined in [managers/app/app.manager.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -121,7 +121,7 @@ EventEmitter
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L17)
+Defined in [managers/app/app.manager.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L17)
 
 </p><div class="api-docs__section">
 
@@ -147,7 +147,7 @@ Defined in [managers/app/app.manager.ts:17](https://github.com/BetterTyped/hyper
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L20)
+Defined in [managers/app/app.manager.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L20)
 
 </p><div class="api-docs__section">
 
@@ -173,7 +173,7 @@ boolean
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L19)
+Defined in [managers/app/app.manager.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -199,7 +199,7 @@ boolean
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L22)
+Defined in [managers/app/app.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -239,7 +239,7 @@ setFocused(isFocused)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L55)
+Defined in [managers/app/app.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L55)
 
 </p><div class="api-docs__section">
 
@@ -289,7 +289,7 @@ setOnline(isOnline)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.ts:65](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/app/app.manager.ts#L65)
+Defined in [managers/app/app.manager.ts:65](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.ts#L65)
 
 </p><div class="api-docs__section">
 

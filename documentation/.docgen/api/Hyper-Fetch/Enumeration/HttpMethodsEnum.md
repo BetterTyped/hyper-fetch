@@ -22,7 +22,7 @@ import { HttpMethodsEnum } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [constants/http.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/constants/http.constants.ts#L1)
+Defined in [constants/http.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/constants/http.constants.ts#L1)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { getResponseIdEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.utils.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/managers/command/command.manager.utils.ts#L11)
+Defined in [managers/command/command.manager.utils.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/command/command.manager.utils.ts#L11)
 
 </p><div class="api-docs__section">
 

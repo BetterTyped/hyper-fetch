@@ -22,7 +22,7 @@ import { isFailedRequest } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/dispatcher/dispatcher.utils.ts#L49)
+Defined in [dispatcher/dispatcher.utils.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/dispatcher/dispatcher.utils.ts#L49)
 
 </p><div class="api-docs__section">
 

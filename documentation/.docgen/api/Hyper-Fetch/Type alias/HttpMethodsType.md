@@ -22,7 +22,7 @@ import { HttpMethodsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/http.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/core/src/types/http.types.ts#L1)
+Defined in [types/http.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/http.types.ts#L1)
 
 </p><div class="api-docs__section">
 

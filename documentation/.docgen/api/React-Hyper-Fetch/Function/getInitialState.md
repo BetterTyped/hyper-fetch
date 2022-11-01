@@ -22,7 +22,7 @@ import { getInitialState } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/4197368e/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L60)
 
 </p><div class="api-docs__section">
 
@@ -76,8 +76,8 @@ getInitialState<T>(initialData, dispatcher, command)
 
 ```ts
 {
-  data: null | ExtractResponse;
-  error: null | ExtractError;
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
   loading: boolean;
   retries: number;
   status: null | number;
