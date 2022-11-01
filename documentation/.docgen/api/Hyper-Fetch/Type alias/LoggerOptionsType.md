@@ -22,7 +22,7 @@ import { LoggerOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/logger/logger.manager.types.ts#L12)
+Defined in [managers/logger/logger.manager.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/logger/logger.manager.types.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -34,6 +34,19 @@ Defined in [managers/logger/logger.manager.types.ts:12](https://github.com/Bette
 type LoggerOptionsType = {
   logger: LoggerFunctionType; 
   severity: SeverityType; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  logger: (log: LogType) => void;
+  severity: 0 | 1 | 2 | 3;
 }
 ```
 

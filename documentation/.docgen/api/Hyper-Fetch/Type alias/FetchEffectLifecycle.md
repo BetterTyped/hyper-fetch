@@ -22,7 +22,7 @@ import { FetchEffectLifecycle } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/effect/fetch.effect.types.ts#L6)
+Defined in [effect/fetch.effect.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/effect/fetch.effect.types.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [effect/fetch.effect.types.ts:6](https://github.com/BetterTyped/hyper
 
 ```ts
 type FetchEffectLifecycle = trigger | start | success | error | finished;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+trigger | start | success | error | finished
 ```
 
 </div>

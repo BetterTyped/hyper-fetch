@@ -22,7 +22,7 @@ import { CommandData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:159](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L159)
+Defined in [command/command.types.ts:159](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L159)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [command/command.types.ts:159](https://github.com/BetterTyped/hyper-f
 
 ```ts
 type CommandData<RequestDataType,MappedData> = (MappedData extends undefined ? RequestDataType : MappedData) | NegativeTypes;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+MappedData extends undefined ? RequestDataType : MappedData | \null\ | \undefined\
 ```
 
 </div>

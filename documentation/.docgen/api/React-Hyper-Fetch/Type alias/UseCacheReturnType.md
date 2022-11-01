@@ -22,7 +22,7 @@ import { UseCacheReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,33 @@ Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterType
 
 ```ts
 type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & { onCacheChange: (callback: OnFinishedCallbackType<T>) => void; onCacheError: (callback: OnErrorCallbackType<T>) => void; onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void; revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
+  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
+  onCacheError: (callback: OnErrorCallbackType<T>) => void;
+  onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
+}
 ```
 
 </div>

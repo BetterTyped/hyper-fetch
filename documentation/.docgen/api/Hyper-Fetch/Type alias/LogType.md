@@ -22,7 +22,7 @@ import { LogType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/logger/logger.manager.types.ts#L15)
+Defined in [managers/logger/logger.manager.types.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/logger/logger.manager.types.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -38,6 +38,23 @@ type LogType = {
   message: LoggerMessageType; 
   module: string; 
   severity: SeverityType; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  additionalData: string | Record<string, unknown> | unknown[][];
+  enabled: boolean;
+  level: error | warning | info | debug;
+  message: string | Record<string, unknown> | unknown[];
+  module: string;
+  severity: 0 | 1 | 2 | 3;
 }
 ```
 

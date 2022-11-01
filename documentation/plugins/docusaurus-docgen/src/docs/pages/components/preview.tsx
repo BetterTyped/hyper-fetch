@@ -98,19 +98,12 @@ export const Preview: React.FC<
   if (reflection.kind === ReflectionKind.Variable) {
     const { name, flags } = reflection;
 
-    // if (!children) return null;
-
     const varType = flags?.isConst ? "const" : "let";
 
     return (
       <div className="api-docs__preview var">
         <Code>
-          {`${varType} ${name} = &lbrace;\n`}
-          {/* {children.map((element) => {
-            const value = !Number.isNaN(Number(element[1])) ? element[1] : `"${element[1]}"`;
-            return `  ${element[0]}: ${value}, \n`;
-          })} */}
-          {`&rbrace;`}
+          {varType} {name} = <Type {...props} reflection={reflection.type} />
         </Code>
       </div>
     );

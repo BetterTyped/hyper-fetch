@@ -22,7 +22,7 @@ import { ClientType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.types.ts#L5)
+Defined in [client/fetch.client.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/client/fetch.client.types.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [client/fetch.client.types.ts:5](https://github.com/BetterTyped/hyper
 
 ```ts
 type ClientType = (command: CommandInstance, requestId: string) => Promise<ClientResponseType<any, any>>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+(command: CommandInstance, requestId: string) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]>
 ```
 
 </div>

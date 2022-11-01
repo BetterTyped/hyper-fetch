@@ -2,7 +2,7 @@ import * as path from "path";
 
 import {
   libraryDir,
-  optionsPath,
+  pluginOptionsPath,
   docsJsonPath,
   packageConfigPath,
 } from "../constants/paths.constants";
@@ -31,7 +31,7 @@ export const buildDocs = async (
   /**
    * Save generation options
    */
-  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, optionsPath);
+  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, pluginOptionsPath);
   createFile(optionsFilePath, JSON.stringify(pluginOptions));
 
   /**
@@ -62,7 +62,9 @@ export const buildDocs = async (
     const tsconfigPath = tsConfigPath ?? path.join(tsconfigDir, tsconfigName);
     // Generate meta
     const pkgMeta: PkgMeta = {
-      directory: packageDocsJsonPath,
+      title,
+      packageDocsJsonPath,
+      packageDocsDir,
     };
     // Package entry files
     const entries = Array.isArray(entryPath)

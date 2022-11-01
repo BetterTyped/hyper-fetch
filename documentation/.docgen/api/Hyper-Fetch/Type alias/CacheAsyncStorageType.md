@@ -22,7 +22,7 @@ import { CacheAsyncStorageType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:41](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/cache/cache.types.ts#L41)
+Defined in [cache/cache.types.ts:41](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/cache/cache.types.ts#L41)
 
 </p><div class="api-docs__section">
 
@@ -36,6 +36,21 @@ type CacheAsyncStorageType = {
   get: <Response,Error>(key: string) => Promise<CacheValueType<Response, Error> | undefined>; 
   keys: () => Promise<string[] | IterableIterator<string> | string[]>; 
   set: <Response,Error>(key: string, data: CacheValueType<Response, Error>) => Promise<void>; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  delete: (key: string) => Promise<void>;
+  get: (key: string) => Promise<{cacheTime:number,clearKey:string,data:[\GenericDataType\ | \null\, \GenericErrorType\ | \null\, \number\ | \null\],details:{isCanceled:boolean,isFailed:boolean,isOffline:boolean,retries:number,timestamp:number}} | undefined>;
+  keys: () => Promise<string[] | IterableIterator<string> | string[]>;
+  set: (key: string, data: CacheValueType<Response, Error>) => Promise<void>;
 }
 ```
 

@@ -22,7 +22,7 @@ import { initialState } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
+Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,23 @@ Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://
 </div><div class="api-docs__preview var">
 
 ```ts
-const initialState = {
+const initialState = UseTrackedStateType
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
 }
 ```
 

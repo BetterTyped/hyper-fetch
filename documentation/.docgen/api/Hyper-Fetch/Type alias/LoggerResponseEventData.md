@@ -22,7 +22,7 @@ import { LoggerResponseEventData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/logger/logger.manager.types.ts#L30)
+Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/logger/logger.manager.types.ts#L30)
 
 </p><div class="api-docs__section">
 
@@ -36,6 +36,27 @@ type LoggerResponseEventData = {
   details: CommandResponseDetails; 
   requestId: string; 
   response: ClientResponseType<unknown, unknown>; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  command: Command<any, any, any, any, any, any, any, any, any, any, any>;
+  details: {
+      isCanceled: boolean;
+      isFailed: boolean;
+      isOffline: boolean;
+      retries: number;
+      timestamp: number;
+  };
+  requestId: string;
+  response: [GenericDataType | null, GenericErrorType | null, number | null];
 }
 ```
 

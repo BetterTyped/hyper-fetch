@@ -22,7 +22,7 @@ import { FetchMethodType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:260](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L260)
+Defined in [command/command.types.ts:260](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L260)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [command/command.types.ts:260](https://github.com/BetterTyped/hyper-f
 
 ```ts
 type FetchMethodType<Command> = FetchType<Command>[data] extends any ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>> : FetchType<Command>[data] extends NegativeTypes ? FetchType<Command>[params] extends NegativeTypes ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>> : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>> : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+FetchType<Command>[data] extends any ? (options?: FetchType<Command>) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]> : (FetchType<Command>[data] extends NegativeTypes ? (FetchType<Command>[params] extends NegativeTypes ? (options?: FetchType<Command>) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]> : (options: FetchType<Command>) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]>) : (options: FetchType<Command>) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]>)
 ```
 
 </div>

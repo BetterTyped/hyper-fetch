@@ -22,7 +22,7 @@ import { UseTrackedStateProps } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -39,6 +39,24 @@ type UseTrackedStateProps<T> = {
   dispatcher: Dispatcher; 
   initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null; 
   logger: LoggerType; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  command: T;
+  deepCompare: boolean | typeof isEqual;
+  defaultCacheEmitting: boolean;
+  dependencyTracking: boolean;
+  dispatcher: Dispatcher;
+  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null;
+  logger: LoggerType;
 }
 ```
 

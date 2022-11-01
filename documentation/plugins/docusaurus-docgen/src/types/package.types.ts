@@ -23,6 +23,7 @@ export type PackageOptions = {
 };
 
 export type PkgMeta = {
-  directory: string;
-  file?: File;
+  title: string;
+  packageDocsJsonPath: string;
+  packageDocsDir: string;
 };

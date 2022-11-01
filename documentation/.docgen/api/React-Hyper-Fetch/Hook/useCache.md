@@ -22,7 +22,7 @@ import { useCache } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 

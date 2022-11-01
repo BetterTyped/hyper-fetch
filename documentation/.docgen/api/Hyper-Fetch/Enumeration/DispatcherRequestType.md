@@ -22,7 +22,7 @@ import { DispatcherRequestType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/dispatcher/dispatcher.constants.ts#L1)
+Defined in [dispatcher/dispatcher.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/dispatcher/dispatcher.constants.ts#L1)
 
 </p><div class="api-docs__section">
 

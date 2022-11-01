@@ -22,7 +22,7 @@ import { UseFetchOptionsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
+Defined in [hooks/use-fetch/use-fetch.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -47,6 +47,32 @@ type UseFetchOptionsType<T> = {
   refreshOnReconnect: boolean; 
   refreshTime: number; 
   revalidateOnMount: boolean; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  bounce: boolean;
+  bounceTime: number;
+  bounceType: debounce | throttle;
+  deepCompare: boolean | typeof isEqual;
+  dependencies: any[];
+  dependencyTracking: boolean;
+  disabled: boolean;
+  initialData: CacheValueType<ExtractResponse<T>, ExtractError<T>>[data] | null;
+  refresh: boolean;
+  refreshBlurred: boolean;
+  refreshOnBlur: boolean;
+  refreshOnFocus: boolean;
+  refreshOnReconnect: boolean;
+  refreshTime: number;
+  revalidateOnMount: boolean;
 }
 ```
 

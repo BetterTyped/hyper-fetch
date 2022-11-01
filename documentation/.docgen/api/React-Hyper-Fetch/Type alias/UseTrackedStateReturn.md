@@ -22,7 +22,7 @@ import { UseTrackedStateReturn } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L23)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:23](https://git
 
 ```ts
 type UseTrackedStateReturn<T> = [UseTrackedStateType<T>, UseTrackedStateActions<T>, { getStaleStatus: () => boolean; setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void; setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void }];
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+[[object Object], [object Object], [object Object]]
 ```
 
 </div>

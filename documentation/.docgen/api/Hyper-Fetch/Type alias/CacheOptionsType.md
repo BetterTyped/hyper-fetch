@@ -22,7 +22,7 @@ import { CacheOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/cache/cache.types.ts#L5)
+Defined in [cache/cache.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/cache/cache.types.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -38,6 +38,34 @@ type CacheOptionsType = {
   onDelete: (key: string) => void; 
   onInitialization: (cache: Cache) => void; 
   storage: CacheStorageType; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  clearKey: string;
+  lazyStorage: {
+      delete: (key: string) => Promise<void>;
+      get: (key: string) => Promise<{cacheTime:number,clearKey:string,data:[\GenericDataType\ | \null\, \GenericErrorType\ | \null\, \number\ | \null\],details:{isCanceled:boolean,isFailed:boolean,isOffline:boolean,retries:number,timestamp:number}} | undefined>;
+      keys: () => Promise<string[] | IterableIterator<string> | string[]>;
+      set: (key: string, data: CacheValueType<Response, Error>) => Promise<void>;
+  };
+  onChange: (key: string, data: CacheValueType<Response, Error>) => void;
+  onDelete: (key: string) => void;
+  onInitialization: (cache: Cache) => void;
+  storage: {
+      clear: () => void;
+      delete: (key: string) => void;
+      get: (key: string) => CacheValueType<Response, Error> | undefined;
+      keys: () => string[] | IterableIterator<string> | string[];
+      set: (key: string, data: CacheValueType<Response, Error>) => void;
+  };
 }
 ```
 

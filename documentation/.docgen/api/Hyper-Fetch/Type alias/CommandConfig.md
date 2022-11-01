@@ -22,7 +22,7 @@ Configuration options for command creation
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L76)
+Defined in [command/command.types.ts:76](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L76)
 
 </p><div class="api-docs__section">
 
@@ -52,6 +52,37 @@ type CommandConfig<GenericEndpoint,ClientOptions> = {
   queued: boolean; 
   retry: number; 
   retryTime: number; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  abortKey: string;
+  auth: boolean;
+  cache: boolean;
+  cacheKey: string;
+  cacheTime: number;
+  cancelable: boolean;
+  deduplicate: boolean;
+  deduplicateTime: number;
+  disableRequestInterceptors: boolean;
+  disableResponseInterceptors: boolean;
+  effectKey: string;
+  endpoint: GenericEndpoint;
+  headers: HeadersInit;
+  method: GET | POST | PUT | PATCH | DELETE;
+  offline: boolean;
+  options: ClientOptions;
+  queueKey: string;
+  queued: boolean;
+  retry: number;
+  retryTime: number;
 }
 ```
 

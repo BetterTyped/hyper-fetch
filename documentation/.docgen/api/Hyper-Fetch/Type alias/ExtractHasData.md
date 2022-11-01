@@ -22,7 +22,7 @@ import { ExtractHasData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/fetch.types.ts#L33)
+Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/types/fetch.types.ts#L33)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [types/fetch.types.ts:33](https://github.com/BetterTyped/hyper-fetch/
 
 ```ts
 type ExtractHasData<T> = T extends Command<any, any, any, any, any, any, any, infer  D, any, any> ? D : never;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T extends Command<any, any, any, any, any, any, any, infer D, any, any> ? D : never
 ```
 
 </div>

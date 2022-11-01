@@ -22,7 +22,7 @@ import { AppManagerOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/app/app.manager.types.ts#L3)
+Defined in [managers/app/app.manager.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/app/app.manager.types.ts#L3)
 
 </p><div class="api-docs__section">
 
@@ -36,6 +36,21 @@ type AppManagerOptionsType = {
   initiallyFocused: boolean | () => boolean | Promise<boolean>; 
   initiallyOnline: boolean | () => boolean | Promise<boolean>; 
   onlineEvent: (setOnline: (isOnline: boolean) => void, builder: BuilderInstance) => void; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  focusEvent: (setFocused: (isFocused: boolean) => void, builder: BuilderInstance) => void;
+  initiallyFocused: boolean | () => \boolean\ | \Promise<boolean>\;
+  initiallyOnline: boolean | () => \boolean\ | \Promise<boolean>\;
+  onlineEvent: (setOnline: (isOnline: boolean) => void, builder: BuilderInstance) => void;
 }
 ```
 

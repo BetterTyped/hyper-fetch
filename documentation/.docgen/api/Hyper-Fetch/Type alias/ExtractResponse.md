@@ -22,7 +22,7 @@ import { ExtractResponse } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/fetch.types.ts#L9)
+Defined in [types/fetch.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/types/fetch.types.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [types/fetch.types.ts:9](https://github.com/BetterTyped/hyper-fetch/b
 
 ```ts
 type ExtractResponse<T> = T extends Command<infer  D, any, any, any, any, any, any, any, any, any> ? D : never;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T extends Command<infer D, any, any, any, any, any, any, any, any, any> ? D : never
 ```
 
 </div>

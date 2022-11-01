@@ -22,7 +22,7 @@ import { NullableType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/types/helpers.types.ts#L3)
+Defined in [types/helpers.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/types/helpers.types.ts#L3)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [types/helpers.types.ts:3](https://github.com/BetterTyped/hyper-fetch
 
 ```ts
 type NullableType<T> = T | NegativeTypes;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T | \null\ | \undefined\
 ```
 
 </div>

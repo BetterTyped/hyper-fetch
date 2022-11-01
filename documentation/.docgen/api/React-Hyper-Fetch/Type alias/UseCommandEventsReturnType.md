@@ -22,7 +22,7 @@ import { UseCommandEventsReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L73)
+Defined in [helpers/use-command-events/use-command-events.types.ts:73](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L73)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [helpers/use-command-events/use-command-events.types.ts:73](https://g
 
 ```ts
 type UseCommandEventsReturnType<T> = [UseCommandEventsActionsType<T>, { addDataListener: (command: CommandInstance) => VoidFunction; addLifecycleListeners: (command: CommandInstance, requestId?: string) => VoidFunction; clearDataListener: VoidFunction; clearLifecycleListeners: () => void; removeLifecycleListener: (requestId: string) => void }];
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+[[object Object], [object Object]]
 ```
 
 </div>

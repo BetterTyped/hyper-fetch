@@ -22,7 +22,7 @@ import { ClientPayloadMappingCallback } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.types.ts#L9)
+Defined in [client/fetch.client.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/client/fetch.client.types.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [client/fetch.client.types.ts:9](https://github.com/BetterTyped/hyper
 
 ```ts
 type ClientPayloadMappingCallback = (data: unknown) => string | FormData;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+(data: unknown) => string | FormData
 ```
 
 </div>

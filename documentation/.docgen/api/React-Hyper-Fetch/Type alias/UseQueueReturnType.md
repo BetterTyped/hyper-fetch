@@ -22,7 +22,7 @@ import { UseQueueReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-queue/use-queue.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/hooks/use-queue/use-queue.types.ts#L30)
+Defined in [hooks/use-queue/use-queue.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-queue/use-queue.types.ts#L30)
 
 </p><div class="api-docs__section">
 
@@ -37,6 +37,22 @@ type UseQueueReturnType<T> = {
   start: () => void; 
   stop: () => void; 
   stopped: boolean; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  pause: () => void;
+  requests: [object Object][];
+  start: () => void;
+  stop: () => void;
+  stopped: boolean;
 }
 ```
 

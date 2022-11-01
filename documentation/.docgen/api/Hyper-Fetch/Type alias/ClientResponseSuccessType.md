@@ -22,7 +22,7 @@ import { ClientResponseSuccessType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/client/fetch.client.types.ts#L18)
+Defined in [client/fetch.client.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/client/fetch.client.types.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [client/fetch.client.types.ts:18](https://github.com/BetterTyped/hype
 
 ```ts
 type ClientResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+[GenericDataType, null, number | null]
 ```
 
 </div>

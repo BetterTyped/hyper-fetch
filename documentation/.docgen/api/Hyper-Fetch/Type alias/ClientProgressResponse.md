@@ -22,7 +22,7 @@ import { ClientProgressResponse } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L22)
+Defined in [command/command.types.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -35,6 +35,20 @@ type ClientProgressResponse = {
   progress: number; 
   sizeLeft: number; 
   timeLeft: number; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  progress: number;
+  sizeLeft: number;
+  timeLeft: number;
 }
 ```
 

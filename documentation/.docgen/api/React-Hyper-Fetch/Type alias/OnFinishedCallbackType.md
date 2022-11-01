@@ -22,7 +22,7 @@ import { OnFinishedCallbackType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:98](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98)
+Defined in [helpers/use-command-events/use-command-events.types.ts:98](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L98)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [helpers/use-command-events/use-command-events.types.ts:98](https://g
 
 ```ts
 type OnFinishedCallbackType<Command> = (params: CallbackParameters<Command, ExtractClientReturnType<Command>>) => void | Promise<void>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+(params: CallbackParameters<Command, ExtractClientReturnType<Command>>) => void | Promise<void>
 ```
 
 </div>

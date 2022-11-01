@@ -22,7 +22,7 @@ import { ExtractRouteParams } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:187](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/command/command.types.ts#L187)
+Defined in [command/command.types.ts:187](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L187)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [command/command.types.ts:187](https://github.com/BetterTyped/hyper-f
 
 ```ts
 type ExtractRouteParams<T> = string extends T ? NegativeTypes : T extends `${string}:${infer  Param}/${infer  Rest}` ? { [ k in Param | keyof ExtractRouteParams<Rest> ]: ParamType } : T extends `${string}:${infer  Param}` ? { [ k in Param ]: ParamType } : NegativeTypes;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+string extends T ? NegativeTypes : (T extends `${[object Object]}:,${[object Object]}/,${[object Object]}` ? [k in Param | keyof ExtractRouteParams<Rest>]: ParamType : (T extends `${[object Object]}:,${[object Object]}` ? [k in Param]: ParamType : NegativeTypes))
 ```
 
 </div>

@@ -22,7 +22,7 @@ Configuration setup for the builder
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/builder/builder.types.ts#L12)
+Defined in [builder/builder.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/builder/builder.types.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -39,6 +39,24 @@ type BuilderConfig = {
   fetchDispatcher: <B,D>(builder: B) => D; 
   isNodeJS: boolean; 
   submitDispatcher: <B,D>(builder: B) => D; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  appManager: (builder: B) => A;
+  baseUrl: string;
+  cache: (builder: B) => C;
+  client: (command: CommandInstance, requestId: string) => Promise<[GenericDataType | null, GenericErrorType | null, number | null]>;
+  fetchDispatcher: (builder: B) => D;
+  isNodeJS: boolean;
+  submitDispatcher: (builder: B) => D;
 }
 ```
 

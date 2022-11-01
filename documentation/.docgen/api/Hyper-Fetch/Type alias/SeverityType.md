@@ -22,7 +22,7 @@ import { SeverityType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/managers/logger/logger.manager.types.ts#L6)
+Defined in [managers/logger/logger.manager.types.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/logger/logger.manager.types.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,16 @@ Defined in [managers/logger/logger.manager.types.ts:6](https://github.com/Better
 
 ```ts
 type SeverityType = 0 | 1 | 2 | 3;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+0 | 1 | 2 | 3
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { stringifyDefaultOptions } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/builder/builder.constants.ts#L1)
+Defined in [builder/builder.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/builder/builder.constants.ts#L1)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,24 @@ Defined in [builder/builder.constants.ts:1](https://github.com/BetterTyped/hyper
 </div><div class="api-docs__preview var">
 
 ```ts
-const stringifyDefaultOptions = {
+const stringifyDefaultOptions = { arrayFormat: bracket; arraySeparator: ; encode: true; skipEmptyString: true; skipNull: true; sort: false; strict: true }
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  arrayFormat: bracket;
+  arraySeparator: ;
+  encode: true;
+  skipEmptyString: true;
+  skipNull: true;
+  sort: false;
+  strict: true;
 }
 ```
 

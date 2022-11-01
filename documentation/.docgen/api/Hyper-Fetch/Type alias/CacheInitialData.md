@@ -22,7 +22,7 @@ import { CacheInitialData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/cache/cache.types.ts#L56)
+Defined in [cache/cache.types.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/cache/cache.types.ts#L56)
 
 </p><div class="api-docs__section">
 
@@ -32,6 +32,27 @@ Defined in [cache/cache.types.ts:56](https://github.com/BetterTyped/hyper-fetch/
 
 ```ts
 type CacheInitialData = Record<string, CacheValueType>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+Record<string, {
+  cacheTime: number;
+  clearKey: string;
+  data: [GenericDataType | null, GenericErrorType | null, number | null];
+  details: {
+      isCanceled: boolean;
+      isFailed: boolean;
+      isOffline: boolean;
+      retries: number;
+      timestamp: number;
+  };
+}>
 ```
 
 </div>

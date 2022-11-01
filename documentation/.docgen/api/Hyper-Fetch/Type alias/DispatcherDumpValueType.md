@@ -22,7 +22,7 @@ import { DispatcherDumpValueType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/core/src/dispatcher/dispatcher.types.ts#L13)
+Defined in [dispatcher/dispatcher.types.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/dispatcher/dispatcher.types.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -37,6 +37,73 @@ type DispatcherDumpValueType<Command> = {
   retries: number; 
   stopped: boolean; 
   timestamp: number; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  commandDump: {
+      abortKey: string;
+      auth: boolean;
+      cache: boolean;
+      cacheKey: string;
+      cacheTime: number;
+      cancelable: boolean;
+      commandOptions: {
+          abortKey: string;
+          auth: boolean;
+          cache: boolean;
+          cacheKey: string;
+          cacheTime: number;
+          cancelable: boolean;
+          deduplicate: boolean;
+          deduplicateTime: number;
+          disableRequestInterceptors: boolean;
+          disableResponseInterceptors: boolean;
+          effectKey: string;
+          endpoint: GenericEndpoint;
+          headers: HeadersInit;
+          method: GET | POST | PUT | PATCH | DELETE;
+          offline: boolean;
+          options: ClientOptions;
+          queueKey: string;
+          queued: boolean;
+          retry: number;
+          retryTime: number;
+      };
+      data: MappedData extends undefined ? RequestDataType : MappedData | \null\ | \undefined\;
+      deduplicate: boolean;
+      deduplicateTime: number;
+      disableRequestInterceptors: boolean | undefined;
+      disableResponseInterceptors: boolean | undefined;
+      effectKey: string;
+      endpoint: string;
+      headers: HeadersInit;
+      method: GET | POST | PUT | PATCH | DELETE;
+      offline: boolean;
+      options: ClientOptions | T extends Command<any, any, any, any, any, any, infer O, any, any, any> ? O : never;
+      params: Params | \null\ | \undefined\;
+      queryParams: QueryParamsType | \null\ | \undefined\;
+      queueKey: string;
+      queued: boolean;
+      retry: number;
+      retryTime: number;
+      updatedAbortKey: boolean;
+      updatedCacheKey: boolean;
+      updatedEffectKey: boolean;
+      updatedQueueKey: boolean;
+      used: boolean;
+  };
+  requestId: string;
+  retries: number;
+  stopped: boolean;
+  timestamp: number;
 }
 ```
 

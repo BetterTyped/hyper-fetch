@@ -22,7 +22,7 @@ import { UseTrackedStateType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/9cf1f580/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33)
+Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L33)
 
 </p><div class="api-docs__section">
 
@@ -38,6 +38,23 @@ type UseTrackedStateType<T> = {
   retries: number; 
   status: null | number; 
   timestamp: null | Date; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | ExtractResponse<T>;
+  error: null | ExtractError<T>;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
 }
 ```
 
