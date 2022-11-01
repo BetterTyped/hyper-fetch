@@ -373,7 +373,11 @@ export class Command<
   /**
    * Method to use the command WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
    * @param options
+   * @disableReturns
    * @returns
+   * ```tsx
+   * Promise<[Data | null, Error | null, HttpStatus]>
+   * ```
    */
   public exec: FetchMethodType<
     Command<
@@ -418,6 +422,11 @@ export class Command<
    * Method used to perform requests with usage of cache and queues
    * @param options
    * @param requestCallback
+   * @disableReturns
+   * @returns
+   * ```tsx
+   * Promise<[Data | null, Error | null, HttpStatus]>
+   * ```
    */
   public send: FetchMethodType<
     Command<

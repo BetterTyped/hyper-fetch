@@ -22,7 +22,7 @@ import { getErrorMessage } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/client/fetch.client.utils.ts#L6)
+Defined in [client/fetch.client.utils.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/client/fetch.client.utils.ts#L6)
 
 </p><div class="api-docs__section">
 

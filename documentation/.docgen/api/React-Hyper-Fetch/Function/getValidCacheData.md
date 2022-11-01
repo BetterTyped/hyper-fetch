@@ -22,7 +22,7 @@ import { getValidCacheData } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33)
+Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33)
 
 </p><div class="api-docs__section">
 

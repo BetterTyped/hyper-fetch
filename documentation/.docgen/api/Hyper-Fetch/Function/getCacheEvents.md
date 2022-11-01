@@ -22,7 +22,7 @@ import { getCacheEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.events.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/cache/cache.events.ts#L6)
+Defined in [cache/cache.events.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/cache/cache.events.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -60,8 +60,7 @@ getCacheEvents(emitter)
   emitRevalidation: (cacheKey: string) => void;
   onData: (cacheKey: string, callback: (data: CacheValueType) => void) => VoidFunction;
   onRevalidate: (cacheKey: string, callback: () => void) => VoidFunction;
-};
-
+}
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { interceptResponse } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:36](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/builder/builder.utils.ts#L36)
+Defined in [builder/builder.utils.ts:36](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/builder/builder.utils.ts#L36)
 
 </p><div class="api-docs__section">
 

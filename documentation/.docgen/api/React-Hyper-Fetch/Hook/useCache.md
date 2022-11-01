@@ -22,7 +22,7 @@ import { useCache } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
+Defined in [hooks/use-cache/use-cache.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/hooks/use-cache/use-cache.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -82,8 +82,7 @@ useCache<T>(command, options)
   onCacheError: (callback: OnErrorCallbackType) => void;
   onCacheSuccess: (callback: OnSuccessCallbackType) => void;
   revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
-};
-
+}
 ```
 
 </div>

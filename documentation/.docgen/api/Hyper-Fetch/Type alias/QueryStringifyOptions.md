@@ -22,7 +22,7 @@ import { QueryStringifyOptions } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.types.ts:42](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/client/fetch.client.types.ts#L42)
+Defined in [client/fetch.client.types.ts:42](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/client/fetch.client.types.ts#L42)
 
 </p><div class="api-docs__section">
 

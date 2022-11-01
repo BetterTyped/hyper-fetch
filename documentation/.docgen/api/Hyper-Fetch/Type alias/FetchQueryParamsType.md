@@ -22,7 +22,7 @@ It will check if the query params are already set
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:203](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.types.ts#L203)
+Defined in [command/command.types.ts:203](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/command/command.types.ts#L203)
 
 </p><div class="api-docs__section">
 

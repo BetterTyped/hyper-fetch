@@ -22,7 +22,7 @@ If the command endpoint parameters are not filled it will throw an error
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:212](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.types.ts#L212)
+Defined in [command/command.types.ts:212](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/command/command.types.ts#L212)
 
 </p><div class="api-docs__section">
 

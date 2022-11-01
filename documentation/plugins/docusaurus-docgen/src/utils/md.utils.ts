@@ -71,6 +71,12 @@ const transform = (html: string) => {
     if (node.tagName === "CODE" && node.parentElement?.tagName === "PRE") {
       return;
     }
+    if (node.tagName === "PRE") {
+      return node.parentElement?.innerHTML.replace(
+        node.outerHTML,
+        `\n\n${NodeHtmlMarkdown.translate(node.outerHTML)}\n\n`,
+      );
+    }
     if (hasTableChild) {
       return;
     }

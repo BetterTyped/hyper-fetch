@@ -22,7 +22,7 @@ import { CommandInstance } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:268](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/command/command.types.ts#L268)
+Defined in [command/command.types.ts:268](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/command/command.types.ts#L268)
 
 </p><div class="api-docs__section">
 

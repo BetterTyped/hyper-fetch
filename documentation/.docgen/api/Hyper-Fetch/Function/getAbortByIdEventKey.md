@@ -22,7 +22,7 @@ import { getAbortByIdEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.utils.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/managers/command/command.manager.utils.ts#L9)
+Defined in [managers/command/command.manager.utils.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/command/command.manager.utils.ts#L9)
 
 </p><div class="api-docs__section">
 

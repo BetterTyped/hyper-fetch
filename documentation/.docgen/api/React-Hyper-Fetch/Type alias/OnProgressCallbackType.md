@@ -22,7 +22,7 @@ import { OnProgressCallbackType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:105](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105)
+Defined in [helpers/use-command-events/use-command-events.types.ts:105](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L105)
 
 </p><div class="api-docs__section">
 

@@ -22,7 +22,7 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -93,8 +93,7 @@ useSubmit<Command>(command, options)
   revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   submit: (...parameters: Parameters) => Promise;
   submitting: boolean;
-};
-
+}
 ```
 
 </div>

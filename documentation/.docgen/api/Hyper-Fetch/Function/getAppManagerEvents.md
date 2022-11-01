@@ -22,7 +22,7 @@ import { getAppManagerEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.events.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/managers/app/app.manager.events.ts#L5)
+Defined in [managers/app/app.manager.events.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/managers/app/app.manager.events.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -64,8 +64,7 @@ getAppManagerEvents(emitter)
   onFocus: (callback: () => void) => VoidFunction;
   onOffline: (callback: () => void) => VoidFunction;
   onOnline: (callback: () => void) => VoidFunction;
-};
-
+}
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { UseFetchReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.types.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70)
+Defined in [hooks/use-fetch/use-fetch.types.ts:70](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/react/src/hooks/use-fetch/use-fetch.types.ts#L70)
 
 </p><div class="api-docs__section">
 

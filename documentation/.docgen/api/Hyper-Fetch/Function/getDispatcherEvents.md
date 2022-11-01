@@ -22,7 +22,7 @@ import { getDispatcherEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/dispatcher/dispatcher.events.ts#L11)
+Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/dispatcher/dispatcher.events.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -62,8 +62,7 @@ getDispatcherEvents(emitter)
   setDrained: (queueKey: string, values: DispatcherData) => void;
   setQueueChanged: (queueKey: string, values: DispatcherData) => void;
   setQueueStatus: (queueKey: string, values: DispatcherData) => void;
-};
-
+}
 ```
 
 </div>

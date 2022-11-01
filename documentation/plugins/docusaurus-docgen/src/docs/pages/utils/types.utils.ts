@@ -2,6 +2,10 @@ import { JSONOutput, ReflectionKind } from "typedoc";
 
 import { getReference, getSignature } from "./parsing.utils";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+type StringType = string | Record<string, string | StringType>;
+
 function parens(element: string, needsParens?: boolean) {
   if (!needsParens) {
     return element;
@@ -31,16 +35,12 @@ const getSignatureType = (
   return `(${params.join(", ")})${sign}${getType(reflection.type, reflectionsTree)}`;
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-type StringType = string | Record<string, string | StringType>;
-
 export const getType = (
   reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType | undefined,
   reflectionsTree: JSONOutput.DeclarationReflection[],
   options?: { needsParens?: boolean; deepScan?: boolean },
 ): StringType => {
-  const { needsParens, deepScan } = options || {};
+  const { needsParens = false, deepScan = false } = options || {};
   if (!reflection) {
     return "";
   }
@@ -55,13 +55,13 @@ export const getType = (
     case "conditional": {
       const type = reflection as unknown as JSONOutput.ConditionalType;
 
-      const checkType = getType(type.checkType, reflectionsTree, { needsParens: true, deepScan });
+      const checkType = getType(type.checkType, reflectionsTree, { needsParens: true });
       const extendsType = getType(type.extendsType, reflectionsTree, {
         needsParens: true,
         deepScan,
       });
-      const trueType = getType(type.trueType, reflectionsTree, { needsParens: true, deepScan });
-      const falseType = getType(type.falseType, reflectionsTree, { needsParens: true, deepScan });
+      const trueType = getType(type.trueType, reflectionsTree, { needsParens: true });
+      const falseType = getType(type.falseType, reflectionsTree, { needsParens: true });
 
       return parens(
         `${checkType} extends ${extendsType} ? ${trueType} : ${falseType}`,
@@ -208,7 +208,7 @@ export const getType = (
 
     case "tuple": {
       const type = reflection as unknown as JSONOutput.TupleType;
-      return `[${type.elements?.map((t) => getType(t, reflectionsTree, { deepScan }))}]`;
+      return `[${type.elements?.map((t) => getType(t, reflectionsTree, { deepScan })).join(", ")}]`;
     }
 
     case "typeOperator": {

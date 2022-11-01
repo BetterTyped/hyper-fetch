@@ -22,7 +22,7 @@ import { ExtractClientOptions } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/7e232edb/packages/core/src/types/fetch.types.ts#L29)
+Defined in [types/fetch.types.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/c746dc1f/packages/core/src/types/fetch.types.ts#L29)
 
 </p><div class="api-docs__section">
 
