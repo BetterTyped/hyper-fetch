@@ -29,7 +29,7 @@
     <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/react?color=64BC4B&logo=package" />
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=64BC4B&logo=package" />
   </a>
 </p>
 

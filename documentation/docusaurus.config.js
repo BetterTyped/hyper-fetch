@@ -35,7 +35,7 @@ const config = {
         path: "guides",
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
-        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
+        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter],
       },
     ],
     [
@@ -57,11 +57,10 @@ const config = {
       },
     ],
     [
-      "docusaurus-plugin-api",
+      "docusaurus-docgen",
       {
         id: "api",
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
-        readOnce: true,
         packages: [
           {
             logo: "/img/logo.svg",
@@ -76,7 +75,7 @@ const config = {
             entryPath: "src/index.ts",
           },
         ],
-        docs: {
+        contentDocsOptions: {
           path: "api",
           routeBasePath: "api",
           sidebarPath: require.resolve("./sidebars.js"),
@@ -98,7 +97,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
+          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",

@@ -26,12 +26,12 @@ export function Header(): JSX.Element {
         <h3 className={clsx(styles.tagline)}>
           Ultimate framework for{" "}
           <b className={clsx(styles.gradientLetters)}>
-            data exchange, asynchronous state management, complex persistance and queueing.
+            data exchange, asynchronous state management, complex persistence and queueing.
           </b>{" "}
         </h3>
         <div className={clsx(styles.addition)}>
-          For any <span>Javascript / Typescript</span> environment like <span>React</span>, <span>Angular</span>,{" "}
-          <span>Svelte</span>, <span>Vue</span> and others.
+          For any <span>Javascript / Typescript</span> environment like <span>Node.js</span>, <span>React</span>,{" "}
+          <span>Angular</span>, <span>Svelte</span>, <span>Vue</span> and others.
         </div>
 
         <div className={styles.buttons}>
