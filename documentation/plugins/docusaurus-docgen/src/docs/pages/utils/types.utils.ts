@@ -16,7 +16,7 @@ function parens(element: string, needsParens?: boolean) {
 
 const getSignatureType = (
   reflection: JSONOutput.SignatureReflection,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
   { useArrow }: { useArrow?: boolean },
 ) => {
   const params =
@@ -26,13 +26,25 @@ const getSignatureType = (
       const optional = param.flags?.isOptional ? "?" : "";
 
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return `${rest}${paramName}${optional}: ${getType(param.type, reflectionsTree)}`;
+      return `${rest}${paramName}${optional}: ${objectToString(
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        getType(param.type, reflectionsTree, {
+          deepScan: false,
+        }),
+        2,
+      )}`;
     }) || [];
 
   const sign = useArrow ? " => " : ": ";
 
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return `(${params.join(", ")})${sign}${getType(reflection.type, reflectionsTree)}`;
+  return `(${params.join(", ")})${sign}${objectToString(
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    getType(reflection.type, reflectionsTree, {
+      deepScan: false,
+    }),
+    2,
+  )}`;
 };
 
 const getTypeValue = (
@@ -52,7 +64,8 @@ const getTypeValue = (
   return reflection;
 };
 
-const objectToString = (obj: Record<string, StringType>, level = 0) => {
+const objectToString = (value: Record<string, StringType> | string, level = 0) => {
+  if (typeof value === "string") return value;
   const addIndent = (spaces: number) => {
     let strOutput = "";
     for (let i = 0; i < spaces; i += 1) {
@@ -62,12 +75,12 @@ const objectToString = (obj: Record<string, StringType>, level = 0) => {
   };
   let strOutput = "";
 
-  Object.keys(obj).forEach((key) => {
-    if (typeof obj[key] === "object") {
+  Object.keys(value).forEach((key) => {
+    if (typeof value[key] === "object") {
       strOutput += `${addIndent(level + 1) + key}: `;
-      strOutput += `${objectToString(obj[key], level + 2)};\n`;
+      strOutput += `${objectToString(value[key], level + 2)};\n`;
     } else {
-      strOutput += `${addIndent(level + 1) + key}: ${obj[key]};\n`;
+      strOutput += `${addIndent(level + 1) + key}: ${value[key]};\n`;
     }
   });
 
@@ -76,7 +89,7 @@ const objectToString = (obj: Record<string, StringType>, level = 0) => {
 
 export const getType = (
   reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType | undefined,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
   options?: { needsParens?: boolean; deepScan?: boolean },
 ): StringType => {
   const { needsParens = false, deepScan = false } = options || {};
@@ -99,16 +112,28 @@ export const getType = (
     case "conditional": {
       const type = reflection as unknown as JSONOutput.ConditionalType;
 
-      const checkType = getType(type.checkType, reflectionsTree, { needsParens: true });
+      const checkType = getType(type.checkType, reflectionsTree, {
+        needsParens: true,
+        deepScan: false,
+      });
       const extendsType = getType(type.extendsType, reflectionsTree, {
+        needsParens: true,
+        deepScan: false,
+      });
+      const trueType = getType(type.trueType, reflectionsTree, {
         needsParens: true,
         deepScan,
       });
-      const trueType = getType(type.trueType, reflectionsTree, { needsParens: true });
-      const falseType = getType(type.falseType, reflectionsTree, { needsParens: true });
+      const falseType = getType(type.falseType, reflectionsTree, {
+        needsParens: true,
+        deepScan,
+      });
 
       return parens(
-        `${checkType} extends ${extendsType} ? ${trueType} : ${falseType}`,
+        `${checkType} extends ${extendsType} ? ${objectToString(trueType, 2)} : ${objectToString(
+          falseType,
+          2,
+        )}`,
         needsParens,
       );
     }
@@ -117,9 +142,16 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.IndexedAccessType;
 
       const objectType = getType(type.objectType, reflectionsTree, { needsParens: true, deepScan });
-      const indexType = getType(type.indexType, reflectionsTree, { needsParens: true, deepScan });
+      const indexType = getType(type.indexType, reflectionsTree, {
+        needsParens: true,
+        deepScan: false,
+      });
 
-      return `${objectType}[${indexType}]`;
+      if (objectType[indexType] && typeof objectType[indexType] === "string") {
+        return `${objectType[indexType]}`;
+      }
+
+      return `${objectToString(objectType[indexType] || objectType, 2)}[${indexType}]`;
     }
 
     case "inferred": {
@@ -201,7 +233,7 @@ export const getType = (
 
     case "reference": {
       const type = reflection as unknown as JSONOutput.ReferenceType;
-      const reference = type.id ? getReference(type.id, reflectionsTree) : null;
+      const reference = getReference(reflectionsTree, type.id, type.name);
 
       const isDeepScanType =
         reference && [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(reference.kind);
@@ -310,7 +342,10 @@ export const getType = (
     case "tuple": {
       const type = reflection as unknown as JSONOutput.TupleType;
       return `[${type.elements
-        ?.map((t) => getType(t, reflectionsTree, { deepScan: false }))
+        ?.map((t) => {
+          const value = getType(t, reflectionsTree, { deepScan: false });
+          return objectToString(value, 2);
+        })
         .join(", ")}]`;
     }
 
@@ -345,7 +380,9 @@ export const getType = (
       const type = reflection as unknown as unknown as JSONOutput.TemplateLiteralType;
 
       const head = type.head || "";
-      const tail = type.tail.map((t) => `$\{${t[0]}}${t[1]}`);
+      const tail = type.tail.map(
+        (t) => `$\{${getType(t[0], reflectionsTree, { deepScan: false })}}${t[1]}`,
+      );
 
       return `\`${head}${tail}\``;
     }
@@ -358,7 +395,7 @@ export const getType = (
 
 export const getTypePresentation = (
   reflection: JSONOutput.DeclarationReflection,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
 ) => {
   const typeValue = getTypeValue(reflection);
 

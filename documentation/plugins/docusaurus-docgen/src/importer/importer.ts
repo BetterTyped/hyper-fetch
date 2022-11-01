@@ -8,19 +8,39 @@ import visit from "unist-util-visit";
 import remarkParse from "remark-parse";
 import { JSONOutput } from "typedoc";
 
-import { PkgMeta, PluginOptions } from "types/package.types";
-import { libraryDir, pluginOptionsPath, packageConfigPath } from "../constants/paths.constants";
+import { PathsOptions, PkgMeta, PluginOptions } from "types/package.types";
+import {
+  libraryDir,
+  pluginOptionsPath,
+  packageConfigPath,
+  pathsOptionsPath,
+} from "../constants/paths.constants";
 import { getMatchingElement } from "./utils/docs.utils";
 import { getComponent } from "./components/component-map.utils";
 import { cleanFileName } from "../utils/file.utils";
 import { renderer } from "../docs/generator/renderer";
+import { getPackageDocsPath } from "../utils/package.utils";
 
 export const docsImporter = () => {
   return (tree: any, file: any) => {
     const optionsPath = path.join(file.cwd, libraryDir, pluginOptionsPath);
+    const pathsPath = path.join(file.cwd, libraryDir, pathsOptionsPath);
 
     const pluginOptions: PluginOptions = require(optionsPath);
+    const pathsOptions: PathsOptions = require(pathsPath);
     const packages = pluginOptions.packages.map((pkg) => cleanFileName(pkg.title));
+    const isMonorepo = pluginOptions.packages.length > 1;
+    const reflectionsMap: { name: string; reflection: JSONOutput.ProjectReflection }[] =
+      pluginOptions.packages.map((pkg) => {
+        return {
+          name: cleanFileName(pkg.title),
+          reflection: require(getPackageDocsPath(
+            pathsOptions.docsGenerationDir,
+            cleanFileName(pkg.title),
+            isMonorepo,
+          )),
+        };
+      });
 
     const packageRegex = `(${packages.join("|")})`;
     const nameRegex = "([^ ]+)";
@@ -49,7 +69,21 @@ export const docsImporter = () => {
             packageConfigPath,
           );
           const packageMeta: PkgMeta = require(configPath);
-          const packageReflection: JSONOutput.ProjectReflection = require(packageMeta.packageDocsJsonPath);
+
+          const packageReflection = reflectionsMap.find(
+            ({ name }) => cleanFileName(packageName) === name,
+          )?.reflection;
+
+          if (!packageReflection) {
+            throw new Error(`Cannot find package reflection for ${packageName}`);
+          }
+
+          const packagesReflections = [
+            packageReflection,
+            ...reflectionsMap
+              .filter(({ name }) => cleanFileName(packageName) !== name)
+              .map(({ reflection }) => reflection),
+          ];
 
           const reflection = getMatchingElement(packageReflection, elementName);
           const Component = getComponent(componentType);
@@ -64,7 +98,7 @@ export const docsImporter = () => {
               renderer(
                 {
                   reflection,
-                  reflectionsTree: packageReflection.children,
+                  reflectionsTree: packagesReflections,
                   npmName: packageReflection.name,
                   packageName,
                   pluginOptions,

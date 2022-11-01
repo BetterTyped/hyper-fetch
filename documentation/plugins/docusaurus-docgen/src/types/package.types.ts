@@ -27,3 +27,8 @@ export type PkgMeta = {
   packageDocsJsonPath: string;
   packageDocsDir: string;
 };
+
+export type PathsOptions = {
+  docsGenerationDir: string;
+  generatedFilesDir: string;
+};

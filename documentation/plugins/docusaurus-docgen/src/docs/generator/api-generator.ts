@@ -10,7 +10,7 @@ const docsExtension = ".md";
 
 type ApiGeneratorProps = {
   packageName: string;
-  parsedApiJson: JSONOutput.ProjectReflection;
+  parsedApiJsons: JSONOutput.ProjectReflection[];
   packageDocsDir: string;
   docsGenerationDir: string;
   pluginOptions: PluginOptions;
@@ -19,15 +19,12 @@ type ApiGeneratorProps = {
 
 export const apiGenerator = ({
   packageName,
-  parsedApiJson,
+  parsedApiJsons,
   packageDocsDir,
   pluginOptions,
   packageOptions,
 }: ApiGeneratorProps) => {
-  const reflectionsTree = (parsedApiJson.children || []).map((child) => ({
-    ...child,
-    kindString: getKindName(child.kindString || "", child.name),
-  }));
+  const parsedApiJson = parsedApiJsons[0];
 
   parsedApiJson.children?.forEach((reflection) => {
     const { name } = reflection;
@@ -39,7 +36,7 @@ export const apiGenerator = ({
 
     const data = pageGenerator({
       reflection,
-      reflectionsTree,
+      reflectionsTree: parsedApiJsons,
       pluginOptions,
       packageOptions,
       npmName: parsedApiJson.name,

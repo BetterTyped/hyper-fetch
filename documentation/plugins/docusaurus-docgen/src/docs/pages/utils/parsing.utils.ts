@@ -1,5 +1,42 @@
 import { JSONOutput, ReflectionKind } from "typedoc";
 
+export const getReference = (
+  reflectionsTree: JSONOutput.ProjectReflection[],
+  id: number | undefined,
+  name: string | undefined,
+) => {
+  let reflectionMatch: JSONOutput.DeclarationReflection | undefined;
+  if (id) {
+    // First element is always current library so we are not mixing ids between
+    reflectionsTree[0].children?.some((reflection) => {
+      if (reflection.id === id) {
+        reflectionMatch = reflection;
+        return true;
+      }
+      return false;
+    });
+  } else if (name) {
+    // If no ID found, we can try to look for a matching value in other monorepo packages
+    const matches: JSONOutput.DeclarationReflection[] = [];
+    reflectionsTree.forEach((tree) =>
+      tree.children?.forEach((reflection) => {
+        if (reflection.name === name) {
+          matches.push(reflection);
+          return true;
+        }
+        return false;
+      }),
+    );
+    // If there are more matches, our result is not reliable
+    if (matches.length === 1) {
+      const [match] = matches;
+      reflectionMatch = match;
+    }
+  }
+
+  return reflectionMatch;
+};
+
 export const getSignature = (reflection: JSONOutput.DeclarationReflection) => {
   const parametersKinds = ["Call", "Constructor"];
 
@@ -31,8 +68,7 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
       param.flags?.isRest
         ? `...${param.name}`
         : param.name === "__namedParameter"
-        ? // TODO to object with keys
-          `params$${index}`
+        ? `params$${index}`
         : param.name,
     );
   const callSignature = callSignatures ? callSignatures.join(", ") : "";
@@ -40,18 +76,14 @@ export const getCallPreview = (signature: JSONOutput.SignatureReflection) => {
   return [name, typeSignature, callSignature];
 };
 
-export const getReference = (id: number, tree: JSONOutput.DeclarationReflection[]) => {
-  return tree.find((element) => element.id === id);
-};
-
 const isFunctionType = (
   reflection: any,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
 ): boolean => {
   const element = reflection as unknown as JSONOutput.DeclarationReflection;
 
   if (typeof element.type === "object" && element.type && "id" in element.type && element.type.id) {
-    const referenceType = getReference(element.type.id, reflectionsTree);
+    const referenceType = getReference(reflectionsTree, element.type.id, element.type.name);
 
     if (referenceType?.type?.type === "conditional") {
       if (
@@ -93,7 +125,7 @@ const isFunctionType = (
 
 const isMethod = (
   reflection: JSONOutput.DeclarationReflection,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
 ) => {
   if (reflection.kind === ReflectionKind.Method) {
     return true;
@@ -103,7 +135,7 @@ const isMethod = (
 
 export const getProperties = (
   reflection: JSONOutput.DeclarationReflection,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
 ) => {
   return (reflection.children || [])
     .sort((a, b) => {
@@ -126,7 +158,7 @@ export const getProperties = (
 
 export const getMethods = (
   reflection: JSONOutput.DeclarationReflection,
-  reflectionsTree: JSONOutput.DeclarationReflection[],
+  reflectionsTree: JSONOutput.ProjectReflection[],
 ) => {
   return (reflection.children || [])
     .sort((a, b) => {

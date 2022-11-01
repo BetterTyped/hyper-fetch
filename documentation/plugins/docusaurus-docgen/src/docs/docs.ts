@@ -1,19 +1,18 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
 import * as path from "path";
 
-import {
-  libraryDir,
-  pluginOptionsPath,
-  docsJsonPath,
-  packageConfigPath,
-} from "../constants/paths.constants";
+import { libraryDir, pathsOptionsPath, pluginOptionsPath } from "../constants/paths.constants";
 import { asyncForEach } from "../utils/loop.utils";
-import { PkgMeta, PluginOptions } from "../types/package.types";
+import { PluginOptions } from "../types/package.types";
 import { success, trace } from "../utils/log.utils";
 import { cleanFileName, createFile } from "../utils/file.utils";
 import { generateMonorepoPage } from "./pages/presentation/monorepo.page";
 import { generatePackagePage } from "./pages/presentation/package.page";
 import { parseTypescriptToJson } from "./parser/parser";
 import { apiGenerator } from "./generator/api-generator";
+import { getPackageOptions } from "../utils/package.utils";
 
 export const buildDocs = async (
   docsGenerationDir: string,
@@ -32,46 +31,29 @@ export const buildDocs = async (
    * Save generation options
    */
   const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, pluginOptionsPath);
+  const pathsFilePath = path.join(generatedFilesDir, "..", libraryDir, pathsOptionsPath);
   createFile(optionsFilePath, JSON.stringify(pluginOptions));
+  createFile(pathsFilePath, JSON.stringify({ docsGenerationDir, generatedFilesDir }));
 
   /**
    * Generate docs for each package
    */
   await asyncForEach(packages, async (packageOptions) => {
     const {
-      dir,
-      title,
-      entryPath,
-      tsconfigName = "/tsconfig.json",
-      tsconfigDir = packageOptions.dir,
-    } = packageOptions;
+      packageName,
+      tsconfigPath,
+      pkgMeta,
+      entries,
+      packageOptionsPath,
+      packageDocsDir,
+      packageDocsJsonPath,
+    } = getPackageOptions(packages, packageOptions, docsGenerationDir, tsConfigPath, isMonorepo);
 
     /**
      * Get directories required for package generation
      */
-    trace(`Setup package directories for ${cleanFileName(title)}`);
-    // Returns Hyper Fetch => Hyper-Fetch
-    const packageName = cleanFileName(title);
-    // Returns /api/Hyper-Fetch(if monorepo) or /api
-    const packageDocsDir = isMonorepo
-      ? path.join(docsGenerationDir, packageName)
-      : docsGenerationDir;
-    // Returns [packageDir]/docs.json
-    const packageDocsJsonPath = path.join(packageDocsDir, docsJsonPath);
-    // Package tsconfig file
-    const tsconfigPath = tsConfigPath ?? path.join(tsconfigDir, tsconfigName);
-    // Generate meta
-    const pkgMeta: PkgMeta = {
-      title,
-      packageDocsJsonPath,
-      packageDocsDir,
-    };
-    // Package entry files
-    const entries = Array.isArray(entryPath)
-      ? entryPath.map((entry) => path.join(dir, entry))
-      : [path.join(dir, entryPath)];
+    trace(`Setup package directories for ${cleanFileName(packageOptions.title)}`, packageName);
 
-    const packageOptionsPath = path.join(packageDocsDir, packageConfigPath);
     createFile(packageOptionsPath, JSON.stringify(pkgMeta));
 
     /**
@@ -86,15 +68,29 @@ export const buildDocs = async (
     trace(`Starting project parsing...`, packageName);
     await parseTypescriptToJson(packageDocsJsonPath, entries, tsconfigPath, pluginOptions);
     trace(`Successfully parsed docs.`, packageName);
+  });
 
-    /**
-     * Generate docs files
-     */
-    trace(`Generating docs files...`, packageName);
-    const parsedApiJson = await import(packageDocsJsonPath);
+  /**
+   * Generate docs files
+   */
+  await asyncForEach(packages, async (packageOptions) => {
+    const { packageName, docsJsonPaths, packageDocsDir } = getPackageOptions(
+      packages,
+      packageOptions,
+      docsGenerationDir,
+      tsConfigPath,
+      isMonorepo,
+    );
+
+    trace(`Generating docs files for ${cleanFileName(packageOptions.title)}`);
+
+    const parsedApiJsons = docsJsonPaths.map((docsPath) => {
+      return require(docsPath);
+    });
+
     await apiGenerator({
       packageName,
-      parsedApiJson,
+      parsedApiJsons,
       packageDocsDir,
       docsGenerationDir,
       pluginOptions,

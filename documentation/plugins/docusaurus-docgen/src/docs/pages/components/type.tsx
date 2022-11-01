@@ -3,6 +3,7 @@ import React from "react";
 import { JSONOutput } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
+import { getReference } from "../utils/parsing.utils";
 import { Signature } from "./signature";
 
 function parens(element: JSX.Element, needsParens?: boolean): JSX.Element {
@@ -182,7 +183,7 @@ export function Type({
 
     case "reference": {
       const type = reflection as unknown as JSONOutput.ReferenceType;
-      const ref: any = type.id ? reflectionsTree[type.id] : null;
+      const ref = getReference(reflectionsTree, type.id, type.name);
       const genericClass = ref?.id && !ref.sources ? "api-type__type-generic" : "";
 
       return (
