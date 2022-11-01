@@ -68,7 +68,7 @@ function copyFolderSync(from: string, to: string) {
       }
     });
   } catch (err) {
-    return;
+    return null;
   }
 }
 

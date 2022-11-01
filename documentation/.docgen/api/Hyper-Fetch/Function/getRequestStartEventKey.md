@@ -22,7 +22,7 @@ import { getRequestStartEventKey } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/command/command.manager.utils.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/managers/command/command.manager.utils.ts#L12)
+Defined in [managers/command/command.manager.utils.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/core/src/managers/command/command.manager.utils.ts#L12)
 
 </p><div class="api-docs__section">
 

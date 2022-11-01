@@ -35,7 +35,7 @@ const config = {
         path: "guides",
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
-        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-plugin-api").docsInjector],
+        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter],
       },
     ],
     [
@@ -61,7 +61,6 @@ const config = {
       {
         id: "api",
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
-        readOnce: true,
         packages: [
           {
             logo: "/img/logo.svg",

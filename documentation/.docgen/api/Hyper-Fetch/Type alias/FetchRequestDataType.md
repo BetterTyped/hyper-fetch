@@ -22,7 +22,7 @@ If the command data is not filled it will throw an error
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.types.ts:224](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.types.ts#L224)
+Defined in [command/command.types.ts:224](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/core/src/command/command.types.ts#L224)
 
 </p><div class="api-docs__section">
 

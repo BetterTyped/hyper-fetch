@@ -22,7 +22,7 @@ import { UseCacheReturnType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
 
 </p><div class="api-docs__section">
 

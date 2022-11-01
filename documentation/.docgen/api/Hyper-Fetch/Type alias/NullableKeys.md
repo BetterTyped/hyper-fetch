@@ -22,7 +22,7 @@ import { NullableKeys } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/helpers.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/types/helpers.types.ts#L5)
+Defined in [types/helpers.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/core/src/types/helpers.types.ts#L5)
 
 </p><div class="api-docs__section">
 

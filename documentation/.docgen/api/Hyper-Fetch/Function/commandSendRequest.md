@@ -22,7 +22,7 @@ import { commandSendRequest } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/command/command.utils.ts#L113)
+Defined in [command/command.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/core/src/command/command.utils.ts#L113)
 
 </p><div class="api-docs__section">
 

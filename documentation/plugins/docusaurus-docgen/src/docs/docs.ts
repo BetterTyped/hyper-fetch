@@ -71,7 +71,7 @@ export const buildDocs = async (
       ? entryPath.map((entry) => path.join(dir, entry))
       : [path.join(dir, entryPath)];
 
-    const packageOptionsPath = path.join(generatedFilesDir, "..", libraryDir, packageConfigPath);
+    const packageOptionsPath = path.join(packageDocsDir, packageConfigPath);
     createFile(packageOptionsPath, JSON.stringify(pkgMeta));
 
     /**

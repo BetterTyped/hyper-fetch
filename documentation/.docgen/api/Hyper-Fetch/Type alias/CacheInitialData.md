@@ -22,7 +22,7 @@ import { CacheInitialData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/core/src/cache/cache.types.ts#L56)
+Defined in [cache/cache.types.ts:56](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/core/src/cache/cache.types.ts#L56)
 
 </p><div class="api-docs__section">
 

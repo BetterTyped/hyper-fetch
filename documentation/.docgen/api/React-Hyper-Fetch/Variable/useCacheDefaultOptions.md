@@ -22,7 +22,7 @@ import { useCacheDefaultOptions } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
+Defined in [hooks/use-cache/use-cache.constants.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/react/src/hooks/use-cache/use-cache.constants.ts#L1)
 
 </p><div class="api-docs__section">
 

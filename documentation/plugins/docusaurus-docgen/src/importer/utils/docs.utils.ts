@@ -21,6 +21,8 @@ export const getMatchingElement = (parsedDocsJson: JSONOutput.ProjectReflection,
   const element = parsedDocsJson.children?.find((reflection) => {
     return reflection.name === name;
   });
-  if (!element) throw new Error(`Cannot find matching reflection for ${name}`);
+  if (!element) {
+    throw new Error(`Cannot find matching reflection for ${name}`);
+  }
   return element;
 };

@@ -22,7 +22,7 @@ import { useFetchDefaultOptions } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.constants.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/6c3eaa91/packages/react/src/hooks/use-fetch/use-fetch.constants.ts#L9)
+Defined in [hooks/use-fetch/use-fetch.constants.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/2ce105c7/packages/react/src/hooks/use-fetch/use-fetch.constants.ts#L9)
 
 </p><div class="api-docs__section">
 

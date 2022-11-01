@@ -18,8 +18,8 @@ import { Signature } from "../../docs/pages/components/signature";
 import { Sources } from "../../docs/pages/components/sources";
 import { Type } from "../../docs/pages/components/type";
 
-export const getComponent = (component: string): React.FC<PagePropsType> => {
-  switch (component.charAt(0).toUpperCase() + component.slice(1)) {
+export const getComponent = (componentType: string): React.FC<PagePropsType> => {
+  switch (componentType) {
     case "definition": {
       return Definition;
     }
@@ -69,7 +69,7 @@ export const getComponent = (component: string): React.FC<PagePropsType> => {
       return Type as React.FC<PagePropsType>;
     }
     default: {
-      throw new Error("Component type not found");
+      throw new Error(`Component type not found - ${componentType}`);
     }
   }
 };
