@@ -11,13 +11,13 @@ sidebar_position: 4
 
 ## Introduction
 
-This hook is created to **mutate data** on the server or to make requests in a controlled manner. It uses the
+This hook **mutates data** on the server and supports controlling requests. It uses the
 [`Submit Dispatcher`](/docs/Architecture/Dispatcher) to handle requests and the [`Cache`](/docs/Architecture/Cache) to
 manage the overall state of the data.
 
-The minimum requirement to use `useSubmit` is to have a prepared [`Command`](/docs/Architecture/Command).
+The minimum requirement for `useSubmit` is a prepared [`Command`](/docs/Architecture/Command).
 
-If you intend to `retrieve` data from the server, we recommend [`useFetch`](/docs/React/useFetch) hook.
+If you intend to `retrieve` data from the server, we recommend choosing the [`useFetch`](/docs/React/useFetch) hook.
 
 ---
 
@@ -31,12 +31,11 @@ const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } =
 
 ## How it works?
 
-**`useSubmit`** executes the command when a `submit()` function returned from it gets triggered. It uses dependency
-tracking to limit re-rendering and help with the performance. Under the hood the communication with the core systems is
-established by the events emitters. There are many helpful `"helper hooks"` that get returned from the hook like
-`onSubmitSuccess`, `onSubmitError`, `onSubmitFinished` and many more to help you handle interesting events in the
-request flow and lifecycle. We used this approach to not overload the base hook with the callbacks logic which cause low
-readability of the code and increase complication level. Thanks to this we can easily organize our code.
+**`useSubmit`** executes a command when a `submit()` function returned from it gets triggered. It uses dependency
+tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is established by
+event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, etc.) are returned;
+these will help handle the request flow and lifecycle. This approach avoids overloading the base hook with callback logic.
+It also helps improve code readability, decreases code complication, and promotes more organized code.
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -88,15 +87,13 @@ const LoginPage: React.FC = () => {
 
 ## Passing data and params
 
-Passing of the data or parameters can take place in several ways. One of them is to use methods on the
-[`Command`](/docs/Architecture/Command) such as `setData` or `setParams`.
+Data and parameters can be passed in several ways. One option is to use methods on the [`Command`](/docs/Architecture/Command), such as `setData` or `setParams`.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
 ```
 
-However, we often encounter the need to pass parameters `dynamically`, in this case we can do it right in the submit
-function options.
+However, you may need to pass parameters dynamically, which requires using `submit` function options.
 
 ```tsx
 const { submit } = useSubmit(patchUser);
@@ -110,7 +107,7 @@ const handleSubmit = (id: number, name: string) => {
 
 ## Options
 
-Configuration options for this hook provided as a second parameter.
+These configuration options should be provided as a second parameter:
 
 ```tsx
 const { ... } = useSubmit(command, options)
@@ -122,7 +119,7 @@ const { ... } = useSubmit(command, options)
 
 ## Returns
 
-Returned values from this hook.
+Returned values from this hook:
 
 ```tsx
 const values = useSubmit(command);

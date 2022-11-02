@@ -11,9 +11,8 @@ sidebar_position: 6
 
 ## Introduction
 
-Thanks to this hook, we are able to manipulate the [`Cache`](/docs/Architecture/Managers) of the passed command and
-receive change callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation - to make sure
-we have the stable connection between hook's command and the cache.
+This hook allows us to manipulate the passed command’s [`Cache`](/docs/Architecture/Managers) and receive change callbacks.
+It is important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable connection between the hook's command and the cache.
 
 ```tsx
 const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUsers);

@@ -11,10 +11,10 @@ sidebar_position: 5
 
 ## Introduction
 
-This hook is created to **control the dispatcher queues**. It uses the [`Dispatcher`](/docs/Architecture/Dispatcher) to
-read the actual value of the queue `based on the queueKey` retrieved from command passed as first argument.
+This hook controls the **dispatcher queues**. It uses the [`Dispatcher`](/docs/Architecture/Dispatcher)  to
+read the actual value of the queue, which is based on the `queueKey` retrieved from the command passed as the first argument.
 
-The minimum requirement to use `useQueue` is to have a prepared [`Command`](/docs/Architecture/Command).
+A prepared [`Command`](/docs/Architecture/Command) is the minimum requirement for `useQueue`.
 
 ---
 
@@ -28,16 +28,16 @@ const { requests, stopped, stop, start, pause } = useQueue(getUsers);
 
 ## How it works?
 
-**`useQueue`** use the command to read the dispatcher queue value based on it's queueKey. It uses the events emitted by
-dispatcher to keep this hook up to date. It is giving you the possibilities to controll every single request made in
-your application, and possibilities to manipulate whole queues and single requests. It works the best with the
-`one-by-one` dispatching mode, when command `queued` option is set to true.
+**`useQueue`** uses the command to read the Dispatcher queue value based on its `queueKey`.
+Events emitted by the Dispatcher keep this hook up to date. This hook gives you the option to control every
+single request made in your application and manipulate whole queues and single requests.
+It works best with the `one-by-one` dispatching mode, when the `queued` option is set to true.
 
 :::caution
 
-Remember to make sure your command `queueKey` is static when you use this hook, because of the auto-generation of keys it
-may return wrong values if your command has the params or query params used. To avoid it, it is recommended to provide
-custom `queueKey` when command gets created.
+Remember to make sure your command `queueKey` is static when you use this hook.
+Because it auto-generates keys, it may return wrong values if your command uses params or query params.
+Providing a custom `queueKey` when the command is created will avoid this problem.
 
 :::
 
@@ -54,14 +54,14 @@ pause();
 start();
 ```
 
-Read more about differences between `stop`, `pause` and `start` at the [`Dispatcher`](/docs/Architecture/Dispatcher) doc
+Read more about differences between `stop`, `pause` and `start` in the [`Dispatcher`](/docs/Architecture/Dispatcher) doc
 page.
 
 ---
 
 ## Options
 
-Configuration options for this hook provided as a second parameter.
+Configuration options for this hook are provided as the second parameter.
 
 ```tsx
 const { ... } = useQueue(command, options)

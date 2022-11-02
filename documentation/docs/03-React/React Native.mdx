@@ -2,17 +2,16 @@
 sidebar_position: 2
 ---
 
-**`React Native`** is supported by our library as the `Hyper Fetch` was written to support as many environments as
-possible. Thanks to this, the structure of the base library is very generic and modular. This means that we can freely
-replace a large part of the components.
+**`React Native`** is also supported by `Hyper Fetch`. This library was designed to work with many environments,
+which is why we kept the structure of the base library very generic and modular.
+This means that we can freely replace many of the components.
 
 ---
 
 ## Online / Offline status handling
 
-Default events responsible for the online / offline status in the library are based on the events available in the web
-browsers environment. To use the solutions available on mobile devices, we can freely change the code responsible for
-handling the connection status.
+The default events that handle online/offline status in the library are based on the events available in the web browser environment.
+To use mobile device solutions, you can change the code responsible for handling the connection status.
 
 ```tsx
 export const builder = new Builder<ServerErrorType>({
@@ -32,8 +31,7 @@ export const builder = new Builder<ServerErrorType>({
 
 ## Application focus / blur state
 
-When you want to handle the functions needed to perform requests when the user is actively using the application or
-not - you can use similar logic as in the case of online / offline status
+You can use similar logic to that used for online/offline status handling to handle functions that perform requests during focus (active usage) and blur (inactive) states.
 
 ```tsx
 export const builder = new Builder<ServerErrorType>({
@@ -50,10 +48,9 @@ export const builder = new Builder<ServerErrorType>({
 
 ---
 
-## Particular screen focus / blur state
+##  Screen focus / blur state
 
-If we want to implement such logic for a specific screen, we have to use custom solutions where we can track the focus
-state of the screen and hook it into revalidation.
+To implement focus/blur logic for a specific screen, you must use custom solutions that track the focus state of the screen and hook it into revalidation.
 
 ```tsx
 import React from "react";
