@@ -6,7 +6,7 @@
     "preinstall": "cd ./plugins/docusaurus-docgen && yarn install && yarn link",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "prepare": "yarn link docusaurus-docgen",
+    "prepare": "yarn link 'docusaurus-docgen'",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",

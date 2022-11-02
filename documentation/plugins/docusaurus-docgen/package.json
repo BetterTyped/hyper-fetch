@@ -1,6 +1,6 @@
 {
   "name": "docusaurus-docgen",
-  "version": "0.9.0",
+  "version": "0.1.0",
   "author": "prc5",
   "license": "MIT",
   "description": "Docs generator",
@@ -28,7 +28,7 @@
   "scripts": {
     "start": "rollup -c -w",
     "build": "rollup -c",
-    "prepare": "install-peers",
+    "prepare": "install-peers && yarn build",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "test": "jest",
     "release": "yarn semantic-release"
