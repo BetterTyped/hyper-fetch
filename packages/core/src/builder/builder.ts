@@ -30,6 +30,7 @@ import { interceptRequest, interceptResponse } from "./builder.utils";
  * **Builder** is a class that allows you to configure the connection with the server and then use it to create
  * commands which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the command.
+ * @position 1
  */
 export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestConfigType = ClientDefaultOptionsType> {
   readonly baseUrl: string;

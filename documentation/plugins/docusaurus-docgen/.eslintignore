@@ -1,0 +1,11 @@
+dist
+node_modules
+jest.config.ts
+babel.config.js
+rollup.config.js
+jest.setup.ts
+tsconfig.json
+coverage
+temp
+commitlint.config.js
+*lib*

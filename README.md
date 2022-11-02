@@ -117,7 +117,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/core.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/core?color=E10098&logo=package" />
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/core?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -133,7 +133,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
           <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/react.svg?logo=npm"/>
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/react">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/min/@hyper-fetch/react?color=E10098&logo=package" />
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
@@ -164,7 +164,7 @@ export const getData = builder.createCommand<ResponseType, RequestType, LocalErr
 #### Triggering request
 
 ```tsx
-// Set the information to command (it returns command clone)
+// Set the information to command (methods return command clone - NOT mutating the source)
 const command = postData
   .setParams({ accountId: 104 }) // Set Params
   .setQueryParams({ paramOne: "test", paramTwo: "test2" })
@@ -183,7 +183,7 @@ const [data, error, status] = await command.send({
 
 ### React
 
-Use specially prepared hooks
+Use prepared hooks
 
 #### Fetch with lifecycle
 
