@@ -11,26 +11,27 @@ sidebar_position: 8
 
 ## Introduction
 
-**`FetchEffect`** is basically a set of reducers reacting to the request lifecycle. We can assign it to the builder and
-it's `effectKey` has to be the same as command's effect key so we can match it. It's strength lays in the possibilities
-of cooperation with the persistent queues. Imagine that we always want to trigger some logic when the request is
-successful, but we also use the persistent storages to save or ongoing requests. When our app gets relaunched there is
-no possibility to persist functions and logic - so the effect comes with the solution. We can assign it on builder
-creation so it will instantly match all the ongoing requests from previous sessions.
+**`FetchEffect`** is basically a set of reducers reacting to the request lifecycle. You can assign it to the Builder;
+its `effectKey` has to be the same as the command's effect key so you can match it.
+
+The strength of `FetchEffect` lies in cooperation options with persistent queues. Imagine that you always want to
+trigger some logic when the request is successful, but you must also use persistent storage to save ongoing requests.
+But when the app gets relaunched, there is no way to persist functions and logic.
+Here, the effect is the solution. We can assign it on Builder creation so that it will instantly match all ongoing requests from previous sessions.
 
 ---
 
 ## Purpose
 
-- `Persistence` of the request side-effects
-- `Lifecycle` manipulation and possibility to hook in
+- Persists request side-effects
+- Manipulates the lifecycle and allows hooking in
 
 ---
 
 ## EffectKey
 
-Key needed to match the Effect with the command where it's stored. It is automatically generated like other keys in the
-command, but we can set up custom values for easier usage and matching.
+A key needed to match the Effect with the command where it's stored. This is automatically generated (like other keys in the command),
+but you can set up custom values for easier usage and matching.
 
 ---
 

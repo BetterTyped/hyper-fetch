@@ -11,23 +11,22 @@ sidebar_position: 1
 
 ## Introduction
 
-**`Builder`** is a class that allows you to configure the connection to the server. It initializes the subsystems of the
-entire library - such as queues, caches, interceptors, and allows you to create, based on its settings, commands
-necessary to execute requests. In this way, the data and information flow remains locked inside a given builder - it is
-isolated and does not affect other builders.
+**`Builder`**  is a class that allows you to configure the server connection. It initializes the entire library’s subsystems,
+such as `queues`, `caches`, and `interceptors`. It also allows you to create (based on its settings) the commands necessary
+to execute requests. This way the data and information flow remains locked inside a given builder;
+it is isolated and does not affect other builders.
 
-It was designed to be used as a singleton, where the builder helps us create a global structure for making server
-requests, without duplicating logic in different parts of the application. In this approach, we can easily create a
-solid structure and architecture of our application, which additionally facilitates the maintenance of tests by dividing
-the necessary configurations and types.
+It was designed to be used as a singleton, where `Builder` helps us create a global structure for making server
+requests without duplicating logic in different parts of the application. In this approach, we can easily create a solid structure
+and architecture for an application. This also facilitates test maintenance by dividing the necessary configurations and types.
 
 ---
 
 ## Purpose
 
-- `Orchestration` of the components and flow of the library
-- `Creating commands` to provide global setups and environment
-- `Isolation` from other builders and their events
+- Orchestrates the components and flow of the library
+- Creates commands to provide global setup and environment
+- Isolates builders from other builders and their events
 
 ---
 
@@ -41,19 +40,13 @@ export const builder = new Builder({ baseUrl: "http://localhost:3000" });
 
 ---
 
-## Setup of defaults
+## Setting defaults
 
-Due to the fact that the components in hyper fetch are created inside the builder, we can set global or default values
-for our system on it.
+Because Hyper Fetch components are created inside Builder, you can set global or default system values on it.
 
 #### Command default setup
 
-We can use the `setCommandConfig` method to specify the defaults for every created command
-
-#### Client request options default setup
-
-We can use the `setRequestConfig` method to specify the defaults for every request. This method is based on the builder
-typescript generic which allow you to pass any options you need for your client.
+We can use the `setCommandConfig` method to specify the defaults for every created command.
 
 ---
 
@@ -61,34 +54,30 @@ typescript generic which allow you to pass any options you need for your client.
 
 ### Authentication
 
-When we want to send authenticated request we have to setup the `onAuth` interceptor and setup the command with the
-`auth` option set to true.
+To send authenticated requests, set up the `onAuth` interceptor. Set up the command with the `auth` option set to **true**. Read more about authentication here.
 
 [Read More](/guides/Basic/Authentication)
 
 ### Pre-Request Interceptor
 
-When you need to use the pre-request interceptor to modify the command before it gets sent, you can use the `onRequest`
-builder method.
+Use the `onRequest` builder method if you need to use the pre-request interceptor to modify the command before it’s sent.
 
 ### Post-Request Interceptors
 
-There are several possibilities to intercept the response from command. You can do it with methods:
+There are several methods for intercepting a response from a command:
 
-- `onError` which is triggered on request error response
-- `onSuccess` which is triggered on request success response
-- `onResponse` which is triggered on any response
+- `onError` which is triggered on request error response.
+- `onSuccess` which is triggered on request success response.
+- `onResponse` which is triggered on any response.
 
 ### Query Params
 
-Builder has the built in query params encoding function, you can modify it's options as you want or provide your own
-function.
-
-You can change it's setup with `setQueryParamsConfig` method and options listed bellow.
+Builder has a built-in query params encoding function; you can modify its options or provide your own function.
+Use the `setQueryParamsConfig` method and the options listed below.
 
 {@import Hyper-Fetch QueryStringifyOptions returns}
 
-To change the encoding function you can use `setStringifyQueryParams` method.
+To change the encoding function, use the `setStringifyQueryParams` method.
 
 ```tsx
 builder.setStringifyQueryParams((value: string) => encode(value));
@@ -96,15 +85,15 @@ builder.setStringifyQueryParams((value: string) => encode(value));
 
 ### Header Mapper
 
-By default header mapper behaves very simple. It checks for the content to be FormData or json, and provide correct
-headers to the request. You can do much advanced setups with the `setHeaderMapper` that allows you to define custom
-logic that will be triggered before every request made in the builder.
+By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
+headers to the request. You can create much more advanced setups with the `setHeaderMapper`.
+It allows you to define custom logic that will be triggered before every request made in the builder.
 
 ### Payload Mapper
 
-It's main default responsibility is to check if data is instance of FormData or not. Based on this details, we can
-stringify non-FormData values or just pass the FormData to the request to be made. This way file upload is supported out
-of the box.
+The payload mapper’s default responsibility is to check if data is an instance of FormData or not.
+Based on this, you can stringify non-FormData values or just pass the FormData to the request to be made.
+This allows file upload to be supported out of the box.
 
 ---
 
@@ -116,11 +105,10 @@ Builder has two generic types.
 class Builder<GlobalErrorType, RequestConfigType>
 ```
 
-- `GlobalErrorType` defines the error type used in all of the commands it should consist of `Error` type and your
-  default `ServerErrorType`. For the individual error types needed in some commands you can setup the `LocalErrorType`
-  for each individual command.
+- `GlobalErrorType` defines the error type used in all the commands. It should consist of an `Error` type and your
+  default `ServerErrorType`. For some command’s individual error types, you can set up a `LocalErrorType` for each command.
 
-- `RequestConfigType` is the generic responsible for shaping the options passed to the client. Most likely you will
+- `RequestConfigType` is the generic responsible for shaping options passed to the client. Most likely you will
   change it only when you provide your custom client.
 
 ---
@@ -129,37 +117,37 @@ class Builder<GlobalErrorType, RequestConfigType>
 
 ### [Cache](/api/Hyper-Fetch/Class/Cache)
 
-Handles data storages and persistence. Can be adjusted with options when initializing builder.
+Handles data storages and persistence. Can be adjusted with options when initializing `Builder`.
 
 ---
 
 ### [Client](/api/Hyper-Fetch/Function/fetchClient)
 
-Handles all requests within builder. Can be replaced with `setClient` method.
+Handles all requests within `Builder`. Can be replaced with `setClient` method.
 
 ---
 
 ### [SubmitDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
-Handles the mutation requests and queueing. Can be adjusted with options when initializing builder.
+Handles the mutation requests and queueing. Can be adjusted with options when initializing the builder.
 
 ---
 
 ### [FetchDispatcher](/api/Hyper-Fetch/Class/Dispatcher)
 
-Handles the fetching requests and queueing. Can be adjusted with options when initializing builder.
+Handles the fetching requests and queueing. Can be adjusted with options when initializing the builder.
 
 ---
 
 ### [AppManager](/api/Hyper-Fetch/Class/AppManager)
 
-Handles the app focus and online state. Can be adjusted with options when initializing builder.
+Handles the app focus and online state. Can be adjusted with options when initializing the builder.
 
 ---
 
 ### [CommandManager](/api/Hyper-Fetch/Class/CommandManager)
 
-Handles additional events and cancellation of requests. Can be adjusted with options when initializing builder.
+Handles additional events and cancellation of requests. Can be adjusted with options when initializing the builder.
 
 ---
 

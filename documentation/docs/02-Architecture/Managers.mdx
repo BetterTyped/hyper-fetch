@@ -15,15 +15,15 @@ The library contains several managers, they are mainly used to support smaller s
 
 <br />
 
-This class is responsible for the state of our application in terms of `online` or `offline` status and whether the
-application window is `focused` or `blurred`.
+This class is responsible for the application’s `online` or `offline` state and whether the application window is `focused` or `blurred`.
 
-For example, if we want to use hyper-fetch in a `react native environment`, our default web browser events won't work,
-we need to set the ones that are most optimal for the current environment.
+For example, suppose you want to use Hyper Fetch in a React Native environment and the default web browser events won't work.
+In that case, you need to set the events that are most optimal for the current environment.
+
 
 :::info
 
-Events listeners in the Hyper Fetch returns the unmounting callback for easier cleanup handling.
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
 
 :::
 
@@ -55,9 +55,12 @@ unmountOfflineListener()
 The `CommandManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
 events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
 
+The `CommandManager` holds the cancellation tokens needed to terminate requests.
+It also manages tokens for events related to the request lifecycle, i.e. request `start`, `upload`, `download`, `response`, and `abort`.
+
 :::info
 
-Events listeners in the Hyper Fetch returns the unmounting callback for easier cleanup handling.
+Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
 
 :::
 
@@ -74,10 +77,10 @@ unmountDownloadListener()
 
 ### AbortKey
 
-Every requests which gets added to the dispatcher creates the abort controller for itself that's placed in Map object
-and it's stored there under abort key and requestId in it. This way we can abort whole groups of requests by abortKey or
-single requests by their requestId. By default it is automatically created on command out of it's endpoint and method,
-but we an set the custom value for easier usage.
+Every request added to the dispatcher creates an abort controller for itself. This controller is stored in the
+Map object under abort key with the `requestId`. This lets you abort whole groups of requests using `abortKey` or
+single requests using their `requestId`. By default, `abortKey` is automatically created on command out of
+its endpoint and method, but you can set custom values.
 
 ### Events
 
@@ -100,8 +103,8 @@ builder.commandManager.events.onResponse((response, details) => {
 
 <br />
 
-LoggerManager is the main instance of the logging system in hyper-fetch. On its basis, we initiate single loggers in
-subsystems that are used in isolation, but still have access to the parent configuration in the builder.
+LoggerManager is the main instance of the Hyper Fetch logging system. You can initiate single loggers based on it in subsystems;
+this allows you to isolate these loggers but still give them access to the parent configuration in the Builder.
 
 ```ts
 const logger = builder.loggerManager.init("My Module")
