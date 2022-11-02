@@ -15,9 +15,9 @@ This hook is created to **retrieve data** from the server. It uses the
 [`Fetch Dispatcher`](/docs/Architecture/Dispatcher) to handle requests and the [`Cache`](/docs/Architecture/Cache) to
 manage the overall state of the data.
 
-The minimum requirement to use `useFetch` is to have a prepared [`Command`](/docs/Architecture/Command).
+A prepared Command is the minimum requirement for useFetch.
 
-If you intend to `mutate` data stored on the server, we recommend [`useSubmit`](/docs/React/useSubmit) hook.
+If you intend to `mutate` data stored on the server, we recommend choosing the [`useSubmit`](/docs/React/useSubmit) hook.
 
 ---
 
@@ -31,12 +31,14 @@ const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUse
 
 ## How it works?
 
-**`useFetch`** executes the command when a component is mounted or when its dependencies array change. It uses
-dependency tracking to limit re-rendering and help with the performance. Under the hood the communication with the core
-systems is established by the events emitters. There are many helpful `"helper hooks"` that get returned from the hook
-like `onSuccess`, `onError`, `onFinished` and many more to help you handle interesting events in the request flow and
-lifecycle. We used this approach to not overload the base hook with the callbacks logic which cause low readability of
-the code and increase complication level. Thanks to this we can easily organize our code.
+**`useFetch`** executes a command when a component is mounted or when its dependencies array changes.
+It uses dependency tracking to limit re-rendering and help with performance.
+
+Under the hood, communication with the core systems is established by event emitters. There are many `"helper hooks"`
+that get returned from the hook, like `onSuccess`, `onError`, and `onFinished` (among others).
+They will help you handle various events in the request flow and lifecycle.
+
+We used this approach to avoid overloading the base hook with callback logic, which causes low code readability and increases complexity.
 
 ```tsx
 import { useFetch } from "@hyper-fetch/react";
@@ -79,7 +81,7 @@ const UsersListPage: React.FC = () => {
 
 ## Options
 
-Configuration options for this hook provided as a second parameter.
+Configuration options for `useFetch` must be provided as the second parameter.
 
 ```tsx
 const { ... } = useFetch(command, options)

@@ -2,15 +2,15 @@
 sidebar_position: 0
 ---
 
-We try to provide the deepest possible knowledge about the architecture of our library to encourage you to write any
-adapters, plugins and additions to our library.
+We try to provide the deepest possible knowledge about the architecture of our library; feel free to write any adapters, plugins, or additions.
 
 ---
 
 ## Full Flow
 
-The flow of the request through the Hyper Fetch system is presented below. We show there the steps shown from the moment
-of adding a command to the dispatcher to passing data to the component.
+The flow of a request through the Hyper Fetch system is presented below.
+The steps from the moment of adding a command to the dispatcher to passing data to the component are included.
+
 
 ```mermaid
 flowchart TD;
@@ -55,7 +55,7 @@ flowchart TD;
 
 ## Cache
 
-Cache keeps data saved under `cacheKey` values which allow us to easily use it.
+The cache saves data under `cacheKey` values, which allows us to easily use it.
 
 ```mermaid
 graph TD
@@ -68,7 +68,7 @@ graph TD
 
 #### Response event flow
 
-Below diagram shows how mutation is propagated in our system.
+The diagram below shows how mutation is propagated in our system.
 
 ```mermaid
 graph TD

@@ -1,44 +1,48 @@
+---
+sidebar_position: 2
+---
+
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
-The biggest difference of **`Hyper Fetch`** compared to other libraries is the architecture and assumptions on which it
-is built. It is a tool whose core features are written in js without dependencies, thanks to which it can work in many
-environments without a specific connection to a given framework, offering full control over the flow and observation of
-data exchange, it is not just a wrapper. The main goal was to introduce a data storage standard, offer an embedded http
-client, reduce setup time and solve major architectural difficulties.
+The biggest difference between **`Hyper Fetch`** and other libraries is the opinionated architecture and assumptions on which it is built.
+Hyper Fetch’s core features are written in TS **without dependencies**; because of this, it can work in many environments without a specific connection to a given framework.
+
+Hyper Fetch is not just a wrapper; it offers full control over the flow and observation of data exchange.
+Our main goals were to introduce:
+- a data storage standard,
+- offer an embedded HTTP client,
+- reduce setup times,
+- solve major architectural difficulties.
+
 
 :::info
 
-Producing an accurate and unbiased comparison is quite a challenge. Libraries develop very dynamically and quickly, so
-if you notice that our data may be corrected while using these libraries please let us know by opening an issue.
+Producing an accurate and unbiased comparison is quite a challenge.
+Libraries develop quickly, so if you notice that our data needs to be corrected, please let us know by opening an issue.
 
 :::
 
 ---
 
-## Why it's Unique
+## Why Hyper Fetch Is Unique
 
-- Easy Upload / Download progress / ETA tracking
-- Requests queueing and many [dispatching strategies](/docs/Architecture/Dispatcher#dispatching-modes)!
-- [Command](/docs/Architecture/Command) / [Builder](/docs/Architecture/Builder) pattern gives you amazing control over
-  requests at any given time
-- Architecture prepared for code sharing which gives possibilities for
-  [testers to hook into development setup and types](/docs/Getting%20Started/Testing)
-- Flat side-effects [helper hooks annotation](/docs/React/Overview#helper-hooks) and focus on readable code
-- [Recipes for structure](/docs/Getting%20Started/Development#structure) for large scale applications which dramatically
-  limits the maintenance costs
-- Well tested and prepared from years of research and experimenting
-- [Offline](/guides/Advanced/Offline) / [Persistence](/guides/Advanced/Persistence) as core features, which gives you
-  full control over your data!
+- Easy upload/download progress and ETA tracking
+- Supports request queueing and many [dispatching strategies](/docs/Architecture/Dispatcher#dispatching-modes)!
+- [Command](/docs/Architecture/Command) / [Builder](/docs/Architecture/Builder) pattern gives you amazing control over requests at any time
+- Code-sharing architecture lets [testers to hook into development setup and types](/docs/Getting%20Started/Testing)
+- Features flat side-effects [helper hooks annotation](/docs/React/Overview#helper-hooks) and promotes readable code
+- Provides structure [recipes](/docs/Getting%20Started/Development#structure) for large scale applications that significantly limit maintenance costs.
+- Core features include [offline](/guides/Advanced/Offline) and [persistence](/guides/Advanced/Persistence) support, giving you full control over your data
 
 ---
 
 ## Features
 
-<div>✅ - Documented Support</div>
-<div>🔵 - Require Additional Plugin/Coding</div>
-<div>🟠 - Partial Support</div>
-<div>🔴 - Not Supported / Not Documented</div>
+<div>✅ - Documented support</div>
+<div>🔵 - Require additional Plugin/Coding</div>
+<div>🟠 - Partial support</div>
+<div>🔴 - Not supported / Not documented</div>
 
 <br />
 <br />
@@ -515,7 +519,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Query Lifecycle Events{" "}
-          <Tippy content="Receive every lifecycle response from any requests. Request start, progress, response start, success, error, finished.">
+          <Tippy content="Receive every lifecycle response for any request. Request start, progress, response start, success, error, finished.">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -527,7 +531,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Data Flow Standard{" "}
-          <Tippy content="Having a standard for data exchange and for easy reading/dumping">
+          <Tippy content="Having standardized format for data exchange and for easy reading/dumping">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -539,7 +543,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Request Start/Stop{" "}
-          <Tippy content="Possibility to control particular request in queue.">
+          <Tippy content="Possibility to control particular request in a queue.">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -551,7 +555,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Request Queue Start/Stop/Pause{" "}
-          <Tippy content="Possibility to control all requests in queue.">
+          <Tippy content="Possibility to control all queued requests.">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -587,7 +591,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           File Uploading{" "}
-          <Tippy content="File upload with built in client">
+          <Tippy content="File upload with built-in client">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -599,7 +603,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Global Response Side-Effects{" "}
-          <Tippy content="We can hook global listeners for particular request to listen and trigger side effects while it's being send">
+          <Tippy content="We can hook global listeners on a particular request to listen and trigger side effects while it's being send">
             <span>ℹ️</span>
           </Tippy>
         </td>
@@ -635,7 +639,7 @@ if you notice that our data may be corrected while using these libraries please 
       <tr>
         <td>
           Requests Manager{" "}
-          <Tippy content="Possibility to show requests being uploaded in whole system. Working like uploading managers, but much more advanced.">
+          <Tippy content="Possibility to show requests being uploaded throughout the whole system. Works like uploading managers, but much more advanced.">
             <span>ℹ️</span>
           </Tippy>
         </td>

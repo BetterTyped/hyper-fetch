@@ -11,28 +11,29 @@ sidebar_position: 4
 
 ## Introduction
 
-**`Cache`** is responsible for storing response data from the requests. It uses an event system that successively
-transmits data and takes care of validation in the system. Data is stored under `cacheKey` in the storage which by
-default is a Map object, but can be replaced to any other compatible interface.
+**`Cache`** stores response data from requests. It uses an event system that successively transmits data and
+takes care of validation in the system. Data is stored under `cacheKey` in the storage (which by default is a Map object,
+but can be replaced by any other compatible interface).
 
 ---
 
 ## Purpose
 
-- `Storing` requests results
-- `Managing` stored data
-- `Emitting` storage events
+- Stores request results
+- Manages stored data
+- Emits storage events
 
 ---
 
 ## CacheKey
 
-The cache stores data on a `key-value` basis. The key is always specified inside the Command as `cacheKey`, and it
-determines where the data is stored and it's used for propagation of the data handling events. The cacheKey value is
-automatically determined by default based on parameters such as the method, endpoint and query params of the given
-command, but there is nothing to prevent you from adding the key manually when setting the Command or using one of its
-methods. Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the
-data - everything will happen automatically.
+The cache stores data on a `key-value` basis. The key is always specified inside the command as `cacheKey`; it
+determines where the data is stored and is used in propagation of data handling events.
+
+By default, the cacheKey value is auto-determined based on the **method**, **endpoint**, and **query params** of the given command.
+However, there is nothing to prevent you manually adding the key when setting the command or using one of its methods.
+
+Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the data – everything will happen automatically.
 
 ---
 
@@ -44,13 +45,12 @@ Available cache events.
 
 ---
 
-## Storages
+## Storage
 
-By default, the cache uses Map as a data retention location. However, it is possible to replace the place where the data
-is stored in the system. We can use local storage, indexeddb - no matter if the source works synchronously or
-asynchronously.
+By default, the cache uses Map as a data retention location. However, you can also choose where the data
+is stored in the system – i.e. local storage or IndexedDB – regardless if the source works synchronously or asynchronously.
+This allows you to set up persistent storage across sessions.
 
-This way we can setup the `Persistent` storage that will last between sessions.
 
 ```tsx
 export const builder = new Builder<ServerErrorType>({
@@ -66,15 +66,14 @@ export const builder = new Builder<ServerErrorType>({
 
 ## Persistence
 
-We can achieve the persistence of the stored data by changing the cache storage to persistent one. It needs to match the
-provided interface.
+We can achieve the persistence of stored data by changing the cache storage to persistent. It must match the provided interface.
 
 #### [Read More](/guides/Advanced/Persistence)
 
 :::info
 
-Currently there is no cross tabs synchronization. It's planned for next releases when we will have more insights from
-our internal testing.
+Currently there is no cross-tab synchronization. It's planned for a future release.
+
 
 :::
 

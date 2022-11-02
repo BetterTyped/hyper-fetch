@@ -28,7 +28,7 @@ export type UseCommandEventsPropsType<T extends CommandInstance> = {
 
 export type UseCommandEventsActionsType<T extends CommandInstance> = {
   /**
-   * Callback which allows to cancel ongoing requests from given queueKey.
+   * Callback that allows canceling ongoing requests from the given queueKey.
    */
   abort: () => void;
   /**

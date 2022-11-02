@@ -11,37 +11,33 @@ sidebar_position: 2
 
 ## Introduction
 
-**`Command`** is a class that creates a template for request and all necessary information needed for it to be made.
-It's strength lays in it's strict and predictable data structure. Thanks to which we can dump it, save it to some
-storage as a json and recreate it later from it. This approach allows you to develop a full persistence flow - we can
-easily persist command dumps between sessions.
+**`Command`** is a class that creates a template for requests and all the necessary information needed for their creation.
+Its strength is its strict and predictable data structure. This lets us dump data, save it to storage as a JSON, and recreate it later.
+This approach allows you to develop a full persistence flow; you can easily persist command dumps between sessions.
 
-The command contains mass about its behavior in the queues or cache, data on the server, and information necessary to
-execute a valid request. In combination with typescript we get a very friendly flow, resistant to mistakes.
+`Command` contains information about its behavior in the queues or cache, data on the server, and information necessary
+to execute a valid request. In combination with TypeScript, this results in a very friendly flow that’s resistant to mistakes.
 
-We can trigger the request with the `send` method, which add request to the queue and returns the response.
+You can trigger a request with the `send` method, which adds a request to the queue and returns the response.
 
 ---
 
 ## Purpose
 
-- `Configuration` of requests templates
-- `Standardization` of the data schema in system
-- `Sending` requests by using dispatchers
+- Configures request templates
+- Standardizes the system’s data schema
+- Sends requests via dispatchers
 
 ---
 
 ## Initialization
 
-The command should be initialized from the builder instance, this way we pass a shared reference to the place that
-manages communication in the application.
+Command should be initialized from the Builder instance. This passes a shared reference to the place that manages communication in the application.
 
 :::caution
 
-We are using currying in `createCommand` method to achieve auto generated types for the endpoint string. This solution
-will be removed once
-[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
-resolved.
+Hyper Fetch currently uses currying in the `createCommand` method to achieve auto-generated types for the endpoint string.
+This solution will be changed once [this TypeScript issue](https://github.com/microsoft/TypeScript/issues/10571) is resolved.
 
 :::
 
@@ -80,9 +76,9 @@ export const deleteUser = builder.createCommand<null>()({
 
 ### Initialize
 
-The process begins with command initialization. At this point, we have the option of an extensive configuration of how
-our request will behave, but most of it is optional. It is also possible to prepare a global configuration in the
-builder and avoid copying the setup between commands.
+The process begins with command initialization. At this point, you can configure how the request will behave,
+but most of the configurations are optional. You can also prepare a global configuration in the Builder
+and avoid copying the setup between commands.
 
 ```tsx
 const postUser = builder.createCommand<null>()({
@@ -106,7 +102,7 @@ const postUser = builder.createCommand<null>()({
 
 ### Request Data
 
-You can set any data to be sent to the server by using the `setData` method.
+Use the `setData` method to instruct any data to be sent to the server.
 
 ```tsx
 // Regular data
@@ -120,7 +116,7 @@ postFile.setData(data)
 
 ### Parameters
 
-Parameters has to be defined in the endpoint of the command by stating it with `:`.
+Parameters must be defined in command endpoint using `:`
 
 ```tsx
 const getNote = builder.createCommand()({
@@ -134,9 +130,8 @@ const getCategoryNote = builder.createCommand()({
 })
 ```
 
-When we have properly prepared commands that expect parameters, we can add them using the `setParams` method.
-Additionally by generic typescript, these parameters will match the endpoint ones by using literal types and require
-them.
+When you have properly prepared commands that expect parameters, you can add parameters using the `setParams` method.
+In generic TypeScript, these parameters will match the endpoint parameters by using literal types and will require literal types.
 
 ```tsx
 getNote.setParams({ noteId: 1 });
@@ -146,9 +141,9 @@ getCategoryNote.setParams({ categoryId: 2, noteId: 1 });
 
 ### Query parameters
 
-You can set query params by using the `setQueryParams` method. With typescript you can set it up to be accepted as
-strings, objects or strict interface. The encoding type for arrays and other options is possible to be setup on the
-builder. You can also provide your own encoding logic.
+You can set query params with the `setQueryParams` method. With TypeScript, you can set it up to be accepted as
+strings, objects, or a strict interface. The encoding type for arrays and other options can be set up in the Builder.
+You can also provide your own encoding logic.
 
 ```tsx
 getUsers.setQueryParams({ search: "John", sort: "age" });
@@ -193,9 +188,9 @@ You can read more in the API reference and guides.
 
 ## Methods
 
-Using methods on a command is different from the other classes in Hyper Fetch. This is to ensure isolation between
-different uses - not to overwrite previously prepared commands with each other and to dynamically generate keys for
-queues or cache.
+Using methods on a command is different from other classes in Hyper Fetch. This is to ensure isolation between
+different uses, which allows you to avoid overwriting previously-prepared commands and to dynamically
+generate keys for queues or the cache.
 
 :::danger
 
@@ -227,16 +222,16 @@ commandWithParams.send(); // Success
 
 ## Keys
 
-Each command gets its identifiers - `queueKey`, `cacheKey`, `abortKey` and `effectKey`. They are needed to determine
-under which key items will be cached, queued, canceled or handled by [Effects](/docs/Architecture/Effect). By default
-keys are auto-generated based on the current values of parameters, endpoint, method, but you can overwrite those values
-with the proper method.
+Each command gets its identifiers – `queueKey`, `cacheKey`, `abortKey`, and `effectKey`. They are needed to determine
+under which key items will be cached, queued, canceled or handled by [Effects](/docs/Architecture/Effect). By default,
+keys are auto-generated based on the current parameters and endpoint and method values.
+However, you can overwrite these values with other methods as needed.
 
 ---
 
 ## Typescript
 
-Builder has four generic types built in. This includes `Response`, `Payload`, `Local Error Response`, `Query Params`.
+Builder has four generic types built in: `Response`, `Payload`, `Local Error Response`, and `QueryParams`.
 
 ```tsx
 type Response = { name: string }; // What's returned from request

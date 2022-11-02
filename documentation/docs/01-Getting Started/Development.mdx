@@ -1,19 +1,17 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 ## Structure
 
-1. Structure is one of the most important things, so we're going to bring this topic closer and present how we approach
-   it. First of all, we create a directory to keep there our builder and commands from which we export the prepared
-   elements.
+1. Structure is critically important, so we'll explain how we approach it in HyperFetch.
+First of all, we create a directory for our `builder` and its `commands`. We export the prepared elements from this directory.
 
-2. The next step is to create a directory for each entity in our system (i.e. users, todos, categories, products, groups
-   ...) and store there our commands.
+2. Next, we create a directory for each entity in our system (i.e. users, todos, categories, products, groups ...) and store our commands.
 
-3. During such setup, we maintain maximum re-usability - thanks to the class approach we have access to them from any
-   place. We can reuse the previously prepared commands in any component, also tests have full access to it without the
-   need of setup duplication - they use the currently used settings.
+3. During this setup, we maintain maximum re-usability; thanks to the usage of classes and object-oriented approach,
+we can access these elements from anywhere. We can reuse our previously-prepared commands in any component.
+Also, tests have full access without any setup duplication – they use the current settings.
 
 ```
 src
@@ -36,16 +34,15 @@ src
 
 ## Debugging
 
-Application debugging is possible in few ways.
+You can debug apps in one of two ways:
 
-** 1. Use built-in Logger **
+** 1. Use the built-in logger **
 
-We can use the builder `setDebug(true)` method for this. It will start logging the action in the console. To adjust what
-type of logs will be shown, you can use the `setLoggerSeverity(3)` to get debug logs displayed in the console. Those
-will show you exact data and information flow in the library while working on your application.
+Use the builder `setDebug(true)` method for this. It will start logging actions in the console.
+To adjust what type of logs will be shown, use `setLoggerSeverity(3)` to get debug logs displayed in the console.
+Those will show you the exact data and information flow in the library while working on your application.
 
-** 1. Create own logger **
+** 2. Create your own logger **
 
-You can create your own dev tools based on events sent from the
-[commandManager](/docs/Architecture/Managers#commandmanager). There is no limitation and you can receive all necessary
-data to create everything you may need.
+You can create your own dev tools based on events sent from the [commandManager](/docs/Architecture/Managers#commandmanager).
+There is no limitation, and you can receive all necessary data to create everything you may need.
