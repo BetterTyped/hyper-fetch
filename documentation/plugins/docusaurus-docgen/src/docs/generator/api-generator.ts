@@ -2,8 +2,8 @@ import * as path from "path";
 import { JSONOutput } from "typedoc";
 
 import { trace, error } from "../../utils/log.utils";
-import { createFile, getKindName } from "../../utils/file.utils";
-import { pageGenerator } from "./page-generator";
+import { createFile, getKindName } from "./utils/file.utils";
+import { pageRenderer } from "../renderer/renderer";
 import { PackageOptions, PluginOptions } from "../../types/package.types";
 
 const docsExtension = ".md";
@@ -34,7 +34,7 @@ export const apiGenerator = ({
       return trace(`Module ${kind} not parsed. Missing type specification.`);
     }
 
-    const data = pageGenerator({
+    const data = pageRenderer({
       reflection,
       reflectionsTree: parsedApiJsons,
       pluginOptions,

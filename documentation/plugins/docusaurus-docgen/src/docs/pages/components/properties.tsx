@@ -1,7 +1,7 @@
 import React from "react";
 
 import { PagePropsType } from "types/page.types";
-import { getProperties } from "../utils/parsing.utils";
+import { getProperties } from "../utils/properties.utils";
 import { Property } from "./property";
 
 export const Properties: React.FC<PagePropsType> = (props) => {

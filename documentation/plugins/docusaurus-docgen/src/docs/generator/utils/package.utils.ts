@@ -2,8 +2,8 @@
 /* eslint-disable import/no-dynamic-require */
 import * as path from "path";
 
-import { docsJsonPath, packageConfigPath } from "../constants/paths.constants";
-import { PackageOptions, PkgMeta } from "../types/package.types";
+import { docsJsonPath, packageConfigPath } from "../../../constants/paths.constants";
+import { PackageOptions, PkgMeta } from "../../../types/package.types";
 import { cleanFileName } from "./file.utils";
 
 export const getPackageJson = (dir: string, name: string): undefined | Record<string, unknown> => {

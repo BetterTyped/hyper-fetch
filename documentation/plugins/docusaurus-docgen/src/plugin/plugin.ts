@@ -5,7 +5,7 @@ import * as path from "path";
 import mermaid from "mdx-mermaid";
 import admonitions from "remark-admonitions";
 
-import { copyLibFiles, prepareApiDirectory } from "../utils/file.utils";
+import { copyLibFiles, prepareApiDirectory } from "../docs/generator/utils/file.utils";
 import { PluginOptions } from "../types/package.types";
 import { trace, info, warning } from "../utils/log.utils";
 import { libraryDir } from "../constants/paths.constants";

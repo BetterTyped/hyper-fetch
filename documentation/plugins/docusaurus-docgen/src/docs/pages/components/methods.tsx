@@ -1,7 +1,7 @@
 import React from "react";
 
 import { PagePropsType } from "types/page.types";
-import { getMethods } from "../utils/parsing.utils";
+import { getMethods } from "../utils/methods.utils";
 import { Method } from "./method";
 
 export const Methods: React.FC<PagePropsType> = (props) => {

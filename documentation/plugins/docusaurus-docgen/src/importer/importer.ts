@@ -17,9 +17,9 @@ import {
 } from "../constants/paths.constants";
 import { getMatchingElement } from "./utils/docs.utils";
 import { getComponent } from "./components/component-map.utils";
-import { cleanFileName } from "../utils/file.utils";
-import { renderer } from "../docs/generator/renderer";
-import { getPackageDocsPath } from "../utils/package.utils";
+import { cleanFileName } from "../docs/generator/utils/file.utils";
+import { renderer } from "../docs/renderer/renderer";
+import { getPackageDocsPath } from "../docs/generator/utils/package.utils";
 
 export const docsImporter = () => {
   return (tree: any, file: any) => {

@@ -16,6 +16,9 @@ export const getStatusIcon = (reflection: JSONOutput.DeclarationReflection) => {
   if (tags.includes("@experimental")) {
     return "🧪 ";
   }
+  if (tags.includes("@deprecated")) {
+    return "⛔️ ";
+  }
 
   return ``;
 };

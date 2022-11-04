@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 import { parse } from "node-html-parser";
 
-import { noParsingClass } from "../docs/pages/components/non-parsing";
+import { noParsingClass } from "../../pages/components/non-parsing";
 
 /**
  * Processing

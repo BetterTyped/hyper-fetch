@@ -4,15 +4,15 @@
 import * as path from "path";
 
 import { libraryDir, pathsOptionsPath, pluginOptionsPath } from "../constants/paths.constants";
-import { asyncForEach } from "../utils/loop.utils";
+import { asyncForEach } from "./generator/utils/loop.utils";
 import { PluginOptions } from "../types/package.types";
 import { success, trace } from "../utils/log.utils";
-import { cleanFileName, createFile } from "../utils/file.utils";
+import { cleanFileName, createFile } from "./generator/utils/file.utils";
 import { generateMonorepoPage } from "./pages/presentation/monorepo.page";
 import { generatePackagePage } from "./pages/presentation/package.page";
 import { parseTypescriptToJson } from "./parser/parser";
 import { apiGenerator } from "./generator/api-generator";
-import { getPackageOptions } from "../utils/package.utils";
+import { getPackageOptions } from "./generator/utils/package.utils";
 
 export const buildDocs = async (
   docsGenerationDir: string,

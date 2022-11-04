@@ -1,53 +1,14 @@
 import { JSONOutput, ReflectionKind } from "typedoc";
 
-import { getReference, getSignature } from "./parsing.utils";
+import { objectToString, parens } from "./display.utils";
+import { getReference } from "./reference.utils";
+import { getSignature, getSignatureType } from "./signature.utils";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-type StringType = string | Record<string, string | StringType>;
+export type StringType = string | Record<string, string | StringType>;
 
-function parens(element: string, needsParens?: boolean) {
-  if (!needsParens) {
-    return element;
-  }
-
-  return `(${element})`;
-}
-
-const getSignatureType = (
-  reflection: JSONOutput.SignatureReflection,
-  reflectionsTree: JSONOutput.ProjectReflection[],
-  { useArrow }: { useArrow?: boolean },
-) => {
-  const params =
-    reflection.parameters?.map((param) => {
-      const paramName = param.name;
-      const rest = param.flags?.isRest ? "..." : "";
-      const optional = param.flags?.isOptional ? "?" : "";
-
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return `${rest}${paramName}${optional}: ${objectToString(
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        getType(param.type, reflectionsTree, {
-          deepScan: false,
-        }),
-        2,
-      )}`;
-    }) || [];
-
-  const sign = useArrow ? " => " : ": ";
-
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return `(${params.join(", ")})${sign}${objectToString(
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    getType(reflection.type, reflectionsTree, {
-      deepScan: false,
-    }),
-    2,
-  )}`;
-};
-
-const getTypeValue = (
+export const getTypeValue = (
   reflection: JSONOutput.DeclarationReflection,
 ): JSONOutput.DeclarationReflection => {
   const signature = getSignature(reflection);
@@ -64,35 +25,12 @@ const getTypeValue = (
   return reflection;
 };
 
-const objectToString = (value: Record<string, StringType> | string, level = 0) => {
-  if (typeof value === "string") return value;
-  const addIndent = (spaces: number) => {
-    let strOutput = "";
-    for (let i = 0; i < spaces; i += 1) {
-      strOutput += "  ";
-    }
-    return strOutput;
-  };
-  let strOutput = "";
-
-  Object.keys(value).forEach((key) => {
-    if (typeof value[key] === "object") {
-      strOutput += `${addIndent(level + 1) + key}: `;
-      strOutput += `${objectToString(value[key], level + 2)};\n`;
-    } else {
-      strOutput += `${addIndent(level + 1) + key}: ${value[key]};\n`;
-    }
-  });
-
-  return `{\n${strOutput}${addIndent(level - 1)}}`.replace(/"/g, "");
-};
-
 export const getType = (
   reflection: JSONOutput.DeclarationReflection | JSONOutput.SomeType | undefined,
   reflectionsTree: JSONOutput.ProjectReflection[],
-  options?: { needsParens?: boolean; deepScan?: boolean },
+  options?: { needsParens?: boolean; deepScan?: boolean; level?: number },
 ): StringType => {
-  const { needsParens = false, deepScan = false } = options || {};
+  const { needsParens = false, deepScan = false, level = 0 } = options || {};
   if (!reflection) {
     return "";
   }
@@ -106,7 +44,7 @@ export const getType = (
         return `${value}[]`;
       }
 
-      return `${objectToString(value, 2)}[]`;
+      return `${objectToString(value, level + 1)}[]`;
     }
 
     case "conditional": {
@@ -118,22 +56,19 @@ export const getType = (
       });
       const extendsType = getType(type.extendsType, reflectionsTree, {
         needsParens: true,
-        deepScan: false,
       });
       const trueType = getType(type.trueType, reflectionsTree, {
         needsParens: true,
-        deepScan,
       });
       const falseType = getType(type.falseType, reflectionsTree, {
         needsParens: true,
-        deepScan,
       });
 
       return parens(
-        `${checkType} extends ${extendsType} ? ${objectToString(trueType, 2)} : ${objectToString(
-          falseType,
-          2,
-        )}`,
+        `${checkType} extends ${extendsType} ? ${objectToString(
+          trueType,
+          level,
+        )} : ${objectToString(falseType, level)}`,
         needsParens,
       );
     }
@@ -151,7 +86,7 @@ export const getType = (
         return `${objectType[indexType]}`;
       }
 
-      return `${objectToString(objectType[indexType] || objectType, 2)}[${indexType}]`;
+      return `${objectToString(objectType[indexType] || objectType, level)}[${indexType}]`;
     }
 
     case "inferred": {
@@ -235,6 +170,11 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.ReferenceType;
       const reference = getReference(reflectionsTree, type.id, type.name);
 
+      if (type.name === "UseTrackedStateType") {
+        console.log("start", type);
+        console.log("end", reference);
+      }
+
       const isDeepScanType =
         reference && [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(reference.kind);
 
@@ -244,9 +184,10 @@ export const getType = (
 
       if (deepScan && type.typeArguments && type.name === "Omit") {
         const [baseType, ...args] = type.typeArguments;
+        const baseTypeValue = getTypeValue(baseType as unknown as JSONOutput.DeclarationReflection);
 
         const types = getType(
-          baseType.type as unknown as JSONOutput.ReferenceType,
+          baseTypeValue as unknown as JSONOutput.ReferenceType,
           reflectionsTree,
           { deepScan },
         ) as Record<string, string>;
@@ -262,9 +203,10 @@ export const getType = (
 
       if (deepScan && type.typeArguments && type.name === "Pick") {
         const [baseType, ...args] = type.typeArguments;
+        const baseTypeValue = getTypeValue(baseType as unknown as JSONOutput.DeclarationReflection);
 
         const types = getType(
-          baseType.type as unknown as JSONOutput.ReferenceType,
+          baseTypeValue as unknown as JSONOutput.ReferenceType,
           reflectionsTree,
           { deepScan },
         ) as Record<string, string>;
@@ -286,11 +228,9 @@ export const getType = (
         type.typeArguments && type.typeArguments.length
           ? `<${type.typeArguments
               .map((t) =>
-                // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                getTypePresentation(
-                  t as unknown as JSONOutput.DeclarationReflection,
-                  reflectionsTree,
-                ),
+                getType(t as unknown as JSONOutput.DeclarationReflection, reflectionsTree, {
+                  deepScan: false,
+                }),
               )
               .join(", ")}>`
           : "";
@@ -344,7 +284,7 @@ export const getType = (
       return `[${type.elements
         ?.map((t) => {
           const value = getType(t, reflectionsTree, { deepScan: false });
-          return objectToString(value, 2);
+          return objectToString(value, level);
         })
         .join(", ")}]`;
     }
@@ -398,12 +338,15 @@ export const getTypePresentation = (
   reflectionsTree: JSONOutput.ProjectReflection[],
 ) => {
   const typeValue = getTypeValue(reflection);
+  const type = getType(typeValue, reflectionsTree, { deepScan: true, level: 1 });
 
-  const type = getType(typeValue, reflectionsTree, { deepScan: true });
+  if (typeof type === "string") return type;
 
-  if (typeof type === "string") return type.replace(/"/g, "");
+  if (reflection.name === "getInitialState") {
+    console.log(type);
+  }
 
-  const template = objectToString(type);
+  const template = objectToString(type, 0);
 
   return template;
 };

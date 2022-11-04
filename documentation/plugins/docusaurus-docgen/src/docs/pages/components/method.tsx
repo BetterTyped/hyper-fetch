@@ -1,7 +1,7 @@
 import React from "react";
 
 import { PagePropsType } from "types/page.types";
-import { getSignature } from "../utils/parsing.utils";
+import { getSignature } from "../utils/signature.utils";
 import { Code } from "./code";
 import { Definition } from "./definition";
 import { Description } from "./description";

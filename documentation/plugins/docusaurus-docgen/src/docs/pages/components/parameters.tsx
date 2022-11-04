@@ -2,7 +2,7 @@ import React from "react";
 
 import { HeadingType } from "types/components.types";
 import { PagePropsType } from "types/page.types";
-import { getSignature } from "../utils/parsing.utils";
+import { getSignature } from "../utils/signature.utils";
 import { Code } from "./code";
 import { Description } from "./description";
 import { Type } from "./type";

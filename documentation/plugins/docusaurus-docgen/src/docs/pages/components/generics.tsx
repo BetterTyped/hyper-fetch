@@ -2,7 +2,7 @@ import React from "react";
 import { JSONOutput } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
-import { getSignature } from "../utils/parsing.utils";
+import { getSignature } from "../utils/signature.utils";
 
 // <Type1, Type2>
 export const Generics: React.FC<PagePropsType<JSONOutput.DeclarationReflection>> = (props) => {

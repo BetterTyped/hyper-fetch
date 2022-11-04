@@ -3,8 +3,8 @@ import * as path from "path";
 
 import { error } from "../../../utils/log.utils";
 import { PluginOptions } from "../../../types/package.types";
-import { cleanFileName, createFile } from "../../../utils/file.utils";
-import { transformMarkdown } from "../../../utils/md.utils";
+import { cleanFileName, createFile } from "../../generator/utils/file.utils";
+import { transformMarkdown } from "../../renderer/utils/processing.utils";
 import { NonParsing } from "../components/non-parsing";
 
 const MonorepoPage: React.FC<{ options: PluginOptions }> = ({ options }) => {

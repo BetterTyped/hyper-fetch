@@ -2,10 +2,13 @@ import React from "react";
 import { JSONOutput, ReflectionKind } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
-import { getCallPreview, getMethods, getProperties, getSignature } from "../utils/parsing.utils";
 import { Type } from "./type";
 import { Code } from "./code";
 import { GenericParameters } from "./generic-parameters";
+import { getSignature } from "../utils/signature.utils";
+import { getCallPreview } from "../utils/parsing.utils";
+import { getProperties } from "../utils/properties.utils";
+import { getMethods } from "../utils/methods.utils";
 
 export const Preview: React.FC<
   PagePropsType<JSONOutput.DeclarationReflection | JSONOutput.SignatureReflection>

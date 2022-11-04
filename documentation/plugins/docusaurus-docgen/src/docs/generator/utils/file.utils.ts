@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import fsExtra from "fs-extra";
 
-import { warning, info } from "./log.utils";
-import { name as libraryName } from "../constants/name.constants";
+import { warning, info } from "../../../utils/log.utils";
+import { name as libraryName } from "../../../constants/name.constants";
 
 export const readFile = (filePath: string): string | null => {
   try {

@@ -3,7 +3,7 @@ import React from "react";
 import { JSONOutput } from "typedoc";
 
 import { PagePropsType } from "types/page.types";
-import { getReference } from "../utils/parsing.utils";
+import { getReference } from "../utils/reference.utils";
 import { Signature } from "./signature";
 
 function parens(element: JSX.Element, needsParens?: boolean): JSX.Element {
