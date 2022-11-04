@@ -170,11 +170,6 @@ export const getType = (
       const type = reflection as unknown as JSONOutput.ReferenceType;
       const reference = getReference(reflectionsTree, type.id, type.name);
 
-      if (type.name === "UseTrackedStateType") {
-        console.log("start", type);
-        console.log("end", reference);
-      }
-
       const isDeepScanType =
         reference && [ReflectionKind.TypeAlias, ReflectionKind.Interface].includes(reference.kind);
 
@@ -340,11 +335,7 @@ export const getTypePresentation = (
   const typeValue = getTypeValue(reflection);
   const type = getType(typeValue, reflectionsTree, { deepScan: true, level: 1 });
 
-  if (typeof type === "string") return type;
-
-  if (reflection.name === "getInitialState") {
-    console.log(type);
-  }
+  if (typeof type === "string") return type.replace(/"/g, "");
 
   const template = objectToString(type, 0);
 
