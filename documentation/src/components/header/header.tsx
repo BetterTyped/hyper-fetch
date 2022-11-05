@@ -3,23 +3,62 @@ import React from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { useFetch } from "@hyper-fetch/react";
+import AnimatedNumber from "animated-number-react";
 
 import styles from "./header.module.css";
 import "./animation.scss";
+import { getRepository } from "@site/src/api";
+
+const command = getRepository.setParams({ account: "BetterTyped", repository: "hyper-fetch" });
 
 export function Header(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
+  const { data } = useFetch(command);
+
+  const formatValue = (value) => Number(value || 0).toLocaleString();
+
   return (
     <header className={clsx(styles.container)}>
       <div className={clsx("container", styles.wrapper)}>
         <h2 className={clsx(styles.title)}>
           <div className={clsx(styles.projectName)}>{siteConfig.projectName}</div>
-          <div className={clsx(styles.stars)}>
-            <a href="https://github.com/BetterTyped/hyper-fetch" target="_blank" rel="noreferrer">
-              <img
-                src="https://img.shields.io/github/stars/BetterTyped/hyper-fetch?style=flat&label=Stars&maxAge=2592000&logo=github&logoColor=white&labelColor=272c32&color=0d1117"
-                alt=""
-              />
+          <div className={clsx(styles.stars, { [styles.full]: !!data })}>
+            <a
+              href="https://github.com/BetterTyped/hyper-fetch"
+              target="_blank"
+              rel="noreferrer"
+              className={clsx(styles.githubStars)}
+            >
+              <svg enableBackground="new 0 0 32 32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <g id="Layer_25">
+                  <path
+                    d="m13.889 3.885-3.05 6.18-6.82.991c-1.931.281-2.702 2.654-1.305 4.016l4.935 4.81-1.165 6.792c-.33 1.923 1.689 3.39 3.416 2.482l6.1-3.206 6.1 3.207c1.727.908 3.746-.559 3.416-2.482l-1.165-6.792 4.935-4.81c1.397-1.362.626-3.736-1.305-4.016l-6.82-.991-3.05-6.18c-.863-1.751-3.359-1.751-4.222-.001z"
+                    fill="#ffd731"
+                  />
+                  <g fill="#ffce00">
+                    <path d="m29.29 15.07-4.94 4.81-5.33-1.74c.27-.85.7-1.65 1.26-2.36l9.6-3.11c.26.8.1 1.72-.59 2.4z" />
+                    <path d="m24.57 28.99c-.67.49-1.61.62-2.47.17l-6.1-3.21v-5.62c.9 0 1.79.17 2.64.48z" />
+                    <path d="m13.38 20.8-5.96 8.18c-.68-.49-1.1-1.34-.94-2.3l1.17-6.79 5.33-1.74c.29.85.42 1.75.37 2.66.01 0 .02-.01.03-.01z" />
+                    <path d="m14.14 14.61c-.72.53-1.54.93-2.42 1.17l-9.6-3.12c.26-.8.94-1.46 1.9-1.6l6.82-.99z" />
+                    <path d="m21.16 10.06-3.29 4.56c-.72-.53-1.36-1.19-1.87-1.95v-10.1c.84 0 1.68.44 2.11 1.32z" />
+                  </g>
+                  <path
+                    d="m14.666 5.704c-.182-.091-.409-.017-.502.17l-1.157 2.34c-.092.186-.016.41.17.502.053.026.11.039.166.039.138 0 .271-.076.336-.209l1.157-2.34c.092-.185.016-.41-.17-.502z"
+                    fill="#ffe576"
+                  />
+                  <path
+                    d="m12.916 9.247c-.185-.09-.41-.018-.503.169l-.166.335c-.092.186-.017.411.169.503.054.026.11.039.167.039.138 0 .271-.076.336-.208l.166-.335c.092-.186.017-.411-.169-.503z"
+                    fill="#ffe576"
+                  />
+                  <path
+                    d="m18.647 20.813c-.846-.315-1.744-.481-2.647-.481s-1.801.165-2.647.481c.086-1.819-.498-3.611-1.636-5.036 1.758-.483 3.282-1.591 4.285-3.113 1.007 1.524 2.527 2.628 4.281 3.113-1.136 1.421-1.72 3.212-1.636 5.036z"
+                    fill="#ffce00"
+                  />
+                </g>
+              </svg>
+              <span>Stars</span>
+              <AnimatedNumber duration={600} formatValue={formatValue} value={data?.stargazers_count || 0} />
             </a>
           </div>
         </h2>

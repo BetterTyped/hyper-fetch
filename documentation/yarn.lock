@@ -1166,6 +1166,18 @@
     "@babel/helper-validator-identifier" "^7.18.6"
     to-fast-properties "^2.0.0"
 
+"@better-typed/react-lifecycle-hooks@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@better-typed/react-lifecycle-hooks/-/react-lifecycle-hooks-1.0.5.tgz#c171ad2582337e5c82521bce4b2951d82b5d6ccf"
+  integrity sha512-5wuDiE8u5jUAaadyRBqTcWQMEFU06I/tJb/fK6FHCBLcrQR2RO+hkgqJmucSfrXYj1nZtO3qTz4CjJyEjSfHWA==
+
+"@better-typed/react-performance-hooks@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@better-typed/react-performance-hooks/-/react-performance-hooks-0.8.0.tgz#9afcd35801f78e7f2987134fcf3843390770161a"
+  integrity sha512-I4fdrNvjlSp8Y0gFccvWDE2TgxdF1GXqx+yWHM72TDiuEri/qCvjzwAEsl0G0djv3EwepgsfwvDTnPZgTgYwig==
+  dependencies:
+    "@better-typed/react-lifecycle-hooks" "^1.0.5"
+
 "@braintree/sanitize-url@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-3.1.0.tgz#8ff71d51053cd5ee4981e5a501d80a536244f7fd"
@@ -1574,6 +1586,21 @@
   integrity sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==
   dependencies:
     "@hapi/hoek" "^9.0.0"
+
+"@hyper-fetch/core@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@hyper-fetch/core/-/core-1.6.1.tgz#eb088071477855c930e107a20b6be8c77ec8daf7"
+  integrity sha512-G12rrKagCFhB/3N7K1lXVoQ+bEGGjqORW7qRWNqNx+L8G6lwYEYi2aXqWu2anrzFKWYOsbRvXxeh4YdOH4OIwg==
+  dependencies:
+    events "^3.3.0"
+
+"@hyper-fetch/react@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@hyper-fetch/react/-/react-1.6.1.tgz#91cb0d946934046793151e33a5da96f37dcb4b2e"
+  integrity sha512-isW2PPC3BOKq5/xClIcL6KlZM5PigsrPZ/f87ZxEjO5wjXJfQFK1XA8vWn5kndtfOYGhKBpz5Nl/4VgD5kIN1g==
+  dependencies:
+    "@better-typed/react-lifecycle-hooks" "^1.0.5"
+    "@better-typed/react-performance-hooks" "^0.8.0"
 
 "@jridgewell/gen-mapping@^0.1.0":
   version "0.1.1"
@@ -2448,6 +2475,13 @@ algoliasearch@^4.0.0, algoliasearch@^4.13.0:
     "@algolia/requester-common" "4.13.1"
     "@algolia/requester-node-http" "4.13.1"
     "@algolia/transporter" "4.13.1"
+
+animated-number-react@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/animated-number-react/-/animated-number-react-0.1.2.tgz#54bd219c2443b5025d734a1960c30ba7370758ae"
+  integrity sha512-NsocKXtCKk0cBFITS8lGxRo02QGr4LQLh61S1KUkeEpn30H3fj0Tqz/XSyJeZ6JLJMWOP/8MV/us2Xj9I8DnVw==
+  dependencies:
+    prop-types "^15.6.1"
 
 ansi-align@^3.0.0, ansi-align@^3.0.1:
   version "3.0.1"
@@ -4389,7 +4423,7 @@ eventemitter3@^4.0.0:
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
 
-events@^3.2.0:
+events@^3.2.0, events@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
@@ -6833,7 +6867,7 @@ prompts@^2.4.2:
     kleur "^3.0.3"
     sisteransi "^1.0.5"
 
-prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==

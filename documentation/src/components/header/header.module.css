@@ -21,17 +21,6 @@
   text-shadow: 0px 0px 3px var(--ifm-color-emphasis-100);
 }
 
-.stars {
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-
-.stars img {
-  border: 1px solid rgba(240, 246, 252, 0.1);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
 .tagline {
   font-size: 3.2em;
   max-width: 800px;
@@ -273,4 +262,51 @@ html[data-theme="dark"] .addition {
     -o-transform: translate(-20px);
     transform: translate(-20px);
   }
+}
+
+/* Stars */
+.stars {
+  display: flex;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.githubStars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ifm-font-color-base) !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none !important;
+  margin: 0 auto;
+  font-family: var(--ifm-font-family-base);
+  border-radius: 8px;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(4%, var(--ifm-color-emphasis-200)),
+    color-stop(100%, var(--section-background))
+  );
+  box-shadow: var(--ifm-color-emphasis-200) 0px 6px 30px -8px;
+  width: auto;
+  padding: 6px 10px;
+  gap: 5px;
+}
+
+.githubStars svg {
+  position: relative;
+  z-index: 2;
+  height: 16px;
+  min-width: 16px;
+  margin-right: 1px;
+}
+
+.githubStarsCount {
+  font-weight: 700;
+}
+
+.githubStars:hover {
+  opacity: 0.7;
 }
