@@ -39,11 +39,6 @@
     "events": "^3.3.0"
   },
   "devDependencies": {},
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "yarn jest --bail --findRelatedTests --passWithNoTests"
-    ]
-  },
   "keywords": [
     "fetch",
     "xhr",
