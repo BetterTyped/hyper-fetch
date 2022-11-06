@@ -1,6 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require("../../release.config");
 
-config.release.plugins.push(["@semantic-release/git"]);
+// We want to publish only single release notes
+const newConfig = { ...config, publish: undefined, success: undefined, fail: undefined };
+newConfig.release.plugins.push(["@semantic-release/git"]);
 
-module.exports = config;
+module.exports = newConfig;

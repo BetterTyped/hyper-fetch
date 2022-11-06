@@ -1,4 +1,9 @@
 module.exports = {
+  // We want to publish only single release notes for the core package release config
+  publish: false,
+  success: false,
+  fail: false,
+
   branches: [
     {
       name: "main",
