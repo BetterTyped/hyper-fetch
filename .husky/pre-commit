@@ -2,5 +2,5 @@
 . "$(dirname "$0")/_/husky.sh"
 
 yarn commitlint --edit "$1"
-yarn test --parallel=2
-yarn lint --parallel=2
+yarn nx run-many --target=precommit --projects=core,react
+yarn nx run-many --target=lint --projects=core,react --parallel=2
