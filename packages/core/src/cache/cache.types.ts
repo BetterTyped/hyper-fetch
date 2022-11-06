@@ -35,6 +35,7 @@ export type CacheValueType<Response = any, Error = any> = {
   details: CommandResponseDetails;
   cacheTime: number;
   clearKey: string;
+  garbageCollection: boolean;
 };
 
 // Storage

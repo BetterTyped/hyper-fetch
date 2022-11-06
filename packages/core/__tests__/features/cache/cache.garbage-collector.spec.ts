@@ -18,6 +18,7 @@ describe("Cache [ Garbage Collector ]", () => {
     },
     cacheTime,
     clearKey,
+    garbageCollection: true,
   };
 
   const lazyStorage = new Map();

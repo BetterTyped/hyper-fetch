@@ -53,6 +53,7 @@ export class Command<
   cancelable: boolean;
   retry: number;
   retryTime: number;
+  garbageCollection: boolean;
   cache: boolean;
   cacheTime: number;
   queued: boolean;
@@ -95,6 +96,7 @@ export class Command<
       cancelable = false,
       retry = 0,
       retryTime = 500,
+      garbageCollection = true,
       cache = true,
       cacheTime = DateInterval.minute * 5,
       queued = false,
@@ -118,6 +120,7 @@ export class Command<
     this.cancelable = commandDump?.cancelable ?? cancelable;
     this.retry = commandDump?.retry ?? retry;
     this.retryTime = commandDump?.retryTime ?? retryTime;
+    this.garbageCollection = commandDump?.garbageCollection ?? garbageCollection;
     this.cache = commandDump?.cache ?? cache;
     this.cacheTime = commandDump?.cacheTime ?? cacheTime;
     this.queued = commandDump?.queued ?? queued;
@@ -173,6 +176,12 @@ export class Command<
 
   public setRetryTime = (retryTime: CommandConfig<EndpointType, ClientOptions>["retryTime"]) => {
     return this.clone({ retryTime });
+  };
+
+  public setGarbageCollection = (
+    garbageCollection: CommandConfig<EndpointType, ClientOptions>["garbageCollection"],
+  ) => {
+    return this.clone({ garbageCollection });
   };
 
   public setCache = (cache: CommandConfig<EndpointType, ClientOptions>["cache"]) => {
@@ -273,6 +282,7 @@ export class Command<
       cancelable: this.cancelable,
       retry: this.retry,
       retryTime: this.retryTime,
+      garbageCollection: this.garbageCollection,
       cache: this.cache,
       cacheTime: this.cacheTime,
       queued: this.queued,

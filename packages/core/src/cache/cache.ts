@@ -64,14 +64,14 @@ export class Cache {
     details: CommandResponseDetails,
   ): void => {
     this.logger.debug("Processing cache response", { command, response, details });
-    const { cacheKey, cache, cacheTime } = command;
+    const { cacheKey, cache, cacheTime, garbageCollection } = command;
     const cachedData = this.storage.get<Response, Error>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
     const data = getCacheData(cachedData?.data, response);
 
-    const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey };
+    const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
 
     this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
     this.logger.debug("Emitting cache response", { command, response, details });
@@ -193,20 +193,23 @@ export class Cache {
     // We need to make sure that all of the values will be removed, also that we have the proper data
     const cacheData = await this.getLazyResource(cacheKey);
 
-    if (cacheData) {
+    // Clear running garbage collectors for given key
+    clearTimeout(this.garbageCollectors.get(cacheKey));
+
+    if (cacheData && cacheData.garbageCollection) {
       const timeLeft = cacheData.cacheTime + cacheData.details.timestamp - +new Date();
       if (timeLeft >= 0) {
-        clearTimeout(this.garbageCollectors.get(cacheKey));
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.builder.appManager.isOnline) {
+            if (this.builder.appManager.isOnline && cacheData.garbageCollection) {
               this.logger.info("Garbage collecting cache element", { cacheKey });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.builder.appManager.isOnline) {
+      } else if (this.builder.appManager.isOnline && cacheData.garbageCollection) {
+        this.logger.info("Garbage collecting cache element", { cacheKey });
         this.delete(cacheKey);
       }
     }
