@@ -47,6 +47,7 @@ export const getValidCacheData = <T extends CommandInstance>(
       details: getDetailsState(),
       cacheTime: 1000,
       clearKey: command.builder.cache.clearKey,
+      garbageCollection: command.garbageCollection,
     };
   }
 
