@@ -13,7 +13,6 @@ import { buildDocs } from "../docs/docs";
 import { name } from "../constants/name.constants";
 
 let generated = false;
-let generating = false;
 
 export async function plugin(
   context: LoadContext,
@@ -49,11 +48,9 @@ export async function plugin(
   return {
     ...instance,
     loadContent: async function loadContent() {
-      if (!generating) {
-        generating = true;
+      if (!generated) {
         await buildDocs(docsGenerationDir, generatedFilesDir, options);
         trace("Loading generated docs.");
-        generating = false;
         generated = true;
       } else {
         warning("Docs generation already triggered. Try again when process finishes.");

@@ -1,0 +1,70 @@
+Errors are returned as the second element of the tuple returned from the command.
+
+:::info
+
+Even though commands are promises, they are `never rejected`. Due to the format they return, any error will appear as
+the second tuple element and for this reason we can always expect resolved status.
+
+:::
+
+```tsx
+const [_, error] = await command.send();
+```
+
+---
+
+## Global errors
+
+Global errors are the general type of error returned from each query within a given builder. We can set their type by
+giving the appropriate generic to the instance of our builder.
+
+```ts
+type GlobalErrorType = {
+  message: string;
+  status: 400 | 404 | 500;
+};
+
+export const builder = new Builder<GlobalErrorType>({ baseUrl });
+```
+
+Now the error type of our command will reflect `GlobalErrorType`.
+
+```ts
+const [_, error] = await command.send();
+
+console.log(error); // null | GlobalErrorType;
+```
+
+---
+
+## Local errors
+
+Local errors are representatives of individual error types returned only on particular endpoints. The best example are
+form endpoints, we often encounter errors returned from the server related to individual form fields.
+
+```ts
+import { builder } from "./builder";
+
+type LocalErrorType = {
+  errors: {
+    name?: string;
+    email?: string;
+    age?: string;
+  };
+};
+
+const postUser = builder.createCommand<ResponseType, RequestType, LocalErrorType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```
+
+Now the error type of our command will union of `GlobalError` and `LocalErrorType`.
+
+```ts
+const [_, error] = await command.send();
+
+console.log(error); // null | GlobalErrorType | LocalErrorType;
+```
+
+---
