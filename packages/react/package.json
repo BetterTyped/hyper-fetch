@@ -21,7 +21,7 @@
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "precommit": "yarn lint-staged",
-    "release": "yarn semantic-release --extends ../../.releaserc.json  -t 'react-hyper-fetch-v${version}'"
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'react-hyper-fetch-v${version}'"
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
