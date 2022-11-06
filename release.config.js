@@ -1,6 +1,6 @@
 module.exports = {
   // We want to publish only single release notes for the core package release config
-  publish: false,
+  publish: "@semantic-release/npm",
   success: false,
   fail: false,
 
@@ -48,12 +48,8 @@ module.exports = {
         },
       ],
       "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/npm",
-        {
-          npmPublish: true,
-        },
-      ],
+      "@semantic-release/npm",
+      "@semantic-release/github",
     ],
   },
 };
