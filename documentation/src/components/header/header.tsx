@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { useFetch } from "@hyper-fetch/react";
-import AnimatedNumber from "animated-number-react";
+import CountUp from "react-countup";
 
 import styles from "./header.module.css";
 import "./animation.scss";
@@ -14,9 +14,7 @@ const command = getRepository.setParams({ account: "BetterTyped", repository: "h
 
 export function Header(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
-  const { data } = useFetch(command);
-
-  const formatValue = (value) => Number(value || 0).toLocaleString();
+  const { data } = useFetch(command, { revalidateOnMount: false });
 
   return (
     <header className={clsx(styles.container)}>
@@ -58,7 +56,7 @@ export function Header(): JSX.Element {
                 </g>
               </svg>
               <span>Stars</span>
-              <AnimatedNumber duration={600} formatValue={formatValue} value={data?.stargazers_count || 0} />
+              <CountUp end={data?.stargazers_count || 0} duration={0.4} separator=" " />
             </a>
           </div>
         </h2>
