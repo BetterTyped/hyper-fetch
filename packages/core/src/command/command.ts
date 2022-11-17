@@ -10,6 +10,7 @@ import {
   ExtractRouteParams,
   commandSendRequest,
   CommandCurrentType,
+  CommandMapperType,
 } from "command";
 import { Builder } from "builder";
 import { getUniqueRequestId } from "utils";
@@ -85,7 +86,7 @@ export class Command<
           MappedData
         >
       | undefined,
-    readonly dataMapper?: (data: RequestDataType) => MappedData,
+    readonly dataMapper?: CommandMapperType<RequestDataType, MappedData>,
   ) {
     const {
       endpoint,
@@ -147,13 +148,13 @@ export class Command<
     return this.clone({ auth });
   };
 
-  public setParams = (params: ExtractRouteParams<EndpointType>) => {
-    return this.clone<HasData, true, HasQuery>({ params });
+  public setParams = <P extends ExtractRouteParams<EndpointType>>(params: P) => {
+    return this.clone<HasData, P extends null ? false : true, HasQuery>({ params });
   };
 
-  public setData = (data: RequestDataType) => {
+  public setData = <D extends RequestDataType>(data: D) => {
     const modifiedData = this.dataMapper?.(data) || data;
-    return this.clone<true, HasParams, HasQuery, MappedData>({
+    return this.clone<D extends null ? false : true, HasParams, HasQuery, MappedData>({
       data: modifiedData as CommandData<RequestDataType, MappedData>,
     });
   };
@@ -232,8 +233,8 @@ export class Command<
     return this.clone({ offline });
   };
 
-  public setDataMapper = <DataMapper>(mapper: (data: RequestDataType) => DataMapper) => {
-    return this.clone<HasData, HasParams, HasQuery, DataMapper>(undefined, mapper);
+  public setDataMapper = <DataMapper extends (data: RequestDataType) => any>(mapper: DataMapper) => {
+    return this.clone<HasData, HasParams, HasQuery>(undefined, mapper);
   };
 
   private paramsMapper = (
@@ -307,7 +308,7 @@ export class Command<
     D extends true | false = HasData,
     P extends true | false = HasParams,
     Q extends true | false = HasQuery,
-    MapperData = MappedData,
+    NewMappedData = MappedData,
   >(
     options?: CommandCurrentType<
       ResponseType,
@@ -316,9 +317,9 @@ export class Command<
       GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
-      MapperData
+      NewMappedData
     >,
-    mapper?: (data: RequestDataType) => MapperData,
+    mapper?: CommandMapperType<RequestDataType, NewMappedData>,
   ): Command<
     ResponseType,
     RequestDataType,
@@ -330,7 +331,7 @@ export class Command<
     D,
     P,
     Q,
-    MapperData
+    NewMappedData
   > {
     const dump = this.dump();
     const commandDump: CommandCurrentType<
@@ -340,7 +341,7 @@ export class Command<
       GlobalErrorType | LocalErrorType,
       EndpointType,
       ClientOptions,
-      MapperData
+      NewMappedData
     > = {
       ...dump,
       ...options,
@@ -367,7 +368,7 @@ export class Command<
       D,
       P,
       Q,
-      MapperData
+      NewMappedData
     >(this.builder, this.commandOptions, commandDump, mapper);
 
     return cloned;
@@ -490,7 +491,9 @@ export class Command<
   };
 }
 
-// Typescript test cases
+// /**
+//  * Typescript test cases
+//  */
 
 // const builder = new Builder({
 //   baseUrl: "http://localhost:3000",
@@ -516,6 +519,19 @@ export class Command<
 //   endpoint: "/users/:id",
 // });
 
+// const mappedReq = builder
+//   .createCommand<{ id: string }, { name: string }>()({
+//     method: "POST",
+//     endpoint: "/users",
+//   })
+//   .setDataMapper((data) => {
+//     const formData = new FormData();
+//     formData.append("key", data.name);
+//     return formData;
+//   });
+
+// // ================>
+
 // // OK
 // getUsers.send({ queryParams: "" });
 // getUsers.setQueryParams("").send();
@@ -524,6 +540,8 @@ export class Command<
 // getUsers.send({ params: "" });
 // getUsers.setQueryParams("").send({ queryParams: "" });
 
+// // ================>
+
 // // OK
 // getUser.send({ params: { id: "" }, queryParams: "" });
 // getUser.setParams({ id: "" }).send({ queryParams: "" });
@@ -531,6 +549,10 @@ export class Command<
 // getUser.send({ queryParams: "" });
 // getUser.send();
 // getUser.setParams({ id: "" }).send({ params: { id: "" } });
+// getUser.setParams(null).send();
+// getUser.send({ params: { id: null } });
+
+// // ================>
 
 // // OK
 // postUser.send({ data: { name: "" } });
@@ -538,8 +560,11 @@ export class Command<
 // // Fail
 // postUser.send({ queryParams: "" });
 // postUser.send({ data: null });
+// postUser.setData(null).send();
 // postUser.send();
 // postUser.setData({ name: "" }).send({ data: { name: "" } });
+
+// // ================>
 
 // // OK
 // patchUser.send({ params: { id: "" }, data: { name: "" } });
@@ -547,6 +572,7 @@ export class Command<
 // // Fail
 // patchUser.send({ queryParams: "" });
 // patchUser.send({ data: null });
+// patchUser.setData(null).send();
 // patchUser.send();
 // patchUser
 //   .setParams({ id: "" })
@@ -556,3 +582,17 @@ export class Command<
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
 //   .send({ params: { id: "" } });
+
+// // ================>
+
+// // OK
+// mappedReq.send({ data: { name: "" } });
+// mappedReq.setData({ name: "" }).send();
+// // Fail
+// mappedReq.send({ queryParams: "" });
+// mappedReq.send({ data: undefined });
+// mappedReq.setData(null).send();
+// mappedReq.setData(null).send({ data: null, queryParams: () => null });
+// mappedReq.send();
+// mappedReq.send({ data: new FormData() });
+// mappedReq.setData({ name: "" }).send({ data: { name: "" } });

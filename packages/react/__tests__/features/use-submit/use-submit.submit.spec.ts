@@ -4,7 +4,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { builder, createCommand, renderUseSubmit } from "../../utils";
 
 describe("useSubmit [ Base ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, { value: string }>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -31,7 +31,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(command);
 
       await act(async () => {
-        data = await response.result.current.submit();
+        data = await response.result.current.submit({ data: { value: "string" } });
       });
 
       expect(data).toStrictEqual([mock, null, 200]);
@@ -42,7 +42,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(command);
 
       await act(async () => {
-        await response.result.current.submit({ onSettle: spy });
+        await response.result.current.submit({ data: { value: "string" }, onSettle: spy });
       });
 
       expect(spy).toBeCalledTimes(1);
@@ -57,7 +57,7 @@ describe("useSubmit [ Base ]", () => {
         response.result.current.onSubmitResponseStart(() => {
           mock = createRequestInterceptor(command);
         });
-        data = await response.result.current.submit();
+        data = await response.result.current.submit({ data: { value: "string" } });
       });
 
       expect(data).toStrictEqual([mock, null, 200]);
@@ -76,7 +76,7 @@ describe("useSubmit [ Base ]", () => {
             builder.appManager.setOnline(true);
           }, 100);
         });
-        data = await response.result.current.submit();
+        data = await response.result.current.submit({ data: { value: "string" } });
       });
 
       expect(data).toStrictEqual([mock, null, 200]);
@@ -86,7 +86,7 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to pass data to submit", async () => {
       let payload: unknown = null;
-      const myData = { userId: 1 };
+      const myData = { value: "string" };
       createRequestInterceptor(command);
       const response = renderUseSubmit(command);
 
@@ -123,7 +123,7 @@ describe("useSubmit [ Base ]", () => {
         response.result.current.onSubmitRequestStart(({ command: cmd }) => {
           endpoint = cmd.endpoint;
         });
-        response.result.current.submit({ queryParams: "?something=test" });
+        response.result.current.submit({ data: { value: "string" }, queryParams: "?something=test" });
       });
 
       expect(endpoint).toBe("/shared-endpoint?something=test");
@@ -134,15 +134,41 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(command);
 
       await act(async () => {
-        data = await response.result.current.submit({ queryParams: "?something=test" });
+        data = await response.result.current.submit({ data: null, queryParams: "?something=test" });
       });
 
       expect(data).toStrictEqual([mock, null, 200]);
     });
-    it("should throw when hook is disabled", async () => {
+    it("should throw error when hook is disabled", async () => {
+      let data = [];
+      createRequestInterceptor(command);
       const response = renderUseSubmit(command, { disabled: true });
 
-      expect(response.result.current.submit).toThrow();
+      await act(async () => {
+        data = await response.result.current.submit({ data: { value: "string" } });
+      });
+
+      expect(data).toHaveLength(3);
+      expect(data[0]).toBeNull();
+      expect(data[1]).toBeInstanceOf(Error);
+      expect(data[2]).toBe(0);
+    });
+    it("should allow to set data on mapped command", async () => {
+      let data: unknown = null;
+      const mock = createRequestInterceptor(command);
+      const mappedCommand = command.setDataMapper(() => new FormData());
+      const response = renderUseSubmit(mappedCommand);
+
+      await act(async () => {
+        data = await response.result.current.submit({
+          data: {
+            value: "string",
+          },
+          queryParams: { something: "test" },
+        });
+      });
+
+      expect(data).toStrictEqual([mock, null, 200]);
     });
   });
 });

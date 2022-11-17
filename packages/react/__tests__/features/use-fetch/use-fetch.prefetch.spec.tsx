@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { builder, createCommand } from "../../utils";
 
 describe("useFetch [ Prefetch ]", () => {
-  let command = createCommand();
+  let command = createCommand<any, null>();
   let mock = createRequestInterceptor(command);
 
   beforeAll(() => {

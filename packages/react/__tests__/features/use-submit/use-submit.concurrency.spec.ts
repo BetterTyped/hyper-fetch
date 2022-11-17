@@ -5,7 +5,7 @@ import { testSuccessState } from "../../shared";
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Concurrency ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();

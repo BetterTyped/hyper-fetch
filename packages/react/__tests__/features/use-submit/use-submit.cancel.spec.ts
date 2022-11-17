@@ -6,7 +6,7 @@ import { testErrorState } from "../../shared";
 import { builder, createCommand, renderUseSubmit } from "../../utils";
 
 describe("useSubmit [ Cancel ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();

@@ -5,7 +5,7 @@ import { testErrorState, testSuccessState } from "../../shared";
 import { builder, createCommand, renderUseFetch, renderUseSubmit } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
-  let commandSubmit = createCommand({ method: "POST" });
+  let commandSubmit = createCommand<null, null>({ method: "POST" });
   let commandFetch = createCommand({ endpoint: "fetch-test" });
 
   beforeAll(() => {

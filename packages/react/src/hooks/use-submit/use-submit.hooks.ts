@@ -9,6 +9,7 @@ import {
   ExtractResponse,
   ExtractError,
   FetchType,
+  FetchMethodType,
 } from "@hyper-fetch/core";
 import { useDidMount } from "@better-typed/react-lifecycle-hooks";
 import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
@@ -25,10 +26,10 @@ import { InvalidationKeyType } from "types";
  * @param options
  * @returns
  */
-export const useSubmit = <Command extends CommandInstance>(
-  command: Command,
-  options: UseSubmitOptionsType<Command> = useSubmitDefaultOptions,
-): UseSubmitReturnType<Command> => {
+export const useSubmit = <CommandType extends CommandInstance>(
+  command: CommandType,
+  options: UseSubmitOptionsType<CommandType> = useSubmitDefaultOptions,
+): UseSubmitReturnType<CommandType> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const mergedOptions = useMemo(
@@ -51,9 +52,9 @@ export const useSubmit = <Command extends CommandInstance>(
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce(bounceTime);
   const requestThrottle = useThrottle(bounceTime);
-  const bounceResolver = useRef<(value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => void>(
-    () => null,
-  );
+  const bounceResolver = useRef<
+    (value: ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>) => void
+  >(() => null);
 
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
@@ -61,7 +62,7 @@ export const useSubmit = <Command extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<Command>({
+  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<CommandType>({
     logger,
     command,
     dispatcher,
@@ -87,13 +88,14 @@ export const useSubmit = <Command extends CommandInstance>(
   // Submitting
   // ******************
 
-  const handleSubmit = (...parameters: Parameters<Command["send"]>) => {
-    const submitOptions = parameters[0] as FetchType<Command> | undefined;
-    const commandClone = command.clone(submitOptions as any) as Command;
+  const handleSubmit: FetchMethodType<CommandType> = (submitOptions?: FetchType<CommandType>) => {
+    const commandClone = command.clone(submitOptions as any) as CommandType;
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, submitOptions });
-      throw new Error("Cannot submit request. Option 'disabled' is enabled");
+      return Promise.resolve([null, new Error("Cannot submit request. Option 'disabled' is enabled"), 0]) as Promise<
+        ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>
+      >;
     }
 
     const triggerRequest = () => {
@@ -108,7 +110,7 @@ export const useSubmit = <Command extends CommandInstance>(
       });
     };
 
-    return new Promise<ExtractClientReturnType<Command>>((resolve) => {
+    return new Promise<ExtractClientReturnType<CommandType>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
         if (bounce) {
@@ -116,7 +118,9 @@ export const useSubmit = <Command extends CommandInstance>(
           // We need to keep the resolve of debounced requests to prevent memory leaks - we need to always resolve promise.
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
-          bounceResolver.current = (value: ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>) => {
+          bounceResolver.current = (
+            value: ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>,
+          ) => {
             // Trigger previous awaiting calls to resolve together in bounced batches
             bouncedResolve(value);
             resolve(value);

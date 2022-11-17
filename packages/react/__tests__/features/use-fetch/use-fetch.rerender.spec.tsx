@@ -62,7 +62,7 @@ describe("useFetch [ Rerender ]", () => {
       useDidMount(() => {
         setTimestamp(new Date());
         setTimeout(() => {
-          setError({}, true);
+          setError(new Error("test"), true);
         }, fetchTime / 2);
       });
 

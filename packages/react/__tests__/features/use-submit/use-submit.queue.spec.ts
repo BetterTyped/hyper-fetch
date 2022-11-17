@@ -5,7 +5,7 @@ import { testData, testLoading } from "../../shared";
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Queue ]", () => {
-  let command = createCommand({ method: "POST", queued: true });
+  let command = createCommand<any, null>({ method: "POST", queued: true });
 
   beforeAll(() => {
     startServer();

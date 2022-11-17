@@ -161,8 +161,10 @@ export type CommandConfig<GenericEndpoint extends string, ClientOptions> = {
   deduplicateTime?: number;
 };
 
+export type CommandMapperType<RequestDataType, MappedData> = (data: RequestDataType) => MappedData;
+
 export type CommandData<RequestDataType, MappedData> =
-  | (MappedData extends undefined ? RequestDataType : MappedData)
+  | (MappedData extends never ? RequestDataType : MappedData)
   | NegativeTypes;
 
 export type CommandCurrentType<
@@ -205,7 +207,10 @@ export type FetchOptionsType<ClientOptions> = Omit<
 /**
  * It will check if the query params are already set
  */
-export type FetchQueryParamsType<QueryParamsType, HasQuery extends true | false = false> = HasQuery extends true
+export type FetchQueryParamsType<
+  QueryParamsType extends ClientQueryParamsType | string,
+  HasQuery extends true | false = false,
+> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
       queryParams?: QueryParamsType | string;
@@ -216,24 +221,21 @@ export type FetchQueryParamsType<QueryParamsType, HasQuery extends true | false 
  */
 export type FetchParamsType<
   EndpointType extends string,
-  HasParams extends true | false = false,
+  HasParams extends true | false,
 > = ExtractRouteParams<EndpointType> extends NegativeTypes
   ? { params?: NegativeTypes }
   : true extends HasParams
   ? { params?: NegativeTypes }
-  : { params: ExtractRouteParams<EndpointType> };
+  : { params: NonNullable<ExtractRouteParams<EndpointType>> };
 
 /**
  * If the command data is not filled it will throw an error
  */
-export type FetchRequestDataType<
-  RequestDataType,
-  HasData extends true | false = false,
-> = RequestDataType extends NegativeTypes
+export type FetchRequestDataType<RequestDataType, HasData extends true | false> = RequestDataType extends NegativeTypes
   ? { data?: NegativeTypes }
   : HasData extends true
   ? { data?: NegativeTypes }
-  : { data: RequestDataType };
+  : { data: NonNullable<RequestDataType> };
 
 export type CommandQueueOptions = {
   dispatcherType?: "auto" | "fetch" | "submit";
@@ -262,9 +264,7 @@ export type FetchSendActionsType<Command extends CommandInstance> = {
   onRemove?: (details: CommandEventDetails<Command>) => void;
 };
 
-export type FetchMethodType<Command extends CommandInstance> = FetchType<Command>["data"] extends any
-  ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
-  : FetchType<Command>["data"] extends NegativeTypes
+export type FetchMethodType<Command extends CommandInstance> = FetchType<Command>["data"] extends NegativeTypes
   ? FetchType<Command>["params"] extends NegativeTypes
     ? (options?: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>
     : (options: FetchType<Command>) => Promise<ClientResponseType<ExtractResponse<Command>, ExtractError<Command>>>

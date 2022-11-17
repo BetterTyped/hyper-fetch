@@ -55,7 +55,7 @@ describe("useFetch [ Basic ]", () => {
       await testCacheState([null, null, null], view);
     });
     it("should allow to use initial data", async () => {
-      const initialData: ClientResponseType<unknown, unknown> = [{ test: [1, 2, 3] }, null, 200];
+      const initialData: ClientResponseType<unknown, Error> = [{ test: [1, 2, 3] }, null, 200];
       const view = renderUseFetch(command, { disabled: true, initialData });
 
       await testSuccessState(initialData[0], view);

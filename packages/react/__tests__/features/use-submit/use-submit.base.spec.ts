@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { testInitialState, testSuccessState } from "../../shared";
 
 describe("useSubmit [ Base ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<any, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
