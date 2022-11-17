@@ -76,4 +76,5 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ## Other Packages
 
+- #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)
 - #### [React Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react)

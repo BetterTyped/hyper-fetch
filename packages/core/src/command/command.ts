@@ -356,6 +356,8 @@ export class Command<
       data: (options?.data || this.data) as any,
     };
 
+    const mapperFn = (mapper || this.dataMapper) as typeof mapper;
+
     const cloned = new Command<
       ResponseType,
       RequestDataType,
@@ -368,7 +370,7 @@ export class Command<
       P,
       Q,
       MapperData
-    >(this.builder, this.commandOptions, commandDump, mapper);
+    >(this.builder, this.commandOptions, commandDump, mapperFn);
 
     return cloned;
   }

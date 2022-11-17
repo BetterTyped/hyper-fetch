@@ -75,4 +75,5 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 ## Other Packages
 
-- #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
+- - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
+- #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)

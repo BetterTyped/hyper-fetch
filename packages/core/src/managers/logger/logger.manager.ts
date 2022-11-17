@@ -14,7 +14,7 @@ export class LoggerManager {
 
   public emitter = new EventEmitter();
 
-  constructor(private builder: BuilderInstance, private options?: LoggerOptionsType) {
+  constructor(private builder: Pick<BuilderInstance, "debug">, private options?: LoggerOptionsType) {
     this.logger = this.options?.logger || logger;
     this.severity = this.options?.severity || 2;
   }
