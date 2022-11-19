@@ -36,8 +36,7 @@
 ## About
 
 **`Hyper Fetch Sockets`** is a library for handling `web sockets` and `server sent events`. Thanks to it, we get a
-**neutral layer of control** thanks to which we can easily integrate any available solution for dynamic two-way
-communication.
+**neutral layer of control** to which we can easily integrate any available solution for dynamic two-way communication.
 
 ## Features
 
