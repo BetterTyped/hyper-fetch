@@ -1,6 +1,4 @@
 import {
-  ResponseInterceptorCallback,
-  RequestInterceptorCallback,
   stringifyQueryParams,
   StringifyCallbackType,
   ClientHeaderMappingCallback,
@@ -14,31 +12,56 @@ import {
 
 import { SocketConfig } from "socket";
 import { ClientType } from "client";
+import { ListenerInstance, ListenerOptionsType } from "listener";
+import { EmitterInstance, EmitterOptionsType } from "emitter";
 
-export class Socket<GlobalErrorType, SocketOptionsType> {
-  readonly baseUrl: string;
-  readonly isNodeJS: boolean;
+export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> {
+  readonly baseUrl: string; /// ????
   readonly reconnect: number;
   readonly reconnectTime: number;
   debug: boolean;
 
-  // Private
-  __onErrorCallbacks: ResponseInterceptorCallback[] = [];
-  __onSuccessCallbacks: ResponseInterceptorCallback[] = [];
-  __onResponseCallbacks: ResponseInterceptorCallback[] = [];
-  __onAuthCallbacks: RequestInterceptorCallback[] = [];
-  __onRequestCallbacks: RequestInterceptorCallback[] = [];
+  // TODO!!!!!
+  // onOpen
+  // onClose
+  // onReconnection
+  // onReconnectionStop
+  // onAuth
+  // onError
 
   // Config
-  client: unknown;
+  client: ClientType<SocketType>;
   loggerManager = new LoggerManager(this);
 
   // Options
-  // requestConfig?: (command: CommandInstance) => SocketOptionsType;
-  // commandConfig?: (
-  //   commandOptions: CommandConfig<string, SocketOptionsType>,
-  // ) => Partial<CommandConfig<string, SocketOptionsType>>;
   queryParamsConfig?: QueryStringifyOptions;
+
+  listenerConfig?: (
+    listenerOptions: ListenerOptionsType<AdditionalListenerOptions>,
+  ) => Partial<ListenerOptionsType<AdditionalListenerOptions>>;
+  emitterConfig?: (
+    emitterOptions: EmitterOptionsType<AdditionalEmitterOptions>,
+  ) => Partial<EmitterOptionsType<AdditionalEmitterOptions>>;
+
+  /**
+   * This method allows to configure global defaults for the listener configuration
+   */
+  setListenerConfig = (
+    callback: (listener: ListenerInstance) => Partial<ListenerOptionsType<AdditionalListenerOptions>>,
+  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> => {
+    this.listenerConfig = callback;
+    return this;
+  };
+
+  /**
+   * This method allows to configure global defaults for the listener configuration
+   */
+  setEmitterConfig = (
+    callback: (listener: EmitterInstance) => Partial<EmitterOptionsType<AdditionalEmitterOptions>>,
+  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> => {
+    this.emitterConfig = callback;
+    return this;
+  };
 
   // Utils
 
@@ -57,13 +80,13 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   payloadMapper: ClientPayloadMappingCallback = getClientPayload;
 
   // Logger
-  logger = this.loggerManager.init("Builder");
+  logger = this.loggerManager.init("Socket");
 
   constructor(public options: SocketConfig) {
     const { baseUrl, client, reconnect, reconnectTime } = this.options;
     this.baseUrl = baseUrl;
     // TODO add default
-    this.client = client || null;
+    this.client = client as any;
     this.reconnect = reconnect ?? 10;
     this.reconnectTime = reconnectTime ?? 2000;
   }
@@ -71,7 +94,7 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean): Socket<GlobalErrorType, SocketOptionsType> => {
+  setDebug = (debug: boolean) => {
     this.debug = debug;
     return this;
   };
@@ -79,17 +102,19 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType): Socket<GlobalErrorType, SocketOptionsType> => {
+  setLoggerSeverity = (severity: SeverityType) => {
     this.loggerManager.setSeverity(severity);
     return this;
   };
 
   /**
-   * Set the new logger instance to the builder
+   * Set the new logger instance to the socket
    */
   setLogger = (
-    callback: (socket: Socket<GlobalErrorType, SocketOptionsType>) => LoggerManager,
-  ): Socket<GlobalErrorType, SocketOptionsType> => {
+    callback: (
+      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType>,
+    ) => LoggerManager,
+  ) => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -97,16 +122,16 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   /**
    * Set config for the query params stringify method, we can set here, among others, arrayFormat, skipNull, encode, skipEmptyString and more
    */
-  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptions): Socket<GlobalErrorType, SocketOptionsType> => {
+  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptions) => {
     this.queryParamsConfig = queryParamsConfig;
     return this;
   };
 
   /**
-   * Set the custom query params stringify method to the builder
+   * Set the custom query params stringify method to the socket
    * @param stringifyFn Custom callback handling query params stringify
    */
-  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): Socket<GlobalErrorType, SocketOptionsType> => {
+  setStringifyQueryParams = (stringifyFn: StringifyCallbackType) => {
     this.stringifyQueryParams = stringifyFn;
     return this;
   };
@@ -114,7 +139,7 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   /**
    * Set the custom header mapping function
    */
-  setHeaderMapper = (headerMapper: ClientHeaderMappingCallback): Socket<GlobalErrorType, SocketOptionsType> => {
+  setHeaderMapper = (headerMapper: ClientHeaderMappingCallback) => {
     this.headerMapper = headerMapper;
     return this;
   };
@@ -122,89 +147,17 @@ export class Socket<GlobalErrorType, SocketOptionsType> {
   /**
    * Set custom http client to handle graphql, rest, firebase or other
    */
-  setClient = (
-    callback: (builder: Socket<GlobalErrorType, SocketOptionsType>) => ClientType,
-  ): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.client = callback(this);
-    return this;
-  };
-
-  /**
-   * Method of manipulating commands before sending the request. We can for example add custom header with token to the request which command had the auth set to true.
-   */
-  onAuth = (callback: RequestInterceptorCallback): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.__onAuthCallbacks.push(callback);
-    return this;
-  };
-
-  /**
-   * Method for intercepting error responses. It can be used for example to refresh tokens.
-   */
-  onError = <ErrorType = null>(
-    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
-  ): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.__onErrorCallbacks.push(callback);
-    return this;
-  };
-
-  /**
-   * Method for intercepting success responses.
-   */
-  onSuccess = <ErrorType = null>(
-    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
-  ): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.__onSuccessCallbacks.push(callback);
-    return this;
-  };
-
-  /**
-   * Method of manipulating commands before sending the request.
-   */
-  onRequest = (callback: RequestInterceptorCallback): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.__onRequestCallbacks.push(callback);
-    return this;
-  };
-
-  /**
-   * Method for intercepting any responses.
-   */
-  onResponse = <ErrorType = null>(
-    callback: ResponseInterceptorCallback<any, ErrorType | GlobalErrorType>,
-  ): Socket<GlobalErrorType, SocketOptionsType> => {
-    this.__onResponseCallbacks.push(callback);
-    return this;
-  };
-
-  // /**
-  //  * Helper used by http client to apply the modifications on response error
-  //  */
-  // __modifyAuth = async (command: CommandInstance) => interceptRequest(this.__onAuthCallbacks, command);
-
-  // /**
-  //  * Private helper to run async pre-request processing
-  //  */
-  // __modifyRequest = async (command: CommandInstance) => interceptRequest(this.__onRequestCallbacks, command);
-
-  // /**
-  //  * Private helper to run async on-error response processing
-  //  */
-  // __modifyErrorResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-  //   interceptResponse<GlobalErrorType>(this.__onErrorCallbacks, response, command);
-
-  // /**
-  //  * Private helper to run async on-success response processing
-  //  */
-  // __modifySuccessResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-  //   interceptResponse<GlobalErrorType>(this.__onSuccessCallbacks, response, command);
-
-  // /**
-  //  * Private helper to run async response processing
-  //  */
-  // __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
-  //   interceptResponse<GlobalErrorType>(this.__onResponseCallbacks, response, command);
-
-  connect = () => {
-    this.client.connect();
-    return this;
+  setClient = <ClientSocketType>(
+    callback: (
+      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType>,
+    ) => ClientType<ClientSocketType>,
+  ) => {
+    this.client = callback(this) as unknown as ClientType<SocketType>;
+    return this as unknown as Socket<
+      GlobalErrorType,
+      AdditionalListenerOptions,
+      AdditionalEmitterOptions,
+      ClientSocketType
+    >;
   };
 }

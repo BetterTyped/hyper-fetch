@@ -3,4 +3,5 @@ export type SocketConfig = {
   client?: unknown;
   reconnect?: number;
   reconnectTime?: number;
+  autoConnect?: boolean;
 };

@@ -1,3 +1,7 @@
+import { Emitter } from "emitter";
+
+export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
+
 export type EmitterOptionsType<SocketOptions> = {
   event: string;
   headers?: HeadersInit;

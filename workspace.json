@@ -5,6 +5,7 @@
     "nextjs": "examples/nextjs",
     "reactjs": "examples/reactjs",
     "core": "packages/core",
-    "react": "packages/react"
+    "react": "packages/react",
+    "sockets": "packages/sockets"
   }
 }

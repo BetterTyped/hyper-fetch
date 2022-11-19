@@ -25,6 +25,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "react": ">= 16.8.0"
   },
   "dependencies": {
@@ -33,7 +34,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest"
+      "yarn jest --passWithNoTests"
     ]
   },
   "eslintConfig": {

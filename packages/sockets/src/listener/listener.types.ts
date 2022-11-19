@@ -1,5 +1,9 @@
+import { Listener } from "listener";
+
+export type ListenerInstance = Listener<any, any, any, any, any>;
+
 export type ListenerOptionsType<SocketOptions> = {
-  event: string;
+  name: string;
   headers?: HeadersInit;
   auth?: boolean;
   options?: SocketOptions;

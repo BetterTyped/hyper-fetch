@@ -41,7 +41,7 @@
   "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --bail --findRelatedTests --passWithNoTests"
+      "yarn jest --passWithNoTests"
     ]
   },
   "keywords": [
