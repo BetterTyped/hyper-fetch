@@ -1,4 +1,4 @@
-# ⚡ Hyper Fetch
+# 🛰️ Hyper Fetch Sockets
 
 <p>
   <a href="https://bettertyped.com/">
@@ -59,7 +59,7 @@ communication.
 
 ## React
 
-We have created specially created hooks to support sockets.
+We have specially created hooks to support sockets.
 
 [Check it out](https://hyperfetch.bettertyped.com/React/Websockets)
 
