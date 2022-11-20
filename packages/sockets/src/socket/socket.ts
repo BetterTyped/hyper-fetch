@@ -160,6 +160,9 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
     return this as unknown as Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, T>;
   };
 
+  /**
+   * Set custom headers
+   */
   setHeaders(headers: HeadersInit) {
     this.headers = headers;
   }

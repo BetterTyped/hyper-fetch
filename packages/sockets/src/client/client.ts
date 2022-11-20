@@ -48,15 +48,15 @@ export class WebSocketClient<SocketType extends SocketInstance> {
 
   listen(listener: ListenerInstance, callback: (data: any) => void) {
     const listenerGroup =
-      this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
+      this.listeners.get(listener.event) || this.listeners.set(listener.event, new Set()).get(listener.event);
 
     listenerGroup.add(callback);
     return () => listenerGroup.delete(callback);
   }
 
-  removeListener(name: string, callback: (data: any) => void) {
+  removeListener(event: string, callback: (data: any) => void) {
     return () => {
-      const listenerGroup = this.listeners.get(name);
+      const listenerGroup = this.listeners.get(event);
       if (listenerGroup && listenerGroup.has(callback)) {
         listenerGroup.delete(callback);
         return true;
@@ -67,6 +67,7 @@ export class WebSocketClient<SocketType extends SocketInstance> {
 
   emit(emitter: EmitterInstance) {
     const payload = JSON.stringify({
+      type: emitter.event,
       data: emitter.data,
       args: emitter.args,
       queryParams: emitter.queryParams,

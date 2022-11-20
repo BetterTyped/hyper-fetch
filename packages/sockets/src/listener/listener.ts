@@ -2,19 +2,19 @@ import { Socket } from "socket";
 import { ListenerOptionsType } from "listener";
 
 export class Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> {
-  readonly name: string;
+  readonly event: string;
   options?: AdditionalListenerOptions;
 
   constructor(
     readonly socket: Socket<GlobalErrorType, AdditionalListenerOptions, unknown, unknown>,
     readonly listenerOptions?: ListenerOptionsType<AdditionalListenerOptions>,
   ) {
-    const { name, options } = {
+    const { event, options } = {
       ...this.socket.listenerConfig?.(listenerOptions),
       ...listenerOptions,
     };
 
-    this.name = name;
+    this.event = event;
     this.options = options;
   }
 

@@ -3,8 +3,6 @@ import { Listener } from "listener";
 export type ListenerInstance = Listener<any, any, any>;
 
 export type ListenerOptionsType<SocketOptions> = {
-  name: string;
-  auth?: boolean;
+  event: string;
   options?: SocketOptions;
-  offline?: boolean;
 };

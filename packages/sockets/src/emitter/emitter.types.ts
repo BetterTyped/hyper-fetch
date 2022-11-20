@@ -12,5 +12,4 @@ export type EmitterCloneOptionsType<DataType, ArgsType, QueryParams, SocketOptio
     data: DataType;
     args: ArgsType;
     queryParams: QueryParams;
-    used?: boolean;
   };
