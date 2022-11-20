@@ -6,7 +6,7 @@ export class Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> 
   options?: AdditionalListenerOptions;
 
   constructor(
-    readonly socket: Socket<GlobalErrorType, AdditionalListenerOptions, unknown, unknown>,
+    readonly socket: Socket<GlobalErrorType, AdditionalListenerOptions, unknown>,
     readonly listenerOptions?: ListenerOptionsType<AdditionalListenerOptions>,
   ) {
     const { event, options } = {

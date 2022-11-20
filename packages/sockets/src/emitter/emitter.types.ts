@@ -1,15 +1,15 @@
 import { Emitter } from "emitter";
 
-export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
+export type EmitterInstance = Emitter<any, any, any, any>;
 
-export type EmitterOptionsType<SocketOptions> = {
+export type EmitterOptionsType<AdditionalEmitterOptions> = {
   event: string;
-  options?: SocketOptions;
+  options?: AdditionalEmitterOptions;
+  offline?: boolean;
 };
 
-export type EmitterCloneOptionsType<DataType, ArgsType, QueryParams, SocketOptions> =
-  EmitterOptionsType<SocketOptions> & {
-    data: DataType;
-    args: ArgsType;
-    queryParams: QueryParams;
-  };
+export type EmitterCloneOptionsType<DataType, AdditionalEmitterOptions> = Partial<
+  EmitterOptionsType<AdditionalEmitterOptions>
+> & {
+  data: DataType;
+};

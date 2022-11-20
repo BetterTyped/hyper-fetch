@@ -3,7 +3,7 @@ import { ListenerInstance } from "listener";
 
 type RemoveListener = () => void;
 
-export type ClientType<SocketClientType> = {
+export type WebsocketClientType<SocketClientType> = {
   emit: (emitter: EmitterInstance) => Promise<boolean>;
   listen: (listener: ListenerInstance, callback: () => void) => RemoveListener;
   removeListener: (listener: ListenerInstance, callback: () => void) => void;
