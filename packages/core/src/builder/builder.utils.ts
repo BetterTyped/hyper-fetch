@@ -55,6 +55,7 @@ export const getClientHeaders = (command: CommandInstance) => {
   const isFormData = command.data instanceof FormData;
   const headers: HeadersInit = {};
 
+  if (isFormData) headers["Content-Type"] = "multipart/form-data";
   if (!isFormData) headers["Content-Type"] = "application/json";
 
   Object.assign(headers, command.headers);

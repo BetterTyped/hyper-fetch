@@ -495,7 +495,7 @@ export class Command<
 // Typescript test cases
 
 // const builder = new Builder({
-//   baseUrl: "http://localhost:3000",
+//   url: "http://localhost:3000",
 // });
 
 // const getUsers = builder.createCommand<{ id: string }[]>()({

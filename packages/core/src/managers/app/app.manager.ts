@@ -1,7 +1,6 @@
 import EventEmitter from "events";
 
-import { BuilderInstance } from "builder";
-import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents } from "managers";
+import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents, hasDocument } from "managers";
 
 /**
  * App manager handles main application states - focus and online. Those two values can answer questions:
@@ -16,10 +15,11 @@ export class AppManager {
   emitter = new EventEmitter();
   events = getAppManagerEvents(this.emitter);
 
+  isNodeJs: boolean;
   isOnline: boolean;
   isFocused: boolean;
 
-  constructor(public builder: BuilderInstance, public options?: AppManagerOptionsType) {
+  constructor(public options?: AppManagerOptionsType) {
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,
@@ -30,8 +30,10 @@ export class AppManager {
     this.setInitialFocus(initiallyFocused);
     this.setInitialOnline(initiallyOnline);
 
-    focusEvent(this.setFocused, builder);
-    onlineEvent(this.setOnline, builder);
+    focusEvent(this.setFocused);
+    onlineEvent(this.setOnline);
+
+    this.isNodeJs = !hasDocument();
   }
 
   private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {

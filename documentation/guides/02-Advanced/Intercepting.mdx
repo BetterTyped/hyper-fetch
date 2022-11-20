@@ -12,7 +12,7 @@ You can add an interceptor to every command executed within a given builder and 
 own logic.
 
 ```ts
-export const builder = new Builder({ baseUrl }).onRequest(async (response, command) => {
+export const builder = new Builder({ url }).onRequest(async (response, command) => {
   // Add your custom logic
 
   return response;
@@ -28,7 +28,7 @@ With response interceptors, you can call your own logic and change the returned 
 ### onSuccess
 
 ```ts
-export const builder = new Builder({ baseUrl }).onSuccess(async (response, command) => {
+export const builder = new Builder({ url }).onSuccess(async (response, command) => {
   // Add your custom logic
 
   return response;
@@ -38,7 +38,7 @@ export const builder = new Builder({ baseUrl }).onSuccess(async (response, comma
 ### onError
 
 ```ts
-export const builder = new Builder({ baseUrl }).onError(async (response, command) => {
+export const builder = new Builder({ url }).onError(async (response, command) => {
   // Add your custom logic
 
   return response;
@@ -48,7 +48,7 @@ export const builder = new Builder({ baseUrl }).onError(async (response, command
 ### onResponse
 
 ```ts
-export const builder = new Builder({ baseUrl }).onResponse(async (response, command) => {
+export const builder = new Builder({ url }).onResponse(async (response, command) => {
   // Add your custom logic
 
   return response;

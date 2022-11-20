@@ -3,7 +3,7 @@ import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
 export const getClientBindings = async (cmd: CommandInstance, requestId: string) => {
-  const { baseUrl, commandManager, loggerManager, headerMapper, payloadMapper } = cmd.builder;
+  const { url, commandManager, loggerManager, headerMapper, payloadMapper } = cmd.builder;
 
   const logger = loggerManager.init("Client");
 
@@ -31,7 +31,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
 
   commandManager.addAbortController(abortKey, requestId);
 
-  const fullUrl = baseUrl + endpoint;
+  const fullUrl = url + endpoint;
   const effects = builder.effects.filter((effect) => command.effectKey === effect.getEffectKey());
   const headers = headerMapper(command);
   const payload = payloadMapper(data);

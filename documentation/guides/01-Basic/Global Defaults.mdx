@@ -19,7 +19,7 @@ be applied only to commands that do not have them specified in their options.
 ### Example
 
 ```ts
-export const builder = new Builder({ baseUrl }).setCommandConfig((commandOptions) => {
+export const builder = new Builder({ url }).setCommandConfig((commandOptions) => {
   if (commandOptions.method === "GET") {
     return {
       deduplicate: true,

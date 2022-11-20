@@ -54,7 +54,7 @@ interface of the output.
 ```tsx
 const customHttpClient: ClientType = (command: CommandInstance) => Promise.resolve([null, null, 0]);
 
-const builder = new Builder({ baseUrl }).setClient(customHttpClient);
+const builder = new Builder({ url }).setClient(customHttpClient);
 ```
 
 ---
@@ -69,5 +69,5 @@ type MyCustomClientOptions = {
   timeout?: number;
 };
 
-const builder = new Builder<Error, MyCustomClientOptions>({ baseUrl }).setClient(customHttpClient);
+const builder = new Builder<Error, MyCustomClientOptions>({ url }).setClient(customHttpClient);
 ```

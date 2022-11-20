@@ -19,7 +19,7 @@ NetInfo as the source of the connection state.
 
 ```ts
 export const builder = new Builder<ServerErrorType>({
-  baseUrl: environment.serverUrl,
+  url: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
       initiallyOnline: async () => {}

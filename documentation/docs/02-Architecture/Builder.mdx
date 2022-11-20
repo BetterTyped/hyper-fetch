@@ -11,14 +11,15 @@ sidebar_position: 1
 
 ## Introduction
 
-**`Builder`**  is a class that allows you to configure the server connection. It initializes the entire library’s subsystems,
-such as `queues`, `caches`, and `interceptors`. It also allows you to create (based on its settings) the commands necessary
-to execute requests. This way the data and information flow remains locked inside a given builder;
-it is isolated and does not affect other builders.
+**`Builder`** is a class that allows you to configure the server connection. It initializes the entire library’s
+subsystems, such as `queues`, `caches`, and `interceptors`. It also allows you to create (based on its settings) the
+commands necessary to execute requests. This way the data and information flow remains locked inside a given builder; it
+is isolated and does not affect other builders.
 
-It was designed to be used as a singleton, where `Builder` helps us create a global structure for making server
-requests without duplicating logic in different parts of the application. In this approach, we can easily create a solid structure
-and architecture for an application. This also facilitates test maintenance by dividing the necessary configurations and types.
+It was designed to be used as a singleton, where `Builder` helps us create a global structure for making server requests
+without duplicating logic in different parts of the application. In this approach, we can easily create a solid
+structure and architecture for an application. This also facilitates test maintenance by dividing the necessary
+configurations and types.
 
 ---
 
@@ -35,7 +36,7 @@ and architecture for an application. This also facilitates test maintenance by d
 ```tsx
 import { Builder } from "@hyper-fetch/core";
 
-export const builder = new Builder({ baseUrl: "http://localhost:3000" });
+export const builder = new Builder({ url: "http://localhost:3000" });
 ```
 
 ---
@@ -54,13 +55,15 @@ We can use the `setCommandConfig` method to specify the defaults for every creat
 
 ### Authentication
 
-To send authenticated requests, set up the `onAuth` interceptor. Set up the command with the `auth` option set to **true**. Read more about authentication here.
+To send authenticated requests, set up the `onAuth` interceptor. Set up the command with the `auth` option set to
+**true**. Read more about authentication here.
 
 [Read More](/guides/Basic/Authentication)
 
 ### Pre-Request Interceptor
 
-Use the `onRequest` builder method if you need to use the pre-request interceptor to modify the command before it’s sent.
+Use the `onRequest` builder method if you need to use the pre-request interceptor to modify the command before it’s
+sent.
 
 ### Post-Request Interceptors
 
@@ -72,8 +75,8 @@ There are several methods for intercepting a response from a command:
 
 ### Query Params
 
-Builder has a built-in query params encoding function; you can modify its options or provide your own function.
-Use the `setQueryParamsConfig` method and the options listed below.
+Builder has a built-in query params encoding function; you can modify its options or provide your own function. Use the
+`setQueryParamsConfig` method and the options listed below.
 
 {@import Hyper-Fetch QueryStringifyOptions returns}
 
@@ -86,14 +89,14 @@ builder.setStringifyQueryParams((value: string) => encode(value));
 ### Header Mapper
 
 By default, the header mapper behaves very simply: it checks if the content is FormData or JSON, and provides correct
-headers to the request. You can create much more advanced setups with the `setHeaderMapper`.
-It allows you to define custom logic that will be triggered before every request made in the builder.
+headers to the request. You can create much more advanced setups with the `setHeaderMapper`. It allows you to define
+custom logic that will be triggered before every request made in the builder.
 
 ### Payload Mapper
 
-The payload mapper’s default responsibility is to check if data is an instance of FormData or not.
-Based on this, you can stringify non-FormData values or just pass the FormData to the request to be made.
-This allows file upload to be supported out of the box.
+The payload mapper’s default responsibility is to check if data is an instance of FormData or not. Based on this, you
+can stringify non-FormData values or just pass the FormData to the request to be made. This allows file upload to be
+supported out of the box.
 
 ---
 
@@ -106,10 +109,11 @@ class Builder<GlobalErrorType, RequestConfigType>
 ```
 
 - `GlobalErrorType` defines the error type used in all the commands. It should consist of an `Error` type and your
-  default `ServerErrorType`. For some command’s individual error types, you can set up a `LocalErrorType` for each command.
+  default `ServerErrorType`. For some command’s individual error types, you can set up a `LocalErrorType` for each
+  command.
 
-- `RequestConfigType` is the generic responsible for shaping options passed to the client. Most likely you will
-  change it only when you provide your custom client.
+- `RequestConfigType` is the generic responsible for shaping options passed to the client. Most likely you will change
+  it only when you provide your custom client.
 
 ---
 
@@ -168,7 +172,7 @@ Configuration options
 1. Adding the headers to the request during authentication
 
 ```tsx
-export const builder = new Builder({ baseUrl }).onAuth((command) => {
+export const builder = new Builder({ url }).onAuth((command) => {
   const state = store.getState();
   const authToken = state.auth.token;
 
@@ -189,7 +193,7 @@ export const getUsers = builder.createCommand<{ name: string; email: string }>()
 2. Refreshing the token
 
 ```tsx
-export const builder = new Builder({ baseUrl }).onError(async (res, command) => {
+export const builder = new Builder({ url }).onError(async (res, command) => {
   const status = res[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
 

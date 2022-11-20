@@ -12,7 +12,7 @@ Authentication in Hyper Fetch consists of two steps. We will introduce changes i
 In the example below we are doing it by adding a token header to the currently sent command.
 
 ```ts
-export const builder = new Builder({ baseUrl }).onAuth((command) => {
+export const builder = new Builder({ url }).onAuth((command) => {
   // Redux store or any other storage to get current value of token
   const state = store.getState();
   const authToken = state.auth.token;
@@ -49,7 +49,7 @@ already gone through the intercept process or not.
 ### Example
 
 ```ts
-export const builder = new Builder({ baseUrl }).onError(async (response, command) => {
+export const builder = new Builder({ url }).onError(async (response, command) => {
   const status = response[2];
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
 

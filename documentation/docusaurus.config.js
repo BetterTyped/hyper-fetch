@@ -12,7 +12,7 @@ const config = {
   title: "Hyper Fetch - Ultimate fetching solution",
   tagline: "Follow the flow of modern data exchange",
   url: "https://hyperfetch.bettertyped.com",
-  baseUrl: "/",
+  url: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",

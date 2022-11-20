@@ -24,7 +24,7 @@ type GlobalErrorType = {
   status: 400 | 404 | 500;
 };
 
-export const builder = new Builder<GlobalErrorType>({ baseUrl });
+export const builder = new Builder<GlobalErrorType>({ url });
 ```
 
 Now the error type of our command will reflect `GlobalErrorType`.

@@ -31,7 +31,7 @@ const persistenceStorage: CacheStorageType = {
 };
 
 export const builder = new Builder<ServerErrorType>({
-  baseUrl: "localhost:3000",
+  url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
       storage: persistenceStorage,
@@ -58,7 +58,7 @@ const asyncStorage: CacheAsyncStorageType = {
 };
 
 export const builder = new Builder<ServerErrorType>({
-  baseUrl: "localhost:3000",
+  url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
       lazyStorage: asyncStorage,
@@ -101,7 +101,7 @@ const persistenceStorage: DispatcherStorageType = {
 };
 
 export const builder = new Builder<ServerErrorType>({
-  baseUrl: "localhost:3000",
+  url: "localhost:3000",
   fetchDispatcher: (instance) =>
     new Dispatcher(instance, {
       storage: persistenceStorage,
@@ -128,7 +128,7 @@ const persistenceStorage: DispatcherStorageType = {
 };
 
 export const builder = new Builder<ServerErrorType>({
-  baseUrl: "localhost:3000",
+  url: "localhost:3000",
   submitDispatcher: (instance) =>
     new Dispatcher(instance, {
       storage: persistenceStorage,
