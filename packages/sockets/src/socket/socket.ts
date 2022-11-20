@@ -8,6 +8,7 @@ import {
   QueryStringifyOptions,
   LoggerManager,
   SeverityType,
+  AppManager,
 } from "@hyper-fetch/core";
 
 import { SocketConfig } from "socket";
@@ -15,8 +16,9 @@ import { ClientType } from "client";
 import { ListenerInstance, ListenerOptionsType } from "listener";
 import { EmitterInstance, EmitterOptionsType } from "emitter";
 
-export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> {
-  readonly baseUrl: string; /// ????
+export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, ClientSocketType> {
+  readonly url: string; /// ????
+  readonly protocols: string[]; /// ????
   readonly reconnect: number;
   readonly reconnectTime: number;
   debug: boolean;
@@ -30,8 +32,10 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
   // onError
 
   // Config
-  client: ClientType<SocketType>;
+  client: ClientType<ClientSocketType>;
   loggerManager = new LoggerManager(this);
+  appManager = new AppManager();
+  headers: HeadersInit;
 
   // Options
   queryParamsConfig?: QueryStringifyOptions;
@@ -48,7 +52,7 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
    */
   setListenerConfig = (
     callback: (listener: ListenerInstance) => Partial<ListenerOptionsType<AdditionalListenerOptions>>,
-  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> => {
+  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, ClientSocketType> => {
     this.listenerConfig = callback;
     return this;
   };
@@ -58,7 +62,7 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
    */
   setEmitterConfig = (
     callback: (listener: EmitterInstance) => Partial<EmitterOptionsType<AdditionalEmitterOptions>>,
-  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType> => {
+  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, ClientSocketType> => {
     this.emitterConfig = callback;
     return this;
   };
@@ -83,8 +87,8 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
   logger = this.loggerManager.init("Socket");
 
   constructor(public options: SocketConfig) {
-    const { baseUrl, client, reconnect, reconnectTime } = this.options;
-    this.baseUrl = baseUrl;
+    const { url, client, reconnect, reconnectTime } = this.options;
+    this.url = url;
     // TODO add default
     this.client = client as any;
     this.reconnect = reconnect ?? 10;
@@ -112,7 +116,7 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
    */
   setLogger = (
     callback: (
-      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType>,
+      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, ClientSocketType>,
     ) => LoggerManager,
   ) => {
     this.loggerManager = callback(this);
@@ -147,17 +151,16 @@ export class Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitte
   /**
    * Set custom http client to handle graphql, rest, firebase or other
    */
-  setClient = <ClientSocketType>(
+  setClient = <T>(
     callback: (
-      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, SocketType>,
-    ) => ClientType<ClientSocketType>,
+      socket: Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, T>,
+    ) => ClientType<T>,
   ) => {
-    this.client = callback(this) as unknown as ClientType<SocketType>;
-    return this as unknown as Socket<
-      GlobalErrorType,
-      AdditionalListenerOptions,
-      AdditionalEmitterOptions,
-      ClientSocketType
-    >;
+    this.client = callback(this as any) as any;
+    return this as unknown as Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, T>;
   };
+
+  setHeaders(headers: HeadersInit) {
+    this.headers = headers;
+  }
 }

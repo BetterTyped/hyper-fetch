@@ -1,5 +1,9 @@
+import { Socket } from "socket";
+
+export type SocketInstance = Socket<any, any, any, any>;
+
 export type SocketConfig = {
-  baseUrl: string;
+  url: string;
   client?: unknown;
   reconnect?: number;
   reconnectTime?: number;

@@ -1,66 +1,32 @@
 import { Socket } from "socket";
-import { ListenerOptionsType, ListenerCloneOptionsType } from "listener";
+import { ListenerOptionsType } from "listener";
 
-export class Listener<ResponseType, QueryParamsType, GlobalErrorType, LocalErrorType, AdditionalListenerOptions> {
+export class Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> {
   readonly name: string;
-  auth: boolean;
-  headers: HeadersInit;
-  options: AdditionalListenerOptions;
-  queryParams: QueryParamsType | null = null;
+  options?: AdditionalListenerOptions;
 
   constructor(
     readonly socket: Socket<GlobalErrorType, AdditionalListenerOptions, unknown, unknown>,
-    listenerOptions: ListenerOptionsType<AdditionalListenerOptions>,
-    dump: Partial<Listener<ResponseType, QueryParamsType, GlobalErrorType, LocalErrorType, AdditionalListenerOptions>>,
+    readonly listenerOptions?: ListenerOptionsType<AdditionalListenerOptions>,
   ) {
-    const {
-      name,
-      headers,
-      auth = true,
-      options,
-    } = {
+    const { name, options } = {
       ...this.socket.listenerConfig?.(listenerOptions),
       ...listenerOptions,
     };
 
-    this.name = dump?.name ?? name;
-    this.headers = dump?.headers ?? headers;
-    this.auth = dump?.auth ?? auth;
-    this.queryParams = dump?.queryParams;
-    this.options = dump?.options ?? options;
-  }
-
-  setAuth(auth: boolean) {
-    this.auth = auth;
-  }
-
-  setHeaders(headers: HeadersInit) {
-    this.headers = headers;
+    this.name = name;
+    this.options = options;
   }
 
   setOptions(options: AdditionalListenerOptions) {
     this.options = options;
   }
 
-  setQueryParams(queryParams: QueryParamsType) {
-    this.queryParams = queryParams;
-  }
-
-  clone(
-    options?: ListenerCloneOptionsType<QueryParamsType, AdditionalListenerOptions>,
-  ): Listener<ResponseType, QueryParamsType, LocalErrorType, GlobalErrorType, AdditionalListenerOptions> {
-    const dump: Partial<
-      Listener<ResponseType, QueryParamsType, LocalErrorType, GlobalErrorType, AdditionalListenerOptions>
-    > = {
-      ...this,
-      queryParams: options?.queryParams || this.queryParams,
-    };
-
-    return new Listener<ResponseType, QueryParamsType, LocalErrorType, GlobalErrorType, AdditionalListenerOptions>(
-      this.socket,
-      options,
-      dump,
-    );
+  clone(): Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> {
+    return new Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions>(this.socket, {
+      ...this.listenerOptions,
+      options: { ...(this.listenerOptions.options || this.options) },
+    });
   }
 
   listen(listener: () => void) {

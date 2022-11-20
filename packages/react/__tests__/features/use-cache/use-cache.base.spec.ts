@@ -19,6 +19,7 @@ describe("useCache [ Base ]", () => {
     },
     cacheTime: command.cacheTime,
     clearKey: command.builder.cache.clearKey,
+    garbageCollection: true,
   };
 
   beforeAll(() => {

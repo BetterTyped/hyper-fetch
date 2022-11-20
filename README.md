@@ -148,7 +148,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
 import { Builder } from "@hyper-fetch/core";
 
 // Create global setup
-export const builder = new Builder({ baseUrl: "http://localhost:3000" });
+export const builder = new Builder({ url: "http://localhost:3000" });
 
 // Create reusable commands to trigger requests
 export const postData = builder.createCommand<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
