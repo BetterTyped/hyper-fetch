@@ -14,7 +14,7 @@ const getMock = (
 ) => {
   const { method, endpoint } = request;
 
-  const url = builder.baseUrl + endpoint;
+  const url = builder.url + endpoint;
 
   function callback(req: any, res: any, ctx: any) {
     return res(
