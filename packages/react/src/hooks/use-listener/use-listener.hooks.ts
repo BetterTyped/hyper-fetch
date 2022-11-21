@@ -4,7 +4,7 @@ import { ListenerInstance } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 
-export const useSocketListener = <ListenerType extends ListenerInstance>(listener: ListenerType) => {
+export const useListener = <ListenerType extends ListenerInstance>(listener: ListenerType) => {
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
   const [state, actions, { setRenderKey }] = useSocketState();
 

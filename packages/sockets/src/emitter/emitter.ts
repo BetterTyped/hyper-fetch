@@ -1,31 +1,28 @@
-import { Socket } from "socket";
+import { Socket, SocketClientType } from "socket";
 import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
+import { TupleRestType } from "types";
+import { WebsocketClientType } from "client";
+import { ExtractEmitterOptionsType } from "types/extract.types";
 
-export class Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, MappedData> {
+export class Emitter<DataType, ClientType extends SocketClientType<WebsocketClientType>, MappedData = void> {
   readonly event: string;
-  offline: boolean;
   headers: HeadersInit;
-  options: AdditionalEmitterOptions;
+  options: ExtractEmitterOptionsType<ClientType>;
   data: DataType | null = null;
 
   constructor(
-    readonly socket: Socket<GlobalErrorType, unknown, AdditionalEmitterOptions>,
-    readonly emitterOptions: EmitterOptionsType<AdditionalEmitterOptions>,
-    dump: Partial<Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, MappedData>>,
+    readonly socket: Socket<ClientType>,
+    readonly emitterOptions: EmitterOptionsType<ExtractEmitterOptionsType<ClientType>>,
+    dump: Partial<Emitter<DataType, ClientType, MappedData>>,
     readonly dataMapper: (data: DataType) => MappedData,
   ) {
-    const { event, options } = {
-      ...this.socket.emitterConfig?.(emitterOptions),
-      ...emitterOptions,
-    };
-
+    const { event, options } = emitterOptions;
     this.event = dump?.event ?? event;
     this.data = dump?.data;
-    this.offline = dump?.offline;
-    this.options = dump?.options ?? options;
+    this.options = dump?.options ?? (options || this.socket.client.emitterOptions);
   }
 
-  setOptions(options: AdditionalEmitterOptions) {
+  setOptions(options: ExtractEmitterOptionsType<ClientType>) {
     return this.clone({ options });
   }
 
@@ -33,36 +30,30 @@ export class Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, Mapped
     return this.clone({ data });
   }
 
-  setOffline = (offline: boolean) => {
-    return this.clone({ offline });
-  };
-
   setDataMapper = <MapperData>(mapper: (data: DataType) => MapperData) => {
     return this.clone(undefined, mapper);
   };
 
   clone<MapperData = MappedData>(
-    options?: Partial<EmitterCloneOptionsType<DataType, AdditionalEmitterOptions>>,
+    options?: Partial<EmitterCloneOptionsType<DataType, ExtractEmitterOptionsType<ClientType>>>,
     mapper?: (data: DataType) => MapperData,
-  ): Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, MapperData> {
-    const dump: Partial<Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, MapperData>> = {
+  ): Emitter<DataType, ClientType, MapperData> {
+    const dump: Partial<Emitter<DataType, ClientType, MapperData>> = {
       ...(this as any),
       ...options,
       data: options?.data || this.data,
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<DataType, GlobalErrorType, AdditionalEmitterOptions, MapperData>(
-      this.socket,
-      this.emitterOptions,
-      dump,
-      mapperFn,
-    );
+    return new Emitter<DataType, ClientType, MapperData>(this.socket, this.emitterOptions, dump, mapperFn);
   }
 
-  emit(options?: any) {
+  emit(
+    options?: Partial<EmitterCloneOptionsType<DataType, ExtractEmitterOptionsType<ClientType>>>,
+    ...rest: TupleRestType<Parameters<typeof this.socket.client.emit>>
+  ) {
     const instance = this.clone(options);
 
-    return this.socket.client.emit(instance);
+    return this.socket.client.emit(instance, ...rest);
   }
 }

@@ -15,8 +15,13 @@ export class WebSocketClient<SocketType extends SocketInstance> {
 
   constructor(readonly socket: SocketType) {
     this.socket.appManager.events.onOffline(() => {
-      this.open = false;
+      this.disconnect();
     });
+    this.socket.appManager.events.onOnline(() => {
+      this.connect();
+    });
+
+    this.connect();
   }
 
   connect() {
@@ -80,12 +85,14 @@ export class WebSocketClient<SocketType extends SocketInstance> {
   }
 
   disconnect() {
+    this.open = false;
+    this.connecting = false;
     this.forceClosed = true;
     this.websocket?.close();
   }
 
   reconnect() {
-    this.websocket?.close();
+    this.disconnect();
     if (this.socket.reconnect < this.reconnectionAttempts) {
       this.reconnectionAttempts += 1;
       this.connect();

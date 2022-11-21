@@ -2,12 +2,8 @@ import { EmitterInstance } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 
-export const useSocketEmitter = <EmitterType extends EmitterInstance>(emitter: EmitterType) => {
+export const useEmitter = <EmitterType extends EmitterInstance>(emitter: EmitterType) => {
   const [state, actions, { setRenderKey }] = useSocketState();
-
-  const emit = () => {
-    emitter.emit();
-  };
 
   return {
     get data() {
@@ -15,6 +11,6 @@ export const useSocketEmitter = <EmitterType extends EmitterInstance>(emitter: E
       return state.data;
     },
     ...actions,
-    emit,
+    emit: emitter.emit, // Handle rest params
   };
 };

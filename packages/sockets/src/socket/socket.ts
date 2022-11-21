@@ -20,37 +20,30 @@ import {
   MessageCallbackType,
   SendCallbackType,
   ErrorCallbackType,
+  SocketClientType,
 } from "socket";
-import { ListenerInstance, ListenerOptionsType } from "listener";
-import { EmitterInstance, EmitterOptionsType } from "emitter";
 import { WebsocketClientType, WebSocketClient } from "client";
 
-export class Socket<
-  GlobalErrorType,
-  AdditionalListenerOptions,
-  AdditionalEmitterOptions,
-  WebsocketType = void,
-  QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType | string,
-> {
+export class Socket<ClientType = WebsocketClientType> {
   readonly url: string;
   readonly protocols: string[] = [];
   readonly reconnect: number;
   readonly reconnectTime: number;
   debug: boolean;
-  auth?: ClientQueryParamsType;
-  queryParams?: QueryParamsType;
+  auth?: ClientQueryParamsType | string;
+  queryParams?: ClientQueryParamsType | string;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onCloseCallbacks: CloseCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onReconnectStopCallbacks: ReconnectStopCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onMessageCallbacks: MessageCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onSendCallbacks: SendCallbackType<WebsocketClientType<WebsocketType>>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<WebsocketClientType<WebsocketType>>[] = [];
+  __onOpenCallbacks: OpenCallbackType<ClientType>[] = [];
+  __onCloseCallbacks: CloseCallbackType<ClientType>[] = [];
+  __onReconnectCallbacks: ReconnectCallbackType<ClientType>[] = [];
+  __onReconnectStopCallbacks: ReconnectStopCallbackType<ClientType>[] = [];
+  __onMessageCallbacks: MessageCallbackType<ClientType>[] = [];
+  __onSendCallbacks: SendCallbackType<ClientType>[] = [];
+  __onErrorCallbacks: ErrorCallbackType<ClientType>[] = [];
 
   // Config
-  client: WebsocketClientType<WebsocketType>;
+  client: SocketClientType<ClientType>;
   loggerManager = new LoggerManager(this);
   appManager = new AppManager();
   queryParamsConfig?: QueryStringifyOptions;
@@ -58,14 +51,19 @@ export class Socket<
   // Logger
   logger = this.loggerManager.init("Socket");
 
-  listenerConfig?: (
-    listenerOptions: ListenerOptionsType<AdditionalListenerOptions>,
-  ) => Partial<ListenerOptionsType<AdditionalListenerOptions>>;
-  emitterConfig?: (
-    emitterOptions: EmitterOptionsType<AdditionalEmitterOptions>,
-  ) => Partial<EmitterOptionsType<AdditionalEmitterOptions>>;
+  /**
+   * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
+   */
+  payloadMapper: ClientPayloadMappingCallback = getClientPayload;
 
-  constructor(public options: SocketConfig<WebsocketType, QueryParamsType>) {
+  /**
+   * Method to stringify query params from objects.
+   */
+  queryParamsStringify: StringifyCallbackType = (queryParams) => {
+    return stringifyQueryParams(queryParams, this.queryParamsConfig);
+  };
+
+  constructor(public options: SocketConfig<ClientType>) {
     const { url, auth, queryParams, client, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
       this.options;
     this.url = url;
@@ -77,40 +75,8 @@ export class Socket<
     this.queryParamsStringify = queryParamsStringify;
 
     // Client must be initialized at the end
-    this.client = client || (new WebSocketClient(this) as unknown as WebsocketClientType<WebsocketType>);
+    this.client = client || (new WebSocketClient(this) as any);
   }
-
-  /**
-   * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
-   */
-  payloadMapper: ClientPayloadMappingCallback = getClientPayload;
-
-  /**
-   * This method allows to configure global defaults for the listener configuration
-   */
-  setListenerConfig = (
-    callback: (listener: ListenerInstance) => Partial<ListenerOptionsType<AdditionalListenerOptions>>,
-  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, WebsocketType, QueryParamsType> => {
-    this.listenerConfig = callback;
-    return this;
-  };
-
-  /**
-   * This method allows to configure global defaults for the listener configuration
-   */
-  setEmitterConfig = (
-    callback: (listener: EmitterInstance) => Partial<EmitterOptionsType<AdditionalEmitterOptions>>,
-  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, WebsocketType, QueryParamsType> => {
-    this.emitterConfig = callback;
-    return this;
-  };
-
-  /**
-   * Method to stringify query params from objects.
-   */
-  queryParamsStringify: StringifyCallbackType = (queryParams) => {
-    return stringifyQueryParams(queryParams, this.queryParamsConfig);
-  };
 
   /**
    * This method enables the logger usage and display the logs in console
@@ -131,17 +97,7 @@ export class Socket<
   /**
    * Set the new logger instance to the socket
    */
-  setLogger = (
-    callback: (
-      socket: Socket<
-        GlobalErrorType,
-        AdditionalListenerOptions,
-        AdditionalEmitterOptions,
-        WebsocketType,
-        QueryParamsType
-      >,
-    ) => LoggerManager,
-  ) => {
+  setLogger = (callback: (socket: Socket<ClientType>) => LoggerManager) => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -149,9 +105,7 @@ export class Socket<
   /**
    * Set the request payload mapping function which get triggered before request get send
    */
-  setPayloadMapper = (
-    payloadMapper: ClientPayloadMappingCallback,
-  ): Socket<GlobalErrorType, AdditionalListenerOptions, AdditionalEmitterOptions, WebsocketType, QueryParamsType> => {
+  setPayloadMapper = (payloadMapper: ClientPayloadMappingCallback): Socket<ClientType> => {
     this.payloadMapper = payloadMapper;
     return this;
   };
@@ -165,7 +119,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onOpen = (callback: OpenCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onOpen = (callback: OpenCallbackType<ClientType>) => {
     this.__onOpenCallbacks.push(callback);
     return this;
   };
@@ -174,7 +128,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onClose = (callback: CloseCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onClose = (callback: CloseCallbackType<ClientType>) => {
     this.__onCloseCallbacks.push(callback);
     return this;
   };
@@ -184,7 +138,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onReconnect = (callback: ReconnectCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onReconnect = (callback: ReconnectCallbackType<ClientType>) => {
     this.__onReconnectCallbacks.push(callback);
     return this;
   };
@@ -194,7 +148,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onReconnectStop = (callback: ReconnectStopCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onReconnectStop = (callback: ReconnectStopCallbackType<ClientType>) => {
     this.__onReconnectStopCallbacks.push(callback);
     return this;
   };
@@ -204,7 +158,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onMessage = (callback: MessageCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onMessage = (callback: MessageCallbackType<ClientType>) => {
     this.__onMessageCallbacks.push(callback);
     return this;
   };
@@ -214,7 +168,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onSend = (callback: SendCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onSend = (callback: SendCallbackType<ClientType>) => {
     this.__onSendCallbacks.push(callback);
     return this;
   };
@@ -224,7 +178,7 @@ export class Socket<
    * @param callback
    * @returns
    */
-  onError = (callback: ErrorCallbackType<WebsocketClientType<WebsocketType>>) => {
+  onError = (callback: ErrorCallbackType<ClientType>) => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };

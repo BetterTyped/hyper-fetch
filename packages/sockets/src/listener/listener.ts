@@ -1,35 +1,33 @@
-import { Socket } from "socket";
+import { Socket, SocketClientType } from "socket";
 import { ListenerOptionsType } from "listener";
+import { WebsocketClientType } from "client";
+import { ExtractListenerOptionsType } from "types/extract.types";
 
-export class Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> {
+export class Listener<ResponseType, ClientType extends SocketClientType<WebsocketClientType>> {
   readonly event: string;
-  options?: AdditionalListenerOptions;
+  options?: ExtractListenerOptionsType<ClientType>;
 
   constructor(
-    readonly socket: Socket<GlobalErrorType, AdditionalListenerOptions, unknown>,
-    readonly listenerOptions?: ListenerOptionsType<AdditionalListenerOptions>,
+    readonly socket: Socket<ClientType>,
+    readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<ClientType>>,
   ) {
-    const { event, options } = {
-      ...this.socket.listenerConfig?.(listenerOptions),
-      ...listenerOptions,
-    };
-
+    const { event, options } = listenerOptions;
     this.event = event;
+    this.options = options || this.socket.client.listenerOptions;
+  }
+
+  setOptions(options: ExtractListenerOptionsType<ClientType>) {
     this.options = options;
   }
 
-  setOptions(options: AdditionalListenerOptions) {
-    this.options = options;
-  }
-
-  clone(): Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions> {
-    return new Listener<ResponseType, GlobalErrorType, AdditionalListenerOptions>(this.socket, {
+  clone(): Listener<ResponseType, ClientType> {
+    return new Listener<ResponseType, ClientType>(this.socket, {
       ...this.listenerOptions,
-      options: { ...(this.listenerOptions.options || this.options) },
+      options: { ...((this.listenerOptions.options || this.options) as any) },
     });
   }
 
-  listen(listener: () => void) {
+  listen(listener: (data: ResponseType) => void) {
     const instance = this.clone();
 
     this.socket.client.listen(instance, listener);

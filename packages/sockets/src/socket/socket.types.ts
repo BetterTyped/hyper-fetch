@@ -3,13 +3,13 @@ import { ClientQueryParamsType, QueryStringifyOptions, StringifyCallbackType } f
 import { WebsocketClientType } from "client";
 import { Socket } from "socket";
 
-export type SocketInstance = Socket<any, any, any, any>;
+export type SocketInstance = Socket<any>;
 
-export type SocketConfig<WebsocketType, QueryParams extends ClientQueryParamsType | string> = {
+export type SocketConfig<WebsocketType> = {
   url: string;
   auth?: ClientQueryParamsType;
-  queryParams?: QueryParams;
-  client?: WebsocketClientType<WebsocketType>;
+  queryParams?: ClientQueryParamsType | string;
+  client?: SocketClientType<WebsocketType>;
   reconnect?: number;
   reconnectTime?: number;
   autoConnect?: boolean;
@@ -17,27 +17,21 @@ export type SocketConfig<WebsocketType, QueryParams extends ClientQueryParamsTyp
   queryParamsStringify?: StringifyCallbackType;
 };
 
-export type ReconnectCallbackType<WebsocketType extends WebsocketClientType<any>> = (websocket: WebsocketType) => void;
-export type ReconnectStopCallbackType<WebsocketType extends WebsocketClientType<any>> = (
-  websocket: WebsocketType,
-) => void;
-export type OpenCallbackType<WebsocketType extends WebsocketClientType<any>> = <Event>(
+export type SocketClientType<ClientType> = WebsocketClientType extends ClientType ? ClientType : WebsocketClientType;
+
+export type ReconnectCallbackType<WebsocketType> = (websocket: SocketClientType<WebsocketType>) => void;
+export type ReconnectStopCallbackType<WebsocketType> = (websocket: SocketClientType<WebsocketType>) => void;
+export type OpenCallbackType<WebsocketType> = <Event>(event: Event, websocket: SocketClientType<WebsocketType>) => void;
+export type CloseCallbackType<WebsocketType> = <Event>(
   event: Event,
-  websocket: WebsocketType,
+  websocket: SocketClientType<WebsocketType>,
 ) => void;
-export type CloseCallbackType<WebsocketType extends WebsocketClientType<any>> = <Event>(
+export type MessageCallbackType<WebsocketType> = <Event>(
   event: Event,
-  websocket: WebsocketType,
+  websocket: SocketClientType<WebsocketType>,
 ) => void;
-export type MessageCallbackType<WebsocketType extends WebsocketClientType<any>> = <Event>(
+export type SendCallbackType<WebsocketType> = <Event>(event: Event, websocket: SocketClientType<WebsocketType>) => void;
+export type ErrorCallbackType<WebsocketType> = <Event>(
   event: Event,
-  websocket: WebsocketType,
-) => void;
-export type SendCallbackType<WebsocketType extends WebsocketClientType<any>> = <Event>(
-  event: Event,
-  websocket: WebsocketType,
-) => void;
-export type ErrorCallbackType<WebsocketType extends WebsocketClientType<any>> = <Event>(
-  event: Event,
-  websocket: WebsocketType,
+  websocket: SocketClientType<WebsocketType>,
 ) => void;
