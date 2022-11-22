@@ -35,9 +35,12 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "dependencies": {
-    "events": "^3.3.0"
+  "peerDependencies": {
+    "events": "*",
+    "http": "*",
+    "stream": "*"
   },
+  "dependencies": {},
   "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

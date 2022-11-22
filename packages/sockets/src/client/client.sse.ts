@@ -1,11 +1,10 @@
 import { DateInterval } from "@hyper-fetch/core";
 
-import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import { SocketInstance } from "socket";
 
-export class WebSocketClient<SocketType extends SocketInstance> {
-  websocket: WebSocket;
+export class SseClient<SocketType extends SocketInstance> {
+  websocket: EventSource;
   listeners: Map<string, Set<(event: any) => void>>;
   open = false;
   connecting = false;
@@ -21,11 +20,15 @@ export class WebSocketClient<SocketType extends SocketInstance> {
       this.connect();
     });
 
-    this.connect();
+    if (this.socket.autoConnect) {
+      this.connect();
+    }
   }
 
   connect() {
     if (this.socket.appManager.isNodeJs) return;
+
+    this.socket.events.emitConnecting();
 
     // Clean environment
     this.forceClosed = false;
@@ -37,7 +40,7 @@ export class WebSocketClient<SocketType extends SocketInstance> {
     const authParams = this.socket.queryParamsStringify(this.socket.auth).substring(1);
     const connector = queryParams && authParams ? "&" : "";
     const fullUrl = `${this.socket.url}?${authParams}${connector}${queryParams}`;
-    this.websocket = new WebSocket(fullUrl);
+    this.websocket = new EventSource(fullUrl);
 
     // Reconnection timeout
     const timeout = setTimeout(() => {
@@ -53,20 +56,21 @@ export class WebSocketClient<SocketType extends SocketInstance> {
       this.open = true;
       this.connecting = false;
       this.reconnectionAttempts = 0;
-    };
-
-    this.websocket.onclose = (event) => {
-      this.socket.__onCloseCallbacks.forEach((callback) => {
-        callback(event, this.websocket);
-      });
-      this.open = false;
-      this.connecting = false;
+      this.socket.events.emitOpen();
     };
 
     this.websocket.onerror = (event) => {
       this.socket.__onErrorCallbacks.forEach((callback) => {
         callback(event, this.websocket);
       });
+      this.socket.events.emitError(event);
+      const reconnected = this.reconnect();
+      if (!reconnected) {
+        this.disconnect();
+        this.socket.__onCloseCallbacks.forEach((callback) => {
+          callback(event, this.websocket);
+        });
+      }
     };
 
     this.websocket.onmessage = (event) => {
@@ -81,6 +85,7 @@ export class WebSocketClient<SocketType extends SocketInstance> {
           callback(event.data);
         });
       }
+      this.socket.events.emitListenerEvent(event.type, event);
     };
   }
 
@@ -89,6 +94,7 @@ export class WebSocketClient<SocketType extends SocketInstance> {
     this.connecting = false;
     this.forceClosed = true;
     this.websocket?.close();
+    this.socket.events.emitClose();
   }
 
   reconnect() {
@@ -99,16 +105,19 @@ export class WebSocketClient<SocketType extends SocketInstance> {
       this.socket.__onReconnectCallbacks.forEach((callback) => {
         callback(this.websocket);
       });
-    } else {
-      this.socket.__onReconnectStopCallbacks.forEach((callback) => {
-        callback(this.websocket);
-      });
+      this.socket.events.emitReconnecting(this.reconnectionAttempts);
+      return true;
     }
+    this.socket.__onReconnectStopCallbacks.forEach((callback) => {
+      callback(this.websocket);
+    });
+    this.socket.events.emitReconnectingStop(this.reconnectionAttempts);
+    return false;
   }
 
   listen(listener: ListenerInstance, callback: (data: any) => void) {
     const listenerGroup =
-      this.listeners.get(listener.event) || this.listeners.set(listener.event, new Set()).get(listener.event);
+      this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
 
     listenerGroup.add(callback);
     return () => listenerGroup.delete(callback);
@@ -125,12 +134,8 @@ export class WebSocketClient<SocketType extends SocketInstance> {
     };
   }
 
-  emit(emitter: EmitterInstance) {
-    const payload = JSON.stringify({
-      type: emitter.event,
-      data: emitter.data,
-    });
-
-    this.websocket.send(payload);
+  // eslint-disable-next-line class-methods-use-this
+  emit() {
+    throw new Error("Server Sent Events can only listen to events");
   }
 }

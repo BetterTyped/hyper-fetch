@@ -1,7 +1,7 @@
 import http from "http";
 import stream from "stream";
 
-import { getClientBindings, defaultTimeout, ClientResponseType, ClientType } from "client";
+import { getClientBindings, defaultTimeout, ClientResponseType, ClientType, ClientDefaultOptionsType } from "client";
 import { parseErrorResponse, parseResponse, getUploadSize } from "./fetch.client.utils";
 
 export const serverClient: ClientType = async (command, requestId) => {
@@ -22,7 +22,7 @@ export const serverClient: ClientType = async (command, requestId) => {
     // onTimeoutError,
     onError,
     onResponseEnd,
-  } = await getClientBindings(command, requestId);
+  } = await getClientBindings<ClientDefaultOptionsType>(command, requestId);
 
   const abortController = new AbortController();
   const { method } = command;

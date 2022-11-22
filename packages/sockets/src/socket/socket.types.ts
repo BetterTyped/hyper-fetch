@@ -7,6 +7,7 @@ export type SocketInstance = Socket<any>;
 
 export type SocketConfig<WebsocketType> = {
   url: string;
+  isSSE?: boolean;
   auth?: ClientQueryParamsType;
   queryParams?: ClientQueryParamsType | string;
   client?: SocketClientType<WebsocketType>;

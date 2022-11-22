@@ -1,10 +1,18 @@
 import { useRef } from "react";
-import { useForceUpdate } from "@better-typed/react-lifecycle-hooks";
+import { SocketInstance } from "@hyper-fetch/sockets";
+import { useDidMount, useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
 
 import { UseSocketStateType, initialSocketState } from "helpers";
 
-export const useSocketState = <DataType>() => {
+export const useSocketState = <DataType>(socket: SocketInstance, dependencyTracking?: boolean) => {
   const forceUpdate = useForceUpdate();
+
+  const onOpenCallback = useRef<null | VoidFunction>(null);
+  const onCloseCallback = useRef<null | VoidFunction>(null);
+  const onErrorCallback = useRef<null | ((event: any) => void)>(null);
+  const onConnectingCallback = useRef<null | VoidFunction>(null);
+  const onReconnectingCallback = useRef<null | ((attempts: number) => void)>(null);
+  const onReconnectingStopCallback = useRef<null | ((attempts: number) => void)>(null);
 
   const state = useRef<UseSocketStateType<DataType>>(initialSocketState);
   const renderKeys = useRef<Array<keyof UseSocketStateType<DataType>>>([]);
@@ -23,37 +31,58 @@ export const useSocketState = <DataType>() => {
       renderKeys.current.push(renderKey);
     }
   };
+
   // ******************
   // Turn off dependency tracking
   // ******************
 
-  // useDidUpdate(
-  //   () => {
-  //     const handleDependencyTracking = () => {
-  //       if (!dependencyTracking) {
-  //         Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
-  //       }
-  //     };
+  useDidUpdate(
+    () => {
+      const handleDependencyTracking = () => {
+        if (!dependencyTracking) {
+          Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
+        }
+      };
 
-  //     handleDependencyTracking();
-  //   },
-  //   [dependencyTracking],
-  //   true,
-  // );
+      handleDependencyTracking();
+    },
+    [dependencyTracking],
+    true,
+  );
 
   // ******************
-  // Cache data handler
+  // Hook to events
   // ******************
 
-  // const handleCompare = (firstValue: unknown, secondValue: unknown) => {
-  //   if (typeof deepCompare === "function") {
-  //     return deepCompare(firstValue, secondValue);
-  //   }
-  //   if (deepCompare) {
-  //     return isEqual(firstValue, secondValue);
-  //   }
-  //   return false;
-  // };
+  useDidMount(() => {
+    const umountOnError = socket.events.onError((event) => {
+      onErrorCallback.current?.(event);
+    });
+    const umountOnConnecting = socket.events.onConnecting(() => {
+      onConnectingCallback.current?.();
+    });
+    const umountOnOpen = socket.events.onOpen(() => {
+      onOpenCallback.current?.();
+    });
+    const umountOnClose = socket.events.onClose(() => {
+      onCloseCallback.current?.();
+    });
+    const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
+      onReconnectingCallback.current?.(attempts);
+    });
+    const umountOnReconnectingStop = socket.events.onReconnectingStop((attempts) => {
+      onReconnectingStopCallback.current?.(attempts);
+    });
+
+    return () => {
+      umountOnError();
+      umountOnConnecting();
+      umountOnOpen();
+      umountOnClose();
+      umountOnReconnecting();
+      umountOnReconnectingStop();
+    };
+  });
 
   // ******************
   // Actions
@@ -62,14 +91,6 @@ export const useSocketState = <DataType>() => {
   const actions = {
     setData: (data: DataType | null) => {
       state.current.data = data;
-      renderKeyTrigger(["data"]);
-    },
-    setEmitting: (emitting: boolean) => {
-      state.current.emitting = emitting;
-      renderKeyTrigger(["data"]);
-    },
-    setListening: (listening: boolean) => {
-      state.current.listening = listening;
       renderKeyTrigger(["data"]);
     },
     setConnected: (connected: boolean) => {
@@ -86,5 +107,26 @@ export const useSocketState = <DataType>() => {
     },
   };
 
-  return [state.current, actions, { setRenderKey }] as const;
+  const callbacks = {
+    onOpen: (callback: VoidFunction) => {
+      onOpenCallback.current = callback;
+    },
+    onClose: (callback: VoidFunction) => {
+      onCloseCallback.current = callback;
+    },
+    onError: <ErrorType = Event>(callback: (event: ErrorType) => void) => {
+      onErrorCallback.current = callback;
+    },
+    onConnecting: (callback: VoidFunction) => {
+      onConnectingCallback.current = callback;
+    },
+    onReconnecting: (callback: (attempts: number) => void) => {
+      onReconnectingCallback.current = callback;
+    },
+    onReconnectingStop: (callback: (attempts: number) => void) => {
+      onReconnectingStopCallback.current = callback;
+    },
+  };
+
+  return [state.current, actions, callbacks, { setRenderKey }] as const;
 };

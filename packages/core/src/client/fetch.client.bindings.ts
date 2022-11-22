@@ -2,7 +2,7 @@ import { getErrorMessage, ClientResponseSuccessType, ClientResponseErrorType, Pr
 import { CommandInstance, getProgressData, ClientProgressEvent } from "command";
 import { ExtractResponse, ExtractError } from "types";
 
-export const getClientBindings = async (cmd: CommandInstance, requestId: string) => {
+export const getClientBindings = async <ConfigType = any>(cmd: CommandInstance, requestId: string) => {
   const { url, commandManager, loggerManager, headerMapper, payloadMapper } = cmd.builder;
 
   const logger = loggerManager.init("Client");
@@ -35,7 +35,7 @@ export const getClientBindings = async (cmd: CommandInstance, requestId: string)
   const effects = builder.effects.filter((effect) => command.effectKey === effect.getEffectKey());
   const headers = headerMapper(command);
   const payload = payloadMapper(data);
-  const config = { ...command.commandOptions.options };
+  const config: ConfigType = { ...command.commandOptions.options };
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;

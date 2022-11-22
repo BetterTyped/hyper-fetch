@@ -4,15 +4,15 @@ import { WebsocketClientType } from "client";
 import { ExtractListenerOptionsType } from "types/extract.types";
 
 export class Listener<ResponseType, ClientType extends SocketClientType<WebsocketClientType>> {
-  readonly event: string;
+  readonly name: string;
   options?: ExtractListenerOptionsType<ClientType>;
 
   constructor(
     readonly socket: Socket<ClientType>,
     readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<ClientType>>,
   ) {
-    const { event, options } = listenerOptions;
-    this.event = event;
+    const { name, options } = listenerOptions;
+    this.name = name;
     this.options = options || this.socket.client.listenerOptions;
   }
 
@@ -36,6 +36,6 @@ export class Listener<ResponseType, ClientType extends SocketClientType<Websocke
       this.socket.client.removeListener(instance, listener);
     };
 
-    return [removeListener, listener];
+    return [removeListener, listener] as const;
   }
 }

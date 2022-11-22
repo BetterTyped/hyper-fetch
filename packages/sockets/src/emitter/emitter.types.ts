@@ -3,7 +3,7 @@ import { Emitter } from "emitter";
 export type EmitterInstance = Emitter<any, any, any>;
 
 export type EmitterOptionsType<AdditionalEmitterOptions> = {
-  event: string;
+  name: string;
   options?: AdditionalEmitterOptions;
 };
 

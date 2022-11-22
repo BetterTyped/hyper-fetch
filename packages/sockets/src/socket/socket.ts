@@ -1,3 +1,4 @@
+import EventEmitter from "events";
 import {
   stringifyQueryParams,
   StringifyCallbackType,
@@ -21,17 +22,23 @@ import {
   SendCallbackType,
   ErrorCallbackType,
   SocketClientType,
+  getSocketEvents,
 } from "socket";
-import { WebsocketClientType, WebSocketClient } from "client";
+import { WebsocketClientType, WebSocketClient, SseClient } from "client";
 
-export class Socket<ClientType = WebsocketClientType> {
-  readonly url: string;
-  readonly protocols: string[] = [];
-  readonly reconnect: number;
-  readonly reconnectTime: number;
-  debug: boolean;
+export class Socket<ClientType extends Record<keyof WebsocketClientType | string, any> = WebsocketClientType> {
+  public emitter = new EventEmitter();
+  public events: ReturnType<typeof getSocketEvents>;
+
+  url: string;
+  protocols: string[] = [];
+  reconnect: number;
+  reconnectTime: number;
   auth?: ClientQueryParamsType | string;
   queryParams?: ClientQueryParamsType | string;
+  debug = false;
+  isSSE = false;
+  autoConnect = false;
 
   // Callbacks
   __onOpenCallbacks: OpenCallbackType<ClientType>[] = [];
@@ -64,10 +71,22 @@ export class Socket<ClientType = WebsocketClientType> {
   };
 
   constructor(public options: SocketConfig<ClientType>) {
-    const { url, auth, queryParams, client, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
-      this.options;
+    const {
+      url,
+      isSSE,
+      auth,
+      client,
+      queryParams,
+      autoConnect,
+      reconnect,
+      reconnectTime,
+      queryParamsConfig,
+      queryParamsStringify,
+    } = this.options;
     this.url = url;
     this.auth = auth;
+    this.isSSE = isSSE;
+    this.autoConnect = autoConnect;
     this.queryParams = queryParams;
     this.reconnect = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
@@ -75,7 +94,7 @@ export class Socket<ClientType = WebsocketClientType> {
     this.queryParamsStringify = queryParamsStringify;
 
     // Client must be initialized at the end
-    this.client = client || (new WebSocketClient(this) as any);
+    this.client = client || ((isSSE ? new SseClient(this) : new WebSocketClient(this)) as any);
   }
 
   /**
