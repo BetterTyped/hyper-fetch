@@ -236,49 +236,6 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
   };
 
   /**
-   * Create commands based on the builder setup
-   */
-  createCommand = <
-    ResponseType,
-    RequestDataType = undefined,
-    LocalErrorType extends BuilderErrorType | undefined = undefined,
-    QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType | string,
-  >() => {
-    return <EndpointType extends string>(params: CommandConfig<EndpointType, RequestConfigType>) =>
-      new Command<
-        ResponseType,
-        RequestDataType,
-        QueryParamsType,
-        GlobalErrorType,
-        LocalErrorType,
-        EndpointType,
-        RequestConfigType
-      >(this, params);
-  };
-
-  /**
-   * Clears the builder instance and remove all listeners on it's dependencies
-   */
-  clear = () => {
-    const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
-
-    this.commandManager.abortControllers.clear();
-    this.fetchDispatcher.clear();
-    this.submitDispatcher.clear();
-    this.cache.clear();
-
-    this.commandManager.emitter.removeAllListeners();
-    this.fetchDispatcher.emitter.removeAllListeners();
-    this.submitDispatcher.emitter.removeAllListeners();
-    this.cache.emitter.removeAllListeners();
-
-    this.appManager = appManager?.(this) || new AppManager();
-    this.cache = cache?.(this) || new Cache(this);
-    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
-    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
-  };
-
-  /**
    * Helper used by http client to apply the modifications on response error
    */
   __modifyAuth = async (command: CommandInstance) => interceptRequest(this.__onAuthCallbacks, command);
@@ -305,4 +262,47 @@ export class Builder<GlobalErrorType extends BuilderErrorType = Error, RequestCo
    */
   __modifyResponse = async (response: ClientResponseType<any, GlobalErrorType>, command: CommandInstance) =>
     interceptResponse<GlobalErrorType>(this.__onResponseCallbacks, response, command);
+
+  /**
+   * Clears the builder instance and remove all listeners on it's dependencies
+   */
+  clear = () => {
+    const { appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
+
+    this.commandManager.abortControllers.clear();
+    this.fetchDispatcher.clear();
+    this.submitDispatcher.clear();
+    this.cache.clear();
+
+    this.commandManager.emitter.removeAllListeners();
+    this.fetchDispatcher.emitter.removeAllListeners();
+    this.submitDispatcher.emitter.removeAllListeners();
+    this.cache.emitter.removeAllListeners();
+
+    this.appManager = appManager?.(this) || new AppManager();
+    this.cache = cache?.(this) || new Cache(this);
+    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
+    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
+  };
+
+  /**
+   * Create commands based on the builder setup
+   */
+  createCommand = <
+    ResponseType,
+    RequestDataType = undefined,
+    LocalErrorType extends BuilderErrorType | undefined = undefined,
+    QueryParamsType extends ClientQueryParamsType | string = ClientQueryParamsType | string,
+  >() => {
+    return <EndpointType extends string>(params: CommandConfig<EndpointType, RequestConfigType>) =>
+      new Command<
+        ResponseType,
+        RequestDataType,
+        QueryParamsType,
+        GlobalErrorType,
+        LocalErrorType,
+        EndpointType,
+        RequestConfigType
+      >(this, params);
+  };
 }

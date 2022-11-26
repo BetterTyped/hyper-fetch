@@ -2,7 +2,7 @@ import { DateInterval } from "@hyper-fetch/core";
 
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
-import { SocketInstance } from "socket";
+import { SocketInstance, WebsocketClientOptionsType } from "socket";
 import { getClient } from "./client.utils";
 
 export class SocketClient<SocketType extends SocketInstance> {
@@ -12,7 +12,9 @@ export class SocketClient<SocketType extends SocketInstance> {
   connecting = false;
   forceClosed = false;
   reconnectionAttempts = 0;
-  connectionTimeout = DateInterval.second;
+  pingTimer: ReturnType<typeof setTimeout> | undefined;
+  pongTimer: ReturnType<typeof setTimeout> | undefined;
+
   init: () => WebSocket | EventSource;
 
   constructor(readonly socket: SocketType) {
@@ -30,8 +32,9 @@ export class SocketClient<SocketType extends SocketInstance> {
     }
   }
 
-  connect() {
-    if (this.socket.appManager.isNodeJs) return;
+  connect = () => {
+    if (this.socket.appManager.isNodeJs || this.connecting) return;
+    const { reconnectTimeout = DateInterval.second * 2 } = this.socket.options.clientOptions || {};
 
     this.socket.events.emitConnecting();
 
@@ -48,7 +51,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     // Reconnection timeout
     const timeout = setTimeout(() => {
       this.reconnect();
-    }, this.connectionTimeout);
+    }, reconnectTimeout);
 
     // Mount event listeners
     this.client.onopen = (event) => {
@@ -60,6 +63,7 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.connecting = false;
       this.reconnectionAttempts = 0;
       this.socket.events.emitOpen();
+      this.heartbeat();
     };
 
     if (this.client && "onclose" in this.client) {
@@ -70,6 +74,7 @@ export class SocketClient<SocketType extends SocketInstance> {
         this.open = false;
         this.connecting = false;
         this.socket.events.emitClose();
+        this.clearTimers();
       };
     }
 
@@ -93,10 +98,11 @@ export class SocketClient<SocketType extends SocketInstance> {
         });
       }
       this.socket.events.emitListenerEvent(data.type, event);
+      this.heartbeat();
     };
-  }
+  };
 
-  disconnect() {
+  disconnect = () => {
     this.open = false;
     this.connecting = false;
     this.forceClosed = true;
@@ -105,9 +111,9 @@ export class SocketClient<SocketType extends SocketInstance> {
     if (isSSe) {
       this.socket.events.emitClose();
     }
-  }
+  };
 
-  reconnect() {
+  reconnect = () => {
     this.disconnect();
     if (this.socket.reconnect < this.reconnectionAttempts) {
       this.reconnectionAttempts += 1;
@@ -123,17 +129,35 @@ export class SocketClient<SocketType extends SocketInstance> {
     });
     this.socket.events.emitReconnectingStop(this.reconnectionAttempts);
     return false;
-  }
+  };
 
-  listen(listener: ListenerInstance, callback: (data: any) => void) {
-    const listenerGroup =
-      this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
+  clearTimers = () => {
+    clearTimeout(this.pingTimer);
+    clearTimeout(this.pongTimer);
+  };
 
-    listenerGroup.add(callback);
-    return () => this.removeListener(listener.name, callback);
-  }
+  heartbeat = () => {
+    if (this.connecting) return;
+    if (this.client && "send" in this.client) {
+      const options = (this.socket.options.clientOptions || {}) as WebsocketClientOptionsType;
+      const {
+        pingTimeout = DateInterval.second * 10,
+        pongTimeout = DateInterval.second * 2,
+        heartbeatMessage = "heartbeat",
+      } = options;
+      this.clearTimers();
+      this.pingTimer = setTimeout(() => {
+        if (this.client && "send" in this.client) {
+          this.client.send(heartbeatMessage);
+          this.pongTimer = setTimeout(() => {
+            this.client.close();
+          }, pongTimeout);
+        }
+      }, pingTimeout);
+    }
+  };
 
-  removeListener(event: string, callback: (data: any) => void) {
+  removeListener = (event: string, callback: (data: any) => void) => {
     return () => {
       const listenerGroup = this.listeners.get(event);
       if (listenerGroup && listenerGroup.has(callback)) {
@@ -143,9 +167,17 @@ export class SocketClient<SocketType extends SocketInstance> {
       }
       return false;
     };
-  }
+  };
 
-  emit(emitter: EmitterInstance) {
+  listen = (listener: ListenerInstance, callback: (data: any) => void) => {
+    const listenerGroup =
+      this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
+
+    listenerGroup.add(callback);
+    return () => this.removeListener(listener.name, callback);
+  };
+
+  emit = (emitter: EmitterInstance) => {
     if (this.client && "send" in this.client) {
       const payload = JSON.stringify({
         type: emitter.name,
@@ -155,5 +187,5 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.client.send(payload);
       this.socket.events.emitEmitterEvent(emitter);
     }
-  }
+  };
 }

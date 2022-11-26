@@ -7,7 +7,7 @@ export const getClient = (socket: SocketInstance) => {
   const fullUrl = `${socket.url}?${authParams}${connector}${queryParams}`;
 
   if ("isSSE" in socket.options) {
-    return new EventSource(fullUrl, socket.options.additionalOptions);
+    return new EventSource(fullUrl, socket.options.clientOptions?.eventSourceInit);
   }
-  return new WebSocket(fullUrl, socket.options.additionalOptions.protocols);
+  return new WebSocket(fullUrl, socket.options.clientOptions?.protocols);
 };

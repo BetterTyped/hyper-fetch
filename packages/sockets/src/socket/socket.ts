@@ -21,7 +21,6 @@ import {
   MessageCallbackType,
   SendCallbackType,
   ErrorCallbackType,
-  SocketClientType,
   getSocketEvents,
 } from "socket";
 import { WebsocketClientType, SocketClient } from "client";
@@ -50,7 +49,7 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
   __onErrorCallbacks: ErrorCallbackType<ClientType>[] = [];
 
   // Config
-  client: SocketClientType<ClientType>;
+  client: ClientType;
   loggerManager = new LoggerManager(this);
   appManager = new AppManager();
   queryParamsConfig?: QueryStringifyOptions;
@@ -99,7 +98,7 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
     }
 
     // Client must be initialized at the end
-    this.client = client || new SocketClient(this) satisfies any;
+    this.client = client || (new SocketClient(this) as unknown as ClientType);
   }
 
   /**
