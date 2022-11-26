@@ -11,6 +11,8 @@ import {
   getReconnectingStopKey,
   getListenerEventByNameKey,
   getEmitterEventByNameKey,
+  getListenerRemoveKey,
+  getListenerRemoveByNameKey,
 } from "socket";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
@@ -38,6 +40,10 @@ export const getSocketEvents = (eventEmitter: EventEmitter) => ({
   emitListenerEvent: <ResponseType = Event>(event: string, data: ResponseType): void => {
     eventEmitter.emit(getListenerEventKey(), data);
     eventEmitter.emit(getListenerEventByNameKey(event), data);
+  },
+  emitListenerRemoveEvent: (event: string): void => {
+    eventEmitter.emit(getListenerRemoveKey());
+    eventEmitter.emit(getListenerRemoveByNameKey(event));
   },
   emitEmitterEvent: <EmitterType extends EmitterInstance>(emitter: EmitterType): void => {
     eventEmitter.emit(getEmitterEventKey(), emitter);
@@ -82,6 +88,13 @@ export const getSocketEvents = (eventEmitter: EventEmitter) => ({
   ): VoidFunction => {
     eventEmitter.on(getListenerEventByNameKey(listener.name), callback);
     return () => eventEmitter.removeListener(getListenerEventByNameKey(listener.name), callback);
+  },
+  onListenerRemoveByName: <ListenerType extends ListenerInstance>(
+    listener: ListenerType,
+    callback: () => void,
+  ): VoidFunction => {
+    eventEmitter.on(getListenerRemoveByNameKey(listener.name), callback);
+    return () => eventEmitter.removeListener(getListenerRemoveByNameKey(listener.name), callback);
   },
   onEmitterEventByName: <EmitterType extends EmitterInstance>(
     emitter: EmitterType,

@@ -5,6 +5,8 @@ export const getConnectingKey = () => "socket_connecting";
 export const getReconnectingKey = () => "socket_reconnecting";
 export const getReconnectingStopKey = () => "socket_reconnecting_stop";
 export const getListenerEventKey = () => `listener_event`;
+export const getListenerRemoveKey = () => `listener_remove`;
 export const getEmitterEventKey = () => `emitter_event`;
+export const getListenerRemoveByNameKey = (event: string) => `${event}_listener_remove`;
 export const getListenerEventByNameKey = (event: string) => `${event}_listener_event`;
 export const getEmitterEventByNameKey = (event: string) => `${event}_emitter_event`;

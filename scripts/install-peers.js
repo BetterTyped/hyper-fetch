@@ -43,8 +43,11 @@ if (process.env["npm_execpath"] && process.env["npm_execpath"].includes(matched)
 const envLabel = "install_peers_skip";
 
 if (yarnBin && process.env[envLabel] !== "1") {
+  let peerDependencies = {};
   fs.readdirSync("./packages", { encoding: "utf-8" }).forEach((dir) => {
-    fs.readFile(`./packages/${dir}/package.json`, function (error, contents) {
+    try {
+      const contents = fs.readFileSync(`./packages/${dir}/package.json`);
+
       if (contents === undefined) {
         return console.log(`There doesn't seem to be a package.json in packages/${dir}/package.json`);
       }
@@ -58,50 +61,52 @@ if (yarnBin && process.env[envLabel] !== "1") {
       if (!packageContents.hasPeerDependencies()) {
         return warn(`Package ${dir} doesn't seem to have any peerDependencies\n`);
       }
-
-      process.env[envLabel] = "1";
-
-      const peerDependencies = packageContents.peerDependencies;
-
-      const packages = Object.keys(peerDependencies)
-        .filter((key) => {
-          return !key.includes("@better-typed");
-        })
-        .map(function (key) {
-          return `${key}@${peerDependencies[key]}`;
-        });
-
-      success(`Package ${dir} dependencies found - ${packages.join(", ")}...\n`);
-
-      var options = {
-        node: process.argv[0],
-        yarn: yarnBin,
-        // escape package names@versions
-        packages: packages.map((pkg) => `"${pkg}"`).join(" "),
-        ignoreWorkspaceRootCheck: "",
+      peerDependencies = {
+        ...peerDependencies,
+        ...packageContents.peerDependencies,
       };
-
-      if (!packages.length) {
-        return status(`No packages to install for ${dir}.\n`);
-      }
-
-      executioner(
-        '"${node}" "${yarn}" add ${ignoreWorkspaceRootCheck} --peer --pure-lockfile --prefer-offline -W ${packages}',
-        options,
-        function (error, result) {
-          process.env[envLabel] = "0";
-          if (error) {
-            console.log(error);
-            die("Installation failed");
-            return process.exit(1);
-          }
-          success("+ Successfully installed " + packages.length + " peerDependencies via yarn.\n");
-          return process.exit();
-        },
-      );
-
-      // Looks like yarn shows last line from the output of sub-scripts
-      status("- Installing " + packages.length + " peerDependencies...\n");
-    });
+    } catch (err) {
+      warn(err);
+    }
   });
+  process.env[envLabel] = "1";
+
+  const packages = [...new Set(Object.keys(peerDependencies))]
+    .filter((key) => {
+      return !key.includes("@hyper-fetch");
+    })
+    .map(function (key) {
+      return `${key}@${peerDependencies[key]}`;
+    });
+
+  success(`Peer dependencies found - ${packages.join(", ")}...\n`);
+
+  var options = {
+    node: process.argv[0],
+    yarn: yarnBin,
+    // escape package names@versions
+    packages: packages.map((pkg) => `"${pkg}"`).join(" "),
+    ignoreWorkspaceRootCheck: "",
+  };
+
+  if (!packages.length) {
+    return status(`No packages to install.\n`);
+  }
+
+  executioner(
+    '"${node}" "${yarn}" add ${ignoreWorkspaceRootCheck} --peer --pure-lockfile --prefer-offline -W ${packages}',
+    options,
+    function (error) {
+      process.env[envLabel] = "0";
+      if (error) {
+        die("Installation failed", error);
+        return process.exit();
+      }
+      success("+ Successfully installed " + packages.length + " peerDependencies via yarn.\n");
+      return process.exit();
+    },
+  );
+
+  // Looks like yarn shows last line from the output of sub-scripts
+  status("- Installing " + packages.length + " peerDependencies...\n");
 }

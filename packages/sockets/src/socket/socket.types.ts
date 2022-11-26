@@ -5,19 +5,22 @@ import { Socket } from "socket";
 
 export type SocketInstance = Socket<any>;
 
-export type SocketConfig<WebsocketType> = {
+export type SocketConfigBaseType<WebsocketType> = {
   url: string;
-  debug?: boolean;
-  isSSE?: boolean;
+  client?: SocketClientType<WebsocketType>;
   auth?: ClientQueryParamsType;
   queryParams?: ClientQueryParamsType | string;
-  client?: SocketClientType<WebsocketType>;
   reconnect?: number;
   reconnectTime?: number;
+  debug?: boolean;
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptions;
   queryParamsStringify?: StringifyCallbackType;
 };
+
+export type SocketConfig<WebsocketType> =
+  | (SocketConfigBaseType<WebsocketType> & { isSSE: true; additionalOptions?: EventSourceInit })
+  | (SocketConfigBaseType<WebsocketType> & { additionalOptions?: { protocols: string[] } });
 
 export type SocketClientType<ClientType extends Record<keyof WebsocketClientType | string, any>> = ClientType;
 

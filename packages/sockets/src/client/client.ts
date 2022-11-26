@@ -1,18 +1,23 @@
 import { DateInterval } from "@hyper-fetch/core";
 
+import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import { SocketInstance } from "socket";
+import { getClient } from "./client.utils";
 
-export class SseClient<SocketType extends SocketInstance> {
-  websocket: EventSource;
-  listeners: Map<string, Set<(event: any) => void>>;
+export class SocketClient<SocketType extends SocketInstance> {
+  client: WebSocket | EventSource | undefined;
+  listeners: Map<string, Set<(event: any) => void>> = new Map();
   open = false;
   connecting = false;
   forceClosed = false;
   reconnectionAttempts = 0;
   connectionTimeout = DateInterval.second;
+  init: () => WebSocket | EventSource;
 
   constructor(readonly socket: SocketType) {
+    this.init = () => getClient(socket);
+
     this.socket.appManager.events.onOffline(() => {
       this.disconnect();
     });
@@ -32,15 +37,13 @@ export class SseClient<SocketType extends SocketInstance> {
 
     // Clean environment
     this.forceClosed = false;
-    this.websocket?.close();
+    this.client?.close();
 
     // Start connection
     this.connecting = true;
-    const queryParams = this.socket.queryParamsStringify(this.socket.queryParams).substring(1);
-    const authParams = this.socket.queryParamsStringify(this.socket.auth).substring(1);
-    const connector = queryParams && authParams ? "&" : "";
-    const fullUrl = `${this.socket.url}?${authParams}${connector}${queryParams}`;
-    this.websocket = new EventSource(fullUrl);
+
+    // Initialize new client instance
+    this.client = this.init();
 
     // Reconnection timeout
     const timeout = setTimeout(() => {
@@ -48,10 +51,10 @@ export class SseClient<SocketType extends SocketInstance> {
     }, this.connectionTimeout);
 
     // Mount event listeners
-    this.websocket.onopen = (event) => {
+    this.client.onopen = (event) => {
       clearTimeout(timeout);
       this.socket.__onOpenCallbacks.forEach((callback) => {
-        callback(event, this.websocket);
+        callback(event, this.client);
       });
       this.open = true;
       this.connecting = false;
@@ -59,33 +62,37 @@ export class SseClient<SocketType extends SocketInstance> {
       this.socket.events.emitOpen();
     };
 
-    this.websocket.onerror = (event) => {
+    if (this.client && "onclose" in this.client) {
+      this.client.onclose = (event) => {
+        this.socket.__onCloseCallbacks.forEach((callback) => {
+          callback(event, this.client);
+        });
+        this.open = false;
+        this.connecting = false;
+        this.socket.events.emitClose();
+      };
+    }
+
+    this.client.onerror = (event) => {
       this.socket.__onErrorCallbacks.forEach((callback) => {
-        callback(event, this.websocket);
+        callback(event, this.client);
       });
       this.socket.events.emitError(event);
-      const reconnected = this.reconnect();
-      if (!reconnected) {
-        this.disconnect();
-        this.socket.__onCloseCallbacks.forEach((callback) => {
-          callback(event, this.websocket);
-        });
-      }
     };
 
-    this.websocket.onmessage = (event) => {
+    this.client.onmessage = (event) => {
       this.socket.__onMessageCallbacks.forEach((callback) => {
-        callback(event, this.websocket);
+        callback(event, this.client);
       });
 
-      const listener = this.listeners.get(event.type);
-
+      const data = JSON.parse(event.data);
+      const listener = this.listeners.get(data?.type);
       if (listener) {
         listener.forEach((callback) => {
-          callback(event.data);
+          callback(event);
         });
       }
-      this.socket.events.emitListenerEvent(event.type, event);
+      this.socket.events.emitListenerEvent(data.type, event);
     };
   }
 
@@ -93,8 +100,11 @@ export class SseClient<SocketType extends SocketInstance> {
     this.open = false;
     this.connecting = false;
     this.forceClosed = true;
-    this.websocket?.close();
-    this.socket.events.emitClose();
+    this.client?.close();
+    const isSSe = !(this.client && "onclose" in this.client);
+    if (isSSe) {
+      this.socket.events.emitClose();
+    }
   }
 
   reconnect() {
@@ -103,13 +113,13 @@ export class SseClient<SocketType extends SocketInstance> {
       this.reconnectionAttempts += 1;
       this.connect();
       this.socket.__onReconnectCallbacks.forEach((callback) => {
-        callback(this.websocket);
+        callback(this.client);
       });
       this.socket.events.emitReconnecting(this.reconnectionAttempts);
       return true;
     }
     this.socket.__onReconnectStopCallbacks.forEach((callback) => {
-      callback(this.websocket);
+      callback(this.client);
     });
     this.socket.events.emitReconnectingStop(this.reconnectionAttempts);
     return false;
@@ -120,13 +130,14 @@ export class SseClient<SocketType extends SocketInstance> {
       this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
 
     listenerGroup.add(callback);
-    return () => listenerGroup.delete(callback);
+    return () => this.removeListener(listener.name, callback);
   }
 
   removeListener(event: string, callback: (data: any) => void) {
     return () => {
       const listenerGroup = this.listeners.get(event);
       if (listenerGroup && listenerGroup.has(callback)) {
+        this.socket.events.emitListenerRemoveEvent(event);
         listenerGroup.delete(callback);
         return true;
       }
@@ -134,8 +145,15 @@ export class SseClient<SocketType extends SocketInstance> {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  emit() {
-    throw new Error("Server Sent Events can only listen to events");
+  emit(emitter: EmitterInstance) {
+    if (this.client && "send" in this.client) {
+      const payload = JSON.stringify({
+        type: emitter.name,
+        data: emitter.data,
+      });
+
+      this.client.send(payload);
+      this.socket.events.emitEmitterEvent(emitter);
+    }
   }
 }

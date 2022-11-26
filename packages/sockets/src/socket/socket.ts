@@ -24,7 +24,7 @@ import {
   SocketClientType,
   getSocketEvents,
 } from "socket";
-import { WebsocketClientType, WebSocketClient, SseClient } from "client";
+import { WebsocketClientType, SocketClient } from "client";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterOptionsType } from "emitter";
 
@@ -33,13 +33,11 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
   public events: ReturnType<typeof getSocketEvents> = getSocketEvents(this.emitter);
 
   url: string;
-  protocols: string[] = [];
   reconnect: number;
   reconnectTime: number;
   auth?: ClientQueryParamsType | string;
   queryParams?: ClientQueryParamsType | string;
   debug: boolean;
-  isSSE: boolean;
   autoConnect: boolean;
 
   // Callbacks
@@ -75,14 +73,13 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
   constructor(public options: SocketConfig<ClientType>) {
     const {
       url,
-      isSSE,
-      debug,
       auth,
       client,
       queryParams,
       autoConnect,
       reconnect,
       reconnectTime,
+      debug,
       queryParamsConfig,
       queryParamsStringify,
     } = this.options;
@@ -90,10 +87,10 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
     this.auth = auth;
     this.queryParams = queryParams;
     this.debug = debug ?? false;
-    this.isSSE = isSSE ?? false;
     this.autoConnect = autoConnect ?? true;
     this.reconnect = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
+
     if (queryParamsConfig) {
       this.queryParamsConfig = queryParamsConfig;
     }
@@ -102,7 +99,7 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
     }
 
     // Client must be initialized at the end
-    this.client = client || ((this.isSSE ? new SseClient(this) : new WebSocketClient(this)) as any);
+    this.client = client || new SocketClient(this) satisfies any;
   }
 
   /**
