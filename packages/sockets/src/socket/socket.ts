@@ -25,10 +25,12 @@ import {
   getSocketEvents,
 } from "socket";
 import { WebsocketClientType, WebSocketClient, SseClient } from "client";
+import { Listener, ListenerOptionsType } from "listener";
+import { Emitter, EmitterOptionsType } from "emitter";
 
 export class Socket<ClientType extends Record<keyof WebsocketClientType | string, any> = WebsocketClientType> {
   public emitter = new EventEmitter();
-  public events: ReturnType<typeof getSocketEvents>;
+  public events: ReturnType<typeof getSocketEvents> = getSocketEvents(this.emitter);
 
   url: string;
   protocols: string[] = [];
@@ -36,9 +38,9 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
   reconnectTime: number;
   auth?: ClientQueryParamsType | string;
   queryParams?: ClientQueryParamsType | string;
-  debug = false;
-  isSSE = false;
-  autoConnect = false;
+  debug: boolean;
+  isSSE: boolean;
+  autoConnect: boolean;
 
   // Callbacks
   __onOpenCallbacks: OpenCallbackType<ClientType>[] = [];
@@ -74,6 +76,7 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
     const {
       url,
       isSSE,
+      debug,
       auth,
       client,
       queryParams,
@@ -85,16 +88,21 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
     } = this.options;
     this.url = url;
     this.auth = auth;
-    this.isSSE = isSSE;
-    this.autoConnect = autoConnect;
     this.queryParams = queryParams;
+    this.debug = debug ?? false;
+    this.isSSE = isSSE ?? false;
+    this.autoConnect = autoConnect ?? true;
     this.reconnect = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
-    this.queryParamsConfig = queryParamsConfig;
-    this.queryParamsStringify = queryParamsStringify;
+    if (queryParamsConfig) {
+      this.queryParamsConfig = queryParamsConfig;
+    }
+    if (queryParamsStringify) {
+      this.queryParamsStringify = queryParamsStringify;
+    }
 
     // Client must be initialized at the end
-    this.client = client || ((isSSE ? new SseClient(this) : new WebSocketClient(this)) as any);
+    this.client = client || ((this.isSSE ? new SseClient(this) : new WebSocketClient(this)) as any);
   }
 
   /**
@@ -200,5 +208,29 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
   onError = (callback: ErrorCallbackType<ClientType>) => {
     this.__onErrorCallbacks.push(callback);
     return this;
+  };
+
+  /**
+   * ********************
+   * Creators
+   * ********************
+   */
+
+  /**
+   * Create event listener
+   * @param options
+   * @returns
+   */
+  createListener = <ResponseType>(options: ListenerOptionsType<ClientType>) => {
+    return new Listener<ResponseType, ClientType>(this, options as any);
+  };
+
+  /**
+   * Create event emitter
+   * @param options
+   * @returns
+   */
+  createEmitter = <RequestDataType>(options: EmitterOptionsType<ClientType>) => {
+    return new Emitter<RequestDataType, ClientType>(this, options as any);
   };
 }

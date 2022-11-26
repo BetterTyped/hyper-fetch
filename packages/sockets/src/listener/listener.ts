@@ -1,9 +1,9 @@
-import { Socket, SocketClientType } from "socket";
+import { Socket } from "socket";
 import { ListenerOptionsType } from "listener";
 import { WebsocketClientType } from "client";
 import { ExtractListenerOptionsType } from "types/extract.types";
 
-export class Listener<ResponseType, ClientType extends SocketClientType<WebsocketClientType>> {
+export class Listener<ResponseType, ClientType extends Record<keyof WebsocketClientType | string, any>> {
   readonly name: string;
   options?: ExtractListenerOptionsType<ClientType>;
 

@@ -8,7 +8,7 @@
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
     "postinstall": "yarn install-peers && yarn husky install",
-    "start": "nx run-many --target=start --all --parallel=2",
+    "start": "nx run-many --target=start --all --parallel=3",
     "start:react": "nx serve reactjs",
     "start:next": "nx serve nextjs",
     "build": "nx run-many --target=build --projects=core,react,sockets --parallel=3",
@@ -70,6 +70,7 @@
     "jest-environment-jsdom": "^28.1.1",
     "jest-extended": "^2.0.0",
     "jest-watch-typeahead": "^1.1.0",
+    "jest-websocket-mock": "^2.4.0",
     "lint-staged": "^13.0.1",
     "msw": "^0.42.1",
     "next": "12.1.6",

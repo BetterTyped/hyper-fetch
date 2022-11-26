@@ -7,6 +7,7 @@ export type SocketInstance = Socket<any>;
 
 export type SocketConfig<WebsocketType> = {
   url: string;
+  debug?: boolean;
   isSSE?: boolean;
   auth?: ClientQueryParamsType;
   queryParams?: ClientQueryParamsType | string;
@@ -18,7 +19,7 @@ export type SocketConfig<WebsocketType> = {
   queryParamsStringify?: StringifyCallbackType;
 };
 
-export type SocketClientType<ClientType> = WebsocketClientType extends ClientType ? ClientType : WebsocketClientType;
+export type SocketClientType<ClientType extends Record<keyof WebsocketClientType | string, any>> = ClientType;
 
 export type ReconnectCallbackType<WebsocketType> = (websocket: SocketClientType<WebsocketType>) => void;
 export type ReconnectStopCallbackType<WebsocketType> = (websocket: SocketClientType<WebsocketType>) => void;

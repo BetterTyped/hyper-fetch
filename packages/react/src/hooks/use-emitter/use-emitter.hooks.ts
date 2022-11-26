@@ -1,14 +1,14 @@
 import { useRef } from "react";
 import { EmitterInstance } from "@hyper-fetch/sockets";
 
-import { EmitterOptions } from "hooks/use-emitter";
+import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
 
 // Todo bounce
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
-  { dependencyTracking }: EmitterOptions,
+  { dependencyTracking }: UseEmitterOptionsType,
 ) => {
   const onEmitCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, dependencyTracking);

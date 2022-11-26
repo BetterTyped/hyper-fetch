@@ -1,19 +1,23 @@
-import { Socket, SocketClientType } from "socket";
+import { Socket } from "socket";
 import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
 import { TupleRestType } from "types";
 import { WebsocketClientType } from "client";
 import { ExtractEmitterOptionsType } from "types/extract.types";
 
-export class Emitter<DataType, ClientType extends SocketClientType<WebsocketClientType>, MappedData = void> {
+export class Emitter<
+  RequestDataType,
+  ClientType extends Record<keyof WebsocketClientType | string, any>,
+  MappedData = void,
+> {
   readonly name: string;
-  data: DataType | null = null;
+  data: RequestDataType | null = null;
   options: ExtractEmitterOptionsType<ClientType>;
 
   constructor(
     readonly socket: Socket<ClientType>,
     readonly emitterOptions: EmitterOptionsType<ExtractEmitterOptionsType<ClientType>>,
-    dump: Partial<Emitter<DataType, ClientType, MappedData>>,
-    readonly dataMapper: (data: DataType) => MappedData,
+    dump?: Partial<Emitter<RequestDataType, ClientType, MappedData>>,
+    readonly dataMapper?: (data: RequestDataType) => MappedData,
   ) {
     const { name, options } = emitterOptions;
     this.name = dump?.name ?? name;
@@ -25,19 +29,19 @@ export class Emitter<DataType, ClientType extends SocketClientType<WebsocketClie
     return this.clone({ options });
   }
 
-  setData(data: DataType) {
+  setData(data: RequestDataType) {
     return this.clone({ data });
   }
 
-  setDataMapper = <MapperData>(mapper: (data: DataType) => MapperData) => {
+  setDataMapper = <MapperData>(mapper: (data: RequestDataType) => MapperData) => {
     return this.clone(undefined, mapper);
   };
 
   clone<MapperData = MappedData>(
-    config?: Partial<EmitterCloneOptionsType<DataType, ExtractEmitterOptionsType<ClientType>>>,
-    mapper?: (data: DataType) => MapperData,
-  ): Emitter<DataType, ClientType, MapperData> {
-    const dump: Partial<Emitter<DataType, ClientType, MapperData>> = {
+    config?: Partial<EmitterCloneOptionsType<RequestDataType, ExtractEmitterOptionsType<ClientType>>>,
+    mapper?: (data: RequestDataType) => MapperData,
+  ): Emitter<RequestDataType, ClientType, MapperData> {
+    const dump: Partial<Emitter<RequestDataType, ClientType, MapperData>> = {
       ...config,
       name: this.name,
       data: config?.data || this.data,
@@ -45,11 +49,11 @@ export class Emitter<DataType, ClientType extends SocketClientType<WebsocketClie
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<DataType, ClientType, MapperData>(this.socket, this.emitterOptions, dump, mapperFn);
+    return new Emitter<RequestDataType, ClientType, MapperData>(this.socket, this.emitterOptions, dump, mapperFn);
   }
 
   emit(
-    options?: Partial<EmitterCloneOptionsType<DataType, ExtractEmitterOptionsType<ClientType>>>,
+    options?: Partial<EmitterCloneOptionsType<RequestDataType, ExtractEmitterOptionsType<ClientType>>>,
     ...rest: TupleRestType<Parameters<ClientType["emit"]>>
   ) {
     const instance = this.clone(options);

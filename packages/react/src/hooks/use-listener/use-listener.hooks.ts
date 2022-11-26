@@ -3,13 +3,19 @@ import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 import { ListenerInstance, ExtractListenerDataType } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
-import { ListenerOptions } from "hooks/use-listener";
+import { UseListenerOptionsType } from "hooks/use-listener";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
-  { dependencyTracking }: ListenerOptions,
+  { dependencyTracking }: UseListenerOptionsType,
 ) => {
-  const onEventCallback = useRef<null | ((data: ExtractListenerDataType<ListenerType>) => void)>(null);
+  const onEventCallback = useRef<
+    | null
+    | ((
+        data: ExtractListenerDataType<ListenerType>,
+        event: MessageEvent<ExtractListenerDataType<ListenerType>>,
+      ) => void)
+  >(null);
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, dependencyTracking);
 
@@ -35,8 +41,8 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   useDidUpdate(
     () => {
-      const unmountListener = listener.socket.events.onListenerEventByName(listener, (data) => {
-        onEventCallback?.current(data as any);
+      const unmountListener = listener.socket.events.onListenerEventByName(listener, (event) => {
+        onEventCallback.current?.(event.data, event);
       });
       return unmountListener;
     },

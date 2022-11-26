@@ -6,7 +6,7 @@ import { SocketInstance } from "socket";
 
 export class WebSocketClient<SocketType extends SocketInstance> {
   websocket: WebSocket;
-  listeners: Map<string, Set<(event: any) => void>>;
+  listeners: Map<string, Set<(event: any) => void>> = new Map();
   open = false;
   connecting = false;
   forceClosed = false;
@@ -81,14 +81,14 @@ export class WebSocketClient<SocketType extends SocketInstance> {
         callback(event, this.websocket);
       });
 
-      const listener = this.listeners.get(event.type);
-
+      const data = JSON.parse(event.data);
+      const listener = this.listeners.get(data?.type);
       if (listener) {
         listener.forEach((callback) => {
-          callback(event.data);
+          callback(event);
         });
       }
-      this.socket.events.emitListenerEvent(event.type, event);
+      this.socket.events.emitListenerEvent(data.type, event);
     };
   }
 
@@ -122,7 +122,7 @@ export class WebSocketClient<SocketType extends SocketInstance> {
       this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
 
     listenerGroup.add(callback);
-    return () => listenerGroup.delete(callback);
+    return () => this.removeListener(listener.name, callback);
   }
 
   removeListener(event: string, callback: (data: any) => void) {
