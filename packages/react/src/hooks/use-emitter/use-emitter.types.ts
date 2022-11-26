@@ -1,3 +1,3 @@
 export type UseEmitterOptionsType = {
-  dependencyTracking: boolean;
+  dependencyTracking?: boolean;
 };

@@ -58,11 +58,6 @@ export class Emitter<
   ) {
     const instance = this.clone(options);
 
-    return this.socket.client.emit(
-      instance,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...rest,
-    );
+    return this.socket.client.emit(instance, ...rest);
   }
 }

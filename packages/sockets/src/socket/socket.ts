@@ -29,7 +29,7 @@ import { Emitter, EmitterOptionsType } from "emitter";
 
 export class Socket<ClientType extends Record<keyof WebsocketClientType | string, any> = WebsocketClientType> {
   public emitter = new EventEmitter();
-  public events: ReturnType<typeof getSocketEvents> = getSocketEvents(this.emitter);
+  public events = getSocketEvents(this.emitter);
 
   url: string;
   reconnect: number;
@@ -227,6 +227,9 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType | string
    * @returns
    */
   createEmitter = <RequestDataType>(options: EmitterOptionsType<ClientType>) => {
+    if ("isSSE" in this.options) {
+      throw new Error("Cannot create emitters for SSE client");
+    }
     return new Emitter<RequestDataType, ClientType>(this, options as any);
   };
 }

@@ -1,3 +1,3 @@
 export type UseListenerOptionsType = {
-  dependencyTracking: boolean;
+  dependencyTracking?: boolean;
 };

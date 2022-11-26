@@ -1,6 +1,7 @@
 import { ClientQueryParamsType, QueryStringifyOptions, StringifyCallbackType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
+import { ServerSentEventsClientOptionsType, WebsocketClientOptionsType } from "client";
 
 export type SocketInstance = Socket<any>;
 
@@ -15,19 +16,6 @@ export type SocketConfigBaseType<WebsocketType> = {
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptions;
   queryParamsStringify?: StringifyCallbackType;
-};
-
-export type ServerSentEventsClientOptionsType = {
-  eventSourceInit: EventSourceInit;
-  reconnectTimeout: number;
-};
-
-export type WebsocketClientOptionsType = {
-  protocols: string[];
-  pingTimeout: number;
-  pongTimeout: number;
-  reconnectTimeout: number;
-  heartbeatMessage: string;
 };
 
 export type SocketConfig<WebsocketType> =

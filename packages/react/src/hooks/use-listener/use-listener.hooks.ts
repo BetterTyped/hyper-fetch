@@ -43,6 +43,8 @@ export const useListener = <ListenerType extends ListenerInstance>(
     () => {
       const unmountListener = listener.socket.events.onListenerEventByName(listener, (event) => {
         onEventCallback.current?.(event.data, event);
+        actions.setData(event.data);
+        actions.setTimestamp(new Date());
       });
       return unmountListener;
     },

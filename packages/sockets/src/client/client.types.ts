@@ -14,3 +14,17 @@ export type WebsocketClientType = {
   listenerOptions?: undefined;
   emitterOptions?: undefined;
 };
+
+export type ServerSentEventsClientOptionsType = {
+  eventSourceInit?: EventSourceInit;
+  reconnectTimeout?: number;
+};
+
+export type WebsocketClientOptionsType = {
+  protocols?: string[];
+  pingTimeout?: number;
+  pongTimeout?: number;
+  reconnectTimeout?: number;
+  heartbeatMessage?: string;
+  heartbeat?: boolean;
+};
