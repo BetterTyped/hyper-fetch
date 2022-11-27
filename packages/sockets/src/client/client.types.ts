@@ -6,13 +6,11 @@ type RemoveListener = () => void;
 export type WebsocketClientType = {
   connecting: boolean;
   listeners: Array<() => void>;
-  emit: (emitter: EmitterInstance) => Promise<boolean>;
+  emit: (eventMessageId: string, emitter: EmitterInstance, ack: (error: Error | null, response: any) => void) => void;
   listen: (listener: ListenerInstance, callback: (data: any) => void) => RemoveListener;
   removeListener: (listener: ListenerInstance, callback: (...args: any) => void) => void;
   connect: () => void;
   disconnect: () => void;
-  listenerOptions?: undefined;
-  emitterOptions?: undefined;
 };
 
 export type ServerSentEventsClientOptionsType = {

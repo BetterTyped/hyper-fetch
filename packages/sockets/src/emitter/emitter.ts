@@ -1,32 +1,35 @@
+import { DateInterval, getUniqueRequestId } from "@hyper-fetch/core";
+
 import { Socket } from "socket";
 import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
-import { TupleRestType } from "types";
 import { WebsocketClientType } from "client";
 import { ExtractEmitterOptionsType } from "types/extract.types";
 
-export class Emitter<
-  RequestDataType,
-  ClientType extends Record<keyof WebsocketClientType | string, any>,
-  MappedData = void,
-> {
+export class Emitter<RequestDataType, ResponseDataType, ClientType extends WebsocketClientType, MappedData = void> {
   readonly name: string;
+  timeout: number;
   data: RequestDataType | null = null;
   options: ExtractEmitterOptionsType<ClientType>;
 
   constructor(
     readonly socket: Socket<ClientType>,
     readonly emitterOptions: EmitterOptionsType<ExtractEmitterOptionsType<ClientType>>,
-    dump?: Partial<Emitter<RequestDataType, ClientType, MappedData>>,
+    dump?: Partial<Emitter<RequestDataType, ResponseDataType, ClientType, MappedData>>,
     readonly dataMapper?: (data: RequestDataType) => MappedData,
   ) {
-    const { name, options } = emitterOptions;
+    const { name, timeout = DateInterval.second * 3, options } = emitterOptions;
     this.name = dump?.name ?? name;
     this.data = dump?.data;
-    this.options = dump?.options ?? (options || this.socket.client.emitterOptions);
+    this.timeout = dump?.timeout ?? timeout;
+    this.options = dump?.options ?? options;
   }
 
   setOptions(options: ExtractEmitterOptionsType<ClientType>) {
     return this.clone({ options });
+  }
+
+  setTimeout(timeout: number) {
+    return this.clone({ timeout });
   }
 
   setData(data: RequestDataType) {
@@ -40,24 +43,31 @@ export class Emitter<
   clone<MapperData = MappedData>(
     config?: Partial<EmitterCloneOptionsType<RequestDataType, ExtractEmitterOptionsType<ClientType>>>,
     mapper?: (data: RequestDataType) => MapperData,
-  ): Emitter<RequestDataType, ClientType, MapperData> {
-    const dump: Partial<Emitter<RequestDataType, ClientType, MapperData>> = {
+  ): Emitter<RequestDataType, ResponseDataType, ClientType, MapperData> {
+    const dump: Partial<Emitter<RequestDataType, ResponseDataType, ClientType, MapperData>> = {
+      timeout: this.timeout,
+      options: this.options,
+      data: this.data,
       ...config,
       name: this.name,
-      data: config?.data || this.data,
-      options: config?.options || this.options,
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<RequestDataType, ClientType, MapperData>(this.socket, this.emitterOptions, dump, mapperFn);
+    return new Emitter<RequestDataType, ResponseDataType, ClientType, MapperData>(
+      this.socket,
+      this.emitterOptions,
+      dump,
+      mapperFn,
+    );
   }
 
   emit(
     options?: Partial<EmitterCloneOptionsType<RequestDataType, ExtractEmitterOptionsType<ClientType>>>,
-    ...rest: TupleRestType<Parameters<ClientType["emit"]>>
+    ack?: (error: Error | null, response: ResponseDataType) => void,
   ) {
     const instance = this.clone(options);
+    const eventMessageId = getUniqueRequestId(this.name);
 
-    return this.socket.client.emit(instance, ...rest);
+    return this.socket.client.emit(eventMessageId, instance, ack);
   }
 }

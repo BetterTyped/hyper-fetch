@@ -4,6 +4,7 @@ export type EmitterInstance = Emitter<any, any, any>;
 
 export type EmitterOptionsType<AdditionalEmitterOptions> = {
   name: string;
+  timeout?: number;
   options?: AdditionalEmitterOptions;
 };
 

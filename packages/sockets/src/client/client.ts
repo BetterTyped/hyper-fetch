@@ -150,8 +150,8 @@ export class SocketClient<SocketType extends SocketInstance> {
     const options = (this.socket.options.clientOptions || {}) as WebsocketClientOptionsType;
     const {
       heartbeat = false,
-      pingTimeout = DateInterval.second * 15,
-      pongTimeout = DateInterval.second * 10,
+      pingTimeout = DateInterval.second * 5,
+      pongTimeout = DateInterval.second * 5,
       heartbeatMessage = "heartbeat",
     } = options;
     if (this.connecting || !heartbeat) return;
@@ -183,7 +183,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     };
   };
 
-  listen = (listener: ListenerInstance, callback: (...args: any[]) => void) => {
+  listen = (listener: Pick<ListenerInstance, "name">, callback: (...args: any[]) => void) => {
     const listenerGroup =
       this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
 
@@ -191,15 +191,25 @@ export class SocketClient<SocketType extends SocketInstance> {
     return () => this.removeListener(listener.name, callback);
   };
 
-  emit = (emitter: EmitterInstance) => {
+  emit = (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => {
     if (!this.connecting || !this.open) {
       this.logger.error("Cannot emit event when connection is not open");
     }
 
     if (this.client && "send" in this.client) {
       const payload = JSON.stringify({
+        id: eventMessageId,
         type: emitter.name,
         data: emitter.data,
+      });
+
+      const unmount = this.listen({ name: eventMessageId }, (response) => {
+        const timeout = setTimeout(() => {
+          unmount();
+          ack(new Error("Server did not acknowledge the event"), null);
+        }, emitter.timeout);
+        ack(null, response);
+        clearTimeout(timeout);
       });
 
       this.client.send(payload);
