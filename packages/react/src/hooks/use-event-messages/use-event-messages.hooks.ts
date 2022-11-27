@@ -3,17 +3,17 @@ import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
 import { SocketInstance } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
-import { UseMessagesOptionsType } from "hooks/use-messages";
+import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
 
 /**
- * Reacts to all messages received with sockets
+ * Allow to listen to all event messages received with sockets
  * @param socket
  * @param options
  * @returns
  */
-export const useListenerEvents = <ResponsesType>(
+export const useEventMessages = <ResponsesType>(
   socket: SocketInstance,
-  { dependencyTracking = false, filter = [] }: UseMessagesOptionsType<ResponsesType>,
+  { dependencyTracking = false, filter = [] }: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, dependencyTracking);
@@ -22,7 +22,7 @@ export const useListenerEvents = <ResponsesType>(
     () => {
       const unmountListener = socket.events.onListenerEvent((event) => {
         const isFiltered = typeof filter === "function" ? filter(event) : filter.includes(event.type);
-        if (isFiltered) {
+        if (!isFiltered) {
           onEventCallback.current?.(event.data, event);
           actions.setData(event.data);
           actions.setTimestamp(new Date());
