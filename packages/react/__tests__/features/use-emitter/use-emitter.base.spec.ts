@@ -4,7 +4,7 @@ import { createEmitter } from "../../utils/emitter.utils";
 import { renderUseEmitter } from "../../utils/use-emitter.utils";
 import { wsServer } from "../../websocket/websocket.server";
 
-describe("useEmitter [ Basic ]", () => {
+describe("useEmitter [ Base ]", () => {
   let emitter = createEmitter();
 
   beforeEach(async () => {

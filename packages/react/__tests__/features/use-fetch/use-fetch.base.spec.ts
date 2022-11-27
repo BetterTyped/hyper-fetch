@@ -5,7 +5,7 @@ import { createCommand, renderUseFetch, createCacheData, builder, sleep } from "
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testBuilderIsolation } from "../../shared";
 
-describe("useFetch [ Basic ]", () => {
+describe("useFetch [ Base ]", () => {
   let command = createCommand();
 
   beforeAll(() => {

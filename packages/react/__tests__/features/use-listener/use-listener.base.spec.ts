@@ -4,7 +4,7 @@ import { createListener } from "../../utils/listener.utils";
 import { renderUseListener } from "../../utils/use-listener.utils";
 import { sendWsEvent, wsServer } from "../../websocket/websocket.server";
 
-describe("useListener [ Basic ]", () => {
+describe("useListener [ Base ]", () => {
   let listener = createListener();
 
   beforeEach(async () => {
