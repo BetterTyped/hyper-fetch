@@ -68,6 +68,7 @@ export class Emitter<RequestDataType, ResponseDataType, ClientType extends Webso
     const instance = this.clone(options);
     const eventMessageId = getUniqueRequestId(this.name);
 
-    return this.socket.client.emit(eventMessageId, instance, ack);
+    this.socket.client.emit(eventMessageId, instance, ack);
+    return eventMessageId;
   }
 }

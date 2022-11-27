@@ -11,11 +11,14 @@ const config: Config.InitialOptions = {
   collectCoverageFrom: ["<rootDir>/src/**/*.ts", "<rootDir>/src/**/*.tsx"],
   coveragePathIgnorePatterns: [".spec", "test", "tests", "types", "constants", "index.ts"],
   moduleDirectories: ["node_modules", "src"],
-  globals: {
-    "ts-jest": {
-      tsconfig: "./tsconfig.json",
-      isolatedModules: true,
-    },
+  transform: {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        tsconfig: "./tsconfig.json",
+        isolatedModules: true,
+      },
+    ],
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
   setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts"],

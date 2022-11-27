@@ -15,14 +15,16 @@ describe("useEmitter [ Basic ]", () => {
 
   describe("when hook emit event", () => {
     it("should set state with data", async () => {
+      let id = "";
       const message = { name: "Maciej", age: 99 };
       const view = renderUseEmitter(emitter);
       act(() => {
-        view.result.current.emit({ data: message });
+        id = view.result.current.emit({ data: message });
       });
 
       await expect(wsServer).toReceiveMessage(
         JSON.stringify({
+          id,
           type: emitter.name,
           data: message,
         }),
