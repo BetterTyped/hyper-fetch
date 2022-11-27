@@ -255,8 +255,8 @@ export const getClientBindings = async <ConfigType = any>(cmd: CommandInstance, 
     }
 
     const fn = () => {
-      callback();
       onAbortError(resolve);
+      callback();
       commandManager.events.emitAbort(abortKey, requestId, command);
     };
 

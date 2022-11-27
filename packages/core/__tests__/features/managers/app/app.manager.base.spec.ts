@@ -29,9 +29,9 @@ describe("AppManager [ Base ]", () => {
       expect(builder.appManager.isOnline).toBeTrue();
     });
     it("should initialize with custom isFocused", async () => {
-      const firstManager = new AppManager(builder, { initiallyFocused: false });
-      const secondManager = new AppManager(builder, { initiallyFocused: async () => false });
-      const thirdManager = new AppManager(builder, { initiallyFocused: undefined });
+      const firstManager = new AppManager({ initiallyFocused: false });
+      const secondManager = new AppManager({ initiallyFocused: async () => false });
+      const thirdManager = new AppManager({ initiallyFocused: undefined });
 
       await waitFor(() => {
         expect(firstManager.isFocused).toBeFalse();
@@ -40,9 +40,9 @@ describe("AppManager [ Base ]", () => {
       });
     });
     it("should initialize with custom isOnline", async () => {
-      const firstManager = new AppManager(builder, { initiallyOnline: false });
-      const secondManager = new AppManager(builder, { initiallyOnline: async () => false });
-      const thirdManager = new AppManager(builder, { initiallyOnline: undefined });
+      const firstManager = new AppManager({ initiallyOnline: false });
+      const secondManager = new AppManager({ initiallyOnline: async () => false });
+      const thirdManager = new AppManager({ initiallyOnline: undefined });
 
       await waitFor(() => {
         expect(firstManager.isOnline).toBeFalse();

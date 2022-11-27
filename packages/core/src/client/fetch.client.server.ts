@@ -18,20 +18,16 @@ export const serverClient: ClientType = async (command, requestId) => {
     onResponseStart,
     onResponseProgress,
     onSuccess,
-    // onAbortError,
-    // onTimeoutError,
+    onTimeoutError,
     onError,
     onResponseEnd,
   } = await getClientBindings<ClientDefaultOptionsType>(command, requestId);
 
-  const abortController = new AbortController();
   const { method } = command;
 
   return new Promise<ClientResponseType<unknown, unknown>>((resolve) => {
-    const unmountListener = createAbortListener(abortController.abort, resolve);
     const options: http.RequestOptions = {
       path: fullUrl,
-      signal: abortController.signal,
       method,
       headers: headers as http.RequestOptions["headers"],
       timeout: defaultTimeout,
@@ -42,6 +38,7 @@ export const serverClient: ClientType = async (command, requestId) => {
       options[name] = value;
     });
 
+    let unmountListener = () => null;
     onBeforeRequest();
 
     const totalUploadBytes = payload ? Number(getUploadSize(payload)) : 0;
@@ -78,7 +75,18 @@ export const serverClient: ClientType = async (command, requestId) => {
         onResponseEnd();
       });
     });
-    request.on("error", (error) => onError(error, 0, resolve));
+
+    unmountListener = createAbortListener(request.destroy, resolve);
+
+    request.on("timeout", () => {
+      onTimeoutError(resolve);
+      request.destroy();
+    });
+
+    request.on("error", (error) => {
+      onError(error, 0, resolve);
+    });
+
     if (payload) {
       const readableStream = stream.Readable.from(payload, { objectMode: false });
       const data = stream
@@ -92,6 +100,7 @@ export const serverClient: ClientType = async (command, requestId) => {
 
       request.write(data);
     }
+
     request.end();
   });
 };

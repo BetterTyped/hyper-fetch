@@ -15,8 +15,6 @@ export const browserClient: ClientType = async (command, requestId) => {
     onResponseStart,
     onResponseProgress,
     onSuccess,
-    // onAbortError,
-    // onTimeoutError,
     onError,
     onResponseEnd,
   } = await getClientBindings(command, requestId);
@@ -58,12 +56,6 @@ export const browserClient: ClientType = async (command, requestId) => {
       onResponseEnd();
       unmountListener();
     };
-
-    // Error listeners
-    // xhr.onabort = () => onAbortError(resolve);
-    // xhr.ontimeout = () => onTimeoutError(resolve);
-    // xhr.upload.onabort = () => onAbortError(resolve);
-    // xhr.upload.ontimeout = () => onTimeoutError(resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {

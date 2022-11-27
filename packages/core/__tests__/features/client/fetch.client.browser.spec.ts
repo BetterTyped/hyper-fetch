@@ -2,7 +2,7 @@ import { fetchClient, getErrorMessage } from "client";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { createBuilder, createCommand } from "../../utils";
 
-describe("Fetch Client [ Base ]", () => {
+describe("Fetch Client [ Browser ]", () => {
   const requestId = "test";
 
   let builder = createBuilder();
@@ -66,10 +66,16 @@ describe("Fetch Client [ Base ]", () => {
     expect(error).toEqual(getErrorMessage("timeout"));
   });
 
-  it("should throw when XMLHttpRequest is not available on window", async () => {
+  it("should not throw when XMLHttpRequest is not available on window", async () => {
+    const data = createRequestInterceptor(command, { delay: 20 });
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
-    expect(fetchClient(command, requestId)).rejects.toThrow();
+
+    const [response, error, status] = await fetchClient(command, requestId);
+
+    expect(response).toStrictEqual(data);
+    expect(status).toBe(200);
+    expect(error).toBe(null);
     window.XMLHttpRequest = xml;
   });
 });
