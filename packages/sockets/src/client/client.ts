@@ -36,7 +36,7 @@ export class SocketClient<SocketType extends SocketInstance> {
   }
 
   connect = () => {
-    if (this.socket.appManager.isNodeJs || this.connecting) return;
+    if (this.socket.appManager.isNodeJs || !this.socket.appManager.isOnline || this.connecting) return;
     const { reconnectTimeout = DateInterval.second * 2 } = this.socket.options.clientOptions || {};
 
     this.socket.events.emitConnecting();
