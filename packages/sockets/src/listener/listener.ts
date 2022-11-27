@@ -1,6 +1,6 @@
 import { Socket } from "socket";
 import { ListenerOptionsType } from "listener";
-import { WebsocketClientType } from "client";
+import { ListenerCallbackType, WebsocketClientType } from "client";
 import { ExtractListenerOptionsType } from "types/extract.types";
 
 export class Listener<ResponseType, ClientType extends WebsocketClientType> {
@@ -17,25 +17,28 @@ export class Listener<ResponseType, ClientType extends WebsocketClientType> {
   }
 
   setOptions(options: ExtractListenerOptionsType<ClientType>) {
-    this.options = options;
+    return this.clone({ options });
   }
 
-  clone(): Listener<ResponseType, ClientType> {
+  clone(
+    config?: Partial<ListenerOptionsType<ExtractListenerOptionsType<ClientType>>>,
+  ): Listener<ResponseType, ClientType> {
     return new Listener<ResponseType, ClientType>(this.socket, {
       ...this.listenerOptions,
-      options: { ...(this.listenerOptions.options || this.options) },
+      ...config,
+      name: this.name,
     });
   }
 
-  listen(listener: (data: ResponseType) => void) {
+  listen(callback: (data: ListenerCallbackType<ResponseType>) => void) {
     const instance = this.clone();
 
-    this.socket.client.listen(instance, listener);
+    this.socket.client.listen(instance, callback);
 
     const removeListener = () => {
-      this.socket.client.removeListener(instance, listener);
+      this.socket.client.removeListener(instance.name, callback);
     };
 
-    return [removeListener, listener] as const;
+    return [removeListener, callback] as const;
   }
 }

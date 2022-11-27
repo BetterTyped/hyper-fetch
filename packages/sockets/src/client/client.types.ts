@@ -1,14 +1,16 @@
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 
-type RemoveListener = () => void;
+export type RemoveListenerCallbackType = () => void;
+
+export type ListenerCallbackType<D = any> = (data: D, event: MessageEvent<D>) => void;
 
 export type WebsocketClientType = {
   connecting: boolean;
-  listeners: Array<() => void>;
+  listeners: Map<string, Set<ListenerCallbackType>>;
   emit: (eventMessageId: string, emitter: EmitterInstance, ack: (error: Error | null, response: any) => void) => void;
-  listen: (listener: ListenerInstance, callback: (data: any) => void) => RemoveListener;
-  removeListener: (listener: ListenerInstance, callback: (...args: any) => void) => void;
+  listen: (listener: ListenerInstance, callback: ListenerCallbackType) => RemoveListenerCallbackType;
+  removeListener: (name: string, callback: (...args: any) => void) => void;
   connect: () => void;
   disconnect: () => void;
 };

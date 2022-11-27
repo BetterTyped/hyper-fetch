@@ -3,11 +3,11 @@ import { DateInterval, LoggerType } from "@hyper-fetch/core";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import { SocketInstance } from "socket";
-import { getClient, WebsocketClientOptionsType } from "client";
+import { getClient, WebsocketClientOptionsType, ListenerCallbackType } from "client";
 
 export class SocketClient<SocketType extends SocketInstance> {
   client: WebSocket | EventSource | undefined;
-  listeners: Map<string, Set<(event: any) => void>> = new Map();
+  listeners: Map<string, Set<ListenerCallbackType>> = new Map();
   open = false;
   connecting = false;
   forceClosed = false;
@@ -101,7 +101,7 @@ export class SocketClient<SocketType extends SocketInstance> {
       const listener = this.listeners.get(data?.type);
       if (listener) {
         listener.forEach((callback) => {
-          callback(event);
+          callback(data, event);
         });
       }
       this.socket.events.emitListenerEvent(data.type, event);
@@ -171,16 +171,14 @@ export class SocketClient<SocketType extends SocketInstance> {
   };
 
   removeListener = (event: string, callback: (...args: any[]) => void) => {
-    return () => {
-      const listenerGroup = this.listeners.get(event);
-      if (listenerGroup && listenerGroup.has(callback)) {
-        this.logger.debug("Removed event listener", { event });
-        this.socket.events.emitListenerRemoveEvent(event);
-        listenerGroup.delete(callback);
-        return true;
-      }
-      return false;
-    };
+    const listenerGroup = this.listeners.get(event);
+    if (listenerGroup && listenerGroup.has(callback)) {
+      this.logger.debug("Removed event listener", { event });
+      this.socket.events.emitListenerRemoveEvent(event);
+      listenerGroup.delete(callback);
+      return true;
+    }
+    return false;
   };
 
   listen = (listener: Pick<ListenerInstance, "name">, callback: (...args: any[]) => void) => {

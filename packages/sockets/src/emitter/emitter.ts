@@ -33,27 +33,30 @@ export class Emitter<RequestDataType, ResponseDataType, ClientType extends Webso
   }
 
   setData(data: RequestDataType) {
+    if (this.dataMapper) {
+      return this.clone<MappedData>({ data: this.dataMapper(data) });
+    }
     return this.clone({ data });
   }
 
   setDataMapper = <MapperData>(mapper: (data: RequestDataType) => MapperData) => {
-    return this.clone(undefined, mapper);
+    return this.clone<RequestDataType, MapperData>(undefined, mapper);
   };
 
-  clone<MapperData = MappedData>(
-    config?: Partial<EmitterCloneOptionsType<RequestDataType, ExtractEmitterOptionsType<ClientType>>>,
-    mapper?: (data: RequestDataType) => MapperData,
-  ): Emitter<RequestDataType, ResponseDataType, ClientType, MapperData> {
-    const dump: Partial<Emitter<RequestDataType, ResponseDataType, ClientType, MapperData>> = {
+  clone<NewRequestDataType = RequestDataType, MapperData = MappedData>(
+    config?: Partial<EmitterCloneOptionsType<NewRequestDataType, ExtractEmitterOptionsType<ClientType>>>,
+    mapper?: (data: NewRequestDataType) => MapperData,
+  ): Emitter<NewRequestDataType, ResponseDataType, ClientType, MapperData> {
+    const dump: Partial<Emitter<NewRequestDataType, ResponseDataType, ClientType, MapperData>> = {
       timeout: this.timeout,
       options: this.options,
-      data: this.data,
+      data: this.data as unknown as NewRequestDataType,
       ...config,
       name: this.name,
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<RequestDataType, ResponseDataType, ClientType, MapperData>(
+    return new Emitter<NewRequestDataType, ResponseDataType, ClientType, MapperData>(
       this.socket,
       this.emitterOptions,
       dump,

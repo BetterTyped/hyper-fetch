@@ -176,7 +176,7 @@ describe("CommandManager [ Base ]", () => {
 
     const details = {
       retries: 0,
-      timestamp: new Date(),
+      timestamp: +new Date(),
       isFailed: false,
       isCanceled: false,
       isOffline: false,
