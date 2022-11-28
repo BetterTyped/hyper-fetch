@@ -24,7 +24,7 @@
     "@nrwl/cypress": "14.3.6",
     "@nrwl/jest": "14.3.6",
     "@nrwl/js": "14.3.5",
-    "@nrwl/web": "14.3.6",
+    "@nrwl/web": "14.7.6",
     "@nrwl/workspace": "14.3.5",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.7"
