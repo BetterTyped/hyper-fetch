@@ -8,7 +8,7 @@ export type ListenerCallbackType<D = any> = (data: D, event: MessageEvent<D>) =>
 export type WebsocketClientType = {
   connecting: boolean;
   listeners: Map<string, Set<ListenerCallbackType>>;
-  emit: (eventMessageId: string, emitter: EmitterInstance, ack: (error: Error | null, response: any) => void) => void;
+  emit: (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => void;
   listen: (listener: ListenerInstance, callback: ListenerCallbackType) => RemoveListenerCallbackType;
   removeListener: (name: string, callback: (...args: any) => void) => void;
   connect: () => void;
@@ -27,4 +27,10 @@ export type WebsocketClientOptionsType = {
   reconnectTimeout?: number;
   heartbeatMessage?: string;
   heartbeat?: boolean;
+};
+
+export type WSMessageType = {
+  id: string;
+  type: string;
+  data: string;
 };

@@ -21,6 +21,6 @@ const config: Config.InitialOptions = {
     ],
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
-  setupFilesAfterEnv: ["jest-extended/all"],
+  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts"],
 };
 export default config;

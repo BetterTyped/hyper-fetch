@@ -1,7 +1,7 @@
-import { WebsocketClientType } from "client";
-import { Socket, SocketConfig } from "socket";
+import { SocketClient } from "client";
+import { Socket, SocketConfig, SocketInstance } from "socket";
 import { wsUrl } from "../websocket/websocket.server";
 
-export const createSocket = (config?: Partial<SocketConfig<WebsocketClientType>>) => {
+export const createSocket = (config?: Partial<SocketConfig<SocketClient<SocketInstance>>>) => {
   return new Socket({ url: wsUrl, ...config });
 };

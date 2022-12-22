@@ -1,11 +1,13 @@
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
+import { createWsServer } from "../../websocket/websocket.server";
 
 describe("Listener [ Base ]", () => {
   let socket = createSocket();
   let listener = createListener(socket);
 
   beforeEach(() => {
+    createWsServer();
     socket = createSocket();
     listener = createListener(socket);
     jest.resetAllMocks();

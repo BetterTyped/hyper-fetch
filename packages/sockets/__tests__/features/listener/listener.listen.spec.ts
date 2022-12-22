@@ -1,6 +1,6 @@
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sendWsEvent, constructEventData } from "../../websocket/websocket.server";
+import { sendWsEvent, constructEventData, createWsServer } from "../../websocket/websocket.server";
 
 type DataType = { name: string; age: number };
 
@@ -9,6 +9,7 @@ describe("Listener [ Listen ]", () => {
   let listener = createListener<DataType>(socket);
 
   beforeEach(() => {
+    createWsServer();
     socket = createSocket();
     listener = createListener<DataType>(socket);
     jest.resetAllMocks();

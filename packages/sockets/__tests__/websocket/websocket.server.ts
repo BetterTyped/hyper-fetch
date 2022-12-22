@@ -4,7 +4,23 @@ import { ListenerInstance } from "listener";
 import { ExtractListenerResponseType } from "types";
 
 export const wsUrl = "ws://localhost:1234";
-export const wsServer = new WS(wsUrl);
+let wsServer = new WS(wsUrl);
+
+export const resetWsServer = () => {
+  if (wsServer) {
+    wsServer.close();
+    WS.clean();
+  }
+};
+
+export const createWsServer = (options?: ConstructorParameters<typeof WS>[1] & { url?: string }) => {
+  const { url = wsUrl, ...wsOptions } = options || {};
+  if (wsServer) {
+    resetWsServer();
+  }
+  wsServer = new WS(url, wsOptions);
+  return wsServer;
+};
 
 export const sendWsEvent = <T extends ListenerInstance>(
   listener: T,

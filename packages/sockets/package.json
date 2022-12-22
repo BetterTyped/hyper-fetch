@@ -41,7 +41,9 @@
   "dependencies": {
     "events": "^3.3.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eventsourcemock": "^2.0.0"
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn jest --passWithNoTests"

@@ -1,9 +1,9 @@
-import { DateInterval, LoggerType } from "@hyper-fetch/core";
+import { DateInterval, LoggerType, parseResponse } from "@hyper-fetch/core";
 
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import { SocketInstance } from "socket";
-import { getClient, WebsocketClientOptionsType, ListenerCallbackType } from "client";
+import { getClient, WebsocketClientOptionsType, ListenerCallbackType, WSMessageType } from "client";
 
 export class SocketClient<SocketType extends SocketInstance> {
   client: WebSocket | EventSource | undefined;
@@ -15,8 +15,8 @@ export class SocketClient<SocketType extends SocketInstance> {
   pingTimer: ReturnType<typeof setTimeout> | undefined;
   pongTimer: ReturnType<typeof setTimeout> | undefined;
 
-  private init: () => WebSocket | EventSource;
-  private logger: LoggerType;
+  init: () => WebSocket | EventSource;
+  logger: LoggerType;
 
   constructor(readonly socket: SocketType) {
     this.init = () => getClient(socket);
@@ -56,7 +56,10 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.reconnect();
     }, reconnectTimeout);
 
-    // Mount event listeners
+    /**
+     *  Mount listeners
+     */
+
     this.client.onopen = (event) => {
       this.logger.info("Connection open", { event });
       clearTimeout(timeout);
@@ -97,13 +100,11 @@ export class SocketClient<SocketType extends SocketInstance> {
         callback(event, this.client);
       });
 
-      const data = JSON.parse(event.data);
-      const listener = this.listeners.get(data?.type);
-      if (listener) {
-        listener.forEach((callback) => {
-          callback(data, event);
-        });
-      }
+      const data = parseResponse(event.data);
+      const listeners = this.listeners.get(data.type) || [];
+      listeners.forEach((callback) => {
+        callback(data, event);
+      });
       this.socket.events.emitListenerEvent(data.type, event);
       this.heartbeat();
     };
@@ -114,16 +115,20 @@ export class SocketClient<SocketType extends SocketInstance> {
     this.open = false;
     this.connecting = false;
     this.forceClosed = true;
-    this.client?.close();
-    const isSSe = !(this.client && "onclose" in this.client);
-    if (isSSe) {
+    this.client.close();
+    this.clearTimers();
+    const isSSE = !(this.client && "onclose" in this.client);
+    if (isSSE) {
+      this.socket.__onCloseCallbacks.forEach((callback) => {
+        callback({}, this.client);
+      });
       this.socket.events.emitClose();
     }
   };
 
   reconnect = () => {
     this.disconnect();
-    if (this.socket.reconnect < this.reconnectionAttempts) {
+    if (this.reconnectionAttempts < this.socket.reconnect) {
       this.reconnectionAttempts += 1;
       this.logger.debug("Reconnecting", { reconnectionAttempts: this.reconnectionAttempts });
       this.connect();
@@ -146,6 +151,12 @@ export class SocketClient<SocketType extends SocketInstance> {
     clearTimeout(this.pongTimer);
   };
 
+  sendEventMessage = (payload: WSMessageType) => {
+    if (this.client && "send" in this.client) {
+      this.client.send(JSON.stringify({ id: payload.id, type: payload.type, data: payload.data }));
+    }
+  };
+
   heartbeat = () => {
     const options = (this.socket.options.clientOptions || {}) as WebsocketClientOptionsType;
     const {
@@ -160,7 +171,8 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.pingTimer = setTimeout(() => {
         if (this.client && "send" in this.client) {
           this.logger.debug("[Heartbeat]: Start");
-          this.client.send(heartbeatMessage);
+          const id = "heartbeat";
+          this.sendEventMessage({ id, data: heartbeatMessage, type: "heartbeat" });
           this.pongTimer = setTimeout(() => {
             this.logger.debug("[Heartbeat]: No response, closing connection");
             this.client.close();
@@ -193,27 +205,23 @@ export class SocketClient<SocketType extends SocketInstance> {
     if (!this.connecting || !this.open) {
       this.logger.error("Cannot emit event when connection is not open");
     }
-
     if (this.client && "send" in this.client) {
-      const payload = JSON.stringify({
-        id: eventMessageId,
-        type: emitter.name,
-        data: emitter.data,
-      });
-
-      const unmount = this.listen({ name: eventMessageId }, (response) => {
-        const timeout = setTimeout(() => {
+      if (ack) {
+        let timeout;
+        const unmount = this.listen({ name: emitter.name }, (response) => {
+          ack(null, response);
+          clearTimeout(timeout);
+        });
+        timeout = setTimeout(() => {
           unmount();
           ack(new Error("Server did not acknowledge the event"), null);
         }, emitter.timeout);
-        ack(null, response);
-        clearTimeout(timeout);
-      });
+      }
 
-      this.client.send(payload);
+      this.sendEventMessage({ id: eventMessageId, data: emitter.data, type: emitter.name });
       this.socket.events.emitEmitterEvent(emitter);
     } else {
-      this.logger.error("Cannot emit events in SSE mode");
+      throw new Error("Cannot emit events in SSE mode");
     }
   };
 }

@@ -1,5 +1,6 @@
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
+import { createWsServer } from "../../websocket/websocket.server";
 
 type DataType = {
   test: string;
@@ -10,6 +11,7 @@ describe("Emitter [ Base ]", () => {
   let emitter = createEmitter<DataType>(socket);
 
   beforeEach(() => {
+    createWsServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
