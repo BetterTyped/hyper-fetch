@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
 import { ListenerInstance, ExtractListenerDataType } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
@@ -25,9 +25,10 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen((data) => {
+    removeListenerRef.current = listener.listen((data, event) => {
+      onEventCallback.current?.(data, event);
       actions.setData(data);
-      actions.setTimestamp(new Date());
+      actions.setTimestamp(+new Date());
     });
   };
 
@@ -39,21 +40,12 @@ export const useListener = <ListenerType extends ListenerInstance>(
     true,
   );
 
-  useDidUpdate(
-    () => {
-      const unmountListener = listener.socket.events.onListenerEventByName(listener, (event) => {
-        onEventCallback.current?.(event.data, event);
-        actions.setData(event.data);
-        actions.setTimestamp(new Date());
-      });
-      return unmountListener;
-    },
-    [listener],
-    true,
-  );
+  useWillUnmount(() => {
+    stopListener();
+  });
 
   const additionalCallbacks = {
-    onEvent: (callback: (data: ExtractListenerDataType<ListenerType>) => void) => {
+    onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
       onEventCallback.current = callback;
     },
   };

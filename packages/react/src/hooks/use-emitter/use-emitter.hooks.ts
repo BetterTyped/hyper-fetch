@@ -14,7 +14,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, dependencyTracking);
 
   const emit: typeof emitter.emit = (...args) => {
-    actions.setTimestamp(new Date());
+    actions.setTimestamp(+new Date());
     return emitter.emit(...args);
   };
 

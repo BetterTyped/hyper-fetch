@@ -64,7 +64,7 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.logger.info("Connection open", { event });
       clearTimeout(timeout);
       this.socket.__onOpenCallbacks.forEach((callback) => {
-        callback(event, this.client);
+        callback(event, this.socket);
       });
       this.open = true;
       this.connecting = false;
@@ -77,7 +77,7 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.client.onclose = (event) => {
         this.logger.info("Connection closed", { event });
         this.socket.__onCloseCallbacks.forEach((callback) => {
-          callback(event, this.client);
+          callback(event, this.socket);
         });
         this.open = false;
         this.connecting = false;
@@ -89,7 +89,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     this.client.onerror = (event) => {
       this.logger.info("Error message", { event });
       this.socket.__onErrorCallbacks.forEach((callback) => {
-        callback(event, this.client);
+        callback(event, this.socket);
       });
       this.socket.events.emitError(event);
     };
@@ -99,11 +99,11 @@ export class SocketClient<SocketType extends SocketInstance> {
 
       const response = this.socket.__modifyResponse(event);
       const data = parseResponse(response.data);
-      const listeners = this.listeners.get(data.type) || [];
+      const listeners = this.listeners.get(data.name) || [];
       listeners.forEach((callback) => {
         callback(data, event);
       });
-      this.socket.events.emitListenerEvent(data.type, event);
+      this.socket.events.emitListenerEvent(data.name, data, event);
       this.heartbeat();
     };
   };
@@ -118,7 +118,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     const isSSE = !(this.client && "onclose" in this.client);
     if (isSSE) {
       this.socket.__onCloseCallbacks.forEach((callback) => {
-        callback({}, this.client);
+        callback({}, this.socket);
       });
       this.socket.events.emitClose();
     }
@@ -131,14 +131,14 @@ export class SocketClient<SocketType extends SocketInstance> {
       this.logger.debug("Reconnecting", { reconnectionAttempts: this.reconnectionAttempts });
       this.connect();
       this.socket.__onReconnectCallbacks.forEach((callback) => {
-        callback(this.client);
+        callback(this.socket);
       });
       this.socket.events.emitReconnecting(this.reconnectionAttempts);
       return true;
     }
     this.logger.debug("Stopped reconnecting", { reconnectionAttempts: this.reconnectionAttempts });
     this.socket.__onReconnectStopCallbacks.forEach((callback) => {
-      callback(this.client);
+      callback(this.socket);
     });
     this.socket.events.emitReconnectingStop(this.reconnectionAttempts);
     return false;
@@ -151,7 +151,7 @@ export class SocketClient<SocketType extends SocketInstance> {
 
   sendEventMessage = (payload: WSMessageType) => {
     if (this.client && "send" in this.client) {
-      this.client.send(JSON.stringify({ id: payload.id, type: payload.type, data: payload.data }));
+      this.client.send(JSON.stringify({ id: payload.id, name: payload.name, data: payload.data }));
     }
   };
 
@@ -170,7 +170,7 @@ export class SocketClient<SocketType extends SocketInstance> {
         if (this.client && "send" in this.client) {
           this.logger.debug("[Heartbeat]: Start");
           const id = "heartbeat";
-          this.sendEventMessage({ id, data: heartbeatMessage, type: "heartbeat" });
+          this.sendEventMessage({ id, data: heartbeatMessage, name: "heartbeat" });
           this.pongTimer = setTimeout(() => {
             this.logger.debug("[Heartbeat]: No response, closing connection");
             this.client.close();
@@ -221,7 +221,7 @@ export class SocketClient<SocketType extends SocketInstance> {
       }
 
       const emitterInstance = await this.socket.__modifySend(emitter);
-      this.sendEventMessage({ id: eventMessageId, data: emitterInstance.data, type: emitterInstance.name });
+      this.sendEventMessage({ id: eventMessageId, data: emitterInstance.data, name: emitterInstance.name });
       this.socket.events.emitEmitterEvent(emitterInstance);
     } else {
       throw new Error("Cannot emit events in SSE mode");

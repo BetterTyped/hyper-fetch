@@ -31,7 +31,7 @@ export const sendWsEvent = <T extends ListenerInstance>(
   wsServer.send(
     JSON.stringify({
       ...event,
-      type: listener.name,
+      name: listener.name,
     }),
   );
 };
@@ -39,6 +39,6 @@ export const sendWsEvent = <T extends ListenerInstance>(
 export const constructEventData = <T extends Record<string, any>>({ name }: { name: string }, message: T) => {
   return {
     ...message,
-    type: name,
+    name,
   };
 };

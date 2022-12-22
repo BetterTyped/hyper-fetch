@@ -1,16 +1,18 @@
 import { act } from "@testing-library/react";
 
+import { sleep } from "../../utils";
 import { createEmitter } from "../../utils/emitter.utils";
 import { renderUseEmitter } from "../../utils/use-emitter.utils";
-import { wsServer } from "../../websocket/websocket.server";
+import { createWsServer } from "../../websocket/websocket.server";
 
 describe("useEmitter [ Base ]", () => {
+  let server = createWsServer();
   let emitter = createEmitter();
 
   beforeEach(async () => {
-    jest.resetModules();
+    server = createWsServer();
     emitter = createEmitter();
-    await wsServer.connected;
+    jest.resetModules();
   });
 
   describe("when hook emit event", () => {
@@ -18,11 +20,12 @@ describe("useEmitter [ Base ]", () => {
       let id = "";
       const message = { name: "Maciej", age: 99 };
       const view = renderUseEmitter(emitter);
-      act(() => {
+      await act(async () => {
+        await sleep(1);
         id = view.result.current.emit({ data: message });
       });
 
-      await expect(wsServer).toReceiveMessage(
+      await expect(server).toReceiveMessage(
         JSON.stringify({
           id,
           type: emitter.name,

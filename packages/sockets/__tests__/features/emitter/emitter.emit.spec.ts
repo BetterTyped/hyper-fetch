@@ -28,7 +28,7 @@ describe("Emitter [ Emit ]", () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
         id,
-        type: emitter.name,
+        name: emitter.name,
         data: message,
       }),
     );
@@ -43,16 +43,16 @@ describe("Emitter [ Emit ]", () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
         id,
-        type: emitter.name,
+        name: emitter.name,
         data: message,
       }),
     );
 
-    server.send(JSON.stringify({ type: emitter.name, data: response }));
+    server.send(JSON.stringify({ name: emitter.name, data: response }));
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(null, { type: emitter.name, data: response });
+      expect(spy).toBeCalledWith(null, { name: emitter.name, data: response });
     });
   });
 
@@ -64,7 +64,7 @@ describe("Emitter [ Emit ]", () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
         id,
-        type: emitter.name,
+        name: emitter.name,
         data: message,
       }),
     );

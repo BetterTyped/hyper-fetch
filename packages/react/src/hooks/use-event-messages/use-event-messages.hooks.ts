@@ -25,7 +25,7 @@ export const useEventMessages = <ResponsesType>(
         if (!isFiltered) {
           onEventCallback.current?.(event.data, event);
           actions.setData(event.data);
-          actions.setTimestamp(new Date());
+          actions.setTimestamp(+new Date());
         }
       });
       return unmountListener;

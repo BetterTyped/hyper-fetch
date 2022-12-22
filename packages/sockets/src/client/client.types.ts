@@ -31,6 +31,6 @@ export type WebsocketClientOptionsType = {
 
 export type WSMessageType = {
   id: string;
-  type: string;
+  name: string;
   data: string;
 };

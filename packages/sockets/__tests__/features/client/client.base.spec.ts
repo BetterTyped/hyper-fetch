@@ -30,7 +30,7 @@ describe("Socket Client [ Base ]", () => {
     expect(server).toReceiveMessage(
       JSON.stringify({
         id: emitterId,
-        type: emitter.name,
+        name: emitter.name,
         data: message,
       }),
     );
@@ -43,7 +43,7 @@ describe("Socket Client [ Base ]", () => {
     const emitterInstance = emitter.setData(message);
     socket.client.emit(emitterId, emitterInstance);
   });
-  it("should not throw on message without type", async () => {
+  it("should not throw on message without name", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     socket.onMessage(spy);
     socket.client.listeners.get = jest.fn();

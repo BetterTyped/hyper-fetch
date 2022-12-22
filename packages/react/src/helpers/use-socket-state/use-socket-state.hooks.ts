@@ -51,40 +51,6 @@ export const useSocketState = <DataType>(socket: SocketInstance, dependencyTrack
   );
 
   // ******************
-  // Hook to events
-  // ******************
-
-  useDidMount(() => {
-    const umountOnError = socket.events.onError((event) => {
-      onErrorCallback.current?.(event);
-    });
-    const umountOnConnecting = socket.events.onConnecting(() => {
-      onConnectingCallback.current?.();
-    });
-    const umountOnOpen = socket.events.onOpen(() => {
-      onOpenCallback.current?.();
-    });
-    const umountOnClose = socket.events.onClose(() => {
-      onCloseCallback.current?.();
-    });
-    const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
-      onReconnectingCallback.current?.(attempts);
-    });
-    const umountOnReconnectingStop = socket.events.onReconnectingStop((attempts) => {
-      onReconnectingStopCallback.current?.(attempts);
-    });
-
-    return () => {
-      umountOnError();
-      umountOnConnecting();
-      umountOnOpen();
-      umountOnClose();
-      umountOnReconnecting();
-      umountOnReconnectingStop();
-    };
-  });
-
-  // ******************
   // Actions
   // ******************
 
@@ -101,7 +67,7 @@ export const useSocketState = <DataType>(socket: SocketInstance, dependencyTrack
       state.current.connecting = connecting;
       renderKeyTrigger(["data"]);
     },
-    setTimestamp: (timestamp: Date | null) => {
+    setTimestamp: (timestamp: number | null) => {
       state.current.timestamp = timestamp;
       renderKeyTrigger(["timestamp"]);
     },
@@ -127,6 +93,43 @@ export const useSocketState = <DataType>(socket: SocketInstance, dependencyTrack
       onReconnectingStopCallback.current = callback;
     },
   };
+
+  // ******************
+  // Hook to events
+  // ******************
+
+  useDidMount(() => {
+    const umountOnError = socket.events.onError((event) => {
+      onErrorCallback.current?.(event);
+    });
+    const umountOnConnecting = socket.events.onConnecting(() => {
+      actions.setConnecting(true);
+      onConnectingCallback.current?.();
+    });
+    const umountOnOpen = socket.events.onOpen(() => {
+      actions.setConnected(true);
+      onOpenCallback.current?.();
+    });
+    const umountOnClose = socket.events.onClose(() => {
+      actions.setConnected(false);
+      onCloseCallback.current?.();
+    });
+    const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
+      onReconnectingCallback.current?.(attempts);
+    });
+    const umountOnReconnectingStop = socket.events.onReconnectingStop((attempts) => {
+      onReconnectingStopCallback.current?.(attempts);
+    });
+
+    return () => {
+      umountOnError();
+      umountOnConnecting();
+      umountOnOpen();
+      umountOnClose();
+      umountOnReconnecting();
+      umountOnReconnectingStop();
+    };
+  });
 
   return [state.current, actions, callbacks, { setRenderKey }] as const;
 };

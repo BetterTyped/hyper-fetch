@@ -1,16 +1,17 @@
-import { waitFor } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import { createListener } from "../../utils/listener.utils";
 import { renderUseListener } from "../../utils/use-listener.utils";
-import { sendWsEvent, wsServer } from "../../websocket/websocket.server";
+import { createWsServer, sendWsEvent } from "../../websocket/websocket.server";
 
 describe("useListener [ Base ]", () => {
+  const spy = jest.fn();
   let listener = createListener();
 
   beforeEach(async () => {
-    jest.resetModules();
+    createWsServer();
     listener = createListener();
-    await wsServer.connected;
+    jest.resetModules();
   });
 
   describe("when hook receive event", () => {
@@ -20,6 +21,28 @@ describe("useListener [ Base ]", () => {
       sendWsEvent(listener, message);
       await waitFor(() => {
         expect(view.result.current.data).toBeTruthy();
+        expect(view.result.current.connected).toBeTrue();
+        expect(view.result.current.connecting).toBeFalse();
+        expect(view.result.current.timestamp).toBeNumber();
+      });
+    });
+    it("should trigger onEvent callback", async () => {
+      const message = { name: "Maciej", age: 99 };
+      const view = renderUseListener(listener);
+      let receivedData;
+      let receivedEventData;
+      act(() => {
+        view.result.current.onEvent((data, event) => {
+          receivedData = data;
+          receivedEventData = event;
+          spy();
+        });
+      });
+      sendWsEvent(listener, message);
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+        expect(receivedData).toEqual({ data: message, name: listener.name });
+        expect(receivedEventData).toBeDefined();
       });
     });
   });
