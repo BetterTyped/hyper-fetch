@@ -2,8 +2,6 @@ import EventEmitter from "events";
 import {
   stringifyQueryParams,
   StringifyCallbackType,
-  ClientPayloadMappingCallback,
-  getClientPayload,
   QueryStringifyOptions,
   LoggerManager,
   SeverityType,
@@ -22,10 +20,12 @@ import {
   SendCallbackType,
   ErrorCallbackType,
   getSocketEvents,
+  interceptListener,
+  interceptEmitter,
 } from "socket";
 import { WebsocketClientType, SocketClient } from "client";
 import { Listener, ListenerOptionsType } from "listener";
-import { Emitter, EmitterOptionsType } from "emitter";
+import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 
 export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
   public emitter = new EventEmitter();
@@ -40,13 +40,13 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
   autoConnect: boolean;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<ClientType>[] = [];
-  __onCloseCallbacks: CloseCallbackType<ClientType>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<ClientType>[] = [];
-  __onReconnectStopCallbacks: ReconnectStopCallbackType<ClientType>[] = [];
-  __onMessageCallbacks: MessageCallbackType<ClientType>[] = [];
-  __onSendCallbacks: SendCallbackType<ClientType>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<ClientType>[] = [];
+  __onOpenCallbacks: OpenCallbackType<Socket<ClientType>, any>[] = [];
+  __onCloseCallbacks: CloseCallbackType<Socket<ClientType>, any>[] = [];
+  __onReconnectCallbacks: ReconnectCallbackType<Socket<ClientType>>[] = [];
+  __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<ClientType>>[] = [];
+  __onMessageCallbacks: MessageCallbackType<Socket<ClientType>, any>[] = [];
+  __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
+  __onErrorCallbacks: ErrorCallbackType<Socket<ClientType>, any>[] = [];
 
   // Config
   client: ClientType;
@@ -56,11 +56,6 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
 
   // Logger
   logger = this.loggerManager.init("Socket");
-
-  /**
-   * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
-   */
-  payloadMapper: ClientPayloadMappingCallback = getClientPayload;
 
   /**
    * Method to stringify query params from objects.
@@ -78,14 +73,13 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
       autoConnect,
       reconnect,
       reconnectTime,
-      debug,
       queryParamsConfig,
       queryParamsStringify,
     } = this.options;
     this.url = url;
     this.auth = auth;
     this.queryParams = queryParams;
-    this.debug = debug ?? false;
+    this.debug = false;
     this.autoConnect = autoConnect ?? true;
     this.reconnect = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
@@ -126,14 +120,6 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
   };
 
   /**
-   * Set the request payload mapping function which get triggered before request get send
-   */
-  setPayloadMapper = (payloadMapper: ClientPayloadMappingCallback): Socket<ClientType> => {
-    this.payloadMapper = payloadMapper;
-    return this;
-  };
-
-  /**
    * Callbacks
    */
 
@@ -142,68 +128,82 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
    * @param callback
    * @returns
    */
-  onOpen = (callback: OpenCallbackType<ClientType>) => {
+  onOpen<Event = MessageEvent>(callback: OpenCallbackType<Socket<ClientType>, Event>) {
     this.__onOpenCallbacks.push(callback);
     return this;
-  };
+  }
   /**
    * Triggered when connection is closed
    * @param callback
    * @returns
    */
-  onClose = (callback: CloseCallbackType<ClientType>) => {
+  onClose<Event = MessageEvent>(callback: CloseCallbackType<Socket<ClientType>, Event>) {
     this.__onCloseCallbacks.push(callback);
     return this;
-  };
+  }
 
   /**
    * Triggered when connection is getting reconnected
    * @param callback
    * @returns
    */
-  onReconnect = (callback: ReconnectCallbackType<ClientType>) => {
+  onReconnect(callback: ReconnectCallbackType<Socket<ClientType>>) {
     this.__onReconnectCallbacks.push(callback);
     return this;
-  };
+  }
 
   /**
    * Triggered when connection attempts are stopped
    * @param callback
    * @returns
    */
-  onReconnectStop = (callback: ReconnectStopCallbackType<ClientType>) => {
+  onReconnectStop(callback: ReconnectStopCallbackType<Socket<ClientType>>) {
     this.__onReconnectStopCallbacks.push(callback);
     return this;
-  };
+  }
 
   /**
    * Triggered when any message is received
    * @param callback
    * @returns
    */
-  onMessage = (callback: MessageCallbackType<ClientType>) => {
+  onMessage<Event = MessageEvent>(callback: MessageCallbackType<Socket<ClientType>, Event>) {
     this.__onMessageCallbacks.push(callback);
     return this;
-  };
+  }
 
   /**
    * Triggered when any event is emitted
    * @param callback
    * @returns
    */
-  onSend = (callback: SendCallbackType<ClientType>) => {
+  onSend<EmitterType extends EmitterInstance>(callback: SendCallbackType<EmitterType>) {
     this.__onSendCallbacks.push(callback);
     return this;
-  };
+  }
 
   /**
    * Triggered when we receive error
    * @param callback
    * @returns
    */
-  onError = (callback: ErrorCallbackType<ClientType>) => {
+  onError<Event = MessageEvent>(callback: ErrorCallbackType<Socket<ClientType>, Event>) {
     this.__onErrorCallbacks.push(callback);
     return this;
+  }
+
+  /**
+   * ********************
+   * Interceptors
+   * ********************
+   */
+
+  __modifySend = (emitter: EmitterInstance) => {
+    return interceptEmitter(this.__onSendCallbacks, emitter);
+  };
+
+  __modifyResponse = (response: MessageEvent) => {
+    return interceptListener(this.__onMessageCallbacks, response, this);
   };
 
   /**

@@ -33,18 +33,12 @@ describe("Socket Client [ Connection ]", () => {
     });
   });
 
-  it("should disconnect when going offline", async () => {
-    const spy = jest.fn();
-    socket.events.onClose(spy);
-    socket.appManager.setOnline(false);
-    await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
-    });
-  });
   it("should reconnect when going online", async () => {
     const spy = jest.fn();
     socket.appManager.setOnline(false);
+    socket.client.disconnect();
     socket.onClose(() => {
+      socket.client.open = false;
       socket.events.onOpen(spy);
       socket.appManager.setOnline(true);
     });
@@ -52,6 +46,7 @@ describe("Socket Client [ Connection ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
   });
+
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
     const url = "ws://test";

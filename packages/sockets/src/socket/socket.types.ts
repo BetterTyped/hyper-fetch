@@ -2,32 +2,32 @@ import { ClientQueryParamsType, QueryStringifyOptions, StringifyCallbackType } f
 
 import { Socket } from "socket";
 import { ServerSentEventsClientOptionsType, WebsocketClientOptionsType } from "client";
+import { EmitterInstance } from "emitter";
 
 export type SocketInstance = Socket<any>;
 
-export type SocketConfigBaseType<WebsocketType> = {
+export type SocketConfigBaseType<SocketClientType> = {
   url: string;
-  client?: WebsocketType;
+  client?: SocketClientType;
   auth?: ClientQueryParamsType;
   queryParams?: ClientQueryParamsType | string;
   reconnect?: number;
   reconnectTime?: number;
-  debug?: boolean;
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptions;
   queryParamsStringify?: StringifyCallbackType;
 };
 
-export type SocketConfig<WebsocketType> =
-  | (SocketConfigBaseType<WebsocketType> & { isSSE: true; clientOptions?: ServerSentEventsClientOptionsType })
-  | (SocketConfigBaseType<WebsocketType> & {
+export type SocketConfig<SocketClientType> =
+  | (SocketConfigBaseType<SocketClientType> & { isSSE: true; clientOptions?: ServerSentEventsClientOptionsType })
+  | (SocketConfigBaseType<SocketClientType> & {
       clientOptions?: WebsocketClientOptionsType;
     });
 
-export type ReconnectCallbackType<WebsocketType> = (websocket: WebsocketType) => void;
-export type ReconnectStopCallbackType<WebsocketType> = (websocket: WebsocketType) => void;
-export type OpenCallbackType<WebsocketType> = <Event>(event: Event, websocket: WebsocketType) => void;
-export type CloseCallbackType<WebsocketType> = <Event>(event: Event, websocket: WebsocketType) => void;
-export type MessageCallbackType<WebsocketType> = <Event>(event: Event, websocket: WebsocketType) => void;
-export type SendCallbackType<WebsocketType> = <Event>(event: Event, websocket: WebsocketType) => void;
-export type ErrorCallbackType<WebsocketType> = <Event>(event: Event, websocket: WebsocketType) => void;
+export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
+export type ReconnectStopCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
+export type OpenCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;
+export type CloseCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;
+export type MessageCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => Event;
+export type SendCallbackType<EmitterType extends EmitterInstance> = (emitter: EmitterType) => EmitterInstance;
+export type ErrorCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;

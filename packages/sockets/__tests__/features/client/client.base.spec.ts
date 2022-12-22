@@ -44,7 +44,7 @@ describe("Socket Client [ Base ]", () => {
     socket.client.emit(emitterId, emitterInstance);
   });
   it("should not throw on message without type", async () => {
-    const spy = jest.fn();
+    const spy = jest.fn().mockImplementation((res) => res);
     socket.onMessage(spy);
     socket.client.listeners.get = jest.fn();
     server.send(undefined);

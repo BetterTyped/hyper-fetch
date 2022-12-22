@@ -19,7 +19,7 @@ import { ListenerInstance } from "listener";
 import { ExtractListenerResponseType } from "types/extract.types";
 
 export const getSocketEvents = (eventEmitter: EventEmitter) => ({
-  emitError: <ResponseType = Event>(event: ResponseType): void => {
+  emitError: <ResponseType = MessageEvent>(event: ResponseType): void => {
     eventEmitter.emit(getErrorKey(), event);
   },
   emitOpen: (): void => {
@@ -37,22 +37,22 @@ export const getSocketEvents = (eventEmitter: EventEmitter) => ({
   emitReconnectingStop: (attempts: number): void => {
     eventEmitter.emit(getReconnectingStopKey(), attempts);
   },
-  emitListenerEvent: <ResponseType = Event>(event: string, data: ResponseType): void => {
+  emitListenerEvent: <ResponseType = MessageEvent>(type: string, data: ResponseType): void => {
     eventEmitter.emit(getListenerEventKey(), data);
-    eventEmitter.emit(getListenerEventByNameKey(event), data);
+    eventEmitter.emit(getListenerEventByNameKey(type), data);
   },
-  emitListenerRemoveEvent: (event: string): void => {
-    eventEmitter.emit(getListenerRemoveKey());
-    eventEmitter.emit(getListenerRemoveByNameKey(event));
+  emitListenerRemoveEvent: (type: string): void => {
+    eventEmitter.emit(getListenerRemoveKey(), type);
+    eventEmitter.emit(getListenerRemoveByNameKey(type));
   },
   emitEmitterEvent: <EmitterType extends EmitterInstance>(emitter: EmitterType): void => {
     eventEmitter.emit(getEmitterEventKey(), emitter);
     eventEmitter.emit(getEmitterEventByNameKey(emitter.name), emitter);
   },
 
-  onError: (callback: <ResponseType = Event>(event: ResponseType) => void): VoidFunction => {
-    eventEmitter.on(getOpenKey(), callback);
-    return () => eventEmitter.removeListener(getOpenKey(), callback);
+  onError: (callback: <ResponseType = MessageEvent>(event: ResponseType) => void): VoidFunction => {
+    eventEmitter.on(getErrorKey(), callback);
+    return () => eventEmitter.removeListener(getErrorKey(), callback);
   },
   onOpen: (callback: () => void): VoidFunction => {
     eventEmitter.on(getOpenKey(), callback);
@@ -88,6 +88,10 @@ export const getSocketEvents = (eventEmitter: EventEmitter) => ({
   ): VoidFunction => {
     eventEmitter.on(getListenerEventByNameKey(listener.name), callback);
     return () => eventEmitter.removeListener(getListenerEventByNameKey(listener.name), callback);
+  },
+  onListenerRemove: (callback: (type: string) => void): VoidFunction => {
+    eventEmitter.on(getListenerRemoveKey(), callback);
+    return () => eventEmitter.removeListener(getListenerRemoveKey(), callback);
   },
   onListenerRemoveByName: <ListenerType extends ListenerInstance>(
     listener: ListenerType,

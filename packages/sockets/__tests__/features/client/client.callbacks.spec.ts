@@ -1,5 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
+import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
@@ -41,9 +42,20 @@ describe("Socket Client [ Callbacks ]", () => {
   });
 
   it("should trigger onMessage callbacks", async () => {
-    const spy = jest.fn();
+    const spy = jest.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
     server.send({ data: { type: "test", data: "test" } });
+
+    await waitFor(() => {
+      expect(spy).toBeCalledTimes(1);
+    });
+  });
+
+  it("should trigger onSend callbacks", async () => {
+    const spy = jest.fn().mockImplementation((em) => em);
+    const socket = createSocket().onSend(spy);
+    const emitter = createEmitter(socket);
+    emitter.setData({ test: "1" }).emit();
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);

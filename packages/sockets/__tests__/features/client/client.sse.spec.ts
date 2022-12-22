@@ -30,6 +30,6 @@ describe("Socket Client [ SSE ]", () => {
   });
 
   it("should throw error when emitting", async () => {
-    expect(() => socket.client.emit("", {} as any)).toThrow();
+    expect(() => socket.client.emit("", {} as any)).rejects.toThrow();
   });
 });

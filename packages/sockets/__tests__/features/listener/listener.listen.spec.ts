@@ -1,3 +1,5 @@
+import { waitFor } from "@testing-library/dom";
+
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { sendWsEvent, constructEventData, createWsServer } from "../../websocket/websocket.server";
@@ -22,7 +24,9 @@ describe("Listener [ Listen ]", () => {
     sendWsEvent(listener, message);
 
     const expectedResponse = constructEventData(listener, message);
-    expect(spy).toHaveBeenCalledOnceWith(expectedResponse);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledOnceWith(expectedResponse);
+    });
   });
 
   it("should allow to remove given listener", async () => {

@@ -22,11 +22,11 @@ export class SocketClient<SocketType extends SocketInstance> {
     this.init = () => getClient(socket);
     this.logger = this.socket.loggerManager.init("Socket Client");
 
-    this.socket.appManager.events.onOffline(() => {
-      this.disconnect();
-    });
     this.socket.appManager.events.onOnline(() => {
-      this.connect();
+      if (this.socket.autoConnect && !this.open) {
+        this.logger.info("Auto re-connecting");
+        this.connect();
+      }
     });
 
     if (this.socket.autoConnect) {
@@ -96,11 +96,9 @@ export class SocketClient<SocketType extends SocketInstance> {
 
     this.client.onmessage = (event) => {
       this.logger.info("New event message", { event });
-      this.socket.__onMessageCallbacks.forEach((callback) => {
-        callback(event, this.client);
-      });
 
-      const data = parseResponse(event.data);
+      const response = this.socket.__modifyResponse(event);
+      const data = parseResponse(response.data);
       const listeners = this.listeners.get(data.type) || [];
       listeners.forEach((callback) => {
         callback(data, event);
@@ -201,7 +199,11 @@ export class SocketClient<SocketType extends SocketInstance> {
     return () => this.removeListener(listener.name, callback);
   };
 
-  emit = (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => {
+  emit = async (
+    eventMessageId: string,
+    emitter: EmitterInstance,
+    ack?: (error: Error | null, response: any) => void,
+  ) => {
     if (!this.connecting || !this.open) {
       this.logger.error("Cannot emit event when connection is not open");
     }
@@ -218,8 +220,9 @@ export class SocketClient<SocketType extends SocketInstance> {
         }, emitter.timeout);
       }
 
-      this.sendEventMessage({ id: eventMessageId, data: emitter.data, type: emitter.name });
-      this.socket.events.emitEmitterEvent(emitter);
+      const emitterInstance = await this.socket.__modifySend(emitter);
+      this.sendEventMessage({ id: eventMessageId, data: emitterInstance.data, type: emitterInstance.name });
+      this.socket.events.emitEmitterEvent(emitterInstance);
     } else {
       throw new Error("Cannot emit events in SSE mode");
     }
