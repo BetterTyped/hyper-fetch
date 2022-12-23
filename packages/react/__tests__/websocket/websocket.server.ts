@@ -23,23 +23,20 @@ export const createWsServer = (options?: ConstructorParameters<typeof WS>[1] & {
   return wsServer;
 };
 
+export const constructEventData = <T extends Record<string, any>>({ name }: { name: string }, data: T) => {
+  return {
+    data,
+    name,
+  };
+};
+
 export const sendWsEvent = <T extends ListenerInstance>(
   listener: T,
-  data: ExtractListenerResponseType<T> extends Record<string, any>
+  event: ExtractListenerResponseType<T> extends Record<string, any>
     ? ExtractListenerResponseType<T>
     : Record<string, any>,
 ) => {
-  wsServer.send(
-    JSON.stringify({
-      data,
-      name: listener.name,
-    }),
-  );
-};
+  const data = constructEventData(listener, event);
 
-export const constructEventData = <T extends Record<string, any>>({ name }: { name: string }, message: T) => {
-  return {
-    ...message,
-    name,
-  };
+  wsServer.send(JSON.stringify(data));
 };

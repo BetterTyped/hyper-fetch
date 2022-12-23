@@ -12,6 +12,7 @@ describe("useListener [ Base ]", () => {
     createWsServer();
     listener = createListener();
     jest.resetModules();
+    jest.resetAllMocks();
   });
 
   describe("when hook receive event", () => {

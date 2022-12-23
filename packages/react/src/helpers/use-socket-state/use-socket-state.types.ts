@@ -4,3 +4,7 @@ export type UseSocketStateType<DataType = any> = {
   connecting: boolean;
   timestamp: number | null;
 };
+
+export type UseSocketStateProps = {
+  dependencyTracking?: boolean;
+};

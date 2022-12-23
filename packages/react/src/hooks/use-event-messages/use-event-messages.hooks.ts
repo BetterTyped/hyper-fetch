@@ -13,29 +13,30 @@ import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
  */
 export const useEventMessages = <ResponsesType>(
   socket: SocketInstance,
-  { dependencyTracking = false, filter = [] }: UseEventMessagesOptionsType<ResponsesType>,
+  { dependencyTracking = false, filter }: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
-  const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, dependencyTracking);
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, { dependencyTracking });
 
   useDidUpdate(
     () => {
-      const unmountListener = socket.events.onListenerEvent((event) => {
-        const isFiltered = typeof filter === "function" ? filter(event) : filter.includes(event.type);
+      const unmountListener = socket.events.onListenerEvent((data, event) => {
+        const filterFn = typeof filter === "function" ? () => filter(data, event) : () => filter.includes(data.name);
+        const isFiltered = filter ? filterFn() : false;
         if (!isFiltered) {
-          onEventCallback.current?.(event.data, event);
-          actions.setData(event.data);
+          onEventCallback.current?.(data, event);
+          actions.setData(data);
           actions.setTimestamp(+new Date());
         }
       });
       return unmountListener;
     },
-    [socket],
+    [socket, filter],
     true,
   );
 
   const additionalCallbacks = {
-    onEvent: (callback: (data: ResponsesType) => void) => {
+    onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
       onEventCallback.current = callback;
     },
   };

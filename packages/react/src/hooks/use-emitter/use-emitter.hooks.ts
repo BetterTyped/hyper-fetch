@@ -11,17 +11,18 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
   { dependencyTracking }: UseEmitterOptionsType,
 ) => {
   const onEmitCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
-  const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, dependencyTracking);
-
-  const emit: typeof emitter.emit = (...args) => {
-    actions.setTimestamp(+new Date());
-    return emitter.emit(...args);
-  };
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, { dependencyTracking });
 
   const additionalCallbacks = {
     onEmit: (callback: (emitter: EmitterType) => void) => {
       onEmitCallback.current = callback;
     },
+  };
+
+  const emit: typeof emitter.emit = (...args) => {
+    actions.setTimestamp(+new Date());
+    onEmitCallback.current?.(emitter);
+    return emitter.emit(...args);
   };
 
   return {

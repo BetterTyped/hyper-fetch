@@ -2,9 +2,9 @@ import { useRef } from "react";
 import { SocketInstance } from "@hyper-fetch/sockets";
 import { useDidMount, useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
 
-import { UseSocketStateType, initialSocketState } from "helpers";
+import { UseSocketStateType, initialSocketState, UseSocketStateProps } from "helpers";
 
-export const useSocketState = <DataType>(socket: SocketInstance, dependencyTracking?: boolean) => {
+export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTracking }: UseSocketStateProps) => {
   const forceUpdate = useForceUpdate();
 
   const onOpenCallback = useRef<null | VoidFunction>(null);

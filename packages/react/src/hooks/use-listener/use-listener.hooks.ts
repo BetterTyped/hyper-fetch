@@ -17,7 +17,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
       ) => void)
   >(null);
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
-  const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, dependencyTracking);
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
 
   const stopListener = () => {
     removeListenerRef.current?.[0]();
