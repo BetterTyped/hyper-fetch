@@ -19,39 +19,37 @@ export function Description(): JSX.Element {
             <div className={styles.imageWrapper}>
               <img className={styles.featureSvg} alt="box" src="/img/features/070-file hosting.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Builder and Command</h3>
+            <h3 className={clsx(styles.title)}>Http, Graphql, Websockets, SSE</h3>
             <div className={clsx(styles.description)}>
-              Builder will allow you to easily set the basic specification of the server you intend to communicate,
-              setup http client and create commands which are responsible for the configuration of a single endpoint
-              data exchange.
+              There is nothing impossible for us, we provide virtually unlimited possibilities for data exchange,
+              providing the necessary tools and easy-to-implement solutions.
             </div>
           </div>
           <div className={clsx(styles.block)}>
             <div className={styles.imageWrapper}>
               <img className={styles.featureSvg} alt="bolt" src="/img/features/049-messenger.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Dispatchers and Effects</h3>
+            <h3 className={clsx(styles.title)}>Replace and customize the system</h3>
             <div className={clsx(styles.description)}>
-              Dispatchers help us to handle sending requests based on our preferences - queued, deduplicated, cancelling
-              or all at once. Effects allow you to add side effects of executed requests, you can use them as a global
-              events handlers.
+              Are you used to proven tools such as Axios, Socket.io or fetch? You can easily use them with Hyper Fetch,
+              we do not limit the possibility of combining our platform with proven solutions.
             </div>
           </div>
           <div className={clsx(styles.block)}>
             <div className={styles.imageWrapper}>
               <img className={styles.featureSvg} alt="case" src="/img/features/047-pin.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Cache and Managers</h3>
+            <h3 className={clsx(styles.title)}>Persistance and offline first</h3>
             <div className={clsx(styles.description)}>
-              The cache allows you to store the results of requests for later use - quickly and easily reduce requests
-              and server load. Managers allow you to monitor the logs, network state of the application and lifecycle of
-              requests.
+              The most advanced solution for persistence and offline solutions first. We based our solution on commands
+              and a fixed data standard, which allows us to store not only data returned from queries, but also entire
+              requests before sending them!
             </div>
           </div>
         </div>
       </div>
       <h3 className={clsx(styles.link)}>
-        You can find more details in <Link to="/docs/Architecture/Builder">Architecture Docs</Link>
+        You can find more details in <Link to="/docs/Core/Overview">Architecture Docs</Link>
       </h3>
     </section>
   );

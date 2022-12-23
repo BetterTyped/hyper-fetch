@@ -42,9 +42,9 @@
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Sockets/Setup)
 
-🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/guides/Sockets/Websockets)
+🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/Sockets/Overview#Websockets)
 
-✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/Sockets/SSE)
+✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/Sockets/Overview#Sockets)
 
 🚀 **Type safe** - [Read more](https://hyperfetch.bettertyped.com/guides/guides/Sockets/Typescript)
 
@@ -65,7 +65,7 @@ We have specially created hooks to support sockets.
 ## Sources
 
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/Sockets)
+- #### [Docs](https://hyperfetch.bettertyped.com/docs/Sockets/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/core)
 - #### [Guides](https://hyperfetch.bettertyped.com/guides/Sockets/Setup)

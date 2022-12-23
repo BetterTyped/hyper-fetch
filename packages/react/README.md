@@ -49,7 +49,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Cache)
 
 🪄 **Persistance** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
 
@@ -57,7 +57,7 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Client)
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Client)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
 

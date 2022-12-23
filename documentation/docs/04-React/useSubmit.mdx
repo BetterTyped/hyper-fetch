@@ -12,10 +12,10 @@ sidebar_position: 4
 ## Introduction
 
 This hook **mutates data** on the server and supports controlling requests. It uses the
-[`Submit Dispatcher`](/docs/Architecture/Dispatcher) to handle requests and the [`Cache`](/docs/Architecture/Cache) to
-manage the overall state of the data.
+[`Submit Dispatcher`](/docs/Core/Dispatcher) to handle requests and the [`Cache`](/docs/Core/Cache) to manage the
+overall state of the data.
 
-The minimum requirement for `useSubmit` is a prepared [`Command`](/docs/Architecture/Command).
+The minimum requirement for `useSubmit` is a prepared [`Command`](/docs/Core/Command).
 
 If you intend to `retrieve` data from the server, we recommend choosing the [`useFetch`](/docs/React/useFetch) hook.
 
@@ -32,10 +32,11 @@ const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } =
 ## How it works?
 
 **`useSubmit`** executes a command when a `submit()` function returned from it gets triggered. It uses dependency
-tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is established by
-event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`, etc.) are returned;
-these will help handle the request flow and lifecycle. This approach avoids overloading the base hook with callback logic.
-It also helps improve code readability, decreases code complication, and promotes more organized code.
+tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
+established by event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`,
+etc.) are returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base
+hook with callback logic. It also helps improve code readability, decreases code complication, and promotes more
+organized code.
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -87,7 +88,8 @@ const LoginPage: React.FC = () => {
 
 ## Passing data and params
 
-Data and parameters can be passed in several ways. One option is to use methods on the [`Command`](/docs/Architecture/Command), such as `setData` or `setParams`.
+Data and parameters can be passed in several ways. One option is to use methods on the [`Command`](/docs/Core/Command),
+such as `setData` or `setParams`.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));

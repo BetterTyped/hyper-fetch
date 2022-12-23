@@ -13,9 +13,9 @@ The basic version of Hyper Fetch is not associated with any framework or library
 
 ### 1. Initialize the Builder
 
-The first step in implementing Hyper Fetch is to initialize the **[Builder](/docs/Architecture/Builder)**. It manages
-the basic configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of
-**dispatchers**, **cache**, and **app managers**). Start by determining the `url` of your server.
+The first step in implementing Hyper Fetch is to initialize the **[Builder](/docs/Core/Builder)**. It manages the basic
+configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of **dispatchers**,
+**cache**, and **app managers**). Start by determining the `url` of your server.
 
 ```tsx title="/src/server/builder.ts"
 import { Builder } from "@hyper-fetch/core";
@@ -26,7 +26,7 @@ export const builder = new Builder({ url: "http://localhost:3000" });
 ### 2. Create Commands
 
 Then, having already prepared a connection to the server, we use the builder method to create
-**[commands](/docs/Architecture/Command)** and assign types to them.
+**[commands](/docs/Core/Command)** and assign types to them.
 
 :::caution
 

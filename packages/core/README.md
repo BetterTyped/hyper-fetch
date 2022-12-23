@@ -50,7 +50,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Cache)
 
 🪄 **Persistance** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
 
@@ -58,7 +58,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Client)
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Client)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
 

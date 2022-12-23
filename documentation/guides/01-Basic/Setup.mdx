@@ -6,9 +6,9 @@ sidebar_position: 0
 
 ### Initialize Builder
 
-The first step is to initialize the **[Builder](/docs/Architecture/Builder)**. It manage the basic configuration for
-connection to the server and all the elements that make up Hyper Fetch, which are instances of - **dispatchers**,
-**cache** and **app managers**. We start by determining the `url` of our server.
+The first step is to initialize the **[Builder](/docs/Core/Builder)**. It manage the basic configuration for connection
+to the server and all the elements that make up Hyper Fetch, which are instances of - **dispatchers**, **cache** and
+**app managers**. We start by determining the `url` of our server.
 
 ```tsx title="/src/server/builder.ts"
 import { Builder } from "@hyper-fetch/core";
@@ -19,7 +19,7 @@ export const builder = new Builder({ url: "http://localhost:3000" });
 ### Create Command
 
 Then, having already prepared connection setup for the server, we use the builder method to create
-**[commands](/docs/Architecture/Command)** and assign types to them.
+**[commands](/docs/Core/Command)** and assign types to them.
 
 :::caution
 

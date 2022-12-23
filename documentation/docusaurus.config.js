@@ -193,7 +193,7 @@ const config = {
               },
               {
                 label: "Architecture",
-                to: "/docs/Architecture/Builder",
+                to: "/docs/Core/Builder",
               },
               {
                 label: "React",
