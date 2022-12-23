@@ -46,6 +46,12 @@ module.exports = {
             },
           ],
         },
+        [
+          "@semantic-release/exec",
+          {
+            publishCmd: "yarn run docusaurus docs:version ${nextRelease.version}",
+          },
+        ],
       ],
       "@semantic-release/npm",
       "@semantic-release/github",
@@ -54,8 +60,7 @@ module.exports = {
       "@semantic-release/changelog",
       {
         path: "@semantic-release/git",
-        assets: ["package.json"],
-        message: "Release: ${nextRelease.version}",
+        message: "Docs version: ${nextRelease.version}",
       },
       "@semantic-release/npm",
     ],

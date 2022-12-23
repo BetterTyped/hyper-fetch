@@ -3,7 +3,7 @@ import { testErrorState, testSuccessState } from "../../shared";
 import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
 
 describe("useFetch [ Deduplication ]", () => {
-  let dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 30, retry: 5, retryTime: 200 });
+  let dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
 
   beforeAll(() => {
     startServer();
@@ -18,7 +18,7 @@ describe("useFetch [ Deduplication ]", () => {
   });
 
   beforeEach(() => {
-    dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 30, retry: 5, retryTime: 200 });
+    dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
     jest.resetModules();
     builder.clear();
   });
