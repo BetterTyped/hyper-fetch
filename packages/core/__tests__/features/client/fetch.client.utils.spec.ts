@@ -1,4 +1,4 @@
-import { getErrorMessage, getUploadSize, parseErrorResponse, parseResponse } from "client";
+import { getErrorMessage, getStreamPayload, getUploadSize, parseErrorResponse, parseResponse } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Fetch Client [ Utils ]", () => {
@@ -66,6 +66,25 @@ describe("Fetch Client [ Utils ]", () => {
       payload.append("test2", new Blob(["test"]));
       const size = getUploadSize(payload);
       expect(size).toEqual(21);
+    });
+  });
+
+  describe("When getStreamPayload util get triggered", () => {
+    it("should return string from simple FormData", async () => {
+      const payload = new FormData();
+      payload.append("file", "test");
+      const value = await getStreamPayload(payload);
+
+      expect(value).toBeInstanceOf(Array);
+      expect(value[0]).toBe(payload.get("file"));
+    });
+    it("should return streams from FormData", async () => {
+      const payload = new FormData();
+      payload.append("file", new Blob(["data:image/gif;base64,R0lGODlhAQABAAAAACw="], { type: "image/png" }));
+      const value = await getStreamPayload(payload);
+
+      expect(value).toBeInstanceOf(Array);
+      expect(value[0]).toBeInstanceOf(Uint8Array);
     });
   });
 });

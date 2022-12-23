@@ -17,6 +17,7 @@ export const browserClient: ClientType = async (command, requestId) => {
     onSuccess,
     onError,
     onResponseEnd,
+    onTimeoutError,
   } = await getClientBindings(command, requestId);
 
   const { method } = command;
@@ -56,6 +57,8 @@ export const browserClient: ClientType = async (command, requestId) => {
       onResponseEnd();
       unmountListener();
     };
+
+    xhr.ontimeout = () => onTimeoutError;
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {

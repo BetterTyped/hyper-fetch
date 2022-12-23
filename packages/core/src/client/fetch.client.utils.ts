@@ -3,16 +3,7 @@ import { ExtractError } from "types";
 
 // Utils
 
-export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted", command?: CommandInstance) => {
-  if (command?.builder.appManager.isNodeJs) {
-    if (errorCase === "timeout") {
-      return { message: "Request timeout" };
-    }
-    if (errorCase === "abort") {
-      return { message: "Request cancelled" };
-    }
-    return { message: "Unexpected error" };
-  }
+export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
   if (errorCase === "timeout") {
     return new Error("Request timeout");
   }
@@ -47,9 +38,22 @@ export const getUploadSize = (payload: FormData | string) => {
   return payload.length;
 };
 
-export const getStringPayload = (payload: FormData | string | null) => {
+export const fileToBuffer = (file: File | Blob) => {
+  return new Promise<Uint8Array>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(new Uint8Array(reader.result as ArrayBufferLike));
+    };
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+export const getStreamPayload = (payload: FormData | string | null) => {
   if (payload instanceof FormData) {
-    return Array.from(payload.values()).map((value) => (typeof value === "string" ? value : value.stream));
+    const parts = Array.from(payload.values()).map((value) =>
+      typeof value === "string" ? value : fileToBuffer(value),
+    );
+    return Promise.all(parts);
   }
   return payload;
 };

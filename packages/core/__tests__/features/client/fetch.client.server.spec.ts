@@ -73,7 +73,7 @@ describe("Fetch Client [ Server ]", () => {
     const [response, error] = await fetchClient(timeoutCommand, requestId);
 
     expect(response).toBe(null);
-    expect(error).toEqual(getErrorMessage("timeout", command));
+    expect(error).toEqual({ message: getErrorMessage("timeout").message });
   });
 
   it("should allow to make post request with json data", async () => {
