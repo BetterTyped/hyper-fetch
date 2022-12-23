@@ -154,20 +154,26 @@ export class Cache {
     const syncData = this.storage.get<Response, Error>(cacheKey);
 
     // No data in lazy storage
-    if (!this.lazyStorage || !data) return syncData;
+    const hasLazyData = this.lazyStorage && data;
+    if (hasLazyData) {
+      const now = +new Date();
+      const isNewestData = syncData ? syncData.details.timestamp < data.details.timestamp : true;
+      const isStaleData = data.cacheTime <= now - data.details.timestamp;
+      const isValidLazyData = data.clearKey === this.clearKey;
 
-    const now = +new Date();
-    const isNewestData = syncData ? syncData.details.timestamp < data.details.timestamp : true;
-    const isStaleData = data.cacheTime <= now - data.details.timestamp;
-    const isValidData = data.clearKey === this.clearKey;
-
-    if (!isValidData) {
-      this.lazyStorage.delete(cacheKey);
+      if (!isValidLazyData) {
+        this.lazyStorage.delete(cacheKey);
+      }
+      if (isNewestData && !isStaleData && isValidLazyData) {
+        this.storage.set<Response, Error>(cacheKey, data);
+        this.events.emitCacheData<Response, Error>(cacheKey, data);
+        return data;
+      }
     }
-    if (isNewestData && !isStaleData && isValidData) {
-      this.storage.set<Response, Error>(cacheKey, data);
-      this.events.emitCacheData<Response, Error>(cacheKey, data);
-      return data;
+
+    const isValidData = syncData?.clearKey === this.clearKey;
+    if (syncData && !isValidData) {
+      this.delete(cacheKey);
     }
     return syncData;
   };
@@ -196,19 +202,20 @@ export class Cache {
     // Clear running garbage collectors for given key
     clearTimeout(this.garbageCollectors.get(cacheKey));
 
-    if (cacheData && cacheData.garbageCollection) {
-      const timeLeft = cacheData.cacheTime + cacheData.details.timestamp - +new Date();
+    // Garbage collect
+    if (cacheData) {
+      const timeLeft = cacheData.garbageCollection + cacheData.details.timestamp - +new Date();
       if (timeLeft >= 0) {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.builder.appManager.isOnline && cacheData.garbageCollection) {
+            if (this.builder.appManager.isOnline) {
               this.logger.info("Garbage collecting cache element", { cacheKey });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.builder.appManager.isOnline && cacheData.garbageCollection) {
+      } else if (this.builder.appManager.isOnline) {
         this.logger.info("Garbage collecting cache element", { cacheKey });
         this.delete(cacheKey);
       }

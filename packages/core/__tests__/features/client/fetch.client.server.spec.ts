@@ -18,10 +18,19 @@ describe("Fetch Client [ Server ]", () => {
     builder.appManager.isNodeJs = true;
     resetInterceptors();
     jest.resetAllMocks();
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   afterAll(() => {
     stopServer();
+  });
+
+  it("should pick correct client and not throw", async () => {
+    createRequestInterceptor(command);
+    builder.appManager.isNodeJs = false;
+    jest.spyOn(global, "window", "get").mockImplementation(() => undefined);
+    await expect(() => fetchClient(command, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
@@ -57,13 +66,41 @@ describe("Fetch Client [ Server ]", () => {
     expect(error).toEqual(getErrorMessage("abort"));
   });
 
-  // it("should return timeout error when request takes too long", async () => {
-  //   const timeoutCommand = createCommand(builder, { options: { timeout: 10 } });
-  //   createRequestInterceptor(timeoutCommand, { delay: 20 });
+  it("should return timeout error when request takes too long", async () => {
+    const timeoutCommand = createCommand(builder, { options: { timeout: 10 } });
+    createRequestInterceptor(timeoutCommand, { delay: 20 });
 
-  //   const [response, error] = await fetchClient(timeoutCommand, requestId);
+    const [response, error] = await fetchClient(timeoutCommand, requestId);
 
-  //   expect(response).toBe(null);
-  //   expect(error).toEqual(getErrorMessage("timeout"));
-  // });
+    expect(response).toBe(null);
+    expect(error).toEqual(getErrorMessage("timeout", command));
+  });
+
+  it("should allow to make post request with json data", async () => {
+    const payload = {
+      testData: "123",
+    };
+    const postCommand = createCommand(builder, { method: "POST" }).setData(payload);
+    const mock = createRequestInterceptor(postCommand);
+
+    const [response, error, status] = await fetchClient(postCommand, requestId);
+
+    expect(response).toEqual(mock);
+    expect(error).toBeNull();
+    expect(status).toEqual(200);
+  });
+
+  it("should allow to make post request with FormData", async () => {
+    const payload = new FormData();
+    payload.append("file", new Blob(["test"], { type: "text/plain" }));
+
+    const postCommand = createCommand(builder, { method: "POST" }).setData(payload);
+    const mock = createRequestInterceptor(postCommand);
+
+    const [response, error, status] = await fetchClient(postCommand, requestId);
+
+    expect(response).toEqual(mock);
+    expect(error).toBeNull();
+    expect(status).toEqual(200);
+  });
 });

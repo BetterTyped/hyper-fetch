@@ -3,7 +3,16 @@ import { ExtractError } from "types";
 
 // Utils
 
-export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
+export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted", command?: CommandInstance) => {
+  if (command?.builder.appManager.isNodeJs) {
+    if (errorCase === "timeout") {
+      return { message: "Request timeout" };
+    }
+    if (errorCase === "abort") {
+      return { message: "Request cancelled" };
+    }
+    return { message: "Unexpected error" };
+  }
   if (errorCase === "timeout") {
     return new Error("Request timeout");
   }
@@ -36,4 +45,11 @@ export const getUploadSize = (payload: FormData | string) => {
       .reduce((a, b) => a + b, 0);
   }
   return payload.length;
+};
+
+export const getStringPayload = (payload: FormData | string | null) => {
+  if (payload instanceof FormData) {
+    return Array.from(payload.values()).map((value) => (typeof value === "string" ? value : value.stream));
+  }
+  return payload;
 };

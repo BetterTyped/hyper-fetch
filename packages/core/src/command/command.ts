@@ -53,7 +53,7 @@ export class Command<
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: boolean;
+  garbageCollection: number;
   cache: boolean;
   cacheTime: number;
   queued: boolean;
@@ -96,7 +96,7 @@ export class Command<
       cancelable = false,
       retry = 0,
       retryTime = 500,
-      garbageCollection = true,
+      garbageCollection = DateInterval.minute * 5,
       cache = true,
       cacheTime = DateInterval.minute * 5,
       queued = false,

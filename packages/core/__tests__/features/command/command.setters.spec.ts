@@ -126,6 +126,11 @@ describe("Command [ Setters ]", () => {
     const updatedCommand = command.setOffline(false);
     expect(updatedCommand.offline).toBeFalse();
   });
+  it("should allow for setting garbageCollection", async () => {
+    expect(command.garbageCollection).toBe(DateInterval.minute * 5);
+    const updatedCommand = command.setGarbageCollection(DateInterval.minute);
+    expect(updatedCommand.garbageCollection).toBe(DateInterval.minute);
+  });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {
       const formData = new FormData();

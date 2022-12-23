@@ -20,7 +20,7 @@ describe("Cache [ Events ]", () => {
     },
     cacheTime: command.cacheTime,
     clearKey: cache.clearKey,
-    garbageCollection: true,
+    garbageCollection: 300000,
   };
 
   beforeEach(() => {

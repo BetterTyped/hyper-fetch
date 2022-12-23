@@ -2,7 +2,7 @@ import http from "http";
 import stream from "stream";
 
 import { getClientBindings, defaultTimeout, ClientResponseType, ClientType, ClientDefaultOptionsType } from "client";
-import { parseErrorResponse, parseResponse, getUploadSize } from "./fetch.client.utils";
+import { parseErrorResponse, parseResponse, getUploadSize, getStringPayload } from "./fetch.client.utils";
 
 export const serverClient: ClientType = async (command, requestId) => {
   const {
@@ -43,6 +43,8 @@ export const serverClient: ClientType = async (command, requestId) => {
 
     const totalUploadBytes = payload ? Number(getUploadSize(payload)) : 0;
     let uploadedBytes = 0;
+
+    const payloadChunks = getStringPayload(payload);
 
     const request = http.request(options, (response) => {
       response.setEncoding("utf8");
@@ -87,20 +89,20 @@ export const serverClient: ClientType = async (command, requestId) => {
       onError(error, 0, resolve);
     });
 
-    if (payload) {
-      const readableStream = stream.Readable.from(payload, { objectMode: false });
-      const data = stream
-        .pipeline([readableStream])
+    if (payloadChunks) {
+      const readableStream = stream.Readable.from(payloadChunks, { objectMode: false })
         .on("data", (chunk) => {
           if (!uploadedBytes) onRequestStart();
           uploadedBytes += chunk.length;
           onRequestProgress({ total: totalUploadBytes, loaded: uploadedBytes });
         })
-        .on("end", onRequestEnd);
+        .on("end", () => {
+          onRequestEnd();
+        });
 
-      request.write(data);
+      readableStream.pipe(request);
+    } else {
+      request.end();
     }
-
-    request.end();
   });
 };
