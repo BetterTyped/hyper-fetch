@@ -51,6 +51,15 @@
     ]
   },
   "keywords": [
-    "websockets"
+    "websockets",
+    "sse",
+    "server sent events",
+    "heartbeat",
+    "reconnect",
+    "offline",
+    "listener",
+    "emitter",
+    "socket",
+    "events"
   ]
 }

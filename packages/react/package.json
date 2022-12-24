@@ -71,6 +71,12 @@
     "useQueue",
     "graphql",
     "swr",
-    "dispatcher"
+    "dispatcher",
+    "websockets",
+    "ajax",
+    "sse",
+    "sockets",
+    "events",
+    "usewebsockets"
   ]
 }

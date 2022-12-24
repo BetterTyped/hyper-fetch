@@ -109,7 +109,12 @@
     "cache",
     "builder",
     "command",
-    "swr"
+    "swr",
+    "websockets",
+    "ajax",
+    "sse",
+    "sockets",
+    "events"
   ],
   "msw": {
     "workerDirectory": "src"
