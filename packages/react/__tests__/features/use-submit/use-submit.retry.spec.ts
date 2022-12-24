@@ -4,7 +4,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Retry ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();

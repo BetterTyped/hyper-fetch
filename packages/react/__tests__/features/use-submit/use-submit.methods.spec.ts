@@ -5,7 +5,7 @@ import { testErrorState, testSuccessState } from "../../shared";
 import { builder, createCommand, renderUseSubmit } from "../../utils";
 
 describe("useSubmit [ Methods ]", () => {
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();

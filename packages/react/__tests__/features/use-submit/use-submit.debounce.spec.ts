@@ -7,9 +7,8 @@ import { builder, createCommand, renderUseSubmit, waitForRender } from "../../ut
 describe("useSubmit [ Bounce ]", () => {
   const hookDebounceOptions = { bounce: true, bounceType: "debounce", bounceTime: 50 } as const;
   const hookThrottleOptions = { bounce: true, bounceType: "throttle", bounceTime: 50 } as const;
-  const maxDelay = 40;
 
-  let command = createCommand({ method: "POST" });
+  let command = createCommand<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -50,7 +49,6 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
-        expect(startTime - submitTime).toBeLessThan(hookDebounceOptions.bounceTime + maxDelay);
       });
       it("should debounce multiple request triggers by bounceTime", async () => {
         const spy = jest.fn();
@@ -78,8 +76,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime + 30);
-        expect(startTime - submitTime).toBeLessThan(hookDebounceOptions.bounceTime + maxDelay + 30);
+        expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
         expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
@@ -139,8 +136,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime + 30);
-        expect(startTime - submitTime).toBeLessThan(newBounceTime + maxDelay + 30);
+        expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
         expect(spy).toBeCalledTimes(1);
       });
     });
@@ -150,7 +146,6 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when command is about to change", () => {
       it("should not debounce multiple request triggers", async () => {
         const spy = jest.fn();
-        let submitTime = null;
         let startTime = null;
         createRequestInterceptor(command, { delay: 0 });
         const response = renderUseSubmit(command);
@@ -160,7 +155,6 @@ describe("useSubmit [ Bounce ]", () => {
             spy();
             startTime = +new Date();
           });
-          submitTime = +new Date();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -174,7 +168,6 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeLessThan(hookDebounceOptions.bounceTime + 30);
         expect(spy).toBeCalledTimes(4);
       });
     });
@@ -200,7 +193,6 @@ describe("useSubmit [ Bounce ]", () => {
         await waitFor(() => {
           expect(startTime).not.toBeNull();
           expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
-          expect(startTime - submitTime).toBeLessThan(hookThrottleOptions.bounceTime + maxDelay);
         });
       });
       it("should throttle multiple request triggers by bounceTime", async () => {
@@ -227,8 +219,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         await waitFor(() => {
           expect(startTime).not.toBeNull();
-          expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime + 30);
-          expect(startTime - submitTime).toBeLessThan(hookThrottleOptions.bounceTime + maxDelay + 30);
+          expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
           expect(spy).toBeCalledTimes(2);
         });
       });
@@ -287,8 +278,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         await waitFor(() => {
           expect(startTime).not.toBeNull();
-          expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime + 30);
-          expect(startTime - submitTime).toBeLessThan(newBounceTime + maxDelay + 30);
+          expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
           expect(spy).toBeCalledTimes(2);
         });
       });
@@ -299,7 +289,6 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when command is about to change", () => {
       it("should not throttle multiple request triggers", async () => {
         const spy = jest.fn();
-        let submitTime = null;
         let startTime = null;
         createRequestInterceptor(command, { delay: 0 });
         const response = renderUseSubmit(command);
@@ -309,7 +298,6 @@ describe("useSubmit [ Bounce ]", () => {
             spy();
             startTime = +new Date();
           });
-          submitTime = +new Date();
           response.result.current.submit();
           await waitForRender(10);
           response.result.current.submit();
@@ -323,7 +311,6 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeLessThan(hookThrottleOptions.bounceTime + 30);
         expect(spy).toBeCalledTimes(4);
       });
     });
