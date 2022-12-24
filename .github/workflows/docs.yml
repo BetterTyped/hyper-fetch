@@ -30,6 +30,8 @@ jobs:
 
       - name: Build packages
         run: yarn build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build docs
         run: yarn build:docs
