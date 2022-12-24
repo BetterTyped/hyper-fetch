@@ -1,0 +1,47 @@
+You can easily create the stubs helpers for the test setup using the existing development environment.
+
+### Stub helpers
+
+Below is an example of use with the MSW library.
+
+```ts
+import { setupServer } from "msw/node";
+
+export const server = setupServer();
+
+const createStub = <Command extends CommandInstance>(command: Command, fixture?: ExtractResponse<T>) => {
+  server.use(
+    // Describe the requests to mock.
+    rest.get(command.endpoint, (req, res, ctx) => {
+      return res(ctx.json(fixture));
+    }),
+  );
+};
+```
+
+### Stub tests
+
+Then we can use the prepared util along with the commands prepared during development.
+
+```ts
+import { getBook } from "api/books";
+
+beforeAll(() => {
+  // Establish requests interception layer before all tests.
+  server.listen();
+});
+afterAll(() => {
+  // Clean up after all tests are done, preventing this
+  // interception layer from affecting irrelevant tests.
+  server.close();
+});
+test("renders a book details component", () => {
+  const book = { bookId: 1, bookTitle: "Lord of the Rings" };
+  createStub(getBook, book);
+
+  // Render component, perform request, API communication is covered above.
+  renderComponent();
+
+  // Some assertions
+});
+```

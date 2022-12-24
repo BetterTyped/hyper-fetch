@@ -1,0 +1,49 @@
+Optimistic approach allows us to make instant changes to the UI, before receiving data from the server. In this way, in
+the example, when removing a user, he is removed from the list immediately after clicking, which makes the application
+"faster" and more responsive to the actions of our users.
+
+---
+
+### Example
+
+```tsx
+function UserTableRow({ user }) {
+  const [isDeleted, setDeleted] = useState(false);
+
+  const { submit, onSubmitRequestStart, onSubmitError, onSubmitSuccess, revalidate } = useSubmit(
+    deleteUser.setParams({ userId: user.id }),
+  );
+
+  onSubmitRequestStart(() => {
+    // Set user row as deleted right when request starts
+    setDeleted(true);
+  });
+
+  onSubmitError(() => {
+    // When it fails, recover state
+    setDeleted(false);
+  });
+
+  onSubmitSuccess(() => {
+    // When it's successful, just revalidate users list to pull new page data
+    revalidate(new RegExp("/users"));
+  });
+
+  if (isDeleted) {
+    return null;
+  }
+
+  return (
+    <tr className="row">
+      <td>{user.name}</td>
+      <td>{user.age}</td>
+      <td>{user.email}</td>
+      <td>{user.active}</td>
+      <td>{user.lastLogin}</td>
+      <td>
+        <button onClick={() => submit()}>Delete</button>
+      </td>
+    </tr>
+  );
+}
+```

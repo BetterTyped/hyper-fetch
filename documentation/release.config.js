@@ -49,7 +49,8 @@ module.exports = {
         [
           "@semantic-release/exec",
           {
-            publishCmd: "yarn run docusaurus docs:version ${nextRelease.version}",
+            publishCmd:
+              "yarn run docusaurus docs:version ${nextRelease.version} && yarn run docusaurus docs:version:api ${nextRelease.version} && yarn run docusaurus docs:version:guides ${nextRelease.version}",
           },
         ],
       ],

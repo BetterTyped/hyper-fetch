@@ -1,0 +1,41 @@
+---
+sidebar_position: 2
+---
+
+---
+
+### URL parameters
+
+Url parameters are detected automatically thanks to typescript literal types, which makes it very convenient to manage
+them and detect possible regressions. The assumption is very simple, string parameters must consist of two parts `:` and
+a `name`, such as: `:userId` or `:productId`. We place them in the endpoint string when we initialize command.
+
+---
+
+### Setting url parameters
+
+You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
+creation.
+
+```ts
+const getUsers = builder.createCommand()({ endpoint: "/users/:userId" });
+
+const command = getUsers.setParams({ userId: 281 });
+console.log(command.endpoint); // Output: "/users/281"
+```
+
+```ts
+const getProduct = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+
+const command = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
+console.log(command.endpoint); // Output: "/entities/12/Z24PBW443"
+```
+
+#### Directly on send method
+
+```ts
+const getProduct = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+
+const command = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
+console.log(command.endpoint); // Output: "/entities/12/Z24PBW443"
+```

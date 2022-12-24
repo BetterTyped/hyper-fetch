@@ -1,0 +1,22 @@
+---
+sidebar_position: 1
+---
+
+Usually, we can get a very specific type of error from the backend, so we can propagate its type between our commands.We
+do it during the setup of our builder.
+
+:::info
+
+Remember to add the Error type, which is returned from internal errors like Canceled / Timeout / Unexpected Error.
+
+:::
+
+---
+
+### Example
+
+```ts
+type GlobalErrors = Error | { message: string };
+
+export const builder = new Builder<GlobalErrors>({ url });
+```

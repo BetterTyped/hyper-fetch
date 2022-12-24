@@ -7,12 +7,14 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const path = require("path");
 
+const apiDocs = "api";
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Hyper Fetch - Ultimate fetching solution",
+  title: "Hyper Fetch",
   tagline: "Follow the flow of modern data exchange",
   url: "https://hyperfetch.bettertyped.com",
-  url: "/",
+  baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
@@ -35,7 +37,7 @@ const config = {
         path: "guides",
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
-        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter],
+        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter(apiDocs)],
       },
     ],
     [
@@ -59,7 +61,7 @@ const config = {
     [
       "docusaurus-docgen",
       {
-        id: "api",
+        id: apiDocs,
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
         packages: [
           {
@@ -76,8 +78,8 @@ const config = {
           },
         ],
         contentDocsOptions: {
-          path: "api",
-          routeBasePath: "api",
+          path: apiDocs,
+          routeBasePath: apiDocs,
           sidebarPath: require.resolve("./sidebars.js"),
           lastVersion: "current",
           versions: {
@@ -97,7 +99,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter],
+          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter(apiDocs)],
           routeBasePath: "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
@@ -115,9 +117,6 @@ const config = {
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
-          colorMode: {
-            defaultMode: "dark",
-          },
         },
       }),
     ],
@@ -174,6 +173,11 @@ const config = {
             position: "left",
           },
           {
+            type: "docsVersionDropdown",
+            position: "right",
+            // dropdownItemsAfter: [{ to: "/versions", label: "All versions" }],
+          },
+          {
             href: "https://github.com/BetterTyped/hyper-fetch",
             label: "Github",
             position: "right",
@@ -192,7 +196,7 @@ const config = {
                 to: "/docs/Getting Started/Overview",
               },
               {
-                label: "Architecture",
+                label: "Core",
                 to: "/docs/Core/Builder",
               },
               {

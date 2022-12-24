@@ -1,0 +1,20 @@
+---
+sidebar_position: 5
+---
+
+The types generated from the endpoint value string are extremely useful. Thanks to this, our command is able to suggest
+the required parameters to execute the query itself.
+
+---
+
+### Example
+
+```ts
+const getUser = builder.createCommand<ResponseType>()({
+  endpoint: "/users/:userId",
+});
+
+getUser.send({ params: { userId: 1 } });
+// Or
+getUser.setParams({ userId: 1 }).send();
+```

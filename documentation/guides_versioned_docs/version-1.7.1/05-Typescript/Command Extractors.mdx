@@ -1,0 +1,116 @@
+The command generic type is huge, but essential. For this reason, to facilitate the work of you and ours, we have
+created special type extractors.
+
+---
+
+### ExtractResponse
+
+```ts
+type ResponseType = ExtractResponse<typeof getUser>; // { id: number, name: string, email: string }
+```
+
+---
+
+### ExtractRequestData
+
+```ts
+type RequestDataType = ExtractRequestData<typeof postFile>; // { id: number, file: string }
+```
+
+---
+
+### ExtractQueryParams
+
+```ts
+type QueryParamsType = ExtractQueryParams<typeof getUsers>; // { search?: string, roles: "Admin" | "User" }
+```
+
+---
+
+### ExtractError
+
+It will extract both - global and local error types.
+
+```ts
+type ErrorType = ExtractError<typeof postUser>; // GlobalErrorType & LocalErrorType
+```
+
+---
+
+### ExtractGlobalError
+
+```ts
+type ErrorType = ExtractGlobalError<typeof postUser>; // GlobalErrorType
+```
+
+---
+
+### ExtractLocalError
+
+```ts
+type ErrorType = ExtractLocalError<typeof postUser>; // GlobalErrorType
+```
+
+---
+
+### ExtractParams
+
+```ts
+type UrlParamsType = ExtractParams<typeof patchUser>; // { userId: ParamType }
+```
+
+---
+
+### ExtractEndpoint
+
+```ts
+type EndpointType = ExtractEndpoint<typeof patchUser>; // "/users/:userId"
+```
+
+---
+
+### ExtractClientOptions
+
+```ts
+type ClientOptionsType = ExtractClientOptions<typeof patchUser>; // { timeout?: number, ... }
+```
+
+---
+
+### ExtractClientReturnType
+
+It will extract exact client response format with [response, error, status].
+
+```ts
+type ClientReturnType = ExtractClientReturnType<typeof patchUser>; // [ResponseType, ErrorType, number]
+```
+
+---
+
+### ExtractHasData
+
+If data was already added to the command.
+
+```ts
+type HasDataType = ExtractHasData<typeof patchUser>; // true | false
+```
+
+---
+
+### ExtractHasParams
+
+If params were already added to the command.
+
+```ts
+type HasParamsType = ExtractHasParams<typeof patchUser>; // true | false
+```
+
+---
+
+### ExtractHasQueryParams
+
+If query params were already added to the command.
+
+```ts
+type HasQueryParamsType = ExtractHasQueryParams<typeof patchUser>; // true | false
+```

@@ -1,0 +1,83 @@
+---
+sidebar_position: 0
+---
+
+We try to provide the deepest possible knowledge about the architecture of our library; feel free to write any adapters, plugins, or additions.
+
+---
+
+## Full Flow
+
+The flow of a request through the Hyper Fetch system is presented below.
+The steps from the moment of adding a command to the dispatcher to passing data to the component are included.
+
+
+```mermaid
+flowchart TD;
+    subgraph Request
+      Request_Start
+      Upload
+      Response_Start
+      Download
+      Response
+    end
+
+    App_Manager(App Manager);
+    Command_Manager(Command Manager);
+    Command(Command);
+    Dispatcher((Dispatcher))
+    Client{{Http Client}}
+    Builder{Builder}
+
+    Builder -- create command --> Command
+    Command -- add to queue --> Dispatcher
+    Dispatcher <-. Check online status .-> App_Manager
+    Dispatcher -- Trigger Command --> Client
+    Client --> Request_Start[[Request Start]]
+    Request_Start --> Upload[[Upload]]
+    Upload --> Response_Start[[Response Start]]
+    Response_Start --> Download[[Download]]
+    Download --> Response[[Response]]
+    Response -- Save Data --> Cache[(Cache)]
+    Cache -- Emit Data --> Component{Component}
+
+    Request_Start -. Emit Event .-> Command_Manager
+    Upload -. Emit Event .-> Command_Manager
+    Response_Start -. Emit Event .-> Command_Manager
+    Download -. Emit Event .-> Command_Manager
+    Response -. Emit Event .-> Command_Manager
+
+    Command_Manager -. Events .-> Component
+    App_Manager -. Events .-> Component
+```
+
+---
+
+## Cache
+
+The cache saves data under `cacheKey` values, which allows us to easily use it.
+
+```mermaid
+graph TD
+  C[(Cache Storage)]
+  C -->|"GET_/users?page=1"| D[Cache Key #1]
+  C -->|"GET_/users/1"| E[Cache Key #2]
+  C -->|"GET_/users"| F[Cache Key #3]
+  C -->|unique key| G[Cache Key ...]
+```
+
+#### Response event flow
+
+The diagram below shows how mutation is propagated in our system.
+
+```mermaid
+graph TD
+    A(new Data #3)
+    C[(Cache Storage)]
+    B[Cache Listeners]
+    C -.-> D[Data#1]
+    C -.-> D2[Data#2]
+    A -->|data mutation| C
+    C -->|mutation| E[Data#3]
+    E -->|emit new data| B
+```
