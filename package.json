@@ -16,7 +16,7 @@
     "test": "nx run-many --target=test-pipeline --projects=core,react,sockets --parallel=1",
     "lint": "nx run-many --target=lint --projects=core,react,sockets --parallel=3",
     "typecheck": "nx run-many --target=typecheck --projects=core,react,sockets --parallel=3",
-    "release": "nx run-many --target=release --projects=core,react --parallel=1"
+    "release": "nx run-many --target=release --projects=core,react,sockets --parallel=1"
   },
   "private": true,
   "dependencies": {
