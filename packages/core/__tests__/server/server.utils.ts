@@ -35,12 +35,14 @@ const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknow
       await sleep(Math.min(timeoutTime, delay));
       if (abortController && abortController?.[1].signal.aborted) {
         ctx.status(500)(response);
-        response.body = getErrorMessage("abort");
+        const error = getErrorMessage("abort");
+        response.body = !command.builder.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
         return response;
       }
       if (isTimeout) {
         ctx.status(500)(response);
-        response.body = getErrorMessage("timeout");
+        const error = getErrorMessage("timeout");
+        response.body = !command.builder.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
         return response;
       }
       ctx.json(fixture)(response);

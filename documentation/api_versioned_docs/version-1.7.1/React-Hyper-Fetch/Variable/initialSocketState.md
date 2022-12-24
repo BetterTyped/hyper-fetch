@@ -1,0 +1,52 @@
+
+
+# initialSocketState
+
+<div class="api-docs__separator">
+
+---
+
+</div><div class="api-docs__import">
+
+```ts
+import { initialSocketState } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [helpers/use-socket-state/use-socket-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-socket-state/use-socket-state.constants.ts#L3)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview var">
+
+```ts
+const initialSocketState = UseSocketStateType
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  connected: boolean;
+  connecting: boolean;
+  data: DataType | null;
+  timestamp: number | null;
+}
+```
+
+</div>

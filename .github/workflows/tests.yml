@@ -17,13 +17,16 @@ jobs:
           cache: "yarn"
 
       - name: Install packages
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Build
         run: yarn build
 
       - name: Lint
         run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
 
       - name: Clear Jest
         run: yarn jest --clearCache

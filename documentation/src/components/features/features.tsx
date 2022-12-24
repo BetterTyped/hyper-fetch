@@ -25,11 +25,11 @@ const FeatureList: FeatureItem[] = [
   },
   {
     description: "Automatic caching",
-    link: <Link to="/docs/Architecture/Cache">Read more</Link>,
+    link: <Link to="/docs/Core/Cache">Read more</Link>,
   },
   {
     description: "Built-in client",
-    link: <Link to="/docs/Architecture/Client">Read more</Link>,
+    link: <Link to="/docs/Core/Client">Read more</Link>,
   },
   {
     description: "Request cancellation",

@@ -22,13 +22,18 @@ export type PackageOptions = {
   showImports?: boolean;
 };
 
+export type PackageOptionsFileParts = Pick<
+  PackageOptions,
+  "title" | "logo" | "description" | "readmeName" | "showImports"
+>;
+
+export type PackageOptionsFile = {
+  id: string;
+  packages: PackageOptionsFileParts[];
+};
+
 export type PkgMeta = {
   title: string;
   packageDocsJsonPath: string;
   packageDocsDir: string;
-};
-
-export type PathsOptions = {
-  docsGenerationDir: string;
-  generatedFilesDir: string;
 };

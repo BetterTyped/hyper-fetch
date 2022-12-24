@@ -1,0 +1,64 @@
+
+
+# UseCacheReturnType
+
+<div class="api-docs__separator">
+
+---
+
+</div><div class="api-docs__import">
+
+```ts
+import { UseCacheReturnType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & { onCacheChange: (callback: OnFinishedCallbackType<T>) => void; onCacheError: (callback: OnErrorCallbackType<T>) => void; onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void; revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | T extends Command<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Command<any, any, any, infer G, infer L, any, any, any, any, any> ? \G\ | \L\ : never;
+  loading: boolean;
+  retries: number;
+  status: null | number;
+  timestamp: null | Date;
+  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
+  onCacheError: (callback: OnErrorCallbackType<T>) => void;
+  onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
+}
+```
+
+</div>

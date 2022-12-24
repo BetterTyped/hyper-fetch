@@ -20,6 +20,7 @@
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "precommit": "yarn lint-staged",
     "release": "yarn semantic-release --extends ./release.config.js -t 'hyper-fetch-v${version}'"
   },
@@ -35,13 +36,12 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "dependencies": {
-    "events": "^3.3.0"
-  },
+  "peerDependencies": {},
+  "dependencies": {},
   "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --bail --findRelatedTests --passWithNoTests"
+      "yarn jest --passWithNoTests"
     ]
   },
   "keywords": [

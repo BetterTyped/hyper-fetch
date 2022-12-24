@@ -3,9 +3,9 @@
 /* eslint-disable import/no-dynamic-require */
 import * as path from "path";
 
-import { libraryDir, pathsOptionsPath, pluginOptionsPath } from "../constants/paths.constants";
+import { libraryDir, pluginOptionsPath } from "../constants/paths.constants";
 import { asyncForEach } from "./generator/utils/loop.utils";
-import { PluginOptions } from "../types/package.types";
+import { PackageOptionsFile, PackageOptionsFileParts, PluginOptions } from "../types/package.types";
 import { success, trace } from "../utils/log.utils";
 import { cleanFileName, createFile } from "./generator/utils/file.utils";
 import { generateMonorepoPage } from "./pages/presentation/monorepo.page";
@@ -19,7 +19,7 @@ export const buildDocs = async (
   generatedFilesDir: string,
   pluginOptions: PluginOptions,
 ) => {
-  const { packages, tsConfigPath } = pluginOptions;
+  const { id, packages, tsConfigPath } = pluginOptions;
   const isMonorepo = packages.length > 1;
 
   if (isMonorepo) {
@@ -30,10 +30,21 @@ export const buildDocs = async (
   /**
    * Save generation options
    */
-  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, pluginOptionsPath);
-  const pathsFilePath = path.join(generatedFilesDir, "..", libraryDir, pathsOptionsPath);
-  createFile(optionsFilePath, JSON.stringify(pluginOptions));
-  createFile(pathsFilePath, JSON.stringify({ docsGenerationDir, generatedFilesDir }));
+  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, id, pluginOptionsPath);
+  const packageFileOptions: PackageOptionsFile = {
+    id,
+    packages: packages.map((pkg) => {
+      const values: PackageOptionsFileParts = {
+        title: pkg.title,
+        logo: pkg.logo,
+        description: pkg.description,
+        readmeName: pkg.readmeName,
+        showImports: pkg.showImports,
+      };
+      return values;
+    }) as PackageOptionsFileParts[],
+  };
+  createFile(optionsFilePath, JSON.stringify(packageFileOptions));
 
   /**
    * Generate docs for each package
@@ -47,7 +58,14 @@ export const buildDocs = async (
       packageOptionsPath,
       packageDocsDir,
       packageDocsJsonPath,
-    } = getPackageOptions(packages, packageOptions, docsGenerationDir, tsConfigPath, isMonorepo);
+    } = getPackageOptions(
+      packages,
+      packageOptions,
+      docsGenerationDir,
+      generatedFilesDir,
+      tsConfigPath,
+      isMonorepo,
+    );
 
     /**
      * Get directories required for package generation
@@ -78,6 +96,7 @@ export const buildDocs = async (
       packages,
       packageOptions,
       docsGenerationDir,
+      generatedFilesDir,
       tsConfigPath,
       isMonorepo,
     );

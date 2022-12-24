@@ -8,41 +8,45 @@ import visit from "unist-util-visit";
 import remarkParse from "remark-parse";
 import { JSONOutput } from "typedoc";
 
-import { PathsOptions, PkgMeta, PluginOptions } from "types/package.types";
-import {
-  libraryDir,
-  pluginOptionsPath,
-  packageConfigPath,
-  pathsOptionsPath,
-} from "../constants/paths.constants";
-import { getMatchingElement } from "./utils/docs.utils";
+import { PackageOptionsFile, PkgMeta } from "types/package.types";
+import { libraryDir, pluginOptionsPath, packageConfigPath } from "../constants/paths.constants";
+import { getFile, getMatchingElement } from "./utils/docs.utils";
 import { getComponent } from "./components/component-map.utils";
 import { cleanFileName } from "../docs/generator/utils/file.utils";
 import { renderer } from "../docs/renderer/renderer";
 import { getPackageDocsPath } from "../docs/generator/utils/package.utils";
 
-export const docsImporter = () => {
+export const docsImporter = (docsContentId: string, options?: { versionedDir?: string }) => () => {
   return (tree: any, file: any) => {
-    const optionsPath = path.join(file.cwd, libraryDir, pluginOptionsPath);
-    const pathsPath = path.join(file.cwd, libraryDir, pathsOptionsPath);
+    const { versionedDir = `${docsContentId}_versioned_docs` } = options || {};
+    const version = file.history[0]
+      ?.split("/")
+      .find((pathPart: string) => pathPart.includes("version-"));
 
-    const pluginOptions: PluginOptions = require(optionsPath);
-    const pathsOptions: PathsOptions = require(pathsPath);
-    const packages = pluginOptions.packages.map((pkg) => cleanFileName(pkg.title));
+    const libDocsPath = version ? `${versionedDir}/${version}` : libraryDir;
+    const nextVersionDir = version ? "" : docsContentId;
+    const optionsPath = path.join(file.cwd, libDocsPath, nextVersionDir, pluginOptionsPath);
+
+    const pluginOptions: PackageOptionsFile = getFile<PackageOptionsFile>(optionsPath) || {
+      id: "",
+      packages: [],
+    };
+    const packagesNames = pluginOptions.packages.map((pkg) => cleanFileName(pkg.title));
     const isMonorepo = pluginOptions.packages.length > 1;
+
     const reflectionsMap: { name: string; reflection: JSONOutput.ProjectReflection }[] =
       pluginOptions.packages.map((pkg) => {
         return {
           name: cleanFileName(pkg.title),
           reflection: require(getPackageDocsPath(
-            pathsOptions.docsGenerationDir,
+            path.join(file.cwd, libDocsPath, nextVersionDir),
             cleanFileName(pkg.title),
             isMonorepo,
           )),
         };
       });
 
-    const packageRegex = `(${packages.join("|")})`;
+    const packageRegex = `(${packagesNames.join("|")})`;
     const nameRegex = "([^ ]+)";
     const displayOptionParam = "([^ ]+)?";
     const rgx = new RegExp(`{@import ${packageRegex} ${nameRegex} ${displayOptionParam}}`);
@@ -59,6 +63,10 @@ export const docsImporter = () => {
 
           if (!packageOptions) {
             throw new Error(`Cannot find package options for ${packageName}`);
+          }
+
+          if (!reflectionsMap.length) {
+            throw new Error(`Cannot existing docs.json reflection files`);
           }
 
           const configPath = path.join(

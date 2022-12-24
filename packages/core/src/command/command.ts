@@ -54,7 +54,7 @@ export class Command<
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: boolean;
+  garbageCollection: number;
   cache: boolean;
   cacheTime: number;
   queued: boolean;
@@ -97,7 +97,7 @@ export class Command<
       cancelable = false,
       retry = 0,
       retryTime = 500,
-      garbageCollection = true,
+      garbageCollection = DateInterval.minute * 5,
       cache = true,
       cacheTime = DateInterval.minute * 5,
       queued = false,
@@ -357,6 +357,8 @@ export class Command<
       data: (options?.data || this.data) as any,
     };
 
+    const mapperFn = (mapper || this.dataMapper) as typeof mapper;
+
     const cloned = new Command<
       ResponseType,
       RequestDataType,
@@ -369,7 +371,7 @@ export class Command<
       P,
       Q,
       NewMappedData
-    >(this.builder, this.commandOptions, commandDump, mapper);
+    >(this.builder, this.commandOptions, commandDump, mapperFn);
 
     return cloned;
   }
@@ -496,7 +498,7 @@ export class Command<
 //  */
 
 // const builder = new Builder({
-//   baseUrl: "http://localhost:3000",
+//   url: "http://localhost:3000",
 // });
 
 // const getUsers = builder.createCommand<{ id: string }[]>()({

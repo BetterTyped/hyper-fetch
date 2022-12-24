@@ -5,7 +5,7 @@ import { createBuilder, createCommand, sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
 
 describe("Fetch Client [ Bindings ]", () => {
-  const baseUrl = "http://localhost:9000";
+  const url = "http://localhost:9000";
   const endpoint = "/endpoint";
   const requestId = "test";
   const queryParams = "?query=params";
@@ -29,7 +29,7 @@ describe("Fetch Client [ Bindings ]", () => {
       onStart: onStartSpy,
       onSuccess: onSuccessSpy,
     });
-    const builder = createBuilder({ baseUrl }).addEffect([effect]);
+    const builder = createBuilder({ url }).addEffect([effect]);
     const command = createCommand(builder, { endpoint, options: commandConfig })
       .setData(data)
       .setEffectKey("test")
@@ -59,7 +59,7 @@ describe("Fetch Client [ Bindings ]", () => {
   describe("when getClientBindings get initialized", () => {
     it("should create correct fullUrl", async () => {
       const { fullUrl } = await getClientBindings(command, requestId);
-      expect(fullUrl).toBe(baseUrl + endpoint + queryParams);
+      expect(fullUrl).toBe(url + endpoint + queryParams);
     });
 
     it("should create correct headers", async () => {

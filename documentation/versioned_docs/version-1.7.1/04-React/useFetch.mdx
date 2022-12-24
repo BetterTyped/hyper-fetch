@@ -1,0 +1,103 @@
+---
+sidebar_position: 3
+---
+
+<a class="api-link" href="/api/React-Hyper-Fetch/Hook/useFetch">
+  <div class="api-link-title">useFetch</div>
+  <div class="api-link-sub-title">Read the API Reference »</div>
+</a>
+
+---
+
+## Introduction
+
+This hook is created to **retrieve data** from the server. It uses the [`Fetch Dispatcher`](/docs/Core/Dispatcher) to
+handle requests and the [`Cache`](/docs/Core/Cache) to manage the overall state of the data.
+
+A prepared Command is the minimum requirement for useFetch.
+
+If you intend to `mutate` data stored on the server, we recommend choosing the [`useSubmit`](/docs/React/useSubmit)
+hook.
+
+---
+
+## Initialization
+
+```tsx
+const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+```
+
+---
+
+## How it works?
+
+**`useFetch`** executes a command when a component is mounted or when its dependencies array changes. It uses dependency
+tracking to limit re-rendering and help with performance.
+
+Under the hood, communication with the core systems is established by event emitters. There are many `"helper hooks"`
+that get returned from the hook, like `onSuccess`, `onError`, and `onFinished` (among others). They will help you handle
+various events in the request flow and lifecycle.
+
+We used this approach to avoid overloading the base hook with callback logic, which causes low code readability and
+increases complexity.
+
+```tsx
+import { useFetch } from "@hyper-fetch/react";
+import { getUsers } from "server";
+
+const UsersListPage: React.FC = () => {
+  const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUsers);
+
+  onSuccess(({ response }) => {
+    console.log(response); // [ User, User, User ]
+  });
+
+  onError(({ response }) => {
+    console.log(response); // { message: string }
+  });
+
+  onFinished(({ response }) => {
+    const [payload, error, status] = response;
+    console.log(payload); // [ User, User, User ] | null
+    console.log(error); // { message: string } | null
+    console.log(status); // 200 / 400 / 404 / 500 ...
+  });
+
+  const onSubmit = async (values: Values) => {
+    submit({ data: values });
+  };
+
+  return (
+    <div>
+        {loading && <Loader>}
+        {!loading && error && <Alert severity="error">{error.error_message}</Alert>}
+        {!loading && !error && !data.length && <div>List is empty</div>}
+        {!loading && !error && data.length && <div>{data.map(user => <div>{user.name}</div>)}</div>}
+    </div>
+  );
+};
+```
+
+---
+
+## Options
+
+Configuration options for `useFetch` must be provided as the second parameter.
+
+```tsx
+const { ... } = useFetch(command, options)
+```
+
+{@import React-Hyper-Fetch UseFetchOptionsType returns}
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useFetch(command);
+```
+
+{@import React-Hyper-Fetch UseFetchReturnType returns}

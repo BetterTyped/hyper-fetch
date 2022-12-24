@@ -1,0 +1,65 @@
+import { useRef } from "react";
+import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { SocketInstance } from "@hyper-fetch/sockets";
+
+import { useSocketState } from "helpers";
+import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
+
+/**
+ * Allow to listen to all event messages received with sockets
+ * @param socket
+ * @param options
+ * @returns
+ */
+export const useEventMessages = <ResponsesType>(
+  socket: SocketInstance,
+  { dependencyTracking = false, filter }: UseEventMessagesOptionsType<ResponsesType>,
+) => {
+  const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, { dependencyTracking });
+
+  useDidUpdate(
+    () => {
+      const unmountListener = socket.events.onListenerEvent((data, event) => {
+        const filterFn = typeof filter === "function" ? () => filter(data, event) : () => filter.includes(data.name);
+        const isFiltered = filter ? filterFn() : false;
+        if (!isFiltered) {
+          onEventCallback.current?.(data, event);
+          actions.setData(data);
+          actions.setTimestamp(+new Date());
+        }
+      });
+      return unmountListener;
+    },
+    [socket, filter],
+    true,
+  );
+
+  const additionalCallbacks = {
+    onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
+      onEventCallback.current = callback;
+    },
+  };
+
+  return {
+    get data() {
+      setRenderKey("data");
+      return state.data;
+    },
+    get connected() {
+      setRenderKey("connected");
+      return state.connected;
+    },
+    get connecting() {
+      setRenderKey("connecting");
+      return state.connecting;
+    },
+    get timestamp() {
+      setRenderKey("timestamp");
+      return state.timestamp;
+    },
+    ...actions,
+    ...callbacks,
+    ...additionalCallbacks,
+  };
+};

@@ -1,0 +1,65 @@
+{
+  "name": "@hyper-fetch/sockets",
+  "version": "0.0.0",
+  "private": false,
+  "description": "",
+  "author": "Maciej Pyrc <m.pyrc@interia.pl>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "prepublishOnly": "yarn build",
+    "clean": "npx rimraf dist",
+    "test": "jest --watchAll --maxWorkers=3",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
+    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "build": "yarn clean && node ../../scripts/build.js",
+    "postbuild": "ttsc --project tsconfig.json --outDir dist",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "precommit": "yarn lint-staged",
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-sockets-v${version}'"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/sockets"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "peerDependencies": {
+    "@hyper-fetch/core": "*"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "eventsourcemock": "^2.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn jest --passWithNoTests"
+    ]
+  },
+  "keywords": [
+    "websockets",
+    "sse",
+    "server sent events",
+    "heartbeat",
+    "reconnect",
+    "offline",
+    "listener",
+    "emitter",
+    "socket",
+    "events"
+  ]
+}

@@ -21,11 +21,11 @@ describe("Builder [ Base ]", () => {
   });
 
   describe("When builder properties are passed", () => {
-    it("should assign baseUrl", async () => {
-      const baseUrl = "test-123";
-      const builder = createBuilder({ baseUrl });
+    it("should assign url", async () => {
+      const url = "test-123";
+      const builder = createBuilder({ url });
 
-      expect(builder.baseUrl).toBe(baseUrl);
+      expect(builder.url).toBe(url);
     });
     it("should assign new client", async () => {
       const client = () => interceptorCallback()();

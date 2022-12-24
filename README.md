@@ -54,7 +54,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Cache)
 
 🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
 
@@ -62,7 +62,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Architecture/Client)
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Client)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
 
@@ -81,10 +81,20 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
+#### Core
+
 ```bash
 npm install --save @hyper-fetch/core
 or
 yarn add @hyper-fetch/core
+```
+
+#### Sockets
+
+```bash
+npm install --save @hyper-fetch/sockets
+or
+yarn add @hyper-fetch/sockets
 ```
 
 #### React Hooks
@@ -123,6 +133,22 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >🛰️ Hyper Fetch Sockets</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/sockets?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/sockets.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/sockets?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >⚛️ React Hyper Fetch</a>
       </td>
       <td>
@@ -148,7 +174,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
 import { Builder } from "@hyper-fetch/core";
 
 // Create global setup
-export const builder = new Builder({ baseUrl: "http://localhost:3000" });
+export const builder = new Builder({ url: "http://localhost:3000" });
 
 // Create reusable commands to trigger requests
 export const postData = builder.createCommand<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({

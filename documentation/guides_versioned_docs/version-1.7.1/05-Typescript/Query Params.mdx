@@ -1,0 +1,21 @@
+---
+sidebar_position: 6
+---
+
+Query Params are very often untyped, which may cause maintenance problems. However, this is not the case here, and our
+query params types can be easily added to the command.
+
+---
+
+### Example
+
+```ts
+type QueryParamsType = {
+  search?: string;
+  role?: "Admin" | "User";
+};
+
+const getUsers = builder.createCommand<ResponseType, null, null, QueryParamsType>()({
+  endpoint: "/users",
+});
+```

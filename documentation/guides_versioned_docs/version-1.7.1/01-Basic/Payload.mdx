@@ -1,0 +1,23 @@
+---
+sidebar_position: 3
+---
+
+---
+
+### Request data
+
+Adding data to the requests is pretty simple. Use the `setData` method on the command and set whatever data you want to
+transfer.
+
+---
+
+### Setting data for request
+
+To set data of our request we need to use method `.setData()`.
+
+```ts
+const createUser = builder.createCommand<ResponseType, DataType>()({ method: "POST", endpoint: "/users" });
+
+const command = createUser.setData({ name: "Maciej" }); // Must match `DataType`
+console.log(command.data); // Output: { name: "Maciej" }
+```

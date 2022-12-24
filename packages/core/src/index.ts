@@ -10,3 +10,4 @@ export * from "./constants/http.constants";
 export * from "./managers";
 export * from "./dispatcher";
 export * from "./types";
+export * from "./utils";

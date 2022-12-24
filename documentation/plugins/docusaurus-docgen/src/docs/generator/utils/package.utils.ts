@@ -35,6 +35,7 @@ export const getPackageOptions = (
   packages: PackageOptions[],
   packageOptions: PackageOptions,
   docsGenerationDir: string,
+  generatedFilesDir: string,
   tsConfigPath: string | undefined,
   isMonorepo: boolean,
 ) => {
@@ -46,16 +47,18 @@ export const getPackageOptions = (
     tsconfigDir = packageOptions.dir,
   } = packageOptions;
 
+  const filesDir = path.join(generatedFilesDir, "..", docsGenerationDir);
+
   // Returns Hyper Fetch => Hyper-Fetch
   const packageName = cleanFileName(title);
   // Returns /api/Hyper-Fetch(if monorepo) or /api
-  const packageDocsDir = getPackageDocsDir(docsGenerationDir, packageName, isMonorepo);
+  const packageDocsDir = getPackageDocsDir(filesDir, packageName, isMonorepo);
   // All packages json paths
   const packageDocsPaths = packages.map((pkg) =>
-    getPackageDocsPath(docsGenerationDir, cleanFileName(pkg.title), isMonorepo),
+    getPackageDocsPath(filesDir, cleanFileName(pkg.title), isMonorepo),
   );
   // Returns [packageDir]/docs.json
-  const packageDocsJsonPath = getPackageDocsPath(docsGenerationDir, packageName, isMonorepo);
+  const packageDocsJsonPath = getPackageDocsPath(filesDir, packageName, isMonorepo);
   const docsJsonPaths: string[] = [
     packageDocsJsonPath,
     ...packageDocsPaths.filter((pkgPath) => pkgPath !== packageDocsJsonPath),

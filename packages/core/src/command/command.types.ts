@@ -45,7 +45,7 @@ export type CommandDump<
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: boolean;
+  garbageCollection: number;
   cache: boolean;
   cacheTime: number;
   queued: boolean;
@@ -106,7 +106,7 @@ export type CommandConfig<GenericEndpoint extends string, ClientOptions> = {
   /**
    * Should we trigger garbage collection or leave data in memory
    */
-  garbageCollection?: boolean;
+  garbageCollection?: number;
   /**
    * Should we save the response to cache
    */

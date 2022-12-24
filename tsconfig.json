@@ -11,7 +11,7 @@
     "importHelpers": true,
     "target": "es6",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2017", "dom", "dom.iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,

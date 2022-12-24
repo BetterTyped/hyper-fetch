@@ -13,11 +13,7 @@ export type BuilderConfig = {
   /**
    * Url to your server
    */
-  baseUrl: string;
-  /**
-   * Disable the web event listeners and actions on window object
-   */
-  isNodeJS?: boolean;
+  url: string;
   /**
    * Custom client initialization prop
    */

@@ -20,11 +20,13 @@
     "postbuild": "ttsc --project tsconfig.json --outDir dist",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "precommit": "yarn lint-staged",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'react-hyper-fetch-v${version}'"
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "react": ">= 16.8.0"
   },
   "dependencies": {
@@ -33,7 +35,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest"
+      "yarn jest --passWithNoTests"
     ]
   },
   "eslintConfig": {
@@ -69,6 +71,12 @@
     "useQueue",
     "graphql",
     "swr",
-    "dispatcher"
+    "dispatcher",
+    "websockets",
+    "ajax",
+    "sse",
+    "sockets",
+    "events",
+    "usewebsockets"
   ]
 }
