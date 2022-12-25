@@ -44,6 +44,14 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ---
 
+<h1 align="center">
+
+#### ⚡ HTTP &nbsp;·&nbsp; 🌐 GraphQl &nbsp;·&nbsp; 🛰️ Webockets &nbsp;·&nbsp; 📟 Server Sent Events
+
+</h1>
+
+---
+
 ## Key Features
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
@@ -81,7 +89,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
-#### Core
+#### [Core](https://hyperfetch.bettertyped.com/docs/Core/Overview)
 
 ```bash
 npm install --save @hyper-fetch/core
@@ -89,7 +97,7 @@ or
 yarn add @hyper-fetch/core
 ```
 
-#### Sockets
+#### [Sockets](https://hyperfetch.bettertyped.com/docs/Sockets/Overview)
 
 ```bash
 npm install --save @hyper-fetch/sockets
@@ -97,7 +105,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### React Hooks
+#### [React Hooks](https://hyperfetch.bettertyped.com/docs/React/Overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react
@@ -133,7 +141,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >🛰️ Hyper Fetch Sockets</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets" >🛰️ Hyper Fetch Sockets</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
