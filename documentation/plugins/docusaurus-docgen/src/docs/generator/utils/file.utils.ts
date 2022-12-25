@@ -30,11 +30,12 @@ export function prepareApiDirectory(dirname: string) {
     // empty
     warning(`Empty api directory at ${dirname}`);
     fsExtra.emptyDirSync(dirname);
-  } else {
-    // create
-    info(`Creating api directory at ${dirname}`);
-    fs.mkdirSync(dirname, { recursive: true });
+    return true;
   }
+  // create
+  info(`Creating api directory at ${dirname}`);
+  fs.mkdirSync(dirname, { recursive: true });
+  return false;
 }
 
 export const cleanFileName = (name: string) => {
@@ -72,9 +73,11 @@ function copyFolderSync(from: string, to: string) {
   }
 }
 
-export const copyLibFiles = () => {
+export const getLibFiles = (): { DEFAULT_OPTIONS: any } => {
   copyFolderSync(
     "node_modules/@docusaurus/plugin-content-docs/lib/",
     `node_modules/.bin/${libraryName}/`,
   );
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions, import/no-dynamic-require, global-require
+  return require(`.bin/${libraryName}/options`);
 };

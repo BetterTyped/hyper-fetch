@@ -79,8 +79,14 @@ const config = {
           },
           {
             logo: "/img/react.svg",
-            title: "React Hyper Fetch",
+            title: "React",
             dir: path.join(__dirname, "../packages/react"),
+            entryPath: "src/index.ts",
+          },
+          {
+            logo: "/img/features/049-messenger.svg",
+            title: "Sockets",
+            dir: path.join(__dirname, "../packages/sockets"),
             entryPath: "src/index.ts",
           },
         ],
@@ -132,6 +138,9 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        defaultMode: "dark",
+      },
       algolia: {
         appId: "E1R95VA83S",
         apiKey: "aa20780883ad65342c73e9527130a725",

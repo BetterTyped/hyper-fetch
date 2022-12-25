@@ -3,7 +3,7 @@
 /* eslint-disable import/no-dynamic-require */
 import * as path from "path";
 
-import { libraryDir, pluginOptionsPath } from "../constants/paths.constants";
+import { pluginOptionsPath } from "../constants/paths.constants";
 import { asyncForEach } from "./generator/utils/loop.utils";
 import { PackageOptionsFile, PackageOptionsFileParts, PluginOptions } from "../types/package.types";
 import { success, trace } from "../utils/log.utils";
@@ -21,16 +21,17 @@ export const buildDocs = async (
 ) => {
   const { id, packages, tsConfigPath } = pluginOptions;
   const isMonorepo = packages.length > 1;
+  const fullDocsPath = path.join(generatedFilesDir, docsGenerationDir);
 
   if (isMonorepo) {
     trace(`Generating monorepo page for ${pluginOptions.packages.length} packages`);
-    generateMonorepoPage(docsGenerationDir, pluginOptions);
+    generateMonorepoPage(fullDocsPath, pluginOptions);
   }
 
   /**
    * Save generation options
    */
-  const optionsFilePath = path.join(generatedFilesDir, "..", libraryDir, id, pluginOptionsPath);
+  const optionsFilePath = path.join(fullDocsPath, pluginOptionsPath);
   const packageFileOptions: PackageOptionsFile = {
     id,
     packages: packages.map((pkg) => {
@@ -71,7 +72,6 @@ export const buildDocs = async (
      * Get directories required for package generation
      */
     trace(`Setup package directories for ${cleanFileName(packageOptions.title)}`, packageName);
-
     createFile(packageOptionsPath, JSON.stringify(pkgMeta));
 
     /**

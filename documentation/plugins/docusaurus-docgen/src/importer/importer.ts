@@ -25,7 +25,10 @@ export const docsImporter = (docsContentId: string, options?: { versionedDir?: s
 
     const libDocsPath = version ? `${versionedDir}/${version}` : libraryDir;
     const nextVersionDir = version ? "" : docsContentId;
-    const optionsPath = path.join(file.cwd, libDocsPath, nextVersionDir, pluginOptionsPath);
+    const docsFolder = version ? "" : ".docusaurus";
+    const filesDir = path.join(file.cwd, docsFolder);
+    const docsDir = path.join(filesDir, libDocsPath, nextVersionDir);
+    const optionsPath = path.join(docsDir, pluginOptionsPath);
 
     const pluginOptions: PackageOptionsFile = getFile<PackageOptionsFile>(optionsPath) || {
       id: "",
@@ -38,11 +41,7 @@ export const docsImporter = (docsContentId: string, options?: { versionedDir?: s
       pluginOptions.packages.map((pkg) => {
         return {
           name: cleanFileName(pkg.title),
-          reflection: require(getPackageDocsPath(
-            path.join(file.cwd, libDocsPath, nextVersionDir),
-            cleanFileName(pkg.title),
-            isMonorepo,
-          )),
+          reflection: require(getPackageDocsPath(docsDir, cleanFileName(pkg.title), isMonorepo)),
         };
       });
 
@@ -69,13 +68,8 @@ export const docsImporter = (docsContentId: string, options?: { versionedDir?: s
             throw new Error(`Cannot existing docs.json reflection files`);
           }
 
-          const configPath = path.join(
-            file.cwd,
-            libraryDir,
-            pluginOptions.id,
-            packageName,
-            packageConfigPath,
-          );
+          const configPath = path.join(docsDir, packageName, packageConfigPath);
+
           const packageMeta: PkgMeta = require(configPath);
 
           const packageReflection = reflectionsMap.find(

@@ -5,37 +5,37 @@ import * as path from "path";
 import mermaid from "mdx-mermaid";
 import admonitions from "remark-admonitions";
 
-import { copyLibFiles, prepareApiDirectory } from "../docs/generator/utils/file.utils";
+import { getLibFiles, prepareApiDirectory } from "../docs/generator/utils/file.utils";
 import { PluginOptions } from "../types/package.types";
 import { trace, info } from "../utils/log.utils";
 import { libraryDir } from "../constants/paths.constants";
 import { buildDocs } from "../docs/docs";
-import { name } from "../constants/name.constants";
 
 export async function plugin(
   context: LoadContext,
   options: PluginOptions,
 ): Promise<Plugin<LoadedContent>> {
+  const { DEFAULT_OPTIONS } = getLibFiles();
   const { generatedFilesDir } = context;
+  const docsGenerationDir = path.join(libraryDir, options.contentDocsOptions.routeBasePath);
+  const apiDocsDir = path.join(".docusaurus", libraryDir, options.contentDocsOptions.routeBasePath);
 
-  const docsGenerationDir = path.join("./", libraryDir, options.contentDocsOptions.routeBasePath);
-
-  // Prepare api directory to exist
-  prepareApiDirectory(docsGenerationDir);
-
-  // Prepare dependencies
-  copyLibFiles();
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions, import/no-dynamic-require
-  const { DEFAULT_OPTIONS } = require(`.bin/${name}/options`);
+  prepareApiDirectory(path.join(generatedFilesDir, docsGenerationDir));
 
   trace("Initializing plugin...");
-  const instance = (await pluginBase(context as any, {
+  const instance = await pluginBase(context, {
     ...DEFAULT_OPTIONS,
     ...options.contentDocsOptions,
-    path: path.join(libraryDir, options.contentDocsOptions.routeBasePath),
+    path: apiDocsDir,
     id: options.id,
     remarkPlugins: [...(options?.contentDocsOptions?.remarkPlugins || []), mermaid, admonitions],
-  })) as any;
+  });
+
+  // if (generated) {
+  //   info("Skipping, plugin already initialized.");
+  //   return instance;
+  // }
+
   info("Successfully initialized plugin.");
 
   return {

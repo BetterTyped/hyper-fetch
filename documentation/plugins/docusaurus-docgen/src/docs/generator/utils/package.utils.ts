@@ -47,7 +47,7 @@ export const getPackageOptions = (
     tsconfigDir = packageOptions.dir,
   } = packageOptions;
 
-  const filesDir = path.join(generatedFilesDir, "..", docsGenerationDir);
+  const filesDir = path.join(generatedFilesDir, docsGenerationDir);
 
   // Returns Hyper Fetch => Hyper-Fetch
   const packageName = cleanFileName(title);
