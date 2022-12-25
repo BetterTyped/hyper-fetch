@@ -20,6 +20,9 @@ export async function plugin(
 
   const docsGenerationDir = path.join("./", libraryDir, options.contentDocsOptions.routeBasePath);
 
+  // Prepare api directory to exist
+  prepareApiDirectory(docsGenerationDir);
+
   // Prepare dependencies
   copyLibFiles();
   // eslint-disable-next-line @typescript-eslint/no-var-requires, import/extensions, import/no-dynamic-require
@@ -39,9 +42,6 @@ export async function plugin(
     ...instance,
     loadContent: async function loadContent() {
       if (options.packages.length) {
-        // Prepare api directory to exist
-        prepareApiDirectory(docsGenerationDir);
-
         await buildDocs(docsGenerationDir, generatedFilesDir, options);
         trace("Loading generated docs.");
       } else {
