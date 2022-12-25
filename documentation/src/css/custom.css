@@ -228,6 +228,30 @@ html[data-theme="dark"] .page-section-subtitle {
   color: var(--ifm-color-emphasis-400);
 }
 
+/* Versioning */
+
+.navbar .dropdown {
+  display: none;
+}
+
+.plugin-id-default .navbar .dropdown:nth-child(1) {
+  display: block;
+}
+
+.plugin-id-guides .navbar .dropdown:nth-child(2) {
+  display: block;
+}
+
+.plugin-id-api .navbar .dropdown:nth-child(3) {
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .navbar__items--right .dropdown {
+    display: none;
+  }
+}
+
 /* Navigation */
 
 html[data-theme="dark"] body .navbar {

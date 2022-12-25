@@ -38,6 +38,13 @@ const config = {
         routeBasePath: "guides",
         sidebarPath: require.resolve("./sidebars.js"),
         remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter(apiDocs)],
+        lastVersion: "current",
+        versions: {
+          current: {
+            label: "Current",
+            path: "",
+          },
+        },
       },
     ],
     [
@@ -84,7 +91,7 @@ const config = {
           lastVersion: "current",
           versions: {
             current: {
-              label: "next",
+              label: "Current",
               path: "",
             },
           },
@@ -106,7 +113,7 @@ const config = {
           lastVersion: "current",
           versions: {
             current: {
-              label: "next",
+              label: "Current",
               path: "",
             },
           },
@@ -175,7 +182,17 @@ const config = {
           {
             type: "docsVersionDropdown",
             position: "right",
-            // dropdownItemsAfter: [{ to: "/versions", label: "All versions" }],
+            docsPluginId: "default",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+            docsPluginId: "guides",
+          },
+          {
+            type: "docsVersionDropdown",
+            position: "right",
+            docsPluginId: "api",
           },
           {
             href: "https://github.com/BetterTyped/hyper-fetch",
