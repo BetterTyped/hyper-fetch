@@ -21,11 +21,11 @@
   "private": true,
   "dependencies": {
     "@nrwl/cli": "15.2.1",
-    "@nrwl/cypress": "15.2.1",
+    "@nrwl/cypress": "15.4.0",
     "@nrwl/jest": "15.2.1",
     "@nrwl/js": "15.2.1",
-    "@nrwl/web": "15.2.1",
-    "@nrwl/workspace": "15.2.1",
+    "@nrwl/web": "999.9.9",
+    "@nrwl/workspace": "999.9.9",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.11"
   },
