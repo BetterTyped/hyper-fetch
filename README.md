@@ -44,7 +44,13 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ---
 
-#### ⚡ HTTP &nbsp;·&nbsp; 🌐 GraphQl &nbsp;·&nbsp; 🛰️ Webockets &nbsp;·&nbsp; 📟 Server Sent Events
+#### ⚡ HTTP
+
+#### 🌐 GraphQl
+
+#### 🛰️ Webockets
+
+#### 📟 Server Sent Events
 
 ---
 
