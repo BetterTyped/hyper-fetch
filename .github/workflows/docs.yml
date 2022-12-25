@@ -30,11 +30,11 @@ jobs:
 
       - name: Build packages
         run: yarn build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build docs
         run: yarn build:docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to S3 bucket
         run: aws s3 sync ./documentation/build/ s3://${{ secrets.PROD_AWS_S3 }} --delete

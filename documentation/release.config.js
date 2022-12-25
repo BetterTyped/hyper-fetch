@@ -61,7 +61,7 @@ module.exports = {
       "@semantic-release/changelog",
       {
         path: "@semantic-release/git",
-        message: "Docs version: ${nextRelease.version}",
+        message: "Created docs version: ${nextRelease.version}",
       },
       "@semantic-release/npm",
     ],
