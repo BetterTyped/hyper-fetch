@@ -40,21 +40,21 @@
 
 ## Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Sockets/Setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Setup)
 
-🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/Sockets/Overview#Websockets)
+🎯 **Web Sockets** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Overview#Websockets)
 
-✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/Sockets/Overview#Sockets)
+✨ **Server sent events** - [Read more](https://hyperfetch.bettertyped.com/docs/documentationSockets/Overview#Sockets)
 
-🚀 **Type safe** - [Read more](https://hyperfetch.bettertyped.com/guides/guides/Sockets/Typescript)
+🚀 **Type safe** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Typescript)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Environment)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Sockets/Offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Sockets/Client)
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Client)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/guides/Sockets/Authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Authentication)
 
 ## React
 
@@ -64,11 +64,11 @@ We have specially created hooks to support sockets.
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/Sockets/Overview)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Installation)
+- #### [Docs](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Overview)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/core)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Sockets/Setup)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/sockets)
+- #### [Guides](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Setup)
 
 ## Other Packages
 
