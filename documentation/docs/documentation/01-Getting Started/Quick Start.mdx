@@ -1,0 +1,92 @@
+---
+sidebar_position: 4
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+:::info
+
+The basic version of Hyper Fetch is not associated with any framework or library that is required for it to work.
+
+:::
+
+### 1. Initialize the Builder
+
+The first step in implementing Hyper Fetch is to initialize the **[Builder](/documentation/02-Core/Builder.mdx)**. It
+manages the basic configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of
+**dispatchers**, **cache**, and **app managers**). Start by determining the `url` of your server.
+
+```tsx title="/src/server/builder.ts"
+import { Builder } from "@hyper-fetch/core";
+
+export const builder = new Builder({ url: "http://localhost:3000" });
+```
+
+### 2. Create Commands
+
+Then, having already prepared a connection to the server, we use the builder method to create
+**[commands](/documentation/02-Core/Command.mdx)** and assign types to them.
+
+:::caution
+
+We are using currying to achieve auto generated types for the endpoint string. <br /> This solution will be removed once
+[https://github.com/microsoft/TypeScript/issues/10571](https://github.com/microsoft/TypeScript/issues/10571) get
+resolved.
+
+:::
+
+```tsx title="/src/server/auth/auth.ts"
+import { builder } from "../builder.ts";
+
+type ResponseType = { token: string; refreshToken: string };
+type RequestType = { email: string; password: string };
+
+const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
+```
+
+### 3. Use Commands
+
+<Tabs>
+  <TabItem value="React" label="React" default>
+
+```tsx
+import { useSubmit, useFetch } from "@hyper-fetch/react";
+
+import { postUser, getUsers } from "server/auth";
+
+// Submitting (mutation)
+const { submit, submitting } = useSubmit(postUser.setData({ name: "John" }));
+submit();
+
+// Fetching
+const { data, error, loading } = useFetch(getUsers);
+```
+
+  </TabItem>
+  <TabItem value="Typescript" label="Typescript">
+
+```tsx
+import { postLogin } from "server/auth";
+
+...
+
+const handleLogin = async (values: {email: string, password: string}) => {
+  const [data, error, status] = await postLogin.send({data: values})
+
+  if(data) {
+    // perform login
+    ...
+  } else {
+    // handle error
+    ...
+  }
+
+}
+
+...
+
+```
+
+  </TabItem>
+</Tabs>

@@ -1,0 +1,29 @@
+---
+sidebar_position: 1
+---
+
+For fetching data use the [`useFetch`](/documentation/04-React/useFetch.mdx) hook that automates command handling. There
+are tons of [options](/documentation/04-React/useFetch.mdx#options) to adjust this hook so check out the
+[documentation](/documentation/04-React/useFetch.mdx).
+
+---
+
+### Examples
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
+
+const { data, error, loading } = useFetch(getUsers)
+
+```
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
+
+const { data, error, loading } = useFetch(getUser.setParams({ userId: 1 }))
+
+```

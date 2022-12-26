@@ -1,0 +1,91 @@
+---
+sidebar_position: 1
+---
+
+**`React Hyper Fetch`** is a data fetching library that implements the main features of the core library and adapts it
+to the React environment. It handles fetching, submitting, and queueing requests as well as their management in the
+system.
+
+Together with the provided hooks, React Hyper Fetch makes maintaining and writing new functionalities faster and easier.
+
+Note: A previously prepared [**command**](/documentation/02-Core/Command.mdx) is the minimum requirement for using
+hooks.
+
+---
+
+## Usage
+
+To use hooks, we need to initialize the builder and command instances that will be consumed as properties. Take a look
+at the [Quick Start](/documentation/01-Getting Started/Quick%20Start.mdx) for more examples and check out our React code
+examples
+
+```tsx
+const { data, error, loading } = useFetch(getUsers);
+```
+
+```tsx
+const { submit, data, error, submitting } = useSubmit(postLogin);
+```
+
+Check our **[react code examples](/guides/04-React/01-Core/Fetching.mdx)**
+
+---
+
+## Helper hooks
+
+To break down our hook setups into smaller parts, we implemented helper hooks. This enhances code readability; the idea
+is that the main hook returns minor helpers, which lets us segregate our logic into smaller parts. It's quite simple, as
+you can see in the example below:
+
+```tsx
+const {
+  data,
+  error,
+  loading,
+  onRequestStart,
+  onResponseStart,
+  onSuccess,
+  onError,
+  onDownloadProgress,
+  onUploadProgress,
+  onFinished,
+  onAbort,
+  onOffline,
+} = useFetch(getUsers);
+
+onRequestStart(({ details, command }) => {
+  // Do something on query start
+});
+
+onResponseStart(({ response, details, command }) => {
+  // Do something when query starts returning response
+});
+
+onSuccess(({ response, details, command }) => {
+  // Do something on query success
+});
+
+onError(({ response, details, command }) => {
+  // Do something on query fail
+});
+
+onAbort(({ response, details, command }) => {
+  // Do something on query cancellation
+});
+
+onOffline(({ response, details, command }) => {
+  // Do something when query goes stale while offline
+});
+
+onFinished(({ response, details, command }) => {
+  // Do something on query finished (success or false)
+});
+
+onUploadProgress(({ progress, sizeLeft, timeLeft, total, loaded }) => {
+  // Do something on upload
+});
+
+onDownloadProgress(({ progress, sizeLeft, timeLeft, total, loaded }) => {
+  // Do something on download
+});
+```

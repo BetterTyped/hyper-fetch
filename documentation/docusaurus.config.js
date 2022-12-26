@@ -8,6 +8,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const path = require("path");
 
 const apiDocs = "api";
+const apiDocsDir = "docs/api";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -33,23 +34,6 @@ const config = {
     [
       "@docusaurus/plugin-content-docs",
       {
-        id: "guides",
-        path: "guides",
-        routeBasePath: "guides",
-        sidebarPath: require.resolve("./sidebars.js"),
-        remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter(apiDocs)],
-        lastVersion: "current",
-        versions: {
-          current: {
-            label: "Current",
-            path: "",
-          },
-        },
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-docs",
-      {
         id: "sources",
         path: "sources",
         routeBasePath: "sources",
@@ -69,6 +53,7 @@ const config = {
       "docusaurus-docgen",
       {
         id: apiDocs,
+        outDir: `docs/api`,
         tsConfigPath: path.join(__dirname, "../tsconfig.base.json"),
         packages: [
           {
@@ -90,18 +75,6 @@ const config = {
             entryPath: "src/index.ts",
           },
         ],
-        contentDocsOptions: {
-          path: apiDocs,
-          routeBasePath: apiDocs,
-          sidebarPath: require.resolve("./sidebars.js"),
-          lastVersion: "current",
-          versions: {
-            current: {
-              label: "Current",
-              path: "",
-            },
-          },
-        },
       },
     ],
   ],
@@ -112,10 +85,18 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          remarkPlugins: [require("mdx-mermaid"), require("./plugins/docusaurus-docgen").docsImporter(apiDocs)],
+          remarkPlugins: [
+            require("mdx-mermaid"),
+            require("./plugins/docusaurus-docgen").docsImporter({
+              packageRoute: apiDocs,
+              apiDir: apiDocsDir,
+            }),
+          ],
           routeBasePath: "docs",
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: require.resolve("./sidebars.docs.js"),
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
           lastVersion: "current",
           versions: {
             current: {
@@ -155,22 +136,22 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "Getting Started/Overview",
+            docId: "documentation/Getting Started/Overview",
             position: "left",
             label: "Docs",
             activeBaseRegex: `/docs`,
           },
           {
-            to: "/api",
+            to: "/docs/api",
             label: "API",
             position: "left",
-            activeBaseRegex: `/api`,
+            activeBaseRegex: `/docs/api`,
           },
           {
-            to: "/guides/Basic/Setup",
+            to: "/docs/guides/Basic/Setup",
             label: "Guides",
             position: "left",
-            activeBaseRegex: `/guides/`,
+            activeBaseRegex: `/docs/guides/`,
           },
           {
             to: "/examples/Playground",
@@ -191,17 +172,6 @@ const config = {
           {
             type: "docsVersionDropdown",
             position: "right",
-            docsPluginId: "default",
-          },
-          {
-            type: "docsVersionDropdown",
-            position: "right",
-            docsPluginId: "guides",
-          },
-          {
-            type: "docsVersionDropdown",
-            position: "right",
-            docsPluginId: "api",
           },
           {
             href: "https://github.com/BetterTyped/hyper-fetch",
@@ -219,15 +189,15 @@ const config = {
             items: [
               {
                 label: "Getting Started",
-                to: "/docs/Getting Started/Overview",
+                to: "/docs/documentation/Getting Started/Overview",
               },
               {
                 label: "Core",
-                to: "/docs/Core/Builder",
+                to: "/docs/documentation/Core/Builder",
               },
               {
                 label: "React",
-                to: "/docs/React/Overview",
+                to: "/docs/documentation/React/Overview",
               },
             ],
           },

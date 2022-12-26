@@ -1,0 +1,46 @@
+---
+sidebar_position: 7
+---
+
+<div class="api-link">
+  <div class="api-link-title">useAppManager</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/React-Hyper-Fetch/Hook/useAppManager.md)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+**`useAppManager`** allows you to use information about the connection status and screen focus state. It also offers
+options to manipulate its global state. This hook uses the [`AppManager`](/documentation/02-Core/Managers.mdx) available
+on the [`Builder`](/documentation/02-Core/Builder.mdx) instance.
+
+It returns the status of `isOnline` and `isFocused` and the actions that allow you to change them.
+
+```tsx
+const { isOnline, setOnline } = useAppManager(builder);
+
+setOnline(true);
+```
+
+```tsx
+const { isFocused, setFocused } = useAppManager(builder);
+
+setFocused(true);
+```
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useAppManager(builder);
+```
+
+{@import React-Hyper-Fetch useAppManager returns}

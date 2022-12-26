@@ -1,10 +1,9 @@
 import * as TypeDoc from "typedoc";
-import type { PluginOptions as DocsPluginOptions } from "@docusaurus/plugin-content-docs";
 
 export type PluginOptions = {
   id: string;
+  outDir: string;
   packages: PackageOptions[];
-  contentDocsOptions: DocsPluginOptions;
   tsConfigPath?: string;
   typeDocOptions?: Partial<TypeDoc.TypeDocOptions>;
 };

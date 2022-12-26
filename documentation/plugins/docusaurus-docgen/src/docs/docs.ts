@@ -21,17 +21,16 @@ export const buildDocs = async (
 ) => {
   const { id, packages, tsConfigPath } = pluginOptions;
   const isMonorepo = packages.length > 1;
-  const fullDocsPath = path.join(generatedFilesDir, docsGenerationDir);
 
   if (isMonorepo) {
     trace(`Generating monorepo page for ${pluginOptions.packages.length} packages`);
-    generateMonorepoPage(fullDocsPath, pluginOptions);
+    generateMonorepoPage(docsGenerationDir, pluginOptions);
   }
 
   /**
    * Save generation options
    */
-  const optionsFilePath = path.join(fullDocsPath, pluginOptionsPath);
+  const optionsFilePath = path.join(docsGenerationDir, pluginOptionsPath);
   const packageFileOptions: PackageOptionsFile = {
     id,
     packages: packages.map((pkg) => {

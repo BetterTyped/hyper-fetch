@@ -21,51 +21,51 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     description: "Simple setup",
-    link: <Link to="/guides/Basic/Setup">Read more</Link>,
+    link: <Link to="/docs/guides/Basic/Setup">Read more</Link>,
   },
   {
     description: "Automatic caching",
-    link: <Link to="/docs/Core/Cache">Read more</Link>,
+    link: <Link to="/docs/documentation/Core/Cache">Read more</Link>,
   },
   {
     description: "Built-in client",
-    link: <Link to="/docs/Core/Client">Read more</Link>,
+    link: <Link to="/docs/documentation/Core/Client">Read more</Link>,
   },
   {
     description: "Request cancellation",
-    link: <Link to="/guides/Advanced/Cancellation">Read more</Link>,
+    link: <Link to="/docs/guides/Advanced/Cancellation">Read more</Link>,
   },
   {
     description: "Persistence",
-    link: <Link to="/guides/Advanced/Persistence">Read more</Link>,
+    link: <Link to="/docs/guides/Advanced/Persistence">Read more</Link>,
   },
   {
     description: "Easy to test",
-    link: <Link to="/docs/Getting%20Started/Testing">Read more</Link>,
+    link: <Link to="/docs/documentation/Getting%20Started/Testing">Read more</Link>,
   },
   {
     description: "Window Focus/Blur Events",
-    link: <Link to="/guides/React/Window%20Focus%20&%20Blur">Read more</Link>,
+    link: <Link to="/docs/guides/React/Core/Window%20Focus%20&%20Blur">Read more</Link>,
   },
   {
     description: "SSR Support",
-    link: <Link to="/docs/Getting%20Started/Environment">Read more</Link>,
+    link: <Link to="/docs/documentation/Getting%20Started/Environment">Read more</Link>,
   },
   {
     description: "Authentication",
-    link: <Link to="/guides/Basic/Authentication">Read more</Link>,
+    link: <Link to="/docs/guides/Basic/Authentication">Read more</Link>,
   },
   {
     description: "Queueing",
-    link: <Link to="/guides/Advanced/Queueing">Read more</Link>,
+    link: <Link to="/docs/guides/Advanced/Queueing">Read more</Link>,
   },
   {
     description: "Offline first ready",
-    link: <Link to="/guides/Advanced/Offline">Read more</Link>,
+    link: <Link to="/docs/guides/Advanced/Offline">Read more</Link>,
   },
   {
     description: "Prefetching",
-    link: <Link to="/guides/Advanced/Prefetching">Read more</Link>,
+    link: <Link to="/docs/guides/Advanced/Prefetching">Read more</Link>,
   },
 ];
 
@@ -166,7 +166,7 @@ export function Features(): JSX.Element {
         </div>
       </div>
       <h3 className={clsx(styles.link)}>
-        You can find more details in <Link to="/docs/Getting%20Started/Comparison">Comparison</Link>
+        You can find more details in <Link to="/docs/documentation/Getting%20Started/Comparison">Comparison</Link>
       </h3>
     </section>
   );

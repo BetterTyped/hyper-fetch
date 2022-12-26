@@ -56,42 +56,43 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Cancellation)
+🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
-✨ **Window Focus/Blur Events** - [Read more](https://hyperfetch.bettertyped.com/guides/React/Window%20Focus%20&%20Blur)
+✨ **Window Focus/Blur Events** -
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/React/Window%20Focus%20&%20Blur)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Queueing)
+🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Persistence)
+🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Persistence)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Environment)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/Core/Client)
+📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Client)
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Testing)
+🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Testing)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/guides/Basic/Authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Authentication)
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/guides/Advanced/Prefetching)
+💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Prefetching)
 
 ## Sources
 
-- #### [Quick Start](https://hyperfetch.bettertyped.com/docs/Getting%20Started/Quick%20Start)
+- #### [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+- #### [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
 
 ## Installation
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
-#### [Core](https://hyperfetch.bettertyped.com/docs/Core/Overview)
+#### [Core](https://hyperfetch.bettertyped.com/docs/documentation/Core/Overview)
 
 ```bash
 npm install --save @hyper-fetch/core
@@ -99,7 +100,7 @@ or
 yarn add @hyper-fetch/core
 ```
 
-#### [Sockets](https://hyperfetch.bettertyped.com/docs/Sockets/Overview)
+#### [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Overview)
 
 ```bash
 npm install --save @hyper-fetch/sockets
@@ -107,7 +108,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### [React Hooks](https://hyperfetch.bettertyped.com/docs/React/Overview)
+#### [React Hooks](https://hyperfetch.bettertyped.com/docs/documentation/React/Overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react
@@ -315,4 +316,4 @@ const handleSubmit = (values: ValuesType, { setSubmitting }: FormikHelpers) => {
 return <Form onSubmit={handleSubmit}>...</Form>;
 ```
 
-# [Find out more examples](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+# [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)

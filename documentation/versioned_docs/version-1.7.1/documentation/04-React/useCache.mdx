@@ -1,0 +1,62 @@
+---
+sidebar_position: 6
+---
+
+<div class="api-link">
+  <div class="api-link-title">useCache</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/React-Hyper-Fetch/Hook/useCache.md)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+This hook allows us to manipulate the passed command’s [`Cache`](/documentation/02-Core/Managers.mdx) and receive change
+callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable
+connection between the hook's command and the cache.
+
+```tsx
+const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUsers);
+
+onSuccess((payload) => {
+  console.log(payload); // [ User, User, User ]
+});
+
+onError((error) => {
+  console.log(error); // { message: string }
+});
+
+onFinished(([payload, error, status]) => {
+  console.log(payload); // [ User, User, User ] | null
+  console.log(error); // { message: string } | null
+  console.log(status); // 200 / 400 / 404 / 500 ...
+});
+```
+
+---
+
+## Options
+
+Configuration options for this hook provided as a second parameter.
+
+```tsx
+const { ... } = useCache(command, options)
+```
+
+{@import React-Hyper-Fetch UseCacheOptionsType returns}
+
+---
+
+## Returns
+
+Returned values from this hook.
+
+```tsx
+const values = useCache(command);
+```
+
+{@import React-Hyper-Fetch useAppManager returns}

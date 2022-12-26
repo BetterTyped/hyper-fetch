@@ -6,7 +6,7 @@ import { createFile, getKindName } from "./utils/file.utils";
 import { pageRenderer } from "../renderer/renderer";
 import { PackageOptions, PluginOptions } from "../../types/package.types";
 
-const docsExtension = ".md";
+const docsExtension = ".mdx";
 
 type ApiGeneratorProps = {
   packageName: string;

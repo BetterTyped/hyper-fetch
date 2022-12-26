@@ -455,6 +455,14 @@ aside {
   word-break: break-word;
 }
 
+.api-link-sub-title p {
+  margin: 10px 0 0;
+}
+
+.api-docs__monorepo-card-more p {
+  margin: 0;
+}
+
 /* Footer */
 
 html[data-theme="light"] footer {

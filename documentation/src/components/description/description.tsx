@@ -49,7 +49,7 @@ export function Description(): JSX.Element {
         </div>
       </div>
       <h3 className={clsx(styles.link)}>
-        You can find more details in <Link to="/docs/Core/Overview">Architecture Docs</Link>
+        You can find more details in <Link to="/docs/documentation/Core/Overview">Architecture Docs</Link>
       </h3>
     </section>
   );

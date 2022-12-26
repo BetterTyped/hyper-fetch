@@ -47,18 +47,16 @@ export const getPackageOptions = (
     tsconfigDir = packageOptions.dir,
   } = packageOptions;
 
-  const filesDir = path.join(generatedFilesDir, docsGenerationDir);
-
   // Returns Hyper Fetch => Hyper-Fetch
   const packageName = cleanFileName(title);
   // Returns /api/Hyper-Fetch(if monorepo) or /api
-  const packageDocsDir = getPackageDocsDir(filesDir, packageName, isMonorepo);
+  const packageDocsDir = getPackageDocsDir(docsGenerationDir, packageName, isMonorepo);
   // All packages json paths
   const packageDocsPaths = packages.map((pkg) =>
-    getPackageDocsPath(filesDir, cleanFileName(pkg.title), isMonorepo),
+    getPackageDocsPath(docsGenerationDir, cleanFileName(pkg.title), isMonorepo),
   );
   // Returns [packageDir]/docs.json
-  const packageDocsJsonPath = getPackageDocsPath(filesDir, packageName, isMonorepo);
+  const packageDocsJsonPath = getPackageDocsPath(docsGenerationDir, packageName, isMonorepo);
   const docsJsonPaths: string[] = [
     packageDocsJsonPath,
     ...packageDocsPaths.filter((pkgPath) => pkgPath !== packageDocsJsonPath),

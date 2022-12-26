@@ -1,0 +1,74 @@
+
+
+# SocketConfigBaseType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { SocketConfigBaseType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.types.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/aff5c35a/packages/sockets/src/socket/socket.types.ts#L9)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type SocketConfigBaseType<SocketClientType> = {
+  auth: ClientQueryParamsType; 
+  autoConnect: boolean; 
+  client: SocketClientType; 
+  queryParams: ClientQueryParamsType | string; 
+  queryParamsConfig: QueryStringifyOptions; 
+  queryParamsStringify: StringifyCallbackType; 
+  reconnect: number; 
+  reconnectTime: number; 
+  url: string; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  auth: Record<string, ClientQueryParam>;
+  autoConnect: boolean;
+  client: SocketClientType;
+  queryParams: Record<string, ClientQueryParam> | string;
+  queryParamsConfig: {
+    arrayFormat: bracket | index | comma | separator | bracket-separator | none;
+    arraySeparator: string;
+    encode: boolean;
+    skipEmptyString: boolean;
+    skipNull: boolean;
+    strict: boolean;
+  };
+  queryParamsStringify: (queryParams: ClientQueryParamsType | string | NegativeTypes) => string;
+  reconnect: number;
+  reconnectTime: number;
+  url: string;
+}
+```
+
+</div>

@@ -61,12 +61,12 @@
         "pathGroups": [
           { "pattern": "assets/**", "group": "sibling", "position": "after" },
           {
-            "pattern": "@external/**/*.css",
+            "pattern": "@external/**/*.{css,scss}",
             "group": "sibling",
             "position": "after"
           },
           {
-            "pattern": "*.css",
+            "pattern": "*.{css,scss}",
             "group": "index",
             "patternOptions": { "matchBase": true },
             "position": "after"

@@ -1,0 +1,47 @@
+
+
+# SocketConfig
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { SocketConfig } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/aff5c35a/packages/sockets/src/socket/socket.types.ts#L21)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type SocketConfig<SocketClientType> = (SocketConfigBaseType<SocketClientType> & { clientOptions?: ServerSentEventsClientOptionsType; isSSE: true }) | (SocketConfigBaseType<SocketClientType> & { clientOptions?: WebsocketClientOptionsType });
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{auth:Record<string, ClientQueryParam>,autoConnect:boolean,client:SocketClientType,queryParams:\Record<string, ClientQueryParam>\ | \string\,queryParamsConfig:{arrayFormat:\bracket\ | \index\ | \comma\ | \separator\ | \bracket-separator\ | \none\,arraySeparator:string,encode:boolean,skipEmptyString:boolean,skipNull:boolean,strict:boolean},queryParamsStringify:(queryParams: \ClientQueryParamsType\ | \string\ | \NegativeTypes\) => string,reconnect:number,reconnectTime:number,url:string,clientOptions:{eventSourceInit:EventSourceInit,reconnectTimeout:number},isSSE:true} | {auth:Record<string, ClientQueryParam>,autoConnect:boolean,client:SocketClientType,queryParams:\Record<string, ClientQueryParam>\ | \string\,queryParamsConfig:{arrayFormat:\bracket\ | \index\ | \comma\ | \separator\ | \bracket-separator\ | \none\,arraySeparator:string,encode:boolean,skipEmptyString:boolean,skipNull:boolean,strict:boolean},queryParamsStringify:(queryParams: \ClientQueryParamsType\ | \string\ | \NegativeTypes\) => string,reconnect:number,reconnectTime:number,url:string,clientOptions:{heartbeat:boolean,heartbeatMessage:string,pingTimeout:number,pongTimeout:number,protocols:string[],reconnectTimeout:number}}
+```
+
+</div>
