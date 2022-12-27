@@ -22,7 +22,7 @@ This hook is created to **retrieve data** from the server. It uses the
 A prepared Command is the minimum requirement for useFetch.
 
 If you intend to `mutate` data stored on the server, we recommend choosing the
-[`useSubmit`](/documentation/04-React/useSubmit.mdx) hook.
+[`useSubmit`](/documentation/04-React/02-Core/useSubmit.mdx) hook.
 
 ---
 
@@ -68,10 +68,6 @@ const UsersListPage: React.FC = () => {
     console.log(status); // 200 / 400 / 404 / 500 ...
   });
 
-  const onSubmit = async (values: Values) => {
-    submit({ data: values });
-  };
-
   return (
     <div>
         {loading && <Loader>}
@@ -93,7 +89,7 @@ Configuration options for `useFetch` must be provided as the second parameter.
 const { ... } = useFetch(command, options)
 ```
 
-{@import React-Hyper-Fetch UseFetchOptionsType returns}
+{@import React UseFetchOptionsType returns}
 
 ---
 
@@ -105,4 +101,4 @@ Returned values from this hook.
 const values = useFetch(command);
 ```
 
-{@import React-Hyper-Fetch UseFetchReturnType returns}
+{@import React UseFetchReturnType returns}

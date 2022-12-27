@@ -38,11 +38,11 @@ the place that manages communication in the application.
 ```tsx
 import { socketInstance } from "./socket";
 
-export const sendChatMessage = socketInstance.createEmitter<ChatMessageType>()({
+export const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
   name: "chat-message", // name of the event
 });
 
-export const sendUserStatus = socketInstance.createEmitter<UserStatusType>()({
+export const sendUserStatus = socketInstance.createEmitter<UserStatusType, AcknowledgementResponseType>()({
   name: "status", // name of the event
 });
 ```
@@ -77,13 +77,18 @@ Use the `acknowledgements` by passing the second parameter to the emitting metho
 
 :::caution
 
-Make sure your server is supporting the acknowledgements!
+Make sure your server is supporting the acknowledgements! When using default client, make sure you pass the id of the
+event in returning event, when using custom adapters, you have to implement according to it's specification.
 
 :::
 
 ```tsx
-sendChatMessage.emit({ data: { messsage: "some message" } }, () => {
-  alert("Message received on server!");
+sendChatMessage.emit({ data: { messsage: "some message" } }, (error, data) => {
+  if (error) {
+    alert("No server response!");
+  } else {
+    alert("Message received on server.");
+  }
 });
 ```
 

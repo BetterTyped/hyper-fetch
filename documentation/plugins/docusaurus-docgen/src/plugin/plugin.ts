@@ -16,21 +16,20 @@ export async function plugin(
   const { outDir } = options;
   const docsGenerationDir = path.join(generatedFilesDir, "..", outDir);
 
-  prepareApiDirectory(docsGenerationDir);
+  const generated = prepareApiDirectory(docsGenerationDir);
 
   trace("Initializing plugin...");
 
-  // if (generated) {
-  //   info("Skipping, plugin already initialized.");
-  //   return instance;
-  // }
-
-  info("Successfully initialized plugin.");
-  if (options.packages.length) {
-    await buildDocs(docsGenerationDir, generatedFilesDir, options);
-    trace("Loading generated docs.");
+  if (generated) {
+    info("Skipping, plugin already initialized.");
   } else {
-    trace("No packages found.");
+    info("Successfully initialized plugin.");
+    if (options.packages.length) {
+      await buildDocs(docsGenerationDir, generatedFilesDir, options);
+      trace("Loading generated docs.");
+    } else {
+      trace("No packages found.");
+    }
   }
   // eslint-disable-next-line no-console
   console.log("\n");

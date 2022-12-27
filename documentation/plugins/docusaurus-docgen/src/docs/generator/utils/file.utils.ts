@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import fsExtra from "fs-extra";
 
-import { warning, info } from "../../../utils/log.utils";
+import { info, warning } from "../../../utils/log.utils";
 import { name as libraryName } from "../../../constants/name.constants";
 
 export const readFile = (filePath: string): string | null => {
@@ -24,12 +24,15 @@ export const createFile = (filePath: string, data: string) => {
   fs.writeFileSync(filePath, data);
 };
 
+export function emptyDocsDir(dirname: string) {
+  warning(`Empty api directory at ${dirname}`);
+  fsExtra.emptyDirSync(dirname);
+}
+
 export function prepareApiDirectory(dirname: string) {
   const exists = fs.existsSync(dirname);
   if (exists) {
     // empty
-    warning(`Empty api directory at ${dirname}`);
-    fsExtra.emptyDirSync(dirname);
     return true;
   }
   // create
