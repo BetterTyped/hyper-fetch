@@ -10,6 +10,7 @@ sidebar_position: 3
 
   </div>
 </div>
+
 ---
 
 ## Introduction
@@ -25,7 +26,8 @@ the interceptors in the requesting lifecycle.
 :::caution
 
 If there is no XHR in the window object or the XHR object is a polyfill in your environment, you’ll have to install the
-npm package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object.
+npm package [xmlhttprequest](https://www.npmjs.com/package/xmlhttprequest) and set it on the window object. Otherwise we
+will use the node http module.
 
 :::
 

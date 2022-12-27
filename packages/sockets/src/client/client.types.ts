@@ -12,6 +12,7 @@ export type WebsocketClientType = {
   listen: (listener: ListenerInstance, callback: ListenerCallbackType) => RemoveListenerCallbackType;
   removeListener: (name: string, callback: (...args: any) => void) => void;
   connect: () => void;
+  reconnect: () => void;
   disconnect: () => void;
 };
 

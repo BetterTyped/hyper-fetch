@@ -120,6 +120,24 @@ export class Socket<ClientType extends Record<keyof WebsocketClientType, any>> {
   };
 
   /**
+   * Set the new auth data to the socket
+   */
+  setAuth = (auth: ClientQueryParamsType | string) => {
+    this.auth = auth;
+    this.client.reconnect();
+    return this;
+  };
+
+  /**
+   * Set the new query data to the socket
+   */
+  setQuery = (queryParams: ClientQueryParamsType | string) => {
+    this.queryParams = queryParams;
+    this.client.reconnect();
+    return this;
+  };
+
+  /**
    * Callbacks
    */
 
