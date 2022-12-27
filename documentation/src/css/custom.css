@@ -335,6 +335,12 @@ body .DocSearch-Modal {
   background: var(--ifm-background-color);
 }
 
+@media (max-width: 996px) {
+  body .DocSearch-Button {
+    margin-right: 100px;
+  }
+}
+
 @media (max-width: 750px) {
   body .DocSearch-Button {
     width: 40px;
