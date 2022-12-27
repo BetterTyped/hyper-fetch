@@ -336,8 +336,9 @@ body .DocSearch-Modal {
 }
 
 @media (max-width: 996px) {
-  body .DocSearch-Button {
-    margin-right: 100px;
+  body .searchBox_node_modules-\@docusaurus-theme-classic-lib-theme-Navbar-Search-styles-module {
+    position: relative;
+    margin-right: -20px;
   }
 }
 
