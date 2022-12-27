@@ -43,13 +43,13 @@ describe("useEmitter [ Base ]", () => {
         expect(view.result.current.timestamp).toBeNumber();
       });
     });
-    it("should trigger onEmit callback", async () => {
+    it("should trigger onEvent callback", async () => {
       const message = { name: "Maciej", age: 99 };
       const view = renderUseEmitter(emitter);
       let receivedEmitter;
       await act(async () => {
         await sleep(1);
-        view.result.current.onEmit((em) => {
+        view.result.current.onEvent((em) => {
           receivedEmitter = em;
           spy();
         });

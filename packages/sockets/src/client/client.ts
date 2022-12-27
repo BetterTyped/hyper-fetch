@@ -202,7 +202,7 @@ export class SocketClient<SocketType extends SocketInstance> {
   emit = async (
     eventMessageId: string,
     emitter: EmitterInstance,
-    ack?: (error: Error | null, response: any) => void,
+    ack?: (error: Error | null, response: MessageEvent<any>) => void,
   ) => {
     if (!this.connecting || !this.open) {
       this.logger.error("Cannot emit event when connection is not open");
@@ -211,8 +211,10 @@ export class SocketClient<SocketType extends SocketInstance> {
       if (ack) {
         let timeout;
         const unmount = this.listen({ name: emitter.name }, (response) => {
-          ack(null, response);
-          clearTimeout(timeout);
+          if (response.id === eventMessageId) {
+            ack(null, response);
+            clearTimeout(timeout);
+          }
         });
         timeout = setTimeout(() => {
           unmount();
