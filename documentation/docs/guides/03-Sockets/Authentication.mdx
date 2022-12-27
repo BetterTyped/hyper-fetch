@@ -1,5 +1,11 @@
-:::info
+To exchange authenticated events, set up the `auth` parameter with authentication query params. Later on, you can change
+the `auth` value with `setAuth` method, which after setting up the new data will reconnect the socket server.
 
-Work in progress
+```tsx
+const token = "1234";
+const socket = new Socket({ url: "ws://localhost:3000", auth: { token } });
 
-:::
+// If token change
+const newToken = "4321";
+socket.setAuth(newToken); // Trigger reconnection
+```

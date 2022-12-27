@@ -2,8 +2,18 @@
 sidebar_position: 2
 ---
 
-:::info
+Use the `listen` method to start the listening for incoming events.
 
-Work in progress
+```tsx
+type ChatMessageType = {
+  message: string;
+};
 
-:::
+const onChatMessage = socketInstance.createListener<ChatMessageType>()({
+  name: "chat-message", // name of the event
+});
+
+onChatMessage.listen((message) => {
+  console.log(message); // ChatMessageType
+});
+```

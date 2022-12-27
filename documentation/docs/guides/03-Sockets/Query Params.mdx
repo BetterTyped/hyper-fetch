@@ -1,5 +1,10 @@
-:::info
+We can add additional parameters to the connection url with query params. Later on, you can change the `queryParams`
+value with `setQueryParams` method, which after setting up the new data will reconnect the socket server.
 
-Work in progress
+```tsx
+const socket = new Socket({ url: "ws://localhost:3000", queryParams: { param1: [1, 2, 3], param2: "value" } });
 
-:::
+// You can change parameters
+const param3 = "4321";
+socket.setQueryParams({ param3 }); // Trigger reconnection
+```
