@@ -180,7 +180,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     }
   };
 
-  removeListener = (event: string, callback: (...args: any[]) => void) => {
+  removeListener = (event: string, callback: (data: any, event: MessageEvent<any>) => void) => {
     const listenerGroup = this.listeners.get(event);
     if (listenerGroup && listenerGroup.has(callback)) {
       this.logger.debug("Removed event listener", { event });
@@ -191,7 +191,7 @@ export class SocketClient<SocketType extends SocketInstance> {
     return false;
   };
 
-  listen = (listener: Pick<ListenerInstance, "name">, callback: (...args: any[]) => void) => {
+  listen = (listener: Pick<ListenerInstance, "name">, callback: (data: any, event: MessageEvent<any>) => void) => {
     const listenerGroup =
       this.listeners.get(listener.name) || this.listeners.set(listener.name, new Set()).get(listener.name);
 

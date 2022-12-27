@@ -38,7 +38,7 @@ describe("Emitter [ Emit ]", () => {
     const message = { name: "Maciej", age: 99 };
     const spy = jest.fn();
     const id = emitter.emit({ data: message }, spy);
-    const response = { data: "test" };
+    const response = { id, data: "test" };
 
     await expect(server).toReceiveMessage(
       JSON.stringify({
@@ -48,11 +48,11 @@ describe("Emitter [ Emit ]", () => {
       }),
     );
 
-    server.send(JSON.stringify({ name: emitter.name, data: response }));
+    server.send(JSON.stringify({ id, name: emitter.name, data: response }));
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(null, { name: emitter.name, data: response });
+      expect(spy).toBeCalledWith(null, { id, name: emitter.name, data: response });
     });
   });
 
