@@ -19,10 +19,11 @@ export function Description(): JSX.Element {
             <div className={styles.imageWrapper}>
               <img className={styles.featureSvg} alt="box" src="/img/features/070-file hosting.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Http, Graphql, Websockets, SSE</h3>
+            <h3 className={clsx(styles.title)}>Http, Graphql, Websocket, SSE</h3>
             <div className={clsx(styles.description)}>
-              There is nothing impossible for us, we provide virtually unlimited possibilities for data exchange,
-              providing the necessary tools and easy-to-implement solutions.
+              There is nothing impossible for us, we provide unlimited possibilities for data exchange, the necessary
+              tools and easy-to-implement solutions. We support all popular solutions and protocols, including the
+              websocket.
             </div>
           </div>
           <div className={clsx(styles.block)}>
@@ -32,7 +33,8 @@ export function Description(): JSX.Element {
             <h3 className={clsx(styles.title)}>Replace and customize the system</h3>
             <div className={clsx(styles.description)}>
               Are you used to proven tools such as Axios, Socket.io or fetch? You can easily use them with Hyper Fetch,
-              we do not limit the possibility of combining our platform with proven solutions.
+              we do not limit the possibility of combining our platform with existing solutions. This applies to most
+              class items included with package.
             </div>
           </div>
           <div className={clsx(styles.block)}>
@@ -41,8 +43,8 @@ export function Description(): JSX.Element {
             </div>
             <h3 className={clsx(styles.title)}>Persistance and offline first</h3>
             <div className={clsx(styles.description)}>
-              The most advanced solution for persistence and offline solutions first. We based our solution on commands
-              and a fixed data standard, which allows us to store not only data returned from queries, but also entire
+              The most advanced solution for persistence and offline first. We based our framework on commands and
+              strict data standards, which allows us to store not only data returned from queries, but also entire
               requests before sending them!
             </div>
           </div>
