@@ -336,7 +336,7 @@ body .DocSearch-Modal {
 }
 
 @media (max-width: 996px) {
-  body .searchBox_node_modules-\@docusaurus-theme-classic-lib-theme-Navbar-Search-styles-module {
+  body .navbar__items--right > :last-child {
     position: relative;
     margin-right: -20px;
   }
