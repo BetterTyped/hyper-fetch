@@ -1,0 +1,31 @@
+---
+sidebar_position: 3
+---
+
+Use the `emit` method to start the event emitting.
+
+```tsx
+type ChatMessageType = {
+  message: string;
+};
+
+type AcknowledgementResponseType = boolean;
+
+const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  name: "chat-message", // name of the event
+});
+
+sendChatMessage.emit({ message: "new message" }, (error, data) => {
+  if (data === true) {
+    console.log("Correct!");
+  }
+});
+
+// or
+
+sendChatMessage.setData({ message: "new message" }).emit({}, (error, data) => {
+  if (data === true) {
+    console.log("Correct!");
+  }
+});
+```

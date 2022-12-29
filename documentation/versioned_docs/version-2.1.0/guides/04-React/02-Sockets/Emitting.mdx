@@ -1,0 +1,55 @@
+---
+sidebar_position: 2
+---
+
+**`useEmitter`** executes a Emitter when a `emit()` function returned from it gets triggered. It uses dependency
+tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
+established by event emitters. Many `"helper hooks"` (such as `onEvent`, `onError`, `onReconnecting`, etc.) are
+returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base hook with
+callback logic. It also helps improve code readability, decreases code complication, and promotes more organized code.
+
+```tsx
+import { useEmitter } from "@hyper-fetch/react";
+import { sendMessage } from "server";
+
+const MessageComponent: React.FC = () => {
+  const { emit, timestamp, connected, onEvent, onError, onReconnecting } = useEmitter(postLogin);
+
+  onEvent((emitter) => {
+    // Event before we send event message
+    console.log(emitter); // Emitter instance
+  });
+
+  onError((error) => {
+    console.log(error); // Error Event
+  });
+
+  onReconnecting((reconnectingAttempt) => {
+    console.log(reconnectingAttempt); // 1
+  });
+
+  const onSubmit = (values: Values) => {
+    // ResponseDataType is automatically inherited from Emitter class
+    const acknowledge = (error: Error, data: ResponseDataType) => {
+      if (error) {
+        alert("No server response!");
+      } else {
+        alert("Message received on server.");
+      }
+    };
+
+    emit({ data: values }, acknowledge);
+  };
+
+  return (
+    <Formik onSubmit={onSubmit} validationSchema={validationSchema}>
+      <Form>
+        <FormInput name="message" label="Message" placeholder="Write message" />
+        <Button type="submit" variant="contained" disabled={submitting} className={styles.submit}>
+          Send
+        </Button>
+      </Form>
+    </Formik>
+  );
+};
+```

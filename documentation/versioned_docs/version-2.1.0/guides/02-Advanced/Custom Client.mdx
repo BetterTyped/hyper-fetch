@@ -1,0 +1,73 @@
+You can create your own client based on your preferences or requirements. You can use the bindings to achieve it. They
+will let you to easily connect into the library logic flow, so this way you will make your custom client without
+handling the internals on the library. We propose to use the `getClientBindings` util so you skip the sensitive and
+highly advanced part of connecting into hyper fetch flow.
+
+---
+
+### Example
+
+```tsx
+const customHttpClient = async () => {
+  const {
+    fullUrl,
+    method,
+    headers,
+    payload,
+    config,
+    getAbortController,
+    getRequestStartTimestamp,
+    getResponseStartTimestamp,
+    createAbortListener,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onResponseEnd,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onUnexpectedError,
+    onError,
+  } = await getClientBindings(command, requestId);
+
+  // ... any custom client logic, you can see axios implementation bellow
+  axios({
+    method,
+    url: fullUrl,
+    data: payload,
+    headers,
+    timeout: config.timeout,
+  });
+};
+```
+
+---
+
+### Setup
+
+Connect any client to communicate with the server and handle it as you want, the only thing that has to match is the
+interface of the output.
+
+```tsx
+const customHttpClient: ClientType = (command: CommandInstance) => Promise.resolve([null, null, 0]);
+
+const builder = new Builder({ url }).setClient(customHttpClient);
+```
+
+---
+
+### Typescript
+
+You can pass custom options to your client from global setup and while command initialization. To make sure we pass
+correct configuration through this places we can specify the type for them. It is passed to the builder instance.
+
+```tsx
+type MyCustomClientOptions = {
+  timeout?: number;
+};
+
+const builder = new Builder<Error, MyCustomClientOptions>({ url }).setClient(customHttpClient);
+```

@@ -1,0 +1,56 @@
+You can intercept responses or requests before they are handled by any other module. This way you can hook-in to
+different available interceptors. They are added on a particular builder, you can chain-add them.
+
+Interceptors can be deactivated on selected commands thanks to the options passed to them. To do this, use the
+`disableRequestInterceptors` and `disableResponseInterceptors`.
+
+---
+
+## Request interceptors
+
+You can add an interceptor to every command executed within a given builder and overwrite the sent data or execute your
+own logic.
+
+```ts
+export const builder = new Builder({ url }).onRequest(async (response, command) => {
+  // Add your custom logic
+
+  return response;
+});
+```
+
+---
+
+## Response interceptors
+
+With response interceptors, you can call your own logic and change the returned data before it is handled in the system.
+
+### onSuccess
+
+```ts
+export const builder = new Builder({ url }).onSuccess(async (response, command) => {
+  // Add your custom logic
+
+  return response;
+});
+```
+
+### onError
+
+```ts
+export const builder = new Builder({ url }).onError(async (response, command) => {
+  // Add your custom logic
+
+  return response;
+});
+```
+
+### onResponse
+
+```ts
+export const builder = new Builder({ url }).onResponse(async (response, command) => {
+  // Add your custom logic
+
+  return response;
+});
+```

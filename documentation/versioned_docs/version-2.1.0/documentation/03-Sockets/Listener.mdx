@@ -1,0 +1,139 @@
+---
+sidebar_position: 4
+---
+
+<div class="api-link">
+  <div class="api-link-title">Listener</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Sockets/Class/Listener.mdx)
+
+  </div>
+</div>
+
+---
+
+## Introduction
+
+**`Listener`** is a class that creates a template for receiving events from server. Its strength is its strict and
+predictable data structure which together with typescript gives a lot of confidence while developing data exchange
+features.
+
+To use the listener we need to trigger the `listen` method with provided callback.
+
+---
+
+## Purpose
+
+- Configures events listeners templates
+- Standardizes the system’s data schema
+- Listen to server events
+
+---
+
+## Initialization
+
+Listener should be initialized from the Socket instance with `createListener` method. This passes a shared reference to
+the place that manages communication in the application.
+
+```tsx
+import { socketInstance } from "./socket";
+
+export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
+  name: "chat-message", // name of the event
+});
+
+export const onUserStatusChange = socketInstance.createListener<UserStatusType>()({
+  name: "status", // name of the event
+});
+```
+
+---
+
+## Usage
+
+### Listening
+
+Use the `listen` method to start the listening for incoming events.
+
+```tsx
+onChatMessage.listen((message) => {
+  // message have type ChatMessageType
+  console.log(message);
+});
+```
+
+### Remove listener
+
+Use the returned method to stop listening.
+
+```tsx
+const removeEvent = onChatMessage.listen((message) => console.log(message));
+
+...
+
+removeEvent() // We remove listener
+```
+
+Remove event listeners directly from the client
+
+```tsx
+const callback = (message) => console.log(message);
+const removeEvent = onChatMessage.listen(callback);
+
+...
+
+socket.client.listeners.delete(onChatMessage.name) // We remove ALL listeners from given event
+socket.client.listeners.get(onChatMessage.name).delete(callback) // We remove single listener from given event
+```
+
+Listen to event `once`
+
+```tsx
+const removeEvent = onChatMessage.listen((message) => {
+  console.log(message);
+  removeEvent(); // We listen only to single event
+});
+```
+
+---
+
+## Methods
+
+Using methods on a listener is different from other classes in Hyper Fetch. This is to ensure isolation between
+different uses, which allows you to avoid overwriting previously-prepared listeners and to dynamically generate keys for
+queues or the cache.
+
+:::danger
+
+Using any method on listener returns its clone! `We don't return a reference!`
+
+:::
+
+```tsx
+// ❌ WRONG
+
+const listener = getChatMessageListener;
+
+listener.setOptions({ ... }); // Returns CLONED listener with assigned options
+
+listener.listen(); // Error - no options will be applied
+```
+
+```tsx
+// ✅ Good
+
+const listener = getChatMessageListener;
+
+const listenerWithOptions = listener.setOptions({ ... }); // Returns CLONED listener with assigned options
+
+listenerWithOptions.listen(); // Success - options applied
+```
+
+---
+
+## Parameters
+
+Configuration options
+
+{@import Sockets ListenerOptionsType returns}

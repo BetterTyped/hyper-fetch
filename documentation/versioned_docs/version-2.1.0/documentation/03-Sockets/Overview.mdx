@@ -1,0 +1,15 @@
+---
+sidebar_position: 1
+---
+
+Sockets module was created to handle listeners and emitters on open connections. Our base `Hyper Fetch` package was
+created with different approach to things like interceptors or data exchange itself but has some architecture decisions
+in common, like singleton pattern.
+
+## Package goal
+
+- Providing neutral standard for data exchange
+- Architecture to support composing our logic with existing adapters like socket.io
+- Possibility to attach own client addapters with ease and flexibility
+- Separation of listeners and emitters to clearly split responsibility
+- Handle SSE and Websocket with single package
