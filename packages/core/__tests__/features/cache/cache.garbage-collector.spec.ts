@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/dom";
 
 import { CacheValueType } from "cache";
 import { DateInterval } from "index";
-import { createBuilder, createCache, createCommand, createLazyCacheAdapter } from "../../utils";
+import { createClient, createCache, createRequest, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
@@ -25,9 +25,9 @@ describe("Cache [ Garbage Collector ]", () => {
 
   let lazyStorage = new Map<string, CacheValueType>();
 
-  let builder = createBuilder();
-  let command = createCommand(builder, { cacheKey, cacheTime, garbageCollection });
-  let cache = createCache(builder, {
+  let client = createClient();
+  let request = createRequest(client, { cacheKey, cacheTime, garbageCollection });
+  let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     clearKey,
   });
@@ -35,9 +35,9 @@ describe("Cache [ Garbage Collector ]", () => {
   beforeEach(async () => {
     lazyStorage.clear();
     lazyStorage = new Map<string, CacheValueType>();
-    builder = createBuilder();
-    command = createCommand(builder, { cacheKey, cacheTime, garbageCollection });
-    cache = createCache(builder, {
+    client = createClient();
+    request = createRequest(client, { cacheKey, cacheTime, garbageCollection });
+    cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       clearKey,
     });
@@ -48,14 +48,14 @@ describe("Cache [ Garbage Collector ]", () => {
 
   describe("when garbage collector is triggered", () => {
     it("should garbage collect data from sync storage", async () => {
-      cache.set(command, cacheData.data, cacheData.details);
+      cache.set(request, cacheData.data, cacheData.details);
       await waitFor(() => {
         expect(cache.get(cacheKey)).not.toBeDefined();
       });
     });
     it("should garbage collect data from lazy storage", async () => {
-      cache.set(command, cacheData.data, cacheData.details);
-      cache.scheduleGarbageCollector(command.cacheKey);
+      cache.set(request, cacheData.data, cacheData.details);
+      cache.scheduleGarbageCollector(request.cacheKey);
 
       await waitFor(async () => {
         expect(await cache.options.lazyStorage.get(cacheKey)).not.toBeDefined();
@@ -64,7 +64,7 @@ describe("Cache [ Garbage Collector ]", () => {
     it("should schedule garbage collection on mount", async () => {
       const storage = new Map();
       storage.set(cacheKey, cacheData);
-      const cacheInstance = createCache(builder, {
+      const cacheInstance = createCache(client, {
         storage,
         clearKey,
       });
@@ -75,7 +75,7 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should schedule lazy storage garbage collection on mount", async () => {
       lazyStorage.set(cacheKey, cacheData);
-      const cacheInstance = createCache(builder, {
+      const cacheInstance = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
         clearKey,
       });
@@ -86,15 +86,15 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should schedule garbage collection when resource is added", async () => {
       const spy = jest.spyOn(cache, "scheduleGarbageCollector");
-      cache.set(command, cacheData.data, cacheData.details);
+      cache.set(request, cacheData.data, cacheData.details);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });
     });
     it("should remove resource with not matching lazy clearKey", async () => {
       const data = { ...cacheData, garbageCollection: DateInterval.minute };
-      lazyStorage.set(command.cacheKey, data);
-      createCache(builder, {
+      lazyStorage.set(request.cacheKey, data);
+      createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
         clearKey: "new-clear-key",
       });
@@ -107,8 +107,8 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should remove resource with not matching sync clearKey", async () => {
       const data = { ...cacheData, garbageCollection: DateInterval.minute };
-      lazyStorage.set(command.cacheKey, data);
-      createCache(builder, {
+      lazyStorage.set(request.cacheKey, data);
+      createCache(client, {
         storage: lazyStorage,
         clearKey: "new-clear-key",
       });

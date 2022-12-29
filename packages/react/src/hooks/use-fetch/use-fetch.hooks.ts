@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { useDidUpdate, useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
-import { CommandInstance, Command, getCommandKey } from "@hyper-fetch/core";
+import { useDidUpdate, useDidMount } from "@better-hooks/lifecycle";
+import { useDebounce, useThrottle } from "@better-hooks/performance";
+import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
-import { useCommandEvents, useTrackedState } from "helpers";
+import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "hooks/use-fetch";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
@@ -11,12 +11,12 @@ import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to retrieve data from server.
- * @param command Command instance
+ * @param request Request instance
  * @param options Hook options
  * @returns
  */
-export const useFetch = <T extends CommandInstance>(
-  command: T,
+export const useFetch = <T extends RequestInstance>(
+  request: T,
   options: UseFetchOptionsType<T> = useFetchDefaultOptions,
 ): UseFetchReturnType<T> => {
   // Build the configuration options
@@ -36,6 +36,7 @@ export const useFetch = <T extends CommandInstance>(
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
+    bounceTimeout = useFetchDefaultOptions.bounceTimeout,
     deepCompare = useFetchDefaultOptions.deepCompare,
   } = {
     ...useFetchDefaultOptions,
@@ -43,13 +44,13 @@ export const useFetch = <T extends CommandInstance>(
     ...options,
   };
 
-  const updateKey = JSON.stringify(command.dump());
-  const requestDebounce = useDebounce(bounceTime);
-  const requestThrottle = useThrottle(bounceTime);
-  const refreshDebounce = useDebounce(refreshTime);
+  const updateKey = JSON.stringify(request.dump());
+  const requestDebounce = useDebounce({ delay: bounceTime });
+  const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
+  const refreshDebounce = useDebounce({ delay: refreshTime });
 
-  const { cacheKey, queueKey, builder } = command;
-  const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = builder;
+  const { cacheKey, queueKey, client } = request;
+  const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
 
   const logger = useRef(loggerManager.init("useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
@@ -60,7 +61,7 @@ export const useFetch = <T extends CommandInstance>(
    */
   const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<T>({
     logger,
-    command,
+    request,
     dispatcher,
     initialData,
     deepCompare,
@@ -70,10 +71,10 @@ export const useFetch = <T extends CommandInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useCommandEvents({
+  const [callbacks, listeners] = useRequestEvents({
     logger,
     actions,
-    command,
+    request,
     dispatcher,
     setCacheData,
   });
@@ -86,7 +87,7 @@ export const useFetch = <T extends CommandInstance>(
   const handleFetch = () => {
     if (!disabled) {
       logger.debug(`Fetching data`);
-      dispatcher.add(command);
+      dispatcher.add(request);
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -106,8 +107,8 @@ export const useFetch = <T extends CommandInstance>(
       const isBlurred = !appManager.isFocused;
 
       // If window tab is not active should we refresh the cache
-      const isFetching = dispatcher.hasRunningRequests(command.queueKey);
-      const isQueued = dispatcher.getIsActiveQueue(command.queueKey);
+      const isFetching = dispatcher.hasRunningRequests(request.queueKey);
+      const isQueued = dispatcher.getIsActiveQueue(request.queueKey);
       const isActive = isFetching || isQueued;
       const canRefreshBlurred = isBlurred && refreshBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
@@ -123,9 +124,9 @@ export const useFetch = <T extends CommandInstance>(
   }
 
   const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Command) {
-      cache.revalidate(getCommandKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
+    if (invalidateKey && invalidateKey instanceof Request) {
+      cache.revalidate(getRequestKey(invalidateKey));
+    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
       cache.revalidate(invalidateKey);
     }
   };
@@ -159,7 +160,7 @@ export const useFetch = <T extends CommandInstance>(
      * This way it will not wait for debouncing but fetch data right away
      */
     if (bounce) {
-      logger.debug(`Bounce request with ${bounceType}`, { queueKey, command });
+      logger.debug(`Bounce request with ${bounceType}`, { queueKey, request });
       bounceFunction(() => handleFetch());
     } else {
       handleFetch();
@@ -171,8 +172,8 @@ export const useFetch = <T extends CommandInstance>(
   // ******************
 
   const handleMountEvents = () => {
-    addDataListener(command);
-    addLifecycleListeners(command);
+    addDataListener(request);
+    addLifecycleListeners(request);
 
     const focusUnmount = appManager.events.onFocus(() => {
       if (refreshOnFocus) {

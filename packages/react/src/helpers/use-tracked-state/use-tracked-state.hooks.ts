@@ -1,6 +1,6 @@
 import { useRef } from "react";
-import { useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
-import { ExtractError, CacheValueType, ExtractResponse, CommandInstance } from "@hyper-fetch/core";
+import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
+import { ExtractErrorType, CacheValueType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -13,26 +13,26 @@ import { getDetailsState, getInitialState, isStaleCacheData } from "./use-tracke
 
 /**
  *
- * @param command
+ * @param request
  * @param initialData
  * @param dispatcher
  * @param dependencies
  * @internal
  */
-export const useTrackedState = <T extends CommandInstance>({
-  command,
+export const useTrackedState = <T extends RequestInstance>({
+  request,
   dispatcher,
   initialData,
   deepCompare,
   dependencyTracking,
   defaultCacheEmitting = true,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { builder, cacheKey, queueKey, cacheTime } = command;
-  const { cache, commandManager } = builder;
+  const { client, cacheKey, queueKey, cacheTime } = request;
+  const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData, dispatcher, command));
+  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData, dispatcher, request));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
 
   // ******************
@@ -70,7 +70,7 @@ export const useTrackedState = <T extends CommandInstance>({
       state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
       // Get cache state
-      const newState = getInitialState(initialData, dispatcher, command);
+      const newState = getInitialState(initialData, dispatcher, request);
 
       const hasInitialState = initialData?.[0] === state.current.data;
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
@@ -119,7 +119,7 @@ export const useTrackedState = <T extends CommandInstance>({
     return false;
   };
 
-  const setCacheData = async (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => {
+  const setCacheData = async (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => {
     const newStateValues: UseTrackedStateType<T> = {
       data: cacheData.data[0],
       error: cacheData.data[1],
@@ -153,7 +153,7 @@ export const useTrackedState = <T extends CommandInstance>({
     setData: (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(command, [data, currentState.error, currentState.status], getDetailsState(state.current));
+        cache.set(request, [data, currentState.error, currentState.status], getDetailsState(state.current));
       } else {
         state.current.data = data;
         renderKeyTrigger(["data"]);
@@ -163,7 +163,7 @@ export const useTrackedState = <T extends CommandInstance>({
       if (emitToCache) {
         const currentState = state.current;
         cache.set(
-          command,
+          request,
           [currentState.data, error, currentState.status],
           getDetailsState(state.current, { isFailed: !!error }),
         );
@@ -174,7 +174,7 @@ export const useTrackedState = <T extends CommandInstance>({
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        commandManager.events.emitLoading(queueKey, "", {
+        requestManager.events.emitLoading(queueKey, "", {
           queueKey,
           requestId: "",
           loading,
@@ -189,7 +189,7 @@ export const useTrackedState = <T extends CommandInstance>({
     setStatus: (status, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(command, [currentState.data, currentState.error, status], getDetailsState(state.current));
+        cache.set(request, [currentState.data, currentState.error, status], getDetailsState(state.current));
       } else {
         state.current.status = status;
         renderKeyTrigger(["status"]);
@@ -199,7 +199,7 @@ export const useTrackedState = <T extends CommandInstance>({
       if (emitToCache) {
         const currentState = state.current;
         cache.set(
-          command,
+          request,
           [currentState.data, currentState.error, currentState.status],
           getDetailsState(state.current, { retries }),
         );
@@ -212,7 +212,7 @@ export const useTrackedState = <T extends CommandInstance>({
       if (emitToCache) {
         const currentState = state.current;
         cache.set(
-          command,
+          request,
           [currentState.data, currentState.error, currentState.status],
           getDetailsState(state.current, { timestamp: +timestamp }),
         );

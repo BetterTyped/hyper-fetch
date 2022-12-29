@@ -1,10 +1,10 @@
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer } from "../../../server";
-import { createCommand, renderUseTrackedState } from "../../../utils";
+import { createRequest, renderUseTrackedState } from "../../../utils";
 
 describe("useTrackingState [ Events ]", () => {
-  let command = createCommand();
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -20,7 +20,7 @@ describe("useTrackingState [ Events ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
+    request = createRequest();
   });
 
   describe("given dependency tracking is active", () => {
@@ -50,7 +50,7 @@ describe("useTrackingState [ Events ]", () => {
       });
       it("should allow to use custom deepCompare", async () => {
         const deepCompare = jest.fn().mockImplementation(() => false);
-        const { result } = renderUseTrackedState(command, { deepCompare, dependencyTracking: true });
+        const { result } = renderUseTrackedState(request, { deepCompare, dependencyTracking: true });
 
         act(() => {
           result.current[2].setRenderKey("data");
@@ -63,8 +63,8 @@ describe("useTrackingState [ Events ]", () => {
               isCanceled: false,
               isOffline: false,
             },
-            cacheTime: command.cacheTime,
-            clearKey: command.builder.cache.clearKey,
+            cacheTime: request.cacheTime,
+            clearKey: request.client.cache.clearKey,
           });
         });
 
@@ -74,7 +74,7 @@ describe("useTrackingState [ Events ]", () => {
     });
     describe("when deepCompare is false", () => {
       it("should not compare values", async () => {
-        const { result } = renderUseTrackedState(command, { deepCompare: false, dependencyTracking: true });
+        const { result } = renderUseTrackedState(request, { deepCompare: false, dependencyTracking: true });
 
         act(() => {
           result.current[2].setRenderKey("data");
@@ -87,8 +87,8 @@ describe("useTrackingState [ Events ]", () => {
               isCanceled: false,
               isOffline: false,
             },
-            cacheTime: command.cacheTime,
-            clearKey: command.builder.cache.clearKey,
+            cacheTime: request.cacheTime,
+            clearKey: request.client.cache.clearKey,
           });
         });
 

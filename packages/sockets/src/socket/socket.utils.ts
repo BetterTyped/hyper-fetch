@@ -14,10 +14,10 @@ export const getListenerRemoveByNameKey = (event: string) => `${event}_listener_
 export const getListenerEventByNameKey = (event: string) => `${event}_listener_event`;
 export const getEmitterEventByNameKey = (event: string) => `${event}_emitter_event`;
 
-export const interceptListener = <SocketType extends SocketInstance>(
-  interceptors: MessageCallbackType<SocketType, MessageEvent>[],
+export const interceptListener = <Socket extends SocketInstance>(
+  interceptors: MessageCallbackType<Socket, MessageEvent>[],
   response: MessageEvent,
-  socket: SocketType,
+  socket: Socket,
 ) => {
   let newResponse = response;
   // eslint-disable-next-line no-restricted-syntax

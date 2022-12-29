@@ -1,22 +1,22 @@
-Errors are returned as the second element of the tuple returned from the command.
+Errors are returned as the second element of the tuple returned from the request.
 
 :::info
 
-Even though commands are promises, they are `never rejected`. Due to the format they return, any error will appear as
+Even though requests are promises, they are `never rejected`. Due to the format they return, any error will appear as
 the second tuple element and for this reason we can always expect resolved status.
 
 :::
 
 ```tsx
-const [_, error] = await command.send();
+const [_, error] = await request.send();
 ```
 
 ---
 
 ## Global errors
 
-Global errors are the general type of error returned from each query within a given builder. We can set their type by
-giving the appropriate generic to the instance of our builder.
+Global errors are the general type of error returned from each query within a given client. We can set their type by
+giving the appropriate generic to the instance of our client.
 
 ```ts
 type GlobalErrorType = {
@@ -24,13 +24,13 @@ type GlobalErrorType = {
   status: 400 | 404 | 500;
 };
 
-export const builder = new Builder<GlobalErrorType>({ url });
+export const client = new Client<GlobalErrorType>({ url });
 ```
 
-Now the error type of our command will reflect `GlobalErrorType`.
+Now the error type of our request will reflect `GlobalErrorType`.
 
 ```ts
-const [_, error] = await command.send();
+const [_, error] = await request.send();
 
 console.log(error); // null | GlobalErrorType;
 ```
@@ -43,7 +43,7 @@ Local errors are representatives of individual error types returned only on part
 form endpoints, we often encounter errors returned from the server related to individual form fields.
 
 ```ts
-import { builder } from "./builder";
+import { client } from "./client";
 
 type LocalErrorType = {
   errors: {
@@ -53,16 +53,16 @@ type LocalErrorType = {
   };
 };
 
-const postUser = builder.createCommand<ResponseType, RequestType, LocalErrorType>()({
+const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>()({
   method: "POST",
   endpoint: "/users",
 });
 ```
 
-Now the error type of our command will union of `GlobalError` and `LocalErrorType`.
+Now the error type of our request will union of `GlobalError` and `LocalErrorType`.
 
 ```ts
-const [_, error] = await command.send();
+const [_, error] = await request.send();
 
 console.log(error); // null | GlobalErrorType | LocalErrorType;
 ```

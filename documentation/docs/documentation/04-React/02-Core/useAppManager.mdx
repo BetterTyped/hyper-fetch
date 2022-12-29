@@ -17,18 +17,18 @@ sidebar_position: 7
 
 **`useAppManager`** allows you to use information about the connection status and screen focus state. It also offers
 options to manipulate its global state. This hook uses the [`AppManager`](/documentation/02-Core/Managers.mdx) available
-on the [`Builder`](/documentation/02-Core/Builder.mdx) instance.
+on the [`Client`](/documentation/02-Core/Client.mdx) instance.
 
 It returns the status of `isOnline` and `isFocused` and the actions that allow you to change them.
 
 ```tsx
-const { isOnline, setOnline } = useAppManager(builder);
+const { isOnline, setOnline } = useAppManager(client);
 
 setOnline(true);
 ```
 
 ```tsx
-const { isFocused, setFocused } = useAppManager(builder);
+const { isFocused, setFocused } = useAppManager(client);
 
 setFocused(true);
 ```
@@ -40,7 +40,7 @@ setFocused(true);
 Returned values from this hook.
 
 ```tsx
-const values = useAppManager(builder);
+const values = useAppManager(client);
 ```
 
 {@import React useAppManager returns}

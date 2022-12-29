@@ -1,13 +1,13 @@
-import { githubBuilder } from "../builder";
+import { githubClient } from "../client";
 import { RepositoryType } from "./github.types";
 
-export const getRepositories = githubBuilder.createCommand<RepositoryType[]>()({
+export const getRepositories = githubClient.createRequest<RepositoryType[]>()({
   endpoint: "/users/:account/repos",
   retry: 10,
   retryTime: 1000,
 });
 
-export const getRepository = githubBuilder.createCommand<RepositoryType>()({
+export const getRepository = githubClient.createRequest<RepositoryType>()({
   endpoint: "/repos/:account/:repository",
   retry: 10,
   retryTime: 1000,

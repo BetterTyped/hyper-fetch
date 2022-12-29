@@ -1,4 +1,10 @@
-import { CacheValueType, ExtractError, ExtractResponse, CommandInstance, FetchMethodType } from "@hyper-fetch/core";
+import {
+  CacheValueType,
+  ExtractErrorType,
+  ExtractResponseType,
+  RequestInstance,
+  RequestSendType,
+} from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -12,7 +18,7 @@ import {
 } from "helpers";
 import { InvalidationKeyType } from "types";
 
-export type UseSubmitOptionsType<T extends CommandInstance> = {
+export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
    * Disable fetching
    */
@@ -20,7 +26,7 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
+  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
@@ -34,6 +40,10 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
    */
   bounceTime?: number;
   /**
+   * ONLY in throttle mode - options for handling last bounce event
+   */
+  bounceTimeout?: number;
+  /**
    * If `true` it will rerender only when values used by our component gets changed. Otherwise it will rerender on any change.
    */
   dependencyTracking?: boolean;
@@ -43,11 +53,11 @@ export type UseSubmitOptionsType<T extends CommandInstance> = {
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseSubmitReturnType<CommandType extends CommandInstance> = Omit<
-  UseTrackedStateType<CommandType>,
+export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
+  UseTrackedStateType<RequestType>,
   "loading"
 > &
-  UseTrackedStateActions<CommandType> & {
+  UseTrackedStateActions<RequestType> & {
     /**
      * Callback which allows to cancel ongoing requests from given queueKey.
      */
@@ -55,43 +65,43 @@ export type UseSubmitReturnType<CommandType extends CommandInstance> = Omit<
     /**
      * Helper hook listening on success response.
      */
-    onSubmitSuccess: (callback: OnSuccessCallbackType<CommandType>) => void;
+    onSubmitSuccess: (callback: OnSuccessCallbackType<RequestType>) => void;
     /**
      * Helper hook listening on error response.
      */
-    onSubmitError: (callback: OnErrorCallbackType<CommandType>) => void;
+    onSubmitError: (callback: OnErrorCallbackType<RequestType>) => void;
     /**
      * Helper hook listening on any response.
      */
-    onSubmitFinished: (callback: OnFinishedCallbackType<CommandType>) => void;
+    onSubmitFinished: (callback: OnFinishedCallbackType<RequestType>) => void;
     /**
      * Helper hook listening on request start.
      */
-    onSubmitRequestStart: (callback: OnStartCallbackType<CommandType>) => void;
+    onSubmitRequestStart: (callback: OnStartCallbackType<RequestType>) => void;
     /**
      * Helper hook listening on response start(before we receive all data from server).
      */
-    onSubmitResponseStart: (callback: OnStartCallbackType<CommandType>) => void;
+    onSubmitResponseStart: (callback: OnStartCallbackType<RequestType>) => void;
     /**
-     * Helper hook listening on download progress ETA. We can later match given requests by their id's or command instance which holds all data which is being transferred.
+     * Helper hook listening on download progress ETA. We can later match given requests by their id's or request instance which holds all data which is being transferred.
      */
     onSubmitDownloadProgress: (callback: OnProgressCallbackType) => void;
     /**
-     * Helper hook listening on upload progress ETA. We can later match given requests by their id's or command instance which holds all data which is being transferred.
+     * Helper hook listening on upload progress ETA. We can later match given requests by their id's or request instance which holds all data which is being transferred.
      */
     onSubmitUploadProgress: (callback: OnProgressCallbackType) => void;
     /**
      * Helper hook listening on aborting of requests. Abort events are not triggering onError callbacks.
      */
-    onSubmitAbort: (callback: OnErrorCallbackType<CommandType>) => void;
+    onSubmitAbort: (callback: OnErrorCallbackType<RequestType>) => void;
     /**
-     * Helper hook listening on request going into offline awaiting for network connection to be restored. It will not trigger onError when 'offline' mode is set on command.
+     * Helper hook listening on request going into offline awaiting for network connection to be restored. It will not trigger onError when 'offline' mode is set on request.
      */
-    onSubmitOfflineError: (callback: OnErrorCallbackType<CommandType>) => void;
+    onSubmitOfflineError: (callback: OnErrorCallbackType<RequestType>) => void;
     /**
      * Method responsible for triggering requests. It return Promise which will be resolved with the request.
      */
-    submit: FetchMethodType<CommandType>;
+    submit: RequestSendType<RequestType>;
     /**
      * Request loading state
      */
@@ -110,7 +120,7 @@ export type UseSubmitReturnType<CommandType extends CommandInstance> = Omit<
       reset: () => void;
     };
     /**
-     * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
     revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

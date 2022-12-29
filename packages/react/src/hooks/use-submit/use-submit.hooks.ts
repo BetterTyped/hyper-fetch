@@ -1,35 +1,35 @@
 import { useMemo, useRef } from "react";
 import {
-  Command,
-  getCommandKey,
-  ExtractClientReturnType,
-  commandSendRequest,
-  CommandInstance,
-  ClientResponseType,
-  ExtractResponse,
-  ExtractError,
-  FetchType,
-  FetchMethodType,
+  Request,
+  getRequestKey,
+  ExtractAdapterReturnType,
+  requestSendRequest,
+  RequestInstance,
+  ResponseType,
+  ExtractResponseType,
+  ExtractErrorType,
+  RequestSendOptionsType,
+  RequestSendType,
 } from "@hyper-fetch/core";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { useDebounce, useThrottle } from "@better-typed/react-performance-hooks";
+import { useDidMount } from "@better-hooks/lifecycle";
+import { useDebounce, useThrottle } from "@better-hooks/performance";
 
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
-import { useTrackedState, useCommandEvents } from "helpers";
+import { useTrackedState, useRequestEvents } from "helpers";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
 import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to mutate data on the server.
- * @param command
+ * @param request
  * @param options
  * @returns
  */
-export const useSubmit = <CommandType extends CommandInstance>(
-  command: CommandType,
-  options: UseSubmitOptionsType<CommandType> = useSubmitDefaultOptions,
-): UseSubmitReturnType<CommandType> => {
+export const useSubmit = <RequestType extends RequestInstance>(
+  request: RequestType,
+  options: UseSubmitOptionsType<RequestType> = useSubmitDefaultOptions,
+): UseSubmitReturnType<RequestType> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const mergedOptions = useMemo(
@@ -40,20 +40,21 @@ export const useSubmit = <CommandType extends CommandInstance>(
     }),
     [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
   );
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
+  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, bounceTimeout, deepCompare } =
+    mergedOptions;
 
   /**
-   * Because of the dynamic cacheKey / queueKey signing within the command we need to store it's latest instance
+   * Because of the dynamic cacheKey / queueKey signing within the request we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
    */
-  const { builder } = command;
-  const { cache, submitDispatcher: dispatcher, loggerManager } = builder;
+  const { client } = request;
+  const { cache, submitDispatcher: dispatcher, loggerManager } = client;
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
-  const requestDebounce = useDebounce(bounceTime);
-  const requestThrottle = useThrottle(bounceTime);
+  const requestDebounce = useDebounce({ delay: bounceTime });
+  const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const bounceResolver = useRef<
-    (value: ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>) => void
+    (value: ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>) => void
   >(() => null);
 
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
@@ -62,9 +63,9 @@ export const useSubmit = <CommandType extends CommandInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<CommandType>({
+  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<RequestType>({
     logger,
-    command,
+    request,
     dispatcher,
     initialData,
     deepCompare,
@@ -74,10 +75,10 @@ export const useSubmit = <CommandType extends CommandInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useCommandEvents({
+  const [callbacks, listeners] = useRequestEvents({
     logger,
     actions,
-    command,
+    request,
     dispatcher,
     setCacheData,
   });
@@ -88,29 +89,29 @@ export const useSubmit = <CommandType extends CommandInstance>(
   // Submitting
   // ******************
 
-  const handleSubmit: FetchMethodType<CommandType> = (submitOptions?: FetchType<CommandType>) => {
-    const commandClone = command.clone(submitOptions as any) as CommandType;
+  const handleSubmit: RequestSendType<RequestType> = (submitOptions?: RequestSendOptionsType<RequestType>) => {
+    const requestClone = request.clone(submitOptions as any) as RequestType;
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, submitOptions });
       return Promise.resolve([null, new Error("Cannot submit request. Option 'disabled' is enabled"), 0]) as Promise<
-        ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>
+        ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>
       >;
     }
 
     const triggerRequest = () => {
-      addDataListener(commandClone);
-      return commandSendRequest(commandClone, {
+      addDataListener(requestClone);
+      return requestSendRequest(requestClone, {
         dispatcherType: "submit",
         ...submitOptions,
         onSettle: (requestId, cmd) => {
-          addLifecycleListeners(commandClone, requestId);
+          addLifecycleListeners(requestClone, requestId);
           submitOptions?.onSettle?.(requestId, cmd);
         },
       });
     };
 
-    return new Promise<ExtractClientReturnType<CommandType>>((resolve) => {
+    return new Promise<ExtractAdapterReturnType<RequestType>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
         if (bounce) {
@@ -119,7 +120,7 @@ export const useSubmit = <CommandType extends CommandInstance>(
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (
-            value: ClientResponseType<ExtractResponse<CommandType>, ExtractError<CommandType>>,
+            value: ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>,
           ) => {
             // Trigger previous awaiting calls to resolve together in bounced batches
             bouncedResolve(value);
@@ -151,9 +152,9 @@ export const useSubmit = <CommandType extends CommandInstance>(
   // ******************
 
   const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Command) {
-      cache.revalidate(getCommandKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Command)) {
+    if (invalidateKey && invalidateKey instanceof Request) {
+      cache.revalidate(getRequestKey(invalidateKey));
+    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
       cache.revalidate(invalidateKey);
     }
   };
@@ -189,7 +190,7 @@ export const useSubmit = <CommandType extends CommandInstance>(
   // ******************
 
   useDidMount(() => {
-    addDataListener(command);
+    addDataListener(request);
   });
 
   return {

@@ -1,10 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
+import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Retry ]", () => {
-  let command = createCommand<null, null>({ method: "POST" });
+  let request = createRequest<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -20,15 +20,15 @@ describe("useSubmit [ Retry ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    command = createCommand({ method: "POST" });
+    client.clear();
+    request = createRequest({ method: "POST" });
   });
 
-  describe("when command retry attribute is set to false", () => {
+  describe("when request retry attribute is set to false", () => {
     it("should not retry request on failure", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(command, { status: 400, delay: 5 });
-      const response = renderUseSubmit(command.setRetry(0).setRetryTime(0));
+      createRequestInterceptor(request, { status: 400, delay: 5 });
+      const response = renderUseSubmit(request.setRetry(0).setRetryTime(0));
 
       act(() => {
         response.result.current.onSubmitRequestStart(spy);
@@ -40,11 +40,11 @@ describe("useSubmit [ Retry ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
   });
-  describe("when command retry attribute is set to true", () => {
+  describe("when request retry attribute is set to true", () => {
     it("should retry request once", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(command, { status: 400, delay: 5 });
-      const response = renderUseSubmit(command.setRetry(1).setRetryTime(10));
+      createRequestInterceptor(request, { status: 400, delay: 5 });
+      const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
       act(() => {
         response.result.current.onSubmitRequestStart(spy);
@@ -57,8 +57,8 @@ describe("useSubmit [ Retry ]", () => {
     });
     it("should retry request twice", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(command, { status: 400, delay: 5 });
-      const response = renderUseSubmit(command.setRetry(2).setRetryTime(10));
+      createRequestInterceptor(request, { status: 400, delay: 5 });
+      const response = renderUseSubmit(request.setRetry(2).setRetryTime(10));
 
       act(() => {
         response.result.current.onSubmitRequestStart(spy);
@@ -71,8 +71,8 @@ describe("useSubmit [ Retry ]", () => {
     });
     it("should trigger retries with the config interval", async () => {
       const time: number[] = [];
-      createRequestInterceptor(command, { status: 400, delay: 0 });
-      const response = renderUseSubmit(command.setRetry(1).setRetryTime(100));
+      createRequestInterceptor(request, { status: 400, delay: 0 });
+      const response = renderUseSubmit(request.setRetry(1).setRetryTime(100));
 
       act(() => {
         response.result.current.onSubmitRequestStart(() => {

@@ -1,12 +1,12 @@
 import { CacheValueType } from "cache";
-import { createBuilder, createCache, createCommand, createLazyCacheAdapter, sleep } from "../../utils";
+import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
 
-  let builder = createBuilder();
-  let command = createCommand(builder, { cacheKey, cache: true });
-  let cache = createCache(builder);
+  let client = createClient();
+  let request = createRequest(client, { cacheKey, cache: true });
+  let cache = createCache(client);
   const spy = jest.fn();
 
   const cacheData: CacheValueType = {
@@ -18,45 +18,45 @@ describe("Cache [ Events ]", () => {
       isCanceled: false,
       isOffline: false,
     },
-    cacheTime: command.cacheTime,
+    cacheTime: request.cacheTime,
     clearKey: cache.clearKey,
     garbageCollection: 300000,
   };
 
   beforeEach(() => {
-    builder = createBuilder();
-    command = createCommand(builder, { cacheKey, cache: true });
-    cache = createCache(builder);
+    client = createClient();
+    request = createRequest(client, { cacheKey, cache: true });
+    cache = createCache(client);
     jest.resetAllMocks();
   });
 
   describe("when options events are triggered", () => {
     it("should trigger onInitialization callback", async () => {
-      const newCache = createCache(builder, { onInitialization: spy });
+      const newCache = createCache(client, { onInitialization: spy });
 
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(newCache);
     });
     it("should trigger onChange event when data is set", async () => {
-      const newCache = createCache(builder, { onChange: spy });
+      const newCache = createCache(client, { onChange: spy });
 
-      newCache.set(command, cacheData.data, cacheData.details);
+      newCache.set(request, cacheData.data, cacheData.details);
 
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(command.cacheKey, cacheData);
+      expect(spy).toBeCalledWith(request.cacheKey, cacheData);
     });
     it("should trigger onDelete event when data is deleted", async () => {
-      const newCache = createCache(builder, { onDelete: spy });
+      const newCache = createCache(client, { onDelete: spy });
 
-      newCache.delete(command.cacheKey);
+      newCache.delete(request.cacheKey);
 
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(command.cacheKey);
+      expect(spy).toBeCalledWith(request.cacheKey);
     });
   });
   describe("when revalidate event is triggered", () => {
     it("should revalidate cache using cache key", async () => {
-      cache.set(command, [{}, null, 200], {
+      cache.set(request, [{}, null, 200], {
         retries: 0,
         timestamp: +new Date(),
         isFailed: false,
@@ -69,7 +69,7 @@ describe("Cache [ Events ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex", async () => {
-      cache.set(command, [null, null, 200], {
+      cache.set(request, [null, null, 200], {
         retries: 0,
         timestamp: +new Date(),
         isFailed: false,
@@ -83,8 +83,8 @@ describe("Cache [ Events ]", () => {
     });
     it("should revalidate cache using lazyStorage regex", async () => {
       const lazyStorage = new Map();
-      lazyStorage.set(command.cacheKey, cacheData);
-      cache = createCache(builder, {
+      lazyStorage.set(request.cacheKey, cacheData);
+      cache = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
       });
       cache.events.onRevalidate(cacheKey, spy);

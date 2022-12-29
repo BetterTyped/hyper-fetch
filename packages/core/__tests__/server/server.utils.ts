@@ -10,20 +10,20 @@ import {
   RestRequest,
 } from "msw";
 
-import { defaultTimeout, getErrorMessage } from "client";
-import { CommandInstance } from "command";
+import { defaultTimeout, getErrorMessage } from "adapter";
+import { RequestInstance } from "request";
 import { sleep } from "../utils";
 
 export const getInterceptEndpoint = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
-const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknown, status: number, delay = 10) => {
-  const { commandManager } = command.builder;
-  const controllers = commandManager.abortControllers.get(command.abortKey);
+const getResponse = (ctx: RestContext, request: RequestInstance, fixture: unknown, status: number, delay = 10) => {
+  const { requestManager } = request.client;
+  const controllers = requestManager.abortControllers.get(request.abortKey);
   const abortController = Array.from(controllers || [])[0];
 
-  const timeoutTime = command.options?.timeout || defaultTimeout;
+  const timeoutTime = request.options?.timeout || defaultTimeout;
   const isTimeout = timeoutTime < delay;
 
   if (!delay) {
@@ -36,13 +36,13 @@ const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknow
       if (abortController && abortController?.[1].signal.aborted) {
         ctx.status(500)(response);
         const error = getErrorMessage("abort");
-        response.body = !command.builder.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
+        response.body = !request.client.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
         return response;
       }
       if (isTimeout) {
         ctx.status(500)(response);
         const error = getErrorMessage("timeout");
-        response.body = !command.builder.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
+        response.body = !request.client.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
         return response;
       }
       ctx.json(fixture)(response);
@@ -53,7 +53,7 @@ const getResponse = (ctx: RestContext, command: CommandInstance, fixture: unknow
 };
 
 export const createStubMethod = (
-  command: CommandInstance,
+  request: RequestInstance,
   url: RegExp,
   method: string,
   status: number,
@@ -61,7 +61,7 @@ export const createStubMethod = (
   delay?: number,
 ): RestHandler => {
   function callback(_req: RestRequest<DefaultBodyType, PathParams>, res: ResponseComposition<any>, ctx: RestContext) {
-    const args: ResponseTransformer<any, any>[] = getResponse(ctx, command, response, status, delay);
+    const args: ResponseTransformer<any, any>[] = getResponse(ctx, request, response, status, delay);
 
     if (delay === 0) {
       args.shift();

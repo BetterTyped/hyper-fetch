@@ -16,9 +16,9 @@ sidebar_position: 5
 ## Introduction
 
 This hook controls the **dispatcher queues**. It uses the [`Dispatcher`](/documentation/02-Core/Dispatcher.mdx) to read
-the actual value of the queue, which is based on the `queueKey` retrieved from the command passed as the first argument.
+the actual value of the queue, which is based on the `queueKey` retrieved from the request passed as the first argument.
 
-A prepared [`Command`](/documentation/02-Core/Command.mdx) is the minimum requirement for `useQueue`.
+A prepared [`Request`](/documentation/02-Core/Request.mdx) is the minimum requirement for `useQueue`.
 
 ---
 
@@ -32,15 +32,15 @@ const { requests, stopped, stop, start, pause } = useQueue(getUsers);
 
 ## How it works?
 
-**`useQueue`** uses the command to read the Dispatcher queue value based on its `queueKey`. Events emitted by the
+**`useQueue`** uses the request to read the Dispatcher queue value based on its `queueKey`. Events emitted by the
 Dispatcher keep this hook up to date. This hook gives you the option to control every single request made in your
 application and manipulate whole queues and single requests. It works best with the `one-by-one` dispatching mode, when
 the `queued` option is set to true.
 
 :::caution
 
-Remember to make sure your command `queueKey` is static when you use this hook. Because it auto-generates keys, it may
-return wrong values if your command uses params or query params. Providing a custom `queueKey` when the command is
+Remember to make sure your request `queueKey` is static when you use this hook. Because it auto-generates keys, it may
+return wrong values if your request uses params or query params. Providing a custom `queueKey` when the request is
 created will avoid this problem.
 
 :::
@@ -68,7 +68,7 @@ Read more about differences between `stop`, `pause` and `start` in the
 Configuration options for this hook are provided as the second parameter.
 
 ```tsx
-const { ... } = useQueue(command, options)
+const { ... } = useQueue(request, options)
 ```
 
 <!-- {@import React UseQueueOptionsType returns} -->
@@ -80,7 +80,7 @@ const { ... } = useQueue(command, options)
 Returned values from this hook.
 
 ```tsx
-const values = useQueue(command);
+const values = useQueue(request);
 ```
 
 {@import React useQueue returns}

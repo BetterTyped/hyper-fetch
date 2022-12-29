@@ -1,11 +1,11 @@
 import { waitFor } from "@testing-library/dom";
 
 import { AppManager, hasDocument, hasWindow } from "managers";
-import { createBuilder } from "../../../utils";
+import { createClient } from "../../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../../server";
 
 describe("AppManager [ Base ]", () => {
-  let builder = createBuilder();
+  let client = createClient();
 
   beforeAll(() => {
     startServer();
@@ -14,7 +14,7 @@ describe("AppManager [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    builder = createBuilder();
+    client = createClient();
   });
 
   afterAll(() => {
@@ -23,10 +23,10 @@ describe("AppManager [ Base ]", () => {
 
   describe("When app manager is initialized", () => {
     it("should initialize with isFocused set to true", async () => {
-      expect(builder.appManager.isFocused).toBeTrue();
+      expect(client.appManager.isFocused).toBeTrue();
     });
     it("should initialize with isOnline set to true", async () => {
-      expect(builder.appManager.isOnline).toBeTrue();
+      expect(client.appManager.isOnline).toBeTrue();
     });
     it("should initialize with custom isFocused", async () => {
       const firstManager = new AppManager({ initiallyFocused: false });
@@ -55,12 +55,12 @@ describe("AppManager [ Base ]", () => {
     it("should allow to change app focus state", async () => {
       const focusSpy = jest.fn();
       const blurSpy = jest.fn();
-      builder.appManager.events.onFocus(focusSpy);
-      builder.appManager.events.onBlur(blurSpy);
-      builder.appManager.setFocused(false);
-      expect(builder.appManager.isFocused).toBeFalse();
-      builder.appManager.setFocused(true);
-      expect(builder.appManager.isFocused).toBeTrue();
+      client.appManager.events.onFocus(focusSpy);
+      client.appManager.events.onBlur(blurSpy);
+      client.appManager.setFocused(false);
+      expect(client.appManager.isFocused).toBeFalse();
+      client.appManager.setFocused(true);
+      expect(client.appManager.isFocused).toBeTrue();
 
       expect(focusSpy).toBeCalledTimes(1);
       expect(blurSpy).toBeCalledTimes(1);
@@ -68,12 +68,12 @@ describe("AppManager [ Base ]", () => {
     it("should allow to change app online state", async () => {
       const onlineSpy = jest.fn();
       const offlineSpy = jest.fn();
-      builder.appManager.events.onOnline(onlineSpy);
-      builder.appManager.events.onOffline(offlineSpy);
-      builder.appManager.setOnline(false);
-      expect(builder.appManager.isOnline).toBeFalse();
-      builder.appManager.setOnline(true);
-      expect(builder.appManager.isOnline).toBeTrue();
+      client.appManager.events.onOnline(onlineSpy);
+      client.appManager.events.onOffline(offlineSpy);
+      client.appManager.setOnline(false);
+      expect(client.appManager.isOnline).toBeFalse();
+      client.appManager.setOnline(true);
+      expect(client.appManager.isOnline).toBeTrue();
 
       expect(onlineSpy).toBeCalledTimes(1);
       expect(offlineSpy).toBeCalledTimes(1);

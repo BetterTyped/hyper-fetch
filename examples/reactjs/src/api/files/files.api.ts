@@ -1,7 +1,7 @@
-import { builder } from "api/builder";
+import { client } from "api/client";
 
-export const postFile = builder
-  .createCommand<{ response: string }, { file: File }>()({
+export const postFile = client
+  .createRequest<{ response: string }, { file: File }>()({
     endpoint: "/api/files",
     method: "POST",
     queued: true,

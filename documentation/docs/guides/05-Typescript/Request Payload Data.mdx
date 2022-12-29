@@ -10,13 +10,13 @@ define here the data that we want to send to the server.
 ### Example
 
 ```ts
-type RequestPayloadDataType = {
+type RequestPayloadType = {
   name: string;
   email: string;
   age: number;
 };
 
-const postUser = builder.createCommand<ResponseType, RequestPayloadDataType>()({
+const postUser = client.createRequest<ResponseType, RequestPayloadType>()({
   method: "POST",
   endpoint: "/users",
 });

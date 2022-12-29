@@ -1,14 +1,14 @@
-import { CommandInstance, ExtractClientReturnType } from "@hyper-fetch/core";
+import { RequestInstance, ExtractAdapterReturnType } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
+import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Bounce ]", () => {
   const hookDebounceOptions = { bounce: true, bounceType: "debounce", bounceTime: 50 } as const;
   const hookThrottleOptions = { bounce: true, bounceType: "throttle", bounceTime: 50 } as const;
 
-  let command = createCommand<null, null>({ method: "POST" });
+  let request = createRequest<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -24,17 +24,17 @@ describe("useSubmit [ Bounce ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    command = createCommand({ method: "POST" });
+    client.clear();
+    request = createRequest({ method: "POST" });
   });
 
   describe("given debounce is active", () => {
-    describe("when command is about to change", () => {
+    describe("when request is about to change", () => {
       it("should debounce single request", async () => {
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookDebounceOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookDebounceOptions);
 
         act(() => {
           response.result.current.onSubmitRequestStart(() => {
@@ -54,8 +54,8 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookDebounceOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookDebounceOptions);
 
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
@@ -80,10 +80,10 @@ describe("useSubmit [ Bounce ]", () => {
         expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookDebounceOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookDebounceOptions);
 
-        let value: ExtractClientReturnType<CommandInstance>[] = [];
+        let value: ExtractAdapterReturnType<RequestInstance>[] = [];
         await act(async () => {
           const promiseOne = await response.result.current.submit();
           await waitForRender(1);
@@ -97,7 +97,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(value).toHaveLength(4);
-        const isResponse = (res: ExtractClientReturnType<CommandInstance>) => {
+        const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
           return !!res[0] && !res[1] && res[2] === 200;
         };
         expect(value).toSatisfyAny(isResponse);
@@ -108,8 +108,8 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookDebounceOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookDebounceOptions);
 
         await act(async () => {
           await response.rerender({ bounceTime: newBounceTime });
@@ -143,12 +143,12 @@ describe("useSubmit [ Bounce ]", () => {
   });
 
   describe("given debounce is off", () => {
-    describe("when command is about to change", () => {
+    describe("when request is about to change", () => {
       it("should not debounce multiple request triggers", async () => {
         const spy = jest.fn();
         let startTime = null;
-        createRequestInterceptor(command, { delay: 0 });
-        const response = renderUseSubmit(command);
+        createRequestInterceptor(request, { delay: 0 });
+        const response = renderUseSubmit(request);
 
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
@@ -174,12 +174,12 @@ describe("useSubmit [ Bounce ]", () => {
   });
 
   describe("given throttle is active", () => {
-    describe("when command is about to change", () => {
+    describe("when request is about to change", () => {
       it("should throttle single request", async () => {
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookThrottleOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookThrottleOptions);
 
         act(() => {
           response.result.current.onSubmitRequestStart(() => {
@@ -199,8 +199,8 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookThrottleOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookThrottleOptions);
 
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {
@@ -224,10 +224,10 @@ describe("useSubmit [ Bounce ]", () => {
         });
       });
       it("should resolve throttled methods", async () => {
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookThrottleOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookThrottleOptions);
 
-        let value: ExtractClientReturnType<CommandInstance>[] = [];
+        let value: ExtractAdapterReturnType<RequestInstance>[] = [];
         await act(async () => {
           const promiseOne = await response.result.current.submit();
           await waitForRender(1);
@@ -241,7 +241,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(value).toHaveLength(4);
-        const isResponse = (res: ExtractClientReturnType<CommandInstance>) => {
+        const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
           return !!res[0] && !res[1] && res[2] === 200;
         };
         expect(value).toSatisfyAny(isResponse);
@@ -252,8 +252,8 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(command);
-        const response = renderUseSubmit(command, hookThrottleOptions);
+        createRequestInterceptor(request);
+        const response = renderUseSubmit(request, hookThrottleOptions);
 
         await act(async () => {
           await response.rerender({ bounceTime: newBounceTime });
@@ -286,12 +286,12 @@ describe("useSubmit [ Bounce ]", () => {
   });
 
   describe("given throttle is off", () => {
-    describe("when command is about to change", () => {
+    describe("when request is about to change", () => {
       it("should not throttle multiple request triggers", async () => {
         const spy = jest.fn();
         let startTime = null;
-        createRequestInterceptor(command, { delay: 0 });
-        const response = renderUseSubmit(command);
+        createRequestInterceptor(request, { delay: 0 });
+        const response = renderUseSubmit(request);
 
         await act(async () => {
           response.result.current.onSubmitRequestStart(() => {

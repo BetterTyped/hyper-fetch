@@ -15,7 +15,7 @@ type ResponseType = Array<{
   age: number;
 }>;
 
-const getUsers = builder.createCommand<ResponseType>()({
+const getUsers = client.createRequest<ResponseType>()({
   endpoint: "/users",
 });
 ```

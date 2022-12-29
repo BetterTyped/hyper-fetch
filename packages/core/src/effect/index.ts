@@ -1,2 +1,2 @@
-export * from "./fetch.effect";
-export * from "./fetch.effect.types";
+export * from "./request.effect";
+export * from "./request.effect.types";

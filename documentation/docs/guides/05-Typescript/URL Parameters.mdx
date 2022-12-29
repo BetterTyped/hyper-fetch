@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-The types generated from the endpoint value string are extremely useful. Thanks to this, our command is able to suggest
+The types generated from the endpoint value string are extremely useful. Thanks to this, our request is able to suggest
 the required parameters to execute the query itself.
 
 ---
@@ -10,7 +10,7 @@ the required parameters to execute the query itself.
 ### Example
 
 ```ts
-const getUser = builder.createCommand<ResponseType>()({
+const getUser = client.createRequest<ResponseType>()({
   endpoint: "/users/:userId",
 });
 

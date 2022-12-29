@@ -38,4 +38,24 @@ describe("Socket [ Methods ]", () => {
     socket.setLogger(method);
     expect(socket.loggerManager).toBe(customLogger);
   });
+
+  it("should allow to set auth and reconnect", async () => {
+    const value = { test: 1 };
+    const spy = jest.fn();
+    const socket = createSocket();
+    socket.adapter.reconnect = spy;
+    socket.setAuth(value);
+    expect(socket.auth).toBe(value);
+    expect(spy).toBeCalledTimes(1);
+  });
+
+  it("should allow to set query and reconnect", async () => {
+    const value = { test: 1 };
+    const spy = jest.fn();
+    const socket = createSocket();
+    socket.adapter.reconnect = spy;
+    socket.setQuery(value);
+    expect(socket.queryParams).toBe(value);
+    expect(spy).toBeCalledTimes(1);
+  });
 });

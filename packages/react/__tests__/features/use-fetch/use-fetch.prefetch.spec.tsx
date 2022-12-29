@@ -2,11 +2,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 
 import { useFetch } from "hooks/use-fetch";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand } from "../../utils";
+import { client, createRequest } from "../../utils";
 
 describe("useFetch [ Prefetch ]", () => {
-  let command = createCommand<any, null>();
-  let mock = createRequestInterceptor(command);
+  let request = createRequest<any, null>();
+  let mock = createRequestInterceptor(request);
 
   beforeAll(() => {
     startServer();
@@ -22,19 +22,19 @@ describe("useFetch [ Prefetch ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    mock = createRequestInterceptor(command);
-    command = createCommand();
+    client.clear();
+    mock = createRequestInterceptor(request);
+    request = createRequest();
   });
 
-  describe("when command is triggered while mounting page", () => {
+  describe("when request is triggered while mounting page", () => {
     it("should pre-fetch data", async () => {
-      await command.send();
+      await request.send();
 
-      createRequestInterceptor(command, { fixture: { wrongData: 123 } });
+      createRequestInterceptor(request, { fixture: { wrongData: 123 } });
 
       function Page() {
-        const { data } = useFetch(command, { revalidateOnMount: false });
+        const { data } = useFetch(request, { revalidateOnMount: false });
         return <div>{JSON.stringify(data)}</div>;
       }
 
@@ -46,14 +46,14 @@ describe("useFetch [ Prefetch ]", () => {
       });
     });
     it("should not show error when pre-fetching is failed and fetch again", async () => {
-      const errorMock = createRequestInterceptor(command, { status: 400 });
+      const errorMock = createRequestInterceptor(request, { status: 400 });
 
-      await command.send();
+      await request.send();
 
-      const successMock = createRequestInterceptor(command);
+      const successMock = createRequestInterceptor(request);
 
       function Page() {
-        const { data } = useFetch(command, { revalidateOnMount: false });
+        const { data } = useFetch(request, { revalidateOnMount: false });
         return <div>{JSON.stringify(data)}</div>;
       }
 

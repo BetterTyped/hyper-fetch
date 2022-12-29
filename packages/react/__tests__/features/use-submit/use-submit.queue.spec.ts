@@ -2,10 +2,10 @@ import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testData, testLoading } from "../../shared";
-import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
+import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Queue ]", () => {
-  let command = createCommand<any, null>({ method: "POST", queued: true });
+  let request = createRequest<any, null>({ method: "POST", queued: true });
 
   beforeAll(() => {
     startServer();
@@ -21,23 +21,23 @@ describe("useSubmit [ Queue ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    command = createCommand({ method: "POST", queued: true });
+    client.clear();
+    request = createRequest({ method: "POST", queued: true });
   });
 
-  describe("given command is able to be queued", () => {
-    describe("when submitting command", () => {
+  describe("given request is able to be queued", () => {
+    describe("when submitting request", () => {
       it("should send requests one by one", async () => {
         let count = 1;
         const spy = jest.fn();
-        createRequestInterceptor(command, { fixture: count });
-        const response = renderUseSubmit(command);
+        createRequestInterceptor(request, { fixture: count });
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitFinished(() => {
             spy();
             count += 1;
-            createRequestInterceptor(command, { fixture: count, delay: 50 });
+            createRequestInterceptor(request, { fixture: count, delay: 50 });
           });
           response.result.current.submit();
           response.result.current.submit();
@@ -53,28 +53,28 @@ describe("useSubmit [ Queue ]", () => {
         expect(spy).toBeCalledTimes(4);
       });
       it("should start in loading mode when request in queue is ongoing", async () => {
-        createRequestInterceptor(command);
-        const previouslyRenderedHook = renderUseSubmit(command);
+        createRequestInterceptor(request);
+        const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {
           previouslyRenderedHook.result.current.submit();
         });
 
         await waitForRender();
-        const response = renderUseSubmit(command);
+        const response = renderUseSubmit(request);
         await testLoading(true, response);
       });
       it("should not start in loading mode when queue is paused", async () => {
-        createRequestInterceptor(command);
-        const previouslyRenderedHook = renderUseSubmit(command);
+        createRequestInterceptor(request);
+        const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {
           previouslyRenderedHook.result.current.submit();
-          builder.submitDispatcher.stop(command.queueKey);
+          client.submitDispatcher.stop(request.queueKey);
         });
 
         await waitForRender();
-        const response = renderUseSubmit(command);
+        const response = renderUseSubmit(request);
         await testLoading(false, response);
       });
     });

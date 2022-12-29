@@ -1,19 +1,19 @@
 import {
-  ClientResponseType,
-  CommandResponseDetails,
-  CommandInstance,
-  ExtractResponse,
-  ExtractError,
+  ResponseType,
+  ResponseDetailsType,
+  RequestInstance,
+  ExtractResponseType,
+  ExtractErrorType,
 } from "@hyper-fetch/core";
 
-export const createCacheData = <T extends CommandInstance>(
-  command: T,
+export const createCacheData = <T extends RequestInstance>(
+  request: T,
   rest?: {
-    data?: ClientResponseType<ExtractResponse<T>, ExtractError<T>>;
-    details?: Partial<CommandResponseDetails>;
+    data?: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>;
+    details?: Partial<ResponseDetailsType>;
   },
 ) => {
-  const dataValue = rest?.data || [{ data: 1 } as ExtractResponse<T>, null, 200];
+  const dataValue = rest?.data || [{ data: 1 } as ExtractResponseType<T>, null, 200];
   const detailsValue = {
     retries: 0,
     timestamp: +new Date(),
@@ -25,11 +25,11 @@ export const createCacheData = <T extends CommandInstance>(
     ...rest?.details,
   };
 
-  command.builder.cache.storage.set(command.cacheKey, {
+  request.client.cache.storage.set(request.cacheKey, {
     data: dataValue,
     details: detailsValue,
     cacheTime: 1000,
-    clearKey: command.builder.cache.clearKey,
+    clearKey: request.client.cache.clearKey,
   });
   return [dataValue, detailsValue] as const;
 };

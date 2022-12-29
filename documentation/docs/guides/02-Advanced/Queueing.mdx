@@ -6,7 +6,7 @@ useful for sending or downloading large data.
 ### Setup
 
 ```ts
-export const postFile = builder.createCommand()({
+export const postFile = client.createRequest()({
   endpoint: "/files",
   queued: true,
 });

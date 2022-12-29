@@ -9,7 +9,7 @@ sidebar_position: 11
 **Retries** gives us possibility to send another request in case of previous failure. This way we can ensure that in
 some situation we can get successful response no matter of previous failures.
 
-On the command, we can define number of attempts and the interval between subsequent requests. We can add these options
+On the request, we can define number of attempts and the interval between subsequent requests. We can add these options
 on creation or through the dynamic `setRetry` and `setRetryTime` methods.
 
 ---
@@ -17,9 +17,9 @@ on creation or through the dynamic `setRetry` and `setRetryTime` methods.
 ### Example
 
 ```ts
-const createUser = builder.createCommand()({ endpoint: "/users", retry: 4, retryTime: DateInterval.second * 3 });
+const createUser = client.createRequest()({ endpoint: "/users", retry: 4, retryTime: DateInterval.second * 3 });
 
 // OR
 
-const newCommand = createUser.setRetry(1).setRetryTime(DateInterval.minute);
+const newRequest = createUser.setRetry(1).setRetryTime(DateInterval.minute);
 ```

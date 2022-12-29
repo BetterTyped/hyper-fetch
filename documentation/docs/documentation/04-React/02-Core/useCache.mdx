@@ -15,9 +15,9 @@ sidebar_position: 6
 
 ## Introduction
 
-This hook allows us to manipulate the passed command’s [`Cache`](/documentation/02-Core/Managers.mdx) and receive change
+This hook allows us to manipulate the passed request’s [`Cache`](/documentation/02-Core/Managers.mdx) and receive change
 callbacks. It is important to make sure that `cacheKey` is not affected by auto-generation – that there is a stable
-connection between the hook's command and the cache.
+connection between the hook's request and the cache.
 
 ```tsx
 const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUsers);
@@ -44,7 +44,7 @@ onFinished(([payload, error, status]) => {
 Configuration options for this hook provided as a second parameter.
 
 ```tsx
-const { ... } = useCache(command, options)
+const { ... } = useCache(request, options)
 ```
 
 {@import React UseCacheOptionsType returns}
@@ -56,7 +56,7 @@ const { ... } = useCache(command, options)
 Returned values from this hook.
 
 ```tsx
-const values = useCache(command);
+const values = useCache(request);
 ```
 
 {@import React useAppManager returns}

@@ -2,13 +2,13 @@ import { useState } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { useFetch } from "hooks/use-fetch";
-import { createCommand, builder, waitForRender } from "../../utils";
+import { createRequest, client, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Integration ]", () => {
   const queryParams = { page: 1 };
 
-  let command = createCommand();
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -24,25 +24,25 @@ describe("useFetch [ Integration ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
-    builder.clear();
+    request = createRequest();
+    client.clear();
   });
 
   describe("given useFetch is initialized in the component", () => {
-    describe("when command is about to change", () => {
-      it("should use the latest command when its changed", async () => {
+    describe("when request is about to change", () => {
+      it("should use the latest request when its changed", async () => {
         const btnText = "refresh";
 
         function Page() {
           const [endpoint, setEndpoint] = useState("");
           const [params, setParams] = useState({});
-          const { onRequestStart } = useFetch(command.setQueryParams(params), {
+          const { onRequestStart } = useFetch(request.setQueryParams(params), {
             dependencyTracking: false,
             dependencies: [],
           });
 
           onRequestStart((event) => {
-            setEndpoint(event.command.endpoint);
+            setEndpoint(event.request.endpoint);
           });
 
           const addDependency = () => {
@@ -59,8 +59,8 @@ describe("useFetch [ Integration ]", () => {
           );
         }
 
-        createRequestInterceptor(command);
-        createRequestInterceptor(command.setQueryParams(queryParams));
+        createRequestInterceptor(request);
+        createRequestInterceptor(request.setQueryParams(queryParams));
 
         render(<Page />);
 
@@ -68,7 +68,7 @@ describe("useFetch [ Integration ]", () => {
         fireEvent.click(screen.getByText(btnText));
 
         await waitFor(() => {
-          const printedDataElement = screen.getByText(command.setQueryParams(queryParams).endpoint);
+          const printedDataElement = screen.getByText(request.setQueryParams(queryParams).endpoint);
           expect(printedDataElement).toBeTruthy();
         });
       });

@@ -193,7 +193,7 @@ const config = {
               },
               {
                 label: "Core",
-                to: "/docs/documentation/Core/Builder",
+                to: "/docs/documentation/Core/Client",
               },
               {
                 label: "React",

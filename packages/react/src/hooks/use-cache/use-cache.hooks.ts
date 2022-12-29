@@ -1,19 +1,19 @@
 import { useRef } from "react";
-import { getCommandDispatcher, CommandInstance, Command, getCommandKey } from "@hyper-fetch/core";
+import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
-import { useCommandEvents, useTrackedState } from "helpers";
+import { useRequestEvents, useTrackedState } from "helpers";
 import { useConfigProvider } from "config-provider";
 
-export const useCache = <T extends CommandInstance>(
-  command: T,
+export const useCache = <T extends RequestInstance>(
+  request: T,
   options: UseCacheOptionsType<T> = useCacheDefaultOptions,
 ): UseCacheReturnType<T> => {
-  const { cacheKey, builder } = command;
+  const { cacheKey, client } = request;
 
-  const { cache, loggerManager } = builder;
+  const { cache, loggerManager } = client;
   const logger = useRef(loggerManager.init("useCache")).current;
-  const [dispatcher] = getCommandDispatcher(command);
+  const [dispatcher] = getRequestDispatcher(request);
 
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
@@ -28,7 +28,7 @@ export const useCache = <T extends CommandInstance>(
    */
   const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<T>({
     logger,
-    command,
+    request,
     dispatcher,
     initialData,
     deepCompare,
@@ -38,17 +38,17 @@ export const useCache = <T extends CommandInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks] = useCommandEvents({
+  const [callbacks] = useRequestEvents({
     logger,
     actions,
-    command,
+    request,
     dispatcher,
     setCacheData,
   });
 
-  const revalidate = (invalidateKey?: string | CommandInstance | RegExp) => {
-    if (invalidateKey instanceof Command) {
-      cache.revalidate(getCommandKey(invalidateKey, true));
+  const revalidate = (invalidateKey?: string | RequestInstance | RegExp) => {
+    if (invalidateKey instanceof Request) {
+      cache.revalidate(getRequestKey(invalidateKey, true));
     } else if (invalidateKey) {
       cache.revalidate(invalidateKey);
     } else {

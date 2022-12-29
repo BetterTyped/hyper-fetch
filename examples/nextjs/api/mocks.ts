@@ -1,20 +1,20 @@
 import { rest } from "msw";
-import { CommandInstance, DateInterval } from "@hyper-fetch/core";
+import { RequestInstance, DateInterval } from "@hyper-fetch/core";
 
 import { getRandomUser, getRandomUsers } from "utils";
-import { builder } from "./builder";
+import { client } from "./client";
 import { deleteUser, getUser, getUsers, patchUser, postUser } from "./users/users.api";
 import { postFile } from "./files/files.api";
 
 // Mocks setup
 const getMock = (
-  request: CommandInstance,
+  request: RequestInstance,
   response: Record<string, any> | null | ((req: any) => Record<string, any> | null),
   delay?: number,
 ) => {
   const { method, endpoint } = request;
 
-  const url = builder.url + endpoint;
+  const url = client.url + endpoint;
 
   function callback(req: any, res: any, ctx: any) {
     return res(

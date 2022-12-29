@@ -1,4 +1,4 @@
-import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@hyper-fetch/core";
+import { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -9,7 +9,7 @@ import {
   UseTrackedStateType,
 } from "helpers";
 
-export type UseCacheOptionsType<T extends CommandInstance> = {
+export type UseCacheOptionsType<T extends RequestInstance> = {
   /**
    * If `true` it will rerender only when values used by our component gets changed. Otherwise it will rerender on any change.
    */
@@ -17,14 +17,14 @@ export type UseCacheOptionsType<T extends CommandInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
+  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
   /**
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseCacheReturnType<T extends CommandInstance> = UseTrackedStateType<T> &
+export type UseCacheReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
   UseTrackedStateActions<T> & {
     /**
      * Helper hook listener for success response
@@ -39,7 +39,7 @@ export type UseCacheReturnType<T extends CommandInstance> = UseTrackedStateType<
      */
     onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
     /**
-     * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: string | RegExp | CommandInstance) => void;
+    revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void;
   };

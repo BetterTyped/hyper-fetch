@@ -1,14 +1,14 @@
 In order to **`limit and optimize the number of queries to the backend`**, we can use the feature of `deduplication`. We
-enable it by setting the `deduplicate: true` field on the command options. Thanks to this setting, **many requests made
+enable it by setting the `deduplicate: true` field on the request options. Thanks to this setting, **many requests made
 at the same time will be optimized to one request**. We can refine the deduplication time with the deduplicateTime
-option in the command options.
+option in the request options.
 
 ---
 
 ### Setup
 
 ```ts
-export const getUsers = builder.createCommand()({
+export const getUsers = client.createRequest()({
   endpoint: "/users",
   deduplicate: true,
 });
@@ -19,7 +19,7 @@ export const getUsers = builder.createCommand()({
 The example is written in typescript, but it also works in React hooks.
 
 ```ts
-// Multiple calls of the same command
+// Multiple calls of the same request
 getUsers.send();
 getUsers.send();
 getUsers.send();

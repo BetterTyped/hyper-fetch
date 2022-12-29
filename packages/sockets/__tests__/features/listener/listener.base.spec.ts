@@ -19,7 +19,7 @@ describe("Listener [ Base ]", () => {
     expect(listener.name).toBe(name);
   });
 
-  it("should allow to set additional client options", async () => {
+  it("should allow to set additional adapter options", async () => {
     const options = { something: "custom" };
     const newListener = listener.setOptions(options);
     expect(newListener.options).toStrictEqual(options);

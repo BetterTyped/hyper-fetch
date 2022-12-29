@@ -1,10 +1,10 @@
-import { CommandInstance, ExtractResponse, ExtractError, CacheValueType } from "@hyper-fetch/core";
+import { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
 
-import { UseCommandEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
+import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
 
-export type UseFetchOptionsType<T extends CommandInstance> = {
+export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * Refetch dependencies
    */
@@ -24,7 +24,7 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponse<T>, ExtractError<T>>["data"] | null;
+  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
   /**
    * Enable/disable refresh data
    */
@@ -62,14 +62,18 @@ export type UseFetchOptionsType<T extends CommandInstance> = {
    */
   bounceTime?: number;
   /**
+   * ONLY in throttle mode - options for handling last bounce event
+   */
+  bounceTimeout?: number;
+  /**
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
   deepCompare?: boolean | typeof isEqual;
 };
 
-export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<T> &
+export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
   UseTrackedStateActions<T> &
-  UseCommandEventsActionsType<T> & {
+  UseRequestEventsActionsType<T> & {
     /**
      * Data related to current state of the bounce usage
      */
@@ -84,7 +88,7 @@ export type UseFetchReturnType<T extends CommandInstance> = UseTrackedStateType<
       reset: () => void;
     };
     /**
-     * Revalidate current command resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
     revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

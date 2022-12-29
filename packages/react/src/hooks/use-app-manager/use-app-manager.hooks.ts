@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { useDidMount } from "@better-typed/react-lifecycle-hooks";
-import { BuilderInstance } from "@hyper-fetch/core";
+import { useDidMount } from "@better-hooks/lifecycle";
+import { ClientInstance } from "@hyper-fetch/core";
 
 import { UseAppManagerReturnType } from "hooks/use-app-manager";
 
-export const useAppManager = <B extends BuilderInstance>(builder: B): UseAppManagerReturnType => {
-  const [online, setIsOnline] = useState(builder.appManager.isOnline);
-  const [focused, setIsFocused] = useState(builder.appManager.isFocused);
+export const useAppManager = <B extends ClientInstance>(client: B): UseAppManagerReturnType => {
+  const [online, setIsOnline] = useState(client.appManager.isOnline);
+  const [focused, setIsFocused] = useState(client.appManager.isFocused);
 
   const mountEvents = () => {
-    const unmountIsOnline = builder.appManager.events.onOnline(() => setIsOnline(true));
-    const unmountIsOffline = builder.appManager.events.onOffline(() => setIsOnline(false));
-    const unmountIsFocus = builder.appManager.events.onFocus(() => setIsFocused(true));
-    const unmountIsBlur = builder.appManager.events.onBlur(() => setIsFocused(false));
+    const unmountIsOnline = client.appManager.events.onOnline(() => setIsOnline(true));
+    const unmountIsOffline = client.appManager.events.onOffline(() => setIsOnline(false));
+    const unmountIsFocus = client.appManager.events.onFocus(() => setIsFocused(true));
+    const unmountIsBlur = client.appManager.events.onBlur(() => setIsFocused(false));
 
     return () => {
       unmountIsOnline();
@@ -23,11 +23,11 @@ export const useAppManager = <B extends BuilderInstance>(builder: B): UseAppMana
   };
 
   const setOnline = (isOnline: boolean) => {
-    builder.appManager.setOnline(isOnline);
+    client.appManager.setOnline(isOnline);
   };
 
   const setFocused = (isFocused: boolean) => {
-    builder.appManager.setFocused(isFocused);
+    client.appManager.setFocused(isFocused);
   };
 
   useDidMount(mountEvents);

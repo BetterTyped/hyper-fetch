@@ -1,10 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer } from "../../../server";
-import { createCommand, renderUseTrackedState } from "../../../utils";
+import { createRequest, renderUseTrackedState } from "../../../utils";
 
 describe("useTrackedState [ Actions ]", () => {
-  let command = createCommand();
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -21,13 +21,13 @@ describe("useTrackedState [ Actions ]", () => {
   beforeEach(() => {
     jest.resetModules();
     jest.resetAllMocks();
-    command = createCommand();
+    request = createRequest();
   });
 
   describe("when updating the local state", () => {
     it("should allow to set data", async () => {
       const value = { test: 1 };
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setData(value, false);
@@ -37,7 +37,7 @@ describe("useTrackedState [ Actions ]", () => {
     });
     it("should allow to set error", async () => {
       const value = { test: 1 };
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setError(value, false);
@@ -46,7 +46,7 @@ describe("useTrackedState [ Actions ]", () => {
       expect(result.current[0].error).toBe(value);
     });
     it("should allow to set loading", async () => {
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setLoading(true, false);
@@ -55,7 +55,7 @@ describe("useTrackedState [ Actions ]", () => {
       expect(result.current[0].loading).toBeTrue();
     });
     it("should allow to set status", async () => {
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setStatus(900, false);
@@ -65,7 +65,7 @@ describe("useTrackedState [ Actions ]", () => {
     });
     it("should allow to set timestamp", async () => {
       const value = new Date();
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setTimestamp(value, false);
@@ -74,7 +74,7 @@ describe("useTrackedState [ Actions ]", () => {
       expect(result.current[0].timestamp).toBe(value);
     });
     it("should allow to set retries", async () => {
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setRetries(999, false);
@@ -85,9 +85,9 @@ describe("useTrackedState [ Actions ]", () => {
   });
   describe("when updating the cache state", () => {
     it("should allow to set data", async () => {
-      const spy = jest.spyOn(command.builder.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "set");
       const value = { test: 1 };
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setData(value, true);
@@ -98,9 +98,9 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set error", async () => {
-      const spy = jest.spyOn(command.builder.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "set");
       const value = { test: 1 };
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setError(value, true);
@@ -111,8 +111,8 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set loading", async () => {
-      const spy = jest.spyOn(command.builder.commandManager.events, "emitLoading");
-      const { result } = renderUseTrackedState(command);
+      const spy = jest.spyOn(request.client.requestManager.events, "emitLoading");
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setLoading(true, true);
@@ -123,8 +123,8 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set status", async () => {
-      const spy = jest.spyOn(command.builder.cache, "set");
-      const { result } = renderUseTrackedState(command);
+      const spy = jest.spyOn(request.client.cache, "set");
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setStatus(900, true);
@@ -135,9 +135,9 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set timestamp", async () => {
-      const spy = jest.spyOn(command.builder.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "set");
       const value = new Date();
-      const { result } = renderUseTrackedState(command);
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setTimestamp(value, true);
@@ -148,8 +148,8 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set retries", async () => {
-      const spy = jest.spyOn(command.builder.cache, "set");
-      const { result } = renderUseTrackedState(command);
+      const spy = jest.spyOn(request.client.cache, "set");
+      const { result } = renderUseTrackedState(request);
 
       act(() => {
         result.current[1].setRetries(999, true);

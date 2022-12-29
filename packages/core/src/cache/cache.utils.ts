@@ -1,11 +1,11 @@
-import { CommandInstance } from "command";
+import { RequestInstance } from "request";
 import { isFailedRequest } from "dispatcher";
-import { ExtractClientReturnType } from "types";
+import { ExtractAdapterReturnType } from "types";
 
-export const getCacheData = <T extends CommandInstance>(
-  previousResponse: ExtractClientReturnType<T> | undefined,
-  response: ExtractClientReturnType<T>,
-): ExtractClientReturnType<T> => {
+export const getCacheData = <T extends RequestInstance>(
+  previousResponse: ExtractAdapterReturnType<T> | undefined,
+  response: ExtractAdapterReturnType<T>,
+): ExtractAdapterReturnType<T> => {
   const isFailed = isFailedRequest(response);
 
   const previousData = isFailed && previousResponse ? previousResponse[0] : null;

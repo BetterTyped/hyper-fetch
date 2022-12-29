@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 
-import { ExtractResponse } from "types";
-import { CommandInstance } from "command";
+import { ExtractResponseType } from "types";
+import { RequestInstance } from "request";
 import { getInterceptEndpoint, createStubMethod } from "./server.utils";
 import { ErrorMockType, errorResponses, StatusCodesType, StatusErrorCodesType } from "./server.constants";
 
@@ -19,16 +19,16 @@ export const stopServer = (): void => {
   server.close();
 };
 
-export const createRequestInterceptor = <T extends CommandInstance, StatusType extends StatusCodesType>(
-  command: T,
+export const createRequestInterceptor = <T extends RequestInstance, StatusType extends StatusCodesType>(
+  request: T,
   props?: {
-    fixture?: ExtractResponse<T>;
+    fixture?: ExtractResponseType<T>;
     status?: StatusType;
     delay?: number;
   },
-): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponse<T> => {
+): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T> => {
   const { fixture, status, delay } = props || {};
-  const { endpoint, method } = command;
+  const { endpoint, method } = request;
   const url = getInterceptEndpoint(endpoint);
 
   const currentStatus: StatusCodesType = status || 200;
@@ -36,14 +36,14 @@ export const createRequestInterceptor = <T extends CommandInstance, StatusType e
   if (currentStatus !== 200 && currentStatus in errorResponses) {
     const errorResponse = errorResponses[currentStatus] as StatusType extends StatusErrorCodesType
       ? ErrorMockType
-      : ExtractResponse<T>;
-    server.use(createStubMethod(command, url, method, currentStatus, errorResponse, delay));
+      : ExtractResponseType<T>;
+    server.use(createStubMethod(request, url, method, currentStatus, errorResponse, delay));
 
     return errorResponse;
   }
 
-  const responseData = (fixture || { data: [1, 2, 3] }) as ExtractResponse<T>;
+  const responseData = (fixture || { data: [1, 2, 3] }) as ExtractResponseType<T>;
 
-  server.use(createStubMethod(command, url, method, currentStatus, responseData, delay));
+  server.use(createStubMethod(request, url, method, currentStatus, responseData, delay));
   return responseData;
 };

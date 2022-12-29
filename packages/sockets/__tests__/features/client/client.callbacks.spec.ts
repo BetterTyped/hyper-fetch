@@ -4,7 +4,7 @@ import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
-describe("Socket Client [ Callbacks ]", () => {
+describe("Socket Adapter [ Callbacks ]", () => {
   let server = createWsServer();
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe("Socket Client [ Callbacks ]", () => {
   it("should trigger onClose callbacks", async () => {
     const spy = jest.fn();
     const socket = createSocket().onClose(spy);
-    socket.client.disconnect();
+    socket.adapter.disconnect();
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -65,7 +65,7 @@ describe("Socket Client [ Callbacks ]", () => {
   it("should trigger onReconnect callbacks", async () => {
     const spy = jest.fn();
     const socket = createSocket().onReconnect(spy);
-    socket.client.reconnect();
+    socket.adapter.reconnect();
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -75,7 +75,7 @@ describe("Socket Client [ Callbacks ]", () => {
   it("should trigger onReconnectStop callbacks", async () => {
     const spy = jest.fn();
     const socket = createSocket({ reconnect: 0 }).onReconnectStop(spy);
-    socket.client.reconnect();
+    socket.adapter.reconnect();
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);

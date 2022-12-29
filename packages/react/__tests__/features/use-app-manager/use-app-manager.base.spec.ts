@@ -1,7 +1,7 @@
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer } from "../../server";
-import { builder, renderUseAppManager } from "../../utils";
+import { client, renderUseAppManager } from "../../utils";
 
 describe("useAppManager [ Base ]", () => {
   beforeAll(() => {
@@ -18,18 +18,18 @@ describe("useAppManager [ Base ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
+    client.clear();
   });
 
   describe("given app is initializing", () => {
     describe("when hook gets rendered", () => {
       it("should initialize in online mode", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
         expect(result.current.isOnline).toBeTrue();
       });
 
       it("should initialize in focused mode", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
         expect(result.current.isFocused).toBeTrue();
       });
     });
@@ -37,7 +37,7 @@ describe("useAppManager [ Base ]", () => {
   describe("given app online status change", () => {
     describe("when turning offline", () => {
       it("should change isOnline state to false", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
 
         act(() => {
           result.current.setOnline(false);
@@ -47,7 +47,7 @@ describe("useAppManager [ Base ]", () => {
     });
     describe("when turning online", () => {
       it("should change isOnline state to true", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
 
         act(() => {
           result.current.setOnline(false);
@@ -60,7 +60,7 @@ describe("useAppManager [ Base ]", () => {
   describe("given app focus status change", () => {
     describe("when turning blur", () => {
       it("should change isFocused state to false", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
 
         act(() => {
           result.current.setFocused(false);
@@ -70,7 +70,7 @@ describe("useAppManager [ Base ]", () => {
     });
     describe("when turning focused", () => {
       it("should change isFocused state to true", async () => {
-        const { result } = renderUseAppManager(builder);
+        const { result } = renderUseAppManager(client);
 
         act(() => {
           result.current.setFocused(false);

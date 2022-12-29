@@ -1,12 +1,12 @@
 import { waitFor } from "@testing-library/react";
-import { BuilderInstance } from "@hyper-fetch/core";
+import { ClientInstance } from "@hyper-fetch/core";
 
-export const testBuilderIsolation = async (builder: BuilderInstance) => {
+export const testClientIsolation = async (client: ClientInstance) => {
   await waitFor(() => {
-    expect(builder.fetchDispatcher.getAllRunningRequest()).toStrictEqual([]);
-    expect(builder.submitDispatcher.getAllRunningRequest()).toStrictEqual([]);
+    expect(client.fetchDispatcher.getAllRunningRequest()).toStrictEqual([]);
+    expect(client.submitDispatcher.getAllRunningRequest()).toStrictEqual([]);
 
-    const cacheKeys = builder.cache.keys();
+    const cacheKeys = client.cache.keys();
     expect(cacheKeys).toStrictEqual([]);
   });
 };

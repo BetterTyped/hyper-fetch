@@ -1,8 +1,8 @@
 import { Cache, CacheOptionsType } from "cache";
-import { BuilderInstance } from "builder";
+import { ClientInstance } from "client";
 
-export const createCache = (builder: BuilderInstance, options?: CacheOptionsType) => {
-  return new Cache(builder, options);
+export const createCache = (client: ClientInstance, options?: CacheOptionsType) => {
+  return new Cache(client, options);
 };
 
 export const createLazyCacheAdapter = (storage: Map<any, any>) => {

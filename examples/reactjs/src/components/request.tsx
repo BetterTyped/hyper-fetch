@@ -12,7 +12,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
 
 import { UseFetchReturnType, UseSubmitReturnType } from "@hyper-fetch/react";
-import { CommandInstance, FetchProgressType } from "@hyper-fetch/core";
+import { RequestInstance, ProgressType } from "@hyper-fetch/core";
 import { useSnackbar } from "notistack";
 
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
@@ -23,7 +23,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 type Props = {
   name: string;
-  result: UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>;
+  result: UseFetchReturnType<RequestInstance> | UseSubmitReturnType<RequestInstance>;
   children?: React.ReactNode;
 };
 
@@ -46,8 +46,8 @@ export function Request({ name, children, result }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [fetched, setFetched] = React.useState(false);
-  const [downloadProgress, setDownloadProgress] = React.useState<Record<string, FetchProgressType>>({});
-  const [uploadProgress, setUploadProgress] = React.useState<Record<string, FetchProgressType>>({});
+  const [downloadProgress, setDownloadProgress] = React.useState<Record<string, ProgressType>>({});
+  const [uploadProgress, setUploadProgress] = React.useState<Record<string, ProgressType>>({});
 
   const loading = "loading" in result ? result.loading : result.submitting;
 

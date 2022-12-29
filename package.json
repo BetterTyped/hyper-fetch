@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "install-peers": "node ./scripts/install-peers",
-    "postinstall": "yarn install-peers && yarn husky install",
+    "prepare": "yarn install-peers && yarn husky install",
     "start": "nx run-many --target=start --all --parallel=3",
     "start:react": "nx serve reactjs",
     "start:next": "nx serve nextjs",
@@ -20,12 +20,12 @@
   },
   "private": true,
   "dependencies": {
-    "@nrwl/cli": "15.2.1",
-    "@nrwl/cypress": "15.2.1",
-    "@nrwl/jest": "15.2.1",
-    "@nrwl/js": "15.2.1",
-    "@nrwl/web": "15.2.1",
-    "@nrwl/workspace": "15.2.1",
+    "@nrwl/cli": "15.4.2",
+    "@nrwl/cypress": "15.4.2",
+    "@nrwl/jest": "15.4.2",
+    "@nrwl/js": "15.4.2",
+    "@nrwl/web": "15.4.2",
+    "@nrwl/workspace": "15.4.2",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.11"
   },

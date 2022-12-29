@@ -43,7 +43,7 @@ export function Description(): JSX.Element {
             </div>
             <h3 className={clsx(styles.title)}>Persistance and offline first</h3>
             <div className={clsx(styles.description)}>
-              The most advanced solution for persistence and offline first. We based our framework on commands and
+              The most advanced solution for persistence and offline first. We based our framework on requests and
               strict data standards, which allows us to store not only data returned from queries, but also entire
               requests before sending them!
             </div>

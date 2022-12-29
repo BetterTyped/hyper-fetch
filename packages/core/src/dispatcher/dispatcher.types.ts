@@ -1,31 +1,31 @@
 import { Dispatcher } from "dispatcher";
-import { CommandDump, CommandInstance } from "command";
+import { RequestDump, RequestInstance } from "request";
 
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;
   onInitialization?: (dispatcherInstance: Dispatcher) => void;
-  onUpdateStorage?: <Command extends CommandInstance>(queueKey: string, data: DispatcherData<Command>) => void;
-  onDeleteFromStorage?: <Command extends CommandInstance>(queueKey: string, data: DispatcherData<Command>) => void;
+  onUpdateStorage?: <Request extends RequestInstance>(queueKey: string, data: QueueDataType<Request>) => void;
+  onDeleteFromStorage?: <Request extends RequestInstance>(queueKey: string, data: QueueDataType<Request>) => void;
   onClearStorage?: (dispatcherInstance: Dispatcher) => void;
 };
 
 // Values
-export type DispatcherDumpValueType<Command extends CommandInstance = CommandInstance> = {
+export type DispatcherStorageValueType<Request extends RequestInstance = RequestInstance> = {
   requestId: string;
-  commandDump: CommandDump<Command>;
+  requestDump: RequestDump<Request>;
   retries: number;
   timestamp: number;
   stopped: boolean;
 };
-export type DispatcherData<Command extends CommandInstance = CommandInstance> = {
-  requests: DispatcherDumpValueType<Command>[];
+export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
+  requests: DispatcherStorageValueType<Request>[];
   stopped: boolean;
 };
 
 // Storage
 export type DispatcherStorageType = {
-  set: <Command extends CommandInstance = CommandInstance>(key: string, data: DispatcherData<Command>) => void;
-  get: <Command extends CommandInstance = CommandInstance>(key: string) => DispatcherData<Command> | undefined;
+  set: <Request extends RequestInstance = RequestInstance>(key: string, data: QueueDataType<Request>) => void;
+  get: <Request extends RequestInstance = RequestInstance>(key: string) => QueueDataType<Request> | undefined;
   keys: () => string[] | IterableIterator<string>;
   delete: (key: string) => void;
   clear: () => void;
@@ -35,5 +35,5 @@ export type DispatcherStorageType = {
 
 export type RunningRequestValueType = {
   requestId: string;
-  command: CommandInstance;
+  request: RequestInstance;
 };

@@ -1,19 +1,23 @@
 import { useRef } from "react";
-import { useDidUpdate, useWillUnmount } from "@better-typed/react-lifecycle-hooks";
-import { ListenerInstance, ExtractListenerDataType } from "@hyper-fetch/sockets";
+import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
+import { ListenerInstance, ExtractListenerAdapterType } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
+import { useConfigProvider } from "config-provider";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
-  { dependencyTracking }: UseListenerOptionsType,
+  options: UseListenerOptionsType,
 ) => {
+  const [globalConfig] = useConfigProvider();
+  const { dependencyTracking } = { ...globalConfig.useListener, ...options };
+
   const onEventCallback = useRef<
     | null
     | ((
-        data: ExtractListenerDataType<ListenerType>,
-        event: MessageEvent<ExtractListenerDataType<ListenerType>>,
+        data: ExtractListenerAdapterType<ListenerType>,
+        event: MessageEvent<ExtractListenerAdapterType<ListenerType>>,
       ) => void)
   >(null);
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);

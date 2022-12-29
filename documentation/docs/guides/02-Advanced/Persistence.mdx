@@ -30,7 +30,7 @@ const persistenceStorage: CacheStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -51,13 +51,13 @@ of it, not to mention that it will get garbage collected when it's cacheTime exp
 import { get, set, del, keys } from "idb-keyval";
 
 const asyncStorage: CacheAsyncStorageType = {
-  set: (key, data) => set(idbValidKey, client),
+  set: (key, data) => set(idbValidKey, adapter),
   get: (key) => get(idbValidKey),
   keys: () => keys(),
   delete: (key) => del(key),
 };
 
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -77,7 +77,7 @@ this case we need to have synchronous data storage to avoid data corruption and 
 :::caution
 
 Persistent queues shouldn't be used on the browser. This is due to the many tabs/windows concurrency reasons. This way,
-we will have multiple builders initialized where the **duplicated** requests will be send and it may cause major db data
+we will have multiple clients initialized where the **duplicated** requests will be send and it may cause major db data
 damage.
 
 :::
@@ -100,7 +100,7 @@ const persistenceStorage: DispatcherStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: "localhost:3000",
   fetchDispatcher: (instance) =>
     new Dispatcher(instance, {
@@ -127,7 +127,7 @@ const persistenceStorage: DispatcherStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: "localhost:3000",
   submitDispatcher: (instance) =>
     new Dispatcher(instance, {

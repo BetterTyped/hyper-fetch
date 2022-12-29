@@ -18,10 +18,10 @@ manually or the case when dispatcher is automatically aborting it based on our s
 
 One of the dispatcher's modes is `cancelable` one. It is triggered when previous request is in progress and we trigger
 the new one and cancel previous at the same time to prevent `race-conditioning` of the responses. To enable this mode,
-we need to set the `cancelable: true` field to command options.
+we need to set the `cancelable: true` field to request options.
 
 ```ts
-const getUsers = builder.createCommand<UsersList>()({  endpoint: "/users", cancelable: true });
+const getUsers = client.createRequest<UsersList>()({  endpoint: "/users", cancelable: true });
 
 // Make a request to server
 getUsers.send()
@@ -34,7 +34,7 @@ getUsers.send()
 
 ### Manual cancellation by abortKey
 
-Each command has its own abortKey, which may be the same across request groups. Thanks to it, we have the ability to
+Each request has its own abortKey, which may be the same across request groups. Thanks to it, we have the ability to
 abort ongoing requests.
 
 <Tabs>
@@ -83,10 +83,10 @@ postFile.send()
 
 // Stop the request from being send for later
 // Do not delete it from storage to trigger it later
-builder.fetchDispatcher.stop(postFile.queueKey)
+client.fetchDispatcher.stop(postFile.queueKey)
 
 ...
 
 // Start sending again
-builder.fetchDispatcher.start(postFile.queueKey)
+client.fetchDispatcher.start(postFile.queueKey)
 ```

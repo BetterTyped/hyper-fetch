@@ -2,11 +2,11 @@ import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseFetch } from "../../utils";
+import { client, createRequest, renderUseFetch } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
-  let command = createCommand();
-  let mock = createRequestInterceptor(command);
+  let request = createRequest();
+  let mock = createRequestInterceptor(request);
 
   beforeAll(() => {
     startServer();
@@ -22,14 +22,14 @@ describe("useFetch [ Revalidate ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
-    builder.clear();
-    mock = createRequestInterceptor(command);
+    request = createRequest();
+    client.clear();
+    mock = createRequestInterceptor(request);
   });
 
   it("should allow to prevent revalidation on mount", async () => {
     const customMock = { something: "123" };
-    builder.cache.set(command, [customMock, null, 200], {
+    client.cache.set(request, [customMock, null, 200], {
       retries: 0,
       timestamp: +new Date(),
       isFailed: false,
@@ -37,13 +37,13 @@ describe("useFetch [ Revalidate ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(command, { revalidateOnMount: false });
+    const response = renderUseFetch(request, { revalidateOnMount: false });
 
     await testSuccessState(customMock, response);
   });
   it("should allow to revalidate on mount", async () => {
     const customMock = { something: "123" };
-    builder.cache.set(command, [customMock, null, 200], {
+    client.cache.set(request, [customMock, null, 200], {
       retries: 0,
       timestamp: +new Date(),
       isFailed: false,
@@ -51,19 +51,19 @@ describe("useFetch [ Revalidate ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(command, { revalidateOnMount: true });
+    const response = renderUseFetch(request, { revalidateOnMount: true });
 
     await waitFor(async () => {
       await testSuccessState(mock, response);
     });
   });
   it("should allow to revalidate current hook", async () => {
-    const response = renderUseFetch(command);
+    const response = renderUseFetch(request);
 
     await waitFor(async () => {
       await testSuccessState(mock, response);
     });
-    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       response.result.current.revalidate();
@@ -75,14 +75,14 @@ describe("useFetch [ Revalidate ]", () => {
   });
   it("should allow to revalidate hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
-    const responseOne = renderUseFetch(command.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(command.setCacheKey("Kacper"));
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.revalidate(regexp);
@@ -94,14 +94,14 @@ describe("useFetch [ Revalidate ]", () => {
     });
   });
   it("should allow to revalidate hook by keys array", async () => {
-    const responseOne = renderUseFetch(command.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(command.setCacheKey("Kacper"));
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.revalidate(["Maciej"]);
@@ -113,14 +113,14 @@ describe("useFetch [ Revalidate ]", () => {
     });
   });
   it("should allow to revalidate hook by key", async () => {
-    const responseOne = renderUseFetch(command.setCacheKey("Maciej"));
-    const responseTwo = renderUseFetch(command.setCacheKey("Kacper"));
+    const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
+    const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.revalidate("Maciej");
@@ -131,18 +131,18 @@ describe("useFetch [ Revalidate ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
-  it("should allow to revalidate hook by command", async () => {
-    const responseOne = renderUseFetch(command.setQueryParams("?something=123"));
-    const responseTwo = renderUseFetch(command.setQueryParams("?other=999"));
+  it("should allow to revalidate hook by request", async () => {
+    const responseOne = renderUseFetch(request.setQueryParams("?something=123"));
+    const responseTwo = renderUseFetch(request.setQueryParams("?other=999"));
 
     await waitFor(async () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(command, { fixture: { something: 123 } });
+    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate(command.setQueryParams("?something=123"));
+      responseOne.result.current.revalidate(request.setQueryParams("?something=123"));
     });
 
     await waitFor(async () => {

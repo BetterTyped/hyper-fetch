@@ -10,11 +10,11 @@ import styles from "./header.module.css";
 import "./animation.scss";
 import { getRepository } from "@site/src/api";
 
-const command = getRepository.setParams({ account: "BetterTyped", repository: "hyper-fetch" });
+const request = getRepository.setParams({ account: "BetterTyped", repository: "hyper-fetch" });
 
 export function Header(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
-  const { data } = useFetch(command, { revalidateOnMount: false });
+  const { data } = useFetch(request, { revalidateOnMount: false });
 
   return (
     <header className={clsx(styles.container)}>

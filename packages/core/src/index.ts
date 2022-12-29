@@ -1,10 +1,10 @@
-// rollup builder entry point
+// rollup client entry point
 
 export * from "./effect";
-export * from "./builder";
-export * from "./cache";
 export * from "./client";
-export * from "./command";
+export * from "./cache";
+export * from "./adapter";
+export * from "./request";
 export * from "./constants/time.constants";
 export * from "./constants/http.constants";
 export * from "./managers";

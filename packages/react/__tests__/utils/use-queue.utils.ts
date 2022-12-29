@@ -1,31 +1,31 @@
 import { renderHook } from "@testing-library/react";
-import { CommandInstance, getCommandDispatcher, getProgressData } from "@hyper-fetch/core";
+import { RequestInstance, getRequestDispatcher, getProgressData } from "@hyper-fetch/core";
 
 import { useQueue, UseQueueOptionsType } from "hooks/use-queue";
 
-export const renderUseQueue = <T extends CommandInstance>(command: T, options?: UseQueueOptionsType) => {
-  return renderHook((rerenderOptions: UseQueueOptionsType & { command?: CommandInstance }) => {
-    const { command: cmd, ...rest } = rerenderOptions || {};
-    return useQueue(cmd || command, { ...options, ...rest });
+export const renderUseQueue = <T extends RequestInstance>(request: T, options?: UseQueueOptionsType) => {
+  return renderHook((rerenderOptions: UseQueueOptionsType & { request?: RequestInstance }) => {
+    const { request: cmd, ...rest } = rerenderOptions || {};
+    return useQueue(cmd || request, { ...options, ...rest });
   });
 };
 
-export const addQueueElement = <T extends CommandInstance>(
-  command: T,
+export const addQueueElement = <T extends RequestInstance>(
+  request: T,
   options?: {
     stop: boolean;
     queueType?: "fetch" | "submit" | "auto";
   },
 ) => {
   const { stop = false, queueType = "auto" } = options || {};
-  const [dispatcher] = getCommandDispatcher(command, queueType);
-  if (stop) dispatcher.stop(command.queueKey);
-  return dispatcher.add(command);
+  const [dispatcher] = getRequestDispatcher(request, queueType);
+  if (stop) dispatcher.stop(request.queueKey);
+  return dispatcher.add(request);
 };
 
-export const emitDownloadProgress = <T extends CommandInstance>(
+export const emitDownloadProgress = <T extends RequestInstance>(
   requestId: string,
-  command: T,
+  request: T,
   options?: {
     total: number;
     loaded: number;
@@ -36,17 +36,17 @@ export const emitDownloadProgress = <T extends CommandInstance>(
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
-  command.builder.commandManager.events.emitDownloadProgress(command.queueKey, requestId, progress, {
+  request.client.requestManager.events.emitDownloadProgress(request.queueKey, requestId, progress, {
     requestId,
-    command,
+    request,
   });
 
   return [startTimestamp, progressTimestamp];
 };
 
-export const emitUploadProgress = <T extends CommandInstance>(
+export const emitUploadProgress = <T extends RequestInstance>(
   requestId: string,
-  command: T,
+  request: T,
   options?: {
     total: number;
     loaded: number;
@@ -57,9 +57,9 @@ export const emitUploadProgress = <T extends CommandInstance>(
   const progressTimestamp = new Date();
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
-  command.builder.commandManager.events.emitUploadProgress(command.queueKey, requestId, progress, {
+  request.client.requestManager.events.emitUploadProgress(request.queueKey, requestId, progress, {
     requestId,
-    command,
+    request,
   });
 
   return [startTimestamp, progressTimestamp];

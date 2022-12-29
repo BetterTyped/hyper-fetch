@@ -1,20 +1,20 @@
 import { useState, useRef } from "react";
-import { CommandInstance, getCommandDispatcher, DispatcherDumpValueType } from "@hyper-fetch/core";
-import { useDidMount, useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { RequestInstance, getRequestDispatcher, DispatcherStorageValueType } from "@hyper-fetch/core";
+import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useConfigProvider } from "config-provider";
 
 /**
  * This hook allows to control dispatchers request queues
- * @param command
+ * @param request
  * @param options
  * @returns
  */
-export const useQueue = <Command extends CommandInstance>(
-  command: Command,
+export const useQueue = <Request extends RequestInstance>(
+  request: Request,
   options: UseQueueOptionsType = useQueueDefaultOptions,
-): UseQueueReturnType<Command> => {
+): UseQueueReturnType<Request> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const { queueType = "auto" } = {
@@ -23,22 +23,22 @@ export const useQueue = <Command extends CommandInstance>(
     ...options,
   };
 
-  const { abortKey, queueKey, builder } = command;
-  const { commandManager } = builder;
+  const { abortKey, queueKey, client } = request;
+  const { requestManager } = client;
 
-  const [dispatcher] = getCommandDispatcher(command, queueType);
+  const [dispatcher] = getRequestDispatcher(request, queueType);
 
   const unmountCallbacks = useRef<null | VoidFunction>(null);
 
   const [stopped, setStopped] = useState(false);
-  const [requests, setRequests] = useState<QueueRequest<Command>[]>([]);
+  const [requests, setRequests] = useState<QueueRequest<Request>[]>([]);
 
   // ******************
   // Mapping
   // ******************
 
-  const createRequestsArray = (queueElements: DispatcherDumpValueType<Command>[]): QueueRequest<Command>[] => {
-    return queueElements.map<QueueRequest<Command>>((req) => ({
+  const createRequestsArray = (queueElements: DispatcherStorageValueType<Request>[]): QueueRequest<Request>[] => {
+    return queueElements.map<QueueRequest<Request>>((req) => ({
       ...req,
       stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
       startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
@@ -46,7 +46,7 @@ export const useQueue = <Command extends CommandInstance>(
     }));
   };
 
-  const mergeRequestData = (requestId: string, data: Partial<QueueRequest<Command>>) => {
+  const mergePayloadType = (requestId: string, data: Partial<QueueRequest<Request>>) => {
     setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, ...data } : el)));
   };
 
@@ -55,13 +55,13 @@ export const useQueue = <Command extends CommandInstance>(
   // ******************
 
   const getInitialState = () => {
-    const commandQueue = dispatcher.getQueue<Command>(queueKey);
+    const requestQueue = dispatcher.getQueue<Request>(queueKey);
 
-    setStopped(commandQueue.stopped);
-    setRequests(createRequestsArray(commandQueue.requests));
+    setStopped(requestQueue.stopped);
+    setRequests(createRequestsArray(requestQueue.requests));
   };
 
-  const updateQueueState = (values: { requests: QueueRequest<Command>[]; stopped: boolean }) => {
+  const updateQueueState = (values: { requests: QueueRequest<Request>[]; stopped: boolean }) => {
     setStopped(values.stopped);
     setRequests(createRequestsArray(values.requests));
   };
@@ -71,15 +71,15 @@ export const useQueue = <Command extends CommandInstance>(
   // ******************
 
   const mountEvents = () => {
-    const unmountChange = dispatcher.events.onQueueChange<Command>(queueKey, updateQueueState);
-    const unmountStatus = dispatcher.events.onQueueStatus<Command>(queueKey, updateQueueState);
+    const unmountChange = dispatcher.events.onQueueChange<Request>(queueKey, updateQueueState);
+    const unmountStatus = dispatcher.events.onQueueStatus<Request>(queueKey, updateQueueState);
 
-    const unmountDownload = commandManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
-      mergeRequestData(requestId, { downloading: progress });
+    const unmountDownload = requestManager.events.onDownloadProgress(queueKey, (progress, { requestId }) => {
+      mergePayloadType(requestId, { downloading: progress });
     });
 
-    const unmountUpload = commandManager.events.onUploadProgress(queueKey, (progress, { requestId }) => {
-      mergeRequestData(requestId, { uploading: progress });
+    const unmountUpload = requestManager.events.onUploadProgress(queueKey, (progress, { requestId }) => {
+      mergePayloadType(requestId, { uploading: progress });
     });
 
     const unmount = () => {

@@ -1,11 +1,11 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createBuilder, createCommand, createEffect } from "../../utils";
+import { createClient, createRequest, createEffect } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Effect [ Base ]", () => {
-  let builder = createBuilder();
-  let command = createCommand(builder);
+  let client = createClient();
+  let request = createRequest(client);
 
   beforeAll(() => {
     startServer();
@@ -14,8 +14,8 @@ describe("Effect [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    builder = createBuilder();
-    command = createCommand(builder);
+    client = createClient();
+    request = createRequest(client);
   });
 
   afterAll(() => {
@@ -24,23 +24,23 @@ describe("Effect [ Base ]", () => {
 
   describe("When using fetch effects", () => {
     it("should trigger success effects", async () => {
-      createRequestInterceptor(command);
+      createRequestInterceptor(request);
       const spy1 = jest.fn();
       const spy2 = jest.fn();
       const spy3 = jest.fn();
       const spy4 = jest.fn();
       const spy5 = jest.fn();
 
-      const effect = createEffect(command, {
+      const effect = createEffect(request, {
         onError: spy1,
         onSuccess: spy2,
         onFinished: spy3,
         onStart: spy4,
         onTrigger: spy5,
       });
-      builder.addEffect(effect);
+      client.addEffect(effect);
 
-      command.send();
+      request.send();
 
       await waitFor(() => {
         expect(spy1).toBeCalledTimes(0);
@@ -51,23 +51,23 @@ describe("Effect [ Base ]", () => {
       });
     });
     it("should trigger error effects", async () => {
-      createRequestInterceptor(command, { status: 400 });
+      createRequestInterceptor(request, { status: 400 });
       const spy1 = jest.fn();
       const spy2 = jest.fn();
       const spy3 = jest.fn();
       const spy4 = jest.fn();
       const spy5 = jest.fn();
 
-      const effect = createEffect(command, {
+      const effect = createEffect(request, {
         onError: spy1,
         onSuccess: spy2,
         onFinished: spy3,
         onStart: spy4,
         onTrigger: spy5,
       });
-      builder.addEffect(effect);
+      client.addEffect(effect);
 
-      command.send();
+      request.send();
 
       await waitFor(() => {
         expect(spy1).toBeCalledTimes(1);
@@ -78,7 +78,7 @@ describe("Effect [ Base ]", () => {
       });
     });
     it("should not throw when effects are empty", async () => {
-      const effect = createEffect(command);
+      const effect = createEffect(request);
 
       expect(effect.onTrigger).not.toThrow();
       expect(effect.onStart).not.toThrow();

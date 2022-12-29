@@ -8,7 +8,7 @@ type DataType = {
   test: string;
 };
 
-describe("Socket Client [ Base ]", () => {
+describe("Socket Adapter [ Base ]", () => {
   let server = createWsServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
@@ -25,7 +25,7 @@ describe("Socket Client [ Base ]", () => {
 
     const emitterId = "my-id";
     const emitterInstance = emitter.setData(message);
-    socket.client.emit(emitterId, emitterInstance);
+    socket.adapter.emit(emitterId, emitterInstance);
 
     expect(server).toReceiveMessage(
       JSON.stringify({
@@ -41,20 +41,20 @@ describe("Socket Client [ Base ]", () => {
 
     const emitterId = "my-id";
     const emitterInstance = emitter.setData(message);
-    socket.client.emit(emitterId, emitterInstance);
+    socket.adapter.emit(emitterId, emitterInstance);
   });
   it("should not throw on message without name", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     socket.onMessage(spy);
-    socket.client.listeners.get = jest.fn();
+    socket.adapter.listeners.get = jest.fn();
     server.send(undefined);
     expect(spy).toBeCalledTimes(1);
-    expect(socket.client.listeners.get).toBeCalledWith(undefined);
+    expect(socket.adapter.listeners.get).toBeCalledWith(undefined);
   });
   it("should allow to connect", async () => {
     const spy = jest.fn();
     socket.events.onOpen(spy);
-    socket.client.connect();
+    socket.adapter.connect();
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
     });
@@ -62,7 +62,7 @@ describe("Socket Client [ Base ]", () => {
   it("should allow to disconnect", async () => {
     const spy = jest.fn();
     socket.events.onClose(spy);
-    socket.client.disconnect();
+    socket.adapter.disconnect();
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
     });

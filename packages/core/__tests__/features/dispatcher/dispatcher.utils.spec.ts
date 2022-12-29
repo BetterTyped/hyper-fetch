@@ -1,6 +1,6 @@
 import {
   canRetryRequest,
-  DispatcherDumpValueType,
+  DispatcherStorageValueType,
   DispatcherRequestType,
   getDispatcherChangeEventKey,
   getDispatcherDrainedEventKey,
@@ -9,24 +9,24 @@ import {
   getRequestType,
   isFailedRequest,
 } from "dispatcher";
-import { createDispatcher, createBuilder, createClient, createCommand } from "../../utils";
+import { createDispatcher, createClient, createAdapter, createRequest } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Dispatcher [ Utils ]", () => {
-  const clientSpy = jest.fn();
+  const adapterSpy = jest.fn();
 
-  let client = createClient({ callback: clientSpy });
-  let builder = createBuilder().setClient(() => client);
-  let dispatcher = createDispatcher(builder);
+  let adapter = createAdapter({ callback: adapterSpy });
+  let client = createClient().setAdapter(() => adapter);
+  let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient({ callback: clientSpy });
-    builder = createBuilder().setClient(() => client);
-    dispatcher = createDispatcher(builder);
+    adapter = createAdapter({ callback: adapterSpy });
+    client = createClient().setAdapter(() => adapter);
+    dispatcher = createDispatcher(client);
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -45,34 +45,34 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using getRequest method", () => {
     it("should give stored request", async () => {
-      const command = createCommand(builder);
-      createRequestInterceptor(command);
+      const request = createRequest(client);
+      createRequestInterceptor(request);
 
-      const requestId = dispatcher.add(command);
-      const request = dispatcher.getRequest(command.queueKey, requestId);
-      expect(request).toBeDefined();
+      const requestId = dispatcher.add(request);
+      const storedRequest = dispatcher.getRequest(request.queueKey, requestId);
+      expect(storedRequest).toBeDefined();
     });
     it("should not return request from empty store", async () => {
-      const command = createCommand(builder);
-      createRequestInterceptor(command);
+      const request = createRequest(client);
+      createRequestInterceptor(request);
 
-      const request = dispatcher.getRequest(command.queueKey, "test");
-      expect(request).not.toBeDefined();
+      const storedRequest = dispatcher.getRequest(request.queueKey, "test");
+      expect(storedRequest).not.toBeDefined();
     });
   });
   describe("When using clear methods", () => {
     it("should clear request from queue", async () => {
-      const command = createCommand(builder);
-      createRequestInterceptor(command);
+      const request = createRequest(client);
+      createRequestInterceptor(request);
 
-      dispatcher.stop(command.queueKey);
-      dispatcher.add(command);
+      dispatcher.stop(request.queueKey);
+      dispatcher.add(request);
 
-      expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(1);
+      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
 
-      dispatcher.clearQueue(command.queueKey);
+      dispatcher.clearQueue(request.queueKey);
 
-      expect(dispatcher.getQueue(command.queueKey).requests).toHaveLength(0);
+      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
     });
   });
   describe("When using getIsEqualTimestamp util", () => {
@@ -121,15 +121,15 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
-      const command = createCommand(builder, { deduplicate: true });
-      const duplicated: DispatcherDumpValueType<typeof command> = dispatcher.createStorageElement(command);
-      const type = getRequestType(command, duplicated);
+      const request = createRequest(client, { deduplicate: true });
+      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.deduplicated);
     });
     it("should return cancelable type", async () => {
-      const command = createCommand(builder, { cancelable: true });
-      const duplicated: DispatcherDumpValueType<typeof command> = dispatcher.createStorageElement(command);
-      const type = getRequestType(command, duplicated);
+      const request = createRequest(client, { cancelable: true });
+      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.previousCanceled);
     });
   });

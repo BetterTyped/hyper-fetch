@@ -1,12 +1,12 @@
 import { act } from "@testing-library/react";
-import { ClientResponseType } from "@hyper-fetch/core";
+import { ResponseType } from "@hyper-fetch/core";
 
-import { createCommand, renderUseFetch, createCacheData, builder, sleep } from "../../utils";
+import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { testSuccessState, testErrorState, testInitialState, testCacheState, testBuilderIsolation } from "../../shared";
+import { testSuccessState, testErrorState, testInitialState, testCacheState, testClientIsolation } from "../../shared";
 
 describe("useFetch [ Base ]", () => {
-  let command = createCommand();
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -22,41 +22,41 @@ describe("useFetch [ Base ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
-    builder.clear();
+    request = createRequest();
+    client.clear();
   });
 
   describe("when hook is initialized", () => {
     it("should initialize in loading state", async () => {
-      await testBuilderIsolation(builder);
-      createRequestInterceptor(command);
-      const view = renderUseFetch(command);
+      await testClientIsolation(client);
+      createRequestInterceptor(request);
+      const view = renderUseFetch(request);
 
       testInitialState(view);
     });
     it("should load cached data", async () => {
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command);
-      const [cache] = createCacheData(command, {
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request);
+      const [cache] = createCacheData(request, {
         data: [mock, null, 200],
         details: { retries: 2 },
       });
-      const view = renderUseFetch(command);
+      const view = renderUseFetch(request);
       await testCacheState(cache, view);
     });
     it("should not load stale cache data", async () => {
-      await testBuilderIsolation(builder);
+      await testClientIsolation(client);
       const timestamp = +new Date() - 11;
-      const mock = createRequestInterceptor(command, { delay: 20 });
-      createCacheData(command, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
+      const mock = createRequestInterceptor(request, { delay: 20 });
+      createCacheData(request, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
 
-      const view = renderUseFetch(command.setCacheTime(10));
+      const view = renderUseFetch(request.setCacheTime(10));
 
       await testCacheState([null, null, null], view);
     });
     it("should allow to use initial data", async () => {
-      const initialData: ClientResponseType<unknown, Error> = [{ test: [1, 2, 3] }, null, 200];
-      const view = renderUseFetch(command, { disabled: true, initialData });
+      const initialData: ResponseType<unknown, Error> = [{ test: [1, 2, 3] }, null, 200];
+      const view = renderUseFetch(request, { disabled: true, initialData });
 
       await testSuccessState(initialData[0], view);
     });
@@ -64,10 +64,10 @@ describe("useFetch [ Base ]", () => {
       // Todo
     });
     it("should make only one request", async () => {
-      const spy = jest.spyOn(builder, "client");
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command);
-      const view = renderUseFetch(command);
+      const spy = jest.spyOn(client, "adapter");
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request);
+      const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
       await sleep(50);
@@ -76,19 +76,19 @@ describe("useFetch [ Base ]", () => {
   });
   describe("when hook get success response", () => {
     it("should set state with success data", async () => {
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command);
-      const view = renderUseFetch(command);
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request);
+      const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
     });
     it("should clear previous error state once success response is returned", async () => {
-      await testBuilderIsolation(builder);
-      const errorMock = createRequestInterceptor(command, { status: 400 });
-      const view = renderUseFetch(command);
+      await testClientIsolation(client);
+      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const view = renderUseFetch(request);
 
       await testErrorState(errorMock, view);
-      const mock = createRequestInterceptor(command);
+      const mock = createRequestInterceptor(request);
 
       act(() => {
         view.result.current.revalidate();
@@ -102,20 +102,20 @@ describe("useFetch [ Base ]", () => {
   });
   describe("when hook get error response", () => {
     it("should set state with error data", async () => {
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command, { status: 400 });
-      const view = renderUseFetch(command);
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request, { status: 400 });
+      const view = renderUseFetch(request);
 
       await testErrorState(mock, view);
     });
     it("should keep previous success state once error response is returned", async () => {
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command);
-      const view = renderUseFetch(command);
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request);
+      const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
 
-      const errorMock = createRequestInterceptor(command, { status: 400 });
+      const errorMock = createRequestInterceptor(request, { status: 400 });
 
       act(() => {
         view.result.current.revalidate();
@@ -131,9 +131,9 @@ describe("useFetch [ Base ]", () => {
     // Solves Issue #22
     it("should fetch data when disabled prop changes", async () => {
       const spy = jest.fn();
-      await testBuilderIsolation(builder);
-      const mock = createRequestInterceptor(command);
-      const view = renderUseFetch(command, { disabled: true });
+      await testClientIsolation(client);
+      const mock = createRequestInterceptor(request);
+      const view = renderUseFetch(request, { disabled: true });
 
       act(() => {
         view.result.current.onRequestStart(spy);

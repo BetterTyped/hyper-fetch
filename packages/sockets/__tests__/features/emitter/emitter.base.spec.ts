@@ -23,7 +23,7 @@ describe("Emitter [ Base ]", () => {
     expect(emitter.name).toBe(name);
   });
 
-  it("should allow to set additional client options", async () => {
+  it("should allow to set additional adapter options", async () => {
     const options = { something: "custom" };
     const newEmitter = emitter.setOptions(options);
     expect(newEmitter.options).toStrictEqual(options);

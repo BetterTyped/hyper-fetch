@@ -3,10 +3,10 @@ import { getUniqueRequestId } from "@hyper-fetch/core";
 import { SocketInstance } from "socket";
 import { EmitterOptionsType } from "emitter";
 
-export const createEmitter = <RequestDataType = any, ResponseDataType = any>(
+export const createEmitter = <PayloadType = any, ResponseDataType = any>(
   socket: SocketInstance,
   options?: Partial<EmitterOptionsType<any>>,
 ) => {
   const randomKey = getUniqueRequestId("some-event-emitter");
-  return socket.createEmitter<RequestDataType, ResponseDataType>({ name: randomKey, ...options });
+  return socket.createEmitter<PayloadType, ResponseDataType>({ name: randomKey, ...options });
 };

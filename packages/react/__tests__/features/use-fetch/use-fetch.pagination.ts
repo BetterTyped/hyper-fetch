@@ -1,5 +1,5 @@
 import { startServer, resetInterceptors, stopServer } from "../../server";
-import { builder } from "../../utils";
+import { client } from "../../utils";
 
 describe("useFetch [ Pagination ]", () => {
   beforeAll(() => {
@@ -16,10 +16,10 @@ describe("useFetch [ Pagination ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
+    client.clear();
   });
 
-  describe("when command query params are changed", () => {
+  describe("when request query params are changed", () => {
     it("should allow to see previous results until new page is loaded", async () => {
       // TODO
     });

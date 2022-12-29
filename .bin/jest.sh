@@ -8,8 +8,8 @@ cwd=$(echo "$jest_config" | sed 's|\(.*\)/.*|\1|')
 
 cd "$cwd"
 
-command="yarn jest '$1' -c $jest_config -t '$5' $6"
+request="yarn jest '$1' -c $jest_config -t '$5' $6"
 
-eval "$command"
+eval "$request"
 
 cd ../..

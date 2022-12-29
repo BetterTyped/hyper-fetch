@@ -1,8 +1,8 @@
 import EventEmitter from "events";
 
-import { ClientResponseType } from "client";
-import { BuilderInstance } from "builder";
-import { CommandResponseDetails, LoggerType } from "managers";
+import { ResponseType } from "adapter";
+import { ClientInstance } from "client";
+import { ResponseDetailsType, LoggerType } from "managers";
 import {
   CacheOptionsType,
   CacheAsyncStorageType,
@@ -11,13 +11,13 @@ import {
   getCacheEvents,
   CacheValueType,
 } from "cache";
-import { CommandDump, CommandInstance } from "command";
+import { RequestDump, RequestInstance } from "request";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
  *
  * @note
- * Keys used to save the values are created dynamically on the Command class
+ * Keys used to save the values are created dynamically on the Request class
  *
  */
 export class Cache {
@@ -30,21 +30,21 @@ export class Cache {
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
 
-  constructor(public builder: BuilderInstance, public options?: CacheOptionsType) {
+  constructor(public client: ClientInstance, public options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
     this.clearKey = this.options?.clearKey || "";
     this.lazyStorage = this.options?.lazyStorage;
-    this.logger = this.builder.loggerManager.init("Cache");
+    this.logger = this.client.loggerManager.init("Cache");
 
     this.getLazyKeys().then((keys) => {
       keys.forEach(this.scheduleGarbageCollector);
     });
 
     // Going back from offline should re-trigger garbage collection
-    this.builder.appManager.events.onOnline(() => {
+    this.client.appManager.events.onOnline(() => {
       this.getLazyKeys().then((keys) => {
         keys.forEach(this.scheduleGarbageCollector);
       });
@@ -53,18 +53,18 @@ export class Cache {
 
   /**
    * Set the cache data to the storage
-   * @param command
+   * @param request
    * @param response
    * @param details
    * @returns
    */
   set = <Response, Error>(
-    command: CommandInstance | CommandDump<CommandInstance>,
-    response: ClientResponseType<Response, Error>,
-    details: CommandResponseDetails,
+    request: RequestInstance | RequestDump<RequestInstance>,
+    response: ResponseType<Response, Error>,
+    details: ResponseDetailsType,
   ): void => {
-    this.logger.debug("Processing cache response", { command, response, details });
-    const { cacheKey, cache, cacheTime, garbageCollection } = command;
+    this.logger.debug("Processing cache response", { request, response, details });
+    const { cacheKey, cache, cacheTime, garbageCollection } = request;
     const cachedData = this.storage.get<Response, Error>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
@@ -74,16 +74,16 @@ export class Cache {
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
 
     this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
-    this.logger.debug("Emitting cache response", { command, response, details });
+    this.logger.debug("Emitting cache response", { request, response, details });
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      return this.logger.debug("Prevented saving response to cache", { command, response, details });
+      return this.logger.debug("Prevented saving response to cache", { request, response, details });
     }
 
     // Only success data is valid for the cache store
     if (!details.isFailed) {
-      this.logger.debug("Saving response to cache storage", { command, response, details });
+      this.logger.debug("Saving response to cache storage", { request, response, details });
       this.storage.set<Response, Error>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
@@ -209,13 +209,13 @@ export class Cache {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.builder.appManager.isOnline) {
+            if (this.client.appManager.isOnline) {
               this.logger.info("Garbage collecting cache element", { cacheKey });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.builder.appManager.isOnline) {
+      } else if (this.client.appManager.isOnline) {
         this.logger.info("Garbage collecting cache element", { cacheKey });
         this.delete(cacheKey);
       }

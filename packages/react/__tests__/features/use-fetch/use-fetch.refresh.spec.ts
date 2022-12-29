@@ -1,7 +1,7 @@
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
 describe("useFetch [ Refreshing ]", () => {
   const hookOptions = {
@@ -13,7 +13,7 @@ describe("useFetch [ Refreshing ]", () => {
     refreshOnFocus: true,
   };
 
-  let command = createCommand();
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -29,14 +29,14 @@ describe("useFetch [ Refreshing ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
-    builder.clear();
+    request = createRequest();
+    client.clear();
   });
 
   it("should refetch data after refresh time of 200ms", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(command);
-    const { result } = renderUseFetch(command, hookOptions);
+    createRequestInterceptor(request);
+    const { result } = renderUseFetch(request, hookOptions);
 
     act(() => {
       result.current.onRequestStart(spy);
@@ -50,12 +50,12 @@ describe("useFetch [ Refreshing ]", () => {
   });
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(command);
-    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnBlur: false });
+    createRequestInterceptor(request);
+    const { result } = renderUseFetch(request, { ...hookOptions, refreshOnBlur: false });
 
     act(() => {
       result.current.onRequestStart(spy);
-      builder.appManager.setFocused(false);
+      client.appManager.setFocused(false);
     });
 
     await waitForRender();
@@ -64,12 +64,12 @@ describe("useFetch [ Refreshing ]", () => {
   });
   it("should not refresh blurred tab", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(command);
-    const { result } = renderUseFetch(command, { ...hookOptions, refreshOnBlur: false, refreshBlurred: false });
+    createRequestInterceptor(request);
+    const { result } = renderUseFetch(request, { ...hookOptions, refreshOnBlur: false, refreshBlurred: false });
 
     act(() => {
       result.current.onRequestStart(spy);
-      builder.appManager.setFocused(false);
+      client.appManager.setFocused(false);
     });
 
     await waitForRender();

@@ -1,13 +1,13 @@
 import { LoggerManager } from "managers";
-import { createBuilder } from "../../../utils";
+import { createClient } from "../../../utils";
 
 describe("Logger [ Base ]", () => {
-  let builder = createBuilder();
-  let loggerManager = new LoggerManager(builder);
+  let client = createClient();
+  let loggerManager = new LoggerManager(client);
 
   beforeEach(() => {
-    builder = createBuilder();
-    loggerManager = new LoggerManager(builder);
+    client = createClient();
+    loggerManager = new LoggerManager(client);
   });
 
   describe("When using config methods", () => {

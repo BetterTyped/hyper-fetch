@@ -1,6 +1,6 @@
-You can create your own client based on your preferences or requirements. You can use the bindings to achieve it. They
-will let you to easily connect into the library logic flow, so this way you will make your custom client without
-handling the internals on the library. We propose to use the `getClientBindings` util so you skip the sensitive and
+You can create your own adapter based on your preferences or requirements. You can use the bindings to achieve it. They
+will let you to easily connect into the library logic flow, so this way you will make your custom adapter without
+handling the internals on the library. We propose to use the `getAdapterBindings` util so you skip the sensitive and
 highly advanced part of connecting into hyper fetch flow.
 
 ---
@@ -8,7 +8,7 @@ highly advanced part of connecting into hyper fetch flow.
 ### Example
 
 ```tsx
-const customHttpClient = async () => {
+const customHttpAdapter = async () => {
   const {
     fullUrl,
     method,
@@ -31,9 +31,9 @@ const customHttpClient = async () => {
     onTimeoutError,
     onUnexpectedError,
     onError,
-  } = await getClientBindings(command, requestId);
+  } = await getAdapterBindings(request, requestId);
 
-  // ... any custom client logic, you can see axios implementation bellow
+  // ... any custom adapter logic, you can see axios implementation bellow
   axios({
     method,
     url: fullUrl,
@@ -48,26 +48,26 @@ const customHttpClient = async () => {
 
 ### Setup
 
-Connect any client to communicate with the server and handle it as you want, the only thing that has to match is the
+Connect any adapter to communicate with the server and handle it as you want, the only thing that has to match is the
 interface of the output.
 
 ```tsx
-const customHttpClient: ClientType = (command: CommandInstance) => Promise.resolve([null, null, 0]);
+const customHttpAdapter: AdapterType = (request: RequestInstance) => Promise.resolve([null, null, 0]);
 
-const builder = new Builder({ url }).setClient(customHttpClient);
+const client = new Client({ url }).setAdapter(customHttpAdapter);
 ```
 
 ---
 
 ### Typescript
 
-You can pass custom options to your client from global setup and while command initialization. To make sure we pass
-correct configuration through this places we can specify the type for them. It is passed to the builder instance.
+You can pass custom options to your adapter from global setup and while request initialization. To make sure we pass
+correct configuration through this places we can specify the type for them. It is passed to the client instance.
 
 ```tsx
-type MyCustomClientOptions = {
+type MyCustomAdapterOptions = {
   timeout?: number;
 };
 
-const builder = new Builder<Error, MyCustomClientOptions>({ url }).setClient(customHttpClient);
+const client = new Client<Error, MyCustomAdapterOptions>({ url }).setAdapter(customHttpAdapter);
 ```

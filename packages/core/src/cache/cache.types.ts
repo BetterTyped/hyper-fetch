@@ -1,6 +1,6 @@
 import { Cache } from "cache";
-import { ClientResponseType } from "client";
-import { CommandResponseDetails } from "managers";
+import { ResponseType } from "adapter";
+import { ResponseDetailsType } from "managers";
 
 export type CacheOptionsType = {
   /**
@@ -31,8 +31,8 @@ export type CacheOptionsType = {
 
 // Values
 export type CacheValueType<Response = any, Error = any> = {
-  data: ClientResponseType<Response, Error>;
-  details: CommandResponseDetails;
+  data: ResponseType<Response, Error>;
+  details: ResponseDetailsType;
   cacheTime: number;
   clearKey: string;
   garbageCollection: number;

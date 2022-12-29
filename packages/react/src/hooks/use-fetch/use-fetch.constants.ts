@@ -1,8 +1,8 @@
-import { DateInterval, CommandInstance, RequiredKeys } from "@hyper-fetch/core";
+import { DateInterval, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseFetchOptionsType } from "hooks/use-fetch";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<CommandInstance>, "initialData">> & {
+type DefaultOptionsType = RequiredKeys<Omit<UseFetchOptionsType<RequestInstance>, "initialData">> & {
   initialData: null;
 };
 
@@ -21,5 +21,6 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   bounce: false,
   bounceType: "debounce",
   bounceTime: 400,
+  bounceTimeout: 200,
   deepCompare: true,
 };

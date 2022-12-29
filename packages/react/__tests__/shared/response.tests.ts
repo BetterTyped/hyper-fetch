@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ClientResponseType, CommandInstance } from "@hyper-fetch/core";
+import { ResponseType, RequestInstance } from "@hyper-fetch/core";
 
 import { UseFetchReturnType } from "hooks/use-fetch";
 import { UseSubmitReturnType } from "hooks/use-submit";
@@ -18,7 +18,7 @@ export const testInitialState = <H extends RenderHookResult<any, any>>(render: H
 };
 
 export const testSuccessState = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
+  T extends UseFetchReturnType<RequestInstance> | UseSubmitReturnType<RequestInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
@@ -41,7 +41,7 @@ export const testSuccessState = async <
 };
 
 export const testErrorState = async <
-  T extends UseFetchReturnType<CommandInstance>,
+  T extends UseFetchReturnType<RequestInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["error"],
@@ -65,7 +65,7 @@ export const testErrorState = async <
   });
 };
 
-export const testCacheState = async <T extends ClientResponseType<any, any>, H extends RenderHookResult<any, any>>(
+export const testCacheState = async <T extends ResponseType<any, any>, H extends RenderHookResult<any, any>>(
   mock: T,
   render: H,
 ) => {
@@ -89,7 +89,7 @@ export const testLoading = async <H extends RenderHookResult<any, any>>(mock: bo
 };
 
 export const testData = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
+  T extends UseFetchReturnType<RequestInstance> | UseSubmitReturnType<RequestInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["data"],
@@ -102,7 +102,7 @@ export const testData = async <
 };
 
 export const testError = async <
-  T extends UseFetchReturnType<CommandInstance> | UseSubmitReturnType<CommandInstance>,
+  T extends UseFetchReturnType<RequestInstance> | UseSubmitReturnType<RequestInstance>,
   H extends RenderHookResult<any, any>,
 >(
   mock: T["error"],

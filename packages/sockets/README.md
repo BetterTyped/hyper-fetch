@@ -52,7 +52,7 @@
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Client)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Sockets/Authentication)
 

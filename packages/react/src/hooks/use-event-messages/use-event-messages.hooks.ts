@@ -1,9 +1,10 @@
 import { useRef } from "react";
-import { useDidUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import { SocketInstance } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
+import { useConfigProvider } from "config-provider";
 
 /**
  * Allow to listen to all event messages received with sockets
@@ -13,8 +14,11 @@ import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
  */
 export const useEventMessages = <ResponsesType>(
   socket: SocketInstance,
-  { dependencyTracking = false, filter }: UseEventMessagesOptionsType<ResponsesType>,
+  options: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
+  const [globalConfig] = useConfigProvider();
+  const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
+
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(socket, { dependencyTracking });
 

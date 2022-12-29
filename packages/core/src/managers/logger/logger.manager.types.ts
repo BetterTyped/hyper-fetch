@@ -1,6 +1,6 @@
-import { ClientResponseType } from "client";
-import { CommandInstance } from "command";
-import { CommandResponseDetails } from "managers/command";
+import { ResponseType } from "adapter";
+import { RequestInstance } from "request";
+import { ResponseDetailsType } from "managers/request";
 
 // Logger
 export type SeverityType = 0 | 1 | 2 | 3;
@@ -26,10 +26,10 @@ export type LoggerMessageType = string | Record<string, unknown> | Array<unknown
 
 // Events
 
-export type LoggerRequestEventData = { requestId: string; command: CommandInstance };
+export type LoggerRequestEventData = { requestId: string; request: RequestInstance };
 export type LoggerResponseEventData = {
   requestId: string;
-  command: CommandInstance;
-  response: ClientResponseType<unknown, unknown>;
-  details: CommandResponseDetails;
+  request: RequestInstance;
+  response: ResponseType<unknown, unknown>;
+  details: ResponseDetailsType;
 };

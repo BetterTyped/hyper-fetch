@@ -11,8 +11,8 @@ and the clear rules we provide.
 
 - Providing neutral standard for data exchange
 - Architecture to support composing our logic with existing adapters like axios
-- Possibility to attach own client addapters with ease and flexibility
-- Commands as data handlers with possibility to save it's state to json
+- Possibility to attach own adapter addapters with ease and flexibility
+- Requests as data handlers with possibility to save it's state to json
 - Allow to queue requests to server
 - Possibility to easily receive request download/upload progress with additional data
 - Provide data to sub-systems with keys or requestId to ensure the proper data flow
@@ -27,7 +27,7 @@ and the clear rules we provide.
 
 We try to provide the deepest possible knowledge about the architecture of our library; feel free to write any adapters,
 plugins, or additions. The flow of a request through the Hyper Fetch system is presented below. The steps from the
-moment of adding a command to the dispatcher to passing data to the component are included.
+moment of adding a request to the dispatcher to passing data to the component are included.
 
 ```mermaid
 flowchart TD;
@@ -40,17 +40,17 @@ flowchart TD;
     end
 
     App_Manager(App Manager);
-    Command_Manager(Command Manager);
-    Command(Command);
+    Request_Manager(Request Manager);
+    Request(Request);
     Dispatcher((Dispatcher))
-    Client{{Http Client}}
-    Builder{Builder}
+    Adapter{{Http Adapter}}
+    Client{Client}
 
-    Builder -- create command --> Command
-    Command -- add to queue --> Dispatcher
+    Client -- create request --> Request
+    Request -- add to queue --> Dispatcher
     Dispatcher <-. Check online status .-> App_Manager
-    Dispatcher -- Trigger Command --> Client
-    Client --> Request_Start[[Request Start]]
+    Dispatcher -- Trigger Request --> Adapter
+    Adapter --> Request_Start[[Request Start]]
     Request_Start --> Upload[[Upload]]
     Upload --> Response_Start[[Response Start]]
     Response_Start --> Download[[Download]]
@@ -58,13 +58,13 @@ flowchart TD;
     Response -- Save Data --> Cache[(Cache)]
     Cache -- Emit Data --> Component{Component}
 
-    Request_Start -. Emit Event .-> Command_Manager
-    Upload -. Emit Event .-> Command_Manager
-    Response_Start -. Emit Event .-> Command_Manager
-    Download -. Emit Event .-> Command_Manager
-    Response -. Emit Event .-> Command_Manager
+    Request_Start -. Emit Event .-> Request_Manager
+    Upload -. Emit Event .-> Request_Manager
+    Response_Start -. Emit Event .-> Request_Manager
+    Download -. Emit Event .-> Request_Manager
+    Response -. Emit Event .-> Request_Manager
 
-    Command_Manager -. Events .-> Component
+    Request_Manager -. Events .-> Component
     App_Manager -. Events .-> Component
 ```
 

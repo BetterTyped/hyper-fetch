@@ -9,10 +9,10 @@ import { setupServer } from "msw/node";
 
 export const server = setupServer();
 
-const createStub = <Command extends CommandInstance>(command: Command, fixture?: ExtractResponse<T>) => {
+const createStub = <Request extends RequestInstance>(request: Request, fixture?: ExtractResponseType<T>) => {
   server.use(
     // Describe the requests to mock.
-    rest.get(command.endpoint, (req, res, ctx) => {
+    rest.get(request.endpoint, (req, res, ctx) => {
       return res(ctx.json(fixture));
     }),
   );
@@ -21,7 +21,7 @@ const createStub = <Command extends CommandInstance>(command: Command, fixture?:
 
 ### Stub tests
 
-Then we can use the prepared util along with the commands prepared during development.
+Then we can use the prepared util along with the requests prepared during development.
 
 ```ts
 import { getBook } from "api/books";

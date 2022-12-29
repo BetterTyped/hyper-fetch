@@ -1,5 +1,5 @@
 import { CacheValueType } from "cache";
-import { createBuilder, createCache, createCommand, createLazyCacheAdapter, sleep } from "../../utils";
+import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
 
 describe("Cache [ Lazy Storage ]", () => {
   const cacheKey = "test";
@@ -22,18 +22,18 @@ describe("Cache [ Lazy Storage ]", () => {
   const lazyStorage = new Map();
   const spy = jest.fn();
 
-  let builder = createBuilder();
-  let command = createCommand(builder, { cacheKey });
-  let cache = createCache(builder, {
+  let client = createClient();
+  let request = createRequest(client, { cacheKey });
+  let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     clearKey,
   });
 
   beforeEach(() => {
     lazyStorage.clear();
-    builder = createBuilder();
-    command = createCommand(builder, { cacheKey });
-    cache = createCache(builder, {
+    client = createClient();
+    request = createRequest(client, { cacheKey });
+    cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       clearKey,
     });
@@ -43,7 +43,7 @@ describe("Cache [ Lazy Storage ]", () => {
   describe("when using lazy storage", () => {
     it("should new data to lazy storage", async () => {
       cache.events.onData(cacheKey, spy);
-      await cache.set(command, cacheData.data, cacheData.details);
+      await cache.set(request, cacheData.data, cacheData.details);
       await sleep(10);
       const data = cache.get(cacheKey);
       await sleep(50);

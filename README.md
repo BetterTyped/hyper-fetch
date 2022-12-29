@@ -73,7 +73,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Client)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Testing)
 
@@ -182,17 +182,17 @@ yarn add @hyper-fetch/core @hyper-fetch/react
 #### Simple Setup
 
 ```tsx
-import { Builder } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 
 // Create global setup
-export const builder = new Builder({ url: "http://localhost:3000" });
+export const client = new Client({ url: "http://localhost:3000" });
 
-// Create reusable commands to trigger requests
-export const postData = builder.createCommand<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
+// Create reusable requests to trigger requests
+export const postData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
   method: "POST",
   endpoint: "/data/:accountId",
 });
-export const getData = builder.createCommand<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
+export const getData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
   method: "GET",
   endpoint: "/user",
 });
@@ -201,17 +201,17 @@ export const getData = builder.createCommand<ResponseType, RequestType, LocalErr
 #### Triggering request
 
 ```tsx
-// Set the information to command (methods return command clone - NOT mutating the source)
-const command = postData
+// Set the information to request (methods return request clone - NOT mutating the source)
+const request = postData
   .setParams({ accountId: 104 }) // Set Params
   .setQueryParams({ paramOne: "test", paramTwo: "test2" })
   .setData({ name: "My new entity", description: "Some description" }); // Add payload data
 
-// Use command directly
-const [data, error, status] = await command.send();
+// Use request directly
+const [data, error, status] = await request.send();
 
 // OR pass dynamic data directly to '.send' method
-const [data, error, status] = await command.send({
+const [data, error, status] = await request.send({
   params: { accountId: 104 },
   data: { name: "My new entity", description: "Some description" },
   queryParams: { paramOne: "test", paramTwo: "test2" },
@@ -244,7 +244,7 @@ onError((error) => {
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
 
-const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(request);
 
 onSuccess((data) => {
   console.log(data);
@@ -262,7 +262,7 @@ return <button onClick={() => submit()}>Trigger request!</button>;
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
 
-const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(request);
 
 onSuccess((data) => {
   console.log(data);
@@ -293,7 +293,7 @@ return (
 import { useSubmit } from "@hyper-fetch/react";
 
 // Manual triggering
-const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(command);
+const { submit, data, error, submitting, onSubmitSuccess, onSubmitError } = useSubmit(request);
 
 onSuccess((data) => {
   console.log(data);

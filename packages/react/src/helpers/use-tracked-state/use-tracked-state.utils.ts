@@ -1,18 +1,18 @@
 import {
   CacheValueType,
   NullableType,
-  CommandInstance,
-  ClientResponseType,
-  ExtractResponse,
-  ExtractError,
-  ExtractClientReturnType,
+  RequestInstance,
+  ResponseType,
+  ExtractResponseType,
+  ExtractErrorType,
+  ExtractAdapterReturnType,
   Dispatcher,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
 
 export const getDetailsState = (
-  state?: UseTrackedStateType<CommandInstance>,
+  state?: UseTrackedStateType<RequestInstance>,
   details?: Partial<CacheValueType<unknown, unknown>["details"]>,
 ): CacheValueType<unknown, unknown>["details"] => {
   return {
@@ -30,12 +30,12 @@ export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType
   return +new Date() > +cacheTimestamp + cacheTime;
 };
 
-export const getValidCacheData = <T extends CommandInstance>(
-  command: T,
-  initialData: NullableType<ExtractClientReturnType<T>>,
-  cacheData: NullableType<CacheValueType<ExtractResponse<T>, ExtractError<T>>>,
-): CacheValueType<ExtractResponse<T>, ExtractError<T>> | null => {
-  const isStale = isStaleCacheData(command.cacheTime, cacheData?.details.timestamp);
+export const getValidCacheData = <T extends RequestInstance>(
+  request: T,
+  initialData: NullableType<ExtractAdapterReturnType<T>>,
+  cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>>,
+): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>> | null => {
+  const isStale = isStaleCacheData(request.cacheTime, cacheData?.details.timestamp);
 
   if (!isStale && cacheData) {
     return cacheData;
@@ -46,8 +46,8 @@ export const getValidCacheData = <T extends CommandInstance>(
       data: initialData,
       details: getDetailsState(),
       cacheTime: 1000,
-      clearKey: command.builder.cache.clearKey,
-      garbageCollection: command.garbageCollection,
+      clearKey: request.client.cache.clearKey,
+      garbageCollection: request.garbageCollection,
     };
   }
 
@@ -58,18 +58,18 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
-export const getInitialState = <T extends CommandInstance>(
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null,
+export const getInitialState = <T extends RequestInstance>(
+  initialData: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>> | null,
   dispatcher: Dispatcher,
-  command: T,
+  request: T,
 ): UseTrackedStateType<T> => {
-  const { builder, cacheKey } = command;
-  const { cache } = builder;
+  const { client, cacheKey } = request;
+  const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponse<T>, ExtractError<T>>(cacheKey);
-  const cacheState = getValidCacheData<T>(command, initialData, cacheData);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+  const cacheState = getValidCacheData<T>(request, initialData, cacheData);
 
-  const initialLoading = dispatcher.hasRunningRequests(command.queueKey);
+  const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
   return {
     ...initialState,

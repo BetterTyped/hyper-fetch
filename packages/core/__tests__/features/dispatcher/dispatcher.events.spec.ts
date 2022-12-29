@@ -1,17 +1,17 @@
 import { waitFor } from "@testing-library/dom";
 
-import { ClientResponseType, getErrorMessage } from "client";
-import { CommandResponseDetails } from "managers";
-import { createDispatcher, createBuilder, createClient, createCommand, sleep } from "../../utils";
+import { ResponseType, getErrorMessage } from "adapter";
+import { ResponseDetailsType } from "managers";
+import { createDispatcher, createClient, createAdapter, createRequest, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Dispatcher [ Events ]", () => {
-  const clientSpy = jest.fn();
+  const adapterSpy = jest.fn();
 
-  let client = createClient({ callback: clientSpy });
-  let builder = createBuilder().setClient(() => client);
-  let command = createCommand(builder);
-  let dispatcher = createDispatcher(builder);
+  let adapter = createAdapter({ callback: adapterSpy });
+  let client = createClient().setAdapter(() => adapter);
+  let request = createRequest(client);
+  let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
     startServer();
@@ -20,11 +20,11 @@ describe("Dispatcher [ Events ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient({ callback: clientSpy });
-    builder = createBuilder().setClient(() => client);
-    command = createCommand(builder);
-    dispatcher = createDispatcher(builder);
-    createRequestInterceptor(command);
+    adapter = createAdapter({ callback: adapterSpy });
+    client = createClient().setAdapter(() => adapter);
+    request = createRequest(client);
+    dispatcher = createDispatcher(client);
+    createRequestInterceptor(request);
   });
 
   afterAll(() => {
@@ -34,56 +34,56 @@ describe("Dispatcher [ Events ]", () => {
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
       const spy = jest.fn();
-      const unmount = builder.commandManager.events.onLoading(command.queueKey, spy);
-      dispatcher.add(command);
+      const unmount = client.requestManager.events.onLoading(request.queueKey, spy);
+      dispatcher.add(request);
       expect(spy).toBeCalledTimes(1);
       unmount();
-      dispatcher.add(command);
+      dispatcher.add(request);
       expect(spy).toBeCalledTimes(1);
     });
     it("should emit drained event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onDrained(command.queueKey, spy);
-      dispatcher.add(command.setQueued(true));
+      const unmount = dispatcher.events.onDrained(request.queueKey, spy);
+      dispatcher.add(request.setQueued(true));
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });
       unmount();
-      dispatcher.add(command.setQueued(true));
+      dispatcher.add(request.setQueued(true));
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueStatus(command.queueKey, spy);
-      dispatcher.stop(command.queueKey);
+      const unmount = dispatcher.events.onQueueStatus(request.queueKey, spy);
+      dispatcher.stop(request.queueKey);
       expect(spy).toBeCalledTimes(1);
       unmount();
-      dispatcher.stop(command.queueKey);
+      dispatcher.stop(request.queueKey);
       expect(spy).toBeCalledTimes(1);
     });
     it("should emit queue change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueChange(command.queueKey, spy);
-      dispatcher.add(command);
+      const unmount = dispatcher.events.onQueueChange(request.queueKey, spy);
+      dispatcher.add(request);
       expect(spy).toBeCalledTimes(1);
       unmount();
-      dispatcher.add(command);
+      dispatcher.add(request);
       expect(spy).toBeCalledTimes(1);
     });
     it("should emit proper data response", async () => {
-      let response: [ClientResponseType<unknown, unknown>, CommandResponseDetails];
-      const mock = createRequestInterceptor(command);
+      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      const mock = createRequestInterceptor(request);
 
-      builder.commandManager.events.onResponse(command.cacheKey, (...rest) => {
+      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;
-        delete (response[1] as Partial<CommandResponseDetails>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
-      dispatcher.add(command);
+      dispatcher.add(request);
 
-      const clientResponse: ClientResponseType<unknown, unknown> = [mock, null, 200];
-      const responseDetails: Omit<CommandResponseDetails, "timestamp"> = {
+      const adapterResponse: ResponseType<unknown, unknown> = [mock, null, 200];
+      const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: false,
         isCanceled: false,
@@ -91,21 +91,21 @@ describe("Dispatcher [ Events ]", () => {
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([clientResponse, responseDetails]);
+        expect(response).toStrictEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper failed response", async () => {
-      let response: [ClientResponseType<unknown, unknown>, CommandResponseDetails];
-      const mock = createRequestInterceptor(command, { status: 400 });
+      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      const mock = createRequestInterceptor(request, { status: 400 });
 
-      builder.commandManager.events.onResponse(command.cacheKey, (...rest) => {
+      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;
-        delete (response[1] as Partial<CommandResponseDetails>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
-      dispatcher.add(command);
+      dispatcher.add(request);
 
-      const clientResponse: ClientResponseType<unknown, unknown> = [null, mock, 400];
-      const responseDetails: Omit<CommandResponseDetails, "timestamp"> = {
+      const adapterResponse: ResponseType<unknown, unknown> = [null, mock, 400];
+      const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: true,
         isCanceled: false,
@@ -113,28 +113,28 @@ describe("Dispatcher [ Events ]", () => {
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([clientResponse, responseDetails]);
+        expect(response).toStrictEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper retry response", async () => {
-      let response: [ClientResponseType<unknown, unknown>, CommandResponseDetails];
-      const commandWithRetry = command.setRetry(1).setRetryTime(50);
-      createRequestInterceptor(commandWithRetry, { status: 400, delay: 0 });
+      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      const requestWithRetry = request.setRetry(1).setRetryTime(50);
+      createRequestInterceptor(requestWithRetry, { status: 400, delay: 0 });
 
-      builder.commandManager.events.onResponse(commandWithRetry.cacheKey, (...rest) => {
+      client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
         response = rest;
-        delete (response[1] as Partial<CommandResponseDetails>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
-      dispatcher.add(commandWithRetry);
+      dispatcher.add(requestWithRetry);
 
       await waitFor(() => {
         expect(response).toBeDefined();
       });
 
-      const mock = createRequestInterceptor(commandWithRetry);
+      const mock = createRequestInterceptor(requestWithRetry);
 
-      const clientResponse: ClientResponseType<unknown, unknown> = [mock, null, 200];
-      const responseDetails: Omit<CommandResponseDetails, "timestamp"> = {
+      const adapterResponse: ResponseType<unknown, unknown> = [mock, null, 200];
+      const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isFailed: false,
         isCanceled: false,
@@ -142,23 +142,23 @@ describe("Dispatcher [ Events ]", () => {
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([clientResponse, responseDetails]);
+        expect(response).toStrictEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper cancel response", async () => {
-      let response: [ClientResponseType<unknown, unknown>, CommandResponseDetails];
-      createRequestInterceptor(command, { status: 400 });
+      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      createRequestInterceptor(request, { status: 400 });
 
-      builder.commandManager.events.onResponse(command.cacheKey, (...rest) => {
+      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;
-        delete (response[1] as Partial<CommandResponseDetails>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
-      dispatcher.add(command);
+      dispatcher.add(request);
       await sleep(1);
-      builder.commandManager.abortAll();
+      client.requestManager.abortAll();
 
-      const clientResponse: ClientResponseType<unknown, unknown> = [null, getErrorMessage("abort"), 0];
-      const responseDetails: Omit<CommandResponseDetails, "timestamp"> = {
+      const adapterResponse: ResponseType<unknown, unknown> = [null, getErrorMessage("abort"), 0];
+      const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: true,
         isCanceled: true,
@@ -166,7 +166,7 @@ describe("Dispatcher [ Events ]", () => {
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([clientResponse, responseDetails]);
+        expect(response).toStrictEqual([adapterResponse, responseDetails]);
       });
     });
   });

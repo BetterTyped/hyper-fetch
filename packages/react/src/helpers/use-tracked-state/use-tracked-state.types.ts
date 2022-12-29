@@ -1,44 +1,44 @@
 import {
   Dispatcher,
-  ExtractError,
+  ExtractErrorType,
   CacheValueType,
-  ExtractResponse,
-  ClientResponseType,
-  CommandInstance,
+  ExtractResponseType,
+  ResponseType,
+  RequestInstance,
   LoggerType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 
-export type UseTrackedStateProps<T extends CommandInstance> = {
-  command: T;
+export type UseTrackedStateProps<T extends RequestInstance> = {
+  request: T;
   logger: LoggerType;
-  initialData: ClientResponseType<ExtractResponse<T>, ExtractError<T>> | null;
+  initialData: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>> | null;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   defaultCacheEmitting?: boolean;
   deepCompare: boolean | typeof isEqual;
 };
 
-export type UseTrackedStateReturn<T extends CommandInstance> = [
+export type UseTrackedStateReturn<T extends RequestInstance> = [
   UseTrackedStateType<T>,
   UseTrackedStateActions<T>,
   {
     setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void;
-    setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
+    setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
     getStaleStatus: () => boolean;
   },
 ];
 
-export type UseTrackedStateType<T extends CommandInstance = CommandInstance> = {
+export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   /**
    * Request response data
    */
-  data: null | ExtractResponse<T>;
+  data: null | ExtractResponseType<T>;
   /**
    * Request response error
    */
-  error: null | ExtractError<T>;
+  error: null | ExtractErrorType<T>;
   /**
    * Request loading state
    */
@@ -57,15 +57,15 @@ export type UseTrackedStateType<T extends CommandInstance = CommandInstance> = {
   timestamp: null | Date;
 };
 
-export type UseTrackedStateActions<T extends CommandInstance> = {
+export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option.
    */
-  setData: (data: ExtractResponse<T>, emitToCache?: boolean) => void;
+  setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
   /**
    * Action to set custom error. We can do it locally(inside hook state) or in all hooks with 'emitToCache' option.
    */
-  setError: (error: ExtractError<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
   /**
    * Action to set custom loading. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */

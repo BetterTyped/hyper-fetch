@@ -2,11 +2,11 @@ import { getErrorMessage } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { testErrorState } from "../../shared";
-import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Cancel ]", () => {
-  let command = createCommand({ cancelable: true });
+  let request = createRequest({ cancelable: true });
 
   beforeAll(() => {
     startServer();
@@ -22,28 +22,30 @@ describe("useFetch [ Cancel ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand({ cancelable: true });
-    builder.clear();
+    request = createRequest({ cancelable: true });
+    client.clear();
   });
 
-  describe("given command is cancelable", () => {
+  describe("given request is cancelable", () => {
     describe("when aborting request", () => {
       it("should allow to cancel the ongoing request", async () => {
-        createRequestInterceptor(command);
-        const response = renderUseFetch(command);
+        createRequestInterceptor(request, { delay: 40 });
+        const response = renderUseFetch(request);
 
         await waitForRender();
-        await act(() => {
+
+        act(() => {
           response.result.current.abort();
         });
+
         await testErrorState(getErrorMessage("abort"), response);
       });
 
       it("should allow to cancel deduplicated request", async () => {
-        createRequestInterceptor(command, { delay: 100 });
-        const response = renderUseFetch(command);
+        createRequestInterceptor(request, { delay: 100 });
+        const response = renderUseFetch(request);
         await waitForRender();
-        const dedupeResponse = renderUseFetch(command);
+        const dedupeResponse = renderUseFetch(request);
         await waitForRender();
 
         await act(() => {
@@ -56,14 +58,14 @@ describe("useFetch [ Cancel ]", () => {
       it("should cancel previous requests when dependencies change", async () => {
         const spy = jest.fn();
 
-        createRequestInterceptor(command);
-        const response = renderUseFetch(command, { dependencies: [{}] });
+        createRequestInterceptor(request);
+        const response = renderUseFetch(request, { dependencies: [{}] });
         await waitForRender();
 
         act(() => {
           const params = { page: 1 };
           response.result.current.onAbort(spy);
-          response.rerender({ command: command.setQueryParams(params), dependencies: [params] });
+          response.rerender({ request: request.setQueryParams(params), dependencies: [params] });
         });
         await waitForRender();
 

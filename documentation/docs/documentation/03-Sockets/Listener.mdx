@@ -75,7 +75,7 @@ const removeEvent = onChatMessage.listen((message) => console.log(message));
 removeEvent() // We remove listener
 ```
 
-Remove event listeners directly from the client
+Remove event listeners directly from the adapter
 
 ```tsx
 const callback = (message) => console.log(message);
@@ -83,8 +83,8 @@ const removeEvent = onChatMessage.listen(callback);
 
 ...
 
-socket.client.listeners.delete(onChatMessage.name) // We remove ALL listeners from given event
-socket.client.listeners.get(onChatMessage.name).delete(callback) // We remove single listener from given event
+socket.adapter.listeners.delete(onChatMessage.name) // We remove ALL listeners from given event
+socket.adapter.listeners.get(onChatMessage.name).delete(callback) // We remove single listener from given event
 ```
 
 Listen to event `once`

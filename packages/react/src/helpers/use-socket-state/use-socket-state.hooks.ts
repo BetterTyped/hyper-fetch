@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { SocketInstance } from "@hyper-fetch/sockets";
-import { useDidMount, useDidUpdate, useForceUpdate } from "@better-typed/react-lifecycle-hooks";
+import { useDidMount, useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 
 import { UseSocketStateType, initialSocketState, UseSocketStateProps } from "helpers";
 

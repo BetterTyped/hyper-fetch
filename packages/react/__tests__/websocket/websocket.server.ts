@@ -19,7 +19,7 @@ export const createWsServer = (options?: ConstructorParameters<typeof WS>[1] & {
     resetWsServer();
   }
   wsServer = new WS(url, wsOptions);
-  socket.client.reconnect();
+  socket.adapter.reconnect();
   return wsServer;
 };
 

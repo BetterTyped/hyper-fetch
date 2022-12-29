@@ -1,11 +1,11 @@
-import { ClientResponseType } from "client";
-import { CommandInstance } from "command";
+import { ResponseType } from "adapter";
+import { RequestInstance } from "request";
 import { sleep } from "./helpers.utils";
 
 export const interceptorCallback = (props?: { sleepTime?: number; callback: () => void }) => {
   const { sleepTime, callback } = props || {};
 
-  return async (response?: ClientResponseType<null, null>): Promise<ClientResponseType<null, null>> => {
+  return async (response?: ResponseType<null, null>): Promise<ResponseType<null, null>> => {
     if (sleepTime) {
       await sleep(sleepTime);
     }
@@ -18,12 +18,12 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
 export const middlewareCallback = (props?: { sleepTime?: number; callback: () => void }) => {
   const { sleepTime, callback } = props || {};
 
-  return async (command: CommandInstance): Promise<CommandInstance> => {
+  return async (request: RequestInstance): Promise<RequestInstance> => {
     if (sleepTime) {
       await sleep(sleepTime);
     }
 
     callback?.();
-    return command;
+    return request;
   };
 };

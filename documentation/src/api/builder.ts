@@ -1,3 +1,3 @@
-import { Builder } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 
-export const githubBuilder = new Builder({ baseUrl: "https://api.github.com" });
+export const githubClient = new Client({ baseUrl: "https://api.github.com" });

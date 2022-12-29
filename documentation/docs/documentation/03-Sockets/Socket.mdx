@@ -69,7 +69,7 @@ Use the `onSend` socket method if you need to use the pre-emitting interceptor t
 
 ### On-Message Interceptors
 
-There are few methods for intercepting a response from a command:
+There are few methods for intercepting a response from a request:
 
 - `onError` which is triggered on error from socket.
 - `onMessage` which is triggered on any received message.
@@ -81,7 +81,7 @@ We can modify received data with this interceptor before it will be emitted to o
 Sockets has a built-in query params encoding function; you can modify its options or provide your own function. Use the
 `queryParamsConfig` method and the options listed below.
 
-{@import Hyper-Fetch QueryStringifyOptions returns}
+{@import Hyper-Fetch QueryStringifyOptionsType returns}
 
 To change the encoding function, use the `queryParamsStringify` method.
 
@@ -97,15 +97,15 @@ new Sockets({
 
 ## Typescript
 
-Sockets has one generic type responsible for the type of the current `Socket Client`. It defaults to the built-in
+Sockets has one generic type responsible for the type of the current `Socket Adapter`. It defaults to the built-in
 adapter type.
 
 ```tsx
-class Sockets<ClientType>
+class Sockets<AdapterType>
 ```
 
-It needs to fulfill the `WebsocketClientType` interface.
+It needs to fulfill the `AdapterType` interface.
 
-{@import Sockets WebsocketClientType returns}
+{@import Sockets AdapterType returns}
 
 ---

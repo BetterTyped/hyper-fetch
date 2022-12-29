@@ -4,10 +4,10 @@ sidebar_position: 6
 
 ## Introduction
 
-Testing is one of the best things in Hyper Fetch. With our architecture and focus on global singleton structure,
-tests can be largely based on the application’s configuration.
-This means tests are no longer sensitive to micro-changes (like changing endpoints or types).
-Everything reacts and adapts to tests or shows the appropriate error – making tests easier to maintain and faster to write.
+Testing is one of the best things in Hyper Fetch. With our architecture and focus on global singleton structure, tests
+can be largely based on the application’s configuration. This means tests are no longer sensitive to micro-changes (like
+changing endpoints or types). Everything reacts and adapts to tests or shows the appropriate error – making tests easier
+to maintain and faster to write.
 
 ---
 
@@ -22,32 +22,32 @@ Everything reacts and adapts to tests or shows the appropriate error – making 
 
 ## Isolation
 
-The `Builder` can become a global module, which will cause it to get mixed between test cases from different files if we run them in many workers.
-Thus, we need to isolate it. This takes two steps:
+The `Client` can become a global module, which will cause it to get mixed between test cases from different files if we
+run them in many workers. Thus, we need to isolate it. This takes two steps:
 
-1. ** Clear the Builder**
+1. ** Clear the Client**
 
-Use the built-in method `.clear()` to ensure builder submodules are initialized and clear of any changes.
+Use the built-in method `.clear()` to ensure client submodules are initialized and clear of any changes.
 
 2. **Clear the node / runner cache**
 
-As you would with Jest, use the built-in method `.resetModules()` to clean the builder global module and reinitialize it.
+As you would with Jest, use the built-in method `.resetModules()` to clean the client global module and reinitialize it.
 Depending on the libraries used, you can check out your environment runner methods or try libraries like **decache**.
 
 ---
 
 ## Example
 
-In this example, we’re using the great mocking libraries [msw](https://mswjs.io/) and [testing-library](https://testing-library.com/),
-but this solution works with other libraries like [Cypress](https://www.cypress.io/).
-This allows us to simulate real requests and make our tests as close to the production environment as possible.
-We can thus create a really powerful flow that allows us to easily develop tests.
+In this example, we’re using the great mocking libraries [msw](https://mswjs.io/) and
+[testing-library](https://testing-library.com/), but this solution works with other libraries like
+[Cypress](https://www.cypress.io/). This allows us to simulate real requests and make our tests as close to the
+production environment as possible. We can thus create a really powerful flow that allows us to easily develop tests.
 
-You can build a utilities set that takes a command and uses its method,
-endpoint and types to create functions that allow you to intercept requests.
+You can build a utilities set that takes a request and uses its method, endpoint and types to create functions that
+allow you to intercept requests.
 
 ```tsx
-import { builder } from "../api/builder";
+import { client } from "../api/client";
 import { getUsers } from "../api";
 
 // 'createInterceptor' is some custom method for handling intercepting in the tests we write
@@ -60,11 +60,11 @@ const getUsersInterceptor = createInterceptor(getUsers, {
 });
 
 beforeEach(() => {
-  // We need to reset modules cache as builder is globally exported module
+  // We need to reset modules cache as client is globally exported module
   // This way it will not get mixed-up with other test cases running in parallel
   jest.resetModules();
   // Clean the environment to make sure it's isolated
-  builder.clear();
+  client.clear();
 });
 
 it("My test", async () => {

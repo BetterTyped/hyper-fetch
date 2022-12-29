@@ -6,7 +6,7 @@ import { useAppManager } from "@hyper-fetch/react";
 
 import { Sidebar } from "components/sidebar";
 import { DASHBOARD_PAGE } from "constants/routing.constants";
-import { builder } from "api";
+import { client } from "api";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,
@@ -14,7 +14,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
   noButtons,
 }) => {
   const [mount, setMount] = useState(true);
-  const { isOnline, isFocused } = useAppManager(builder);
+  const { isOnline, isFocused } = useAppManager(client);
 
   const push = useNavigate();
 

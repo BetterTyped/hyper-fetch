@@ -17,7 +17,7 @@ will allow us to find the desired key of the data stored in cache.
 // With useFetch
 const { revalidate } = useFetch(getUsers);
 
-// Refresh used command
+// Refresh used request
 revalidate()
 // or
 revalidate(getNotes)
@@ -39,7 +39,7 @@ revalidate(new RegExp(...))
 // With useCache
 const { revalidate } = useCache(getUsers);
 
-// Refresh used command
+// Refresh used request
 revalidate()
 // or
 revalidate(getNotes)
@@ -53,9 +53,9 @@ revalidate(new RegExp(...))
   <TabItem value="Typescript" label="Typescript" default>
 
 ```ts
-builder.cache.revalidate(getNotes.cacheKey)
+client.cache.revalidate(getNotes.cacheKey)
 // or
-builder.cache.revalidate(new RegExp(...))
+client.cache.revalidate(new RegExp(...))
 ```
 
   </TabItem>

@@ -4,7 +4,7 @@ import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
-  clientOptions: {
+  adapterOptions: {
     heartbeat: true,
     heartbeatMessage: "Test Heartbeat",
     pingTimeout: 10,
@@ -12,7 +12,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   },
 };
 
-describe("Socket Client [ Heartbeat ]", () => {
+describe("Socket Adapter [ Heartbeat ]", () => {
   let server = createWsServer();
   let socket = createSocket(socketOptions);
 
@@ -27,7 +27,7 @@ describe("Socket Client [ Heartbeat ]", () => {
       JSON.stringify({
         id: "heartbeat",
         name: "heartbeat",
-        data: socketOptions.clientOptions.heartbeatMessage,
+        data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
   });
@@ -37,7 +37,7 @@ describe("Socket Client [ Heartbeat ]", () => {
       JSON.stringify({
         id: "heartbeat",
         name: "heartbeat",
-        data: socketOptions.clientOptions.heartbeatMessage,
+        data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
     server.send(JSON.stringify({ name: "heartbeat", data: new Date().toISOString() }));
@@ -45,7 +45,7 @@ describe("Socket Client [ Heartbeat ]", () => {
       JSON.stringify({
         id: "heartbeat",
         name: "heartbeat",
-        data: socketOptions.clientOptions.heartbeatMessage,
+        data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
   });
@@ -54,11 +54,11 @@ describe("Socket Client [ Heartbeat ]", () => {
       JSON.stringify({
         id: "heartbeat",
         name: "heartbeat",
-        data: socketOptions.clientOptions.heartbeatMessage,
+        data: socketOptions.adapterOptions.heartbeatMessage,
       }),
     );
     await waitFor(() => {
-      expect(socket.client.open).toBeFalse();
+      expect(socket.adapter.open).toBeFalse();
     });
   });
 });

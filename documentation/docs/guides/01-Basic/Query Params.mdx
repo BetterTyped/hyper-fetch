@@ -12,7 +12,7 @@ The use of query params is based on built-in parser. We can freely change its op
 
 ### Setting query params
 
-You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
+You can set query params by using the `setQueryParams` method on request. It's type can be configured on request
 creation.
 
 ```ts
@@ -21,28 +21,28 @@ type QueryParamsType = {
   sort: string;
 };
 
-const getUsers = builder.createCommand<Response, void, void, QueryParamsType>()({ endpoint: "/users" });
+const getUsers = client.createRequest<Response, void, void, QueryParamsType>()({ endpoint: "/users" });
 
 // Setting the query params
 
-const command = getUsers.setQueryParams({ search: "John", sort: "age" });
-console.log(command.endpoint); // Output: "/users?search=John&sort=age"
+const request = getUsers.setQueryParams({ search: "John", sort: "age" });
+console.log(request.endpoint); // Output: "/users?search=John&sort=age"
 ```
 
 ```ts
-const getUsers = builder.createCommand<Response, void, void, string>()({ endpoint: "/users" });
+const getUsers = client.createRequest<Response, void, void, string>()({ endpoint: "/users" });
 
-const command = getUsers.setQueryParams("search=John&sort=age");
-console.log(command.endpoint); // Output: "/users?search=John&sort=age"
+const request = getUsers.setQueryParams("search=John&sort=age");
+console.log(request.endpoint); // Output: "/users?search=John&sort=age"
 ```
 
 ### Custom query params format
 
-We can setup custom config with instructions how to stringify the values. It can be setup on the builder with
+We can setup custom config with instructions how to stringify the values. It can be setup on the client with
 `setQueryParamsConfig` method.
 
 #### Available options:
 
-{@import Hyper-Fetch QueryStringifyOptions returns}
+{@import Hyper-Fetch QueryStringifyOptionsType returns}
 
 ---

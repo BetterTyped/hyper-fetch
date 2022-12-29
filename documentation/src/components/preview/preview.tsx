@@ -10,7 +10,7 @@ export function Preview(): JSX.Element {
       <div className="container">
         <h2 className="page-section-title">Simple. Fast. Better.</h2>
         <div className="page-section-subtitle">
-          Save time needed to handle state and reducers. Save time on http client setup and it's dependencies.
+          Save time needed to handle state and reducers. Save time on http adapter setup and it's dependencies.
           Everything is set up right after installation, it's fully configured environment with no external
           dependencies!
         </div>

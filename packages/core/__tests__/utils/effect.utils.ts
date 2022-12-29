@@ -1,9 +1,9 @@
-import { FetchEffect, FetchEffectConfig } from "effect";
-import { CommandInstance } from "command";
+import { RequestEffect, RequestEffectOptionsType } from "effect";
+import { RequestInstance } from "request";
 
 export const createEffect = (
-  command: CommandInstance,
-  options?: Partial<Omit<FetchEffectConfig<CommandInstance>, "effectKey">>,
+  request: RequestInstance,
+  options?: Partial<Omit<RequestEffectOptionsType<RequestInstance>, "effectKey">>,
 ) => {
-  return new FetchEffect({ ...options, effectKey: command.effectKey });
+  return new RequestEffect({ ...options, effectKey: request.effectKey });
 };

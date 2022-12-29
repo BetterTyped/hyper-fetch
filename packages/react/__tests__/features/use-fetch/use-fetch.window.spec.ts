@@ -1,10 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
-import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
 describe("useFetch [ Basic ]", () => {
-  let command = createCommand({ cancelable: true });
+  let request = createRequest({ cancelable: true });
 
   beforeAll(() => {
     startServer();
@@ -20,21 +20,21 @@ describe("useFetch [ Basic ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand({ cancelable: true });
-    builder.clear();
+    request = createRequest({ cancelable: true });
+    client.clear();
   });
 
   it("should refresh on tab focus", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(command, { delay: 0 });
-    const response = renderUseFetch(command, { refreshOnFocus: true });
+    createRequestInterceptor(request, { delay: 0 });
+    const response = renderUseFetch(request, { refreshOnFocus: true });
 
     await waitForRender();
 
     act(() => {
       response.result.current.onRequestStart(spy);
-      builder.appManager.setFocused(false);
-      builder.appManager.setFocused(true);
+      client.appManager.setFocused(false);
+      client.appManager.setFocused(true);
     });
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -42,8 +42,8 @@ describe("useFetch [ Basic ]", () => {
   });
   it("should refresh on tab blur", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(command, { delay: 0 });
-    const response = renderUseFetch(command, { refreshOnBlur: true });
+    createRequestInterceptor(request, { delay: 0 });
+    const response = renderUseFetch(request, { refreshOnBlur: true });
 
     await waitForRender();
     act(() => {

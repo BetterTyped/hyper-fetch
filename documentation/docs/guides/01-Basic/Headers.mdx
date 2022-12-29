@@ -6,14 +6,14 @@ sidebar_position: 5
 
 ### Request Headers
 
-We can set the headers in two ways - when creating the command, or dynamically through `.setHeaders(` method.
+We can set the headers in two ways - when creating the request, or dynamically through `.setHeaders(` method.
 
 ---
 
 ### Example
 
 ```ts
-const getUsers = builder.createCommand()({
+const getUsers = client.createRequest()({
   endpoint: "/users",
   headers: {
     "Content-Type": "application/json",
@@ -23,8 +23,8 @@ console.log(getUsers.headers); // Output: { "Content-Type": "application/json" }
 ```
 
 ```ts
-const command = createUser.setHeaders({
+const request = createUser.setHeaders({
   "Content-Type": "application/json",
 });
-console.log(command.headers); // Output: { "Content-Type": "application/json" }
+console.log(request.headers); // Output: { "Content-Type": "application/json" }
 ```

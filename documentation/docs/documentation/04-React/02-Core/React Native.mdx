@@ -14,7 +14,7 @@ The default events that handle online/offline status in the library are based on
 environment. To use mobile device solutions, you can change the code responsible for handling the connection status.
 
 ```tsx
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {
@@ -35,7 +35,7 @@ You can use similar logic to that used for online/offline status handling to han
 during focus (active usage) and blur (inactive) states.
 
 ```tsx
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {

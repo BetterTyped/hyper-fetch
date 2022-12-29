@@ -1,18 +1,18 @@
-import { DispatcherData } from "dispatcher";
-import { createDispatcher, createBuilder, createCommand } from "../../utils";
+import { QueueDataType } from "dispatcher";
+import { createDispatcher, createClient, createRequest } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Dispatcher [ Basic ]", () => {
-  let builder = createBuilder();
-  let command = createCommand(builder);
+  let client = createClient();
+  let request = createRequest(client);
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    builder = createBuilder();
-    command = createCommand(builder);
+    client = createClient();
+    request = createRequest(client);
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -23,46 +23,46 @@ describe("Dispatcher [ Basic ]", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should allow to change storage", async () => {
-      const storage = new Map<string, DispatcherData>();
-      const newDispatcher = createDispatcher(builder, { storage });
+      const storage = new Map<string, QueueDataType>();
+      const newDispatcher = createDispatcher(client, { storage });
 
-      const dispatcherDump = newDispatcher.createStorageElement(command);
-      newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
+      const dispatcherDump = newDispatcher.createStorageElement(request);
+      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
 
-      expect(storage.get(command.queueKey)?.requests[0]).toBe(dispatcherDump);
+      expect(storage.get(request.queueKey)?.requests[0]).toBe(dispatcherDump);
     });
     it("should trigger onInitialization callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(builder, { onInitialization: spy });
+      const newDispatcher = createDispatcher(client, { onInitialization: spy });
 
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(newDispatcher);
     });
     it("should trigger onUpdateStorage callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(builder, { onUpdateStorage: spy });
+      const newDispatcher = createDispatcher(client, { onUpdateStorage: spy });
 
-      newDispatcher.stop(command.queueKey);
+      newDispatcher.stop(request.queueKey);
 
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(command.queueKey, { requests: [], stopped: true });
+      expect(spy).toBeCalledWith(request.queueKey, { requests: [], stopped: true });
     });
     it("should trigger onDeleteFromStorage callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(builder, { onDeleteFromStorage: spy });
-      const dispatcherDump = newDispatcher.createStorageElement(command);
+      const newDispatcher = createDispatcher(client, { onDeleteFromStorage: spy });
+      const dispatcherDump = newDispatcher.createStorageElement(request);
 
-      newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
-      newDispatcher.delete(command.queueKey, dispatcherDump.requestId, command.abortKey);
-      newDispatcher.addQueueElement(command.queueKey, dispatcherDump);
-      newDispatcher.clearQueue(command.queueKey);
+      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
+      newDispatcher.delete(request.queueKey, dispatcherDump.requestId, request.abortKey);
+      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
+      newDispatcher.clearQueue(request.queueKey);
 
       expect(spy).toBeCalledTimes(2);
-      expect(spy).toBeCalledWith(command.queueKey, { requests: [], stopped: false });
+      expect(spy).toBeCalledWith(request.queueKey, { requests: [], stopped: false });
     });
     it("should trigger onClearStorage callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(builder, { onClearStorage: spy });
+      const newDispatcher = createDispatcher(client, { onClearStorage: spy });
 
       newDispatcher.clear();
 

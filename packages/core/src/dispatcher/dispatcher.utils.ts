@@ -1,6 +1,6 @@
-import { CommandInstance } from "command";
-import { ClientResponseType } from "client";
-import { DispatcherRequestType, DispatcherDumpValueType } from "dispatcher";
+import { RequestInstance } from "request";
+import { ResponseType } from "adapter";
+import { DispatcherRequestType, DispatcherStorageValueType } from "dispatcher";
 
 // Events
 
@@ -30,9 +30,9 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
   return false;
 };
 
-export const getRequestType = (command: CommandInstance, latestRequest: DispatcherDumpValueType | undefined) => {
-  const { queued, cancelable, deduplicate } = command;
-  const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= command.deduplicateTime : false;
+export const getRequestType = (request: RequestInstance, latestRequest: DispatcherStorageValueType | undefined) => {
+  const { queued, cancelable, deduplicate } = request;
+  const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
 
   if (queued) {
     return DispatcherRequestType.oneByOne;
@@ -46,7 +46,7 @@ export const getRequestType = (command: CommandInstance, latestRequest: Dispatch
   return DispatcherRequestType.allAtOnce;
 };
 
-export const isFailedRequest = (data: ClientResponseType<unknown, unknown>) => {
+export const isFailedRequest = (data: ResponseType<unknown, unknown>) => {
   const [, , status] = data;
   if (!status || status >= 400) {
     return true;

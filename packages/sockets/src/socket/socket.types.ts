@@ -1,27 +1,27 @@
-import { ClientQueryParamsType, QueryStringifyOptions, StringifyCallbackType } from "@hyper-fetch/core";
+import { QueryParamsType, QueryStringifyOptionsType, StringifyCallbackType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { ServerSentEventsClientOptionsType, WebsocketClientOptionsType } from "client";
+import { SSEAdapterOptionsType, WSAdapterOptionsType } from "adapter";
 import { EmitterInstance } from "emitter";
 
 export type SocketInstance = Socket<any>;
 
-export type SocketConfigBaseType<SocketClientType> = {
+export type SocketOptionsType<SocketAdapterType> = {
   url: string;
-  client?: SocketClientType;
-  auth?: ClientQueryParamsType;
-  queryParams?: ClientQueryParamsType | string;
+  adapter?: SocketAdapterType;
+  auth?: QueryParamsType;
+  queryParams?: QueryParamsType | string;
   reconnect?: number;
   reconnectTime?: number;
   autoConnect?: boolean;
-  queryParamsConfig?: QueryStringifyOptions;
+  queryParamsConfig?: QueryStringifyOptionsType;
   queryParamsStringify?: StringifyCallbackType;
 };
 
-export type SocketConfig<SocketClientType> =
-  | (SocketConfigBaseType<SocketClientType> & { isSSE: true; clientOptions?: ServerSentEventsClientOptionsType })
-  | (SocketConfigBaseType<SocketClientType> & {
-      clientOptions?: WebsocketClientOptionsType;
+export type SocketAdapterOptionsType<SocketAdapterType> =
+  | (SocketOptionsType<SocketAdapterType> & { isSSE: true; adapterOptions?: SSEAdapterOptionsType })
+  | (SocketOptionsType<SocketAdapterType> & {
+      adapterOptions?: WSAdapterOptionsType;
     });
 
 export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;

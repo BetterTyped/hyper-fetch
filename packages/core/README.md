@@ -59,7 +59,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
 
-📡 **Built-in client** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Client)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
 
 🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Testing)
 

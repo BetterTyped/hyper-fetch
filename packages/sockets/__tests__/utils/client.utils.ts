@@ -1,8 +1,8 @@
 import { SocketInstance } from "socket";
-import { SocketClient } from "client";
+import { SocketAdapter } from "adapter";
 
-export const createClient = <T extends SocketInstance>(socket: T, options?: T["options"]["clientOptions"]) => {
+export const createAdapter = <T extends SocketInstance>(socket: T, options?: T["options"]["adapterOptions"]) => {
   // eslint-disable-next-line no-param-reassign
-  socket.options.clientOptions = options;
-  return new SocketClient(socket);
+  socket.options.adapterOptions = options;
+  return new SocketAdapter(socket);
 };

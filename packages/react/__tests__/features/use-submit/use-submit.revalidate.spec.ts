@@ -2,11 +2,11 @@ import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseFetch, renderUseSubmit } from "../../utils";
+import { client, createRequest, renderUseFetch, renderUseSubmit } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
-  let commandSubmit = createCommand<null, null>({ method: "POST" });
-  let commandFetch = createCommand({ endpoint: "fetch-test" });
+  let requestSubmit = createRequest<null, null>({ method: "POST" });
+  let requestFetch = createRequest({ endpoint: "fetch-test" });
 
   beforeAll(() => {
     startServer();
@@ -22,23 +22,23 @@ describe("useFetch [ Revalidate ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    commandSubmit = createCommand({ method: "POST" });
-    commandFetch = createCommand({ endpoint: "fetch-test" });
+    client.clear();
+    requestSubmit = createRequest({ method: "POST" });
+    requestFetch = createRequest({ endpoint: "fetch-test" });
   });
 
-  it("should allow to revalidate other command on finished", async () => {
-    const submitMock = createRequestInterceptor(commandSubmit);
-    const errorFetchMock = createRequestInterceptor(commandFetch, { status: 400 });
-    const responseSubmit = renderUseSubmit(commandSubmit);
-    const responseFetch = renderUseFetch(commandFetch);
+  it("should allow to revalidate other request on finished", async () => {
+    const submitMock = createRequestInterceptor(requestSubmit);
+    const errorFetchMock = createRequestInterceptor(requestFetch, { status: 400 });
+    const responseSubmit = renderUseSubmit(requestSubmit);
+    const responseFetch = renderUseFetch(requestFetch);
 
     await testErrorState(errorFetchMock, responseFetch);
-    const fetchMock = createRequestInterceptor(commandFetch);
+    const fetchMock = createRequestInterceptor(requestFetch);
 
     act(() => {
       responseSubmit.result.current.onSubmitFinished(() => {
-        responseSubmit.result.current.revalidate(commandFetch);
+        responseSubmit.result.current.revalidate(requestFetch);
       });
       responseSubmit.result.current.submit();
     });
@@ -46,58 +46,58 @@ describe("useFetch [ Revalidate ]", () => {
     await testSuccessState(submitMock, responseSubmit);
     await testSuccessState(fetchMock, responseFetch);
   });
-  it("should allow to revalidate by Command", async () => {
-    const spy = jest.spyOn(builder.cache, "revalidate");
+  it("should allow to revalidate by Request", async () => {
+    const spy = jest.spyOn(client.cache, "revalidate");
 
-    const { result } = renderUseSubmit(commandSubmit);
+    const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.revalidate(commandSubmit);
+      result.current.revalidate(requestSubmit);
     });
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
   it("should allow to revalidate by RegExp", async () => {
-    const spy = jest.spyOn(builder.cache, "revalidate");
+    const spy = jest.spyOn(client.cache, "revalidate");
 
-    const { result } = renderUseSubmit(commandSubmit);
+    const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.revalidate(new RegExp(commandSubmit.cacheKey));
+      result.current.revalidate(new RegExp(requestSubmit.cacheKey));
     });
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(new RegExp(commandSubmit.cacheKey));
+    expect(spy).toBeCalledWith(new RegExp(requestSubmit.cacheKey));
   });
   it("should allow to revalidate by cacheKey", async () => {
-    const spy = jest.spyOn(builder.cache, "revalidate");
+    const spy = jest.spyOn(client.cache, "revalidate");
 
-    const { result } = renderUseSubmit(commandSubmit);
+    const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.revalidate(commandSubmit.cacheKey);
+      result.current.revalidate(requestSubmit.cacheKey);
     });
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
   it("should allow to revalidate by cacheKey", async () => {
-    const spy = jest.spyOn(builder.cache, "revalidate");
+    const spy = jest.spyOn(client.cache, "revalidate");
 
-    const { result } = renderUseSubmit(commandSubmit);
+    const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.revalidate([commandSubmit.cacheKey]);
+      result.current.revalidate([requestSubmit.cacheKey]);
     });
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(commandSubmit.cacheKey);
+    expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
   it("should not allow to revalidate without key", async () => {
-    const spy = jest.spyOn(builder.cache, "revalidate");
+    const spy = jest.spyOn(client.cache, "revalidate");
 
-    const { result } = renderUseSubmit(commandSubmit);
+    const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
       result.current.revalidate(undefined as string);

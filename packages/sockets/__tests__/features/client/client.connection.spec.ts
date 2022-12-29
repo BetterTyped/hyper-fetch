@@ -7,7 +7,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
-describe("Socket Client [ Connection ]", () => {
+describe("Socket Adapter [ Connection ]", () => {
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
@@ -36,9 +36,9 @@ describe("Socket Client [ Connection ]", () => {
   it("should reconnect when going online", async () => {
     const spy = jest.fn();
     socket.appManager.setOnline(false);
-    socket.client.disconnect();
+    socket.adapter.disconnect();
     socket.onClose(() => {
-      socket.client.open = false;
+      socket.adapter.open = false;
       socket.events.onOpen(spy);
       socket.appManager.setOnline(true);
     });
@@ -52,13 +52,13 @@ describe("Socket Client [ Connection ]", () => {
     const url = "ws://test";
     socket = createSocket({ url, reconnectTime: 0, autoConnect: false });
     socket.events.onReconnecting(spy);
-    socket.client.connect();
+    socket.adapter.connect();
     const server = createWsServer({ url });
 
     await server.connected;
 
     await waitFor(() => {
-      return !!socket.client.reconnectionAttempts;
+      return !!socket.adapter.reconnectionAttempts;
     });
 
     expect(spy).toBeCalledTimes(1);

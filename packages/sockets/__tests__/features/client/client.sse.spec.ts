@@ -5,10 +5,10 @@ import { createWsServer } from "../../websocket/websocket.server";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   isSSE: true,
-  clientOptions: { eventSourceInit: { withCredentials: true } },
+  adapterOptions: { eventSourceInit: { withCredentials: true } },
 };
 
-describe("Socket Client [ SSE ]", () => {
+describe("Socket Adapter [ SSE ]", () => {
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
@@ -21,15 +21,15 @@ describe("Socket Client [ SSE ]", () => {
     const spy = jest.fn();
     socket.onClose(spy);
     await waitFor(() => {
-      return socket.client.open;
+      return socket.adapter.open;
     });
-    socket.client.disconnect();
+    socket.adapter.disconnect();
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
     });
   });
 
   it("should throw error when emitting", async () => {
-    expect(() => socket.client.emit("", {} as any)).rejects.toThrow();
+    expect(() => socket.adapter.emit("", {} as any)).rejects.toThrow();
   });
 });

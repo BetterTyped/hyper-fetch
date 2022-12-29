@@ -28,8 +28,8 @@ const FeatureList: FeatureItem[] = [
     link: <Link to="/docs/documentation/Core/Cache">Read more</Link>,
   },
   {
-    description: "Built-in client",
-    link: <Link to="/docs/documentation/Core/Client">Read more</Link>,
+    description: "Built-in adapter",
+    link: <Link to="/docs/documentation/Core/Adapter">Read more</Link>,
   },
   {
     description: "Request cancellation",

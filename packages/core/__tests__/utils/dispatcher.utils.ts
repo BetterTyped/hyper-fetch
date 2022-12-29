@@ -1,6 +1,6 @@
 import { Dispatcher, DispatcherOptionsType } from "dispatcher";
-import { BuilderInstance } from "builder";
+import { ClientInstance } from "client";
 
-export const createDispatcher = (builder: BuilderInstance, options?: DispatcherOptionsType) => {
-  return new Dispatcher(builder, options);
+export const createDispatcher = (client: ClientInstance, options?: DispatcherOptionsType) => {
+  return new Dispatcher(client, options);
 };

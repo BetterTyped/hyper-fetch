@@ -11,22 +11,22 @@ The basic version of Hyper Fetch is not associated with any framework or library
 
 :::
 
-### 1. Initialize the Builder
+### 1. Initialize the Client
 
-The first step in implementing Hyper Fetch is to initialize the **[Builder](/documentation/02-Core/Builder.mdx)**. It
+The first step in implementing Hyper Fetch is to initialize the **[Client](/documentation/02-Core/Client.mdx)**. It
 manages the basic configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of
 **dispatchers**, **cache**, and **app managers**). Start by determining the `url` of your server.
 
-```tsx title="/src/server/builder.ts"
-import { Builder } from "@hyper-fetch/core";
+```tsx title="/src/server/client.ts"
+import { Client } from "@hyper-fetch/core";
 
-export const builder = new Builder({ url: "http://localhost:3000" });
+export const client = new Client({ url: "http://localhost:3000" });
 ```
 
-### 2. Create Commands
+### 2. Create Requests
 
-Then, having already prepared a connection to the server, we use the builder method to create
-**[commands](/documentation/02-Core/Command.mdx)** and assign types to them.
+Then, having already prepared a connection to the server, we use the client method to create
+**[requests](/documentation/02-Core/Request.mdx)** and assign types to them.
 
 :::caution
 
@@ -37,15 +37,15 @@ resolved.
 :::
 
 ```tsx title="/src/server/auth/auth.ts"
-import { builder } from "../builder.ts";
+import { client } from "../client.ts";
 
 type ResponseType = { token: string; refreshToken: string };
 type RequestType = { email: string; password: string };
 
-const postLogin = builder.createCommand<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
+const postLogin = client.createRequest<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
 ```
 
-### 3. Use Commands
+### 3. Use Requests
 
 <Tabs>
   <TabItem value="React" label="React" default>

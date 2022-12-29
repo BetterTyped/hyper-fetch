@@ -2,10 +2,10 @@ import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseSubmit } from "../../utils";
+import { client, createRequest, renderUseSubmit } from "../../utils";
 
 describe("useSubmit [ Methods ]", () => {
-  let command = createCommand<null, null>({ method: "POST" });
+  let request = createRequest<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -21,16 +21,16 @@ describe("useSubmit [ Methods ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand({ method: "POST" });
-    builder.clear();
+    request = createRequest({ method: "POST" });
+    client.clear();
   });
 
   describe("given hook is mounted", () => {
     describe("when processing request", () => {
       it("should trigger onRequestStart helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitRequestStart(spy);
@@ -42,8 +42,8 @@ describe("useSubmit [ Methods ]", () => {
       });
       it("should trigger onResponseStart helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitResponseStart(spy);
@@ -55,8 +55,8 @@ describe("useSubmit [ Methods ]", () => {
       });
       it("should trigger onDownloadProgress helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitDownloadProgress(spy);
@@ -68,8 +68,8 @@ describe("useSubmit [ Methods ]", () => {
       });
       it("should trigger onUploadProgress helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitUploadProgress(spy);
@@ -86,8 +86,8 @@ describe("useSubmit [ Methods ]", () => {
         const spy4 = jest.fn();
         const spy5 = jest.fn();
         const spy6 = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitRequestStart(spy1);
@@ -114,8 +114,8 @@ describe("useSubmit [ Methods ]", () => {
       it("should trigger onSuccess helper", async () => {
         const spy = jest.fn();
         const unusedSpy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitSuccess(spy);
@@ -130,8 +130,8 @@ describe("useSubmit [ Methods ]", () => {
       it("should trigger onError helper", async () => {
         const spy = jest.fn();
         const unusedSpy = jest.fn();
-        const mock = createRequestInterceptor(command, { status: 400 });
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request, { status: 400 });
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitError(spy);
@@ -145,8 +145,8 @@ describe("useSubmit [ Methods ]", () => {
       });
       it("should trigger onFinished helper on success", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command);
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitFinished(spy);
@@ -158,8 +158,8 @@ describe("useSubmit [ Methods ]", () => {
       });
       it("should trigger onFinished helper on error", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(command, { status: 400 });
-        const response = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request, { status: 400 });
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitFinished(spy);
@@ -173,13 +173,13 @@ describe("useSubmit [ Methods ]", () => {
     describe("when getting internal error", () => {
       it("should trigger onOfflineError helper", async () => {
         const spy = jest.fn();
-        createRequestInterceptor(command, { status: 400 });
-        const response = renderUseSubmit(command.setOffline(true));
+        createRequestInterceptor(request, { status: 400 });
+        const response = renderUseSubmit(request.setOffline(true));
 
         act(() => {
           response.result.current.onSubmitOfflineError(spy);
           response.result.current.submit();
-          builder.appManager.setOnline(false);
+          client.appManager.setOnline(false);
         });
 
         await waitFor(() => {
@@ -197,8 +197,8 @@ describe("useSubmit [ Methods ]", () => {
         const spy7 = jest.fn();
         const spy8 = jest.fn();
 
-        const errorMock = createRequestInterceptor(command, { status: 400 });
-        const response = renderUseSubmit(command.setRetry(1).setRetryTime(100));
+        const errorMock = createRequestInterceptor(request, { status: 400 });
+        const response = renderUseSubmit(request.setRetry(1).setRetryTime(100));
 
         act(() => {
           response.result.current.onSubmitRequestStart(spy1);
@@ -213,7 +213,7 @@ describe("useSubmit [ Methods ]", () => {
         });
 
         await testErrorState(errorMock, response);
-        const successMock = createRequestInterceptor(command);
+        const successMock = createRequestInterceptor(request);
         await testSuccessState(successMock, response);
 
         expect(spy1).toBeCalledTimes(2);
@@ -235,8 +235,8 @@ describe("useSubmit [ Methods ]", () => {
         const spy7 = jest.fn();
         const spy8 = jest.fn();
 
-        const errorMock = createRequestInterceptor(command, { status: 400 });
-        const response = renderUseSubmit(command);
+        const errorMock = createRequestInterceptor(request, { status: 400 });
+        const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitRequestStart(spy1);
@@ -249,14 +249,14 @@ describe("useSubmit [ Methods ]", () => {
           response.result.current.onSubmitOfflineError(spy8);
 
           response.result.current.submit();
-          builder.appManager.setOnline(false);
+          client.appManager.setOnline(false);
         });
 
         await testErrorState(errorMock, response);
-        const successMock = createRequestInterceptor(command);
+        const successMock = createRequestInterceptor(request);
 
         act(() => {
-          builder.appManager.setOnline(true);
+          client.appManager.setOnline(true);
         });
 
         await testSuccessState(successMock, response);

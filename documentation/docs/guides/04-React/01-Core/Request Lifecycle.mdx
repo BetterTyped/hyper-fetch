@@ -23,31 +23,31 @@ const {
   onOffline,
 } = useFetch(getUsers);
 
-onRequestStart(({ details, command }) => {
+onRequestStart(({ details, request }) => {
   // Do something on query start
 });
 
-onResponseStart(({ response, details, command }) => {
+onResponseStart(({ response, details, request }) => {
   // Do something when query starts returning response
 });
 
-onSuccess(({ response, details, command }) => {
+onSuccess(({ response, details, request }) => {
   // Do something on query success
 });
 
-onError(({ response, details, command }) => {
+onError(({ response, details, request }) => {
   // Do something on query fail
 });
 
-onAbort(({ response, details, command }) => {
+onAbort(({ response, details, request }) => {
   // Do something on query cancelation
 });
 
-onOffline(({ response, details, command }) => {
+onOffline(({ response, details, request }) => {
   // Do something when query goes stale while offline
 });
 
-onFinished(({ response, details, command }) => {
+onFinished(({ response, details, request }) => {
   // Do something on query finished (success or false)
 });
 

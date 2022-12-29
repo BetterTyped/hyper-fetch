@@ -1,8 +1,8 @@
 import { startServer, resetInterceptors, stopServer } from "../../../server";
-import { createCommand, renderUseCommandEvents } from "../../../utils";
+import { createRequest, renderUseRequestEvents } from "../../../utils";
 
-describe("useCommandEvents [ Utils ]", () => {
-  let command = createCommand();
+describe("useRequestEvents [ Utils ]", () => {
+  let request = createRequest();
 
   beforeAll(() => {
     startServer();
@@ -18,12 +18,12 @@ describe("useCommandEvents [ Utils ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    command = createCommand();
+    request = createRequest();
   });
 
   describe("When handling lifecycle events", () => {
     it("should not throw when removing non existing event", async () => {
-      const response = renderUseCommandEvents(command);
+      const response = renderUseRequestEvents(request);
 
       expect(response.result.current[1].removeLifecycleListener).not.toThrow();
     });

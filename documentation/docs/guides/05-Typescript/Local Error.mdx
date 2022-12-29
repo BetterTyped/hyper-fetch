@@ -3,7 +3,7 @@ sidebar_position: 2
 ---
 
 When our endpoint can return an error that is only valid for it, we can use local errors that are closely related to one
-command. It does not replace the global error but extends it.
+request. It does not replace the global error but extends it.
 
 The most common case are forms which, apart from basic errors from the server, can return specific field errors of a
 given form. This error is only applicable to that particular location.
@@ -21,7 +21,7 @@ type LocalErrorType = {
   };
 };
 
-const postUser = builder.createCommand<ResponseType, RequestType, LocalErrorType>()({
+const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>()({
   method: "POST",
   endpoint: "/users",
 });

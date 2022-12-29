@@ -2,10 +2,10 @@ import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseSubmit, waitForRender } from "../../utils";
+import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
 
 describe("useSubmit [ Concurrency ]", () => {
-  let command = createCommand<null, null>({ method: "POST" });
+  let request = createRequest<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -21,16 +21,16 @@ describe("useSubmit [ Concurrency ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    command = createCommand({ method: "POST" });
+    client.clear();
+    request = createRequest({ method: "POST" });
   });
 
   describe("given multiple rendered hooks", () => {
-    describe("when used commands are equal", () => {
+    describe("when used requests are equal", () => {
       it("should share data between hooks", async () => {
-        const mock = createRequestInterceptor(command);
-        const responseOne = renderUseSubmit(command);
-        const responseTwo = renderUseSubmit(command);
+        const mock = createRequestInterceptor(request);
+        const responseOne = renderUseSubmit(request);
+        const responseTwo = renderUseSubmit(request);
 
         act(() => {
           responseOne.result.current.submit();
@@ -40,8 +40,8 @@ describe("useSubmit [ Concurrency ]", () => {
         await testSuccessState(mock, responseTwo);
       });
       it("should start in loading mode when another request is ongoing", async () => {
-        createRequestInterceptor(command);
-        const responseOne = renderUseSubmit(command);
+        createRequestInterceptor(request);
+        const responseOne = renderUseSubmit(request);
 
         act(() => {
           responseOne.result.current.submit();
@@ -49,7 +49,7 @@ describe("useSubmit [ Concurrency ]", () => {
 
         await waitForRender();
 
-        const responseTwo = renderUseSubmit(command);
+        const responseTwo = renderUseSubmit(request);
         expect(responseTwo.result.current.submitting).toBeTrue();
       });
     });

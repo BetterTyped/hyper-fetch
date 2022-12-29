@@ -1,18 +1,18 @@
-import { FetchProgressType, CommandInstance, DispatcherDumpValueType } from "@hyper-fetch/core";
+import { ProgressType, RequestInstance, DispatcherStorageValueType } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
   queueType?: "auto" | "fetch" | "submit";
 };
 
-export type QueueRequest<Command extends CommandInstance> = DispatcherDumpValueType<Command> & {
+export type QueueRequest<Request extends RequestInstance> = DispatcherStorageValueType<Request> & {
   /**
    * Uploading progress for given request
    */
-  uploading?: FetchProgressType;
+  uploading?: ProgressType;
   /**
    * Downloading progress for given request
    */
-  downloading?: FetchProgressType;
+  downloading?: ProgressType;
   /**
    * Callback which allow to start previously stopped request.
    */
@@ -27,13 +27,13 @@ export type QueueRequest<Command extends CommandInstance> = DispatcherDumpValueT
   deleteRequest: () => void;
 };
 
-export type UseQueueReturnType<T extends CommandInstance> = {
+export type UseQueueReturnType<T extends RequestInstance> = {
   /**
-   * Queue status for provided command
+   * Queue status for provided request
    */
   stopped: boolean;
   /**
-   * List of requests for provided command
+   * List of requests for provided request
    */
   requests: QueueRequest<T>[];
   /**

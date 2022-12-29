@@ -8,34 +8,34 @@ sidebar_position: 2
 
 Url parameters are detected automatically thanks to typescript literal types, which makes it very convenient to manage
 them and detect possible regressions. The assumption is very simple, string parameters must consist of two parts `:` and
-a `name`, such as: `:userId` or `:productId`. We place them in the endpoint string when we initialize command.
+a `name`, such as: `:userId` or `:productId`. We place them in the endpoint string when we initialize request.
 
 ---
 
 ### Setting url parameters
 
-You can set query params by using the `setQueryParams` method on command. It's type can be configured on command
+You can set query params by using the `setQueryParams` method on request. It's type can be configured on request
 creation.
 
 ```ts
-const getUsers = builder.createCommand()({ endpoint: "/users/:userId" });
+const getUsers = client.createRequest()({ endpoint: "/users/:userId" });
 
-const command = getUsers.setParams({ userId: 281 });
-console.log(command.endpoint); // Output: "/users/281"
+const request = getUsers.setParams({ userId: 281 });
+console.log(request.endpoint); // Output: "/users/281"
 ```
 
 ```ts
-const getProduct = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
 
-const command = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
-console.log(command.endpoint); // Output: "/entities/12/Z24PBW443"
+const request = getProduct.setParams({ categoryId: 12, productId: "Z24PBW443" });
+console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
 ```
 
 #### Directly on send method
 
 ```ts
-const getProduct = builder.createCommand()({ endpoint: "/entities/:categoryId/:productId" });
+const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
 
-const command = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
-console.log(command.endpoint); // Output: "/entities/12/Z24PBW443"
+const request = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
+console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
 ```

@@ -8,174 +8,173 @@
  * - Please do NOT serve this file on production.
  */
 
-const INTEGRITY_CHECKSUM = '02f4ad4a2797f85668baf196e553d929'
-const bypassHeaderName = 'x-msw-bypass'
-const activeClientIds = new Set()
+const INTEGRITY_CHECKSUM = "02f4ad4a2797f85668baf196e553d929";
+const bypassHeaderName = "x-msw-bypass";
+const activeAdapterIds = new Set();
 
-self.addEventListener('install', function () {
-  return self.skipWaiting()
-})
+self.addEventListener("install", function () {
+  return self.skipWaiting();
+});
 
-self.addEventListener('activate', async function (event) {
-  return self.clients.claim()
-})
+self.addEventListener("activate", async function (event) {
+  return self.adapters.claim();
+});
 
-self.addEventListener('message', async function (event) {
-  const clientId = event.source.id
+self.addEventListener("message", async function (event) {
+  const adapterId = event.source.id;
 
-  if (!clientId || !self.clients) {
-    return
+  if (!adapterId || !self.adapters) {
+    return;
   }
 
-  const client = await self.clients.get(clientId)
+  const adapter = await self.adapters.get(adapterId);
 
-  if (!client) {
-    return
+  if (!adapter) {
+    return;
   }
 
-  const allClients = await self.clients.matchAll()
+  const allAdapters = await self.adapters.matchAll();
 
   switch (event.data) {
-    case 'KEEPALIVE_REQUEST': {
-      sendToClient(client, {
-        type: 'KEEPALIVE_RESPONSE',
-      })
-      break
+    case "KEEPALIVE_REQUEST": {
+      sendToAdapter(adapter, {
+        type: "KEEPALIVE_RESPONSE",
+      });
+      break;
     }
 
-    case 'INTEGRITY_CHECK_REQUEST': {
-      sendToClient(client, {
-        type: 'INTEGRITY_CHECK_RESPONSE',
+    case "INTEGRITY_CHECK_REQUEST": {
+      sendToAdapter(adapter, {
+        type: "INTEGRITY_CHECK_RESPONSE",
         payload: INTEGRITY_CHECKSUM,
-      })
-      break
+      });
+      break;
     }
 
-    case 'MOCK_ACTIVATE': {
-      activeClientIds.add(clientId)
+    case "MOCK_ACTIVATE": {
+      activeAdapterIds.add(adapterId);
 
-      sendToClient(client, {
-        type: 'MOCKING_ENABLED',
+      sendToAdapter(adapter, {
+        type: "MOCKING_ENABLED",
         payload: true,
-      })
-      break
+      });
+      break;
     }
 
-    case 'MOCK_DEACTIVATE': {
-      activeClientIds.delete(clientId)
-      break
+    case "MOCK_DEACTIVATE": {
+      activeAdapterIds.delete(adapterId);
+      break;
     }
 
-    case 'CLIENT_CLOSED': {
-      activeClientIds.delete(clientId)
+    case "CLIENT_CLOSED": {
+      activeAdapterIds.delete(adapterId);
 
-      const remainingClients = allClients.filter((client) => {
-        return client.id !== clientId
-      })
+      const remainingAdapters = allAdapters.filter((adapter) => {
+        return adapter.id !== adapterId;
+      });
 
-      // Unregister itself when there are no more clients
-      if (remainingClients.length === 0) {
-        self.registration.unregister()
+      // Unregister itself when there are no more adapters
+      if (remainingAdapters.length === 0) {
+        self.registration.unregister();
       }
 
-      break
+      break;
     }
   }
-})
+});
 
-// Resolve the "main" client for the given event.
-// Client that issues a request doesn't necessarily equal the client
+// Resolve the "main" adapter for the given event.
+// Adapter that issues a request doesn't necessarily equal the adapter
 // that registered the worker. It's with the latter the worker should
 // communicate with during the response resolving phase.
-async function resolveMainClient(event) {
-  const client = await self.clients.get(event.clientId)
+async function resolveMainAdapter(event) {
+  const adapter = await self.adapters.get(event.adapterId);
 
-  if (client.frameType === 'top-level') {
-    return client
+  if (adapter.frameType === "top-level") {
+    return adapter;
   }
 
-  const allClients = await self.clients.matchAll()
+  const allAdapters = await self.adapters.matchAll();
 
-  return allClients
-    .filter((client) => {
-      // Get only those clients that are currently visible.
-      return client.visibilityState === 'visible'
+  return allAdapters
+    .filter((adapter) => {
+      // Get only those adapters that are currently visible.
+      return adapter.visibilityState === "visible";
     })
-    .find((client) => {
-      // Find the client ID that's recorded in the
-      // set of clients that have registered the worker.
-      return activeClientIds.has(client.id)
-    })
+    .find((adapter) => {
+      // Find the adapter ID that's recorded in the
+      // set of adapters that have registered the worker.
+      return activeAdapterIds.has(adapter.id);
+    });
 }
 
 async function handleRequest(event, requestId) {
-  const client = await resolveMainClient(event)
-  const response = await getResponse(event, client, requestId)
+  const adapter = await resolveMainAdapter(event);
+  const response = await getResponse(event, adapter, requestId);
 
   // Send back the response clone for the "response:*" life-cycle events.
   // Ensure MSW is active and ready to handle the message, otherwise
   // this message will pend indefinitely.
-  if (client && activeClientIds.has(client.id)) {
-    ;(async function () {
-      const clonedResponse = response.clone()
-      sendToClient(client, {
-        type: 'RESPONSE',
+  if (adapter && activeAdapterIds.has(adapter.id)) {
+    (async function () {
+      const clonedResponse = response.clone();
+      sendToAdapter(adapter, {
+        type: "RESPONSE",
         payload: {
           requestId,
           type: clonedResponse.type,
           ok: clonedResponse.ok,
           status: clonedResponse.status,
           statusText: clonedResponse.statusText,
-          body:
-            clonedResponse.body === null ? null : await clonedResponse.text(),
+          body: clonedResponse.body === null ? null : await clonedResponse.text(),
           headers: serializeHeaders(clonedResponse.headers),
           redirected: clonedResponse.redirected,
         },
-      })
-    })()
+      });
+    })();
   }
 
-  return response
+  return response;
 }
 
-async function getResponse(event, client, requestId) {
-  const { request } = event
-  const requestClone = request.clone()
-  const getOriginalResponse = () => fetch(requestClone)
+async function getResponse(event, adapter, requestId) {
+  const { request } = event;
+  const requestClone = request.clone();
+  const getOriginalResponse = () => fetch(requestClone);
 
-  // Bypass mocking when the request client is not active.
-  if (!client) {
-    return getOriginalResponse()
+  // Bypass mocking when the request adapter is not active.
+  if (!adapter) {
+    return getOriginalResponse();
   }
 
   // Bypass initial page load requests (i.e. static assets).
-  // The absence of the immediate/parent client in the map of the active clients
+  // The absence of the immediate/parent adapter in the map of the active adapters
   // means that MSW hasn't dispatched the "MOCK_ACTIVATE" event yet
   // and is not ready to handle requests.
-  if (!activeClientIds.has(client.id)) {
-    return await getOriginalResponse()
+  if (!activeAdapterIds.has(adapter.id)) {
+    return await getOriginalResponse();
   }
 
   // Bypass requests with the explicit bypass header
-  if (requestClone.headers.get(bypassHeaderName) === 'true') {
-    const cleanRequestHeaders = serializeHeaders(requestClone.headers)
+  if (requestClone.headers.get(bypassHeaderName) === "true") {
+    const cleanRequestHeaders = serializeHeaders(requestClone.headers);
 
     // Remove the bypass header to comply with the CORS preflight check.
-    delete cleanRequestHeaders[bypassHeaderName]
+    delete cleanRequestHeaders[bypassHeaderName];
 
     const originalRequest = new Request(requestClone, {
       headers: new Headers(cleanRequestHeaders),
-    })
+    });
 
-    return fetch(originalRequest)
+    return fetch(originalRequest);
   }
 
-  // Send the request to the client-side MSW.
-  const reqHeaders = serializeHeaders(request.headers)
-  const body = await request.text()
+  // Send the request to the adapter-side MSW.
+  const reqHeaders = serializeHeaders(request.headers);
+  const body = await request.text();
 
-  const clientMessage = await sendToClient(client, {
-    type: 'REQUEST',
+  const adapterMessage = await sendToAdapter(adapter, {
+    type: "REQUEST",
     payload: {
       id: requestId,
       url: request.url,
@@ -193,31 +192,28 @@ async function getResponse(event, client, requestId) {
       bodyUsed: request.bodyUsed,
       keepalive: request.keepalive,
     },
-  })
+  });
 
-  switch (clientMessage.type) {
-    case 'MOCK_SUCCESS': {
-      return delayPromise(
-        () => respondWithMock(clientMessage),
-        clientMessage.payload.delay,
-      )
+  switch (adapterMessage.type) {
+    case "MOCK_SUCCESS": {
+      return delayPromise(() => respondWithMock(adapterMessage), adapterMessage.payload.delay);
     }
 
-    case 'MOCK_NOT_FOUND': {
-      return getOriginalResponse()
+    case "MOCK_NOT_FOUND": {
+      return getOriginalResponse();
     }
 
-    case 'NETWORK_ERROR': {
-      const { name, message } = clientMessage.payload
-      const networkError = new Error(message)
-      networkError.name = name
+    case "NETWORK_ERROR": {
+      const { name, message } = adapterMessage.payload;
+      const networkError = new Error(message);
+      networkError.name = name;
 
       // Rejecting a request Promise emulates a network error.
-      throw networkError
+      throw networkError;
     }
 
-    case 'INTERNAL_ERROR': {
-      const parsedBody = JSON.parse(clientMessage.payload.body)
+    case "INTERNAL_ERROR": {
+      const parsedBody = JSON.parse(adapterMessage.payload.body);
 
       console.error(
         `\
@@ -229,53 +225,53 @@ This exception has been gracefully handled as a 500 response, however, it's stro
 `,
         request.method,
         request.url,
-      )
+      );
 
-      return respondWithMock(clientMessage)
+      return respondWithMock(adapterMessage);
     }
   }
 
-  return getOriginalResponse()
+  return getOriginalResponse();
 }
 
-self.addEventListener('fetch', function (event) {
-  const { request } = event
-  const accept = request.headers.get('accept') || ''
+self.addEventListener("fetch", function (event) {
+  const { request } = event;
+  const accept = request.headers.get("accept") || "";
 
   // Bypass server-sent events.
-  if (accept.includes('text/event-stream')) {
-    return
+  if (accept.includes("text/event-stream")) {
+    return;
   }
 
   // Bypass navigation requests.
-  if (request.mode === 'navigate') {
-    return
+  if (request.mode === "navigate") {
+    return;
   }
 
   // Opening the DevTools triggers the "only-if-cached" request
   // that cannot be handled by the worker. Bypass such requests.
-  if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
-    return
+  if (request.cache === "only-if-cached" && request.mode !== "same-origin") {
+    return;
   }
 
-  // Bypass all requests when there are no active clients.
+  // Bypass all requests when there are no active adapters.
   // Prevents the self-unregistered worked from handling requests
   // after it's been deleted (still remains active until the next reload).
-  if (activeClientIds.size === 0) {
-    return
+  if (activeAdapterIds.size === 0) {
+    return;
   }
 
-  const requestId = uuidv4()
+  const requestId = uuidv4();
 
   return event.respondWith(
     handleRequest(event, requestId).catch((error) => {
-      if (error.name === 'NetworkError') {
+      if (error.name === "NetworkError") {
         console.warn(
           '[MSW] Successfully emulated a network error for the "%s %s" request.',
           request.method,
           request.url,
-        )
-        return
+        );
+        return;
       }
 
       // At this point, any exception indicates an issue with the original request/response.
@@ -285,54 +281,52 @@ self.addEventListener('fetch', function (event) {
         request.method,
         request.url,
         `${error.name}: ${error.message}`,
-      )
+      );
     }),
-  )
-})
+  );
+});
 
 function serializeHeaders(headers) {
-  const reqHeaders = {}
+  const reqHeaders = {};
   headers.forEach((value, name) => {
-    reqHeaders[name] = reqHeaders[name]
-      ? [].concat(reqHeaders[name]).concat(value)
-      : value
-  })
-  return reqHeaders
+    reqHeaders[name] = reqHeaders[name] ? [].concat(reqHeaders[name]).concat(value) : value;
+  });
+  return reqHeaders;
 }
 
-function sendToClient(client, message) {
+function sendToAdapter(adapter, message) {
   return new Promise((resolve, reject) => {
-    const channel = new MessageChannel()
+    const channel = new MessageChannel();
 
     channel.port1.onmessage = (event) => {
       if (event.data && event.data.error) {
-        return reject(event.data.error)
+        return reject(event.data.error);
       }
 
-      resolve(event.data)
-    }
+      resolve(event.data);
+    };
 
-    client.postMessage(JSON.stringify(message), [channel.port2])
-  })
+    adapter.postMessage(JSON.stringify(message), [channel.port2]);
+  });
 }
 
 function delayPromise(cb, duration) {
   return new Promise((resolve) => {
-    setTimeout(() => resolve(cb()), duration)
-  })
+    setTimeout(() => resolve(cb()), duration);
+  });
 }
 
-function respondWithMock(clientMessage) {
-  return new Response(clientMessage.payload.body, {
-    ...clientMessage.payload,
-    headers: clientMessage.payload.headers,
-  })
+function respondWithMock(adapterMessage) {
+  return new Response(adapterMessage.payload.body, {
+    ...adapterMessage.payload,
+    headers: adapterMessage.payload.headers,
+  });
 }
 
 function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0
-    const v = c == 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }

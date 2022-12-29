@@ -19,7 +19,7 @@ This hook **mutates data** on the server and supports controlling requests. It u
 [`Submit Dispatcher`](/documentation/02-Core/Dispatcher.mdx) to handle requests and the
 [`Cache`](/documentation/02-Core/Cache.mdx) to manage the overall state of the data.
 
-The minimum requirement for `useSubmit` is a prepared [`Command`](/documentation/02-Core/Command.mdx).
+The minimum requirement for `useSubmit` is a prepared [`Request`](/documentation/02-Core/Request.mdx).
 
 If you intend to `retrieve` data from the server, we recommend choosing the
 [`useFetch`](/documentation/04-React/02-Core/useFetch.mdx) hook.
@@ -36,7 +36,7 @@ const { submit, submitting, onSubmitSuccess, onSubmitError, onSubmitFinished } =
 
 ## How it works?
 
-**`useSubmit`** executes a command when a `submit()` function returned from it gets triggered. It uses dependency
+**`useSubmit`** executes a request when a `submit()` function returned from it gets triggered. It uses dependency
 tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
 established by event emitters. Many `"helper hooks"` (such as `onSubmitSuccess`, `onSubmitError`, `onSubmitFinished`,
 etc.) are returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base
@@ -94,7 +94,7 @@ const LoginPage: React.FC = () => {
 ## Passing data and params
 
 Data and parameters can be passed in several ways. One option is to use methods on the
-[`Command`](/documentation/02-Core/Command.mdx), such as `setData` or `setParams`.
+[`Request`](/documentation/02-Core/Request.mdx), such as `setData` or `setParams`.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
@@ -117,7 +117,7 @@ const handleSubmit = (id: number, name: string) => {
 These configuration options should be provided as a second parameter:
 
 ```tsx
-const { ... } = useSubmit(command, options)
+const { ... } = useSubmit(request, options)
 ```
 
 {@import React UseSubmitOptionsType returns}
@@ -129,7 +129,7 @@ const { ... } = useSubmit(command, options)
 Returned values from this hook:
 
 ```tsx
-const values = useSubmit(command);
+const values = useSubmit(request);
 ```
 
 {@import React useSubmit returns}

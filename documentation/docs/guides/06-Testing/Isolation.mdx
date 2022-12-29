@@ -3,30 +3,30 @@ sidebar_position: 1
 ---
 
 Isolation is extremely important for making both deterministic and valid tests. Due to the approach to architecture
-where the builder is a global module, we need to bring some of our attention to it.
+where the client is a global module, we need to bring some of our attention to it.
 
 ---
 
 ## Clear
 
-The `builder.clear()` command allows us to isolate our test cases within one file. It will reinitialize the subsystems
-of our builder.
+The `client.clear()` request allows us to isolate our test cases within one file. It will reinitialize the subsystems of
+our client.
 
 ---
 
 ## Node cache cleanup
 
 To properly isolate our tests, we need to be sure that the node instance require.cache will be reset. This way our
-global builder module will be restarted and we will have the environment prepared.
+global client module will be restarted and we will have the environment prepared.
 
 ### Jest
 
 ```ts
 beforeEach(() => {
-  // We need to reset modules cache as builder is globally exported module
+  // We need to reset modules cache as client is globally exported module
   // This way it will not get mixed-up with other test cases running in parallel
   jest.resetModules();
   // Clean the environment to make sure it's isolated
-  builder.clear();
+  client.clear();
 });
 ```

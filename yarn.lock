@@ -1075,17 +1075,15 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@better-typed/react-lifecycle-hooks@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@better-typed/react-lifecycle-hooks/-/react-lifecycle-hooks-1.0.5.tgz#c171ad2582337e5c82521bce4b2951d82b5d6ccf"
-  integrity sha512-5wuDiE8u5jUAaadyRBqTcWQMEFU06I/tJb/fK6FHCBLcrQR2RO+hkgqJmucSfrXYj1nZtO3qTz4CjJyEjSfHWA==
+"@better-hooks/lifecycle@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-1.1.1.tgz#a86402b681b96341c7c1090a0217691c39bba153"
+  integrity sha512-t2dg8H8hf/7jY1WWiEu5eb1WNf+PG/Ut0mu+DfbBGBrt5d03V1buiFYFmGKMunfz69aKv/QYlhx0Kqs+uH1aig==
 
-"@better-typed/react-performance-hooks@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@better-typed/react-performance-hooks/-/react-performance-hooks-0.8.0.tgz#9afcd35801f78e7f2987134fcf3843390770161a"
-  integrity sha512-I4fdrNvjlSp8Y0gFccvWDE2TgxdF1GXqx+yWHM72TDiuEri/qCvjzwAEsl0G0djv3EwepgsfwvDTnPZgTgYwig==
-  dependencies:
-    "@better-typed/react-lifecycle-hooks" "^1.0.5"
+"@better-hooks/performance@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-1.1.1.tgz#fde0f8a26ecacc5b48f06a6b090a78d023949e4a"
+  integrity sha512-32IPpMaVgE8aVT/6liXxfETIOO5zTL5VySxiK8qA8F140s89UuV6BUknLPQEPsniJoxZdXYSkVx79hLrk8GPug==
 
 "@colors/colors@1.5.0":
   version "1.5.0"

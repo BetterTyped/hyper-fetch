@@ -5,10 +5,10 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { QueueRequest } from "@hyper-fetch/react";
-import { CommandInstance } from "@hyper-fetch/core";
+import { RequestInstance } from "@hyper-fetch/core";
 
 type Props = {
-  request: QueueRequest<CommandInstance>;
+  request: QueueRequest<RequestInstance>;
 };
 
 export function RequestCard({ request }: Props) {

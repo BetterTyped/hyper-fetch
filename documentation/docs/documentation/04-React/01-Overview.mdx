@@ -8,7 +8,7 @@ system.
 
 Together with the provided hooks, React Hyper Fetch makes maintaining and writing new functionalities faster and easier.
 
-Note: A previously prepared [**command**](/documentation/02-Core/Command.mdx) is the minimum requirement for using
+Note: A previously prepared [**request**](/documentation/02-Core/Request.mdx) is the minimum requirement for using
 hooks.
 
 :::info
@@ -21,8 +21,8 @@ This package provide hooks for both: `core` and `sockets` subpackages.
 
 ## Usage
 
-To use hooks, we need to initialize the builder and command instances that will be consumed as properties. Take a look
-at the [Quick Start](/documentation/01-Getting Started/Quick%20Start.mdx) for more examples and check out our React code
+To use hooks, we need to initialize the client and request instances that will be consumed as properties. Take a look at
+the [Quick Start](/documentation/01-Getting Started/Quick%20Start.mdx) for more examples and check out our React code
 examples
 
 ```tsx
@@ -59,31 +59,31 @@ const {
   onOffline,
 } = useFetch(getUsers);
 
-onRequestStart(({ details, command }) => {
+onRequestStart(({ details, request }) => {
   // Do something on query start
 });
 
-onResponseStart(({ response, details, command }) => {
+onResponseStart(({ response, details, request }) => {
   // Do something when query starts returning response
 });
 
-onSuccess(({ response, details, command }) => {
+onSuccess(({ response, details, request }) => {
   // Do something on query success
 });
 
-onError(({ response, details, command }) => {
+onError(({ response, details, request }) => {
   // Do something on query fail
 });
 
-onAbort(({ response, details, command }) => {
+onAbort(({ response, details, request }) => {
   // Do something on query cancellation
 });
 
-onOffline(({ response, details, command }) => {
+onOffline(({ response, details, request }) => {
   // Do something when query goes stale while offline
 });
 
-onFinished(({ response, details, command }) => {
+onFinished(({ response, details, request }) => {
   // Do something on query finished (success or false)
 });
 

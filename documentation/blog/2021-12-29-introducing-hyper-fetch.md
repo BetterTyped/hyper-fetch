@@ -26,7 +26,7 @@ in systems that need offline or even persistent cache and request queues. It was
 classes for those purposes but it also suited my philosophy of writing interceptors in tests, where the functional
 approach requires copying part of the setup or extracting it significantly around files. As one of the lazy type of
 developers, the most pleasant thing was to write a class based shared setup, where the tester or developer could connect
-to such a builder or a specific command, thanks to which he based everything on the current setup running in the
+to such a client or a specific request, thanks to which he based everything on the current setup running in the
 application. Thanks to this approach, the tests were more maintainable, any changes in the structure were visible
 immediately thanks to typescript and the smaller config values were updated automatically, e.g. adding change to the
 name of the endpoint did not have to be corrected in the tests because it uses actual app setup. It is simply a
@@ -43,19 +43,19 @@ plugins and extensions - we are very open to help in testing and development, bu
 approved by the creators, especially at the beginning of the road, where testing and it may take us a while to cover
 everything with testing.
 
-## Builder
+## Client
 
-Builder is a class thanks to which we can control the entire process of interaction with the server. This is where all
-request sending queues, cache and other modules necessary for operation, such as the http client, are initialized. Its
+Client is a class thanks to which we can control the entire process of interaction with the server. This is where all
+request sending queues, cache and other modules necessary for operation, such as the http adapter, are initialized. Its
 main purpose is to set up one place where we prepare our connection, first of all establishing the base url of our
-server. With the setup builder behind us, we can create new instances of commands that will be able to use the prepared
+server. With the setup client behind us, we can create new instances of requests that will be able to use the prepared
 setup and derive information from it.
 
-## Command
+## Request
 
-Command is an interaction with a given endpoint. During initialization, we set the path, method and a whole range of
+Request is an interaction with a given endpoint. During initialization, we set the path, method and a whole range of
 interesting options such as cache time, retries count etc. It keeps the configuration needed to execute the request or
-to dump it and save in queue storage to wait for its turn. The biggest advantage of Command is simplicity and the
+to dump it and save in queue storage to wait for its turn. The biggest advantage of Request is simplicity and the
 ability to quickly set the entire configuration - only one option is required - the endpoint(method is defaulted to
 GET).
 

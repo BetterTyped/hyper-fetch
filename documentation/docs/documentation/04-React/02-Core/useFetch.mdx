@@ -19,7 +19,7 @@ This hook is created to **retrieve data** from the server. It uses the
 [`Fetch Dispatcher`](/documentation/02-Core/Dispatcher.mdx) to handle requests and the
 [`Cache`](/documentation/02-Core/Cache.mdx) to manage the overall state of the data.
 
-A prepared Command is the minimum requirement for useFetch.
+A prepared Request is the minimum requirement for useFetch.
 
 If you intend to `mutate` data stored on the server, we recommend choosing the
 [`useSubmit`](/documentation/04-React/02-Core/useSubmit.mdx) hook.
@@ -36,7 +36,7 @@ const { data, error, loading, onSuccess, onError, onFinished } = useFetch(getUse
 
 ## How it works?
 
-**`useFetch`** executes a command when a component is mounted or when its dependencies array changes. It uses dependency
+**`useFetch`** executes a request when a component is mounted or when its dependencies array changes. It uses dependency
 tracking to limit re-rendering and help with performance.
 
 Under the hood, communication with the core systems is established by event emitters. There are many `"helper hooks"`
@@ -86,7 +86,7 @@ const UsersListPage: React.FC = () => {
 Configuration options for `useFetch` must be provided as the second parameter.
 
 ```tsx
-const { ... } = useFetch(command, options)
+const { ... } = useFetch(request, options)
 ```
 
 {@import React UseFetchOptionsType returns}
@@ -98,7 +98,7 @@ const { ... } = useFetch(command, options)
 Returned values from this hook.
 
 ```tsx
-const values = useFetch(command);
+const values = useFetch(request);
 ```
 
 {@import React UseFetchReturnType returns}

@@ -3,10 +3,10 @@ import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState } from "../../shared";
-import { builder, createCommand, renderUseSubmit } from "../../utils";
+import { client, createRequest, renderUseSubmit } from "../../utils";
 
 describe("useSubmit [ Cancel ]", () => {
-  let command = createCommand<null, null>({ method: "POST" });
+  let request = createRequest<null, null>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -22,14 +22,14 @@ describe("useSubmit [ Cancel ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    builder.clear();
-    command = createCommand({ method: "POST" });
+    client.clear();
+    request = createRequest({ method: "POST" });
   });
 
   describe("when aborting request", () => {
     it("should allow to cancel the ongoing request", async () => {
-      createRequestInterceptor(command);
-      const response = renderUseSubmit(command);
+      createRequestInterceptor(request);
+      const response = renderUseSubmit(request);
 
       act(() => {
         response.result.current.onSubmitRequestStart(() => {

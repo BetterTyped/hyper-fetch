@@ -1,8 +1,8 @@
-import { CommandInstance, RequiredKeys } from "@hyper-fetch/core";
+import { RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseSubmitOptionsType } from "./use-submit.types";
 
-type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<CommandInstance>, "initialData">> & {
+type DefaultOptionsType = RequiredKeys<Omit<UseSubmitOptionsType<RequestInstance>, "initialData">> & {
   initialData: null;
 };
 
@@ -13,5 +13,6 @@ export const useSubmitDefaultOptions: DefaultOptionsType = {
   bounce: false,
   bounceType: "debounce",
   bounceTime: 400,
+  bounceTimeout: 200,
   deepCompare: true,
 };

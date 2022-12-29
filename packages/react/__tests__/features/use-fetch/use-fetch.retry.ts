@@ -17,12 +17,12 @@ describe("useFetch [ Retry ]", () => {
     jest.resetModules();
   });
 
-  describe("when command retry attribute is set to false", () => {
+  describe("when request retry attribute is set to false", () => {
     it("should not retry request on failure", async () => {
       // Todo
     });
   });
-  describe("when command retry attribute is set to true", () => {
+  describe("when request retry attribute is set to true", () => {
     it("should retry request once", async () => {
       // Todo
     });

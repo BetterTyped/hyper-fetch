@@ -1,9 +1,9 @@
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
-import { builder, createCommand, renderUseFetch, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
 describe("useFetch [ Deduplication ]", () => {
-  let dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
+  let dedupeRequest = createRequest({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
 
   beforeAll(() => {
     startServer();
@@ -18,56 +18,56 @@ describe("useFetch [ Deduplication ]", () => {
   });
 
   beforeEach(() => {
-    dedupeCommand = createCommand({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
+    dedupeRequest = createRequest({ deduplicate: true, deduplicateTime: 100, retry: 5, retryTime: 200 });
     jest.resetModules();
-    builder.clear();
+    client.clear();
   });
 
-  describe("given command deduplicate attribute is active", () => {
-    describe("when initializing two hooks with the same command", () => {
+  describe("given request deduplicate attribute is active", () => {
+    describe("when initializing two hooks with the same request", () => {
       it("should send only one request", async () => {
-        createRequestInterceptor(dedupeCommand);
-        renderUseFetch(dedupeCommand);
-        renderUseFetch(dedupeCommand);
+        createRequestInterceptor(dedupeRequest);
+        renderUseFetch(dedupeRequest);
+        renderUseFetch(dedupeRequest);
 
         await waitForRender();
 
-        expect(builder.fetchDispatcher.getQueueRequestCount(dedupeCommand.queueKey)).toBe(1);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(1);
       });
       it("should deduplicate requests within deduplication time", async () => {
-        createRequestInterceptor(dedupeCommand, { delay: 200 });
+        createRequestInterceptor(dedupeRequest, { delay: 200 });
 
-        renderUseFetch(dedupeCommand);
+        renderUseFetch(dedupeRequest);
         await waitForRender(2);
 
-        renderUseFetch(dedupeCommand);
+        renderUseFetch(dedupeRequest);
         await waitForRender();
 
-        expect(builder.fetchDispatcher.getQueueRequestCount(dedupeCommand.queueKey)).toBe(1);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(1);
       });
     });
     describe("when response is failed", () => {
       it("should perform one retry on failure", async () => {
-        const errorMock = createRequestInterceptor(dedupeCommand, { status: 400 });
-        const responseOne = renderUseFetch(dedupeCommand);
-        const responseTwo = renderUseFetch(dedupeCommand);
+        const errorMock = createRequestInterceptor(dedupeRequest, { status: 400 });
+        const responseOne = renderUseFetch(dedupeRequest);
+        const responseTwo = renderUseFetch(dedupeRequest);
 
         await waitForRender();
         await testErrorState(errorMock, responseOne);
         await testErrorState(errorMock, responseTwo);
 
-        const successMock = createRequestInterceptor(dedupeCommand);
+        const successMock = createRequestInterceptor(dedupeRequest);
         await testSuccessState(successMock, responseOne);
         await testSuccessState(successMock, responseTwo);
 
-        expect(builder.fetchDispatcher.getQueueRequestCount(dedupeCommand.queueKey)).toBe(2);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(2);
       });
     });
     describe("when response is successful", () => {
       it("should share the success data with all hooks", async () => {
-        const mock = createRequestInterceptor(dedupeCommand);
-        const responseOne = renderUseFetch(dedupeCommand);
-        const responseTwo = renderUseFetch(dedupeCommand);
+        const mock = createRequestInterceptor(dedupeRequest);
+        const responseOne = renderUseFetch(dedupeRequest);
+        const responseTwo = renderUseFetch(dedupeRequest);
 
         await waitForRender();
         await testSuccessState(mock, responseOne);

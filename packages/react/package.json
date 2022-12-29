@@ -30,8 +30,8 @@
     "react": ">= 16.8.0"
   },
   "dependencies": {
-    "@better-typed/react-lifecycle-hooks": "^1.0.5",
-    "@better-typed/react-performance-hooks": "^0.8.0"
+    "@better-hooks/lifecycle": "^1.1.1",
+    "@better-hooks/performance": "^1.1.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

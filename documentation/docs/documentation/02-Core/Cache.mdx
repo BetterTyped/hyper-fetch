@@ -30,11 +30,11 @@ be replaced by any other compatible interface).
 
 ## CacheKey
 
-The cache stores data on a `key-value` basis. The key is always specified inside the command as `cacheKey`; it
+The cache stores data on a `key-value` basis. The key is always specified inside the request as `cacheKey`; it
 determines where the data is stored and is used in propagation of data handling events.
 
 By default, the cacheKey value is auto-determined based on the **method**, **endpoint**, and **query params** of the
-given command. However, there is nothing to prevent you manually adding the key when setting the command or using one of
+given request. However, there is nothing to prevent you manually adding the key when setting the request or using one of
 its methods.
 
 Thanks to the automatic way of indexing data in the cache, we do not have to worry about paginated keys in the data –
@@ -57,7 +57,7 @@ the system – i.e. local storage or IndexedDB – regardless if the source work
 allows you to set up persistent storage across sessions.
 
 ```tsx
-export const builder = new Builder<ServerErrorType>({
+export const client = new Client<ServerErrorType>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {

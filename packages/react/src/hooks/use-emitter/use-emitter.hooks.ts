@@ -3,13 +3,17 @@ import { EmitterInstance } from "@hyper-fetch/sockets";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
+import { useConfigProvider } from "config-provider";
 
 // Todo bounce
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
-  { dependencyTracking }: UseEmitterOptionsType,
+  options: UseEmitterOptionsType,
 ) => {
+  const [globalConfig] = useConfigProvider();
+  const { dependencyTracking } = { ...globalConfig.useEmitter, ...options };
+
   const onEventCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, { dependencyTracking });
 

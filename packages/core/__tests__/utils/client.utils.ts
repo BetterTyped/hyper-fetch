@@ -1,19 +1,5 @@
-import { fetchClient } from "client";
-import { CommandInstance } from "command";
-import { sleep } from ".";
+import { Client, ClientOptionsType } from "client";
 
-export const createClient = (props?: {
-  sleepTime?: number;
-  callback: (command: CommandInstance, requestId: string) => void;
-}) => {
-  const { sleepTime, callback } = props || {};
-
-  return async (command: CommandInstance, requestId: string) => {
-    if (sleepTime) {
-      await sleep(sleepTime);
-    }
-
-    callback?.(command, requestId);
-    return fetchClient(command, requestId);
-  };
+export const createClient = (config?: Partial<ClientOptionsType>) => {
+  return new Client({ url: "shared-base-url", ...config });
 };

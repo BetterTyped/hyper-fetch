@@ -3,10 +3,10 @@ sidebar_position: 8
 ---
 
 <div class="api-link">
-  <div class="api-link-title">FetchEffect</div>
+  <div class="api-link-title">RequestEffect</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/Hyper-Fetch/Class/FetchEffect.mdx)
+[Read the API Reference »](/api/Hyper-Fetch/Class/RequestEffect.mdx)
 
   </div>
 </div>
@@ -15,13 +15,13 @@ sidebar_position: 8
 
 ## Introduction
 
-**`FetchEffect`** is basically a set of reducers reacting to the request lifecycle. You can assign it to the Builder;
-its `effectKey` has to be the same as the command's effect key so you can match it.
+**`RequestEffect`** is basically a set of reducers reacting to the request lifecycle. You can assign it to the Client;
+its `effectKey` has to be the same as the request's effect key so you can match it.
 
-The strength of `FetchEffect` lies in cooperation options with persistent queues. Imagine that you always want to
+The strength of `RequestEffect` lies in cooperation options with persistent queues. Imagine that you always want to
 trigger some logic when the request is successful, but you must also use persistent storage to save ongoing requests.
 But when the app gets relaunched, there is no way to persist functions and logic. Here, the effect is the solution. We
-can assign it on Builder creation so that it will instantly match all ongoing requests from previous sessions.
+can assign it on Client creation so that it will instantly match all ongoing requests from previous sessions.
 
 ---
 
@@ -34,8 +34,8 @@ can assign it on Builder creation so that it will instantly match all ongoing re
 
 ## EffectKey
 
-A key needed to match the Effect with the command where it's stored. This is automatically generated (like other keys in
-the command), but you can set up custom values for easier usage and matching.
+A key needed to match the Effect with the request where it's stored. This is automatically generated (like other keys in
+the request), but you can set up custom values for easier usage and matching.
 
 ---
 
@@ -43,4 +43,4 @@ the command), but you can set up custom values for easier usage and matching.
 
 Configuration options
 
-{@import Hyper-Fetch FetchEffectConfig returns}
+{@import Hyper-Fetch RequestEffectOptionsType returns}

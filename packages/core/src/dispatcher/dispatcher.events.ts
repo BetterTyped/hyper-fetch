@@ -1,40 +1,40 @@
 import EventEmitter from "events";
 
 import {
-  DispatcherData,
+  QueueDataType,
   getDispatcherChangeEventKey,
   getDispatcherStatusEventKey,
   getDispatcherDrainedEventKey,
 } from "dispatcher";
-import { CommandInstance } from "command";
+import { RequestInstance } from "request";
 
 export const getDispatcherEvents = (emitter: EventEmitter) => ({
-  setDrained: <Command extends CommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
+  setDrained: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherDrainedEventKey(queueKey), values);
   },
-  setQueueStatus: <Command extends CommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
+  setQueueStatus: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherStatusEventKey(queueKey), values);
   },
-  setQueueChanged: <Command extends CommandInstance>(queueKey: string, values: DispatcherData<Command>): void => {
+  setQueueChanged: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
     emitter.emit(getDispatcherChangeEventKey(queueKey), values);
   },
-  onDrained: <Command extends CommandInstance>(
+  onDrained: <Request extends RequestInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<Command>) => void,
+    callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherDrainedEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherDrainedEventKey(queueKey), callback);
   },
-  onQueueStatus: <Command extends CommandInstance>(
+  onQueueStatus: <Request extends RequestInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<Command>) => void,
+    callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherStatusEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherStatusEventKey(queueKey), callback);
   },
-  onQueueChange: <Command extends CommandInstance>(
+  onQueueChange: <Request extends RequestInstance>(
     queueKey: string,
-    callback: (values: DispatcherData<Command>) => void,
+    callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherChangeEventKey(queueKey), callback);
     return () => emitter.removeListener(getDispatcherChangeEventKey(queueKey), callback);
