@@ -19,8 +19,8 @@
   "dependencies": {
     "@docusaurus/core": "^2.2.0",
     "@docusaurus/preset-classic": "^2.2.0",
-    "@hyper-fetch/core": "^3.0.0",
-    "@hyper-fetch/react": "^3.0.0",
+    "@hyper-fetch/core": "^3.0.1",
+    "@hyper-fetch/react": "^3.0.1",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
     "@tippyjs/react": "^4.2.6",
