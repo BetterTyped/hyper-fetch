@@ -27,7 +27,7 @@ import { HttpMethodsEnum } from "constants/http.constants";
  * :::
  *
  * @attention
- * The most important thing about the request is that it keeps data in the format that can be dumped. This is necessary for the persistance and different dispatcher storage types.
+ * The most important thing about the request is that it keeps data in the format that can be dumped. This is necessary for the persistence and different dispatcher storage types.
  * This class doesn't have any callback methods by design and communicate with dispatcher and cache by events.
  */
 export class Request<

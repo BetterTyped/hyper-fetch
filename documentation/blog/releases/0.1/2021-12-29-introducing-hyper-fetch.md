@@ -1,11 +1,12 @@
 ---
 slug: introducing-hyper-fetch
 title: Introducing Hyper Fetch
-authors: maciej
-tags: [Javascript, Fetch, XHR, React, Hooks]
+authors: [maciej]
+tags: [Release]
+date: 2021-12-29
 ---
 
-## Welcome!
+## Welcome! 👋
 
 We are very happy to introduce [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch) tool that helps to interact
 with requests on the frontend side. We start from alpha stage as we believe that our ideas with the community
