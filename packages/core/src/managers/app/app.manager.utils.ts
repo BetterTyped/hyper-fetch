@@ -5,6 +5,7 @@ export const hasWindow = () => {
     return false;
   }
 };
+
 export const hasDocument = () => {
   try {
     return Boolean(hasWindow() && window.document && window.document.addEventListener);
