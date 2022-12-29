@@ -2223,15 +2223,15 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@hyper-fetch/core@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@hyper-fetch/core/-/core-3.0.0.tgz#dd9cd44268a3fb01344345e40fb2f81b78ea1ddd"
-  integrity sha512-ifgnDgfvYaiszval9cxCF1DMuFirU2XnOXUzKxD3yYoq7xinBBc2/KbDK6qYkBsqGfF8VeBYZp8e38PCtjNOug==
+"@hyper-fetch/core@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@hyper-fetch/core/-/core-3.0.1.tgz#7c8d11a7cfb497bebb5e0df271a0bbff902a8f63"
+  integrity sha512-zp+84n+xZBV0KKE6llkGTy7c1mPQNENk7wwYT5qKch7zKKRyuvcT34YruNzTA6FnJlyIh0ETX6N8UAIiqDtyDw==
 
-"@hyper-fetch/react@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@hyper-fetch/react/-/react-3.0.0.tgz#1cd0142459627b0b6af3242b055997dce40d7392"
-  integrity sha512-B7RxhNlARDBTfVb2jkI/lve5EgkKr+HcUrhSW8XGPvpF/4sezckQ3QmZloWr/T0H1kk9oWHmj0951RDOWmOX0g==
+"@hyper-fetch/react@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@hyper-fetch/react/-/react-3.0.1.tgz#4a6bbbf592c75002797f0b74c29a9798cfd15656"
+  integrity sha512-VDVuxcYn9N/xsPA1Y/0CzoVAox87wbULHAB6j+VqQHG0K1TwORSm+amH7JmveybE4CSrd8J8Gr2VCoUlvUKAlQ==
   dependencies:
     "@better-hooks/lifecycle" "^1.1.1"
     "@better-hooks/performance" "^1.1.1"
