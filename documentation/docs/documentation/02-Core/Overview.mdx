@@ -31,7 +31,7 @@ moment of adding a request to the dispatcher to passing data to the component ar
 
 ```mermaid
 flowchart TD;
-    subgraph Request
+    subgraph Request_Lifecycle
       Request_Start
       Upload
       Response_Start
@@ -47,10 +47,10 @@ flowchart TD;
     Client{Client}
 
     Client -- create request --> Request
-    Request -- add to queue --> Dispatcher
+    Request -- "use of send() method" --> Dispatcher
     Dispatcher <-. Check online status .-> App_Manager
-    Dispatcher -- Trigger Request --> Adapter
-    Adapter --> Request_Start[[Request Start]]
+    Dispatcher -- pick request from queue and send to adapter --> Adapter
+    Adapter --> Request_Lifecycle
     Request_Start --> Upload[[Upload]]
     Upload --> Response_Start[[Response Start]]
     Response_Start --> Download[[Download]]
