@@ -75,6 +75,67 @@ html[data-theme="dark"] .addition {
   justify-content: center;
   margin-bottom: 20;
 }
+.buttons a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  height: 42px;
+  overflow: hidden;
+  margin: 1px;
+}
+
+.buttons > * {
+  box-shadow: 0 16px 18px -8px var(--shadow-color), 0 6px 8px -4px var(--shadow-color);
+}
+
+.buttons a:first-child {
+  color: #2c2c2c;
+  border: 0;
+  background: radial-gradient(
+    100% 100% at 100% 0,
+    var(--ifm-color-primary-lighter) 0,
+    var(--ifm-color-warning-dark) 100%
+  );
+}
+.buttons a:last-child {
+  border: 0;
+}
+.buttons .wrapper {
+  border-radius: var(--ifm-button-border-radius);
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  display: block;
+  top: -50%;
+  left: -50%;
+  z-index: -9;
+  display: block;
+  height: 200%;
+  width: 200%;
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    #ecd08c 50%,
+    #ecd08c 55%,
+    rgba(255, 255, 255, 0) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% auto;
+  border-radius: inherit;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
 
 .powered {
   font-size: 0.8rem;
@@ -289,7 +350,6 @@ html[data-theme="dark"] .addition {
     color-stop(4%, var(--ifm-color-emphasis-200)),
     color-stop(100%, var(--section-background))
   );
-  box-shadow: var(--ifm-color-emphasis-200) 0px 6px 30px -8px;
   width: auto;
   height: 26px;
   padding: 6px 10px;

@@ -72,11 +72,14 @@ export function Header(): JSX.Element {
         </div>
 
         <div className={styles.buttons}>
-          <Link className="button button--primary button--lg" to="/docs/documentation/Getting Started/Overview">
-            Get Started
-          </Link>
+          <div className={styles.wrapper}>
+            <div className={styles.glow} />
+            <Link className="button button--primary button--lg" to="/docs/documentation/Getting Started/Overview">
+              Get Started
+            </Link>
+          </div>
           <Link className="button button--secondary button--lg" to="/docs/guides/Basic/Setup">
-            Guides
+            Guides →
           </Link>
         </div>
       </div>
