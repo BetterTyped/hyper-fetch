@@ -36,13 +36,13 @@ const getResponse = (ctx: RestContext, request: RequestInstance, fixture: unknow
       if (abortController && abortController?.[1].signal.aborted) {
         ctx.status(500)(response);
         const error = getErrorMessage("abort");
-        response.body = !request.client.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
+        response.body = request.client.appManager.isBrowser ? error : JSON.stringify({ message: error.message });
         return response;
       }
       if (isTimeout) {
         ctx.status(500)(response);
         const error = getErrorMessage("timeout");
-        response.body = !request.client.appManager.isNodeJs ? error : JSON.stringify({ message: error.message });
+        response.body = request.client.appManager.isBrowser ? error : JSON.stringify({ message: error.message });
         return response;
       }
       ctx.json(fixture)(response);

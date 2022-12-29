@@ -15,7 +15,7 @@ describe("Fetch Adapter [ Server ]", () => {
   beforeEach(() => {
     client = createClient();
     request = createRequest(client);
-    client.appManager.isNodeJs = true;
+    client.appManager.isBrowser = false;
     resetInterceptors();
     jest.resetAllMocks();
     jest.clearAllMocks();
@@ -28,7 +28,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should pick correct adapter and not throw", async () => {
     createRequestInterceptor(request);
-    client.appManager.isNodeJs = false;
+    client.appManager.isBrowser = true;
     jest.spyOn(global, "window", "get").mockImplementation(() => undefined);
     await expect(() => adapter(request, requestId)).not.toThrow();
   });

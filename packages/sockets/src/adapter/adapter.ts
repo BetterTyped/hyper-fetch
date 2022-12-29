@@ -36,7 +36,11 @@ export class SocketAdapter<SocketType extends SocketInstance> {
   }
 
   connect = () => {
-    if (!this.socket.appManager.isOnline || this.connecting) return;
+    if (!this.socket.appManager.isOnline || this.connecting)
+      return this.logger.warning("Cannot initialize adapter.", {
+        connecting: this.connecting,
+        online: this.socket.appManager.isOnline,
+      });
     const { reconnectTimeout = DateInterval.second * 2 } = this.socket.options.adapterOptions || {};
 
     this.socket.events.emitConnecting();
@@ -50,6 +54,8 @@ export class SocketAdapter<SocketType extends SocketInstance> {
 
     // Initialize new adapter instance
     this.adapter = this.init();
+
+    if (!this.adapter) return this.logger.warning("Cannot initialize adapter.");
 
     // Reconnection timeout
     const timeout = setTimeout(() => {

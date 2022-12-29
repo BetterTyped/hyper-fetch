@@ -15,7 +15,7 @@ export class AppManager {
   emitter = new EventEmitter();
   events = getAppManagerEvents(this.emitter);
 
-  isNodeJs: boolean;
+  isBrowser: boolean;
   isOnline: boolean;
   isFocused: boolean;
 
@@ -33,7 +33,7 @@ export class AppManager {
     focusEvent(this.setFocused);
     onlineEvent(this.setOnline);
 
-    this.isNodeJs = !hasDocument();
+    this.isBrowser = hasDocument();
   }
 
   private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {
