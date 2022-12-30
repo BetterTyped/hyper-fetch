@@ -62,9 +62,6 @@ unmountOfflineListener()
 The `RequestManager` is responsible for holding the cancellation tokens needed to terminate the requests and for the
 events related to the requests lifecycle - request `start`, `upload`, `download`, `response` and `abort`.
 
-The `RequestManager` holds the cancellation tokens needed to terminate requests. It also manages tokens for events
-related to the request lifecycle, i.e. request `start`, `upload`, `download`, `response`, and `abort`.
-
 :::info
 
 Hyper Fetch event listeners return unmounting callbacks for easier cleanup handling.
