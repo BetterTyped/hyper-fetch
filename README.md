@@ -42,15 +42,7 @@ This library is `backend and framework agnostic`, with aim to provide as many gr
 particular `caching`, `queuing`, `persistence`, `offline first support`, `request deduplication`, `authentication`,
 `progress tracking`, `structure and architecture` guidelines.
 
----
-
-#### ⚡ HTTP
-
-#### 🌐 GraphQl
-
-#### 🛰️ Webockets
-
-#### 📟 Server Sent Events
+`HTTP` | `REST` | `GraphQl` | `Webockets` | `Server-Sent Events`
 
 ---
 
