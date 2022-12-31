@@ -13,6 +13,17 @@
   z-index: 2;
 }
 
+.productHunt {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%);
+}
+
+.productHunt img {
+  width: 180px;
+}
+
 .title {
   margin: 0px auto 60px;
   text-align: center;
@@ -168,6 +179,12 @@ html[data-theme="dark"] .addition {
   .buttons {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .buttons > * {
+    width: 210px;
+    max-width: 100%;
   }
 }
 
