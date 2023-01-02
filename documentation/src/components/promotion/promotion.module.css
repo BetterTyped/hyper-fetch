@@ -26,6 +26,7 @@ html[data-theme="dark"] .container {
 }
 
 .title {
+  font-size: 30px;
   font-weight: 900;
 }
 

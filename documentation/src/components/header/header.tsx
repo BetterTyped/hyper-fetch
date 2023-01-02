@@ -73,12 +73,12 @@ export function Header(): JSX.Element {
             </a>
           </div>
         </h2>
-        <h3 className={clsx(styles.tagline)}>
+        <h1 className={clsx(styles.tagline)}>
           Ultimate framework for{" "}
           <b className={clsx(styles.gradientLetters)}>
             data exchange, asynchronous state management, complex persistence and queueing.
           </b>{" "}
-        </h3>
+        </h1>
         <div className={clsx(styles.addition)}>
           For any <span>Javascript / Typescript</span> environment like <span>Node.js</span>, <span>React</span>,{" "}
           <span>Angular</span>, <span>Svelte</span>, <span>Vue</span> and others.

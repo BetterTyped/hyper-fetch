@@ -12,15 +12,16 @@ const apiDocsDir = "docs/api";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Hyper Fetch",
-  tagline: "Follow the flow of modern data exchange",
+  title: "Data fetching, caching and queueing",
+  tagline: "Framework for data exchange and state management",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
-  organizationName: "BetterTyped", // Usually your GitHub org/user name.
-  projectName: "Hyper Fetch", // Usually your repo name.
+  organizationName: "BetterTyped",
+  projectName: "Hyper Fetch",
+  trailingSlash: true,
 
   scripts: [
     {
