@@ -16,7 +16,7 @@ dangerous for the application and introduce **regression**.
 Another case is sending `FormData`, which is impossible to represent in the form of an exact interface in terms of the
 fields it contains. In order not to send something that is equivalent to the type `any`, we can specify the correct type
 in the request and then map everything to FormData just before it gets added to
-**[Dispatcher](/documentation/02-Core/Dispatcher.mdx)**.
+**[Dispatcher](/documentation/02-core/dispatcher.mdx)**.
 
 This way, we ensure very `type-safe` and `flexible` development of our application.
 

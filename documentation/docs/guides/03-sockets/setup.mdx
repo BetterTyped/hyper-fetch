@@ -6,7 +6,7 @@ sidebar_position: 1
 
 ### Initialize Socket
 
-The first step is to initialize the **[Socket](/documentation/03-Sockets/Socket.mdx)**. It manage the basic
+The first step is to initialize the **[Socket](/documentation/03-sockets/socket.mdx)**. It manage the basic
 configuration for connection to the server and all the sub-systems. We start by determining the `url` of our server.
 
 ```tsx title="/src/server/socket.ts"
@@ -18,7 +18,7 @@ export const socket = new Socket({ url: "ws://localhost:3000" });
 ### Create Listener
 
 Then, having already prepared connection setup for the server, we use the socket method to create
-**[Listeners](/documentation/03-Sockets/Listener.mdx)** and assign types to them.
+**[Listeners](/documentation/03-sockets/listener.mdx)** and assign types to them.
 
 ```tsx
 type ChatMessageType = {
@@ -33,7 +33,7 @@ export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
 ### Create Emitter
 
 Then, having already prepared connection setup for the server, we use the socket method to create
-**[Emitter](/documentation/03-Sockets/Emitter.mdx)** and assign types to them.
+**[Emitter](/documentation/03-sockets/emitter.mdx)** and assign types to them.
 
 ```tsx
 import { socketInstance } from "./socket";

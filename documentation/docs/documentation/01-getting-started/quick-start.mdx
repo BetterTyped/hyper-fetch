@@ -13,7 +13,7 @@ The basic version of Hyper Fetch is not associated with any framework or library
 
 ### 1. Initialize the Client
 
-The first step in implementing Hyper Fetch is to initialize the **[Client](/documentation/02-Core/Client.mdx)**. It
+The first step in implementing Hyper Fetch is to initialize the **[Client](/documentation/02-core/client.mdx)**. It
 manages the basic configuration for connection to the server and all Hyper Fetch’s essential elements (i.e. instances of
 **dispatchers**, **cache**, and **app managers**). Start by determining the `url` of your server.
 
@@ -26,7 +26,7 @@ export const client = new Client({ url: "http://localhost:3000" });
 ### 2. Create Requests
 
 Then, having already prepared a connection to the server, we use the client method to create
-**[requests](/documentation/02-Core/Request.mdx)** and assign types to them.
+**[requests](/documentation/02-core/request.mdx)** and assign types to them.
 
 :::caution
 

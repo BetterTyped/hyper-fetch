@@ -173,7 +173,7 @@ getUsers.setQueryParams({ search: "John", sort: "age" }).send();
 getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
 ```
 
-#### For usage with **`React`** checkout our [hooks docs](/documentation/04-React/01-Overview.mdx).
+#### For usage with **`React`** checkout our [hooks docs](/documentation/04-react/01-overview.mdx).
 
 ---
 
@@ -181,17 +181,17 @@ getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).se
 
 You can read more in the API reference and guides.
 
-### [Cancellation](/guides/02-Advanced/Cancellation.mdx)
+### [Cancellation](/guides/02-advanced/cancellation.mdx)
 
-### [Queueing](/guides/02-Advanced/Queueing.mdx)
+### [Queueing](/guides/02-advanced/queueing.mdx)
 
-### [Offline](/guides/02-Advanced/Offline.mdx)
+### [Offline](/guides/02-advanced/offline.mdx)
 
-### [Deduplication](/guides/02-Advanced/Deduplication.mdx)
+### [Deduplication](/guides/02-advanced/deduplication.mdx)
 
-### [Authentication](/guides/01-Basic/Authentication.mdx)
+### [Authentication](/guides/01-basic/authentication.mdx)
 
-### [Data Mapping](/guides/01-Basic/Data_Mapping.mdx)
+### [Data Mapping](/guides/01-basic/data-mapping.mdx)
 
 ---
 
@@ -232,7 +232,7 @@ requestWithParams.send(); // Success
 ## Keys
 
 Each request gets its identifiers – `queueKey`, `cacheKey`, `abortKey`, and `effectKey`. They are needed to determine
-under which key items will be cached, queued, canceled or handled by [Effects](/documentation/02-Core/Effect.mdx). By
+under which key items will be cached, queued, canceled or handled by [Effects](/documentation/02-core/effect.mdx). By
 default, keys are auto-generated based on the current parameters and endpoint and method values. However, you can
 overwrite these values with other methods as needed.
 

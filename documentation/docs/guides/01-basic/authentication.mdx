@@ -3,7 +3,7 @@ sidebar_position: 6
 ---
 
 Authentication in Hyper Fetch consists of two steps. We will introduce changes in the
-**[Client](/documentation/02-Core/Client.mdx)** instance and subsequent requests created from it.
+**[Client](/documentation/02-core/client.mdx)** instance and subsequent requests created from it.
 
 ---
 
@@ -39,7 +39,7 @@ That's it, from now on, each request made using this request will be authenticat
 
 ### Refresh token
 
-To refresh the token, we can add a special `onError` interceptor to our **[Client](/documentation/02-Core/Client.mdx)**.
+To refresh the token, we can add a special `onError` interceptor to our **[Client](/documentation/02-core/client.mdx)**.
 It intercepts errors received in our requests and it is asynchronous, which allows for efficient handling of such cases.
 
 To properly **`avoid the infinite refresh loop`** of the token, we need to protect ourselves by setting the `used` field

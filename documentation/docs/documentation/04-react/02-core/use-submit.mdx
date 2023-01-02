@@ -16,13 +16,13 @@ sidebar_position: 4
 ## Introduction
 
 This hook **mutates data** on the server and supports controlling requests. It uses the
-[`Submit Dispatcher`](/documentation/02-Core/Dispatcher.mdx) to handle requests and the
-[`Cache`](/documentation/02-Core/Cache.mdx) to manage the overall state of the data.
+[`Submit Dispatcher`](/documentation/02-core/dispatcher.mdx) to handle requests and the
+[`Cache`](/documentation/02-core/cache.mdx) to manage the overall state of the data.
 
-The minimum requirement for `useSubmit` is a prepared [`Request`](/documentation/02-Core/Request.mdx).
+The minimum requirement for `useSubmit` is a prepared [`Request`](/documentation/02-core/request.mdx).
 
 If you intend to `retrieve` data from the server, we recommend choosing the
-[`useFetch`](/documentation/04-React/02-Core/useFetch.mdx) hook.
+[`useFetch`](/documentation/04-react/02-core/use-fetch.mdx) hook.
 
 ---
 
@@ -94,7 +94,7 @@ const LoginPage: React.FC = () => {
 ## Passing data and params
 
 Data and parameters can be passed in several ways. One option is to use methods on the
-[`Request`](/documentation/02-Core/Request.mdx), such as `setData` or `setParams`.
+[`Request`](/documentation/02-core/request.mdx), such as `setData` or `setParams`.
 
 ```tsx
 const { submit } = useSubmit(patchUser.setParams({ userId: 1 }).setData({ name: "New Name" }));
