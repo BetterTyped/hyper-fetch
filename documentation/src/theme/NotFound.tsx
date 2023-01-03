@@ -1,10 +1,6 @@
-import React from 'react';
-import NotFound from '@theme-original/NotFound';
+import React from "react";
+import { Redirect } from "@docusaurus/router";
 
 export default function NotFoundWrapper(props) {
-  return (
-    <>
-      <NotFound {...props} />
-    </>
-  );
+  return <Redirect to="/" />;
 }

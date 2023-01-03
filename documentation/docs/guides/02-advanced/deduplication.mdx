@@ -1,3 +1,7 @@
+---
+title: Deduplication
+---
+
 In order to **`limit and optimize the number of queries to the backend`**, we can use the feature of `deduplication`. We
 enable it by setting the `deduplicate: true` field on the request options. Thanks to this setting, **many requests made
 at the same time will be optimized to one request**. We can refine the deduplication time with the deduplicateTime
