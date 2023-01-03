@@ -47,7 +47,7 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
 
 ✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/window-focus-blur)
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
