@@ -8,13 +8,13 @@ export function Promotion(): JSX.Element {
     <section className={clsx(styles.container)}>
       <div className="container">
         <div className={clsx(styles.row)}>
-          <h1 className={clsx(styles.title)}>
+          <h2 className={clsx(styles.title)}>
             Check out{" "}
             <a href="https://bettertyped.com/" target="_blank" rel="noreferrer">
               BetterTyped
             </a>{" "}
             projects!
-          </h1>
+          </h2>
 
           <a
             className="button button--primary button--lg"

@@ -29,8 +29,14 @@
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
   </a>
-  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-Websockets-CE4257?logo=broadcast&logoColor=white" />
+  </a>
+  <a href="https://github.com/BetterTyped/hyper-fetch">
+    <img src="https://custom-icon-badges.demolab.com/badge/-Server%20Sent%20Events-ECB10C?logo=unread&logoColor=white&color=blueviolet" />
+  </a>
+  <a href="https://bestofjs.org/projects/hyper-fetch" rel="nofollow">
+    <img alt="Best of JS" src="https://img.shields.io/endpoint?url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=BetterTyped%2Fhyper-fetch%26since=daily" style="max-width: 100%;">
   </a>
   <a href="https://hits.sh/github.com/BetterTyped/hyper-fetch/">
     <img src="https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=64BC4B&logo=bookmeter" />
@@ -41,8 +47,6 @@
 This library is `backend and framework agnostic`, with aim to provide as many great and useful features as possible. In
 particular `caching`, `queuing`, `persistence`, `offline first support`, `request deduplication`, `authentication`,
 `progress tracking`, `structure and architecture` guidelines.
-
-`HTTP` | `REST` | `GraphQl` | `Webockets` | `Server-Sent Events`
 
 ---
 
@@ -216,6 +220,9 @@ Use prepared hooks
 
 #### Fetch with lifecycle
 
+<details>
+    <summary>Show me example</summary>
+
 ```tsx
 import { useFetch } from "@hyper-fetch/react";
 
@@ -231,7 +238,12 @@ onError((error) => {
 });
 ```
 
+</details>
+
 #### Manually trigger requests
+
+<details>
+    <summary>Show me example</summary>
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -249,7 +261,12 @@ onError((error) => {
 return <button onClick={() => submit()}>Trigger request!</button>;
 ```
 
+</details>
+
 #### Pass dynamic data to submit method
+
+<details>
+    <summary>Show me example</summary>
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -279,7 +296,12 @@ return (
 );
 ```
 
+</details>
+
 #### Use submit promise response
+
+<details>
+    <summary>Show me example</summary>
 
 ```tsx
 import { useSubmit } from "@hyper-fetch/react";
@@ -307,5 +329,7 @@ const handleSubmit = (values: ValuesType, { setSubmitting }: FormikHelpers) => {
 
 return <Form onSubmit={handleSubmit}>...</Form>;
 ```
+
+</details>
 
 # [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
