@@ -12,7 +12,7 @@ const apiDocsDir = "docs/api";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Data fetching, caching and queueing",
+  title: "Hyper Fetch",
   tagline: "Framework for data exchange and state management",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
