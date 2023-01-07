@@ -6,9 +6,9 @@ import { Description, Features, Header, Promotion, Partners, Preview } from "../
 
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
-
+  const title = "Data Fetching, Offline First, Caching, Queueing";
   return (
-    <Layout title={siteConfig.projectName} description={siteConfig.tagline}>
+    <Layout title={title} description={siteConfig.tagline}>
       <Header />
       <main>
         <Description />

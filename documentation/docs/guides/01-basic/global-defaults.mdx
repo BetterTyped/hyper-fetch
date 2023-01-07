@@ -1,0 +1,41 @@
+---
+sidebar_position: 10
+title: Guide - Global Defaults
+sidebar_label: Global Defaults
+---
+
+# Global Defaults
+
+---
+
+### Use global defaults for request
+
+To significantly limit the setup of our application, we can add global configs. To get the greatest flexibility in the
+context of the created configurations in larger and more complex applications, they are added through callbacks based on
+request data. Thanks to this, we can, for example, make one default configuration for requests using the get method and
+another for the others.
+
+It is worth remembering that global configurations are overwritten by request settings, so the options that we set will
+be applied only to requests that do not have them specified in their options.
+
+---
+
+### Example
+
+```ts
+export const client = new Client({ url }).setRequestDefaultOptions((requestOptions) => {
+  if (requestOptions.method === "GET") {
+    return {
+      deduplicate: true,
+      cacheTime: 20000,
+      retry: 3,
+    };
+  }
+
+  return {
+    deduplicate: false,
+    cache: false,
+    retry: 0,
+  };
+});
+```

@@ -1,0 +1,21 @@
+---
+title: How to do Pagination
+sidebar_label: Pagination
+---
+
+# Pagination
+
+We can create pagination in a banal way, thanks to our auto-generating key cache. In this way, all that is required of
+us is the appropriate change of data in the request.
+
+---
+
+### Example
+
+```tsx
+const { data, error, loading } = useFetch(getPaginatedList.setQueryParams({ page: 1 }));
+
+// or
+
+const { data, error, loading } = useFetch(getPaginatedList.setQueryParams({ offset: 0, limit: 10 }));
+```

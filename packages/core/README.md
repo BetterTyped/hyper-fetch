@@ -42,34 +42,34 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 ## Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
+🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
 
 ✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/React/Window%20Focus%20&%20Blur)
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Queueing)
+🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
+💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Persistence)
+🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Environment)
+🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
+📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
 
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Testing)
+🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Prefetching)
+💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
 
 ## Sources
 
-- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Installation)
+- #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
 - #### [NPM](https://www.npmjs.com/package/@hyper-fetch/core)
