@@ -104,6 +104,12 @@ const config = {
               label: "Current",
               path: "",
             },
+            "1.7.1": {
+              noIndex: true,
+            },
+            "2.1.0": {
+              noIndex: true,
+            },
           },
         },
         blog: {
