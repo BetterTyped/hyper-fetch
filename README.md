@@ -47,12 +47,12 @@
 </p>
 
 **`Hyper Fetch`** is fetching framework. What makes it unique is the `typesafe design` and the `ease of use`. This
-library **can run in the browser and on the server** with any framework. We have created a neutral data exchange
-standard **so you can still use your favorite libraries** like axios, socket.io or others! With our library fetching,
+library `can run in the browser and on the server` with any framework. We have created a neutral data exchange standard
+so you can still use your favorite libraries like axios, socket.io or use built-in adapters. With our library fetching,
 architecture and access to requests lifecycle is fabulously simple, thanks to which you can create new components or
-functionalities **much faster**!
+functionalities **much faster** and create it all in accordance with good practices!
 
-#### Gain full control over data exchange in your applications!
+#### `Gain full control over requesting in your applications!`
 
 **[Documentation](https://hyperfetch.bettertyped.com/) •
 [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start) •
