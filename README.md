@@ -54,9 +54,9 @@ functionalities **much faster**!
 
 #### Gain full control over data exchange in your applications!
 
-**[Documentation](https://hyperfetch.bettertyped.com/)** •
-**[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start)** •
-**[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
+**[Documentation](https://hyperfetch.bettertyped.com/) •
+[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start) •
+[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
 
 ---
 
