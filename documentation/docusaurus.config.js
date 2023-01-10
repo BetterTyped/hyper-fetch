@@ -12,7 +12,7 @@ const apiDocsDir = "docs/api";
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Data fetching, caching and queueing",
+  title: "Hyper Fetch",
   tagline: "Framework for data exchange and state management",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
@@ -104,6 +104,12 @@ const config = {
               label: "Current",
               path: "",
             },
+            "1.7.1": {
+              noIndex: true,
+            },
+            "2.1.0": {
+              noIndex: true,
+            },
           },
         },
         blog: {
@@ -137,36 +143,36 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "documentation/Getting Started/Overview",
+            docId: "documentation/getting-started/overview",
             position: "left",
             label: "Docs",
             activeBaseRegex: `/docs`,
           },
           {
-            to: "/docs/api",
+            to: "/docs/api/",
             label: "API",
             position: "left",
             activeBaseRegex: `/docs/api`,
           },
           {
-            to: "/docs/guides/Basic/Setup",
+            to: "/docs/guides/basic/setup/",
             label: "Guides",
             position: "left",
             activeBaseRegex: `/docs/guides/`,
           },
           {
-            to: "/examples/Playground",
+            to: "/examples/playground/",
             label: "Examples",
             position: "left",
           },
           {
-            to: "/sources/Overview",
+            to: "/sources/overview/",
             label: "Sources",
             position: "left",
             activeBaseRegex: `/sources/`,
           },
           {
-            to: "/blog",
+            to: "/blog/",
             label: "Blog",
             position: "left",
           },
@@ -190,15 +196,15 @@ const config = {
             items: [
               {
                 label: "Getting Started",
-                to: "/docs/documentation/Getting Started/Overview",
+                to: "/docs/documentation/getting-started/overview/",
               },
               {
                 label: "Core",
-                to: "/docs/documentation/Core/Client",
+                to: "/docs/documentation/core/client/",
               },
               {
                 label: "React",
-                to: "/docs/documentation/React/Overview",
+                to: "/docs/documentation/react/overview/",
               },
             ],
           },
@@ -211,7 +217,7 @@ const config = {
               },
               {
                 label: "BetterTyped",
-                href: "https://bettertyped.com/docs/Overview",
+                href: "https://bettertyped.com/docs/overview",
               },
               {
                 label: "Stack Overflow",

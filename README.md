@@ -62,22 +62,22 @@ functionalities **much faster**!
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
 🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
 ✨ **Deduplicate similar requests** -
 [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Deduplication/)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Queueing)
+🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
 💎 **Response caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
+🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
 📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Authentication)
+🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
 🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Retries/)
 
@@ -85,7 +85,7 @@ functionalities **much faster**!
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
 
-#### [Core](https://hyperfetch.bettertyped.com/docs/documentation/Core/Overview)
+#### [Core](https://hyperfetch.bettertyped.com/docs/documentation/core/overview)
 
 ```bash
 npm install --save @hyper-fetch/core
@@ -93,7 +93,7 @@ or
 yarn add @hyper-fetch/core
 ```
 
-#### [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/Sockets/Overview)
+#### [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/sockets/overview)
 
 ```bash
 npm install --save @hyper-fetch/sockets
@@ -101,7 +101,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### [React Hooks](https://hyperfetch.bettertyped.com/docs/documentation/React/Overview)
+#### [React Hooks](https://hyperfetch.bettertyped.com/docs/documentation/react/overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react
@@ -342,4 +342,4 @@ return <Form onSubmit={handleSubmit}>...</Form>;
 
 </details>
 
-# [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+# [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
