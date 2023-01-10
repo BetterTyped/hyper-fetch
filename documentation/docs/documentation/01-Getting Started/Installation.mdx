@@ -5,8 +5,8 @@ sidebar_position: 3
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-An installation of Hyper Fetch can be run `clean` or for a specific environment. However,  we only currently support React.
-:::info
+An installation of Hyper Fetch can be run `clean` or for a specific environment. However, we only currently support
+React. :::info
 
 The main `@hyper-fetch/core` package is required for other sub packages to work.
 
@@ -16,9 +16,8 @@ The main `@hyper-fetch/core` package is required for other sub packages to work.
 
 ## Typescript
 
-TypeScript is used especially when you want to deploy pure Hyper Fetch logic,
-without an additional layer of abstraction for a specific environment, library, or framework.
-This gives you access to Hyper Fetch’s base features.
+TypeScript is used especially when you want to deploy pure Hyper Fetch logic, without an additional layer of abstraction
+for a specific environment, library, or framework. This gives you access to Hyper Fetch’s base features.
 
 <Tabs>
   <TabItem value="Npm" label="Npm" default>
@@ -39,10 +38,33 @@ yarn add @hyper-fetch/core
 
 ---
 
+## Sockets
+
+Sockets is created for handling websockets or server sent events.
+
+<Tabs>
+  <TabItem value="Npm" label="Npm" default>
+
+```bash npm2yarn
+npm install --save @hyper-fetch/sockets
+```
+
+  </TabItem>
+  <TabItem value="Yarn" label="Yarn">
+
+```bash npm2yarn
+yarn add @hyper-fetch/sockets
+```
+
+  </TabItem>
+</Tabs>
+
+---
+
 ## React
 
-React allows the installation of the base library with hooks,
-offering interfaces that facilitate library usage and support the application lifecycle.
+React allows the installation of the base library with hooks, offering interfaces that facilitate library usage and
+support the application lifecycle.
 
 <Tabs>
   <TabItem value="Npm" label="Npm" default>

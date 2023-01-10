@@ -41,12 +41,22 @@
   <a href="https://hits.sh/github.com/BetterTyped/hyper-fetch/">
     <img src="https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=64BC4B&logo=bookmeter" />
   </a>
+  <a href="https://twitter.com/hyper_fetch">
+    <img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow HyperFetch" />
+  </a>
 </p>
 
-**`Hyper Fetch`** is a data-exchange framework. What makes it unique is the **typesafe design** and the **ease of use**.
-This library is `backend and framework agnostic`, with aim to provide as many great and useful features as possible. In
-particular `caching`, `queuing`, `persistence`, `offline first support`, `request deduplication`, `authentication`,
-`progress tracking`, `structure and architecture` guidelines.
+**`Hyper Fetch`** is fetching framework. What makes it unique is the `typesafe design` and the `ease of use`. This
+library **can run in the browser and on the server** with any framework. We have created a neutral data exchange
+standard **so you can still use your favorite libraries** like axios, socket.io or others! With our library fetching,
+architecture and access to requests lifecycle is fabulously simple, thanks to which you can create new components or
+functionalities **much faster**!
+
+#### Gain full control over data exchange in your applications!
+
+**[Documentation](https://hyperfetch.bettertyped.com/)** •
+**[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start)** •
+**[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
 
 ---
 
@@ -54,35 +64,22 @@ particular `caching`, `queuing`, `persistence`, `offline first support`, `reques
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
+🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/React/Window%20Focus%20&%20Blur)
+✨ **Deduplicate similar requests** -
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Deduplication/)
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Queueing)
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
-
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Persistence)
-
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Environment)
+💎 **Response caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Offline)
 
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
-
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Testing)
+📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Authentication)
 
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Prefetching)
-
-## Sources
-
-- #### [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start)
-- #### [Docs](https://hyperfetch.bettertyped.com/)
-- #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Retries/)
 
 ## Installation
 
@@ -180,34 +177,49 @@ yarn add @hyper-fetch/core @hyper-fetch/react
 ```tsx
 import { Client } from "@hyper-fetch/core";
 
-// Create global setup
+// Setup our connection to the server
 export const client = new Client({ url: "http://localhost:3000" });
 
-// Create reusable requests to trigger requests
+// Create reusable requests for later use
 export const postData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
   method: "POST",
   endpoint: "/data/:accountId",
 });
+
 export const getData = client.createRequest<ResponseType, RequestType, LocalErrorType, QueryParamsType>()({
   method: "GET",
   endpoint: "/user",
 });
 ```
 
-#### Triggering request
+#### Fetching
 
-```tsx
+Executing previously prepared requests is very simple. We can do this using the send method.
+
+```ts
+const [data, error, status] = await getData.send();
+```
+
+#### Mutation request
+
+We can attach the data to the request with methods before sending it to the server. This is helpful for building our
+request and attaching data to it which can be helpful when we need to create it in a few steps from data obtained during
+some process.
+
+```ts
 // Set the information to request (methods return request clone - NOT mutating the source)
 const request = postData
   .setParams({ accountId: 104 }) // Set Params
   .setQueryParams({ paramOne: "test", paramTwo: "test2" })
-  .setData({ name: "My new entity", description: "Some description" }); // Add payload data
+  .setData({ name: "My new entity", description: "Some description" }) // Add payload data
+  .send();
+```
 
-// Use request directly
-const [data, error, status] = await request.send();
+We can also pass them directly to the send method, which will add them to the request at once.
 
+```ts
 // OR pass dynamic data directly to '.send' method
-const [data, error, status] = await request.send({
+const [data, error, status] = await postData.send({
   params: { accountId: 104 },
   data: { name: "My new entity", description: "Some description" },
   queryParams: { paramOne: "test", paramTwo: "test2" },
@@ -215,8 +227,6 @@ const [data, error, status] = await request.send({
 ```
 
 ### React
-
-Use prepared hooks
 
 #### Fetch with lifecycle
 
