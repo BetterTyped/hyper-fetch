@@ -52,8 +52,6 @@ so you can still use your favorite libraries like axios, socket.io or use built-
 architecture and access to requests lifecycle is fabulously simple, thanks to which you can
 **`create new components or functionalities much faster`** and all of this in accordance with good practices!
 
-#### `Gain full control over requesting in your applications!`
-
 **[Documentation](https://hyperfetch.bettertyped.com/) •
 [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start) •
 [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
