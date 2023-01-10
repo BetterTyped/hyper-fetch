@@ -101,7 +101,7 @@ or
 yarn add @hyper-fetch/sockets
 ```
 
-#### [React Hooks](https://hyperfetch.bettertyped.com/docs/documentation/react/overview)
+#### [React](https://hyperfetch.bettertyped.com/docs/documentation/react/overview)
 
 ```bash
 npm install --save @hyper-fetch/core @hyper-fetch/react
