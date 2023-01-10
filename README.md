@@ -42,7 +42,7 @@
     <img src="https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=64BC4B&logo=bookmeter" />
   </a>
   <a href="https://twitter.com/hyper_fetch">
-    <img src="https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow HyperFetch" />
+    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/hyper_fetch?label=Follow%20HyperFetch&style=social">
   </a>
 </p>
 
