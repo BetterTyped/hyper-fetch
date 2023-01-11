@@ -47,13 +47,12 @@
 </p>
 
 **`Hyper Fetch`** is fetching framework. What makes it unique is the `typesafe design` and the `ease of use`. This
-library `can run in the browser and on the server` with any framework. We have created a neutral data exchange standard
-so you can still use your favorite libraries like axios, socket.io or use built-in adapters. With our library fetching,
-architecture and access to requests lifecycle is fabulously simple, thanks to which you can
+library `can run in the browser and on the server` with any framework. With our library fetching, architecture and
+access to requests lifecycle is fabulously simple, thanks to which you can
 **`create new components or functionalities much faster`** and all of this in accordance with good practices!
 
 **[Documentation](https://hyperfetch.bettertyped.com/) •
-[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/Getting%20Started/Quick%20Start) •
+[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) •
 [Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
 
 ---
@@ -65,19 +64,19 @@ architecture and access to requests lifecycle is fabulously simple, thanks to wh
 🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
 ✨ **Deduplicate similar requests** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Deduplication/)
+[Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Cache)
+💎 **Response caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/Core/Adapter)
+📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
-🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Basic/Retries/)
+🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
 
 ## Installation
 
