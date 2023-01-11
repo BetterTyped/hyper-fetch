@@ -53,7 +53,7 @@ access to requests lifecycle is fabulously simple, thanks to which you can
 
 **[Documentation](https://hyperfetch.bettertyped.com/) •
 [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) •
-[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)
+[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup) •
 [API](https://hyperfetch.bettertyped.com/docs/api/)**
 
 ---
