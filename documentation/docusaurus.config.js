@@ -88,7 +88,7 @@ const config = {
         docs: {
           remarkPlugins: [
             require("mdx-mermaid"),
-            require("./plugins/docusaurus-docgen").docsImporter({
+            require("docusaurus-docgen").docsImporter({
               packageRoute: apiDocs,
               apiDir: apiDocsDir,
             }),

@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "preinstall": "cd ./plugins/docusaurus-docgen && yarn install && yarn link",
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "prepare": "yarn link 'docusaurus-docgen'",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
@@ -26,6 +24,7 @@
     "@tippyjs/react": "^4.2.6",
     "cli-progress": "^3.11.1",
     "clsx": "^1.1.1",
+    "docusaurus-docgen": "^1.1.2",
     "docusaurus-plugin-sass": "^0.2.2",
     "file-loader": "^6.2.0",
     "gsap": "2.1.3",

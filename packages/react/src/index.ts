@@ -7,5 +7,6 @@ export * from "./hooks/use-emitter";
 export * from "./hooks/use-event-messages";
 export * from "./hooks/use-app-manager";
 export * from "./helpers";
+export * from "./config-provider";
 export * from "./types";
 export * from "./utils";
