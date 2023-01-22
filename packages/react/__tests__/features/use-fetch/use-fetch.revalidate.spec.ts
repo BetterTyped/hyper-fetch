@@ -2,7 +2,7 @@ import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch } from "../../utils";
+import { client, createRequest, renderUseFetch, sleep } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
   let request = createRequest();
@@ -28,6 +28,7 @@ describe("useFetch [ Revalidate ]", () => {
   });
 
   it("should allow to prevent revalidation on mount", async () => {
+    const spy = jest.fn();
     const customMock = { something: "123" };
     client.cache.set(request, [customMock, null, 200], {
       retries: 0,
@@ -38,8 +39,27 @@ describe("useFetch [ Revalidate ]", () => {
     });
 
     const response = renderUseFetch(request, { revalidateOnMount: false });
+    act(() => {
+      response.result.current.onFinished(spy);
+    });
 
     await testSuccessState(customMock, response);
+    await sleep(50);
+    expect(spy).toBeCalledTimes(0);
+  });
+  it("should allow to prevent revalidation on mount", async () => {
+    const spy = jest.fn();
+    const response = renderUseFetch(request, { revalidateOnMount: false });
+    act(() => {
+      response.result.current.onFinished(() => {
+        spy();
+        response.unmount();
+      });
+    });
+    renderUseFetch(request, { revalidateOnMount: false });
+
+    await sleep(50);
+    expect(spy).toBeCalledTimes(1);
   });
   it("should allow to revalidate on mount", async () => {
     const customMock = { something: "123" };
