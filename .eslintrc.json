@@ -31,6 +31,18 @@
     "airbnb-typescript",
     "plugin:prettier/recommended"
   ],
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "jest.config.ts",
+    "babel.config.js",
+    "rollup.config.js",
+    "jest.config.js",
+    "tsconfig.json",
+    "coverage",
+    "temp",
+    "release.config.js"
+  ],
   "rules": {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",

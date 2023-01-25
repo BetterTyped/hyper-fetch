@@ -1,11 +1,12 @@
 /* eslint-disable */
 const { build } = require("esbuild");
+const { rollup } = require("rollup");
 const { nodeExternalsPlugin } = require("esbuild-node-externals");
+const dts = require("rollup-plugin-dts").default;
 
 const pkg = require(`${process.cwd()}/package.json`);
-const entryPath = `${process.cwd()}/index.ts`;
 
-const buildPackage = () => {
+const buildPackage = async () => {
   const options = {
     target: "es6",
     entryPoints: [pkg.source],

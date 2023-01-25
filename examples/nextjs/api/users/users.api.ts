@@ -1,7 +1,7 @@
 import { DateInterval } from "@hyper-fetch/core";
 
-import { PostUserModel, UserModel } from "models";
-import { client } from "../client";
+import { PostUserModel, UserModel } from "../../models";
+import { client } from "../builder";
 
 export const getUser = client.createRequest<UserModel>()({
   endpoint: "/api/user/:userId",

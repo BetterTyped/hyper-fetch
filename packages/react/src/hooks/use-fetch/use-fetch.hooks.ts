@@ -15,10 +15,10 @@ import { InvalidationKeyType } from "types";
  * @param options Hook options
  * @returns
  */
-export const useFetch = <T extends RequestInstance>(
-  request: T,
-  options: UseFetchOptionsType<T> = useFetchDefaultOptions,
-): UseFetchReturnType<T> => {
+export const useFetch = <RequestType extends RequestInstance>(
+  request: RequestType,
+  options: UseFetchOptionsType<RequestType> = useFetchDefaultOptions,
+): UseFetchReturnType<RequestType> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const {
@@ -59,7 +59,7 @@ export const useFetch = <T extends RequestInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<RequestType>({
     logger,
     request,
     dispatcher,

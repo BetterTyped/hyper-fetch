@@ -2,6 +2,5 @@
   "extends": ["../../.eslintrc.json"],
   "parserOptions": {
     "project": ["./tsconfig.json", "./__tests__/tsconfig.json"]
-  },
-  "ignorePatterns": ["dist/"]
+  }
 }

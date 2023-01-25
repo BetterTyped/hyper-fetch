@@ -4,6 +4,7 @@
     "rootDir": ".",
     "sourceMap": true,
     "declaration": true,
+    "declarationMap": true,
     "emitDeclarationOnly": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -25,11 +26,7 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {},
-    "plugins": [
-      {
-        "transform": "@zerollup/ts-transform-paths"
-      }
-    ]
+    "plugins": []
   },
   "exclude": ["node_modules", "tmp"]
 }

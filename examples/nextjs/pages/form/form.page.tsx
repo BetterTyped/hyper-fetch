@@ -11,6 +11,8 @@ export const FormPage: React.FC = () => {
   // Post
   const result = useSubmit(postUser.setData({ email: "test", age: 12, name: "name" }));
 
+  const { data } = result;
+
   // Patch
   const resultPatch = useSubmit(patchUser.setData({ email: "test", age: 12, name: "name" }));
 

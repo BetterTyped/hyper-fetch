@@ -28,7 +28,7 @@ export class Listener<Response, Adapter extends AdapterType> {
     });
   }
 
-  listen(callback: (data: ListenerCallbackType<Response>) => void) {
+  listen(callback: ListenerCallbackType<Response>) {
     const instance = this.clone();
 
     this.socket.adapter.listen(instance, callback);

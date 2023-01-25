@@ -18,7 +18,7 @@ export const DetailsPage: React.FC = () => {
   const [dep, setDep] = useState(initialDate);
   const [disabled, setDisabled] = useState(true);
 
-  const result = useFetch(getUser.setQueryParams({ date: dep } as any), {
+  const result = useFetch(getUser.setQueryParams({ date: dep }), {
     disabled,
     dependencies: [dep],
     refresh: true,

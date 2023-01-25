@@ -1,8 +1,8 @@
 import { rest } from "msw";
 import { RequestInstance, DateInterval } from "@hyper-fetch/core";
 
-import { getRandomUser, getRandomUsers } from "utils";
-import { client } from "./client";
+import { getRandomUser, getRandomUsers } from "../utils";
+import { client } from "./builder";
 import { deleteUser, getUser, getUsers, patchUser, postUser } from "./users/users.api";
 import { postFile } from "./files/files.api";
 

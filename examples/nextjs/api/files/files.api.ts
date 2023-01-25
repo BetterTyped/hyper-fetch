@@ -1,4 +1,4 @@
-import { client } from "api/client";
+import { client } from "api/builder";
 
 export const postFile = client
   .createRequest<{ response: string }, { file: File }>()({
