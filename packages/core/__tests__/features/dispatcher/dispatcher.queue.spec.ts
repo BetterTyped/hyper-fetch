@@ -93,21 +93,13 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toBeCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
     });
-    it.skip("should send one request in cancel mode", async () => {
-      const request = createRequest(client, { cancelable: true });
-      // const mock = createRequestInterceptor(request, { delay: 500, status: 200 });
+    // it("should send one request in cancel mode", async () => {
+    //   const request = createRequest(client, { cancelable: true });
+    //   createRequestInterceptor(request);
 
-      const requests = await Promise.all([
-        request.send(),
-        request.send(),
-        // request.send(),
-        // request.send(),
-      ]);
-
-      // console.log("REQ", requests);
-
-      expect(requests.filter(([, , code]) => code === 200)).toHaveLength(1);
-    });
+    //   const requests = await Promise.all([request.send(), request.send()]);
+    //   expect(requests.filter(([, , code]) => code === 200)).toHaveLength(1);
+    // });
   });
   describe("When using dispatcher performRequest method", () => {
     it("should trigger fetch adapter", async () => {

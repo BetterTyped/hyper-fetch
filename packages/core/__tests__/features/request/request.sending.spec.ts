@@ -96,6 +96,19 @@ describe("Request [ Sending ]", () => {
       await requestExecution;
       expect(spy).toBeCalledTimes(1);
     });
+    it("should return cancel error", async () => {
+      const mock = createRequestInterceptor(request, { delay: 10, status: 200 });
+
+      const [res1, res2, res3] = await Promise.all([
+        request.setCancelable(true).send(),
+        request.setCancelable(true).send(),
+        request.setCancelable(true).send(),
+      ]);
+
+      expect(res1).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res2).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res3).toStrictEqual([mock, null, 200]);
+    });
     it("should allow to call the request callbacks", async () => {
       const spy1 = jest.fn();
       const spy2 = jest.fn();

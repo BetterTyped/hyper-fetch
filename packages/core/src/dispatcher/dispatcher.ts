@@ -482,7 +482,6 @@ export class Dispatcher {
 
     const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = requestDump;
     const { adapter, requestManager, cache, appManager } = this.client;
-    requestManager.addAbortController(abortKey, requestId);
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
     // When offline not perform any request
@@ -509,9 +508,13 @@ export class Dispatcher {
 
     // Trigger Request
     this.incrementQueueRequestCount(queueKey);
+    // Listen for aborting
+    requestManager.addAbortController(abortKey, requestId);
 
     const response = await adapter(request, requestId);
-    this.client.requestManager.removeAbortController(abortKey, requestId);
+
+    // Stop listening for aborting
+    requestManager.removeAbortController(abortKey, requestId);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isOfflineResponseStatus = !appManager.isOnline;

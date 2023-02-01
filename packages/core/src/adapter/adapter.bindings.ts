@@ -29,8 +29,6 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   // Request Setup
   const { client, abortKey, queueKey, endpoint, data } = request;
 
-  // requestManager.addAbortController(abortKey, requestId);
-
   const fullUrl = url + endpoint;
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
@@ -171,7 +169,6 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     }
 
     const progressTimestamp = +new Date();
-    // requestManager.removeAbortController(abortKey, requestId);
     handleResponseProgress(responseStartTimestamp, progressTimestamp, {
       total: responseTotal,
       loaded: responseTotal,
@@ -260,6 +257,12 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
       requestManager.events.emitAbort(abortKey, requestId, request);
     };
 
+    // Instant abort when we stack many requests triggered at once and we receive aborted controller
+    if (controller.signal.aborted) {
+      fn();
+    }
+
+    // Abort during the request
     controller.signal.addEventListener("abort", fn);
 
     return () => controller.signal.removeEventListener("abort", fn);
