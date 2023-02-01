@@ -428,7 +428,7 @@ export class Dispatcher {
         return requestId;
       }
       case DispatcherRequestType.deduplicated: {
-        // Return the running requestId to fullfil the events
+        // Return the running requestId to fulfill the events
         return queue.requests[0].requestId;
       }
       default: {
@@ -482,6 +482,7 @@ export class Dispatcher {
 
     const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = requestDump;
     const { adapter, requestManager, cache, appManager } = this.client;
+    requestManager.addAbortController(abortKey, requestId);
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
     // When offline not perform any request
@@ -510,7 +511,7 @@ export class Dispatcher {
     this.incrementQueueRequestCount(queueKey);
 
     const response = await adapter(request, requestId);
-
+    this.client.requestManager.removeAbortController(abortKey, requestId);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isOfflineResponseStatus = !appManager.isOnline;

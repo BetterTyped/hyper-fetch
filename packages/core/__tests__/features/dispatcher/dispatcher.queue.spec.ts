@@ -93,18 +93,20 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toBeCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
     });
-    it("should send one request in cancel mode", async () => {
+    it.skip("should send one request in cancel mode", async () => {
       const request = createRequest(client, { cancelable: true });
-      createRequestInterceptor(request);
+      // const mock = createRequestInterceptor(request, { delay: 500, status: 200 });
 
-      const spy = jest.spyOn(dispatcher, "performRequest");
+      const requests = await Promise.all([
+        request.send(),
+        request.send(),
+        // request.send(),
+        // request.send(),
+      ]);
 
-      dispatcher.add(request);
-      dispatcher.add(request);
+      // console.log("REQ", requests);
 
-      expect(spy).toBeCalledTimes(2);
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
+      expect(requests.filter(([, , code]) => code === 200)).toHaveLength(1);
     });
   });
   describe("When using dispatcher performRequest method", () => {

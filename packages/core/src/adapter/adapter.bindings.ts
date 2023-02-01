@@ -29,7 +29,7 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   // Request Setup
   const { client, abortKey, queueKey, endpoint, data } = request;
 
-  requestManager.addAbortController(abortKey, requestId);
+  // requestManager.addAbortController(abortKey, requestId);
 
   const fullUrl = url + endpoint;
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
@@ -171,7 +171,7 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     }
 
     const progressTimestamp = +new Date();
-    requestManager.removeAbortController(abortKey, requestId);
+    // requestManager.removeAbortController(abortKey, requestId);
     handleResponseProgress(responseStartTimestamp, progressTimestamp, {
       total: responseTotal,
       loaded: responseTotal,

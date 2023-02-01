@@ -271,10 +271,10 @@ export type RequestSendType<Request extends RequestInstance> =
           options?: RequestSendOptionsType<Request>,
         ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
       : (
-          options: RequestSendOptionsType<Request>,
+          options?: RequestSendOptionsType<Request>,
         ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
     : (
-        options: RequestSendOptionsType<Request>,
+        options?: RequestSendOptionsType<Request>,
       ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>;
 
 // Instance
