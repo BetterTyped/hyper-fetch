@@ -1,9 +1,6 @@
-import { Cache } from "cache";
 import { RequestInstance } from "request";
-import { Dispatcher } from "dispatcher";
 import { ResponseType, AdapterType, QueryParamsType } from "adapter";
 import { Client } from "client";
-import { AppManager } from "managers";
 import { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
@@ -24,19 +21,19 @@ export type ClientOptionsType = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends ClientInstance, C extends Cache>(client: B) => C;
+  cache?: <B extends ClientInstance>(client: B) => B["cache"];
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends ClientInstance, A extends AppManager>(client: B) => A;
+  appManager?: <B extends ClientInstance>(client: B) => B["appManager"];
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends ClientInstance, D extends Dispatcher>(client: B) => D;
+  fetchDispatcher?: <B extends ClientInstance>(client: B) => B["submitDispatcher"];
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends ClientInstance, D extends Dispatcher>(client: B) => D;
+  submitDispatcher?: <B extends ClientInstance>(client: B) => B["fetchDispatcher"];
 };
 
 // Interceptors
