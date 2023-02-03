@@ -79,7 +79,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     setCacheData,
   });
 
-  const { addDataListener, addLifecycleListeners, clearDataListener, clearLifecycleListeners } = listeners;
+  const { addDataListener, addLifecycleListeners, clearDataListener } = listeners;
 
   // ******************
   // Fetching
@@ -198,7 +198,6 @@ export const useFetch = <RequestType extends RequestInstance>(
 
     const unmount = () => {
       clearDataListener();
-      clearLifecycleListeners();
       focusUnmount();
       blurUnmount();
       onlineUnmount();

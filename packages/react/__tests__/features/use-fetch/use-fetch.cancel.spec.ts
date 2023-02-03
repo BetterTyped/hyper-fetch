@@ -58,9 +58,9 @@ describe("useFetch [ Cancel ]", () => {
       it("should cancel previous requests when dependencies change", async () => {
         const spy = jest.fn();
 
-        createRequestInterceptor(request);
+        createRequestInterceptor(request, { delay: 50 });
         const response = renderUseFetch(request, { dependencies: [{}] });
-        await waitForRender();
+        await waitForRender(1);
 
         act(() => {
           const params = { page: 1 };
