@@ -73,6 +73,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
 
     it("should create AbortController", async () => {
+      request.client.requestManager.addAbortController(request.abortKey, requestId);
       const { getAbortController } = await getAdapterBindings(request, requestId);
       expect(getAbortController()).toBeDefined();
     });
@@ -84,6 +85,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const { createAbortListener, getAbortController } = await getAdapterBindings(request, requestId);
         const spy = jest.fn();
         const resolveSpy = jest.fn();
+        request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
         const unmount = createAbortListener(spy, resolveSpy);
         expect(spy).toBeCalledTimes(0);
@@ -96,6 +98,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should unmount listener using createAbortListener", async () => {
+        request.client.requestManager.addAbortController(request.abortKey, requestId);
         const { createAbortListener, getAbortController } = await getAdapterBindings(request, requestId);
         const spy = jest.fn();
         const resolveSpy = jest.fn();

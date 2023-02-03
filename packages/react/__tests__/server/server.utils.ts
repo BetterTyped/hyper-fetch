@@ -20,7 +20,7 @@ export const getInterceptEndpoint = (endpoint: string): RegExp => {
 const getResponse = (ctx: RestContext, request: RequestInstance, fixture: unknown, status: number, delay = 10) => {
   const { requestManager } = request.client;
   const controllers = requestManager.abortControllers.get(request.abortKey);
-  const abortController = Array.from(controllers || [])[0];
+  const abortController = Array.from(controllers || [])[controllers.size - 1];
 
   const timeoutTime = request.options?.timeout || defaultTimeout;
   const isTimeout = timeoutTime < delay;
@@ -32,14 +32,16 @@ const getResponse = (ctx: RestContext, request: RequestInstance, fixture: unknow
   return [
     async (response: MockedResponse<unknown>) => {
       await sleep(Math.min(timeoutTime, delay));
-      if (abortController && abortController?.[1]?.signal?.aborted) {
+      if (abortController && abortController?.[1].signal.aborted) {
         ctx.status(500)(response);
-        response.body = getErrorMessage("abort");
+        const error = getErrorMessage("abort");
+        response.body = request.client.appManager.isBrowser ? error : JSON.stringify({ message: error.message });
         return response;
       }
       if (isTimeout) {
         ctx.status(500)(response);
-        response.body = getErrorMessage("timeout");
+        const error = getErrorMessage("timeout");
+        response.body = request.client.appManager.isBrowser ? error : JSON.stringify({ message: error.message });
         return response;
       }
       ctx.json(fixture)(response);
@@ -75,17 +77,16 @@ export const createStubMethod = (
     return res(...args);
   }
 
-  if (method.toUpperCase() === "POST") {
-    return rest.post(url, callback);
+  switch (method.toUpperCase()) {
+    case "POST":
+      return rest.post(url, callback);
+    case "PUT":
+      return rest.put(url, callback);
+    case "PATCH":
+      return rest.patch(url, callback);
+    case "DELETE":
+      return rest.delete(url, callback);
+    default:
+      return rest.get(url, callback);
   }
-  if (method.toUpperCase() === "PUT") {
-    return rest.put(url, callback);
-  }
-  if (method.toUpperCase() === "PATCH") {
-    return rest.patch(url, callback);
-  }
-  if (method.toUpperCase() === "DELETE") {
-    return rest.delete(url, callback);
-  }
-  return rest.get(url, callback);
 };

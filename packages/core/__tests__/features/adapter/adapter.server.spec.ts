@@ -15,6 +15,7 @@ describe("Fetch Adapter [ Server ]", () => {
   beforeEach(() => {
     client = createClient();
     request = createRequest(client);
+    client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
     resetInterceptors();
     jest.resetAllMocks();
@@ -81,6 +82,7 @@ describe("Fetch Adapter [ Server ]", () => {
       testData: "123",
     };
     const postRequest = createRequest(client, { method: "POST" }).setData(payload);
+    client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
 
     const [response, error, status] = await adapter(postRequest, requestId);
@@ -95,6 +97,7 @@ describe("Fetch Adapter [ Server ]", () => {
     payload.append("file", new Blob(["test"], { type: "text/plain" }));
 
     const postRequest = createRequest(client, { method: "POST" }).setData(payload);
+    client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
 
     const [response, error, status] = await adapter(postRequest, requestId);

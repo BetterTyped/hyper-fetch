@@ -96,6 +96,35 @@ describe("Request [ Sending ]", () => {
       await requestExecution;
       expect(spy).toBeCalledTimes(1);
     });
+    it("should return cancel error", async () => {
+      request = createRequest(client).setCancelable(true);
+      const mock = createRequestInterceptor(request);
+
+      const [res1, res2, res3] = await Promise.all([request.send(), request.send(), request.send()]);
+
+      expect(res1).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res2).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res3).toStrictEqual([mock, null, 200]);
+    });
+    /**
+     * Solve #40 https://github.com/BetterTyped/hyper-fetch/issues/40
+     */
+    it("should return cancel error for cancelable requests", async () => {
+      const getUsers = client.createRequest()({
+        method: "GET",
+        endpoint: "/users",
+        cancelable: true,
+      });
+
+      const mock = createRequestInterceptor(getUsers);
+
+      const [res1, res2, res3] = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
+
+      expect(res1).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res2).toStrictEqual([null, getErrorMessage("abort"), 0]);
+      expect(res3).toStrictEqual([mock, null, 200]);
+    });
+
     it("should allow to call the request callbacks", async () => {
       const spy1 = jest.fn();
       const spy2 = jest.fn();

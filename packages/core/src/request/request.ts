@@ -417,12 +417,20 @@ export class Request<
       >
     >,
   ) => {
-    const { adapter } = this.client;
+    const { adapter, requestManager } = this.client;
     const request = this.clone(options as any);
 
     const requestId = getUniqueRequestId(this.queueKey);
 
-    return adapter(request, requestId);
+    // Listen for aborting
+    requestManager.addAbortController(this.abortKey, requestId);
+
+    const response = await adapter(request, requestId);
+
+    // Stop listening for aborting
+    requestManager.removeAbortController(this.abortKey, requestId);
+
+    return response;
   };
 
   /**

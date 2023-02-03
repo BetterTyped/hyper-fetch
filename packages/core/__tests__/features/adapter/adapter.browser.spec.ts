@@ -15,6 +15,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   beforeEach(() => {
     client = createClient();
     request = createRequest(client);
+    request.client.requestManager.addAbortController(request.abortKey, requestId);
     resetInterceptors();
     jest.resetAllMocks();
   });

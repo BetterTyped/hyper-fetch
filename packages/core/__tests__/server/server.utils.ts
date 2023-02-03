@@ -21,7 +21,7 @@ export const getInterceptEndpoint = (endpoint: string): RegExp => {
 const getResponse = (ctx: RestContext, request: RequestInstance, fixture: unknown, status: number, delay = 10) => {
   const { requestManager } = request.client;
   const controllers = requestManager.abortControllers.get(request.abortKey);
-  const abortController = Array.from(controllers || [])[0];
+  const abortController = Array.from(controllers || [])[controllers.size - 1];
 
   const timeoutTime = request.options?.timeout || defaultTimeout;
   const isTimeout = timeoutTime < delay;

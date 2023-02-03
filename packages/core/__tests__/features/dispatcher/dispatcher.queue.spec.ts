@@ -93,19 +93,6 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toBeCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
     });
-    it("should send one request in cancel mode", async () => {
-      const request = createRequest(client, { cancelable: true });
-      createRequestInterceptor(request);
-
-      const spy = jest.spyOn(dispatcher, "performRequest");
-
-      dispatcher.add(request);
-      dispatcher.add(request);
-
-      expect(spy).toBeCalledTimes(2);
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
-    });
   });
   describe("When using dispatcher performRequest method", () => {
     it("should trigger fetch adapter", async () => {

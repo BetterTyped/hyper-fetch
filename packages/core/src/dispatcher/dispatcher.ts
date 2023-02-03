@@ -428,7 +428,7 @@ export class Dispatcher {
         return requestId;
       }
       case DispatcherRequestType.deduplicated: {
-        // Return the running requestId to fullfil the events
+        // Return the running requestId to fulfill the events
         return queue.requests[0].requestId;
       }
       default: {
@@ -508,9 +508,13 @@ export class Dispatcher {
 
     // Trigger Request
     this.incrementQueueRequestCount(queueKey);
+    // Listen for aborting
+    requestManager.addAbortController(abortKey, requestId);
 
     const response = await adapter(request, requestId);
 
+    // Stop listening for aborting
+    requestManager.removeAbortController(abortKey, requestId);
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isOfflineResponseStatus = !appManager.isOnline;
