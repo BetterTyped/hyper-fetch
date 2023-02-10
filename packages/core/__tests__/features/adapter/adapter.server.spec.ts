@@ -1,4 +1,5 @@
-import { adapter, getErrorMessage } from "adapter";
+import { adapter } from "../../../src/adapter/adapter.server";
+import { getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { createClient, createRequest } from "../../utils";
 

@@ -1,15 +1,11 @@
+import http, { OutgoingHttpHeaders } from "http";
+import https from "https";
+import stream from "stream";
+
 import { getAdapterBindings, defaultTimeout, ResponseType, AdapterType, AdapterOptionsType } from "adapter";
 import { parseErrorResponse, parseResponse, getUploadSize, getStreamPayload } from "./adapter.utils";
 
-export const serverAdapter: AdapterType = async (request, requestId) => {
-  /**
-   * Prevent issues related to the missing Node.js polyfills
-   */
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-  const http = require("http");
-  // eslint-disable-next-line global-require, @typescript-eslint/no-var-requires
-  const stream = require("stream");
-
+export const adapter: AdapterType = async (request, requestId) => {
   const {
     fullUrl,
     headers,
@@ -27,14 +23,15 @@ export const serverAdapter: AdapterType = async (request, requestId) => {
     onError,
     onResponseEnd,
   } = await getAdapterBindings<AdapterOptionsType>(request, requestId);
-  const { method } = request;
+  const { method, client } = request;
+  const httpClient = client.url.includes("https://") ? https : http;
 
   return new Promise<ResponseType<unknown, unknown>>((resolve) => {
     const execute = async () => {
       const options = {
         path: fullUrl,
         method,
-        headers,
+        headers: headers as OutgoingHttpHeaders,
         timeout: defaultTimeout,
       };
 
@@ -51,7 +48,7 @@ export const serverAdapter: AdapterType = async (request, requestId) => {
 
       const payloadChunks = await getStreamPayload(payload);
 
-      const httpRequest = http.request(options, (response) => {
+      const httpRequest = httpClient.request(options, (response) => {
         response.setEncoding("utf8");
 
         let chunks = "";

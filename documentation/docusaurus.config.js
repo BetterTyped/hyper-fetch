@@ -101,13 +101,13 @@ const config = {
           lastVersion: "current",
           versions: {
             current: {
-              label: "Current",
+              label: "3.x.x",
               path: "",
             },
-            "1.7.1": {
+            "1.x.x": {
               noIndex: true,
             },
-            "2.1.0": {
+            "2.x.x": {
               noIndex: true,
             },
           },

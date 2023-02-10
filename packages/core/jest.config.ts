@@ -22,5 +22,9 @@ const config: Config.InitialOptions = {
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
   setupFilesAfterEnv: ["jest-extended/all"],
+  moduleNameMapper: {
+    "@browser-adapter": ["<rootDir>/src/adapter/adapter.browser.ts"],
+    "@server-adapter": ["<rootDir>/src/adapter/adapter.server.ts"],
+  },
 };
 export default config;
