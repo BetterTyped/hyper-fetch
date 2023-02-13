@@ -40,7 +40,9 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "peerDependencies": {},
-  "dependencies": {},
+  "dependencies": {
+    "events": "^3.3.0"
+  },
   "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
