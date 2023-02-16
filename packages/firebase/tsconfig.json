@@ -5,5 +5,6 @@
     "rootDir": "./src",
     "baseUrl": "./src"
   },
+  "include": ["./src/index.ts"],
   "exclude": ["dist", "__tests__", "jest.config.ts"]
 }

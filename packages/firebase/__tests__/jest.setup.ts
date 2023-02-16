@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-import EventSource from "eventsourcemock";
+/**
+ * @jest-environment jsdom
+ */
 
-Object.defineProperty(window, "EventSource", {
-  value: EventSource,
-});
+import { setImmediate } from "timers";
+
+global.setImmediate = setImmediate;

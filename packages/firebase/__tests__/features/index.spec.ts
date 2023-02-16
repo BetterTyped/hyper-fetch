@@ -1,33 +1,28 @@
-import { getDatabase, connectDatabaseEmulator, ref, set } from "firebase/database";
-import { getFirestore, connectFirestoreEmulator, collection, addDoc, setDoc, doc, getDoc, initializeFirestore } from "firebase/firestore";
-import { initializeApp, setLogLevel } from 'firebase/app'
+import { initializeApp, setLogLevel } from "firebase/app";
+import { getFirestore, connectFirestoreEmulator, addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
 
-jest.setTimeout(20000)
+const app = initializeApp({
+  projectId: "demo-firebaseProjectId",
+  // storageBucket: "firebaseStorageBucket",
+});
 
-describe('it should work', () => {
-  let app;
-  let db;
-  let firestore;
+const db = getFirestore(app);
+// const auth = getAuth(app);
+setLogLevel("debug");
+// connectAuthEmulator(auth, "http://localhost:9099");
+// connectFirestoreEmulator(db, "localhost", 8080);
 
-  beforeAll(async () => {
-    app = initializeApp({
-      projectId: 'demo-test'
-    })
-    setLogLevel('debug')
-    initializeFirestore(app, {experimentalAutoDetectLongPolling: true}, 'local')
-    firestore = getFirestore()
-    // db = getDatabase();
-    // connectDatabaseEmulator(db, '127.0.0.1', 9000)
-    connectFirestoreEmulator(firestore, '127.0.0.1',8082);
+jest.setTimeout(10000);
+
+describe("Works", () => {
+  test("loads and returns data from server", async () => {
+    console.log(1);
+    const docRef = await addDoc(collection(db, "entries"), { foo: "bar" });
+    console.log(2);
+    const docSnapshot = await getDoc(docRef);
+    console.log(3);
+
+    expect(docSnapshot[0]?.data()).toEqual({ name: "bo" });
   });
-
-  beforeEach(async () => {
-    // await set(ref(db), null)
-  });
-  it('it really should work', async () => {
-    // await set(ref(db, 'users/'), {test: 'data22'})
-    const docRef = doc(firestore, "cities", "SF");
-    const docSnap = await getDoc(docRef);
-    console.log("???")
-  })
-})
+});

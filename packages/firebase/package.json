@@ -1,5 +1,5 @@
 {
-  "name": "@hyper-fetch/firebase",
+  "name": "@hyper-fetch/adapter-firebase",
   "version": "0.0.0",
   "private": false,
   "description": "",
@@ -13,7 +13,7 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
-    "test": "jest --watchAll --maxWorkers=3",
+    "test": "firebase emulators:exec 'jest --watchAll --maxWorkers=3'",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
@@ -37,17 +37,14 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "peerDependencies": {
-    "@hyper-fetch/core": "*"
+    "@hyper-fetch/core": "*",
+    "firebase": "*"
   },
-  "dependencies": {
-    "firebase": "^9.17.1",
-    "jest": "^29.4.2"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "firebase": "^9.17.1",
     "firebase-admin": "^11.5.0",
-    "firebase-functions": "^4.2.1",
-    "firebase-functions-test": "^3.0.0",
-    "firebase-tools": "^11.22.0"
+    "firebase-tools": "^11.23.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
