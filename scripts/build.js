@@ -11,7 +11,13 @@ const isCore = pkg.name === "@hyper-fetch/core";
  */
 
 const buildPackage = async (additionalOptions = {}) => {
-  const { platform = "browser", outputMain = pkg.main, tsconfig = "tsconfig.json" } = additionalOptions;
+  const {
+    platform = "browser",
+    outputMain = pkg.main,
+    outputModule = pkg.module,
+    tsconfig = "tsconfig.json",
+    preDir = "",
+  } = additionalOptions;
 
   const options = {
     platform,
@@ -27,14 +33,20 @@ const buildPackage = async (additionalOptions = {}) => {
 
   build({
     ...options,
-    outfile: outputMain,
+    outfile: preDir ? outputMain.replace("dist", preDir) : outputMain,
+    format: "cjs",
+  });
+  build({
+    ...options,
+    outfile: preDir ? outputModule.replace("dist", preDir) : outputModule,
     format: "esm",
   });
 };
 
 if (isCore) {
-  buildPackage({ platform: "browser", outputMain: "dist/browser/index.esm.js", tsconfig: "tsconfig.json" });
-  buildPackage({ platform: "node", outputMain: "dist/server/index.esm.js", tsconfig: "tsconfig.node.json" });
+  buildPackage({ platform: "browser", preDir: "dist/browser", tsconfig: "tsconfig.json" });
+  buildPackage({ platform: "node", preDir: "dist/server", tsconfig: "tsconfig.node.json" });
+  buildPackage({ platform: "node", tsconfig: "tsconfig.node.json" });
 } else {
   buildPackage();
 }

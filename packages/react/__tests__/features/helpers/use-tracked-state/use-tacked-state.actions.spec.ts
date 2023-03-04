@@ -40,7 +40,7 @@ describe("useTrackedState [ Actions ]", () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setError(value, false);
+        result.current[1].setError(value as unknown as Error, false);
       });
 
       expect(result.current[0].error).toBe(value);
@@ -103,7 +103,7 @@ describe("useTrackedState [ Actions ]", () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setError(value, true);
+        result.current[1].setError(value as unknown as Error, true);
       });
 
       await waitFor(() => {

@@ -34,7 +34,7 @@ describe("Client [ Base ]", () => {
       expect(client.adapter).toBe(adapter);
     });
     it("should assign new appManager", async () => {
-      const appManager = new AppManager(clientInstance);
+      const appManager = new AppManager();
       const client = createClient({ appManager: () => appManager });
 
       expect(client.appManager).toBe(appManager);
@@ -61,7 +61,7 @@ describe("Client [ Base ]", () => {
   describe("When client is getting cleared", () => {
     it("should assign new appManager", async () => {
       const spy = jest.fn();
-      const appManager = new AppManager(clientInstance);
+      const appManager = new AppManager();
       const client = createClient({
         appManager: () => {
           spy();

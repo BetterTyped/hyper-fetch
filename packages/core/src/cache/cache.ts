@@ -205,7 +205,9 @@ export class Cache {
     // Garbage collect
     if (cacheData) {
       const timeLeft = cacheData.garbageCollection + cacheData.details.timestamp - +new Date();
-      if (timeLeft >= 0) {
+      if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
+        this.logger.info("Cache value is Infinite", { cacheKey });
+      } else if (timeLeft >= 0) {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
