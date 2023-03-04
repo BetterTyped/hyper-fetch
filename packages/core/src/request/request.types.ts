@@ -4,8 +4,8 @@ import {
   ExtractParamsType,
   ExtractPayloadType,
   HttpMethodsType,
-  ExtractQueryParamsType,
-  ExtractAdapterOptionsType,
+  ExtractRequestQueryParamsType,
+  ExtractAdapterType,
   ExtractEndpointType,
   ExtractHasDataType,
   ExtractHasParamsType,
@@ -14,7 +14,7 @@ import {
   ExtractResponseType,
 } from "types";
 import { Request } from "request";
-import { ResponseType, QueryParamsType, ProgressType } from "adapter";
+import {ResponseType, QueryParamsType, ProgressType, ExtractAdapterOptions, BaseAdapterType} from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
 // Progress
@@ -37,7 +37,7 @@ export type RequestDump<
   QueryParams = QueryParamsType,
   Params = ExtractParamsType<Request>,
 > = {
-  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterOptionsType<Request>>;
+  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterType<Request>>;
   endpoint: string;
   method: HttpMethodsType;
   headers?: HeadersInit;
@@ -52,7 +52,7 @@ export type RequestDump<
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptionsType<Request>;
+  options?: AdapterOptions | ExtractAdapterOptions<ExtractAdapterType<Request>>;
   data: PayloadType<ExtractPayloadType<Request>, unknown>;
   params: Params | NegativeTypes;
   queryParams: QueryParams | NegativeTypes;
@@ -74,7 +74,7 @@ export type RequestDump<
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions> = {
+export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions extends Record<string, any>> = {
   /**
    * Determine the endpoint for request request
    */
@@ -242,12 +242,12 @@ export type RequestQueueOptions = {
 // Request making
 
 export type RequestSendOptionsType<Request extends RequestInstance> = FetchQueryParamsType<
-  ExtractQueryParamsType<Request>,
+  ExtractRequestQueryParamsType<Request>,
   ExtractHasQueryParamsType<Request>
 > &
   FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
   FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
-  Omit<FetchOptionsType<ExtractAdapterOptionsType<Request>>, "params" | "data"> &
+  Omit<FetchOptionsType<ExtractAdapterType<Request>>, "params" | "data"> &
   FetchSendActionsType<Request> &
   RequestQueueOptions;
 
@@ -279,4 +279,4 @@ export type RequestSendType<Request extends RequestInstance> =
 
 // Instance
 
-export type RequestInstance = Request<any, any, any, any, any, any, any, any, any, any, any>;
+export type RequestInstance = Request<any, any, any, any, any, any, BaseAdapterType<any, any, any>, any, any, any, any>;

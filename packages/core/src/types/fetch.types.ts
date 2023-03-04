@@ -14,7 +14,7 @@ export type ExtractPayloadType<T> = T extends Request<any, infer D, any, any, an
   ? D
   : never;
 
-export type ExtractQueryParamsType<T> = T extends Request<any, any, infer Q, any, any, any, any, any, any, any, any>
+export type ExtractRequestQueryParamsType<T> = T extends Request<any, any, infer Q, any, any, any, any, any, any, any, any>
   ? Q
   : never;
 
@@ -38,7 +38,7 @@ export type ExtractEndpointType<T> = T extends Request<any, any, any, any, any, 
   ? E
   : never;
 
-export type ExtractAdapterOptionsType<T> = T extends Request<any, any, any, any, any, any, infer O, any, any, any, any>
+export type ExtractAdapterType<T> = T extends Request<any, any, any, any, any, any, infer O, any, any, any, any>
   ? O
   : never;
 

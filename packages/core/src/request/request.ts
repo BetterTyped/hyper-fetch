@@ -14,7 +14,7 @@ import {
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import { QueryParamsType } from "adapter";
+import {BaseAdapterType, ExtractAdapterOptions, QueryParamsType} from "adapter";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
 import { HttpMethodsEnum } from "constants/http.constants";
@@ -37,7 +37,7 @@ export class Request<
   GlobalError, // Global Error Type
   LocalError, // Additional Error for specific endpoint
   Endpoint extends string,
-  AdapterOptions,
+  AdapterType extends BaseAdapterType = BaseAdapterType,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
@@ -50,7 +50,7 @@ export class Request<
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
   data: PayloadType<Payload, MappedData>;
   queryParams: QueryParams | NegativeTypes;
-  options?: AdapterOptions | undefined;
+  options?: ExtractAdapterOptions<AdapterType> | undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -73,8 +73,8 @@ export class Request<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly client: Client<GlobalError, AdapterOptions>,
-    readonly requestOptions: RequestOptionsType<Endpoint, AdapterOptions>,
+    readonly client: Client<GlobalError, AdapterType>,
+    readonly requestOptions: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>,
     readonly requestDump?:
       | RequestCurrentType<
           Response,
@@ -82,7 +82,7 @@ export class Request<
           QueryParams,
           GlobalError | LocalError,
           Endpoint,
-          AdapterOptions,
+          ExtractAdapterOptions<AdapterType>,
           MappedData
         >
       | undefined,
@@ -163,7 +163,7 @@ export class Request<
     return this.clone<HasData, HasParams, true>({ queryParams });
   };
 
-  public setOptions = (options: AdapterOptions) => {
+  public setOptions = (options: ExtractAdapterOptions<AdapterType>) => {
     return this.clone<HasData, HasParams, true>({ options });
   };
 
@@ -171,25 +171,25 @@ export class Request<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: RequestOptionsType<Endpoint, AdapterOptions>["retry"]) => {
+  public setRetry = (retry: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, AdapterOptions>["retryTime"]) => {
+  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
   public setGarbageCollection = (
-    garbageCollection: RequestOptionsType<Endpoint, AdapterOptions>["garbageCollection"],
+    garbageCollection: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["garbageCollection"],
   ) => {
     return this.clone({ garbageCollection });
   };
 
-  public setCache = (cache: RequestOptionsType<Endpoint, AdapterOptions>["cache"]) => {
+  public setCache = (cache: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, AdapterOptions>["cacheTime"]) => {
+  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
@@ -258,13 +258,13 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterOptions,
+      AdapterType,
       HasData,
       HasParams,
       HasQuery,
       MappedData
     >,
-    AdapterOptions,
+    ExtractAdapterOptions<AdapterType>,
     QueryParams
   > {
     return {
@@ -313,7 +313,7 @@ export class Request<
       QueryParams,
       GlobalError | LocalError,
       Endpoint,
-      AdapterOptions,
+      ExtractAdapterOptions<AdapterType>,
       NewMappedData
     >,
     mapper?: PayloadMapperType<Payload, NewMappedData>,
@@ -324,7 +324,7 @@ export class Request<
     GlobalError,
     LocalError,
     Endpoint,
-    AdapterOptions,
+    AdapterType,
     D,
     P,
     Q,
@@ -337,7 +337,7 @@ export class Request<
       QueryParams,
       GlobalError | LocalError,
       Endpoint,
-      AdapterOptions,
+      ExtractAdapterOptions<AdapterType>,
       NewMappedData
     > = {
       ...dump,
@@ -360,7 +360,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterOptions,
+      AdapterType,
       D,
       P,
       Q,
@@ -394,7 +394,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterOptions,
+      AdapterType,
       HasData,
       HasParams,
       HasQuery,
@@ -409,7 +409,7 @@ export class Request<
         GlobalError,
         LocalError,
         Endpoint,
-        AdapterOptions,
+        AdapterType,
         HasData,
         HasParams,
         HasQuery,
@@ -451,7 +451,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterOptions,
+      AdapterType,
       HasData,
       HasParams,
       HasQuery,
@@ -466,7 +466,7 @@ export class Request<
         GlobalError,
         LocalError,
         Endpoint,
-        AdapterOptions,
+        AdapterType,
         HasData,
         HasParams,
         HasQuery,
@@ -485,7 +485,7 @@ export class Request<
         GlobalError,
         LocalError,
         Endpoint,
-        AdapterOptions,
+        AdapterType,
         HasData,
         HasParams,
         HasQuery,
@@ -498,31 +498,31 @@ export class Request<
 // /**
 //  * Typescript test cases
 //  */
-
+//
 // const client = new Client({
 //   url: "http://localhost:3000",
 // });
-
+//
 // const getUsers = client.createRequest<{ id: string }[]>()({
 //   method: "GET",
 //   endpoint: "/users",
 // });
-
+//
 // const getUser = client.createRequest<{ id: string }>()({
 //   method: "GET",
 //   endpoint: "/users/:id",
 // });
-
+//
 // const postUser = client.createRequest<{ id: string }, { name: string }>()({
 //   method: "POST",
 //   endpoint: "/users",
 // });
-
+//
 // const patchUser = client.createRequest<{ id: string }, { name: string }>()({
 //   method: "PATCH",
 //   endpoint: "/users/:id",
 // });
-
+//
 // const mappedReq = client
 //   .createRequest<{ id: string }, { name: string }>()({
 //     method: "POST",
@@ -533,9 +533,9 @@ export class Request<
 //     formData.append("key", data.name);
 //     return formData;
 //   });
-
+//
 // // ================>
-
+//
 // // OK
 // getUsers.send({ queryParams: "" });
 // getUsers.setQueryParams("").send();
@@ -543,9 +543,9 @@ export class Request<
 // getUsers.send({ data: "" });
 // getUsers.send({ params: "" });
 // getUsers.setQueryParams("").send({ queryParams: "" });
-
+//
 // // ================>
-
+//
 // // OK
 // getUser.send({ params: { id: "" }, queryParams: "" });
 // getUser.setParams({ id: "" }).send({ queryParams: "" });
@@ -555,9 +555,9 @@ export class Request<
 // getUser.setParams({ id: "" }).send({ params: { id: "" } });
 // getUser.setParams(null).send();
 // getUser.send({ params: { id: null } });
-
+//
 // // ================>
-
+//
 // // OK
 // postUser.send({ data: { name: "" } });
 // postUser.setData({ name: "" }).send();
@@ -567,9 +567,9 @@ export class Request<
 // postUser.setData(null).send();
 // postUser.send();
 // postUser.setData({ name: "" }).send({ data: { name: "" } });
-
+//
 // // ================>
-
+//
 // // OK
 // patchUser.send({ params: { id: "" }, data: { name: "" } });
 // patchUser.setParams({ id: "" }).setData({ name: "" }).send();
@@ -586,9 +586,9 @@ export class Request<
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
 //   .send({ params: { id: "" } });
-
+//
 // // ================>
-
+//
 // // OK
 // mappedReq.send({ data: { name: "" } });
 // mappedReq.setData({ name: "" }).send();

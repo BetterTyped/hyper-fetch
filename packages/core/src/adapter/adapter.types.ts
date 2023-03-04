@@ -1,8 +1,13 @@
 import { RequestInstance } from "request";
+import {HttpMethodsType} from "../types";
 
 // Adapter
 
-export type AdapterType = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
+export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer O, any> ? O : never;
+export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, infer O> ? O : never;
+
+export type BaseAdapterType<AdapterOptions = AdapterOptionsType, MethodType = HttpMethodsType, QueryParams = QueryParamsType>= (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
 

@@ -1,12 +1,13 @@
 import {
-  AdapterType,
   adapter as defaultAdapter,
-  AdapterOptionsType,
   ResponseType,
-  QueryParamsType,
   QueryStringifyOptionsType,
   HeaderMappingType,
   AdapterPayloadMappingType,
+  ExtractAdapterOptions,
+  BaseAdapterType,
+  ExtractAdapterQueryParamsType,
+  ExtractAdapterMethodType,
 } from "adapter";
 import {
   stringifyQueryParams,
@@ -32,7 +33,7 @@ import { interceptRequest, interceptResponse } from "./client.utils";
  * method specified in the request.
  * @position 1
  */
-export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOptions = AdapterOptionsType> {
+export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType extends BaseAdapterType = BaseAdapterType> {
   readonly url: string;
   public debug: boolean;
 
@@ -49,7 +50,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
-  adapter: AdapterType;
+  adapter: BaseAdapterType<ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>, ExtractAdapterQueryParamsType<AdapterType>>;
   cache: Cache;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
@@ -59,10 +60,10 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
 
   // Options
   queryParamsConfig?: QueryStringifyOptionsType;
-  adapterDefaultOptions?: (request: RequestInstance) => AdapterOptions;
+  adapterDefaultOptions?: (request: RequestInstance) => ExtractAdapterOptions<AdapterType>;
   requestDefaultOptions?: (
-    options: RequestOptionsType<string, AdapterOptions>,
-  ) => Partial<RequestOptionsType<string, AdapterOptions>>;
+    options: RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>,
+  ) => Partial<RequestOptionsType<string,  ExtractAdapterOptions<AdapterType>>>;
 
   // Utils
 
@@ -99,15 +100,15 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
   setRequestDefaultOptions = (
-    callback: (request: RequestInstance) => Partial<RequestOptionsType<string, AdapterOptions>>,
-  ): Client<GlobalErrorType, AdapterOptions> => {
+    callback: (request: RequestInstance) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>>,
+  ): Client<GlobalErrorType, AdapterType> => {
     this.requestDefaultOptions = callback;
     return this;
   };
 
   setAdapterDefaultOptions = (
-    callback: (request: RequestInstance) => AdapterOptions,
-  ): Client<GlobalErrorType, AdapterOptions> => {
+    callback: (request: RequestInstance) => ExtractAdapterOptions<AdapterType>,
+  ): Client<GlobalErrorType, AdapterType> => {
     this.adapterDefaultOptions = callback;
     return this;
   };
@@ -115,7 +116,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean): Client<GlobalErrorType, AdapterOptions> => {
+  setDebug = (debug: boolean): Client<GlobalErrorType, AdapterType> => {
     this.debug = debug;
     return this;
   };
@@ -123,7 +124,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType): Client<GlobalErrorType, AdapterOptions> => {
+  setLoggerSeverity = (severity: SeverityType): Client<GlobalErrorType, AdapterType> => {
     this.loggerManager.setSeverity(severity);
     return this;
   };
@@ -131,7 +132,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set the new logger instance to the Client
    */
-  setLogger = (callback: (Client: ClientInstance) => LoggerManager): Client<GlobalErrorType, AdapterOptions> => {
+  setLogger = (callback: (Client: ClientInstance) => LoggerManager): Client<GlobalErrorType, AdapterType> => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -139,7 +140,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set config for the query params stringify method, we can set here, among others, arrayFormat, skipNull, encode, skipEmptyString and more
    */
-  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptionsType): Client<GlobalErrorType, AdapterOptions> => {
+  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptionsType): Client<GlobalErrorType, AdapterType> => {
     this.queryParamsConfig = queryParamsConfig;
     return this;
   };
@@ -148,7 +149,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
    * Set the custom query params stringify method to the Client
    * @param stringifyFn Custom callback handling query params stringify
    */
-  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): Client<GlobalErrorType, AdapterOptions> => {
+  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): Client<GlobalErrorType, AdapterType> => {
     this.stringifyQueryParams = stringifyFn;
     return this;
   };
@@ -156,7 +157,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set the custom header mapping function
    */
-  setHeaderMapper = (headerMapper: HeaderMappingType): Client<GlobalErrorType, AdapterOptions> => {
+  setHeaderMapper = (headerMapper: HeaderMappingType): Client<GlobalErrorType, AdapterType> => {
     this.headerMapper = headerMapper;
     return this;
   };
@@ -164,7 +165,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set the request payload mapping function which get triggered before request get send
    */
-  setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): Client<GlobalErrorType, AdapterOptions> => {
+  setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): Client<GlobalErrorType, AdapterType> => {
     this.payloadMapper = payloadMapper;
     return this;
   };
@@ -172,15 +173,15 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Set custom http adapter to handle graphql, rest, firebase or other
    */
-  setAdapter = (callback: (Client: ClientInstance) => AdapterType): Client<GlobalErrorType, AdapterOptions> => {
+  setAdapter = <NewAdapterType extends AdapterType = AdapterType>(callback: (Client: ClientInstance) => NewAdapterType): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this);
-    return this;
+    return this as ClientInstance;
   };
 
   /**
    * Method of manipulating requests before sending the request. We can for example add custom header with token to the request which request had the auth set to true.
    */
-  onAuth = (callback: RequestInterceptorType): Client<GlobalErrorType, AdapterOptions> => {
+  onAuth = (callback: RequestInterceptorType): Client<GlobalErrorType, AdapterType> => {
     this.__onAuthCallbacks.push(callback);
     return this;
   };
@@ -190,7 +191,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
    */
   onError = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType>,
-  ): Client<GlobalErrorType, AdapterOptions> => {
+  ): Client<GlobalErrorType, AdapterType> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
@@ -200,7 +201,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
    */
   onSuccess = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType>,
-  ): Client<GlobalErrorType, AdapterOptions> => {
+  ): Client<GlobalErrorType, AdapterType> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
@@ -208,7 +209,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
   /**
    * Method of manipulating requests before sending the request.
    */
-  onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, AdapterOptions> => {
+  onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, AdapterType> => {
     this.__onRequestCallbacks.push(callback);
     return this;
   };
@@ -218,7 +219,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
    */
   onResponse = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType>,
-  ): Client<GlobalErrorType, AdapterOptions> => {
+  ): Client<GlobalErrorType, AdapterType> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
@@ -299,10 +300,10 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterOpti
     Response,
     Payload = undefined,
     LocalError extends ClientErrorType | undefined = undefined,
-    QueryParams extends QueryParamsType | string = QueryParamsType | string,
+    QueryParams extends ExtractAdapterQueryParamsType<AdapterType> | string = ExtractAdapterQueryParamsType<AdapterType> | string,
   >() => {
-    return <EndpointType extends string>(params: RequestOptionsType<EndpointType, AdapterOptions>) =>
-      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterOptions>(
+    return <EndpointType extends string>(params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>>) =>
+      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(
         this,
         params,
       );

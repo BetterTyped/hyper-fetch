@@ -1,7 +1,7 @@
-import { getAdapterBindings, defaultTimeout, ResponseType, AdapterType } from "adapter";
+import { getAdapterBindings, defaultTimeout, ResponseType, BaseAdapterType } from "adapter";
 import { parseErrorResponse, parseResponse } from "./adapter.utils";
 
-export const browserAdapter: AdapterType = async (request, requestId) => {
+export const browserAdapter: BaseAdapterType = async (request, requestId) => {
   const {
     fullUrl,
     headers,

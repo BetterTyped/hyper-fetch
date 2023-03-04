@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseType, AdapterType, QueryParamsType } from "adapter";
+import { ResponseType, BaseAdapterType, QueryParamsType } from "adapter";
 import { Client } from "client";
 import { NegativeTypes } from "types";
 
@@ -17,7 +17,7 @@ export type ClientOptionsType = {
   /**
    * Custom adapter initialization prop
    */
-  adapter?: AdapterType;
+  adapter?: BaseAdapterType;
   /**
    * Custom cache initialization prop
    */

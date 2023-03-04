@@ -1,7 +1,7 @@
-import { getAdapterBindings, defaultTimeout, ResponseType, AdapterType, AdapterOptionsType } from "adapter";
+import { getAdapterBindings, defaultTimeout, ResponseType, BaseAdapterType, AdapterOptionsType } from "adapter";
 import { parseErrorResponse, parseResponse, getUploadSize, getStreamPayload } from "./adapter.utils";
 
-export const serverAdapter: AdapterType = async (request, requestId) => {
+export const serverAdapter: BaseAdapterType = async (request, requestId) => {
   /**
    * Prevent issues related to the missing Node.js polyfills
    */
@@ -29,6 +29,7 @@ export const serverAdapter: AdapterType = async (request, requestId) => {
   } = await getAdapterBindings<AdapterOptionsType>(request, requestId);
   const { method } = request;
 
+  console.log("I AM IN SERVER ADAPTER")
   return new Promise<ResponseType<unknown, unknown>>((resolve) => {
     const execute = async () => {
       const options = {
