@@ -7,9 +7,10 @@ import IconButton from "@mui/material/IconButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
-import { Viewer } from "components/viewer";
-import { Request } from "components/request";
-import { getUser } from "api";
+
+import { Viewer } from "../../components/viewer";
+import { Request } from "../../components/request";
+import { getUser } from "../../api";
 
 const refreshTime = DateInterval.second * 10;
 const initialDate = +new Date();
