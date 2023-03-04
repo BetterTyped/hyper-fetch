@@ -66,6 +66,10 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 
 💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
 
+## Help me keep working on this project ❤️
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+
 ## Sources
 
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)

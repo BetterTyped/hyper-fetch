@@ -79,6 +79,10 @@ access to requests lifecycle is fabulously simple, thanks to which you can
 
 🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
 
+## Help me keep working on this project ❤️
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+
 ## Installation
 
 The easiest way to get the latest version of Hyper Fetch is to install it via yarn or npm.
