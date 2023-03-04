@@ -14,7 +14,19 @@ export type ExtractPayloadType<T> = T extends Request<any, infer D, any, any, an
   ? D
   : never;
 
-export type ExtractRequestQueryParamsType<T> = T extends Request<any, any, infer Q, any, any, any, any, any, any, any, any>
+export type ExtractRequestQueryParamsType<T> = T extends Request<
+  any,
+  any,
+  infer Q,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>
   ? Q
   : never;
 

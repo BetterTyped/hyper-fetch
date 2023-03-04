@@ -14,7 +14,7 @@ import {
   ExtractResponseType,
 } from "types";
 import { Request } from "request";
-import {ResponseType, QueryParamsType, ProgressType, ExtractAdapterOptions, BaseAdapterType} from "adapter";
+import { ResponseType, QueryParamsType, ProgressType, ExtractAdapterOptions, BaseAdapterType } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
 // Progress

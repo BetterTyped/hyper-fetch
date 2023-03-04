@@ -33,7 +33,10 @@ import { interceptRequest, interceptResponse } from "./client.utils";
  * method specified in the request.
  * @position 1
  */
-export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType extends BaseAdapterType = BaseAdapterType> {
+export class Client<
+  GlobalErrorType extends ClientErrorType = Error,
+  AdapterType extends BaseAdapterType = BaseAdapterType,
+> {
   readonly url: string;
   public debug: boolean;
 
@@ -50,7 +53,11 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType
   loggerManager: LoggerManager = new LoggerManager(this);
 
   // Config
-  adapter: BaseAdapterType<ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>, ExtractAdapterQueryParamsType<AdapterType>>;
+  adapter: BaseAdapterType<
+    ExtractAdapterOptions<AdapterType>,
+    ExtractAdapterMethodType<AdapterType>,
+    ExtractAdapterQueryParamsType<AdapterType>
+  >;
   cache: Cache;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
@@ -63,7 +70,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType
   adapterDefaultOptions?: (request: RequestInstance) => ExtractAdapterOptions<AdapterType>;
   requestDefaultOptions?: (
     options: RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>,
-  ) => Partial<RequestOptionsType<string,  ExtractAdapterOptions<AdapterType>>>;
+  ) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>>;
 
   // Utils
 
@@ -173,7 +180,9 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType
   /**
    * Set custom http adapter to handle graphql, rest, firebase or other
    */
-  setAdapter = <NewAdapterType extends AdapterType = AdapterType>(callback: (Client: ClientInstance) => NewAdapterType): Client<GlobalErrorType, NewAdapterType> => {
+  setAdapter = <NewAdapterType extends AdapterType = AdapterType>(
+    callback: (Client: ClientInstance) => NewAdapterType,
+  ): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this);
     return this as ClientInstance;
   };
@@ -300,12 +309,13 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, AdapterType
     Response,
     Payload = undefined,
     LocalError extends ClientErrorType | undefined = undefined,
-    QueryParams extends ExtractAdapterQueryParamsType<AdapterType> | string = ExtractAdapterQueryParamsType<AdapterType> | string,
+    QueryParams extends ExtractAdapterQueryParamsType<AdapterType> | string =
+      | ExtractAdapterQueryParamsType<AdapterType>
+      | string,
   >() => {
-    return <EndpointType extends string>(params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>>) =>
-      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(
-        this,
-        params,
-      );
+    return <EndpointType extends string>(
+      params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>>,
+    ) =>
+      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(this, params);
   };
 }

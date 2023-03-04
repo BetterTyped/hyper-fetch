@@ -14,7 +14,7 @@ import {
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import {BaseAdapterType, ExtractAdapterOptions, QueryParamsType} from "adapter";
+import { BaseAdapterType, ExtractAdapterOptions, QueryParamsType } from "adapter";
 import { HttpMethodsType, NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
 import { HttpMethodsEnum } from "constants/http.constants";
@@ -317,19 +317,7 @@ export class Request<
       NewMappedData
     >,
     mapper?: PayloadMapperType<Payload, NewMappedData>,
-  ): Request<
-    Response,
-    Payload,
-    QueryParams,
-    GlobalError,
-    LocalError,
-    Endpoint,
-    AdapterType,
-    D,
-    P,
-    Q,
-    NewMappedData
-  > {
+  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q, NewMappedData> {
     const dump = this.dump();
     const requestDump: RequestCurrentType<
       Response,

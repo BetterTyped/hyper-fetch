@@ -29,7 +29,6 @@ export const serverAdapter: BaseAdapterType = async (request, requestId) => {
   } = await getAdapterBindings<AdapterOptionsType>(request, requestId);
   const { method } = request;
 
-  console.log("I AM IN SERVER ADAPTER")
   return new Promise<ResponseType<unknown, unknown>>((resolve) => {
     const execute = async () => {
       const options = {
