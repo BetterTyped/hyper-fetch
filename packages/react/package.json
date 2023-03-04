@@ -6,7 +6,7 @@
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {

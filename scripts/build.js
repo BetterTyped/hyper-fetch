@@ -33,8 +33,8 @@ const buildPackage = async (additionalOptions = {}) => {
 };
 
 if (isCore) {
-  buildPackage({ platform: "browser", outputMain: "dist/browser/index.ejs.js", tsconfig: "tsconfig.json" });
-  buildPackage({ platform: "node", outputMain: "dist/server/index.ejs.js", tsconfig: "tsconfig.node.json" });
+  buildPackage({ platform: "browser", outputMain: "dist/browser/index.esm.js", tsconfig: "tsconfig.json" });
+  buildPackage({ platform: "node", outputMain: "dist/server/index.esm.js", tsconfig: "tsconfig.node.json" });
 } else {
   buildPackage();
 }
