@@ -20,7 +20,7 @@ export const browserAdapter: BaseAdapterType = async (request, requestId) => {
     onTimeoutError,
   } = await getAdapterBindings(request, requestId);
 
-  const { method } = request;
+  const { method = 'GET' } = request;
 
   const xhr = new XMLHttpRequest();
   xhr.timeout = defaultTimeout;

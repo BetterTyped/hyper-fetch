@@ -14,10 +14,9 @@ import {
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import { BaseAdapterType, ExtractAdapterOptions, QueryParamsType } from "adapter";
-import { HttpMethodsType, NegativeTypes } from "types";
+import {BaseAdapterType, ExtractAdapterMethodType, ExtractAdapterOptions, QueryParamsType} from "adapter";
+import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
-import { HttpMethodsEnum } from "constants/http.constants";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.
@@ -46,7 +45,7 @@ export class Request<
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: HttpMethodsType;
+  method: ExtractAdapterMethodType<AdapterType>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
   data: PayloadType<Payload, MappedData>;
   queryParams: QueryParams | NegativeTypes;
@@ -74,7 +73,7 @@ export class Request<
 
   constructor(
     readonly client: Client<GlobalError, AdapterType>,
-    readonly requestOptions: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>,
+    readonly requestOptions: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
     readonly requestDump?:
       | RequestCurrentType<
           Response,
@@ -83,7 +82,8 @@ export class Request<
           GlobalError | LocalError,
           Endpoint,
           ExtractAdapterOptions<AdapterType>,
-          MappedData
+          MappedData,
+          ExtractAdapterMethodType<AdapterType>
         >
       | undefined,
     readonly dataMapper?: PayloadMapperType<Payload, MappedData>,
@@ -92,7 +92,7 @@ export class Request<
       endpoint,
       headers,
       auth = true,
-      method = HttpMethodsEnum.get,
+      method,
       options,
       cancelable = false,
       retry = 0,
@@ -171,25 +171,25 @@ export class Request<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["retry"]) => {
+  public setRetry = (retry: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>["retry"]) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["retryTime"]) => {
+  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>["retryTime"]) => {
     return this.clone({ retryTime });
   };
 
   public setGarbageCollection = (
-    garbageCollection: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["garbageCollection"],
+    garbageCollection: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["garbageCollection"],
   ) => {
     return this.clone({ garbageCollection });
   };
 
-  public setCache = (cache: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["cache"]) => {
+  public setCache = (cache: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["cache"]) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>>["cacheTime"]) => {
+  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["cacheTime"]) => {
     return this.clone({ cacheTime });
   };
 
@@ -314,7 +314,8 @@ export class Request<
       GlobalError | LocalError,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
-      NewMappedData
+      NewMappedData,
+      ExtractAdapterMethodType<AdapterType>
     >,
     mapper?: PayloadMapperType<Payload, NewMappedData>,
   ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q, NewMappedData> {
@@ -326,7 +327,8 @@ export class Request<
       GlobalError | LocalError,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
-      NewMappedData
+      NewMappedData,
+      ExtractAdapterMethodType<AdapterType>
     > = {
       ...dump,
       ...options,

@@ -3,7 +3,6 @@ import {
   NegativeTypes,
   ExtractParamsType,
   ExtractPayloadType,
-  HttpMethodsType,
   ExtractRequestQueryParamsType,
   ExtractAdapterType,
   ExtractEndpointType,
@@ -11,10 +10,17 @@ import {
   ExtractHasParamsType,
   ExtractHasQueryParamsType,
   ExtractErrorType,
-  ExtractResponseType,
+  ExtractResponseType, HttpMethodsType,
 } from "types";
 import { Request } from "request";
-import { ResponseType, QueryParamsType, ProgressType, ExtractAdapterOptions, BaseAdapterType } from "adapter";
+import {
+  ResponseType,
+  QueryParamsType,
+  ProgressType,
+  ExtractAdapterOptions,
+  BaseAdapterType,
+  ExtractAdapterMethodType
+} from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
 // Progress
@@ -37,9 +43,9 @@ export type RequestDump<
   QueryParams = QueryParamsType,
   Params = ExtractParamsType<Request>,
 > = {
-  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterType<Request>>;
+  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterType<Request>, ExtractAdapterMethodType<ExtractAdapterType<Request>>>;
   endpoint: string;
-  method: HttpMethodsType;
+  method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
   auth: boolean;
   cancelable: boolean;
@@ -74,7 +80,7 @@ export type RequestDump<
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions extends Record<string, any>> = {
+export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions extends Record<string, any>, RequestMethods = HttpMethodsType> = {
   /**
    * Determine the endpoint for request request
    */
@@ -88,9 +94,9 @@ export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions ex
    */
   auth?: boolean;
   /**
-   * Request method GET | POST | PATCH | PUT | DELETE
+   * Request method GET | POST | PATCH | PUT | DELETE or set of method names handled by adapter
    */
-  method?: HttpMethodsType;
+  method?: RequestMethods;
   /**
    * Should enable cancelable mode in the Dispatcher
    */
@@ -173,6 +179,7 @@ export type RequestCurrentType<
   GenericEndpoint extends string,
   AdapterOptions,
   MappedData,
+  MethodsType = HttpMethodsType
 > = {
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
@@ -184,7 +191,7 @@ export type RequestCurrentType<
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
   updatedEffectKey?: boolean;
-} & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions>>>;
+} & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;

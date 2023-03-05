@@ -69,8 +69,8 @@ export class Client<
   queryParamsConfig?: QueryStringifyOptionsType;
   adapterDefaultOptions?: (request: RequestInstance) => ExtractAdapterOptions<AdapterType>;
   requestDefaultOptions?: (
-    options: RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>,
-  ) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>>;
+    options: RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
+  ) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>>;
 
   // Utils
 
@@ -107,7 +107,7 @@ export class Client<
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
   setRequestDefaultOptions = (
-    callback: (request: RequestInstance) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>>>,
+    callback: (request: RequestInstance) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>>,
   ): Client<GlobalErrorType, AdapterType> => {
     this.requestDefaultOptions = callback;
     return this;
@@ -180,7 +180,7 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or other
    */
-  setAdapter = <NewAdapterType extends AdapterType = AdapterType>(
+  setAdapter = <NewAdapterType extends BaseAdapterType>(
     callback: (Client: ClientInstance) => NewAdapterType,
   ): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this);
@@ -314,7 +314,7 @@ export class Client<
       | string,
   >() => {
     return <EndpointType extends string>(
-      params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>>,
+      params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
     ) =>
       new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(this, params);
   };
