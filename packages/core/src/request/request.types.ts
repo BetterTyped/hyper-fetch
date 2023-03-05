@@ -10,7 +10,8 @@ import {
   ExtractHasParamsType,
   ExtractHasQueryParamsType,
   ExtractErrorType,
-  ExtractResponseType, HttpMethodsType,
+  ExtractResponseType,
+  HttpMethodsType,
 } from "types";
 import { Request } from "request";
 import {
@@ -19,7 +20,7 @@ import {
   ProgressType,
   ExtractAdapterOptions,
   BaseAdapterType,
-  ExtractAdapterMethodType
+  ExtractAdapterMethodType,
 } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
@@ -43,7 +44,11 @@ export type RequestDump<
   QueryParams = QueryParamsType,
   Params = ExtractParamsType<Request>,
 > = {
-  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterType<Request>, ExtractAdapterMethodType<ExtractAdapterType<Request>>>;
+  requestOptions: RequestOptionsType<
+    string,
+    AdapterOptions | ExtractAdapterType<Request>,
+    ExtractAdapterMethodType<ExtractAdapterType<Request>>
+  >;
   endpoint: string;
   method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
@@ -80,7 +85,11 @@ export type RequestDump<
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions extends Record<string, any>, RequestMethods = HttpMethodsType> = {
+export type RequestOptionsType<
+  GenericEndpoint extends string,
+  AdapterOptions extends Record<string, any>,
+  RequestMethods = HttpMethodsType,
+> = {
   /**
    * Determine the endpoint for request request
    */
@@ -179,7 +188,7 @@ export type RequestCurrentType<
   GenericEndpoint extends string,
   AdapterOptions,
   MappedData,
-  MethodsType = HttpMethodsType
+  MethodsType = HttpMethodsType,
 > = {
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;

@@ -107,7 +107,9 @@ export class Client<
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
   setRequestDefaultOptions = (
-    callback: (request: RequestInstance) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>>,
+    callback: (
+      request: RequestInstance,
+    ) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>>,
   ): Client<GlobalErrorType, AdapterType> => {
     this.requestDefaultOptions = callback;
     return this;
@@ -314,7 +316,11 @@ export class Client<
       | string,
   >() => {
     return <EndpointType extends string>(
-      params: RequestOptionsType<EndpointType, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
+      params: RequestOptionsType<
+        EndpointType,
+        ExtractAdapterOptions<AdapterType>,
+        ExtractAdapterMethodType<AdapterType>
+      >,
     ) =>
       new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(this, params);
   };

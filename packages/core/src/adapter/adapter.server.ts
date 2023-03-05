@@ -27,7 +27,7 @@ export const serverAdapter: BaseAdapterType = async (request, requestId) => {
     onError,
     onResponseEnd,
   } = await getAdapterBindings<AdapterOptionsType>(request, requestId);
-  const { method = 'GET' } = request;
+  const { method = "GET" } = request;
 
   return new Promise<ResponseType<unknown, unknown>>((resolve) => {
     const execute = async () => {

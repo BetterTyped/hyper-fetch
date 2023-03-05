@@ -73,7 +73,11 @@ export class Request<
 
   constructor(
     readonly client: Client<GlobalError, AdapterType>,
-    readonly requestOptions: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
+    readonly requestOptions: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >,
     readonly requestDump?:
       | RequestCurrentType<
           Response,
@@ -171,25 +175,53 @@ export class Request<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>["retry"]) => {
+  public setRetry = (
+    retry: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >["retry"],
+  ) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>["retryTime"]) => {
+  public setRetryTime = (
+    retryTime: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >["retryTime"],
+  ) => {
     return this.clone({ retryTime });
   };
 
   public setGarbageCollection = (
-    garbageCollection: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["garbageCollection"],
+    garbageCollection: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >["garbageCollection"],
   ) => {
     return this.clone({ garbageCollection });
   };
 
-  public setCache = (cache: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["cache"]) => {
+  public setCache = (
+    cache: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >["cache"],
+  ) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, ExtractAdapterOptions<AdapterType>,  ExtractAdapterMethodType<AdapterType>>["cacheTime"]) => {
+  public setCacheTime = (
+    cacheTime: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptions<AdapterType>,
+      ExtractAdapterMethodType<AdapterType>
+    >["cacheTime"],
+  ) => {
     return this.clone({ cacheTime });
   };
 
