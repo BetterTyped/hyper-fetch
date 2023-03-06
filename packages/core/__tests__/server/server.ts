@@ -4,6 +4,7 @@ import { ExtractResponseType } from "types";
 import { RequestInstance } from "request";
 import { getInterceptEndpoint, createStubMethod } from "./server.utils";
 import { ErrorMockType, errorResponses, StatusCodesType, StatusErrorCodesType } from "./server.constants";
+import {HttpMethodsEnum} from "../../dist";
 
 export const server = setupServer();
 
@@ -43,7 +44,6 @@ export const createRequestInterceptor = <T extends RequestInstance, StatusType e
   }
 
   const responseData = (fixture || { data: [1, 2, 3] }) as ExtractResponseType<T>;
-
   server.use(createStubMethod(request, url, method, currentStatus, responseData, delay));
   return responseData;
 };

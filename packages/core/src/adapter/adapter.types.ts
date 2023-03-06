@@ -22,13 +22,13 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseType<GenericDataType, GenericErrorType> = [
-  GenericDataType | null,
-  GenericErrorType | null,
-  number | null,
-];
-export type ResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
-export type ResponseErrorType<GenericErrorType> = [null, GenericErrorType, number | null];
+export type ResponseType<GenericDataType, GenericErrorType> = {
+  data: GenericDataType | null,
+  error: GenericErrorType | null,
+  status: number | string | null,
+};
+export type ResponseSuccessType<GenericDataType> = {data: GenericDataType, error: null, status: number | string | null};
+export type ResponseErrorType<GenericErrorType> = {data: null, error: GenericErrorType, status: number | string | null};
 
 // QueryParams
 

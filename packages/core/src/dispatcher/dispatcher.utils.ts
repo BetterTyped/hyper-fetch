@@ -47,7 +47,7 @@ export const getRequestType = (request: RequestInstance, latestRequest: Dispatch
 };
 
 export const isFailedRequest = (data: ResponseType<unknown, unknown>) => {
-  const [, , status] = data;
+  const {status} = data;
   if (!status || status >= 400) {
     return true;
   }

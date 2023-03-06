@@ -59,7 +59,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onError(callbackAsync).onError(callbackSync).onError(callbackLast);
-      await client.__modifyErrorResponse([null, null, 400], request);
+      await client.__modifyErrorResponse({data: null, error: null, status: 400}, request);
 
       testCallbacksExecution([spy1, spy2, spy3]);
     });
@@ -69,7 +69,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onSuccess(callbackAsync).onSuccess(callbackSync).onSuccess(callbackLast);
-      await client.__modifySuccessResponse([null, null, 400], request);
+      await client.__modifySuccessResponse({data: null, error: null, status: 400}, request);
 
       testCallbacksExecution([spy1, spy2, spy3]);
     });
@@ -79,7 +79,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onResponse(callbackAsync).onResponse(callbackSync).onResponse(callbackLast);
-      await client.__modifyResponse([null, null, 400], request);
+      await client.__modifyResponse({data: null, error: null, status: 400}, request);
 
       testCallbacksExecution([spy1, spy2, spy3]);
     });
@@ -89,17 +89,17 @@ describe("Client [ Interceptor ]", () => {
     it("should throw onError method when request is not returned", async () => {
       client.onError(() => undefined as any);
 
-      expect(client.__modifyErrorResponse([null, null, 400], request)).rejects.toThrow();
+      await expect(client.__modifyErrorResponse({data: null, error: null, status: 400}, request)).rejects.toThrow();
     });
     it("should throw onSuccess method when request is not returned", async () => {
       client.onSuccess(() => undefined as any);
 
-      expect(client.__modifySuccessResponse([null, null, 400], request)).rejects.toThrow();
+      await expect(client.__modifySuccessResponse({data: null, error: null, status: 400}, request)).rejects.toThrow();
     });
     it("should throw onResponse method when request is not returned", async () => {
       client.onResponse(() => undefined as any);
 
-      expect(client.__modifyResponse([null, null, 400], request)).rejects.toThrow();
+      await expect(client.__modifyResponse({data: null, error: null, status: 400}, request)).rejects.toThrow();
     });
   });
 });

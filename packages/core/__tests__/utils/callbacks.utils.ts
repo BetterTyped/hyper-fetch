@@ -11,7 +11,7 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
     }
 
     callback?.();
-    return response || [null, null, 200];
+    return response || {data: null, error: null, status: 200};
   };
 };
 

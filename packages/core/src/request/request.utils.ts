@@ -163,7 +163,7 @@ export const requestSendRequest = <Request extends RequestInstance>(
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
       options.onRemove?.(...props);
-      resolve([null, getErrorMessage("deleted") as unknown as ExtractErrorType<Request>, 0]);
+      resolve({data: null, error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>, status: 0});
 
       // Unmount Listeners
       // eslint-disable-next-line @typescript-eslint/no-use-before-define

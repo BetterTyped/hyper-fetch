@@ -521,7 +521,7 @@ export class Dispatcher {
     // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
     const isFailed = isFailedRequest(response);
     // If there is no running request with this id, it means it was cancelled and removed during send
-    const isCancelMessage = getErrorMessage("abort").message === response[1]?.message;
+    const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
     const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
 
     // Remove running request, must be called after isCancelled

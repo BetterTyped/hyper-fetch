@@ -8,12 +8,12 @@ export const getCacheData = <T extends RequestInstance>(
 ): ExtractAdapterReturnType<T> => {
   const isFailed = isFailedRequest(response);
 
-  const previousData = isFailed && previousResponse ? previousResponse[0] : null;
-  const data = response[0] || previousData;
-  const error = response[1];
-  const status = response[2];
+  const previousData = isFailed && previousResponse ? previousResponse.data : null;
+  const data = response.data || previousData;
+  const error = response.error;
+  const status = response.status;
 
-  return [data, error, status];
+  return {data, error, status};
 };
 
 export const getRevalidateEventKey = (key: string): string => {

@@ -26,6 +26,7 @@ import { RequestEffectInstance } from "effect";
 import { Request, RequestOptionsType, RequestInstance } from "request";
 import { AppManager, RequestManager, LoggerManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
+import {HttpMethodsEnum} from "../constants/http.constants";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -61,6 +62,8 @@ export class Client<
   cache: Cache;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
+
+  defaultMethod: ExtractAdapterMethodType<AdapterType> = HttpMethodsEnum.get as ExtractAdapterMethodType<AdapterType>;
 
   // Registered requests effect
   effects: RequestEffectInstance[] = [];
@@ -189,6 +192,14 @@ export class Client<
     return this as ClientInstance;
   };
 
+  /**
+   * Set default method for requests.
+   */
+  setDefaultMethod = (defaultMethod: ExtractAdapterMethodType<AdapterType>) => {
+    this.defaultMethod = defaultMethod;
+    return this as ClientInstance;
+
+  }
   /**
    * Method of manipulating requests before sending the request. We can for example add custom header with token to the request which request had the auth set to true.
    */

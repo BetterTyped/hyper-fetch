@@ -183,7 +183,7 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     status: number,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
   ): Promise<ResponseSuccessType<ExtractResponseType<T>>> => {
-    let response = [responseData, null, status] as ResponseSuccessType<ExtractResponseType<T>>;
+    let response = {data: responseData, error: null, status} as ResponseSuccessType<ExtractResponseType<T>>;
     response = await request.client.__modifyResponse(response, request);
     response = await request.client.__modifySuccessResponse(response, request);
 
@@ -202,7 +202,7 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     status: number,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
   ): Promise<ResponseErrorType<ExtractErrorType<T>>> => {
-    let responseData = [null, error, status] as ResponseErrorType<ExtractErrorType<T>>;
+    let responseData = {data: null, error, status} as ResponseErrorType<ExtractErrorType<T>>;
 
     responseData = await request.client.__modifyResponse(responseData, request);
     responseData = await request.client.__modifyErrorResponse(responseData, request);

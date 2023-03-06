@@ -88,16 +88,16 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using isFailedRequest util", () => {
     it("should return true on error statuses", async () => {
-      expect(isFailedRequest([null, null, 400])).toBeTrue();
-      expect(isFailedRequest([null, null, 0])).toBeTrue();
-      expect(isFailedRequest([null, null, 500])).toBeTrue();
-      expect(isFailedRequest([null, null, 404])).toBeTrue();
+      expect(isFailedRequest({data: null, error: null, status: 400})).toBeTrue();
+      expect(isFailedRequest({data: null, error: null, status: 0})).toBeTrue();
+      expect(isFailedRequest({data: null, error: null, status: 500})).toBeTrue();
+      expect(isFailedRequest({data: null, error: null, status: 404})).toBeTrue();
     });
     it("should return false on success statuses", async () => {
-      expect(isFailedRequest([null, null, 304])).toBeFalse();
-      expect(isFailedRequest([null, null, 200])).toBeFalse();
-      expect(isFailedRequest([null, null, 202])).toBeFalse();
-      expect(isFailedRequest([null, null, 201])).toBeFalse();
+      expect(isFailedRequest({data: null, error: null, status: 304})).toBeFalse();
+      expect(isFailedRequest({data: null, error: null, status: 200})).toBeFalse();
+      expect(isFailedRequest({ data: null, error: null, status: 202})).toBeFalse();
+      expect(isFailedRequest({data: null, error: null, status: 201})).toBeFalse();
     });
   });
   describe("When using canRetryRequest util", () => {
