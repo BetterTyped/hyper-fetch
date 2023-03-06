@@ -6,7 +6,7 @@ describe("Cache [ Lazy Storage ]", () => {
   const cacheTime = 10000;
   const clearKey = "test";
   const cacheData: CacheValueType = {
-    data: {data: null, error: null, status: 200},
+    data: { data: null, error: null, status: 200 },
     details: {
       retries: 0,
       timestamp: +new Date(),

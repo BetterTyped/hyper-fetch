@@ -73,10 +73,10 @@ describe("Client [ Auth ]", () => {
     const handleErrorIntercept = (callback?: () => void) => {
       client.onError(async (res, cmd) => {
         interceptor();
-        const status = res.status;
+        const { status } = res;
 
         if (!cmd.used && status === 401) {
-          const {data} = await refreshRequest.send();
+          const { data } = await refreshRequest.send();
           if (data) {
             callback?.();
             return cmd.setUsed(true).send();
@@ -99,7 +99,7 @@ describe("Client [ Auth ]", () => {
       const errorResponse = createRequestInterceptor(request, { status: 401 });
 
       handleErrorIntercept();
-      const {data, error} = await request.send();
+      const { data, error } = await request.send();
 
       expect(data).toBe(null);
       expect(error).toEqual(errorResponse);

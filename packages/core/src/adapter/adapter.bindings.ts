@@ -1,8 +1,17 @@
-import { getErrorMessage, ResponseSuccessType, ResponseErrorType, ProgressDataType } from "adapter";
+import {
+  getErrorMessage,
+  ResponseSuccessType,
+  ResponseErrorType,
+  ProgressDataType,
+  ExtractAdapterOptions,
+} from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
 import { ExtractResponseType, ExtractErrorType } from "types";
 
-export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance, requestId: string) => {
+export const getAdapterBindings = async <AdapterAdditionalData extends Record<string, any>>(
+  cmd: RequestInstance,
+  requestId: string,
+) => {
   const { url, requestManager, loggerManager, headerMapper, payloadMapper } = cmd.client;
 
   const logger = loggerManager.init("Adapter");
@@ -33,7 +42,9 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
   const payload = payloadMapper(data);
-  const config: ConfigType = { ...request.requestOptions.options };
+  const config: ExtractAdapterOptions<RequestInstance> = {
+    ...request.requestOptions.options,
+  } as ExtractAdapterOptions<RequestInstance>;
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
@@ -180,10 +191,13 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
 
   const onSuccess = async <T extends RequestInstance>(
     responseData: unknown,
-    status: number,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
-  ): Promise<ResponseSuccessType<ExtractResponseType<T>>> => {
-    let response = {data: responseData, error: null, status} as ResponseSuccessType<ExtractResponseType<T>>;
+    additionalData: AdapterAdditionalData,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
+  ): Promise<ResponseSuccessType<ExtractResponseType<T>, AdapterAdditionalData>> => {
+    let response = { data: responseData, error: null, additionalData } as ResponseSuccessType<
+      ExtractResponseType<T>,
+      AdapterAdditionalData
+    >;
     response = await request.client.__modifyResponse(response, request);
     response = await request.client.__modifySuccessResponse(response, request);
 
@@ -199,10 +213,13 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
 
   const onError = async <T extends RequestInstance>(
     error: Error | ExtractErrorType<T>,
-    status: number,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
-  ): Promise<ResponseErrorType<ExtractErrorType<T>>> => {
-    let responseData = {data: null, error, status} as ResponseErrorType<ExtractErrorType<T>>;
+    additionalData: AdapterAdditionalData,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
+  ): Promise<ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>> => {
+    let responseData = { data: null, error, additionalData } as ResponseErrorType<
+      ExtractErrorType<T>,
+      AdapterAdditionalData
+    >;
 
     responseData = await request.client.__modifyResponse(responseData, request);
     responseData = await request.client.__modifyErrorResponse(responseData, request);
@@ -216,24 +233,27 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   };
 
   const onAbortError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+    additionalData: AdapterAdditionalData,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
   ) => {
     const error = getErrorMessage("abort");
-    return onError(error, 0, resolve);
+    return onError(error, additionalData, resolve);
   };
 
   const onTimeoutError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+    additionalData: AdapterAdditionalData,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
   ) => {
     const error = getErrorMessage("timeout");
-    return onError(error, 0, resolve);
+    return onError(error, additionalData, resolve);
   };
 
   const onUnexpectedError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+    additionalData: AdapterAdditionalData,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
   ) => {
     const error = getErrorMessage();
-    return onError(error, 0, resolve);
+    return onError(error, additionalData, resolve);
   };
 
   // Abort
@@ -243,8 +263,9 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   };
 
   const createAbortListener = <T extends RequestInstance>(
+    abortAdditionalData: AdapterAdditionalData,
     callback: () => void,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, AdapterAdditionalData>) => void,
   ) => {
     const controller = getAbortController();
     if (!controller) {
@@ -252,7 +273,7 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     }
 
     const fn = () => {
-      onAbortError(resolve);
+      onAbortError(abortAdditionalData, resolve);
       callback();
       requestManager.events.emitAbort(abortKey, requestId, request);
     };

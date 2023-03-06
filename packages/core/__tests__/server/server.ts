@@ -4,7 +4,7 @@ import { ExtractResponseType } from "types";
 import { RequestInstance } from "request";
 import { getInterceptEndpoint, createStubMethod } from "./server.utils";
 import { ErrorMockType, errorResponses, StatusCodesType, StatusErrorCodesType } from "./server.constants";
-import {HttpMethodsEnum} from "../../dist";
+import { HttpMethodsEnum } from "../../dist";
 
 export const server = setupServer();
 

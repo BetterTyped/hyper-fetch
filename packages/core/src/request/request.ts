@@ -14,10 +14,9 @@ import {
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import {BaseAdapterType, ExtractAdapterMethodType, ExtractAdapterOptions, QueryParamsType} from "adapter";
+import { BaseAdapterType, ExtractAdapterMethodType, ExtractAdapterOptions, QueryParamsType } from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
-import { HttpMethodsEnum } from "../constants/http.constants";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.

@@ -3,7 +3,8 @@ import { ExtractRouteParams, Request, RequestInstance } from "request";
 
 export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseType<
   ExtractResponseType<T>,
-  ExtractErrorType<T>
+  ExtractErrorType<T>,
+  ExtractAdapterType<T>
 >;
 
 export type ExtractResponseType<T> = T extends Request<infer D, any, any, any, any, any, any, any, any, any, any>

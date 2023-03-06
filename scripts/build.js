@@ -45,7 +45,6 @@ const buildPackage = async (additionalOptions = {}) => {
 
 if (isCore) {
   buildPackage({ platform: "browser", preDir: "dist/browser", tsconfig: "tsconfig.json" });
-  buildPackage({ platform: "node", preDir: "dist/server", tsconfig: "tsconfig.node.json" });
   buildPackage({ platform: "node", tsconfig: "tsconfig.node.json" });
 } else {
   buildPackage();

@@ -1,5 +1,11 @@
 import { RequestEffect } from "effect";
-import { getAdapterBindings, AdapterOptionsType, ResponseType, getErrorMessage } from "adapter";
+import {
+  getAdapterBindings,
+  AdapterOptionsType,
+  ResponseType,
+  getErrorMessage,
+  AdapterAdditionalDataType,
+} from "adapter";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createClient, createRequest, sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
@@ -10,8 +16,16 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const requestId = "test";
   const queryParams = "?query=params";
   const data = { value: 1 };
-  const successResponse: ResponseType<unknown, unknown> = {data, error: null, status: 200};
-  const errorResponse: ResponseType<unknown, unknown> = {data: null, error: data, status: 400};
+  const successResponse: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+    data,
+    error: null,
+    additionalData: { status: 200 },
+  };
+  const errorResponse: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+    data: null,
+    error: data,
+    additionalData: { status: 400 },
+  };
   const requestConfig: AdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
   const onTriggerSpy = jest.fn();
@@ -379,7 +393,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
-        const newData: ResponseType<unknown, unknown> = {data: "modified", error: null, status: 222};
+        const newData: ResponseType<unknown, unknown> = { data: "modified", error: null, status: 222 };
         client.__onResponseCallbacks.push(() => errorResponse);
         client.__onSuccessCallbacks.push(() => newData);
         const response = await onSuccess(data, 200, () => null);
@@ -420,7 +434,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
       it("should execute __modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
-        const newData: ResponseType<unknown, unknown> = {data: "modified", status: null, error: 444};
+        const newData: ResponseType<unknown, unknown> = { data: "modified", status: null, error: 444 };
         client.__onResponseCallbacks.push(() => successResponse);
         client.__onErrorCallbacks.push(() => newData);
         const response = await onError(data, 400, () => null);
@@ -435,17 +449,17 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should return correct message when onAbortError is executed", async () => {
         const { onAbortError } = await getAdapterBindings(request, requestId);
         const response = await onAbortError(() => null);
-        expect(response).toEqual({data: null, error: getErrorMessage("abort"), status: 0});
+        expect(response).toEqual({ data: null, error: getErrorMessage("abort"), status: 0 });
       });
       it("should return correct message when onTimeoutError is executed", async () => {
         const { onTimeoutError } = await getAdapterBindings(request, requestId);
         const response = await onTimeoutError(() => null);
-        expect(response).toEqual({data: null, error: getErrorMessage("timeout"), status: 0});
+        expect(response).toEqual({ data: null, error: getErrorMessage("timeout"), status: 0 });
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
         const { onUnexpectedError } = await getAdapterBindings(request, requestId);
         const response = await onUnexpectedError(() => null);
-        expect(response).toEqual({data: null, error: getErrorMessage(), status: 0});
+        expect(response).toEqual({ data: null, error: getErrorMessage(), status: 0 });
       });
     });
   });

@@ -10,7 +10,7 @@ describe("Cache [ Events ]", () => {
   const spy = jest.fn();
 
   const cacheData: CacheValueType = {
-    data: {data: null, error: null, status: 200},
+    data: { data: null, error: null, status: 200 },
     details: {
       retries: 0,
       timestamp: +new Date(),
@@ -56,26 +56,34 @@ describe("Cache [ Events ]", () => {
   });
   describe("when revalidate event is triggered", () => {
     it("should revalidate cache using cache key", async () => {
-      cache.set(request, {data: {}, error: null, status: 200}, {
-        retries: 0,
-        timestamp: +new Date(),
-        isFailed: false,
-        isCanceled: false,
-        isOffline: false,
-      });
+      cache.set(
+        request,
+        { data: {}, error: null, status: 200 },
+        {
+          retries: 0,
+          timestamp: +new Date(),
+          isFailed: false,
+          isCanceled: false,
+          isOffline: false,
+        },
+      );
       cache.events.onRevalidate(cacheKey, spy);
       await cache.revalidate(cacheKey);
       await sleep(1);
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex", async () => {
-      cache.set(request, {data: null, error: null, status: 200}, {
-        retries: 0,
-        timestamp: +new Date(),
-        isFailed: false,
-        isCanceled: false,
-        isOffline: false,
-      });
+      cache.set(
+        request,
+        { data: null, error: null, status: 200 },
+        {
+          retries: 0,
+          timestamp: +new Date(),
+          isFailed: false,
+          isCanceled: false,
+          isOffline: false,
+        },
+      );
       cache.events.onRevalidate(cacheKey, spy);
       await cache.revalidate(new RegExp(cacheKey));
       await sleep(1);

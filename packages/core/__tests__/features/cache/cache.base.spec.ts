@@ -4,7 +4,7 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createClient, createCache, createRequest, sleep } from "../../utils";
 
 describe("Cache [ Base ]", () => {
-  const response: ResponseSuccessType<unknown> = { data: 123 , error: null, status: 200};
+  const response: ResponseSuccessType<unknown> = { data: 123, error: null, status: 200 };
   const details: ResponseDetailsType = {
     retries: 0,
     timestamp: +new Date(),

@@ -82,7 +82,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown> = {data: mock, error: null, status: 200};
+      const adapterResponse: ResponseType<unknown, unknown> = { data: mock, error: null, status: 200 };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: false,
@@ -104,7 +104,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown> = {data: null, error: mock, status: 400};
+      const adapterResponse: ResponseType<unknown, unknown> = { data: null, error: mock, status: 400 };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: true,
@@ -133,7 +133,7 @@ describe("Dispatcher [ Events ]", () => {
 
       const mock = createRequestInterceptor(requestWithRetry);
 
-      const adapterResponse: ResponseType<unknown, unknown> = {data: mock, error: null, status: 200};
+      const adapterResponse: ResponseType<unknown, unknown> = { data: mock, error: null, status: 200 };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isFailed: false,
@@ -157,7 +157,11 @@ describe("Dispatcher [ Events ]", () => {
       await sleep(1);
       client.requestManager.abortAll();
 
-      const adapterResponse: ResponseType<unknown, unknown> = {data: null, error: getErrorMessage("abort"), status: 0};
+      const adapterResponse: ResponseType<unknown, unknown> = {
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+      };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isFailed: true,

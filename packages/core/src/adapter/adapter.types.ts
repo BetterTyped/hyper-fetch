@@ -3,32 +3,43 @@ import { HttpMethodsType } from "../types";
 
 // Adapter
 
-export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer O, any> ? O : never;
-export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, infer O> ? O : never;
+export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any> ? M : never;
+export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, infer Q> ? Q : never;
 
 export type BaseAdapterType<
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdapterOptions = AdapterOptionsType,
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MethodType = HttpMethodsType,
-  // eslint-disable-next-line
+  AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QueryParams = QueryParamsType,
-> = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
+> = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any, AdditionalData>>;
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
+export type AdapterAdditionalDataType = { status: number };
 
 export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseType<GenericDataType, GenericErrorType> = {
-  data: GenericDataType | null,
-  error: GenericErrorType | null,
-  status: number | string | null,
+export type ResponseType<GenericDataType, GenericErrorType, AdditionalData> = {
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  additionalData: AdditionalData;
 };
-export type ResponseSuccessType<GenericDataType> = {data: GenericDataType, error: null, status: number | string | null};
-export type ResponseErrorType<GenericErrorType> = {data: null, error: GenericErrorType, status: number | string | null};
+export type ResponseSuccessType<GenericDataType, AdditionalData> = {
+  data: GenericDataType;
+  error: null;
+  additionalData: AdditionalData;
+};
+export type ResponseErrorType<GenericErrorType, AdditionalData> = {
+  data: null;
+  error: GenericErrorType;
+  additionalData: AdditionalData;
+};
 
 // QueryParams
 

@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { ResponseType } from "adapter";
+import { BaseAdapterType, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -12,6 +12,7 @@ import {
   CacheValueType,
 } from "cache";
 import { RequestDump, RequestInstance } from "request";
+import { ExtractAdapterType } from "types";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -58,9 +59,9 @@ export class Cache {
    * @param details
    * @returns
    */
-  set = <Response, Error>(
+  set = <Response, Error, AdapterType = BaseAdapterType>(
     request: RequestInstance | RequestDump<RequestInstance>,
-    response: ResponseType<Response, Error>,
+    response: ResponseType<Response, Error, ExtractAdapterType<AdapterType>>,
     details: ResponseDetailsType,
   ): void => {
     this.logger.debug("Processing cache response", { request, response, details });
