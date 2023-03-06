@@ -1,7 +1,7 @@
 import { getAdapterBindings, defaultTimeout, ResponseType, BaseAdapterType } from "adapter";
 import { parseErrorResponse, parseResponse } from "./adapter.utils";
 
-export const browserAdapter: BaseAdapterType = async (request, requestId) => {
+export const adapter: BaseAdapterType = async (request, requestId) => {
   const {
     fullUrl,
     headers,
@@ -37,7 +37,7 @@ export const browserAdapter: BaseAdapterType = async (request, requestId) => {
     xhr.open(method, fullUrl, true);
 
     // Set Headers
-    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
+    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
     const unmountListener = createAbortListener(abort, resolve);

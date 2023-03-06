@@ -48,3 +48,6 @@ Thumbs.db
 
 # testing
 coverage
+
+# Next.js
+.next

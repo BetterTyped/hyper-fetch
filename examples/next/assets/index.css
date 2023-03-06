@@ -1,4 +1,5 @@
 body {
+  display: unset !important;
   margin: 0;
 }
 

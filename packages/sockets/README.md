@@ -56,6 +56,10 @@
 
 🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/sockets/authentication)
 
+## Help me keep working on this project ❤️
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+
 ## React
 
 We have specially created hooks to support sockets.

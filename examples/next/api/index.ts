@@ -1,5 +1,6 @@
 import { setupWorker } from "msw";
-import { setupServer } from "msw/lib/node";
+import { setupServer } from "msw/node";
+
 import { handlers } from "./mocks";
 
 export * from "./builder";

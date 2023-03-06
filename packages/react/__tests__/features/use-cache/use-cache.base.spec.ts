@@ -19,7 +19,7 @@ describe("useCache [ Base ]", () => {
     },
     cacheTime: request.cacheTime,
     clearKey: request.client.cache.clearKey,
-    garbageCollection: true,
+    garbageCollection: Infinity,
   };
 
   beforeAll(() => {

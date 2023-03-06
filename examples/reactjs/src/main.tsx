@@ -1,6 +1,5 @@
-import React from "react";
 import { Stack } from "@mui/material";
-import * as ReactDOM from "react-dom/adapter";
+import * as ReactDOM from "react-dom/client";
 import { SnackbarProvider } from "notistack";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 

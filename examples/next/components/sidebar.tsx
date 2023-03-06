@@ -6,7 +6,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useRouter } from "next/router";
 
-import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "constants/routing.constants";
+import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";
 
 const links = [DETAILS_PAGE, LIST_PAGE, FORM_PAGE];
 const drawerWidth = 240;

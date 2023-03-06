@@ -65,6 +65,7 @@ describe("useTrackingState [ Events ]", () => {
             },
             cacheTime: request.cacheTime,
             clearKey: request.client.cache.clearKey,
+            garbageCollection: Infinity,
           });
         });
 
@@ -89,6 +90,7 @@ describe("useTrackingState [ Events ]", () => {
             },
             cacheTime: request.cacheTime,
             clearKey: request.client.cache.clearKey,
+            garbageCollection: Infinity,
           });
         });
 

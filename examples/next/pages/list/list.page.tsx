@@ -4,9 +4,10 @@ import { useFetch } from "@hyper-fetch/react";
 import TextField from "@mui/material/TextField";
 import { Button, IconButton, Stack } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { getUsers } from "api";
-import { Request } from "components/request";
-import { Viewer } from "components/viewer";
+
+import { getUsers } from "../../api";
+import { Request } from "../../components/request";
+import { Viewer } from "../../components/viewer";
 
 const initialDate = +new Date();
 

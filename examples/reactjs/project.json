@@ -1,46 +1,63 @@
 {
+  "name": "reactjs",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/reactjs/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/web:webpack",
+      "executor": "@nrwl/vite:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "compiler": "babel",
-        "outputPath": "dist/examples/reactjs",
-        "index": "examples/reactjs/src/index.html",
-        "baseHref": "/",
-        "main": "examples/reactjs/src/main.tsx",
-        "polyfills": "examples/reactjs/src/polyfills.ts",
-        "tsConfig": "examples/reactjs/tsconfig.app.json",
-        "assets": ["examples/reactjs/src/favicon.ico", "examples/reactjs/src/assets"],
-        "styles": ["examples/reactjs/src/styles.css"],
-        "scripts": [],
-        "webpackConfig": "examples/reactjs/webpack.config.js"
+        "outputPath": "dist/examples/reactjs"
       },
       "configurations": {
         "development": {
-          "extractLicenses": false,
-          "optimization": false,
-          "sourceMap": true,
-          "vendorChunk": true
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
         }
       }
     },
     "serve": {
-      "executor": "@nrwl/web:dev-server",
+      "executor": "@nrwl/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "reactjs:build",
-        "hmr": true,
-        "port": 4100
+        "buildTarget": "reactjs:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "reactjs:build:development",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "reactjs:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "preview": {
+      "executor": "@nrwl/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "reactjs:build"
       },
       "configurations": {
         "development": {
           "buildTarget": "reactjs:build:development"
+        },
+        "production": {
+          "buildTarget": "reactjs:build:production"
         }
+      }
+    },
+    "test": {
+      "executor": "@nrwl/vite:test",
+      "outputs": ["coverage/examples/reactjs"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/examples/reactjs"
       }
     },
     "lint": {
