@@ -13,13 +13,14 @@ export type BaseAdapterType<
   AdapterOptions = AdapterOptionsType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MethodType = HttpMethodsType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QueryParams = QueryParamsType,
-> = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any, AdditionalData>>;
+> = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any, any>>;
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
-export type AdapterAdditionalDataType = { status: number };
+export type AdapterAdditionalDataType = { status: null | number };
 
 export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 

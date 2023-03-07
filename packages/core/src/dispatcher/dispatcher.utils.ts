@@ -46,8 +46,8 @@ export const getRequestType = (request: RequestInstance, latestRequest: Dispatch
   return DispatcherRequestType.allAtOnce;
 };
 
-export const isFailedRequest = (data: ResponseType<unknown, unknown>) => {
-  const { status } = data;
+export const isFailedRequest = (data: ResponseType<unknown, unknown, unknown>) => {
+  const { status } = data.additionalData as any;
   if (!status || status >= 400) {
     return true;
   }

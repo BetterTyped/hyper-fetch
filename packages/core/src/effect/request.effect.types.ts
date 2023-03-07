@@ -1,7 +1,7 @@
 import { RequestInstance } from "request";
-import { ResponseErrorType, ResponseType, ResponseSuccessType } from "adapter";
+import { ResponseErrorType, ResponseType, ResponseSuccessType, ExtractAdapterAdditionalDataType } from "adapter";
 import { RequestEffect } from "effect";
-import { ExtractErrorType, ExtractResponseType } from "types";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 export type RequestEffectLifecycle = "trigger" | "start" | "success" | "error" | "finished";
 
@@ -23,13 +23,26 @@ export type RequestEffectOptionsType<T extends RequestInstance> = {
   /**
    * Callback that will be executed when response is successful
    */
-  onSuccess?: (response: ResponseSuccessType<ExtractResponseType<T>>, request: RequestInstance) => void;
+  onSuccess?: (
+    response: ResponseSuccessType<ExtractResponseType<T>, ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>>,
+    request: RequestInstance,
+  ) => void;
   /**
    * Callback that will be executed when response is failed
    */
-  onError?: (response: ResponseErrorType<ExtractErrorType<T>>, request: RequestInstance) => void;
+  onError?: (
+    response: ResponseErrorType<ExtractErrorType<T>, ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>>,
+    request: RequestInstance,
+  ) => void;
   /**
    * Callback that will be executed when response is finished
    */
-  onFinished?: (response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>, request: RequestInstance) => void;
+  onFinished?: (
+    response: ResponseType<
+      ExtractResponseType<T>,
+      ExtractErrorType<T>,
+      ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+    >,
+    request: RequestInstance,
+  ) => void;
 };

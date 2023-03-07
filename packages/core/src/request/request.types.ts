@@ -21,6 +21,7 @@ import {
   ExtractAdapterOptions,
   BaseAdapterType,
   ExtractAdapterMethodType,
+  ExtractAdapterAdditionalDataType,
 } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
@@ -181,10 +182,8 @@ export type PayloadMapperType<PayloadType, MappedData> = (data: PayloadType) => 
 export type PayloadType<Payload, MappedData> = (MappedData extends never ? Payload : MappedData) | NegativeTypes;
 
 export type RequestCurrentType<
-  Response,
   Payload,
   QueryParams,
-  ErrorType,
   GenericEndpoint extends string,
   AdapterOptions,
   MappedData,
@@ -194,7 +193,6 @@ export type RequestCurrentType<
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParams | NegativeTypes;
   data?: PayloadType<Payload, MappedData>;
-  mockCallback?: ((data: Payload) => ResponseType<Response, ErrorType>) | undefined;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
@@ -274,7 +272,11 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
   onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onResponse?: (
-    response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>,
+    response: ResponseType<
+      ExtractResponseType<Request>,
+      ExtractErrorType<Request>,
+      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+    >,
     details: ResponseDetailsType,
   ) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
@@ -285,14 +287,44 @@ export type RequestSendType<Request extends RequestInstance> =
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
       ? (
           options?: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+        ) => Promise<
+          ResponseType<
+            ExtractResponseType<Request>,
+            ExtractErrorType<Request>,
+            ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+          >
+        >
       : (
           options?: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+        ) => Promise<
+          ResponseType<
+            ExtractResponseType<Request>,
+            ExtractErrorType<Request>,
+            ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+          >
+        >
     : (
         options?: RequestSendOptionsType<Request>,
-      ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>;
+      ) => Promise<
+        ResponseType<
+          ExtractResponseType<Request>,
+          ExtractErrorType<Request>,
+          ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+        >
+      >;
 
 // Instance
 
-export type RequestInstance = Request<any, any, any, any, any, any, BaseAdapterType<any, any, any>, any, any, any, any>;
+export type RequestInstance = Request<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  BaseAdapterType<any, any, any, any>,
+  any,
+  any,
+  any,
+  any
+>;

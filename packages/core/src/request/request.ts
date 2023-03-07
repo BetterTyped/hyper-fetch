@@ -80,10 +80,8 @@ export class Request<
     >,
     readonly requestDump?:
       | RequestCurrentType<
-          Response,
           Payload,
           QueryParams,
-          GlobalError | LocalError,
           Endpoint,
           ExtractAdapterOptions<AdapterType>,
           MappedData,
@@ -340,10 +338,8 @@ export class Request<
     NewMappedData = MappedData,
   >(
     options?: RequestCurrentType<
-      Response,
       Payload,
       QueryParams,
-      GlobalError | LocalError,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
       NewMappedData,
@@ -353,10 +349,8 @@ export class Request<
   ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q, NewMappedData> {
     const dump = this.dump();
     const requestDump: RequestCurrentType<
-      Response,
       Payload,
       QueryParams,
-      GlobalError | LocalError,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
       NewMappedData,

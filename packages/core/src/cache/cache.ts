@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { BaseAdapterType, ResponseType } from "adapter";
+import { BaseAdapterType, ExtractAdapterAdditionalDataType, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -59,9 +59,9 @@ export class Cache {
    * @param details
    * @returns
    */
-  set = <Response, Error, AdapterType = BaseAdapterType>(
+  set = <Response, Error, AdapterType extends BaseAdapterType>(
     request: RequestInstance | RequestDump<RequestInstance>,
-    response: ResponseType<Response, Error, ExtractAdapterType<AdapterType>>,
+    response: ResponseType<Response, Error, ExtractAdapterAdditionalDataType<AdapterType>>,
     details: ResponseDetailsType,
   ): void => {
     this.logger.debug("Processing cache response", { request, response, details });
@@ -74,7 +74,10 @@ export class Cache {
 
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
 
-    this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
+    this.events.emitCacheData<Response, Error, ExtractAdapterAdditionalDataType<ExtractAdapterType<AdapterType>>>(
+      cacheKey,
+      newCacheData,
+    );
     this.logger.debug("Emitting cache response", { request, response, details });
 
     // If request should not use cache - just emit response data
@@ -97,8 +100,10 @@ export class Cache {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error> | undefined => {
-    this.getLazyResource<Response, Error>(cacheKey);
+  get = <Response, Error, AdditionalData>(
+    cacheKey: string,
+  ): CacheValueType<Response, Error, AdditionalData> | undefined => {
+    this.getLazyResource<Response, Error, AdditionalData>(cacheKey);
     const cachedData = this.storage.get<Response, Error>(cacheKey);
     return cachedData;
   };
@@ -150,7 +155,9 @@ export class Cache {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error>(cacheKey: string): Promise<CacheValueType<Response, Error> | undefined> => {
+  getLazyResource = async <Response, Error, AdditionalData>(
+    cacheKey: string,
+  ): Promise<CacheValueType<Response, Error, AdditionalData> | undefined> => {
     const data = await this.lazyStorage?.get<Response, Error>(cacheKey);
     const syncData = this.storage.get<Response, Error>(cacheKey);
 
@@ -167,7 +174,7 @@ export class Cache {
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error>(cacheKey, data);
-        this.events.emitCacheData<Response, Error>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, AdditionalData>(cacheKey, data);
         return data;
       }
     }

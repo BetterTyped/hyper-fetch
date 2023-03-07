@@ -33,9 +33,9 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   return newRequest;
 };
 
-export const interceptResponse = async <GlobalErrorType>(
+export const interceptResponse = async <GlobalErrorType, AdditionalData>(
   interceptors: ResponseInterceptorType[],
-  response: ResponseType<any, GlobalErrorType>,
+  response: ResponseType<any, GlobalErrorType, AdditionalData>,
   request: RequestInstance,
 ) => {
   let newResponse = response;

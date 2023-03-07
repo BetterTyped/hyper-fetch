@@ -1,8 +1,8 @@
-import { ProgressType, ResponseType, getErrorMessage } from "adapter";
+import { ProgressType, ResponseType, getErrorMessage, ExtractAdapterAdditionalDataType } from "adapter";
 import { AdapterProgressEventType, RequestInstance, RequestDump, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
-import { ExtractErrorType, ExtractResponseType } from "types";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -117,7 +117,13 @@ export const requestSendRequest = <Request extends RequestInstance>(
   const { requestManager } = request.client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
-  return new Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>((resolve) => {
+  return new Promise<
+    ResponseType<
+      ExtractResponseType<Request>,
+      ExtractErrorType<Request>,
+      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+    >
+  >((resolve) => {
     const requestId = dispatcher.add(request);
     options?.onSettle?.(requestId, request);
 
@@ -140,7 +146,8 @@ export const requestSendRequest = <Request extends RequestInstance>(
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<
       ExtractResponseType<Request>,
-      ExtractErrorType<Request>
+      ExtractErrorType<Request>,
+      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
     >(requestId, (response, details) => {
       const isFailed = isFailedRequest(response);
       const isOfflineStatus = request.offline && details.isOffline;
@@ -163,7 +170,11 @@ export const requestSendRequest = <Request extends RequestInstance>(
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
       options.onRemove?.(...props);
-      resolve({ data: null, error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>, status: 0 });
+      resolve({
+        data: null,
+        error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
+        additionalData: request.client.defaultAdditionalData,
+      });
 
       // Unmount Listeners
       // eslint-disable-next-line @typescript-eslint/no-use-before-define

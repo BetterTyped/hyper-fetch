@@ -39,10 +39,10 @@ export type ClientOptionsType = {
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<Response = any, Error = any> = (
-  response: ResponseType<Response, Error>,
+export type ResponseInterceptorType<Response = any, Error = any, AdditionalData = any> = (
+  response: ResponseType<Response, Error, AdditionalData>,
   request: RequestInstance,
-) => Promise<ResponseType<any, any>> | ResponseType<any, any>;
+) => Promise<ResponseType<any, any, any>> | ResponseType<any, any, any>;
 
 // Stringify
 

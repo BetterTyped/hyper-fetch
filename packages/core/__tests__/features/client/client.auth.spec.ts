@@ -73,7 +73,7 @@ describe("Client [ Auth ]", () => {
     const handleErrorIntercept = (callback?: () => void) => {
       client.onError(async (res, cmd) => {
         interceptor();
-        const { status } = res;
+        const { status } = res.additionalData;
 
         if (!cmd.used && status === 401) {
           const { data } = await refreshRequest.send();

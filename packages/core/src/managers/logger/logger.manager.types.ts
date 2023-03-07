@@ -30,6 +30,6 @@ export type LoggerRequestEventData = { requestId: string; request: RequestInstan
 export type LoggerResponseEventData = {
   requestId: string;
   request: RequestInstance;
-  response: ResponseType<unknown, unknown>;
+  response: ResponseType<unknown, unknown, unknown>;
   details: ResponseDetailsType;
 };

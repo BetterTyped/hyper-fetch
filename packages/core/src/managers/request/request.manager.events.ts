@@ -69,7 +69,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   emitResponse: (
     cacheKey: string,
     requestId: string,
-    response: ResponseType<unknown, unknown>,
+    response: ResponseType<unknown, unknown, unknown>,
     details: ResponseDetailsType,
   ): void => {
     emitter.emit(getResponseIdEventKey(requestId), response, details);
@@ -164,17 +164,17 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  onResponse: <Response, ErrorType>(
+  onResponse: <Response, ErrorType, AdditionalData>(
     cacheKey: string,
-    callback: (response: ResponseType<Response, ErrorType>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseType<Response, ErrorType, AdditionalData>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseEventKey(cacheKey), callback);
     return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
   },
   // Response by requestId
-  onResponseById: <Response, ErrorType>(
+  onResponseById: <Response, ErrorType, AdditionalData>(
     requestId: string,
-    callback: (response: ResponseType<Response, ErrorType>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseType<Response, ErrorType, AdditionalData>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseIdEventKey(requestId), callback);
     return () => emitter.removeListener(getResponseIdEventKey(requestId), callback);

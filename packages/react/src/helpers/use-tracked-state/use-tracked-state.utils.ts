@@ -7,6 +7,8 @@ import {
   ExtractErrorType,
   ExtractAdapterReturnType,
   Dispatcher,
+  ExtractAdapterType,
+  ExtractAdapterAdditionalDataType,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
@@ -59,23 +61,31 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
 };
 
 export const getInitialState = <T extends RequestInstance>(
-  initialData: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>> | null,
+  initialData: ResponseType<
+    ExtractResponseType<T>,
+    ExtractErrorType<T>,
+    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+  > | null,
   dispatcher: Dispatcher,
   request: T,
 ): UseTrackedStateType<T> => {
   const { client, cacheKey } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>>(cacheKey);
+  const cacheData = cache.get<
+    ExtractResponseType<T>,
+    ExtractErrorType<T>,
+    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+  >(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialData, cacheData);
 
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
   return {
     ...initialState,
-    data: cacheState?.data?.[0] || initialState.data,
-    error: cacheState?.data?.[1] || initialState.error,
-    status: cacheState?.data?.[2] || initialState.status,
+    data: cacheState?.data?.data || initialState.data,
+    error: cacheState?.data?.error || initialState.error,
+    additionalData: cacheState?.data?.additionalData || request.client.defaultAdditionalData,
     retries: cacheState?.details.retries || initialState.retries,
     timestamp: getTimestamp(cacheState?.details.timestamp || initialState.timestamp),
     loading: initialLoading,

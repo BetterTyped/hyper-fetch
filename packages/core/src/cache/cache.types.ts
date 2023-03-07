@@ -30,8 +30,8 @@ export type CacheOptionsType = {
 };
 
 // Values
-export type CacheValueType<Response = any, Error = any> = {
-  data: ResponseType<Response, Error>;
+export type CacheValueType<Response = any, Error = any, AdditionalData = any> = {
+  data: ResponseType<Response, Error, AdditionalData>;
   details: ResponseDetailsType;
   cacheTime: number;
   clearKey: string;

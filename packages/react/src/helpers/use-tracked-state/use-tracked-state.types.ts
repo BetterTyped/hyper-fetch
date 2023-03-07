@@ -6,6 +6,8 @@ import {
   ResponseType,
   RequestInstance,
   LoggerType,
+  ExtractAdapterAdditionalDataType,
+  ExtractAdapterType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -13,7 +15,11 @@ import { isEqual } from "utils";
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
   logger: LoggerType;
-  initialData: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>> | null;
+  initialData: ResponseType<
+    ExtractResponseType<T>,
+    ExtractErrorType<T>,
+    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+  > | null;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   defaultCacheEmitting?: boolean;
@@ -44,9 +50,9 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
    */
   loading: boolean;
   /**
-   * Request http status code
+   * Request additional response data
    */
-  status: null | number;
+  additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>;
   /**
    * Request attempts
    */
@@ -73,7 +79,10 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom status. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setAdditionalData: (
+    additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>,
+    emitToCache?: boolean,
+  ) => void;
   /**
    * Action to set custom retries count. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */

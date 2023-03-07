@@ -10,6 +10,8 @@ import {
   ExtractErrorType,
   RequestSendOptionsType,
   RequestSendType,
+  ExtractAdapterType,
+  ExtractAdapterAdditionalDataType,
 } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
@@ -38,6 +40,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       ...globalConfig.useSubmitConfig,
       ...options,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
   );
   const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, bounceTimeout, deepCompare } =
@@ -54,7 +57,13 @@ export const useSubmit = <RequestType extends RequestInstance>(
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const bounceResolver = useRef<
-    (value: ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>) => void
+    (
+      value: ResponseType<
+        ExtractResponseType<RequestType>,
+        ExtractErrorType<RequestType>,
+        ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+      >,
+    ) => void
   >(() => null);
 
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
@@ -94,8 +103,16 @@ export const useSubmit = <RequestType extends RequestInstance>(
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, submitOptions });
-      return Promise.resolve([null, new Error("Cannot submit request. Option 'disabled' is enabled"), 0]) as Promise<
-        ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>
+      return Promise.resolve({
+        data: null,
+        error: new Error("Cannot submit request. Option 'disabled' is enabled"),
+        additionalData: request.client.defaultAdditionalData,
+      }) as Promise<
+        ResponseType<
+          ExtractResponseType<RequestType>,
+          ExtractErrorType<RequestType>,
+          ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+        >
       >;
     }
 
@@ -120,7 +137,11 @@ export const useSubmit = <RequestType extends RequestInstance>(
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (
-            value: ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>>,
+            value: ResponseType<
+              ExtractResponseType<RequestType>,
+              ExtractErrorType<RequestType>,
+              ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+            >,
           ) => {
             // Trigger previous awaiting calls to resolve together in bounced batches
             bouncedResolve(value);
@@ -207,9 +228,9 @@ export const useSubmit = <RequestType extends RequestInstance>(
       setRenderKey("loading");
       return state.loading;
     },
-    get status() {
-      setRenderKey("status");
-      return state.status;
+    get additionalData() {
+      setRenderKey("additionalData");
+      return state.additionalData;
     },
     get retries() {
       setRenderKey("retries");

@@ -1,10 +1,10 @@
 import { UseTrackedStateType } from "./use-tracked-state.types";
 
-export const initialState: UseTrackedStateType = {
+export const initialState: <T>() => UseTrackedStateType<T> = () => ({
   data: null,
   error: null,
   loading: false,
-  status: null,
+  additionalData: {},
   retries: 0,
   timestamp: null,
-};
+});
