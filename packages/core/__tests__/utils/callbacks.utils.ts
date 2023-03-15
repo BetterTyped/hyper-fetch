@@ -1,4 +1,4 @@
-import { AdapterAdditionalDataType, ResponseType } from "adapter";
+import { BaseAdapterType, ResponseReturnType } from "adapter";
 import { RequestInstance } from "request";
 import { sleep } from "./helpers.utils";
 
@@ -6,14 +6,14 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
   const { sleepTime, callback } = props || {};
 
   return async (
-    response?: ResponseType<null, null, AdapterAdditionalDataType>,
-  ): Promise<ResponseType<null, null, AdapterAdditionalDataType>> => {
+    response?: ResponseReturnType<null, null, BaseAdapterType>,
+  ): Promise<ResponseReturnType<null, null, BaseAdapterType>> => {
     if (sleepTime) {
       await sleep(sleepTime);
     }
 
     callback?.();
-    return response || { data: null, error: null, additionalData: { status: 200 } };
+    return response || { data: null, error: null, status: 200, additionalData: {} };
   };
 };
 

@@ -1,6 +1,11 @@
 import EventEmitter from "events";
 
-import { BaseAdapterType, ExtractAdapterAdditionalDataType, ResponseType } from "adapter";
+import {
+  BaseAdapterType,
+  ExtractAdapterAdditionalDataType,
+  ExtractAdapterStatusType,
+  ResponseReturnType,
+} from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -12,7 +17,6 @@ import {
   CacheValueType,
 } from "cache";
 import { RequestDump, RequestInstance } from "request";
-import { ExtractAdapterType } from "types";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -61,12 +65,12 @@ export class Cache {
    */
   set = <Response, Error, AdapterType extends BaseAdapterType>(
     request: RequestInstance | RequestDump<RequestInstance>,
-    response: ResponseType<Response, Error, ExtractAdapterAdditionalDataType<AdapterType>>,
+    response: ResponseReturnType<Response, Error, AdapterType>,
     details: ResponseDetailsType,
   ): void => {
     this.logger.debug("Processing cache response", { request, response, details });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
-    const cachedData = this.storage.get<Response, Error>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, AdapterType>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
@@ -74,10 +78,7 @@ export class Cache {
 
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
 
-    this.events.emitCacheData<Response, Error, ExtractAdapterAdditionalDataType<ExtractAdapterType<AdapterType>>>(
-      cacheKey,
-      newCacheData,
-    );
+    this.events.emitCacheData<Response, Error, AdapterType>(cacheKey, newCacheData);
     this.logger.debug("Emitting cache response", { request, response, details });
 
     // If request should not use cache - just emit response data
@@ -88,8 +89,8 @@ export class Cache {
     // Only success data is valid for the cache store
     if (!details.isFailed) {
       this.logger.debug("Saving response to cache storage", { request, response, details });
-      this.storage.set<Response, Error>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error>(cacheKey, newCacheData);
+      this.storage.set<Response, Error, AdapterType>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, AdapterType>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
     }
@@ -100,11 +101,11 @@ export class Cache {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error, AdditionalData>(
+  get = <Response, Error, AdapterType extends BaseAdapterType>(
     cacheKey: string,
-  ): CacheValueType<Response, Error, AdditionalData> | undefined => {
-    this.getLazyResource<Response, Error, AdditionalData>(cacheKey);
-    const cachedData = this.storage.get<Response, Error>(cacheKey);
+  ): CacheValueType<Response, Error, AdapterType> | undefined => {
+    this.getLazyResource<Response, Error, AdapterType>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, AdapterType>(cacheKey);
     return cachedData;
   };
 
@@ -155,11 +156,11 @@ export class Cache {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error, AdditionalData>(
+  getLazyResource = async <Response, Error, AdapterType extends BaseAdapterType>(
     cacheKey: string,
-  ): Promise<CacheValueType<Response, Error, AdditionalData> | undefined> => {
-    const data = await this.lazyStorage?.get<Response, Error>(cacheKey);
-    const syncData = this.storage.get<Response, Error>(cacheKey);
+  ): Promise<CacheValueType<Response, Error, AdapterType> | undefined> => {
+    const data = await this.lazyStorage?.get<Response, Error, AdapterType>(cacheKey);
+    const syncData = this.storage.get<Response, Error, AdapterType>(cacheKey);
 
     // No data in lazy storage
     const hasLazyData = this.lazyStorage && data;
@@ -173,8 +174,8 @@ export class Cache {
         this.lazyStorage.delete(cacheKey);
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
-        this.storage.set<Response, Error>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, AdditionalData>(cacheKey, data);
+        this.storage.set<Response, Error, AdapterType>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, AdapterType>(cacheKey, data);
         return data;
       }
     }

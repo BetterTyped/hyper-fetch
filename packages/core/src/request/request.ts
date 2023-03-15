@@ -8,7 +8,7 @@ import {
   RequestDump,
   RequestOptionsType,
   ExtractRouteParams,
-  requestSendRequest,
+  sendRequest,
   RequestCurrentType,
   PayloadMapperType,
 } from "request";
@@ -493,7 +493,7 @@ export class Request<
     const { dispatcherType, ...rest } = options || {};
 
     const request = this.clone(rest as any);
-    return requestSendRequest<
+    return sendRequest<
       Request<
         Response,
         Payload,

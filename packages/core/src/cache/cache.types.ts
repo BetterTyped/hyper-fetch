@@ -1,5 +1,10 @@
 import { Cache } from "cache";
-import { ResponseType } from "adapter";
+import {
+  BaseAdapterType,
+  ExtractAdapterAdditionalDataType,
+  ExtractAdapterStatusType,
+  ResponseReturnType,
+} from "adapter";
 import { ResponseDetailsType } from "managers";
 
 export type CacheOptionsType = {
@@ -22,7 +27,10 @@ export type CacheOptionsType = {
   /**
    * Callback for every change in the storage
    */
-  onChange?: <Response = any, Error = any>(key: string, data: CacheValueType<Response, Error>) => void;
+  onChange?: <Response = any, Error = any, AdapterType extends BaseAdapterType = BaseAdapterType>(
+    key: string,
+    data: CacheValueType<Response, Error, AdapterType>,
+  ) => void;
   /**
    * Callback for every delete in the storage
    */
@@ -30,8 +38,8 @@ export type CacheOptionsType = {
 };
 
 // Values
-export type CacheValueType<Response = any, Error = any, AdditionalData = any> = {
-  data: ResponseType<Response, Error, AdditionalData>;
+export type CacheValueType<Response = any, Error = any, AdapterType extends BaseAdapterType = BaseAdapterType> = {
+  data: ResponseReturnType<Response, Error, AdapterType>;
   details: ResponseDetailsType;
   cacheTime: number;
   clearKey: string;
@@ -40,15 +48,25 @@ export type CacheValueType<Response = any, Error = any, AdditionalData = any> = 
 
 // Storage
 export type CacheAsyncStorageType = {
-  set: <Response, Error>(key: string, data: CacheValueType<Response, Error>) => Promise<void>;
-  get: <Response, Error>(key: string) => Promise<CacheValueType<Response, Error> | undefined>;
+  set: <Response, Error, AdapterType extends BaseAdapterType>(
+    key: string,
+    data: CacheValueType<Response, Error, AdapterType>,
+  ) => Promise<void>;
+  get: <Response, Error, AdapterType extends BaseAdapterType>(
+    key: string,
+  ) => Promise<CacheValueType<Response, Error, AdapterType> | undefined>;
   keys: () => Promise<string[] | IterableIterator<string> | string[]>;
   delete: (key: string) => Promise<void>;
 };
 
 export type CacheStorageType = {
-  set: <Response, Error>(key: string, data: CacheValueType<Response, Error>) => void;
-  get: <Response, Error>(key: string) => CacheValueType<Response, Error> | undefined;
+  set: <Response, Error, AdapterType extends BaseAdapterType>(
+    key: string,
+    data: CacheValueType<Response, Error, AdapterType>,
+  ) => void;
+  get: <Response, Error, AdapterType extends BaseAdapterType>(
+    key: string,
+  ) => CacheValueType<Response, Error, AdapterType> | undefined;
   keys: () => string[] | IterableIterator<string> | string[];
   delete: (key: string) => void;
   clear: () => void;

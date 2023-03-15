@@ -2,7 +2,7 @@ import {
   CacheValueType,
   NullableType,
   RequestInstance,
-  ResponseType,
+  ResponseReturnType,
   ExtractResponseType,
   ExtractErrorType,
   ExtractAdapterReturnType,
@@ -61,11 +61,7 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
 };
 
 export const getInitialState = <T extends RequestInstance>(
-  initialData: ResponseType<
-    ExtractResponseType<T>,
-    ExtractErrorType<T>,
-    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
-  > | null,
+  initialData: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null,
   dispatcher: Dispatcher,
   request: T,
 ): UseTrackedStateType<T> => {

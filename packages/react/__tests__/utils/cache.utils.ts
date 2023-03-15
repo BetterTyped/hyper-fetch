@@ -1,15 +1,16 @@
 import {
-  ResponseType,
+  ResponseReturnType,
   ResponseDetailsType,
   RequestInstance,
   ExtractResponseType,
   ExtractErrorType,
+  ExtractAdapterType,
 } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
   request: T,
   rest?: {
-    data?: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>;
+    data?: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
     details?: Partial<ResponseDetailsType>;
   },
 ) => {

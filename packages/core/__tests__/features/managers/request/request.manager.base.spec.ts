@@ -182,7 +182,7 @@ describe("RequestManager [ Base ]", () => {
       isOffline: false,
     };
 
-    events.emitResponse(queueKey, requestId, { data: null, error: null, status: 200 }, details);
+    events.emitResponse(queueKey, requestId, { data: null, error: null, status: 200, additionalData: null }, details);
 
     expect(spy).toBeCalledTimes(1);
     expect(spyById).toBeCalledTimes(1);

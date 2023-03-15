@@ -10,7 +10,7 @@ describe("Cache [ Garbage Collector ]", () => {
   const clearKey = "test";
   const garbageCollection = 10;
   const cacheData: CacheValueType = {
-    data: { data: null, error: null, additionalData: { status: 200 } },
+    data: { data: null, error: null, status: 200, additionalData: {} },
     details: {
       retries: 0,
       timestamp: +new Date(),

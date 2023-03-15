@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ResponseType, RequestInstance } from "@hyper-fetch/core";
+import { ResponseReturnType, RequestInstance } from "@hyper-fetch/core";
 
 import { UseFetchReturnType } from "hooks/use-fetch";
 import { UseSubmitReturnType } from "hooks/use-submit";
@@ -65,7 +65,7 @@ export const testErrorState = async <
   });
 };
 
-export const testCacheState = async <T extends ResponseType<any, any>, H extends RenderHookResult<any, any>>(
+export const testCacheState = async <T extends ResponseReturnType<any, any, any>, H extends RenderHookResult<any, any>>(
   mock: T,
   render: H,
 ) => {

@@ -11,9 +11,9 @@ export const getCacheData = <T extends RequestInstance>(
   const previousData = isFailed && previousResponse ? previousResponse.data : null;
   const data = response.data || previousData;
   const { error } = response;
-  const { additionalData } = response;
+  const { additionalData, status } = response;
 
-  return { data, error, additionalData };
+  return { data, error, status, additionalData };
 };
 
 export const getRevalidateEventKey = (key: string): string => {

@@ -3,7 +3,7 @@ import {
   ExtractErrorType,
   CacheValueType,
   ExtractResponseType,
-  ResponseType,
+  ResponseReturnType,
   RequestInstance,
   LoggerType,
   ExtractAdapterAdditionalDataType,
@@ -15,11 +15,7 @@ import { isEqual } from "utils";
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
   logger: LoggerType;
-  initialData: ResponseType<
-    ExtractResponseType<T>,
-    ExtractErrorType<T>,
-    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
-  > | null;
+  initialData: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   defaultCacheEmitting?: boolean;

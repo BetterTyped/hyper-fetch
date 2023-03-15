@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseType, BaseAdapterType, QueryParamsType } from "adapter";
+import { ResponseReturnType, BaseAdapterType, QueryParamsType } from "adapter";
 import { Client } from "client";
 import { NegativeTypes } from "types";
 
@@ -39,10 +39,14 @@ export type ClientOptionsType = {
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<Response = any, Error = any, AdditionalData = any> = (
-  response: ResponseType<Response, Error, AdditionalData>,
+export type ResponseInterceptorType<
+  Response = any,
+  Error = any,
+  AdapterType extends BaseAdapterType = BaseAdapterType,
+> = (
+  response: ResponseReturnType<Response, Error, AdapterType>,
   request: RequestInstance,
-) => Promise<ResponseType<any, any, any>> | ResponseType<any, any, any>;
+) => Promise<ResponseReturnType<any, any, AdapterType>> | ResponseReturnType<any, any, AdapterType>;
 
 // Stringify
 

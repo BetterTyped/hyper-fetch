@@ -1,21 +1,9 @@
-import {
-  getAdapterBindings,
-  defaultTimeout,
-  ResponseType,
-  BaseAdapterType,
-  AdapterAdditionalDataType,
-  AdapterOptionsType,
-  QueryParamsType,
-} from "adapter";
-import { HttpMethodsType } from "types";
+import { getAdapterBindings, defaultTimeout, ResponseReturnType, BaseAdapterType } from "adapter";
 import { parseErrorResponse, parseResponse } from "./adapter.utils";
+import { RequestInstance } from "../request";
+import { ExtractErrorType, ExtractResponseType } from "../types";
 
-export const adapter: BaseAdapterType<
-  AdapterOptionsType,
-  HttpMethodsType,
-  AdapterAdditionalDataType,
-  QueryParamsType
-> = async (request, requestId) => {
+export const adapter: BaseAdapterType = async <T extends RequestInstance>(request: T, requestId) => {
   const {
     fullUrl,
     headers,
@@ -32,7 +20,7 @@ export const adapter: BaseAdapterType<
     onError,
     onResponseEnd,
     onTimeoutError,
-  } = await getAdapterBindings<AdapterAdditionalDataType>(request, requestId);
+  } = await getAdapterBindings(request, requestId);
 
   const { method = "GET" } = request;
 
@@ -41,7 +29,7 @@ export const adapter: BaseAdapterType<
 
   const abort = () => xhr.abort();
 
-  return new Promise<ResponseType<unknown, unknown, AdapterAdditionalDataType>>((resolve) => {
+  return new Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, BaseAdapterType>>((resolve) => {
     // Inject xhr options
     Object.entries(config).forEach(([name, value]) => {
       xhr[name] = value;
@@ -54,7 +42,7 @@ export const adapter: BaseAdapterType<
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener({ status: 0 }, abort, resolve);
+    const unmountListener = createAbortListener(0, {}, abort, resolve);
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -72,7 +60,7 @@ export const adapter: BaseAdapterType<
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError({ status: 0 }, resolve);
+    xhr.ontimeout = () => onTimeoutError(0, {}, resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -85,11 +73,11 @@ export const adapter: BaseAdapterType<
 
         if (isSuccess) {
           const data = parseResponse(event.target.response);
-          onSuccess(data, { status }, resolve);
+          onSuccess(data, status, {}, resolve);
         } else {
           // delay to finish after onabort/ontimeout
           const data = parseErrorResponse(event.target.response);
-          onError(data, { status }, resolve);
+          onError(data, status, {}, resolve);
         }
       }
     };

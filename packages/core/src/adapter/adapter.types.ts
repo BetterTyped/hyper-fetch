@@ -1,12 +1,13 @@
 import { RequestInstance } from "request";
-import { HttpMethodsType } from "../types";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsType, HttpStatusType } from "../types";
 
 // Adapter
 
-export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any> ? M : never;
-export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, infer A, any> ? A : never;
-export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, infer Q> ? Q : never;
+export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
+export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
 
 export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -14,32 +15,42 @@ export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MethodType = HttpMethodsType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  StatusType = HttpStatusType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QueryParams = QueryParamsType,
-> = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any, any>>;
+> = <T extends RequestInstance>(
+  request: RequestInstance,
+  requestId: string,
+) => Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>;
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
-export type AdapterAdditionalDataType = { status: null | number };
+
+// TODO - add headers later
+export type AdapterAdditionalDataType = Record<string, any>;
 
 export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseType<GenericDataType, GenericErrorType, AdditionalData> = {
+export type ResponseReturnType<GenericDataType, GenericErrorType, AdapterType extends BaseAdapterType> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;
-  additionalData: AdditionalData;
+  status: ExtractAdapterStatusType<AdapterType> | null;
+  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
-export type ResponseSuccessType<GenericDataType, AdditionalData> = {
+export type ResponseReturnSuccessType<GenericDataType, AdapterType extends BaseAdapterType> = {
   data: GenericDataType;
   error: null;
-  additionalData: AdditionalData;
+  status: ExtractAdapterStatusType<AdapterType> | null;
+  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
-export type ResponseErrorType<GenericErrorType, AdditionalData> = {
+export type ResponseReturnErrorType<GenericErrorType, AdapterType extends BaseAdapterType> = {
   data: null;
   error: GenericErrorType;
-  additionalData: AdditionalData;
+  status: ExtractAdapterStatusType<AdapterType> | null;
+  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 
 // QueryParams

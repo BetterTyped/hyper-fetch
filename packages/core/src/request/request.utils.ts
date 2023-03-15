@@ -1,4 +1,4 @@
-import { ProgressType, ResponseType, getErrorMessage, ExtractAdapterAdditionalDataType } from "adapter";
+import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
 import { AdapterProgressEventType, RequestInstance, RequestDump, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
@@ -110,7 +110,7 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const requestSendRequest = <Request extends RequestInstance>(
+export const sendRequest = <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
 ) => {
@@ -118,11 +118,7 @@ export const requestSendRequest = <Request extends RequestInstance>(
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
   return new Promise<
-    ResponseType<
-      ExtractResponseType<Request>,
-      ExtractErrorType<Request>,
-      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
-    >
+    ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
   >((resolve) => {
     const requestId = dispatcher.add(request);
     options?.onSettle?.(requestId, request);
@@ -147,7 +143,7 @@ export const requestSendRequest = <Request extends RequestInstance>(
     const unmountResponse = requestManager.events.onResponseById<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
-      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
+      ExtractAdapterType<Request>
     >(requestId, (response, details) => {
       const isFailed = isFailedRequest(response);
       const isOfflineStatus = request.offline && details.isOffline;
@@ -172,6 +168,7 @@ export const requestSendRequest = <Request extends RequestInstance>(
       options.onRemove?.(...props);
       resolve({
         data: null,
+        status: null,
         error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
         additionalData: request.client.defaultAdditionalData,
       });

@@ -21,7 +21,7 @@ import {
   getRemoveEventKey,
   getRemoveIdEventKey,
 } from "managers";
-import { ProgressType, ResponseType } from "adapter";
+import { BaseAdapterType, ProgressType, ResponseReturnType } from "adapter";
 import { RequestInstance } from "request";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
@@ -66,10 +66,10 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  emitResponse: (
+  emitResponse: <AdapterType extends BaseAdapterType>(
     cacheKey: string,
     requestId: string,
-    response: ResponseType<unknown, unknown, unknown>,
+    response: ResponseReturnType<unknown, unknown, AdapterType>,
     details: ResponseDetailsType,
   ): void => {
     emitter.emit(getResponseIdEventKey(requestId), response, details);
@@ -164,17 +164,17 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  onResponse: <Response, ErrorType, AdditionalData>(
+  onResponse: <Response, ErrorType, AdapterType extends BaseAdapterType>(
     cacheKey: string,
-    callback: (response: ResponseType<Response, ErrorType, AdditionalData>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseEventKey(cacheKey), callback);
     return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
   },
   // Response by requestId
-  onResponseById: <Response, ErrorType, AdditionalData>(
+  onResponseById: <Response, ErrorType, AdapterType extends BaseAdapterType>(
     requestId: string,
-    callback: (response: ResponseType<Response, ErrorType, AdditionalData>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseIdEventKey(requestId), callback);
     return () => emitter.removeListener(getResponseIdEventKey(requestId), callback);

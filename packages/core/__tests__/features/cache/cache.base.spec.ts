@@ -1,13 +1,14 @@
-import { AdapterAdditionalDataType, ResponseSuccessType } from "adapter";
+import { BaseAdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createClient, createCache, createRequest, sleep } from "../../utils";
 
 describe("Cache [ Base ]", () => {
-  const response: ResponseSuccessType<unknown, AdapterAdditionalDataType> = {
+  const response: ResponseReturnSuccessType<unknown, BaseAdapterType> = {
     data: 123,
     error: null,
-    additionalData: { status: 200 },
+    status: 200,
+    additionalData: {},
   };
   const details: ResponseDetailsType = {
     retries: 0,

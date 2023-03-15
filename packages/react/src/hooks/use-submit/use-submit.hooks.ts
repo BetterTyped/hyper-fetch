@@ -3,9 +3,9 @@ import {
   Request,
   getRequestKey,
   ExtractAdapterReturnType,
-  requestSendRequest,
   RequestInstance,
-  ResponseType,
+  sendRequest,
+  ResponseReturnType,
   ExtractResponseType,
   ExtractErrorType,
   RequestSendOptionsType,
@@ -58,7 +58,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const bounceResolver = useRef<
     (
-      value: ResponseType<
+      value: ResponseReturnType<
         ExtractResponseType<RequestType>,
         ExtractErrorType<RequestType>,
         ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
@@ -108,17 +108,17 @@ export const useSubmit = <RequestType extends RequestInstance>(
         error: new Error("Cannot submit request. Option 'disabled' is enabled"),
         additionalData: request.client.defaultAdditionalData,
       }) as Promise<
-        ResponseType<
+        ResponseReturnType<
           ExtractResponseType<RequestType>,
           ExtractErrorType<RequestType>,
-          ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+          ExtractAdapterType<RequestType>
         >
       >;
     }
 
     const triggerRequest = () => {
       addDataListener(requestClone);
-      return requestSendRequest(requestClone, {
+      return sendRequest(requestClone, {
         dispatcherType: "submit",
         ...submitOptions,
         onSettle: (requestId, cmd) => {
@@ -137,10 +137,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (
-            value: ResponseType<
+            value: ResponseReturnType<
               ExtractResponseType<RequestType>,
               ExtractErrorType<RequestType>,
-              ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+              ExtractAdapterType<RequestType>
             >,
           ) => {
             // Trigger previous awaiting calls to resolve together in bounced batches

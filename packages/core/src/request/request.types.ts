@@ -15,13 +15,12 @@ import {
 } from "types";
 import { Request } from "request";
 import {
-  ResponseType,
+  ResponseReturnType,
   QueryParamsType,
   ProgressType,
   ExtractAdapterOptions,
   BaseAdapterType,
   ExtractAdapterMethodType,
-  ExtractAdapterAdditionalDataType,
 } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
@@ -272,11 +271,7 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
   onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onResponse?: (
-    response: ResponseType<
-      ExtractResponseType<Request>,
-      ExtractErrorType<Request>,
-      ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
-    >,
+    response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
     details: ResponseDetailsType,
   ) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
@@ -288,29 +283,17 @@ export type RequestSendType<Request extends RequestInstance> =
       ? (
           options?: RequestSendOptionsType<Request>,
         ) => Promise<
-          ResponseType<
-            ExtractResponseType<Request>,
-            ExtractErrorType<Request>,
-            ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
-          >
+          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
       : (
           options?: RequestSendOptionsType<Request>,
         ) => Promise<
-          ResponseType<
-            ExtractResponseType<Request>,
-            ExtractErrorType<Request>,
-            ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
-          >
+          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
     : (
         options?: RequestSendOptionsType<Request>,
       ) => Promise<
-        ResponseType<
-          ExtractResponseType<Request>,
-          ExtractErrorType<Request>,
-          ExtractAdapterAdditionalDataType<ExtractAdapterType<Request>>
-        >
+        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
       >;
 
 // Instance
@@ -322,7 +305,7 @@ export type RequestInstance = Request<
   any,
   any,
   any,
-  BaseAdapterType<any, any, any, any>,
+  BaseAdapterType<any, any, any, any, any>,
   any,
   any,
   any,

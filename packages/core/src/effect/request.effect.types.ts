@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseErrorType, ResponseType, ResponseSuccessType, ExtractAdapterAdditionalDataType } from "adapter";
+import { ResponseReturnErrorType, ResponseReturnType, ResponseReturnSuccessType } from "adapter";
 import { RequestEffect } from "effect";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
@@ -24,25 +24,21 @@ export type RequestEffectOptionsType<T extends RequestInstance> = {
    * Callback that will be executed when response is successful
    */
   onSuccess?: (
-    response: ResponseSuccessType<ExtractResponseType<T>, ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>>,
+    response: ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>,
     request: RequestInstance,
   ) => void;
   /**
    * Callback that will be executed when response is failed
    */
   onError?: (
-    response: ResponseErrorType<ExtractErrorType<T>, ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>>,
+    response: ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>,
     request: RequestInstance,
   ) => void;
   /**
    * Callback that will be executed when response is finished
    */
   onFinished?: (
-    response: ResponseType<
-      ExtractResponseType<T>,
-      ExtractErrorType<T>,
-      ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
-    >,
+    response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     request: RequestInstance,
   ) => void;
 };

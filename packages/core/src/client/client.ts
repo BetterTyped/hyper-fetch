@@ -1,6 +1,6 @@
 import {
   adapter as defaultAdapter,
-  ResponseType,
+  ResponseReturnType,
   QueryStringifyOptionsType,
   HeaderMappingType,
   AdapterPayloadMappingType,
@@ -61,9 +61,8 @@ export class Client<
   submitDispatcher: Dispatcher;
 
   defaultMethod: ExtractAdapterMethodType<AdapterType> = HttpMethodsEnum.get as ExtractAdapterMethodType<AdapterType>;
-  defaultAdditionalData: ExtractAdapterAdditionalDataType<AdapterType> = {
-    status: null,
-  } as ExtractAdapterAdditionalDataType<AdapterType>;
+  defaultAdditionalData: ExtractAdapterAdditionalDataType<AdapterType> =
+    {} as ExtractAdapterAdditionalDataType<AdapterType>;
 
   // Registered requests effect
   effects: RequestEffectInstance[] = [];
@@ -220,7 +219,7 @@ export class Client<
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
   onError = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, AdapterType>,
   ): Client<GlobalErrorType, AdapterType> => {
     this.__onErrorCallbacks.push(callback);
     return this;
@@ -230,7 +229,7 @@ export class Client<
    * Method for intercepting success responses.
    */
   onSuccess = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, AdapterType>,
   ): Client<GlobalErrorType, AdapterType> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
@@ -248,7 +247,7 @@ export class Client<
    * Method for intercepting any responses.
    */
   onResponse = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, AdapterType>,
   ): Client<GlobalErrorType, AdapterType> => {
     this.__onResponseCallbacks.push(callback);
     return this;
@@ -287,40 +286,25 @@ export class Client<
    * Private helper to run async on-error response processing
    */
   __modifyErrorResponse = async (
-    response: ResponseType<any, GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    response: ResponseReturnType<any, GlobalErrorType, AdapterType>,
     request: RequestInstance,
-  ) =>
-    interceptResponse<GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>(
-      this.__onErrorCallbacks,
-      response,
-      request,
-    );
+  ) => interceptResponse<GlobalErrorType, AdapterType>(this.__onErrorCallbacks, response, request);
 
   /**
    * Private helper to run async on-success response processing
    */
   __modifySuccessResponse = async (
-    response: ResponseType<any, GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    response: ResponseReturnType<any, GlobalErrorType, AdapterType>,
     request: RequestInstance,
-  ) =>
-    interceptResponse<GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>(
-      this.__onSuccessCallbacks,
-      response,
-      request,
-    );
+  ) => interceptResponse<GlobalErrorType, AdapterType>(this.__onSuccessCallbacks, response, request);
 
   /**
    * Private helper to run async response processing
    */
   __modifyResponse = async (
-    response: ResponseType<any, GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>,
+    response: ResponseReturnType<any, GlobalErrorType, AdapterType>,
     request: RequestInstance,
-  ) =>
-    interceptResponse<GlobalErrorType, ExtractAdapterAdditionalDataType<AdapterType>>(
-      this.__onResponseCallbacks,
-      response,
-      request,
-    );
+  ) => interceptResponse<GlobalErrorType, AdapterType>(this.__onResponseCallbacks, response, request);
 
   /**
    * Clears the Client instance and remove all listeners on it's dependencies

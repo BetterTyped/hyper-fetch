@@ -1,11 +1,5 @@
 import { RequestEffect } from "effect";
-import {
-  getAdapterBindings,
-  AdapterOptionsType,
-  ResponseType,
-  getErrorMessage,
-  AdapterAdditionalDataType,
-} from "adapter";
+import { getAdapterBindings, AdapterOptionsType, ResponseReturnType, getErrorMessage, BaseAdapterType } from "adapter";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createClient, createRequest, sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
@@ -16,15 +10,17 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const requestId = "test";
   const queryParams = "?query=params";
   const data = { value: 1 };
-  const successResponse: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+  const successResponse: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
     data,
     error: null,
-    additionalData: { status: 200 },
+    status: 200,
+    additionalData: {},
   };
-  const errorResponse: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+  const errorResponse: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
     data: null,
     error: data,
-    additionalData: { status: 400 },
+    status: 400,
+    additionalData: {},
   };
   const requestConfig: AdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
@@ -101,7 +97,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const resolveSpy = jest.fn();
         request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
-        const unmount = createAbortListener({ status: 0 }, spy, resolveSpy);
+        const unmount = createAbortListener(0, {}, spy, resolveSpy);
         expect(spy).toBeCalledTimes(0);
         expect(resolveSpy).toBeCalledTimes(0);
         controller?.abort();
@@ -117,7 +113,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const resolveSpy = jest.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener({ status: 0 }, spy, resolveSpy);
+        const unmount = createAbortListener(0, {}, spy, resolveSpy);
         expect(spy).toBeCalledTimes(0);
         expect(resolveSpy).toBeCalledTimes(0);
         unmount();
@@ -131,7 +127,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         client.requestManager.abortControllers.clear();
         expect(() =>
           createAbortListener(
-            { status: 0 },
+            0,
+            {},
             () => null,
             () => null,
           ),
@@ -367,12 +364,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
     describe("when onSuccess got executed", () => {
       it("should return success data", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
-        const response = await onSuccess(data, { status: 200 }, () => null);
+        const response = await onSuccess(data, 200, {}, () => null);
         expect(response).toEqual(successResponse);
       });
       it("should use effect lifecycle methods", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
-        await onSuccess(data, { status: 200 }, () => null);
+        await onSuccess(data, 200, {}, () => null);
         expect(onSuccessSpy).toBeCalledTimes(1);
         expect(onFinishedSpy).toBeCalledTimes(1);
         expect(onSuccessSpy).toBeCalledWith(successResponse, request);
@@ -381,27 +378,28 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should return data transformed by __modifyResponse", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
         client.__onResponseCallbacks.push(() => successResponse);
-        const response = await onSuccess(data, { status: 200 }, () => null);
+        const response = await onSuccess(data, 200, {}, () => null);
         client.__onResponseCallbacks = [];
         expect(response).toEqual(successResponse);
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
         client.__onSuccessCallbacks.push(() => successResponse);
-        const response = await onSuccess(data, { status: 200 }, () => null);
+        const response = await onSuccess(data, 200, {}, () => null);
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(successResponse);
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId);
-        const newData: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+        const newData: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
           data: "modified",
           error: null,
-          additionalData: { status: 222 },
+          status: 222,
+          additionalData: {},
         };
         client.__onResponseCallbacks.push(() => errorResponse);
         client.__onSuccessCallbacks.push(() => newData);
-        const response = await onSuccess(data, { status: 200 }, () => null);
+        const response = await onSuccess(data, 200, {}, () => null);
         client.__onResponseCallbacks = [];
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(newData);
@@ -412,12 +410,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
     describe("when onError got executed", () => {
       it("should return error data", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
-        const response = await onError(data, { status: 400 }, () => null);
+        const response = await onError(data, 400, {}, () => null);
         expect(response).toEqual(errorResponse);
       });
       it("should use effect lifecycle methods", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
-        await onError(data, { status: 400 }, () => null);
+        await onError(data, 400, {}, () => null);
         expect(onErrorSpy).toBeCalledTimes(1);
         expect(onFinishedSpy).toBeCalledTimes(1);
         expect(onErrorSpy).toBeCalledWith(errorResponse, request);
@@ -426,27 +424,28 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should return data transformed by __modifyResponse", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
         client.__onResponseCallbacks.push(() => errorResponse);
-        const response = await onError(data, { status: 400 }, () => null);
+        const response = await onError(data, 400, {}, () => null);
         client.__onResponseCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
       it("should return data transformed by __modifyErrorResponse", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
         client.__onErrorCallbacks.push(() => errorResponse);
-        const response = await onError(data, { status: 400 }, () => null);
+        const response = await onError(data, 400, {}, () => null);
         client.__onErrorCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
       it("should execute __modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings(request, requestId);
-        const newData: ResponseType<unknown, unknown, AdapterAdditionalDataType> = {
+        const newData: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
           data: "modified",
           error: 444,
-          additionalData: { status: null },
+          status: null,
+          additionalData: {},
         };
         client.__onResponseCallbacks.push(() => successResponse);
         client.__onErrorCallbacks.push(() => newData);
-        const response = await onError(data, { status: 400 }, () => null);
+        const response = await onError(data, 400, {}, () => null);
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
         expect(response).toEqual(newData);
@@ -457,18 +456,18 @@ describe("Fetch Adapter [ Bindings ]", () => {
     describe("when errors methods got executed", () => {
       it("should return correct message when onAbortError is executed", async () => {
         const { onAbortError } = await getAdapterBindings(request, requestId);
-        const response = await onAbortError({ status: 0 }, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage("abort"), status: 0 });
+        const response = await onAbortError(0, {}, () => null);
+        expect(response).toEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
       });
       it("should return correct message when onTimeoutError is executed", async () => {
         const { onTimeoutError } = await getAdapterBindings(request, requestId);
-        const response = await onTimeoutError({ status: 0 }, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage("timeout"), status: 0 });
+        const response = await onTimeoutError(0, {}, () => null);
+        expect(response).toEqual({ data: null, error: getErrorMessage("timeout"), status: 0, additionalData: {} });
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
         const { onUnexpectedError } = await getAdapterBindings(request, requestId);
-        const response = await onUnexpectedError({ status: 0 }, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage(), status: 0 });
+        const response = await onUnexpectedError(0, {}, () => null);
+        expect(response).toEqual({ data: null, error: getErrorMessage(), status: 0, additionalData: {} });
       });
     });
   });

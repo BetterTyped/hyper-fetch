@@ -1,10 +1,10 @@
-import { ExtractAdapterAdditionalDataType, ResponseType } from "adapter";
+import { ResponseReturnType } from "adapter";
 import { ExtractRouteParams, Request, RequestInstance } from "request";
 
-export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseType<
+export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseReturnType<
   ExtractResponseType<T>,
   ExtractErrorType<T>,
-  ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+  ExtractAdapterType<T>
 >;
 
 export type ExtractResponseType<T> = T extends Request<infer D, any, any, any, any, any, any, any, any, any, any>
