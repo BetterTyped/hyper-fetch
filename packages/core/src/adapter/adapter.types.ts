@@ -19,7 +19,7 @@ export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  QueryParams = QueryParamsType,
+  QueryParams = QueryParamsType | string,
 > = <T extends RequestInstance>(
   request: T,
   requestId: string,
