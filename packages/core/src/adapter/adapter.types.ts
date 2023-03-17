@@ -21,7 +21,7 @@ export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QueryParams = QueryParamsType,
 > = <T extends RequestInstance>(
-  request: RequestInstance,
+  request: T,
   requestId: string,
 ) => Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>;
 

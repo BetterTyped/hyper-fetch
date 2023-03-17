@@ -6,8 +6,9 @@ import {
   ResponseReturnType,
   RequestInstance,
   LoggerType,
-  ExtractAdapterAdditionalDataType,
   ExtractAdapterType,
+  ExtractAdapterStatusType,
+  ExtractAdapterAdditionalDataType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -46,6 +47,10 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
    */
   loading: boolean;
   /**
+   * Request status
+   */
+  status: ExtractAdapterStatusType<ExtractAdapterType<T>>;
+  /**
    * Request additional response data
    */
   additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>;
@@ -74,6 +79,10 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   /**
    * Action to set custom status. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   */
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  /**
+   * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
   setAdditionalData: (
     additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>,

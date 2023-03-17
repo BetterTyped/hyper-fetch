@@ -228,6 +228,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
       setRenderKey("loading");
       return state.loading;
     },
+    get status() {
+      setRenderKey("status");
+      return state.status;
+    },
     get additionalData() {
       setRenderKey("additionalData");
       return state.additionalData;

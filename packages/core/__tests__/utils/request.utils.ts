@@ -1,9 +1,9 @@
-import { ClientInstance } from "client";
+import { Client, ClientInstance } from "client";
 import { RequestOptionsType } from "request";
-import { AdapterOptionsType } from "adapter";
+import { AdapterOptionsType, BaseAdapterType } from "adapter";
 
 export const createRequest = <T extends ClientInstance, ResponseType = any, PayloadType = any>(
-  client: T,
+  client: Client<Error, BaseAdapterType>,
   options?: Partial<RequestOptionsType<string, AdapterOptionsType>>,
 ) => {
   return client.createRequest<ResponseType, PayloadType>()({ endpoint: "/shared-endpoint", ...options });

@@ -335,9 +335,9 @@ export class Client<
     Response,
     Payload = undefined,
     LocalError extends ClientErrorType | undefined = undefined,
-    QueryParams extends ExtractAdapterQueryParamsType<AdapterType> | string =
+    QueryParams extends
       | ExtractAdapterQueryParamsType<AdapterType>
-      | string,
+      | string = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
     return <EndpointType extends string>(
       params: RequestOptionsType<
