@@ -140,7 +140,7 @@ describe("useSubmit [ Base ]", () => {
       expect(data).toStrictEqual([mock, null, 200]);
     });
     it("should throw error when hook is disabled", async () => {
-      let data = [];
+      let data = {};
       createRequestInterceptor(request);
       const response = renderUseSubmit(request, { disabled: true });
 

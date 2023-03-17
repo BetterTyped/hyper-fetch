@@ -5,6 +5,7 @@ import {
   ExtractResponseType,
   ExtractErrorType,
   ExtractAdapterType,
+  BaseAdapterType,
 } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
@@ -14,7 +15,12 @@ export const createCacheData = <T extends RequestInstance>(
     details?: Partial<ResponseDetailsType>;
   },
 ) => {
-  const dataValue = rest?.data || [{ data: 1 } as ExtractResponseType<T>, null, 200];
+  const dataValue = rest?.data || {
+    data: { data: 1 } as ExtractResponseType<T>,
+    error: null,
+    status: 200,
+    additionalData: {},
+  };
   const detailsValue = {
     retries: 0,
     timestamp: +new Date(),
@@ -26,7 +32,7 @@ export const createCacheData = <T extends RequestInstance>(
     ...rest?.details,
   };
 
-  request.client.cache.storage.set(request.cacheKey, {
+  request.client.cache.storage.set<any, any, BaseAdapterType>(request.cacheKey, {
     data: dataValue,
     details: detailsValue,
     cacheTime: 1000,

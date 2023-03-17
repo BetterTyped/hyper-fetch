@@ -55,7 +55,7 @@ describe("useTrackingState [ Events ]", () => {
         act(() => {
           result.current[2].setRenderKey("data");
           result.current[2].setCacheData({
-            data: [true, null, 200],
+            data: { data: true, error: null, status: 200, additionalData: {} },
             details: {
               retries: 0,
               timestamp: +new Date(),
@@ -80,7 +80,7 @@ describe("useTrackingState [ Events ]", () => {
         act(() => {
           result.current[2].setRenderKey("data");
           result.current[2].setCacheData({
-            data: [true, null, 200],
+            data: { data: true, error: null, status: 200, additionalData: {} },
             details: {
               retries: 0,
               timestamp: null,

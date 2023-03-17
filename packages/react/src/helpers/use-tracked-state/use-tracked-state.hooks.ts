@@ -1,6 +1,12 @@
 import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
-import { ExtractErrorType, CacheValueType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
+import {
+  ExtractErrorType,
+  CacheValueType,
+  ExtractResponseType,
+  RequestInstance,
+  ExtractAdapterType,
+} from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -119,7 +125,9 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const setCacheData = async (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => {
+  const setCacheData = async (
+    cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ) => {
     const newStateValues: UseTrackedStateType<T> = {
       data: cacheData.data.data,
       error: cacheData.data.error,
