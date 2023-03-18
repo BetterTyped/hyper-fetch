@@ -1,10 +1,5 @@
 import { Cache } from "cache";
-import {
-  BaseAdapterType,
-  ExtractAdapterAdditionalDataType,
-  ExtractAdapterStatusType,
-  ResponseReturnType,
-} from "adapter";
+import { BaseAdapterType, ResponseReturnType } from "adapter";
 import { ResponseDetailsType } from "managers";
 
 export type CacheOptionsType = {

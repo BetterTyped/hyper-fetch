@@ -43,6 +43,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
+    expect(additionalData).toStrictEqual({});
   });
 
   it("should make a request and return error data with status", async () => {
@@ -92,6 +93,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toEqual(mock);
     expect(error).toBeNull();
     expect(status).toEqual(200);
+    expect(additionalData).toStrictEqual({});
   });
 
   it("should allow to make post request with FormData", async () => {

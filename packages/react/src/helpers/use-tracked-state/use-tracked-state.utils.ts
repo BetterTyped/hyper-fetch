@@ -77,12 +77,12 @@ export const getInitialState = <T extends RequestInstance>(
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
   return {
-    data: cacheState?.data.data || initialState.data,
-    error: cacheState?.data.error || initialState.error,
-    status: cacheState?.data.status || initialState.status,
-    additionalData: cacheState?.data.additionalData || request.client.defaultAdditionalData,
-    retries: cacheState?.details.retries || initialState.retries,
-    timestamp: getTimestamp(cacheState?.details.timestamp || initialState.timestamp),
+    data: cacheState?.data.data ?? initialState.data,
+    error: cacheState?.data.error ?? initialState.error,
+    status: cacheState?.data.status ?? initialState.status,
+    additionalData: cacheState?.data.additionalData ?? request.client.defaultAdditionalData,
+    retries: cacheState?.details.retries ?? initialState.retries,
+    timestamp: getTimestamp(cacheState?.details.timestamp ?? initialState.timestamp),
     loading: initialLoading,
   };
 };

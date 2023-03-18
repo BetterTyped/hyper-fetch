@@ -44,7 +44,7 @@ describe("useFetch [ Base ]", () => {
       const view = renderUseFetch(request);
       await testCacheState(cache, view);
     });
-    it.only("should not load stale cache data", async () => {
+    it("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
       const mock = createRequestInterceptor(request, { delay: 50 });
@@ -57,7 +57,7 @@ describe("useFetch [ Base ]", () => {
 
       const view = renderUseFetch(request.setCacheTime(10));
 
-      await testCacheState({ data: null, error: null, status: null, additionalData: null }, view);
+      await testCacheState({ data: null, error: null, status: null, additionalData: {} }, view);
     });
     it("should allow to use initial data", async () => {
       const initialData: ResponseReturnType<unknown, Error, BaseAdapterType> = {
