@@ -78,9 +78,9 @@ export const useTrackedState = <T extends RequestInstance>({
       // Get cache state
       const newState = getInitialState(initialData, dispatcher, request);
 
-      const hasInitialState = initialData?.[0] === state.current.data;
+      const hasInitialState = isEqual(initialData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
-      const shouldLoadInitialCache = !hasState && state.current.data;
+      const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
       if (shouldLoadInitialCache || shouldRemovePreviousData) {

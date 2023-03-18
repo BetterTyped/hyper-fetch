@@ -47,7 +47,7 @@ describe("useFetch [ Base ]", () => {
     it.only("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
-      const mock = createRequestInterceptor(request, { delay: 20 });
+      const mock = createRequestInterceptor(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
           data: { data: mock, error: null, status: 200, additionalData: {} },
