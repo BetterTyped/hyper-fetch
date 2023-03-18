@@ -1,3 +1,4 @@
+import { RequestSendType } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -34,7 +35,7 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual([mock, null, 200]);
+      expect(data).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
     });
     it("should call onSettle", async () => {
       const spy = jest.fn();
@@ -60,7 +61,7 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual([mock, null, 200]);
+      expect(data).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
     });
     it("should return data from submit method on offline", async () => {
       let data: unknown = null;
@@ -79,7 +80,7 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual([mock, null, 200]);
+      expect(data).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
     });
     it("should allow to change submit details", async () => {
       // Todo
@@ -137,21 +138,23 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: null, queryParams: "?something=test" });
       });
 
-      expect(data).toStrictEqual([mock, null, 200]);
+      expect(data).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
     });
     it("should throw error when hook is disabled", async () => {
-      let data = {};
+      let res: Awaited<ReturnType<RequestSendType<typeof request>>> = {} as Awaited<
+        ReturnType<RequestSendType<typeof request>>
+      >;
       createRequestInterceptor(request);
       const response = renderUseSubmit(request, { disabled: true });
 
       await act(async () => {
-        data = await response.result.current.submit({ data: { value: "string" } });
+        res = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toHaveLength(3);
-      expect(data[0]).toBeNull();
-      expect(data[1]).toBeInstanceOf(Error);
-      expect(data[2]).toBe(0);
+      expect(res.data).toBeNull();
+      expect(res.error).toBeInstanceOf(Error);
+      expect(res.status).toBe(null);
+      expect(res.additionalData).toStrictEqual({});
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
@@ -168,7 +171,7 @@ describe("useSubmit [ Base ]", () => {
         });
       });
 
-      expect(data).toStrictEqual([mock, null, 200]);
+      expect(data).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
     });
   });
 });

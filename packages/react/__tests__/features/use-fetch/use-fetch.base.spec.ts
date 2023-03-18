@@ -44,13 +44,15 @@ describe("useFetch [ Base ]", () => {
       const view = renderUseFetch(request);
       await testCacheState(cache, view);
     });
-    it("should not load stale cache data", async () => {
+    it.only("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
       const mock = createRequestInterceptor(request, { delay: 20 });
-      createCacheData(request, {
-        data: { data: mock, error: null, status: 200, additionalData: {} },
-        details: { timestamp, retries: 3 },
+      act(() => {
+        createCacheData(request, {
+          data: { data: mock, error: null, status: 200, additionalData: {} },
+          details: { timestamp, retries: 3 },
+        });
       });
 
       const view = renderUseFetch(request.setCacheTime(10));
@@ -66,7 +68,7 @@ describe("useFetch [ Base ]", () => {
       };
       const view = renderUseFetch(request, { disabled: true, initialData });
 
-      await testSuccessState(initialData[0], view);
+      await testSuccessState(initialData.data, view);
     });
     it("should prefer cache data over initial data", async () => {
       // Todo

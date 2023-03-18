@@ -11,7 +11,6 @@ import {
   RequestSendOptionsType,
   RequestSendType,
   ExtractAdapterType,
-  ExtractAdapterAdditionalDataType,
 } from "@hyper-fetch/core";
 import { useDidMount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
@@ -61,7 +60,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       value: ResponseReturnType<
         ExtractResponseType<RequestType>,
         ExtractErrorType<RequestType>,
-        ExtractAdapterAdditionalDataType<ExtractAdapterType<RequestType>>
+        ExtractAdapterType<RequestType>
       >,
     ) => void
   >(() => null);
@@ -106,6 +105,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       return Promise.resolve({
         data: null,
         error: new Error("Cannot submit request. Option 'disabled' is enabled"),
+        status: null,
         additionalData: request.client.defaultAdditionalData,
       }) as Promise<
         ResponseReturnType<

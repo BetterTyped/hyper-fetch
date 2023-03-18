@@ -64,7 +64,7 @@ describe("useCache [ Base ]", () => {
         client.cache.set(request, cacheData.data, cacheData.details);
         const response = renderUseCache(request);
 
-        await testSuccessState(cacheData.data[0], response);
+        await testSuccessState(cacheData.data.data, response);
         expect(+response.result.current.timestamp).toBe(cacheData.details.timestamp);
         expect(response.result.current.retries).toBe(0);
       });

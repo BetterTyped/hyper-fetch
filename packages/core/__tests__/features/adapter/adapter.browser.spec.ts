@@ -75,16 +75,12 @@ describe("Fetch Adapter [ Browser ]", () => {
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
 
-    const {
-      data: response,
-      error,
-      status,
-      additionalData: {},
-    } = await adapter(request, requestId);
+    const { data: response, error, status, additionalData } = await adapter(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
+    expect(additionalData).toStrictEqual({});
     window.XMLHttpRequest = xml;
   });
 });

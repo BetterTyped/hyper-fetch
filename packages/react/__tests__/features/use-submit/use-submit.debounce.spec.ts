@@ -98,7 +98,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         expect(value).toHaveLength(4);
         const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
-          return !!res[0] && !res[1] && res[2] === 200;
+          return !!res.data && !res.error && res.status === 200 && res.additionalData;
         };
         expect(value).toSatisfyAny(isResponse);
         expect(value).toHaveLength(4);
@@ -242,7 +242,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         expect(value).toHaveLength(4);
         const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
-          return !!res[0] && !res[1] && res[2] === 200;
+          return !!res.data && !res.error && res.status === 200 && !!res.additionalData;
         };
         expect(value).toSatisfyAny(isResponse);
         expect(value).toHaveLength(4);

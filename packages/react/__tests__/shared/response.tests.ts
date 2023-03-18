@@ -29,6 +29,7 @@ export const testSuccessState = async <
     expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
     expect(response.status).toBe(200);
+    expect(response.additionalData).toStrictEqual({});
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
@@ -55,6 +56,7 @@ export const testErrorState = async <
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
+    expect(response.additionalData).toStrictEqual({});
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
@@ -71,9 +73,10 @@ export const testCacheState = async <T extends ResponseReturnType<any, any, any>
 ) => {
   await waitFor(() => {
     const response = getCurrentState(render);
-    expect(response.data).toStrictEqual(mock[0]);
-    expect(response.error).toStrictEqual(mock[1]);
-    expect(response.status).toBe(mock[2]);
+    expect(response.data).toStrictEqual(mock.data);
+    expect(response.error).toStrictEqual(mock.error);
+    expect(response.status).toBe(mock.status);
+    expect(response.additionalData).toStrictEqual(mock.additionalData);
   });
 };
 

@@ -6,12 +6,11 @@ export const getCacheData = <T extends RequestInstance>(
   previousResponse: ExtractAdapterReturnType<T> | undefined,
   response: ExtractAdapterReturnType<T>,
 ): ExtractAdapterReturnType<T> => {
+  const { error, additionalData, status } = response;
   const isFailed = isFailedRequest(response);
 
   const previousData = isFailed && previousResponse ? previousResponse.data : null;
   const data = response.data || previousData;
-  const { error } = response;
-  const { additionalData, status } = response;
 
   return { data, error, status, additionalData };
 };

@@ -2,7 +2,7 @@ import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch, sleep } from "../../utils";
+import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
   let request = createRequest();
@@ -54,6 +54,7 @@ describe("useFetch [ Revalidate ]", () => {
   it("should allow to prevent revalidation on mount", async () => {
     const spy = jest.fn();
     const response = renderUseFetch(request, { revalidateOnMount: false });
+
     act(() => {
       response.result.current.onFinished(() => {
         spy();
@@ -62,7 +63,7 @@ describe("useFetch [ Revalidate ]", () => {
     });
     renderUseFetch(request, { revalidateOnMount: false });
 
-    await sleep(50);
+    await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
   });
   it("should allow to revalidate on mount", async () => {

@@ -1,11 +1,6 @@
 import EventEmitter from "events";
 
-import {
-  BaseAdapterType,
-  ExtractAdapterAdditionalDataType,
-  ExtractAdapterStatusType,
-  ResponseReturnType,
-} from "adapter";
+import { BaseAdapterType, ResponseReturnType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
