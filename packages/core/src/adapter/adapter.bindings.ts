@@ -9,16 +9,16 @@ import {
   BaseAdapterType,
 } from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
-import { ExtractResponseType, ExtractErrorType } from "types";
+import { ExtractResponseType, ExtractErrorType, ExtractAdapterType } from "types";
 
-export const getAdapterBindings = async (cmd: RequestInstance, requestId: string) => {
-  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = cmd.client;
+export const getAdapterBindings = async <R extends RequestInstance>(req: R, requestId: string) => {
+  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
 
   const logger = loggerManager.init("Adapter");
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
-  let request = cmd;
+  let request = req;
 
   // Progress
   let requestTotal = 1;
@@ -29,10 +29,10 @@ export const getAdapterBindings = async (cmd: RequestInstance, requestId: string
   // Pre request modifications
   logger.debug(`Starting request middleware callbacks`);
 
-  request = await request.client.__modifyRequest(cmd);
+  request = (await request.client.__modifyRequest(req)) as R;
 
   if (request.auth) {
-    request = await request.client.__modifyAuth(cmd);
+    request = (await request.client.__modifyAuth(req)) as R;
   }
 
   // Request Setup
@@ -42,9 +42,9 @@ export const getAdapterBindings = async (cmd: RequestInstance, requestId: string
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
   const payload = payloadMapper(data);
-  const config: ExtractAdapterOptions<RequestInstance> = {
+  const config: ExtractAdapterOptions<ExtractAdapterType<R>> = {
     ...request.requestOptions.options,
-  } as ExtractAdapterOptions<RequestInstance>;
+  } as ExtractAdapterOptions<ExtractAdapterType<R>>;
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;

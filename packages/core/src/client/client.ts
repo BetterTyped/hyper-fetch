@@ -188,7 +188,7 @@ export class Client<
     callback: (Client: ClientInstance) => NewAdapterType,
   ): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this) as unknown as AdapterType;
-    return this as ClientInstance;
+    return this as unknown as Client<GlobalErrorType, NewAdapterType>;
   };
 
   /**
