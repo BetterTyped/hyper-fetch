@@ -1,7 +1,7 @@
 import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
 import { AdapterProgressEventType, RequestInstance, RequestDump, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
+import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 export const stringifyKey = (value: unknown): string => {
@@ -145,15 +145,15 @@ export const sendRequest = <Request extends RequestInstance>(
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
     >(requestId, (response, details) => {
-      const isFailed = isFailedRequest(response);
+      const { isSuccess } = response;
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
       // When going offline we can't handle the request as it will be postponed to later resolve
-      if (isFailed && isOfflineStatus) return;
+      if (!isSuccess && isOfflineStatus) return;
 
       // When request is in retry mode we need to listen for retries end
-      if (isFailed && willRetry) return;
+      if (!isSuccess && willRetry) return;
 
       options?.onResponse?.(response, details);
       resolve(response);
@@ -169,6 +169,7 @@ export const sendRequest = <Request extends RequestInstance>(
       resolve({
         data: null,
         status: null,
+        isSuccess: null,
         error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
         additionalData: request.client.defaultAdditionalData,
       });

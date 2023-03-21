@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { adapter, getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { createClient, createRequest } from "../../utils";

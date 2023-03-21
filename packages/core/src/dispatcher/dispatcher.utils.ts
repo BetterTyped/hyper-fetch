@@ -1,5 +1,4 @@
 import { RequestInstance } from "request";
-import { BaseAdapterType, ResponseReturnType } from "adapter";
 import { DispatcherRequestType, DispatcherStorageValueType } from "dispatcher";
 
 // Events
@@ -44,14 +43,4 @@ export const getRequestType = (request: RequestInstance, latestRequest: Dispatch
     return DispatcherRequestType.deduplicated;
   }
   return DispatcherRequestType.allAtOnce;
-};
-
-export const isFailedRequest = <AdapterType extends BaseAdapterType>(
-  data: ResponseReturnType<unknown, unknown, AdapterType>,
-) => {
-  const { status } = data as any;
-  if (!status || status >= 400) {
-    return true;
-  }
-  return false;
 };

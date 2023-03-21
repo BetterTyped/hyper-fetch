@@ -31,7 +31,6 @@ describe("Fetch Adapter [ Server ]", () => {
   it("should pick correct adapter and not throw", async () => {
     createRequestInterceptor(request);
     client.appManager.isBrowser = true;
-    jest.spyOn(global, "window", "get").mockImplementation(() => undefined);
     await expect(() => adapter(request, requestId)).not.toThrow();
   });
 

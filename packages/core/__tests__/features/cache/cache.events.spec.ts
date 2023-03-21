@@ -10,11 +10,11 @@ describe("Cache [ Events ]", () => {
   const spy = jest.fn();
 
   const cacheData: CacheValueType = {
-    data: { data: null, error: null, status: 200, additionalData: {} },
+    data: { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
     details: {
       retries: 0,
       timestamp: +new Date(),
-      isFailed: false,
+      isSuccess: true,
       isCanceled: false,
       isOffline: false,
     },
@@ -58,11 +58,11 @@ describe("Cache [ Events ]", () => {
     it("should revalidate cache using cache key", async () => {
       cache.set(
         request,
-        { data: {}, error: null, status: 200, additionalData: {} },
+        { data: {}, error: null, status: 200, isSuccess: true, additionalData: {} },
         {
           retries: 0,
           timestamp: +new Date(),
-          isFailed: false,
+          isSuccess: true,
           isCanceled: false,
           isOffline: false,
         },
@@ -75,11 +75,11 @@ describe("Cache [ Events ]", () => {
     it("should revalidate cache using regex", async () => {
       cache.set(
         request,
-        { data: null, error: null, status: 200, additionalData: {} },
+        { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
         {
           retries: 0,
           timestamp: +new Date(),
-          isFailed: false,
+          isSuccess: true,
           isCanceled: false,
           isOffline: false,
         },

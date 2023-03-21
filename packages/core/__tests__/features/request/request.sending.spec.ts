@@ -30,14 +30,14 @@ describe("Request [ Sending ]", () => {
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, additionalData: {} });
+      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
       const response = await request.send({});
 
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, additionalData: {} });
+      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
@@ -54,7 +54,7 @@ describe("Request [ Sending ]", () => {
       });
 
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, additionalData: {} });
+      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
       expect(spy).toBeCalledTimes(1);
     });
     it("should wait to resolve request retries", async () => {
@@ -70,7 +70,7 @@ describe("Request [ Sending ]", () => {
       });
 
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, additionalData: {} });
+      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
       expect(spy).toBeCalledTimes(1);
     });
     it("should return error once request got removed", async () => {
@@ -86,6 +86,7 @@ describe("Request [ Sending ]", () => {
         data: null,
         error: getErrorMessage("deleted"),
         status: null,
+        isSuccess: null,
         additionalData: {},
       });
     });
@@ -107,9 +108,21 @@ describe("Request [ Sending ]", () => {
 
       const [res1, res2, res3] = await Promise.all([request.send(), request.send(), request.send()]);
 
-      expect(res1).toStrictEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
-      expect(res2).toStrictEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
-      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
+      expect(res1).toStrictEqual({
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+        isSuccess: false,
+        additionalData: {},
+      });
+      expect(res2).toStrictEqual({
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+        isSuccess: false,
+        additionalData: {},
+      });
+      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
     /**
      * Solve #40 https://github.com/BetterTyped/hyper-fetch/issues/40
@@ -125,9 +138,21 @@ describe("Request [ Sending ]", () => {
 
       const [res1, res2, res3] = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
 
-      expect(res1).toStrictEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
-      expect(res2).toStrictEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
-      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, additionalData: {} });
+      expect(res1).toStrictEqual({
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+        isSuccess: false,
+        additionalData: {},
+      });
+      expect(res2).toStrictEqual({
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+        isSuccess: false,
+        additionalData: {},
+      });
+      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
 
     it("should allow to call the request callbacks", async () => {

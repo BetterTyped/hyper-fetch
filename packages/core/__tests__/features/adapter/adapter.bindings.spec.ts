@@ -13,12 +13,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const successResponse: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
     data,
     error: null,
+    isSuccess: true,
     status: 200,
     additionalData: {},
   };
   const errorResponse: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
     data: null,
     error: data,
+    isSuccess: false,
     status: 400,
     additionalData: {},
   };
@@ -394,6 +396,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const newData: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
           data: "modified",
           error: null,
+          isSuccess: true,
           status: 222,
           additionalData: {},
         };
@@ -440,6 +443,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const newData: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
           data: "modified",
           error: 444,
+          isSuccess: false,
           status: null,
           additionalData: {},
         };
@@ -457,17 +461,35 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should return correct message when onAbortError is executed", async () => {
         const { onAbortError } = await getAdapterBindings(request, requestId);
         const response = await onAbortError(0, {}, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage("abort"), status: 0, additionalData: {} });
+        expect(response).toEqual({
+          data: null,
+          error: getErrorMessage("abort"),
+          status: 0,
+          isSuccess: false,
+          additionalData: {},
+        });
       });
       it("should return correct message when onTimeoutError is executed", async () => {
         const { onTimeoutError } = await getAdapterBindings(request, requestId);
         const response = await onTimeoutError(0, {}, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage("timeout"), status: 0, additionalData: {} });
+        expect(response).toEqual({
+          data: null,
+          error: getErrorMessage("timeout"),
+          status: 0,
+          isSuccess: false,
+          additionalData: {},
+        });
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
         const { onUnexpectedError } = await getAdapterBindings(request, requestId);
         const response = await onUnexpectedError(0, {}, () => null);
-        expect(response).toEqual({ data: null, error: getErrorMessage(), status: 0, additionalData: {} });
+        expect(response).toEqual({
+          data: null,
+          error: getErrorMessage(),
+          status: 0,
+          isSuccess: false,
+          additionalData: {},
+        });
       });
     });
   });

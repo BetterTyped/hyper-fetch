@@ -9,11 +9,11 @@ import { testInitialState, testSuccessState } from "../../shared";
 describe("useCache [ Base ]", () => {
   let request = createRequest();
   const cacheData: CacheValueType = {
-    data: { data: { test: 1 }, error: null, status: 200, additionalData: {} },
+    data: { data: { test: 1 }, error: null, status: 200, isSuccess: true, additionalData: {} },
     details: {
       retries: 0,
       timestamp: +new Date(),
-      isFailed: false,
+      isSuccess: true,
       isCanceled: false,
       isOffline: false,
     },

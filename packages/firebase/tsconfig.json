@@ -3,8 +3,8 @@
   "type": "module",
   "compilerOptions": {
     "rootDir": "./src",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "esModuleInterop": true
   },
-  "include": ["./src/index.ts"],
   "exclude": ["dist", "__tests__", "jest.config.ts"]
 }

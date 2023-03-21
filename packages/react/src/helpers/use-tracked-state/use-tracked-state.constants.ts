@@ -5,6 +5,7 @@ export const initialState: UseTrackedStateType = {
   error: null,
   status: null,
   additionalData: null,
+  isSuccess: null,
   loading: false,
   retries: 0,
   timestamp: null,

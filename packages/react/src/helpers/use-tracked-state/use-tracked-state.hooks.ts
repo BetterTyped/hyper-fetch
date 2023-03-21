@@ -132,6 +132,7 @@ export const useTrackedState = <T extends RequestInstance>({
       data: cacheData.data.data,
       error: cacheData.data.error,
       status: cacheData.data.status,
+      isSuccess: cacheData.data.isSuccess,
       additionalData: cacheData.data.additionalData,
       retries: cacheData.details.retries,
       timestamp: new Date(cacheData.details.timestamp),
@@ -171,7 +172,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setError: (error, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, error }, getDetailsState(state.current, { isFailed: !!error }));
+        cache.set(request, { ...currentState, error }, getDetailsState(state.current, { isSuccess: !!error }));
       } else {
         state.current.error = error;
         renderKeyTrigger(["error"]);

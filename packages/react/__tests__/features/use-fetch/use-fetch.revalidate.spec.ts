@@ -32,11 +32,11 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = { something: "123" };
     client.cache.set(
       request,
-      { data: customMock, error: null, status: 200, additionalData: {} },
+      { data: customMock, error: null, status: 200, isSuccess: true, additionalData: {} },
       {
         retries: 0,
         timestamp: +new Date(),
-        isFailed: false,
+        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       },
@@ -70,11 +70,11 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = { something: "123" };
     client.cache.set(
       request,
-      { data: customMock, error: null, status: 200, additionalData: {} },
+      { data: customMock, error: null, status: 200, isSuccess: true, additionalData: {} },
       {
         retries: 0,
         timestamp: +new Date(),
-        isFailed: false,
+        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       },

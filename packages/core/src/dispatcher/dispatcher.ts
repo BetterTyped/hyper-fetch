@@ -3,7 +3,6 @@ import EventEmitter from "events";
 import {
   QueueDataType,
   getRequestType,
-  isFailedRequest,
   canRetryRequest,
   getDispatcherEvents,
   DispatcherRequestType,
@@ -518,8 +517,6 @@ export class Dispatcher {
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isOfflineResponseStatus = !appManager.isOnline;
-    // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
-    const isFailed = isFailedRequest(response);
     // If there is no running request with this id, it means it was cancelled and removed during send
     const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
     const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
@@ -528,7 +525,7 @@ export class Dispatcher {
     this.deleteRunningRequest(queueKey, requestId);
 
     const requestDetails: ResponseDetailsType = {
-      isFailed,
+      isSuccess: response.isSuccess,
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
@@ -563,7 +560,7 @@ export class Dispatcher {
       return this.logger.debug("Request canceled", { response, requestDetails, request });
     }
     // On offline
-    if (isFailed && isOfflineResponseStatus) {
+    if (!response.isSuccess && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
       if (!offline) {
         this.logger.warning("Removing non-offline request", { response, requestDetails, request });
@@ -573,7 +570,7 @@ export class Dispatcher {
       return this.logger.debug("Awaiting for network restoration", { response, requestDetails, request });
     }
     // On success
-    if (!isFailed) {
+    if (response.isSuccess) {
       this.delete(queueKey, requestId, abortKey);
       return this.logger.debug("Successful response, removing request from queue.", {
         response,
@@ -582,7 +579,7 @@ export class Dispatcher {
       });
     }
     // On retry
-    if (isFailed && canRetry) {
+    if (!response.isSuccess && canRetry) {
       this.logger.debug("Waiting for retry", { response, requestDetails, request });
       // Perform retry once request is failed
       setTimeout(() => {

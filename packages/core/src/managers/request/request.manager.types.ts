@@ -17,7 +17,7 @@ export type RequestEventType<T extends RequestInstance> = {
 export type ResponseDetailsType = {
   retries: number;
   timestamp: number;
-  isFailed: boolean;
+  isSuccess: boolean;
   isCanceled: boolean;
   isOffline: boolean;
 };

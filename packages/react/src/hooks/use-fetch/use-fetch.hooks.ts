@@ -57,7 +57,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
   /**
-   * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
+   * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
   const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<RequestType>({
     logger,
@@ -213,7 +213,7 @@ export const useFetch = <RequestType extends RequestInstance>(
 
   /**
    * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
+   * This allows to share the state with other hooks and keep it related
    */
   useDidUpdate(handleMountEvents, [updateKey], true);
 
@@ -248,6 +248,10 @@ export const useFetch = <RequestType extends RequestInstance>(
     get status() {
       setRenderKey("status");
       return state.status;
+    },
+    get isSuccess() {
+      setRenderKey("isSuccess");
+      return state.isSuccess;
     },
     get additionalData() {
       setRenderKey("additionalData");

@@ -232,6 +232,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
       setRenderKey("status");
       return state.status;
     },
+    get isSuccess() {
+      setRenderKey("isSuccess");
+      return state.isSuccess;
+    },
     get additionalData() {
       setRenderKey("additionalData");
       return state.additionalData;

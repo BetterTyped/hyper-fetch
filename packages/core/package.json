@@ -60,7 +60,9 @@
   "dependencies": {
     "events": "^3.3.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "abortcontroller-polyfill": "^1.7.5"
+  },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn jest --passWithNoTests"

@@ -177,12 +177,17 @@ describe("RequestManager [ Base ]", () => {
     const details = {
       retries: 0,
       timestamp: +new Date(),
-      isFailed: false,
+      isSuccess: true,
       isCanceled: false,
       isOffline: false,
     };
 
-    events.emitResponse(queueKey, requestId, { data: null, error: null, status: 200, additionalData: null }, details);
+    events.emitResponse(
+      queueKey,
+      requestId,
+      { data: null, error: null, status: 200, isSuccess: true, additionalData: null },
+      details,
+    );
 
     expect(spy).toBeCalledTimes(1);
     expect(spyById).toBeCalledTimes(1);

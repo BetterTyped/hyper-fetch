@@ -86,11 +86,12 @@ describe("Dispatcher [ Events ]", () => {
         data: mock,
         error: null,
         status: 200,
+        isSuccess: true,
         additionalData: {},
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: false,
+        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       };
@@ -113,11 +114,12 @@ describe("Dispatcher [ Events ]", () => {
         data: null,
         error: mock,
         status: 400,
+        isSuccess: false,
         additionalData: {},
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: true,
+        isSuccess: false,
         isCanceled: false,
         isOffline: false,
       };
@@ -147,11 +149,12 @@ describe("Dispatcher [ Events ]", () => {
         data: mock,
         error: null,
         status: 200,
+        isSuccess: true,
         additionalData: {},
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
-        isFailed: false,
+        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       };
@@ -176,11 +179,12 @@ describe("Dispatcher [ Events ]", () => {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
+        isSuccess: false,
         additionalData: {},
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: true,
+        isSuccess: false,
         isCanceled: true,
         isOffline: false,
       };

@@ -82,7 +82,7 @@ export class Cache {
     }
 
     // Only success data is valid for the cache store
-    if (!details.isFailed) {
+    if (details.isSuccess) {
       this.logger.debug("Saving response to cache storage", { request, response, details });
       this.storage.set<Response, Error, AdapterType>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, AdapterType>(cacheKey, newCacheData);

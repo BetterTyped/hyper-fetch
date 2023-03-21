@@ -55,6 +55,10 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
    */
   additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>;
   /**
+   * Information whether request succeeded
+   */
+  isSuccess: boolean;
+  /**
    * Request attempts
    */
   retries: number;

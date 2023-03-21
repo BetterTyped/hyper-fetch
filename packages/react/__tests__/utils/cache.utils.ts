@@ -19,12 +19,13 @@ export const createCacheData = <T extends RequestInstance>(
     data: { data: 1 } as ExtractResponseType<T>,
     error: null,
     status: 200,
+    isSuccess: true,
     additionalData: {},
   };
   const detailsValue = {
     retries: 0,
     timestamp: +new Date(),
-    isFailed: false,
+    isSuccess: true,
     isCanceled: false,
     isRefreshed: false,
     isOffline: false,

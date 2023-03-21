@@ -7,7 +7,6 @@ import {
   getDispatcherStatusEventKey,
   getIsEqualTimestamp,
   getRequestType,
-  isFailedRequest,
 } from "dispatcher";
 import { createDispatcher, createClient, createAdapter, createRequest } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
@@ -84,20 +83,6 @@ describe("Dispatcher [ Utils ]", () => {
       expect(getIsEqualTimestamp(+new Date(), 0, +new Date() + 5)).toBeFalse();
       expect(getIsEqualTimestamp(+new Date(), 10, +new Date() + 15)).toBeFalse();
       expect(getIsEqualTimestamp(+new Date(), 10)).toBeFalse();
-    });
-  });
-  describe("When using isFailedRequest util", () => {
-    it("should return true on error statuses", async () => {
-      expect(isFailedRequest({ data: null, error: null, status: 400, additionalData: {} })).toBeTrue();
-      expect(isFailedRequest({ data: null, error: null, status: 0, additionalData: {} })).toBeTrue();
-      expect(isFailedRequest({ data: null, error: null, status: 500, additionalData: {} })).toBeTrue();
-      expect(isFailedRequest({ data: null, error: null, status: 404, additionalData: {} })).toBeTrue();
-    });
-    it("should return false on success statuses", async () => {
-      expect(isFailedRequest({ data: null, error: null, status: 304, additionalData: {} })).toBeFalse();
-      expect(isFailedRequest({ data: null, error: null, status: 200, additionalData: {} })).toBeFalse();
-      expect(isFailedRequest({ data: null, error: null, status: 202, additionalData: {} })).toBeFalse();
-      expect(isFailedRequest({ data: null, error: null, status: 201, additionalData: {} })).toBeFalse();
     });
   });
   describe("When using canRetryRequest util", () => {

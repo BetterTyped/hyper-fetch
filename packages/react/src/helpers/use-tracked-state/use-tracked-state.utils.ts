@@ -20,7 +20,7 @@ export const getDetailsState = (
   return {
     retries: state?.retries || 0,
     timestamp: +new Date(),
-    isFailed: false,
+    isSuccess: true,
     isCanceled: false,
     isOffline: false,
     ...details,
@@ -80,6 +80,7 @@ export const getInitialState = <T extends RequestInstance>(
     data: cacheState?.data.data ?? initialState.data,
     error: cacheState?.data.error ?? initialState.error,
     status: cacheState?.data.status ?? initialState.status,
+    isSuccess: cacheData?.data.isSuccess ?? initialState.isSuccess,
     additionalData: cacheState?.data.additionalData ?? request.client.defaultAdditionalData,
     retries: cacheState?.details.retries ?? initialState.retries,
     timestamp: getTimestamp(cacheState?.details.timestamp ?? initialState.timestamp),

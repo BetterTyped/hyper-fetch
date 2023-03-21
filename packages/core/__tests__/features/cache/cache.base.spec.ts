@@ -8,12 +8,13 @@ describe("Cache [ Base ]", () => {
     data: 123,
     error: null,
     status: 200,
+    isSuccess: true,
     additionalData: {},
   };
   const details: ResponseDetailsType = {
     retries: 0,
     timestamp: +new Date(),
-    isFailed: false,
+    isSuccess: true,
     isCanceled: false,
     isOffline: false,
   };

@@ -182,7 +182,7 @@ export class Client<
   };
 
   /**
-   * Set custom http adapter to handle graphql, rest, firebase or other
+   * Set custom http adapter to handle graphql, rest, firebase or others
    */
   setAdapter = <NewAdapterType extends BaseAdapterType>(
     callback: (Client: ClientInstance) => NewAdapterType,

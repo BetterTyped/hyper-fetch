@@ -8,14 +8,18 @@ describe("Cache [ Utils ]", () => {
         Record<string, string>,
         BaseAdapterType
       >;
-      const errorResponse = { data: null, error: {}, status: 400, additionalData: {} } as ResponseReturnErrorType<
-        Record<string, string>,
-        BaseAdapterType
-      >;
+      const errorResponse = {
+        data: null,
+        error: {},
+        status: 400,
+        isSuccess: false,
+        additionalData: {},
+      } as ResponseReturnErrorType<Record<string, string>, BaseAdapterType>;
       expect(getCacheData(previousResponse, errorResponse)).toStrictEqual({
         data: previousResponse.data,
         error: errorResponse.error,
         status: errorResponse.status,
+        isSuccess: errorResponse.isSuccess,
         additionalData: errorResponse.additionalData,
       });
     });
@@ -25,26 +29,34 @@ describe("Cache [ Utils ]", () => {
         data: { test: "1" },
         error: null,
         status: 200,
+        isSuccess: true,
         additionalData: {},
       } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType>;
       const newResponse = {
         data: { test: "2" },
         error: null,
         status: 200,
+        isSuccess: true,
         additionalData: {},
       } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType>;
       expect(getCacheData(previousResponse, newResponse)).toStrictEqual(newResponse);
     });
 
     it("should use any response if there is no cached data", async () => {
-      const newResponse = { data: {}, error: null, status: 200, additionalData: {} } as ResponseReturnSuccessType<
-        Record<string, string>,
-        BaseAdapterType
-      >;
-      const errorResponse = { data: null, error: {}, status: 400, additionalData: {} } as ResponseReturnErrorType<
-        Record<string, string>,
-        BaseAdapterType
-      >;
+      const newResponse = {
+        data: {},
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: {},
+      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType>;
+      const errorResponse = {
+        data: null,
+        error: {},
+        status: 400,
+        isSuccess: false,
+        additionalData: {},
+      } as ResponseReturnErrorType<Record<string, string>, BaseAdapterType>;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);
     });

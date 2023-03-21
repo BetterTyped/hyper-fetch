@@ -187,6 +187,13 @@ export const getAdapterBindings = async <R extends RequestInstance>(req: R, requ
     return progressTimestamp;
   };
 
+  const isSuccessfulResponse = <T extends BaseAdapterType>(status: ExtractAdapterStatusType<T>) => {
+    if (!status || status >= 400) {
+      return false;
+    }
+    return true;
+  };
+
   // Success
 
   const onSuccess = async <T extends BaseAdapterType>(
@@ -198,6 +205,7 @@ export const getAdapterBindings = async <R extends RequestInstance>(req: R, requ
     let response = {
       data: responseData,
       error: null,
+      isSuccess: isSuccessfulResponse(status),
       status,
       additionalData,
     };
@@ -220,7 +228,13 @@ export const getAdapterBindings = async <R extends RequestInstance>(req: R, requ
     additionalData: ExtractAdapterAdditionalDataType<T>,
     resolve: (value: ResponseReturnErrorType<any, T>) => void,
   ): Promise<ResponseReturnErrorType<any, T>> => {
-    let responseData = { data: null, status, error, additionalData } as ResponseReturnErrorType<any, T>;
+    let responseData = {
+      data: null,
+      status,
+      error,
+      isSuccess: isSuccessfulResponse(status),
+      additionalData,
+    } as ResponseReturnErrorType<any, T>;
 
     responseData = await request.client.__modifyResponse(responseData, request);
     responseData = await request.client.__modifyErrorResponse(responseData, request);

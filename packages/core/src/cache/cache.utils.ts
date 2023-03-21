@@ -1,5 +1,4 @@
 import { RequestInstance } from "request";
-import { isFailedRequest } from "dispatcher";
 import { ExtractAdapterReturnType } from "types";
 
 export const getCacheData = <T extends RequestInstance>(
@@ -7,12 +6,11 @@ export const getCacheData = <T extends RequestInstance>(
   response: ExtractAdapterReturnType<T>,
 ): ExtractAdapterReturnType<T> => {
   const { error, additionalData, status } = response;
-  const isFailed = isFailedRequest(response);
 
-  const previousData = isFailed && previousResponse ? previousResponse.data : null;
+  const previousData = !response.isSuccess && previousResponse ? previousResponse.data : null;
   const data = response.data || previousData;
 
-  return { data, error, status, additionalData };
+  return { data, error, status, isSuccess: response.isSuccess, additionalData };
 };
 
 export const getRevalidateEventKey = (key: string): string => {

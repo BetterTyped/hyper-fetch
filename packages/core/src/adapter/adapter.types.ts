@@ -38,18 +38,21 @@ export type ResponseReturnType<GenericDataType, GenericErrorType, AdapterType ex
   data: GenericDataType | null;
   error: GenericErrorType | null;
   status: ExtractAdapterStatusType<AdapterType> | null;
+  isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 export type ResponseReturnSuccessType<GenericDataType, AdapterType extends BaseAdapterType> = {
   data: GenericDataType;
   error: null;
   status: ExtractAdapterStatusType<AdapterType> | null;
+  isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 export type ResponseReturnErrorType<GenericErrorType, AdapterType extends BaseAdapterType> = {
   data: null;
   error: GenericErrorType;
   status: ExtractAdapterStatusType<AdapterType> | null;
+  isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 
