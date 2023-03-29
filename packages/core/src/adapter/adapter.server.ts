@@ -2,13 +2,21 @@ import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 import stream from "stream";
 
-import { getAdapterBindings, defaultTimeout, ResponseReturnType, BaseAdapterType } from ".";
-import { parseErrorResponse, parseResponse, getUploadSize, getStreamPayload } from "./adapter.utils";
+import {
+  getAdapterBindings,
+  defaultTimeout,
+  ResponseReturnType,
+  BaseAdapterType,
+  parseErrorResponse,
+  parseResponse,
+  getUploadSize,
+  getStreamPayload,
+} from "adapter";
 import { HttpMethodsEnum } from "../constants/http.constants";
-import { RequestInstance } from "../request";
-import { ExtractErrorType, ExtractResponseType } from "../types";
+import { RequestInstance } from "request";
+import { ExtractErrorType, ExtractResponseType } from "types";
 
-export const adapter: BaseAdapterType = async <T extends RequestInstance>(request: T, requestId) => {
+export const adapter: BaseAdapterType = async <T extends RequestInstance>(request: T, requestId: string) => {
   const {
     fullUrl,
     headers,

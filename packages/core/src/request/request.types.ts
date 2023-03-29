@@ -218,10 +218,7 @@ export type FetchOptionsType<AdapterOptions> = Omit<
 /**
  * It will check if the query params are already set
  */
-export type FetchQueryParamsType<
-  QueryParams extends QueryParamsType | string,
-  HasQuery extends true | false = false,
-> = HasQuery extends true
+export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
       queryParams?: QueryParams;

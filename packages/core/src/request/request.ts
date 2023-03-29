@@ -32,7 +32,7 @@ import { DateInterval } from "constants/time.constants";
 export class Request<
   Response,
   Payload,
-  QueryParams extends QueryParamsType | string,
+  QueryParams,
   GlobalError, // Global Error Type
   LocalError, // Additional Error for specific endpoint
   Endpoint extends string,
@@ -275,7 +275,7 @@ export class Request<
       });
     }
     if (queryParams) {
-      endpoint += this.client.stringifyQueryParams(queryParams);
+      endpoint += this.client.stringifyQueryParams(queryParams as QueryParamsType);
     }
     return endpoint;
   };
