@@ -224,7 +224,7 @@ export type FetchQueryParamsType<
 > = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
-      queryParams?: QueryParams | string;
+      queryParams?: QueryParams;
     };
 
 /**
