@@ -11,7 +11,7 @@ import {
   getCacheEvents,
   CacheValueType,
 } from "cache";
-import { RequestDump, RequestInstance } from "request";
+import { RequestJSON, RequestInstance } from "request";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -59,7 +59,7 @@ export class Cache {
    * @returns
    */
   set = <Response, Error, AdapterType extends BaseAdapterType>(
-    request: RequestInstance | RequestDump<RequestInstance>,
+    request: RequestInstance | RequestJSON<RequestInstance>,
     response: ResponseReturnType<Response, Error, AdapterType>,
     details: ResponseDetailsType,
   ): void => {

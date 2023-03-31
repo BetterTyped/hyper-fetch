@@ -14,14 +14,14 @@ export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData 
   constructor(
     readonly socket: Socket<Adapter>,
     readonly emitterOptions: EmitterOptionsType<ExtractEmitterOptionsType<Adapter>>,
-    dump?: Partial<Emitter<Payload, Response, Adapter, MappedData>>,
+    json?: Partial<Emitter<Payload, Response, Adapter, MappedData>>,
     readonly dataMapper?: (data: Payload) => MappedData,
   ) {
     const { name, timeout = DateInterval.second * 3, options } = emitterOptions;
-    this.name = dump?.name ?? name;
-    this.data = dump?.data;
-    this.timeout = dump?.timeout ?? timeout;
-    this.options = dump?.options ?? options;
+    this.name = json?.name ?? name;
+    this.data = json?.data;
+    this.timeout = json?.timeout ?? timeout;
+    this.options = json?.options ?? options;
   }
 
   setOptions(options: ExtractEmitterOptionsType<Adapter>) {
@@ -47,7 +47,7 @@ export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData 
     config?: Partial<EmitterCloneOptionsType<NewPayload, ExtractEmitterOptionsType<Adapter>>>,
     mapper?: (data: NewPayload) => MapperData,
   ): Emitter<NewPayload, Response, Adapter, MapperData> {
-    const dump: Partial<Emitter<NewPayload, Response, Adapter, MapperData>> = {
+    const json: Partial<Emitter<NewPayload, Response, Adapter, MapperData>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
@@ -56,7 +56,7 @@ export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData 
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<NewPayload, Response, Adapter, MapperData>(this.socket, this.emitterOptions, dump, mapperFn);
+    return new Emitter<NewPayload, Response, Adapter, MapperData>(this.socket, this.emitterOptions, json, mapperFn);
   }
 
   emit(

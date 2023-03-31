@@ -37,7 +37,7 @@ export type AdapterProgressType = {
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestDump<
+export type RequestJSON<
   Request extends RequestInstance,
   // Bellow generics provided only to overcome the typescript bugs
   AdapterOptions = unknown,
@@ -64,7 +64,7 @@ export type RequestDump<
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
   options?: AdapterOptions | ExtractAdapterOptions<ExtractAdapterType<Request>>;
-  data: PayloadType<ExtractPayloadType<Request>, unknown>;
+  data: PayloadType<ExtractPayloadType<Request>>;
   params: Params | NegativeTypes;
   queryParams: QueryParams | NegativeTypes;
   abortKey: string;
@@ -176,22 +176,21 @@ export type RequestOptionsType<
   deduplicateTime?: number;
 };
 
-export type PayloadMapperType<PayloadType, MappedData> = (data: PayloadType) => MappedData;
+export type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewDataType;
 
-export type PayloadType<Payload, MappedData> = (MappedData extends never ? Payload : MappedData) | NegativeTypes;
+export type PayloadType<Payload> = Payload | NegativeTypes;
 
 export type RequestCurrentType<
   Payload,
   QueryParams,
   GenericEndpoint extends string,
   AdapterOptions,
-  MappedData,
   MethodsType = HttpMethodsType,
 > = {
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParams | NegativeTypes;
-  data?: PayloadType<Payload, MappedData>;
+  data?: PayloadType<Payload>;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
@@ -303,7 +302,6 @@ export type RequestInstance = Request<
   any,
   any,
   BaseAdapterType<any, any, any, any, any>,
-  any,
   any,
   any,
   any

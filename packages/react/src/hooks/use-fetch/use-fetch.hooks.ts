@@ -44,7 +44,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     ...options,
   };
 
-  const updateKey = JSON.stringify(request.dump());
+  const updateKey = JSON.stringify(request.toJSON());
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const refreshDebounce = useDebounce({ delay: refreshTime });

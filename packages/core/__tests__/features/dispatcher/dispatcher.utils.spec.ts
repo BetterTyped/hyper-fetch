@@ -1,6 +1,6 @@
 import {
   canRetryRequest,
-  DispatcherStorageValueType,
+  QueueElementType,
   DispatcherRequestType,
   getDispatcherChangeEventKey,
   getDispatcherDrainedEventKey,
@@ -107,13 +107,13 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
       const request = createRequest(client, { deduplicate: true });
-      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.deduplicated);
     });
     it("should return cancelable type", async () => {
       const request = createRequest(client, { cancelable: true });
-      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.previousCanceled);
     });

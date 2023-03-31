@@ -1,5 +1,5 @@
 import { Dispatcher } from "dispatcher";
-import { RequestDump, RequestInstance } from "request";
+import { RequestInstance } from "request";
 
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;
@@ -10,15 +10,15 @@ export type DispatcherOptionsType = {
 };
 
 // Values
-export type DispatcherStorageValueType<Request extends RequestInstance = RequestInstance> = {
+export type QueueElementType<Request extends RequestInstance = RequestInstance> = {
   requestId: string;
-  requestDump: RequestDump<Request>;
+  request: Request;
   retries: number;
   timestamp: number;
   stopped: boolean;
 };
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
-  requests: DispatcherStorageValueType<Request>[];
+  requests: QueueElementType<Request>[];
   stopped: boolean;
 };
 

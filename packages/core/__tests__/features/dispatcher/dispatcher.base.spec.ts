@@ -23,7 +23,7 @@ describe("Dispatcher [ Basic ]", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should allow to change storage", async () => {
-      const storage = new Map<string, QueueDataType>();
+      const storage = new Map<string, QueueDataType<any>>();
       const newDispatcher = createDispatcher(client, { storage });
 
       const dispatcherDump = newDispatcher.createStorageElement(request);

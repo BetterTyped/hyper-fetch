@@ -5,16 +5,23 @@ import {
   getRequestKey,
   RequestSendType,
   PayloadType,
-  RequestDump,
+  RequestJSON,
   RequestOptionsType,
   ExtractRouteParams,
   sendRequest,
   RequestCurrentType,
   PayloadMapperType,
+  RequestInstance,
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import { BaseAdapterType, ExtractAdapterMethodType, ExtractAdapterOptions, QueryParamsType } from "adapter";
+import {
+  BaseAdapterType,
+  ExtractAdapterMethodType,
+  ExtractAdapterOptions,
+  QueryParamsType,
+  ResponseReturnType,
+} from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
 
@@ -40,14 +47,13 @@ export class Request<
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
-  MappedData = undefined,
 > {
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
   method: ExtractAdapterMethodType<AdapterType>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
-  data: PayloadType<Payload, MappedData>;
+  data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
   options?: ExtractAdapterOptions<AdapterType> | undefined;
   cancelable: boolean;
@@ -65,6 +71,13 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
+  dataMapper?: PayloadMapperType<Payload>;
+  requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
+  responseMapper?: (
+    response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
+    requestId: string,
+    request: RequestInstance,
+  ) => ResponseReturnType<any, any, AdapterType>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -78,17 +91,15 @@ export class Request<
       ExtractAdapterOptions<AdapterType>,
       ExtractAdapterMethodType<AdapterType>
     >,
-    readonly requestDump?:
+    readonly requestJSON?:
       | RequestCurrentType<
           Payload,
           QueryParams,
           Endpoint,
           ExtractAdapterOptions<AdapterType>,
-          MappedData,
           ExtractAdapterMethodType<AdapterType>
         >
       | undefined,
-    readonly dataMapper?: PayloadMapperType<Payload, MappedData>,
   ) {
     const {
       endpoint,
@@ -112,34 +123,34 @@ export class Request<
       deduplicateTime = 10,
     } = { ...this.client.requestDefaultOptions?.(requestOptions), ...requestOptions };
 
-    this.endpoint = requestDump?.endpoint ?? endpoint;
-    this.headers = requestDump?.headers ?? headers;
-    this.auth = requestDump?.auth ?? auth;
+    this.endpoint = requestJSON?.endpoint ?? endpoint;
+    this.headers = requestJSON?.headers ?? headers;
+    this.auth = requestJSON?.auth ?? auth;
     this.method = method;
-    this.params = requestDump?.params;
-    this.data = requestDump?.data;
-    this.queryParams = requestDump?.queryParams;
-    this.options = requestDump?.options ?? options;
-    this.cancelable = requestDump?.cancelable ?? cancelable;
-    this.retry = requestDump?.retry ?? retry;
-    this.retryTime = requestDump?.retryTime ?? retryTime;
-    this.garbageCollection = requestDump?.garbageCollection ?? garbageCollection;
-    this.cache = requestDump?.cache ?? cache;
-    this.cacheTime = requestDump?.cacheTime ?? cacheTime;
-    this.queued = requestDump?.queued ?? queued;
-    this.offline = requestDump?.offline ?? offline;
-    this.abortKey = requestDump?.abortKey ?? abortKey ?? getSimpleKey(this);
-    this.cacheKey = requestDump?.cacheKey ?? cacheKey ?? getRequestKey(this);
-    this.queueKey = requestDump?.queueKey ?? queueKey ?? getSimpleKey(this);
-    this.effectKey = requestDump?.effectKey ?? effectKey ?? getSimpleKey(this);
-    this.used = requestDump?.used ?? false;
-    this.deduplicate = requestDump?.deduplicate ?? deduplicate;
-    this.deduplicateTime = requestDump?.deduplicateTime ?? deduplicateTime;
+    this.params = requestJSON?.params;
+    this.data = requestJSON?.data;
+    this.queryParams = requestJSON?.queryParams;
+    this.options = requestJSON?.options ?? options;
+    this.cancelable = requestJSON?.cancelable ?? cancelable;
+    this.retry = requestJSON?.retry ?? retry;
+    this.retryTime = requestJSON?.retryTime ?? retryTime;
+    this.garbageCollection = requestJSON?.garbageCollection ?? garbageCollection;
+    this.cache = requestJSON?.cache ?? cache;
+    this.cacheTime = requestJSON?.cacheTime ?? cacheTime;
+    this.queued = requestJSON?.queued ?? queued;
+    this.offline = requestJSON?.offline ?? offline;
+    this.abortKey = requestJSON?.abortKey ?? abortKey ?? getSimpleKey(this);
+    this.cacheKey = requestJSON?.cacheKey ?? cacheKey ?? getRequestKey(this);
+    this.queueKey = requestJSON?.queueKey ?? queueKey ?? getSimpleKey(this);
+    this.effectKey = requestJSON?.effectKey ?? effectKey ?? getSimpleKey(this);
+    this.used = requestJSON?.used ?? false;
+    this.deduplicate = requestJSON?.deduplicate ?? deduplicate;
+    this.deduplicateTime = requestJSON?.deduplicateTime ?? deduplicateTime;
 
-    this.updatedAbortKey = requestDump?.updatedAbortKey ?? false;
-    this.updatedCacheKey = requestDump?.updatedCacheKey ?? false;
-    this.updatedQueueKey = requestDump?.updatedQueueKey ?? false;
-    this.updatedEffectKey = requestDump?.updatedEffectKey ?? false;
+    this.updatedAbortKey = requestJSON?.updatedAbortKey ?? false;
+    this.updatedCacheKey = requestJSON?.updatedCacheKey ?? false;
+    this.updatedQueueKey = requestJSON?.updatedQueueKey ?? false;
+    this.updatedEffectKey = requestJSON?.updatedEffectKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -155,9 +166,8 @@ export class Request<
   };
 
   public setData = <D extends Payload>(data: D) => {
-    const modifiedData = this.dataMapper?.(data) || data;
-    return this.clone<D extends null ? false : true, HasParams, HasQuery, MappedData>({
-      data: modifiedData as PayloadType<Payload, MappedData>,
+    return this.clone<D extends null ? false : true, HasParams, HasQuery>({
+      data,
     });
   };
 
@@ -263,8 +273,79 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setDataMapper = <DataMapper extends (data: Payload) => any>(mapper: DataMapper) => {
-    return this.clone<HasData, HasParams, HasQuery>(undefined, mapper);
+  public setDataMapper = <DataMapper extends (data: Payload) => any>(dataMapper: DataMapper) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+
+    cloned.dataMapper = dataMapper;
+
+    return cloned;
+  };
+
+  public setRequestMapper = (
+    requestMapper?: <R extends RequestInstance>(
+      requestId: string,
+      request: Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >,
+    ) => R,
+  ) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+
+    cloned.requestMapper = requestMapper;
+
+    return cloned;
+  };
+
+  /**
+   * Map
+   * @param cacheKey explicitly provided key will allow us to prevent the cache collisions with non mapped requests or dynamically added mappers
+   * @param onResponse our callback
+   * @returns
+   */
+  public setResponseMapper = <NewResponse, NewError>(
+    cacheKey: string,
+    responseMapper?: (
+      response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
+      requestId: string,
+      request: Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >,
+    ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
+  ) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>({ cacheKey });
+
+    cloned.responseMapper = responseMapper;
+
+    return cloned as unknown as Request<
+      NewResponse,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
   };
 
   private paramsMapper = (params: ParamsType | null | undefined, queryParams: QueryParams | NegativeTypes): string => {
@@ -280,7 +361,7 @@ export class Request<
     return endpoint;
   };
 
-  public dump(): RequestDump<
+  public toJSON(): RequestJSON<
     Request<
       Response,
       Payload,
@@ -291,8 +372,7 @@ export class Request<
       AdapterType,
       HasData,
       HasParams,
-      HasQuery,
-      MappedData
+      HasQuery
     >,
     ExtractAdapterOptions<AdapterType>,
     QueryParams
@@ -331,32 +411,24 @@ export class Request<
     };
   }
 
-  public clone<
-    D extends true | false = HasData,
-    P extends true | false = HasParams,
-    Q extends true | false = HasQuery,
-    NewMappedData = MappedData,
-  >(
+  public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
     options?: RequestCurrentType<
       Payload,
       QueryParams,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
-      NewMappedData,
       ExtractAdapterMethodType<AdapterType>
     >,
-    mapper?: PayloadMapperType<Payload, NewMappedData>,
-  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q, NewMappedData> {
-    const dump = this.dump();
-    const requestDump: RequestCurrentType<
+  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q> {
+    const json = this.toJSON();
+    const requestJSON: RequestCurrentType<
       Payload,
       QueryParams,
       Endpoint,
       ExtractAdapterOptions<AdapterType>,
-      NewMappedData,
       ExtractAdapterMethodType<AdapterType>
     > = {
-      ...dump,
+      ...json,
       ...options,
       abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
@@ -367,21 +439,14 @@ export class Request<
       data: (options?.data || this.data) as any,
     };
 
-    const mapperFn = (mapper || this.dataMapper) as typeof mapper;
+    const cloned = new Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q>(
+      this.client,
+      this.requestOptions,
+      requestJSON,
+    );
 
-    const cloned = new Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      D,
-      P,
-      Q,
-      NewMappedData
-    >(this.client, this.requestOptions, requestDump, mapperFn);
+    // Inherit methods
+    cloned.dataMapper = this.dataMapper;
 
     return cloned;
   }
@@ -413,8 +478,7 @@ export class Request<
       AdapterType,
       HasData,
       HasParams,
-      HasQuery,
-      MappedData
+      HasQuery
     >
   > = async (
     options?: RequestSendOptionsType<
@@ -428,8 +492,7 @@ export class Request<
         AdapterType,
         HasData,
         HasParams,
-        HasQuery,
-        MappedData
+        HasQuery
       >
     >,
   ) => {
@@ -470,8 +533,7 @@ export class Request<
       AdapterType,
       HasData,
       HasParams,
-      HasQuery,
-      MappedData
+      HasQuery
     >
   > = async (
     options?: RequestSendOptionsType<
@@ -485,8 +547,7 @@ export class Request<
         AdapterType,
         HasData,
         HasParams,
-        HasQuery,
-        MappedData
+        HasQuery
       >
     >,
   ) => {
@@ -504,8 +565,7 @@ export class Request<
         AdapterType,
         HasData,
         HasParams,
-        HasQuery,
-        MappedData
+        HasQuery
       >
     >(request, options);
   };

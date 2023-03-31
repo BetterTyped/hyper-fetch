@@ -1,5 +1,5 @@
 import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
-import { AdapterProgressEventType, RequestInstance, RequestDump, RequestSendOptionsType } from "request";
+import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
@@ -66,7 +66,7 @@ export const getProgressData = (
 };
 
 // Keys
-export const getSimpleKey = (request: RequestInstance | RequestDump<RequestInstance>): string => {
+export const getSimpleKey = (request: RequestInstance | RequestJSON<RequestInstance>): string => {
   return `${request.method}_${request.requestOptions.endpoint}_${request.cancelable}`;
 };
 
@@ -78,7 +78,7 @@ export const getSimpleKey = (request: RequestInstance | RequestDump<RequestInsta
  * @returns
  */
 export const getRequestKey = (
-  request: RequestInstance | RequestDump<RequestInstance>,
+  request: RequestInstance | RequestJSON<RequestInstance>,
   useInitialValues?: boolean,
 ): string => {
   /**

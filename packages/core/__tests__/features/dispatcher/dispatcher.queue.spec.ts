@@ -254,9 +254,9 @@ describe("Dispatcher [ Queue ]", () => {
       createRequestInterceptor(request, { delay: 1 });
 
       const spy = jest.spyOn(dispatcher, "performRequest");
-      const dump = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queueKey, dump);
-      dispatcher.addRunningRequest(request.queueKey, dump.requestId, request);
+      const jsonRequest = dispatcher.createStorageElement(request);
+      dispatcher.addQueueElement(request.queueKey, jsonRequest);
+      dispatcher.addRunningRequest(request.queueKey, jsonRequest.requestId, request);
 
       dispatcher.flushQueue(request.queueKey);
 
@@ -268,9 +268,9 @@ describe("Dispatcher [ Queue ]", () => {
       createRequestInterceptor(request, { delay: 1 });
 
       const spy = jest.spyOn(client, "adapter");
-      const dump = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queueKey, dump);
-      dispatcher.stopRequest(request.queueKey, dump.requestId);
+      const jsonRequest = dispatcher.createStorageElement(request);
+      dispatcher.addQueueElement(request.queueKey, jsonRequest);
+      dispatcher.stopRequest(request.queueKey, jsonRequest.requestId);
 
       dispatcher.flushQueue(request.queueKey);
 

@@ -88,29 +88,6 @@ describe("Fetch Adapter [ Base ]", () => {
     expect(spy.mock.calls[0][0].data).toEqual(data);
   });
 
-  it("should allow for setting data mapper", async () => {
-    const comm = createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>(client);
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
-    const data = {
-      userId: 11,
-      role: "ADMIN",
-    };
-    createRequestInterceptor(comm);
-    function dataMapper({ role, userId }: { role: string; userId: number }): string {
-      return `${userId}_${role}`;
-    }
-
-    const requestMapped = comm.setDataMapper(dataMapper);
-    const requestSetData = requestMapped.setData(data);
-
-    await requestSetData.send();
-
-    expect(requestSetData.data).toStrictEqual(`${data.userId}_${data.role}`);
-    expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0][0].data).toStrictEqual(`${data.userId}_${data.role}`);
-  });
-
   it("Should allow for setting queryParams", async () => {
     const queryParams = { userId: 11 };
     const comm = client.createRequest<unknown, unknown, any, QueryParamsType>()({
