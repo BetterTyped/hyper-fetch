@@ -29,12 +29,7 @@ export const parseErrorResponse = <T extends RequestInstance>(response: unknown)
 
 // Request
 
-export const getUploadSize = (payload: FormData | string) => {
-  if (payload instanceof FormData) {
-    return Array.from(payload.values())
-      .map((value) => (typeof value === "string" ? value.length : value.size))
-      .reduce((a, b) => a + b, 0);
-  }
+export const getUploadSize = (payload: string) => {
   return payload.length;
 };
 
@@ -48,12 +43,6 @@ export const fileToBuffer = (file: File | Blob) => {
   });
 };
 
-export const getStreamPayload = (payload: FormData | string | null) => {
-  if (payload instanceof FormData) {
-    const parts = Array.from(payload.values()).map((value) =>
-      typeof value === "string" ? value : fileToBuffer(value),
-    );
-    return Promise.all(parts);
-  }
+export const getStreamPayload = (payload: string | null) => {
   return payload;
 };

@@ -64,6 +64,7 @@ export const adapter: BaseAdapterType = async <T extends RequestInstance>(reques
 
           const httpRequest = httpClient.request(options, (response) => {
             response.setEncoding("utf8");
+            unmountListener = createAbortListener(0, {}, response.destroy, resolve);
 
             let chunks = "";
             const totalDownloadBytes = Number(response.headers["content-length"]);
@@ -93,8 +94,6 @@ export const adapter: BaseAdapterType = async <T extends RequestInstance>(reques
               onResponseEnd();
             });
           });
-
-          unmountListener = createAbortListener(0, {}, httpRequest.destroy, resolve);
 
           httpRequest.on("timeout", () => onTimeoutError(0, {}, resolve));
           httpRequest.on("error", (error) => onError(error, 0, {}, resolve));

@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { adapter } from "../../../src/adapter/adapter.server";
 import { getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
@@ -93,20 +96,5 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(error).toBeNull();
     expect(status).toEqual(200);
     expect(additionalData).toStrictEqual({});
-  });
-
-  it("should allow to make post request with FormData", async () => {
-    const payload = new FormData();
-    payload.append("file", new Blob(["test"], { type: "text/plain" }));
-
-    const postRequest = createRequest(client, { method: "POST" }).setData(payload);
-    client.requestManager.addAbortController(postRequest.abortKey, requestId);
-    const mock = createRequestInterceptor(postRequest);
-
-    const { data: response, error, status } = await adapter(postRequest, requestId);
-
-    expect(response).toEqual(mock);
-    expect(error).toBeNull();
-    expect(status).toEqual(200);
   });
 });

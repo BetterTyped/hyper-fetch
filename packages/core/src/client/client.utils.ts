@@ -10,6 +10,7 @@ import { RequestInstance } from "request";
 import { stringifyDefaultOptions } from "client";
 import { NegativeTypes } from "types";
 import { RequestInterceptorType, ResponseInterceptorType } from "./client.types";
+import { hasWindow } from "managers";
 
 // Utils
 
@@ -53,7 +54,7 @@ export const interceptResponse = async <GlobalErrorType, AdapterType extends Bas
 // Mappers
 
 export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = window?.FormData && request.data instanceof FormData;
+  const isFormData = hasWindow() && window?.FormData && request.data instanceof FormData;
   const headers: HeadersInit = {};
 
   if (!isFormData) headers["Content-Type"] = "application/json";
@@ -63,7 +64,7 @@ export const getAdapterHeaders = (request: RequestInstance) => {
 };
 
 export const getAdapterPayload = (data: unknown): string | FormData => {
-  const isFormData = window?.FormData && data instanceof FormData;
+  const isFormData = hasWindow() && window?.FormData && data instanceof FormData;
   if (isFormData) return data;
 
   return stringifyValue(data);
