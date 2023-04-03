@@ -1,7 +1,8 @@
+import { waitFor } from "@testing-library/dom";
+
 import { createAdapter, createClient, createDispatcher, createRequest, sleep } from "../../utils";
 import { BaseAdapterType, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
-import { createRequestInterceptor } from "../../server";
-import { waitFor } from "@testing-library/dom";
+
 describe("Request [ Mocking ]", () => {
   const adapterSpy = jest.fn();
   const fixture = { test: 1, data: [1, 2, 3] };
@@ -115,5 +116,56 @@ describe("Request [ Mocking ]", () => {
     await waitFor(() => {
       expect(response).toStrictEqual([adapterResponse, responseDetails]);
     });
+  });
+
+  it("should cycle through sequence if provided array of responses", async () => {
+    const requestWithRetry = request.setMock([
+      { data: { data: [1, 2, 3] }, config: { status: 200 } },
+      { data: { data: [4, 5, 6] }, config: { status: 200 } },
+    ]);
+
+    const response1 = await requestWithRetry.send();
+    const response2 = await requestWithRetry.send();
+    const response3 = await requestWithRetry.send();
+
+    expect(response1.data).toStrictEqual({ data: [1, 2, 3] });
+    expect(response2.data).toStrictEqual({ data: [4, 5, 6] });
+    expect(response3.data).toStrictEqual({ data: [1, 2, 3] });
+  });
+
+  it("should allow for passing method to mock and return data conditionally", async () => {
+    const mockedRequest = createRequest(client, { endpoint: "/users/:id" }).setMock((r) => {
+      // TODO - can we fix types here to somehow indicate that it is not 'null'?
+      const params = r.params as any;
+      if (params.id === 11) {
+        return { data: [1, 2, 3], config: { status: 222 } };
+      }
+      return { data: [4, 5, 6] };
+    });
+    const response = await mockedRequest.send({ params: { id: 11 } } as any);
+    const response2 = await mockedRequest.send({ params: { id: 13 } } as any);
+
+    expect(response.data).toStrictEqual([1, 2, 3]);
+    expect(response2.data).toStrictEqual([4, 5, 6]);
+    expect(response.status).toStrictEqual(222);
+    expect(response2.status).toStrictEqual(200);
+  });
+
+  it("should allow for passing async method to mock and return data conditionally", async () => {
+    const mockedRequest = createRequest(client, { endpoint: "/users/:id" }).setMock(async (r) => {
+      // TODO - can we fix types here to somehow indicate that it is not 'null'?
+      const params = r.params as any;
+      if (params.id === 1) {
+        return { data: [1, 2, 3], config: { status: 222 } };
+      }
+      return { data: [4, 5, 6] };
+    });
+    const response = await mockedRequest.send({ params: { id: 1 } } as any);
+    const response2 = await mockedRequest.send({ params: { id: 2 } } as any);
+
+    expect(response.data).toStrictEqual([1, 2, 3]);
+    expect(response2.data).toStrictEqual([4, 5, 6]);
+    expect(response.status).toStrictEqual(222);
+    expect(response2.status).toStrictEqual(200);
   });
 });

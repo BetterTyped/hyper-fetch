@@ -12,6 +12,7 @@ import {
   RequestCurrentType,
   PayloadMapperType,
   RequestInstance,
+  RequestDataMockTypes,
   RequestMockType,
 } from "request";
 import { Client } from "client";
@@ -73,7 +74,8 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
-  mock?: any;
+  mock?: Generator<RequestMockType<Response>, RequestMockType<Response>>;
+  mockData?: RequestDataMockTypes<Response, this>;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
@@ -283,22 +285,24 @@ export class Request<
     return cloned;
   };
 
-  public setMock = (mock: RequestMockType<Response> | RequestMockType<Response>[]) => {
-    const mockedGenerator = function* (mockedValues) {
-      if (Array.isArray(mock)) {
+  public setMock = (mockData: RequestDataMockTypes<Response>) => {
+    const mockGenerator = function* (mockedValues) {
+      if (Array.isArray(mockData)) {
+        let iteration = 0;
         // eslint-disable-next-line no-restricted-syntax
-        for (const m of mockedValues) {
-          yield m;
+        while (true) {
+          yield mockedValues[iteration];
+          iteration = mockData.length === iteration + 1 ? 0 : iteration + 1;
         }
       } else {
         while (true) {
-          yield mock;
+          yield mockData;
         }
       }
     };
-    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
-    cloned.mock = mockedGenerator(mock);
-    return cloned;
+    this.mockData = mockData;
+    this.mock = mockGenerator(mockData);
+    return this;
   };
 
   public setRequestMapper = (
@@ -467,6 +471,7 @@ export class Request<
 
     // Inherit methods
     cloned.dataMapper = this.dataMapper;
+    cloned.mockData = this.mockData;
     cloned.mock = this.mock;
 
     return cloned;

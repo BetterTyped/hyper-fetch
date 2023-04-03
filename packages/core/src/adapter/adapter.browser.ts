@@ -14,7 +14,6 @@ export const adapter: BaseAdapterType = async <T extends RequestInstance>(reques
 
   const { method = "GET" } = request;
 
-  console.log("REQUEST MOCK", request.mock);
   return requestWrapper(
     () =>
       new Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, BaseAdapterType>>((resolve) => {
@@ -22,7 +21,7 @@ export const adapter: BaseAdapterType = async <T extends RequestInstance>(reques
           const xhr = handleXhrRequest(resolve, method, bindingsMethods);
           xhr.send();
         } else {
-          handleMockRequest(resolve, request.mock, bindingsMethods);
+          handleMockRequest(resolve, request, bindingsMethods);
         }
       }),
   );

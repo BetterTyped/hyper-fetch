@@ -1,29 +1,39 @@
-import { RequestInstance, RequestMockType } from "../request";
+import { RequestInstance } from "../request";
 import { getAdapterBindings } from "./adapter.bindings";
 import { BaseAdapterType } from "./adapter.types";
 
-export const handleMockRequest = <T extends RequestInstance>(
+export const handleMockRequest = async <T extends RequestInstance>(
   resolve,
-  requestMock: any,
+  request: T,
   {
     onError,
     onResponseEnd,
     onTimeoutError,
     onRequestEnd,
     createAbortListener,
-    onResponseProgress,
-    onRequestProgress,
+    // TODO
+    // onResponseProgress,
+    // onRequestProgress,
     onResponseStart,
     onBeforeRequest,
     onRequestStart,
     onSuccess,
   }: Omit<Awaited<ReturnType<typeof getAdapterBindings<T, BaseAdapterType>>>, "requestWrapper">,
 ) => {
-  console.log("HERE", requestMock);
-  const {
-    value: { data, config: { status = 200, responseDelay = 5, timeout = false } = {} },
-  } = requestMock.next();
-  console.log("PRINTING", data, status, responseDelay);
+  let data = {};
+  let status;
+  let responseDelay;
+  let timeout;
+
+  const mock = request.mock.next();
+  if (mock.value instanceof Function) {
+    ({ data, config: { status = 200, responseDelay = 5, timeout = false } = {} } = await mock.value(request));
+  } else {
+    ({
+      value: { data, config: { status = 200, responseDelay = 5, timeout = false } = {} },
+    } = mock);
+  }
+
   const isSuccess = status < 400;
   // Listen to abort signal
   createAbortListener(0, {}, () => {}, resolve);
@@ -33,8 +43,12 @@ export const handleMockRequest = <T extends RequestInstance>(
 
   const getResponse = () => {
     if (isSuccess) {
-      onSuccess(data, 200, {}, resolve);
+      onRequestEnd();
+      onResponseStart();
+      onSuccess(data, status, {}, resolve);
     } else {
+      onRequestEnd();
+      onResponseStart();
       onError(data, status, {}, resolve);
     }
   };

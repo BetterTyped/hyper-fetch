@@ -301,6 +301,13 @@ export type RequestMockType<Response> = {
   };
 };
 
+export type RequestDataMockTypes<Response, Request = RequestInstance> =
+  | RequestMockType<Response>
+  | RequestMockType<Response>[]
+  | ((r: Request) => RequestMockType<Response>)
+  | ((r: Request) => Promise<RequestMockType<Response>>)
+  | ((r: Request) => Promise<RequestMockType<Response>>)[];
+
 // Instance
 
 export type RequestInstance = Request<

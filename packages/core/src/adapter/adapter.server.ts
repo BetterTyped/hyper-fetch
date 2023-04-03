@@ -19,7 +19,7 @@ export const adapter: BaseAdapterType<ClientRequestArgs> = async <T extends Requ
           const handler = handleServerRequest(request, resolve, bindings);
           handler();
         } else {
-          handleMockRequest(resolve, request.mock, bindings);
+          handleMockRequest(resolve, request, bindings);
         }
       }),
   );
