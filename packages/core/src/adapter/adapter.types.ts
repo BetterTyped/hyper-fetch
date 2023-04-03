@@ -115,3 +115,8 @@ export type ProgressType = {
   loaded: number;
   startTimestamp: number;
 };
+
+export type AdapterBindingsReturnType = {
+  fullUrl: string;
+  config;
+};

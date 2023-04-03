@@ -125,7 +125,7 @@ describe("Request [ Sending ]", () => {
       expect(res3).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
     /**
-     * Solve #40 https://github.com/BetterTyped/hyper-fetch/issues/40
+     * Solved #40 https://github.com/BetterTyped/hyper-fetch/issues/40
      */
     it("should return cancel error for cancelable requests", async () => {
       const getUsers = client.createRequest()({

@@ -292,6 +292,15 @@ export type RequestSendType<Request extends RequestInstance> =
         ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
       >;
 
+export type RequestMockType<Response> = {
+  data: Response | Response[] | (() => Response);
+  config?: {
+    status?: number;
+    timeout?: boolean;
+    responseDelay?: number;
+  };
+};
+
 // Instance
 
 export type RequestInstance = Request<

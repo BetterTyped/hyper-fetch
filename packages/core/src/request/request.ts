@@ -12,6 +12,7 @@ import {
   RequestCurrentType,
   PayloadMapperType,
   RequestInstance,
+  RequestMockType,
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
@@ -27,7 +28,7 @@ import { DateInterval } from "constants/time.constants";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.
- * We can setup basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
+ * We can set up basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
  * :::info Usage
  * We should not use this class directly in the standard development flow. We can initialize it using the `createRequest` method on the **Client** class.
  * :::
@@ -72,6 +73,7 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
+  mock?: any;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
@@ -281,6 +283,24 @@ export class Request<
     return cloned;
   };
 
+  public setMock = (mock: RequestMockType<Response> | RequestMockType<Response>[]) => {
+    const mockedGenerator = function* (mockedValues) {
+      if (Array.isArray(mock)) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const m of mockedValues) {
+          yield m;
+        }
+      } else {
+        while (true) {
+          yield mock;
+        }
+      }
+    };
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+    cloned.mock = mockedGenerator(mock);
+    return cloned;
+  };
+
   public setRequestMapper = (
     requestMapper?: <R extends RequestInstance>(
       requestId: string,
@@ -447,6 +467,7 @@ export class Request<
 
     // Inherit methods
     cloned.dataMapper = this.dataMapper;
+    cloned.mock = this.mock;
 
     return cloned;
   }
