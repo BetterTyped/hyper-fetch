@@ -1,5 +1,4 @@
 import {
-  BaseAdapterType,
   ExtractErrorType,
   ExtractResponseType,
   getAdapterBindings,
@@ -11,31 +10,27 @@ import { Database } from "firebase/database";
 import { FirebaseAdapterType, FirebaseDBs } from "./adapter.types";
 import { getRealtimeDBMethods } from "./methods/adapter.realtime";
 
-const getQueryConstraints = (queryParams) => {
-  const constraints = [];
-  if (queryParams.filterBy) {
-    constraints.push(...queryParams.filterBy);
-  }
-  if (queryParams.orderBy) {
-    constraints.push(queryParams.orderBy);
-  }
+// TODO - add pre and post validation for firebase
 
-  return constraints;
-};
-
-export const firebaseAdapter = (database: FirebaseDBs) => {
-  const adapter: FirebaseAdapterType<typeof database> = async <R extends RequestInstance>(request: R, requestId) => {
-    const { fullUrl, onSuccess, onError } = await getAdapterBindings(request, requestId);
-    const { method = "onValue", queryParams } = request;
-    return new Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, BaseAdapterType>>((resolve) => {
+export const firebaseAdapter = <T extends FirebaseDBs>(database: T) => {
+  const adapter: FirebaseAdapterType<T> = async <R extends RequestInstance>(request: R, requestId: string) => {
+    const { fullUrl, onSuccess, onError } = await getAdapterBindings(request, requestId, 0, {});
+    // TODO - any for data?
+    const { method = "onValue", queryParams, data } = request;
+    return new Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, any>>((resolve) => {
       // eslint-disable-next-line no-console
       if (database instanceof Database) {
-        const availableMethods = getRealtimeDBMethods(database, fullUrl, onSuccess, onError, resolve);
+        const availableMethods = getRealtimeDBMethods(request, database, fullUrl, onSuccess, onError, resolve);
         const selectedMethod = availableMethods[method];
-        selectedMethod({ constraints: getQueryConstraints(queryParams) });
+        if (!selectedMethod) {
+          // TODO THROW ERROR?
+          console.log("Cannot find method");
+        }
+        selectedMethod({
+          constraints: { filterBy: queryParams?.filterBy || [], orderBy: queryParams?.orderBy || null },
+          data,
+        });
       }
-      // if (database instanceof Firestore) {
-      // }
     });
   };
   return adapter;

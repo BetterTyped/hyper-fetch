@@ -1,8 +1,9 @@
 import { Cache } from "cache";
 import { BaseAdapterType, ResponseReturnType } from "adapter";
 import { ResponseDetailsType } from "managers";
+import { ClientInstance } from "../client";
 
-export type CacheOptionsType = {
+export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
   /**
    * Assign your custom sync storage
    */
@@ -18,7 +19,7 @@ export type CacheOptionsType = {
   /**
    * Initialization callback
    */
-  onInitialization?: (cache: Cache) => void;
+  onInitialization?: (cache: Cache<C>) => void;
   /**
    * Callback for every change in the storage
    */

@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { BaseAdapterType, ResponseReturnType } from "adapter";
-import { ClientInstance } from "client";
+import { ClientInstance, ExtractAdapterTypeFromClient } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
   CacheOptionsType,
@@ -20,7 +20,7 @@ import { RequestJSON, RequestInstance } from "request";
  * Keys used to save the values are created dynamically on the Request class
  *
  */
-export class Cache {
+export class Cache<C extends ClientInstance> {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
@@ -30,7 +30,7 @@ export class Cache {
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
 
-  constructor(public client: ClientInstance, public options?: CacheOptionsType) {
+  constructor(public client: C, public options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
@@ -58,14 +58,14 @@ export class Cache {
    * @param details
    * @returns
    */
-  set = <Response, Error, AdapterType extends BaseAdapterType>(
+  set = <Response, Error>(
     request: RequestInstance | RequestJSON<RequestInstance>,
-    response: ResponseReturnType<Response, Error, AdapterType>,
+    response: ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>,
     details: ResponseDetailsType,
   ): void => {
     this.logger.debug("Processing cache response", { request, response, details });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
-    const cachedData = this.storage.get<Response, Error, AdapterType>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
@@ -73,7 +73,10 @@ export class Cache {
 
     const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
 
-    this.events.emitCacheData<Response, Error, AdapterType>(cacheKey, newCacheData);
+    this.events.emitCacheData<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(
+      cacheKey,
+      newCacheData,
+    );
     this.logger.debug("Emitting cache response", { request, response, details });
 
     // If request should not use cache - just emit response data
@@ -84,8 +87,8 @@ export class Cache {
     // Only success data is valid for the cache store
     if (details.isSuccess) {
       this.logger.debug("Saving response to cache storage", { request, response, details });
-      this.storage.set<Response, Error, AdapterType>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error, AdapterType>(cacheKey, newCacheData);
+      this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
     }

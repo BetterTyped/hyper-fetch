@@ -8,32 +8,36 @@ export type FirebaseDBs = Database | Firestore;
 // eslint-disable-next-line
 export type FirebaseAdapterType<DBType> = DBType extends Firestore
   ? BaseAdapterType<DefaultFirebaseAdapterOptions, FirestoreDBMethods, FirestoreStatuses, FirestoreDBAdditionalData>
-  : DBType extends Database
-  ? BaseAdapterType<
+  : BaseAdapterType<
       DefaultFirebaseAdapterOptions,
       RealtimeDBMethods,
       RealtimeDBStatuses,
       RealtimeDBAdditionalData,
       RealtimeDBQueryParams
-    >
-  : never;
+    >;
 
 export type DefaultFirebaseAdapterOptions = {
   data?: string;
   filterBy?: QueryConstraint | QueryConstraint[];
   orderBy?: QueryConstraint | QueryConstraint[];
   refetch?: boolean; // For update / push / etc. ? Update returns void. Should we allow for an option that is 'update and refetch my data'?
-  // listenOn?: RealtimeListeners | RealtimeListeners[];
+  // TODO - only for onValue
+  onlyOnce?: boolean;
+  // TODO
   priority?: number;
+
+  // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/
+  // toArray?: boolean
 };
+
+export enum RealtimeMethods {
+  GET = "GET",
+  PUSH = "PUSH",
+}
 
 export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
 // export type RealtimeListeners =
 //   | "onValue"  <--- most important
-//   | "onChildAdded"
-//   | "onChildRemoved"
-//   | "onChildMoved"
-//   | "onChildChanged"
 //   | "onDataChange" <---  most important
 //   | "onComplete"; <---   most important
 
@@ -42,6 +46,7 @@ export type RealtimeDBAdditionalData = {
   ref?: DatabaseReference;
   snapshot?: DataSnapshot;
   unsubscribe?: Unsubscribe;
+  key?: string;
 };
 
 export type RealtimeDBQueryParams = {
