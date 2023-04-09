@@ -1,5 +1,5 @@
 import { Cache } from "cache";
-import { BaseAdapterType, ResponseReturnType } from "adapter";
+import { AdapterInstance, BaseAdapterType, ResponseReturnType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { ClientInstance } from "../client";
 
@@ -23,7 +23,7 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
   /**
    * Callback for every change in the storage
    */
-  onChange?: <Response = any, Error = any, AdapterType extends BaseAdapterType = BaseAdapterType>(
+  onChange?: <Response = any, Error = any, AdapterType extends AdapterInstance = BaseAdapterType>(
     key: string,
     data: CacheValueType<Response, Error, AdapterType>,
   ) => void;
@@ -34,7 +34,7 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
 };
 
 // Values
-export type CacheValueType<Response = any, Error = any, AdapterType extends BaseAdapterType = BaseAdapterType> = {
+export type CacheValueType<Response = any, Error = any, AdapterType extends AdapterInstance = BaseAdapterType> = {
   data: ResponseReturnType<Response, Error, AdapterType>;
   details: ResponseDetailsType;
   cacheTime: number;

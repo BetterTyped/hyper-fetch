@@ -1,11 +1,11 @@
 import { set, ref, DataSnapshot } from "firebase/database";
-import { Client } from "@hyper-fetch/core";
+import { BaseAdapterType, Client, Request } from "@hyper-fetch/core";
 
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
 import { seedRealtimeDatabase, Tea } from "./utils/seed";
 import { db } from "./index";
 
-describe("[Realtime Database] Methods", () => {
+describe("Realtime Database [ Methods ]", () => {
   beforeEach(async () => {
     await set(ref(db, "teas/"), null);
     await seedRealtimeDatabase(db);
@@ -35,22 +35,33 @@ describe("[Realtime Database] Methods", () => {
       additionalData.unsubscribe();
     });
     it("should change HF cache if data is changed in firebase after onValue listener creation", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      type A = BaseAdapterType<{ test: 1 }, "post", number, { someAdditionalData: boolean }>;
+      type B = BaseAdapterType<{ new: 2 }, "get", number, { other: string }>;
+      type C = A | B;
+
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db) as any as C);
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
-        method: "onValue", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "post", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
       });
       const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
       const pushReq = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
-          method: "push",
+          method: "get",
         })
         .setData(newData);
       const {
         data,
-        additionalData: { unsubscribe },
+        additionalData: { someAdditionalData },
       } = await req.send();
+
+      type ExtractAdapterType<T> = T extends Request<any, any, any, any, any, any, infer Ad, any, any, any>
+        ? Ad
+        : never;
+
+      const b: ExtractAdapterType<typeof req>;
+      const c: ExtractAdapterType<typeof pushReq>;
 
       const {
         data: { data: cacheAfterGet },

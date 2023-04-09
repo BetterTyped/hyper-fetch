@@ -23,6 +23,7 @@ import {
   ExtractAdapterOptions,
   QueryParamsType,
   ResponseReturnType,
+  AdapterInstance,
 } from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
@@ -45,7 +46,7 @@ export class Request<
   GlobalError, // Global Error Type
   LocalError, // Additional Error for specific endpoint
   Endpoint extends string,
-  AdapterType extends BaseAdapterType = BaseAdapterType,
+  AdapterType extends AdapterInstance = BaseAdapterType,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,

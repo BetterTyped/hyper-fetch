@@ -5,6 +5,8 @@ import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsT
  * Base Adapter
  */
 
+export type AdapterInstance = BaseAdapterType<any, any, any, any, any>;
+
 export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdapterOptions = AdapterOptionsType,
@@ -21,11 +23,11 @@ export type BaseAdapterType<
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
   genericMapper?: {
-    method: MethodType;
-    options: AdapterOptions;
-    status: StatusType;
-    additionalData: AdditionalData;
-    queryParams: QueryParams;
+    method?: MethodType;
+    options?: AdapterOptions;
+    status?: StatusType;
+    additionalData?: AdditionalData;
+    queryParams?: QueryParams;
   },
 ) => Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>;
 
@@ -41,17 +43,16 @@ export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, an
 export type ExtractUnionAdapter<
   AdapterType extends BaseAdapterType,
   Values extends {
-    method: any;
-    options: any;
-    status: any;
-    additionalData: any;
-    queryParams: any;
+    method?: any;
+    options?: any;
+    status?: any;
+    additionalData?: any;
+    queryParams?: any;
   },
 > = Extract<
   AdapterType,
   BaseAdapterType<Values["options"], Values["method"], Values["status"], Values["additionalData"]>
 >;
-
 /**
  * Options
  */

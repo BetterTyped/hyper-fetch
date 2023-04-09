@@ -9,6 +9,8 @@ import {
   ExtractAdapterQueryParamsType,
   ExtractAdapterMethodType,
   ExtractAdapterAdditionalDataType,
+  ExtractUnionAdapter,
+  AdapterInstance,
 } from "adapter";
 import {
   stringifyQueryParams,
@@ -37,7 +39,7 @@ import { HttpMethodsEnum } from "../constants/http.constants";
  */
 export class Client<
   GlobalErrorType extends ClientErrorType = Error,
-  AdapterType extends BaseAdapterType = BaseAdapterType,
+  AdapterType extends AdapterInstance = BaseAdapterType,
 > {
   readonly url: string;
   public debug: boolean;
@@ -184,7 +186,7 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <NewAdapterType extends BaseAdapterType>(
+  setAdapter = <NewAdapterType extends BaseAdapterType<any, any, any, any, any>>(
     callback: (Client: ClientInstance) => NewAdapterType,
   ): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this) as unknown as AdapterType;
@@ -339,13 +341,21 @@ export class Client<
       | ExtractAdapterQueryParamsType<AdapterType>
       | string = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
-    return <EndpointType extends string>(
-      params: RequestOptionsType<
-        EndpointType,
-        ExtractAdapterOptions<AdapterType>,
-        ExtractAdapterMethodType<AdapterType>
-      >,
+    return <
+      EndpointType extends string,
+      AdapterOptions extends ExtractAdapterOptions<AdapterType>,
+      MethodType extends ExtractAdapterMethodType<AdapterType>,
+    >(
+      params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
     ) =>
-      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, AdapterType>(this, params);
+      new Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalErrorType,
+        LocalError,
+        EndpointType,
+        ExtractUnionAdapter<AdapterType, { method: MethodType; options: AdapterOptions }>
+      >(this, params);
   };
 }

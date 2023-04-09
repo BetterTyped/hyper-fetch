@@ -7,6 +7,7 @@ import {
   ExtractAdapterStatusType,
   ExtractAdapterAdditionalDataType,
   BaseAdapterType,
+  AdapterInstance,
   ResponseReturnType,
 } from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
@@ -14,7 +15,7 @@ import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types
 
 export const getAdapterBindings = async <
   R extends RequestInstance = RequestInstance,
-  T extends BaseAdapterType = BaseAdapterType,
+  T extends AdapterInstance = BaseAdapterType,
 >(
   req: R,
   requestId: string,
