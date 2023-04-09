@@ -15,12 +15,44 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "../adapter.types";
 
-const getOrdered = (snapshot: DataSnapshot) => {
+const getOrderedResult = (snapshot: DataSnapshot) => {
   const res = [];
   snapshot.forEach((child) => {
     res.push(child.val());
   });
   return res;
+};
+
+const setCacheManually = <R extends RequestInstance>(
+  request: R,
+  response: { value: any; status: "success" | "error" },
+  additionalData,
+) => {
+  if (response.status === "success") {
+    request.client.cache.set(
+      request,
+      { data: response.value, status: "success", error: null, isSuccess: true, additionalData },
+      {
+        isSuccess: true,
+        isCanceled: false,
+        isOffline: false,
+        retries: 0,
+        timestamp: +new Date(),
+      },
+    );
+  } else {
+    request.client.cache.set(
+      request,
+      { data: null, status: "error", error: response.value, isSuccess: false, additionalData },
+      {
+        isSuccess: false,
+        isCanceled: false,
+        isOffline: false,
+        retries: 0,
+        timestamp: +new Date(),
+      },
+    );
+  }
 };
 
 export const getRealtimeDBMethods = <DType, R extends RequestInstance>(
@@ -46,29 +78,14 @@ export const getRealtimeDBMethods = <DType, R extends RequestInstance>(
       const q = query(path, ...params);
       const unsub = onValue(q, (snapshot) => {
         try {
-          const res = constraints.orderBy ? getOrdered(snapshot) : snapshot.val();
-          // TODO make util - setCacheManually - maybe infer current cache values for details?4
-          // TODO CHECK WHAT HAPPENS WHEN MODIFIES DATA AND NO LONGER ARRAY
-          request.client.cache.set(
-            request,
-            {
-              data: res,
-              status: "success",
-              error: null,
-              isSuccess: true,
-              additionalData: { ref: path, snapshot },
-            },
-            {
-              isSuccess: true,
-              isCanceled: false,
-              isOffline: false,
-              retries: 0,
-              timestamp: +new Date(),
-            },
-          );
-          onSuccess(res, "success", { ref: path, snapshot, unsubscribe: unsub }, resolve);
+          const res = constraints.orderBy ? getOrderedResult(snapshot) : snapshot.val();
+          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
+          setCacheManually(request, { value: res, status: "success" }, additionalData);
+          onSuccess(res, "success", additionalData, resolve);
         } catch (e) {
-          onError(e, "error", { ref: path, snapshot: null, unsubscribe: unsub }, resolve);
+          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
+          setCacheManually(request, { value: e, status: "error" }, additionalData);
+          onError(e, "error", additionalData, resolve);
         }
       });
     },
@@ -80,7 +97,7 @@ export const getRealtimeDBMethods = <DType, R extends RequestInstance>(
       const q = query(path, ...params);
       try {
         const snapshot = await get(q);
-        const res = constraints.orderBy ? getOrdered(snapshot) : snapshot.val();
+        const res = constraints.orderBy ? getOrderedResult(snapshot) : snapshot.val();
         onSuccess(res, "success", { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path, snapshot: null }, resolve);
