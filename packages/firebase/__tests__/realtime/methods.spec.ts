@@ -1,5 +1,5 @@
 import { set, ref, DataSnapshot } from "firebase/database";
-import { BaseAdapterType, Client, Request } from "@hyper-fetch/core";
+import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
 import { seedRealtimeDatabase, Tea } from "./utils/seed";
@@ -35,41 +35,32 @@ describe("Realtime Database [ Methods ]", () => {
       additionalData.unsubscribe();
     });
     it("should change HF cache if data is changed in firebase after onValue listener creation", async () => {
-      type A = BaseAdapterType<{ test: 1 }, "post", number, { someAdditionalData: boolean }>;
-      type B = BaseAdapterType<{ new: 2 }, "get", number, { other: string }>;
-      type C = A | B;
-
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db) as any as C);
-      const req = client.createRequest<Tea[]>()({
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const onValueReq = client.createRequest<Tea[]>()({
         endpoint: "",
-        method: "post", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "onValue",
       });
       const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
       const pushReq = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
-          method: "get",
+          method: "push",
         })
         .setData(newData);
       const {
         data,
-        additionalData: { someAdditionalData },
-      } = await req.send();
-
-      type ExtractAdapterType<T> = T extends Request<any, any, any, any, any, any, infer Ad, any, any, any>
-        ? Ad
-        : never;
-
-      const b: ExtractAdapterType<typeof req>;
-      const c: ExtractAdapterType<typeof pushReq>;
+        additionalData: { unsubscribe },
+      } = await onValueReq.send();
 
       const {
-        data: { data: cacheAfterGet },
-      } = req.client.cache.get(req.cacheKey);
+        data: { data: cacheAfterOnValue },
+      } = onValueReq.client.cache.get(onValueReq.cacheKey);
+
       await pushReq.send();
+
       const {
         data: { data: cacheAfterPush },
-      } = req.client.cache.get(req.cacheKey);
+      } = onValueReq.client.cache.get(onValueReq.cacheKey);
 
       if (unsubscribe) {
         unsubscribe();
@@ -79,9 +70,9 @@ describe("Realtime Database [ Methods ]", () => {
 
       const {
         data: { data: cacheAfterUnsub },
-      } = req.client.cache.get(req.cacheKey);
+      } = onValueReq.client.cache.get(onValueReq.cacheKey);
 
-      expect(data).toStrictEqual(cacheAfterGet);
+      expect(data).toStrictEqual(cacheAfterOnValue);
       expect(Object.values(cacheAfterPush)).toHaveLength(11);
       expect(Object.values(cacheAfterUnsub)).toHaveLength(11);
     });

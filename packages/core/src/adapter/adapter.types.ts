@@ -40,6 +40,7 @@ export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M
 export type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
 export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
 export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
+// Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
   AdapterType extends BaseAdapterType,
   Values extends {
@@ -51,7 +52,13 @@ export type ExtractUnionAdapter<
   },
 > = Extract<
   AdapterType,
-  BaseAdapterType<Values["options"], Values["method"], Values["status"], Values["additionalData"]>
+  BaseAdapterType<
+    Values["options"],
+    Values["method"],
+    Values["status"],
+    Values["additionalData"],
+    Values["queryParams"]
+  >
 >;
 /**
  * Options

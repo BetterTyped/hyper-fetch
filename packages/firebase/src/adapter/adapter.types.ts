@@ -5,16 +5,35 @@ import { CollectionReference, DocumentReference } from "@firebase/firestore";
 
 export type FirebaseDBs = Database | Firestore;
 
-// eslint-disable-next-line
-export type FirebaseAdapterType<_DBType extends FirebaseDBs> =
+export type FirebaseAdapterType =
   | BaseAdapterType<
-      DefaultFirebaseAdapterOptions,
-      "set",
+      DefaultFirebaseAdapterOptions & { onlyOnce: boolean },
+      "onValue",
       RealtimeDBStatuses,
-      { something: number },
+      RealtimeDbOnValueMethodAdditionalData,
       RealtimeDBQueryParams
     >
-  | BaseAdapterType<DefaultFirebaseAdapterOptions, "push", RealtimeDBStatuses, { ref: string }, RealtimeDBQueryParams>;
+  | BaseAdapterType<
+      DefaultFirebaseAdapterOptions,
+      "get",
+      RealtimeDBStatuses,
+      RealtimeDbGetMethodAdditionalData,
+      RealtimeDBQueryParams
+    >
+  | BaseAdapterType<
+      DefaultFirebaseAdapterOptions,
+      "push",
+      RealtimeDBStatuses,
+      RealtimeDbPushMethodAdditionalData,
+      RealtimeDBQueryParams
+    >
+  | BaseAdapterType<
+      DefaultFirebaseAdapterOptions,
+      "set" | "update" | "remove",
+      RealtimeDBStatuses,
+      RealtimeDbDefaultAdditionalData,
+      RealtimeDBQueryParams
+    >;
 
 export type DefaultFirebaseAdapterOptions = {
   data?: string;
@@ -22,8 +41,6 @@ export type DefaultFirebaseAdapterOptions = {
   orderBy?: QueryConstraint | QueryConstraint[];
   refetch?: boolean; // For update / push / etc. ? Update returns void. Should we allow for an option that is 'update and refetch my data'?
   // TODO - only for onValue
-  onlyOnce?: boolean;
-  // TODO
   priority?: number;
 
   // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/
@@ -42,11 +59,24 @@ export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "
 //   | "onComplete"; <---   most important
 
 export type RealtimeDBStatuses = "success" | "error";
-export type RealtimeDBAdditionalData = {
-  ref?: DatabaseReference;
-  snapshot?: DataSnapshot;
-  unsubscribe?: Unsubscribe;
-  key?: string;
+export type RealtimeDbOnValueMethodAdditionalData = {
+  ref: DatabaseReference;
+  snapshot: DataSnapshot;
+  unsubscribe: Unsubscribe;
+};
+
+export type RealtimeDbGetMethodAdditionalData = {
+  ref: DatabaseReference;
+  snapshot: DataSnapshot;
+};
+
+export type RealtimeDbDefaultAdditionalData = {
+  ref: DatabaseReference;
+};
+
+export type RealtimeDbPushMethodAdditionalData = {
+  ref: DatabaseReference;
+  key: string;
 };
 
 export type RealtimeDBQueryParams = {
