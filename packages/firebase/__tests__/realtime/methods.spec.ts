@@ -45,7 +45,6 @@ describe("[Realtime Database] Methods", () => {
         .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "push",
-          options: {},
         })
         .setData(newData);
       const {

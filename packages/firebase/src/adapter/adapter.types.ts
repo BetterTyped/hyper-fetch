@@ -6,15 +6,23 @@ import { CollectionReference, DocumentReference } from "@firebase/firestore";
 export type FirebaseDBs = Database | Firestore;
 
 // eslint-disable-next-line
-export type FirebaseAdapterType<DBType> = DBType extends Firestore
+export type FirebaseAdapterType<DBType extends FirebaseDBs> = DBType extends Firestore
   ? BaseAdapterType<DefaultFirebaseAdapterOptions, FirestoreDBMethods, FirestoreStatuses, FirestoreDBAdditionalData>
-  : BaseAdapterType<
-      DefaultFirebaseAdapterOptions,
-      RealtimeDBMethods,
-      RealtimeDBStatuses,
-      RealtimeDBAdditionalData,
-      RealtimeDBQueryParams
-    >;
+  :
+      | BaseAdapterType<
+          DefaultFirebaseAdapterOptions,
+          "set",
+          RealtimeDBStatuses,
+          { something: number },
+          RealtimeDBQueryParams
+        >
+      | BaseAdapterType<
+          DefaultFirebaseAdapterOptions,
+          "push",
+          RealtimeDBStatuses,
+          { ref: string },
+          RealtimeDBQueryParams
+        >;
 
 export type DefaultFirebaseAdapterOptions = {
   data?: string;

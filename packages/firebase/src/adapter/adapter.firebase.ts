@@ -1,4 +1,5 @@
 import {
+  ExtractAdapterType,
   ExtractErrorType,
   ExtractResponseType,
   getAdapterBindings,
@@ -17,21 +18,23 @@ export const firebaseAdapter = <T extends FirebaseDBs>(database: T) => {
     const { fullUrl, onSuccess, onError } = await getAdapterBindings(request, requestId, 0, {});
     // TODO - any for data?
     const { method = "onValue", queryParams, data } = request;
-    return new Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, any>>((resolve) => {
-      // eslint-disable-next-line no-console
-      if (database instanceof Database) {
-        const availableMethods = getRealtimeDBMethods(request, database, fullUrl, onSuccess, onError, resolve);
-        const selectedMethod = availableMethods[method];
-        if (!selectedMethod) {
-          // TODO THROW ERROR?
-          console.log("Cannot find method");
+    return new Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>>(
+      (resolve) => {
+        // eslint-disable-next-line no-console
+        if (database instanceof Database) {
+          const availableMethods = getRealtimeDBMethods(request, database, fullUrl, onSuccess, onError, resolve);
+          const selectedMethod = availableMethods[method];
+          if (!selectedMethod) {
+            // TODO THROW ERROR?
+            console.log("Cannot find method");
+          }
+          selectedMethod({
+            constraints: { filterBy: queryParams?.filterBy || [], orderBy: queryParams?.orderBy || null },
+            data,
+          });
         }
-        selectedMethod({
-          constraints: { filterBy: queryParams?.filterBy || [], orderBy: queryParams?.orderBy || null },
-          data,
-        });
-      }
-    });
+      },
+    );
   };
   return adapter;
 };

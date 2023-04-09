@@ -1,13 +1,9 @@
 import { RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsType, HttpStatusType } from "../types";
 
-// Adapter
-
-export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any, any> ? M : never;
-export type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
-export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
-export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
+/**
+ * Base Adapter
+ */
 
 export type BaseAdapterType<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -23,7 +19,42 @@ export type BaseAdapterType<
 > = <T extends RequestInstance>(
   request: T,
   requestId: string,
+  // This is never used in the application, we pass this type to have unions extracting possibilities
+  genericMapper?: {
+    method: MethodType;
+    options: AdapterOptions;
+    status: StatusType;
+    additionalData: AdditionalData;
+    queryParams: QueryParams;
+  },
 ) => Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>;
+
+/**
+ * Extractors
+ */
+
+export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
+export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
+export type ExtractUnionAdapter<
+  AdapterType extends BaseAdapterType,
+  Values extends {
+    method: any;
+    options: any;
+    status: any;
+    additionalData: any;
+    queryParams: any;
+  },
+> = Extract<
+  AdapterType,
+  BaseAdapterType<Values["options"], Values["method"], Values["status"], Values["additionalData"]>
+>;
+
+/**
+ * Options
+ */
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
 
