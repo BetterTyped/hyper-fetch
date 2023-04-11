@@ -65,7 +65,7 @@ describe("useFetch [ Cancel ]", () => {
         act(() => {
           const params = { page: 1 };
           response.result.current.onAbort(spy);
-          response.rerender({ request: request.setQueryParams(params), dependencies: [params] });
+          response.rerender({ request, dependencies: [params] });
         });
         await waitForRender();
 
