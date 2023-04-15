@@ -33,7 +33,7 @@ export const useTrackedState = <T extends RequestInstance>({
   dependencyTracking,
   defaultCacheEmitting = true,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { client, cacheKey, queueKey, cacheTime } = request;
+  const { client, cacheKey, queueKey, cacheTime, responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
@@ -125,17 +125,27 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
+  const mapResponseData = (
+    data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
+    if (responseMapper) {
+      return { ...data, ...responseMapper(data.data) };
+    }
+    return data;
+  };
+
   const setCacheData = async (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
+    const localData = mapResponseData(cacheData);
     const newStateValues: UseTrackedStateType<T> = {
-      data: cacheData.data.data,
-      error: cacheData.data.error,
-      status: cacheData.data.status,
-      isSuccess: cacheData.data.isSuccess,
-      additionalData: cacheData.data.additionalData,
-      retries: cacheData.details.retries,
-      timestamp: new Date(cacheData.details.timestamp),
+      data: localData.data.data,
+      error: localData.data.error,
+      status: localData.data.status,
+      isSuccess: localData.data.isSuccess,
+      additionalData: localData.data.additionalData,
+      retries: localData.details.retries,
+      timestamp: new Date(localData.details.timestamp),
       loading: state.current.loading,
     };
 

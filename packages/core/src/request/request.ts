@@ -24,6 +24,8 @@ import {
   QueryParamsType,
   ResponseReturnType,
   AdapterInstance,
+  ExtractAdapterAdditionalDataType,
+  OverrideAdapterAdditionalData,
 } from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
@@ -84,9 +86,7 @@ export class Request<
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
-    requestId: string,
-    request: RequestInstance,
-  ) => ResponseReturnType<any, any, AdapterType>;
+  ) => ResponseReturnType<any, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -362,27 +362,29 @@ export class Request<
    * @param onResponse our callback
    * @returns
    */
-  public setResponseMapper = <NewResponse, NewError>(
+  public setResponseMapper = <
+    NewResponse = Response,
+    NewError = GlobalError | LocalError,
+    NewAdditionalData = ExtractAdapterAdditionalDataType<AdapterType>,
+  >(
     responseMapper?: (
       response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
-      requestId: string,
-      request: Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >,
-    ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
+    ) => ResponseReturnType<NewResponse, NewError, OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>>,
   ) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>();
+    const cloned = this.clone<HasData, HasParams, HasQuery>() as unknown as Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
 
-    cloned.responseMapper = responseMapper;
+    cloned.responseMapper = responseMapper as any;
 
     return cloned as unknown as Request<
       NewResponse,
@@ -391,7 +393,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterType,
+      OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>,
       HasData,
       HasParams,
       HasQuery
@@ -535,6 +537,10 @@ export class Request<
 
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);
+
+    if (request.responseMapper) {
+      return request.responseMapper(response);
+    }
 
     return response;
   };

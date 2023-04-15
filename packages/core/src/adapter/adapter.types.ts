@@ -42,7 +42,7 @@ export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any,
 export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
 // Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
-  AdapterType extends BaseAdapterType,
+  AdapterType extends AdapterInstance,
   Values extends {
     method?: any;
     options?: any;
@@ -71,6 +71,17 @@ export type ExtractUnionAdapter<
       >
     >
   : never;
+
+export type OverrideAdapterAdditionalData<NewAdditionalData, T> = T extends BaseAdapterType<
+  infer O,
+  infer M,
+  infer S,
+  any,
+  infer Q
+>
+  ? BaseAdapterType<O, M, S, NewAdditionalData, Q>
+  : never;
+
 /**
  * Options
  */
@@ -84,21 +95,21 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseReturnType<GenericDataType, GenericErrorType, AdapterType extends BaseAdapterType> = {
+export type ResponseReturnType<GenericDataType, GenericErrorType, AdapterType extends AdapterInstance> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;
   status: ExtractAdapterStatusType<AdapterType> | null;
   isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
-export type ResponseReturnSuccessType<GenericDataType, AdapterType extends BaseAdapterType> = {
+export type ResponseReturnSuccessType<GenericDataType, AdapterType extends AdapterInstance> = {
   data: GenericDataType;
   error: null;
   status: ExtractAdapterStatusType<AdapterType> | null;
   isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
-export type ResponseReturnErrorType<GenericErrorType, AdapterType extends BaseAdapterType> = {
+export type ResponseReturnErrorType<GenericErrorType, AdapterType extends AdapterInstance> = {
   data: null;
   error: GenericErrorType;
   status: ExtractAdapterStatusType<AdapterType> | null;

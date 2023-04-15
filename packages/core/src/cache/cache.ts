@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { BaseAdapterType, ResponseReturnType } from "adapter";
+import { AdapterInstance, ResponseReturnType } from "adapter";
 import { ClientInstance, ExtractAdapterTypeFromClient } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -99,7 +99,7 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error, AdapterType extends BaseAdapterType>(
+  get = <Response, Error, AdapterType extends AdapterInstance>(
     cacheKey: string,
   ): CacheValueType<Response, Error, AdapterType> | undefined => {
     this.getLazyResource<Response, Error, AdapterType>(cacheKey);
@@ -154,7 +154,7 @@ export class Cache<C extends ClientInstance> {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error, AdapterType extends BaseAdapterType>(
+  getLazyResource = async <Response, Error, AdapterType extends AdapterInstance>(
     cacheKey: string,
   ): Promise<CacheValueType<Response, Error, AdapterType> | undefined> => {
     const data = await this.lazyStorage?.get<Response, Error, AdapterType>(cacheKey);

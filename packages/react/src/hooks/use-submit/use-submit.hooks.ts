@@ -42,8 +42,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
   );
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, bounceTimeout, deepCompare } =
-    mergedOptions;
+  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 
   /**
    * Because of the dynamic cacheKey / queueKey signing within the request we need to store it's latest instance
@@ -54,7 +53,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
 
   const logger = useRef(loggerManager.init("useSubmit")).current;
   const requestDebounce = useDebounce({ delay: bounceTime });
-  const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
+  const requestThrottle = useThrottle({
+    interval: bounceTime,
+    timeout: "bounceTimeout" in mergedOptions ? mergedOptions.bounceTimeout : bounceTime,
+  });
   const bounceResolver = useRef<
     (
       value: ResponseReturnType<

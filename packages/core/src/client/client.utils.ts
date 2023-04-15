@@ -4,7 +4,7 @@ import {
   QueryParamValuesType,
   ResponseReturnType,
   QueryStringifyOptionsType,
-  BaseAdapterType,
+  AdapterInstance,
 } from "adapter";
 import { RequestInstance } from "request";
 import { stringifyDefaultOptions } from "client";
@@ -35,7 +35,7 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   return newRequest;
 };
 
-export const interceptResponse = async <GlobalErrorType, AdapterType extends BaseAdapterType>(
+export const interceptResponse = async <GlobalErrorType, AdapterType extends AdapterInstance>(
   interceptors: ResponseInterceptorType[],
   response: ResponseReturnType<any, GlobalErrorType, AdapterType>,
   request: RequestInstance,

@@ -44,11 +44,11 @@ export type CacheValueType<Response = any, Error = any, AdapterType extends Adap
 
 // Storage
 export type CacheAsyncStorageType = {
-  set: <Response, Error, AdapterType extends BaseAdapterType>(
+  set: <Response, Error, AdapterType extends AdapterInstance>(
     key: string,
     data: CacheValueType<Response, Error, AdapterType>,
   ) => Promise<void>;
-  get: <Response, Error, AdapterType extends BaseAdapterType>(
+  get: <Response, Error, AdapterType extends AdapterInstance>(
     key: string,
   ) => Promise<CacheValueType<Response, Error, AdapterType> | undefined>;
   keys: () => Promise<string[] | IterableIterator<string> | string[]>;
@@ -56,11 +56,11 @@ export type CacheAsyncStorageType = {
 };
 
 export type CacheStorageType = {
-  set: <Response, Error, AdapterType extends BaseAdapterType>(
+  set: <Response, Error, AdapterType extends AdapterInstance>(
     key: string,
     data: CacheValueType<Response, Error, AdapterType>,
   ) => void;
-  get: <Response, Error, AdapterType extends BaseAdapterType>(
+  get: <Response, Error, AdapterType extends AdapterInstance>(
     key: string,
   ) => CacheValueType<Response, Error, AdapterType> | undefined;
   keys: () => string[] | IterableIterator<string> | string[];

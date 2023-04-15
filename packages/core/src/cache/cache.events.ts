@@ -1,8 +1,7 @@
 import EventEmitter from "events";
 
-import { CacheValueType, getRevalidateEventKey } from "cache";
-import { getCacheKey } from "./cache.utils";
-import { BaseAdapterType } from "../adapter";
+import { CacheValueType, getRevalidateEventKey, getCacheKey } from "cache";
+import { AdapterInstance } from "adapter";
 
 export const getCacheEvents = (emitter: EventEmitter) => ({
   /**
@@ -10,7 +9,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param cacheKey
    * @param data
    */
-  emitCacheData: <Response, Error, AdapterType extends BaseAdapterType>(
+  emitCacheData: <Response, Error, AdapterType extends AdapterInstance>(
     cacheKey: string,
     data: CacheValueType<Response, Error, AdapterType>,
   ): void => {
@@ -28,7 +27,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onData: <Response, Error, AdapterType extends BaseAdapterType>(
+  onData: <Response, Error, AdapterType extends AdapterInstance>(
     cacheKey: string,
     callback: (data: CacheValueType<Response, Error, AdapterType>) => void,
   ): VoidFunction => {

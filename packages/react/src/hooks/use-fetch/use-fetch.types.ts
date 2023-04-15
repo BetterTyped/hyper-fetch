@@ -54,22 +54,35 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
    */
   bounce?: boolean;
   /**
-   * Possibility to choose between debounce and throttle approaches
-   */
-  bounceType?: "debounce" | "throttle";
-  /**
-   * How long it should bounce requests.
-   */
-  bounceTime?: number;
-  /**
-   * ONLY in throttle mode - options for handling last bounce event
-   */
-  bounceTimeout?: number;
-  /**
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */
   deepCompare?: boolean | typeof isEqual;
-};
+} & (
+  | {
+      /**
+       * Possibility to choose between debounce and throttle approaches
+       */
+      bounceType?: "debounce";
+      /**
+       * How long it should bounce requests.
+       */
+      bounceTime?: number;
+    }
+  | {
+      /**
+       * Possibility to choose between debounce and throttle approaches
+       */
+      bounceType: "throttle";
+      /**
+       * How long it should bounce requests.
+       */
+      bounceTime?: number;
+      /**
+       * ONLY in throttle mode - options for handling last bounce event
+       */
+      bounceTimeout?: number;
+    }
+);
 
 export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
   UseTrackedStateActions<T> &

@@ -21,7 +21,7 @@ import {
   getRemoveEventKey,
   getRemoveIdEventKey,
 } from "managers";
-import { BaseAdapterType, ProgressType, ResponseReturnType } from "adapter";
+import { AdapterInstance, ProgressType, ResponseReturnType } from "adapter";
 import { RequestInstance } from "request";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
@@ -66,7 +66,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  emitResponse: <AdapterType extends BaseAdapterType>(
+  emitResponse: <AdapterType extends AdapterInstance>(
     cacheKey: string,
     requestId: string,
     response: ResponseReturnType<unknown, unknown, AdapterType>,
@@ -164,7 +164,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  onResponse: <Response, ErrorType, AdapterType extends BaseAdapterType>(
+  onResponse: <Response, ErrorType, AdapterType extends AdapterInstance>(
     cacheKey: string,
     callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
@@ -172,7 +172,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
   },
   // Response by requestId
-  onResponseById: <Response, ErrorType, AdapterType extends BaseAdapterType>(
+  onResponseById: <Response, ErrorType, AdapterType extends AdapterInstance>(
     requestId: string,
     callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
   ): VoidFunction => {

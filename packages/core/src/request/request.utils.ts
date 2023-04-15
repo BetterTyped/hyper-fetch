@@ -155,6 +155,10 @@ export const sendRequest = <Request extends RequestInstance>(
       // When request is in retry mode we need to listen for retries end
       if (!isSuccess && willRetry) return;
 
+      if (request.responseMapper) {
+        return request.responseMapper(response);
+      }
+
       options?.onResponse?.(response, details);
       resolve(response);
 

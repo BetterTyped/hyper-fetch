@@ -184,7 +184,7 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <NewAdapterType extends BaseAdapterType<any, any, any, any, any>>(
+  setAdapter = <NewAdapterType extends AdapterInstance>(
     callback: (Client: ClientInstance) => NewAdapterType,
   ): Client<GlobalErrorType, NewAdapterType> => {
     this.adapter = callback(this) as unknown as AdapterType;

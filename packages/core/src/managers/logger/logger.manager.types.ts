@@ -1,4 +1,4 @@
-import { BaseAdapterType, ResponseReturnType } from "adapter";
+import { AdapterInstance, ResponseReturnType } from "adapter";
 import { RequestInstance } from "request";
 import { ResponseDetailsType } from "managers/request";
 
@@ -27,7 +27,7 @@ export type LoggerMessageType = string | Record<string, unknown> | Array<unknown
 // Events
 
 export type LoggerRequestEventData = { requestId: string; request: RequestInstance };
-export type LoggerResponseEventData<AdapterType extends BaseAdapterType> = {
+export type LoggerResponseEventData<AdapterType extends AdapterInstance> = {
   requestId: string;
   request: RequestInstance;
   response: ResponseReturnType<unknown, unknown, AdapterType>;

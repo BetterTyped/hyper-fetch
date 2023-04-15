@@ -36,7 +36,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
-    bounceTimeout = useFetchDefaultOptions.bounceTimeout,
+    bounceTimeout = useFetchDefaultOptions.bounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   } = {
     ...useFetchDefaultOptions,

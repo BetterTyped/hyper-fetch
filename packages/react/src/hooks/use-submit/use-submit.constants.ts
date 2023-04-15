@@ -13,6 +13,5 @@ export const useSubmitDefaultOptions: DefaultOptionsType = {
   bounce: false,
   bounceType: "debounce",
   bounceTime: 400,
-  bounceTimeout: 200,
   deepCompare: true,
 };
