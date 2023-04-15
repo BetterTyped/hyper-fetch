@@ -10,7 +10,7 @@ export type ExtractAdapterTypeFromClient<T> = T extends Client<any, infer A> ? A
 /**
  * Configuration setup for the client
  */
-export type ClientOptionsType = {
+export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * Url to your server
    */
@@ -22,19 +22,19 @@ export type ClientOptionsType = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends ClientInstance>(client: B) => B["cache"];
+  cache?: (client: C) => C["cache"];
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends ClientInstance>(client: B) => B["appManager"];
+  appManager?: (client: C) => C["appManager"];
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends ClientInstance>(client: B) => B["submitDispatcher"];
+  fetchDispatcher?: (client: C) => C["submitDispatcher"];
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends ClientInstance>(client: B) => B["fetchDispatcher"];
+  submitDispatcher?: (client: C) => C["fetchDispatcher"];
 };
 
 // Interceptors

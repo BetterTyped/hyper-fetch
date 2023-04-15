@@ -363,7 +363,6 @@ export class Request<
    * @returns
    */
   public setResponseMapper = <NewResponse, NewError>(
-    cacheKey: string,
     responseMapper?: (
       response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
       requestId: string,
@@ -381,7 +380,7 @@ export class Request<
       >,
     ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
   ) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>({ cacheKey });
+    const cloned = this.clone<HasData, HasParams, HasQuery>();
 
     cloned.responseMapper = responseMapper;
 
@@ -498,6 +497,9 @@ export class Request<
 
     // Inherit methods
     cloned.dataMapper = this.dataMapper;
+    cloned.responseMapper = this.responseMapper;
+    cloned.requestMapper = this.requestMapper;
+
     cloned.mockData = this.mockData;
     cloned.mock = this.mock;
 

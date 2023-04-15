@@ -241,9 +241,6 @@ export const getAdapterBindings = async <
     };
     response = await request.client.__modifyResponse(response, request);
     response = await request.client.__modifySuccessResponse(response, request);
-    if (request.responseMapper) {
-      response = await request.responseMapper(response, requestId, request);
-    }
 
     effects.forEach((effect) => effect.onSuccess(response, request));
     effects.forEach((effect) => effect.onFinished(response, request));
@@ -271,9 +268,6 @@ export const getAdapterBindings = async <
 
     responseData = await request.client.__modifyResponse(responseData, request);
     responseData = await request.client.__modifyErrorResponse(responseData, request);
-    if (request.responseMapper) {
-      responseData = await request.responseMapper(responseData, requestId, request);
-    }
 
     effects.forEach((effect) => effect.onError(responseData, request));
     effects.forEach((effect) => effect.onFinished(responseData, request));

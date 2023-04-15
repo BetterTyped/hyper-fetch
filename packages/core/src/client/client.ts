@@ -93,7 +93,7 @@ export class Client<
   // Logger
   logger = this.loggerManager.init("Client");
 
-  constructor(public options: ClientOptionsType) {
+  constructor(public options: ClientOptionsType<Client<GlobalErrorType, AdapterType>>) {
     const { url, adapter, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.url = url;
     this.adapter = (adapter || defaultAdapter) as AdapterType;
