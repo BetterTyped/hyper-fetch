@@ -13,7 +13,7 @@ import {
   PayloadMapperType,
   RequestInstance,
   RequestDataMockTypes,
-  RequestMockType,
+  GeneratorReturnMockTypes,
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
@@ -75,8 +75,12 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
-  mock?: Generator<RequestMockType<Response>, RequestMockType<Response>>;
-  mockData?: RequestDataMockTypes<Response, this>;
+  mock?: Generator<
+    GeneratorReturnMockTypes<Response, typeof this>,
+    GeneratorReturnMockTypes<Response, typeof this>,
+    GeneratorReturnMockTypes<Response, typeof this>
+  >;
+  mockData?: RequestDataMockTypes<Response, typeof this>;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
@@ -286,8 +290,24 @@ export class Request<
     return cloned;
   };
 
-  public setMock = (mockData: RequestDataMockTypes<Response>) => {
-    const mockGenerator = function* (mockedValues) {
+  public setMock = (
+    mockData: RequestDataMockTypes<
+      Response,
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >,
+  ) => {
+    const mockGenerator = function* mocked(mockedValues: RequestDataMockTypes<Response, RequestInstance>) {
       if (Array.isArray(mockData)) {
         let iteration = 0;
         // eslint-disable-next-line no-restricted-syntax
@@ -303,6 +323,12 @@ export class Request<
     };
     this.mockData = mockData;
     this.mock = mockGenerator(mockData);
+    return this;
+  };
+
+  public removeMock = () => {
+    this.mockData = null;
+    this.mock = null;
     return this;
   };
 

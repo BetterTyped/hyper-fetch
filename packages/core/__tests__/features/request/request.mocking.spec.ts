@@ -2,22 +2,32 @@ import { waitFor } from "@testing-library/dom";
 
 import { createAdapter, createClient, createDispatcher, createRequest, sleep } from "../../utils";
 import { BaseAdapterType, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
+import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Request [ Mocking ]", () => {
   const adapterSpy = jest.fn();
-  const fixture = { test: 1, data: [1, 2, 3] };
+  const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
   let client = createClient().setAdapter(() => adapter);
   let dispatcher = createDispatcher(client);
   let request = createRequest(client);
 
+  beforeAll(() => {
+    startServer();
+  });
+
   beforeEach(() => {
+    resetInterceptors();
     adapter = createAdapter({ callback: adapterSpy });
     client = createClient().setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
     request = createRequest(client);
 
     jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    stopServer();
   });
 
   describe("When using request's exec method", () => {
@@ -38,9 +48,9 @@ describe("Request [ Mocking ]", () => {
   });
 
   it("should return timeout error when request takes too long", async () => {
-    const mockedRequest = createRequest(client).setMock({
+    const mockedRequest = createRequest(client, { options: { timeout: 10 } }).setMock({
       data: fixture,
-      config: { responseDelay: 1500, timeout: true },
+      config: { responseDelay: 1500 },
     });
 
     const response = await mockedRequest.send({});
@@ -127,10 +137,12 @@ describe("Request [ Mocking ]", () => {
     const response1 = await requestWithRetry.send();
     const response2 = await requestWithRetry.send();
     const response3 = await requestWithRetry.send();
+    const response4 = await requestWithRetry.send();
 
     expect(response1.data).toStrictEqual({ data: [1, 2, 3] });
     expect(response2.data).toStrictEqual({ data: [4, 5, 6] });
     expect(response3.data).toStrictEqual({ data: [1, 2, 3] });
+    expect(response4.data).toStrictEqual({ data: [4, 5, 6] });
   });
 
   it("should allow for passing method to mock and return data conditionally", async () => {
@@ -152,14 +164,14 @@ describe("Request [ Mocking ]", () => {
   });
 
   it("should allow for passing async method to mock and return data conditionally", async () => {
-    const mockedRequest = createRequest(client, { endpoint: "/users/:id" }).setMock(async (r) => {
-      // TODO - can we fix types here to somehow indicate that it is not 'null'?
-      const params = r.params as any;
-      if (params.id === 1) {
-        return { data: [1, 2, 3], config: { status: 222 } };
-      }
-      return { data: [4, 5, 6] };
-    });
+    const mockedRequest = client
+      .createRequest<Record<string, any>>()({ endpoint: "users/:id" })
+      .setMock(async (r) => {
+        if (r?.params?.id === 1) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
     const response = await mockedRequest.send({ params: { id: 1 } } as any);
     const response2 = await mockedRequest.send({ params: { id: 2 } } as any);
 
@@ -167,5 +179,46 @@ describe("Request [ Mocking ]", () => {
     expect(response2.data).toStrictEqual([4, 5, 6]);
     expect(response.status).toStrictEqual(222);
     expect(response2.status).toStrictEqual(200);
+  });
+
+  it("should allow for passing multiple functions and cycle through them", async () => {
+    const firstFunction = (r) => {
+      if (r.params.id === 1) {
+        return { data: [1, 2, 3] };
+      }
+
+      return { data: [4, 5, 6] };
+    };
+    const secondFunction = (r) => {
+      if (r.params.id === 1) {
+        return { data: [42, 42, 42] };
+      }
+      return { data: [19, 19, 19] };
+    };
+    const mockedRequest = createRequest(client, { endpoint: "users/:id" }).setMock([firstFunction, secondFunction]);
+
+    const response1 = await mockedRequest.send({ params: { id: 1 } } as any);
+    const response2 = await mockedRequest.send({ params: { id: 1 } } as any);
+    const response3 = await mockedRequest.send({ params: { id: 1 } } as any);
+    const response4 = await mockedRequest.send({ params: { id: 11 } } as any);
+    const response5 = await mockedRequest.send({ params: { id: 12 } } as any);
+
+    expect(response1.data).toStrictEqual([1, 2, 3]);
+    expect(response2.data).toStrictEqual([42, 42, 42]);
+    expect(response3.data).toStrictEqual([1, 2, 3]);
+    expect(response4.data).toStrictEqual([19, 19, 19]);
+    expect(response5.data).toStrictEqual([4, 5, 6]);
+  });
+
+  it("should allow for removing mocker and expecting normal behaviour when executing request", async () => {
+    const mockedRequest = createRequest(client).setMock({ data: fixture });
+    const response = await mockedRequest.send({});
+
+    mockedRequest.removeMock();
+    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [64, 64, 64] } });
+    const response2 = await mockedRequest.send({});
+
+    expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+    expect(response2.data).toStrictEqual(data);
   });
 });

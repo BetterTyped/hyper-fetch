@@ -296,17 +296,24 @@ export type RequestMockType<Response> = {
   data: Response | Response[] | (() => Response);
   config?: {
     status?: number;
-    timeout?: boolean;
     responseDelay?: number;
+    requestSentDuration?: number;
+    responseReceivedDuration?: number;
   };
 };
 
-export type RequestDataMockTypes<Response, Request = RequestInstance> =
+export type RequestDataMockTypes<Response, Request extends RequestInstance> =
   | RequestMockType<Response>
   | RequestMockType<Response>[]
   | ((r: Request) => RequestMockType<Response>)
+  | ((r: Request) => RequestMockType<Response>)[]
   | ((r: Request) => Promise<RequestMockType<Response>>)
   | ((r: Request) => Promise<RequestMockType<Response>>)[];
+
+export type GeneratorReturnMockTypes<Response, Request extends RequestInstance> =
+  | RequestMockType<Response>
+  | ((r: Request) => RequestMockType<Response>)
+  | ((r: Request) => Promise<RequestMockType<Response>>);
 
 // Instance
 
