@@ -520,37 +520,9 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public exec: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-  ) => {
+  public exec: RequestSendType<typeof this> = async (options?: RequestSendOptionsType<typeof this>) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any);
+    const request = this.clone(options as any) as typeof this;
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -575,52 +547,11 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public send: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-  ) => {
+  public send: RequestSendType<typeof this> = async (options?: RequestSendOptionsType<typeof this>) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const request = this.clone(rest as any);
-    return sendRequest<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >(request, options);
+    const request = this.clone(rest as any) as typeof this;
+    return sendRequest<typeof this>(request, options);
   };
 }
 

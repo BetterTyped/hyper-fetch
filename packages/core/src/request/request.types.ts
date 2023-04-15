@@ -231,7 +231,7 @@ export type FetchParamsType<
   HasParams extends true | false,
 > = ExtractRouteParams<Endpoint> extends NegativeTypes
   ? { params?: NegativeTypes }
-  : true extends HasParams
+  : HasParams extends true
   ? { params?: NegativeTypes }
   : { params: NonNullable<ExtractRouteParams<Endpoint>> };
 

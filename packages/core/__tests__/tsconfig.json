@@ -6,5 +6,5 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["../jest.config.ts", "./"]
+  "include": ["../jest.config.ts", "./", "./**/*test-d.ts"]
 }

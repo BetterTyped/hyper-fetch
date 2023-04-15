@@ -9,7 +9,6 @@ import {
   ExtractAdapterQueryParamsType,
   ExtractAdapterMethodType,
   ExtractAdapterAdditionalDataType,
-  ExtractUnionAdapter,
   AdapterInstance,
 } from "adapter";
 import {
@@ -338,17 +337,16 @@ export class Client<
     LocalError extends ClientErrorType | undefined = undefined,
     QueryParams = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
-    return <EndpointType extends string, AdapterOptions, MethodType>(
-      params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
-    ) =>
-      new Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalErrorType,
-        LocalError,
+    return <EndpointType extends string, RequestAdapterType extends AdapterType>(
+      params: RequestOptionsType<
         EndpointType,
-        ExtractUnionAdapter<AdapterType, { method: MethodType; options: AdapterOptions; queryParams: QueryParams }>
-      >(this as any, params as any);
+        ExtractAdapterOptions<RequestAdapterType>,
+        ExtractAdapterMethodType<RequestAdapterType>
+      >,
+    ) =>
+      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, RequestAdapterType>(
+        this as unknown as Client<GlobalErrorType, RequestAdapterType>,
+        params,
+      );
   };
 }
