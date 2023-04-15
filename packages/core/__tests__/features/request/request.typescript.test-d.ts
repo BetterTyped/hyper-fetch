@@ -16,26 +16,15 @@ const getUser = client.createRequest<{ id: string }>()({
   endpoint: "/users/:id",
 });
 
-// const postUser = client.createRequest<{ id: string }, { name: string }>()({
-//   method: "POST",
-//   endpoint: "/users",
-// });
+const postUser = client.createRequest<{ id: string }, { name: string }>()({
+  method: "POST",
+  endpoint: "/users",
+});
 
-// const patchUser = client.createRequest<{ id: string }, { name: string }>()({
-//   method: "PATCH",
-//   endpoint: "/users/:id",
-// });
-
-// const mappedReq = client
-//   .createRequest<{ id: string }, { name: string }>()({
-//     method: "POST",
-//     endpoint: "/users",
-//   })
-//   .setDataMapper((data) => {
-//     const formData = new FormData();
-//     formData.append("key", data.name);
-//     return formData;
-//   });
+const patchUser = client.createRequest<{ id: string }, { name: string }>()({
+  method: "PATCH",
+  endpoint: "/users/:id",
+});
 
 describe("when request does not require params and data", () => {
   it("should allow to make request with no parameters", () => {
@@ -95,40 +84,85 @@ describe("when request does not require data and has required params", () => {
   });
 });
 
-//
-// // ================>
-//
-// // OK
-// postUser.send({ data: { name: "" } });
-// postUser.setData({ name: "" }).send();
-// // Fail
-// postUser.send({ queryParams: "" });
-// postUser.send({ data: null });
-// postUser.setData(null).send();
-// postUser.send();
-// postUser.setData({ name: "" }).send({ data: { name: "" } });
-//
-// // ================>
-//
-// // OK
-// patchUser.send({ params: { id: "" }, data: { name: "" } });
-// patchUser.setParams({ id: "" }).setData({ name: "" }).send();
-// // Fail
-// patchUser.send({ queryParams: "" });
-// patchUser.send({ data: null });
-// patchUser.setData(null).send();
-// patchUser.send();
-// patchUser
-//   .setParams({ id: "" })
-//   .setData({ name: "" })
-//   .send({ data: { name: "" } });
-// patchUser
-//   .setParams({ id: "" })
-//   .setData({ name: "" })
-//   .send({ params: { id: "" } });
-//
-// // ================>
-//
+describe("when request does not require params and has required data", () => {
+  it("should allow to make request with data", () => {
+    expectType<(options?: { data: { name: string }; params: null; queryParams: string }) => Promise<any>>(
+      postUser.send,
+    );
+    expectType<(options?: { data: null; params: null; queryParams: string }) => Promise<any>>(
+      postUser.setData({ name: "Kacper" }).send,
+    );
+  });
+  it("should allow to make request with query params", () => {
+    expectType<(options?: { data: { name: string }; params: null; queryParams: null }) => Promise<any>>(
+      postUser.setQueryParams("").send,
+    );
+    expectType<(options?: { data: null; params: null; queryParams: null }) => Promise<any>>(
+      postUser.setData({ name: "Kacper" }).setQueryParams("").send,
+    );
+  });
+  it("should not allow to add params to request", () => {
+    expectNotType<(options?: { data: null; params: { id: string }; queryParams: null }) => Promise<any>>(
+      postUser.setQueryParams("").setData({ name: "Kacper" }).send,
+    );
+  });
+  it("should not allow to make request without data", () => {
+    expectType<(options?: { data: null; params: null; queryParams: null }) => Promise<any>>(
+      postUser.setQueryParams("").send,
+    );
+    expectType<(options?: { data: null; params: null; queryParams: null }) => Promise<any>>(postUser.send);
+  });
+  it("should not allow to make request with incorrect data", () => {
+    expectNotType<(options?: { data: { something: string }; params: null; queryParams: null }) => Promise<any>>(
+      postUser.send,
+    );
+    expectNotType<(options?: { data: string; params: null; queryParams: null }) => Promise<any>>(postUser.send);
+  });
+  it("should not allow to redeclare data", () => {
+    expectNotType<(options?: { data: { name: string }; params: null; queryParams: null }) => Promise<any>>(
+      postUser.setData({ name: "Kacper" }).send,
+    );
+  });
+});
+
+describe("when request require data and params", () => {
+  it("should allow to make request with parameters", () => {
+    expectType<(options?: { data: { name: string }; params: { id: string }; queryParams: string }) => Promise<any>>(
+      patchUser.send,
+    );
+    expectType<(options?: { data: null; params: null; queryParams: string }) => Promise<any>>(
+      patchUser.setParams({ id: 1 }).send,
+    );
+  });
+  it("should allow to make request with query params", () => {
+    expectType<(options?: { data: { name: string }; params: { id: string }; queryParams: null }) => Promise<any>>(
+      patchUser.setQueryParams("").send,
+    );
+    expectType<(options?: { data: null; params: null; queryParams: null }) => Promise<any>>(
+      patchUser.setData({ name: "Kacper" }).setParams({ id: 1 }).setQueryParams("").send,
+    );
+  });
+  it("should not allow to redeclare options", () => {
+    expectNotType<(options?: { data: { name: string }; params: { id: string }; queryParams: null }) => Promise<any>>(
+      patchUser.setQueryParams("").setData({ name: "Kacper" }).setParams({ id: 1 }).send,
+    );
+  });
+  it("should not allow to make request without values", () => {
+    expectType<(options?: { data: { name: string }; params: { id: string }; queryParams: null }) => Promise<any>>(
+      patchUser.setQueryParams("").send,
+    );
+    expectType<(options?: { data: { name: string }; params: { id: string }; queryParams: null }) => Promise<any>>(
+      patchUser.send,
+    );
+  });
+  it("should not allow to make request with incorrect params", () => {
+    expectNotType<(options?: { data: { name: number }; params: { id: null }; queryParams: null }) => Promise<any>>(
+      patchUser.send,
+    );
+    expectNotType<(options?: { data: null; params: null; queryParams: null }) => Promise<any>>(patchUser.send);
+  });
+});
+
 // // OK
 // mappedReq.send({ data: { name: "" } });
 // mappedReq.setData({ name: "" }).send();

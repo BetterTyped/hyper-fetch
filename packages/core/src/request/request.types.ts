@@ -277,12 +277,12 @@ export type RequestSendType<Request extends RequestInstance> =
   RequestSendOptionsType<Request>["data"] extends NegativeTypes
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
       ? (
-          options?: RequestSendOptionsType<Request>,
+          options: RequestSendOptionsType<Request>,
         ) => Promise<
           ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
       : (
-          options?: RequestSendOptionsType<Request>,
+          options: RequestSendOptionsType<Request>,
         ) => Promise<
           ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
