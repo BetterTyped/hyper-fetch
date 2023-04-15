@@ -338,11 +338,7 @@ export class Client<
     LocalError extends ClientErrorType | undefined = undefined,
     QueryParams = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
-    return <
-      EndpointType extends string,
-      AdapterOptions extends ExtractAdapterOptions<AdapterType>,
-      MethodType extends ExtractAdapterMethodType<AdapterType>,
-    >(
+    return <EndpointType extends string, AdapterOptions, MethodType>(
       params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
     ) =>
       new Request<
@@ -352,7 +348,7 @@ export class Client<
         GlobalErrorType,
         LocalError,
         EndpointType,
-        ExtractUnionAdapter<AdapterType, { method: MethodType; options: AdapterOptions }>
-      >(this, params);
+        ExtractUnionAdapter<AdapterType, { method: MethodType; options: AdapterOptions; queryParams: QueryParams }>
+      >(this as any, params as any);
   };
 }
