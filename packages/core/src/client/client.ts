@@ -35,7 +35,6 @@ import { HttpMethodsEnum } from "../constants/http.constants";
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
  * requests which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the request.
- * @position 1
  */
 export class Client<
   GlobalErrorType extends ClientErrorType = Error,
@@ -337,9 +336,7 @@ export class Client<
     Response,
     Payload = undefined,
     LocalError extends ClientErrorType | undefined = undefined,
-    QueryParams extends
-      | ExtractAdapterQueryParamsType<AdapterType>
-      | string = ExtractAdapterQueryParamsType<AdapterType>,
+    QueryParams = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
     return <
       EndpointType extends string,

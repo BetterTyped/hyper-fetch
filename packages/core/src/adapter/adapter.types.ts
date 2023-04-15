@@ -59,7 +59,18 @@ export type ExtractUnionAdapter<
     Values["additionalData"],
     Values["queryParams"]
   >
->;
+> extends AdapterInstance
+  ? Extract<
+      AdapterType,
+      BaseAdapterType<
+        Values["options"],
+        Values["method"],
+        Values["status"],
+        Values["additionalData"],
+        Values["queryParams"]
+      >
+    >
+  : never;
 /**
  * Options
  */
