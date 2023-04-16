@@ -3,21 +3,22 @@
  */
 import { adapter, getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
-import { createClient, createRequest } from "../../utils";
+import { Client } from "client";
 
 describe("Fetch Adapter [ Browser ]", () => {
   const requestId = "test";
 
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+
     request.client.requestManager.addAbortController(request.abortKey, requestId);
     resetInterceptors();
     jest.resetAllMocks();
@@ -41,7 +42,6 @@ describe("Fetch Adapter [ Browser ]", () => {
   it("should make a request and return error data with status", async () => {
     const data = createRequestInterceptor(request, { status: 400 });
 
-    // TODO - Maciej - check error, status: any
     const { data: response, error, status, additionalData } = await adapter(request, requestId);
 
     expect(response).toBe(null);
@@ -63,8 +63,9 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(error.message).toEqual(getErrorMessage("abort").message);
   });
 
+  // TODO-fix error.message unknown - timeoutRequest: any
   it("should return timeout error when request takes too long", async () => {
-    const timeoutRequest = createRequest(client, { options: { timeout: 10 } });
+    const timeoutRequest = request.setOptions({ timeout: 5 });
     createRequestInterceptor(timeoutRequest, { delay: 20 });
 
     const { data: response, error } = await adapter(timeoutRequest, requestId);

@@ -1,17 +1,16 @@
-import { createClient, createRequest } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { DateInterval } from "../../../src";
+import { Client, DateInterval } from "../../../src";
 
 describe("Request [ Setters ]", () => {
-  let client = createClient();
-  let request = createRequest(client, { endpoint: "/users/:userId" });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/users/:userId" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client, { endpoint: "/users/:userId" });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/users/:userId" });
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -35,14 +34,15 @@ describe("Request [ Setters ]", () => {
     const params = { userId: 1 };
     expect(request.params).not.toBeDefined();
     expect(request.endpoint).toBe("/users/:userId");
-    const updatedRequest = request.setParams(params as null);
+    const updatedRequest = request.setParams(params);
     expect(updatedRequest.params).toBe(params);
     expect(updatedRequest.endpoint).toBe("/users/1");
   });
   it("should allow for setting ", async () => {
+    const req = client.createRequest<unknown, { test: number }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
     expect(request.data).not.toBeDefined();
-    const updatedRequest = request.setData(data);
+    const updatedRequest = req.setData(data);
     expect(updatedRequest.data).toBe(data);
   });
   it("should allow for setting query params", async () => {

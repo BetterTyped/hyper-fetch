@@ -4,21 +4,22 @@
 import { adapter } from "../../../src/adapter/adapter.server";
 import { getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
-import { createClient, createRequest } from "../../utils";
+import { Client } from "client";
 
 describe("Fetch Adapter [ Server ]", () => {
   const requestId = "test";
 
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+
     client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
     resetInterceptors();
@@ -73,7 +74,7 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should return timeout error when request takes too long", async () => {
-    const timeoutRequest = createRequest(client, { options: { timeout: 10 } });
+    const timeoutRequest = request.setOptions({ timeout: 10 });
     createRequestInterceptor(timeoutRequest, { delay: 20 });
 
     const { data: response, error } = await adapter(timeoutRequest, requestId);
@@ -86,7 +87,9 @@ describe("Fetch Adapter [ Server ]", () => {
     const payload = {
       testData: "123",
     };
-    const postRequest = createRequest(client, { method: "POST" }).setData(payload);
+    const postRequest = client
+      .createRequest<unknown, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
+      .setData(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
 

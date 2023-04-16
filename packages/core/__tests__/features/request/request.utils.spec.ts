@@ -1,5 +1,5 @@
+import { Client } from "client";
 import { getRequestDispatcher, getRequestKey, getProgressData, stringifyKey } from "request";
-import { createClient, createRequest } from "../../utils";
 
 describe("Request [ Utils ]", () => {
   describe("when stringifyKey function is used", () => {
@@ -32,15 +32,17 @@ describe("Request [ Utils ]", () => {
   });
   describe("when getRequestKey function is used", () => {
     it("should return exact endpoint key", async () => {
-      const client = createClient();
-      const request = createRequest(client, { endpoint: "/users/:userId" })
+      const client = new Client({ url: "shared-base-url" });
+      const request = client
+        .createRequest()({ endpoint: "/users/:userId" })
         .setParams({ userId: 1 } as null)
         .setQueryParams("?test=1");
       expect(getRequestKey(request)).toBe("GET_/users/1?test=1");
     });
     it("should useInitialValues and return generic endpoint key", async () => {
-      const client = createClient();
-      const request = createRequest(client, { endpoint: "/users/:userId" })
+      const client = new Client({ url: "shared-base-url" });
+      const request = client
+        .createRequest()({ endpoint: "/users/:userId" })
         .setParams({ userId: 1 } as null)
         .setQueryParams("?test=1");
       expect(getRequestKey(request, true)).toBe("GET_/users/:userId");
@@ -48,9 +50,9 @@ describe("Request [ Utils ]", () => {
   });
   describe("when getRequestDispatcher function is used", () => {
     it("should give proper auto dispatcher", async () => {
-      const client = createClient();
-      const fetchRequest = createRequest(client);
-      const submitRequest = createRequest(client, { method: "POST" });
+      const client = new Client({ url: "shared-base-url" });
+      const fetchRequest = client.createRequest()({ endpoint: "/users/:userId" });
+      const submitRequest = client.createRequest()({ endpoint: "/users/:userId", method: "POST" });
 
       const valueFetch = getRequestDispatcher(fetchRequest, "auto");
       const valueSubmit = getRequestDispatcher(submitRequest, "auto");
@@ -60,9 +62,9 @@ describe("Request [ Utils ]", () => {
       expect(valueSubmit[1]).toBe(false);
     });
     it("should give selected dispatcher", async () => {
-      const client = createClient();
-      const fetchRequest = createRequest(client);
-      const submitRequest = createRequest(client, { method: "POST" });
+      const client = new Client({ url: "shared-base-url" });
+      const fetchRequest = client.createRequest()({ endpoint: "/users/:userId" });
+      const submitRequest = client.createRequest()({ endpoint: "/users/:userId", method: "POST" });
 
       const valueFetch = getRequestDispatcher(fetchRequest, "submit");
       const valueSubmit = getRequestDispatcher(submitRequest, "fetch");

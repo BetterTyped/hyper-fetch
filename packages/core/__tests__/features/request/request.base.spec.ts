@@ -1,17 +1,16 @@
-import { createClient, createRequest } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { QueryParamsType } from "../../../src";
+import { Client, QueryParamsType } from "../../../src";
 
 describe("Fetch Adapter [ Base ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -78,7 +77,9 @@ describe("Fetch Adapter [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
-    const c = request.setData(data);
+    const req = client.createRequest<unknown, { userId: number; role: string }>()({ endpoint: "/shared-endpoint" });
+
+    const c = req.setData(data);
     createRequestInterceptor(c);
 
     await c.send();

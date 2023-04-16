@@ -1,20 +1,20 @@
 import { RequestEffect } from "effect";
-import { StringifyCallbackType } from "client";
+import { Client, StringifyCallbackType } from "client";
 import { RequestOptionsType, Request } from "request";
 import { AdapterOptionsType, QueryStringifyOptionsType } from "adapter";
 import { LoggerManager } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createAdapter, createRequest, interceptorCallback, middlewareCallback } from "../../utils";
+import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
 
 describe("Client [ Methods ]", () => {
-  let client = createClient();
-
+  let client = new Client({ url: "shared-base-url" });
+  const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
+    client = new Client({ url: "shared-base-url" });
     resetInterceptors();
   });
 
@@ -27,13 +27,13 @@ describe("Client [ Methods ]", () => {
       const options: Partial<RequestOptionsType<string, AdapterOptionsType>> = { method: "POST" };
       client.setRequestDefaultOptions(() => options);
 
-      expect(client.requestDefaultOptions(createRequest(client).requestOptions as any)).toEqual(options);
+      expect(client.requestDefaultOptions(request.requestOptions as any)).toEqual(options);
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
       const options: AdapterOptionsType = { timeout: 12312312 };
       client.setAdapterDefaultOptions(() => options);
 
-      expect(client.adapterDefaultOptions(createRequest(client))).toEqual(options);
+      expect(client.adapterDefaultOptions(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = { strict: false };

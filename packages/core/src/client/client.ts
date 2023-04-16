@@ -1,32 +1,32 @@
 import {
   adapter as defaultAdapter,
-  ResponseReturnType,
-  QueryStringifyOptionsType,
-  HeaderMappingType,
-  AdapterPayloadMappingType,
-  ExtractAdapterOptions,
-  BaseAdapterType,
-  ExtractAdapterQueryParamsType,
-  ExtractAdapterMethodType,
-  ExtractAdapterAdditionalDataType,
   AdapterInstance,
+  AdapterPayloadMappingType,
+  BaseAdapterType,
+  ExtractAdapterAdditionalDataType,
+  ExtractAdapterMethodType,
+  ExtractAdapterOptions,
+  ExtractAdapterQueryParamsType,
+  HeaderMappingType,
+  QueryStringifyOptionsType,
+  ResponseReturnType,
 } from "adapter";
 import {
-  stringifyQueryParams,
+  ClientErrorType,
+  ClientInstance,
+  ClientOptionsType,
   getAdapterHeaders,
   getAdapterPayload,
-  ClientOptionsType,
-  ClientInstance,
-  ClientErrorType,
-  StringifyCallbackType,
   RequestInterceptorType,
   ResponseInterceptorType,
+  StringifyCallbackType,
+  stringifyQueryParams,
 } from "client";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { RequestEffectInstance } from "effect";
-import { Request, RequestOptionsType, RequestInstance } from "request";
-import { AppManager, RequestManager, LoggerManager, SeverityType } from "managers";
+import { Request, RequestInstance, RequestOptionsType } from "request";
+import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
 

@@ -1,11 +1,12 @@
 import { CacheValueType } from "cache";
-import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
+import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
+import { Client } from "client";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
 
-  let client = createClient();
-  let request = createRequest(client, { cacheKey, cache: true });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
   let cache = createCache(client);
   const spy = jest.fn();
 
@@ -24,8 +25,8 @@ describe("Cache [ Events ]", () => {
   };
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client, { cacheKey, cache: true });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
     cache = createCache(client);
     jest.resetAllMocks();
   });

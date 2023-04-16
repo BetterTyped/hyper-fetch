@@ -1,5 +1,5 @@
+import { Client } from "client";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createRequest } from "../../utils";
 
 describe("Client [ Auth ]", () => {
   const requestFixture = { data: "" };
@@ -7,10 +7,10 @@ describe("Client [ Auth ]", () => {
   const refreshFixture = { token: "new-token" };
   const refreshEndpoint = "/refresh-token";
 
-  let client = createClient();
-  let request = createRequest(client).setAuth(false);
-  let authRequest = createRequest(client, { endpoint: "/auth" }).setAuth(true);
-  let refreshRequest = createRequest(client, { endpoint: refreshEndpoint });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
+  let authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
+  let refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
 
   beforeEach(() => {
     createRequestInterceptor(refreshRequest, { fixture: refreshFixture });
@@ -21,10 +21,10 @@ describe("Client [ Auth ]", () => {
   });
 
   afterEach(() => {
-    client = createClient();
-    request = createRequest(client).setAuth(false);
-    authRequest = createRequest(client).setAuth(true);
-    refreshRequest = createRequest(client, { endpoint: refreshEndpoint });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
+    authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
+    refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -71,15 +71,15 @@ describe("Client [ Auth ]", () => {
     const interceptor = jest.fn();
 
     const handleErrorIntercept = (callback?: () => void) => {
-      client.onError(async (res, cmd) => {
+      client.onError(async (res, req) => {
         interceptor();
         const { status } = res;
 
-        if (!cmd.used && status === 401) {
+        if (!req.used && status === 401) {
           const { data } = await refreshRequest.send();
           if (data) {
             callback?.();
-            return cmd.setUsed(true).send();
+            return req.setUsed(true).send();
           }
         }
         return res;

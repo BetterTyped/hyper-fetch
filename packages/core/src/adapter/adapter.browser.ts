@@ -4,7 +4,7 @@ import { ExtractErrorType, ExtractResponseType } from "../types";
 import { handleXhrRequest } from "./adapter.browser.request";
 import { handleMockRequest } from "./adapter.mock.request";
 
-export const adapter: BaseAdapterType = async <T extends RequestInstance>(request: T, requestId) => {
+export const adapter: BaseAdapterType = async <T extends RequestInstance>(request: T, requestId: string) => {
   const { requestWrapper, ...bindingsMethods } = await getAdapterBindings<T, BaseAdapterType>(
     request,
     requestId,

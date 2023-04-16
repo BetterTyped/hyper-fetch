@@ -1,20 +1,21 @@
 import { getErrorMessage } from "adapter";
-import { createClient, createRequest, sleep } from "../../utils";
+import { sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { Client } from "client";
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
 
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     resetInterceptors();
     jest.resetAllMocks();
     createRequestInterceptor(request, { fixture, delay: 40 });
@@ -103,7 +104,7 @@ describe("Request [ Sending ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should return cancel error", async () => {
-      request = createRequest(client).setCancelable(true);
+      request = client.createRequest()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
       const mock = createRequestInterceptor(request);
 
       const [res1, res2, res3] = await Promise.all([request.send(), request.send(), request.send()]);

@@ -1,8 +1,9 @@
 import { RequestEffect } from "effect";
 import { getAdapterBindings, AdapterOptionsType, ResponseReturnType, getErrorMessage, BaseAdapterType } from "adapter";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createRequest, sleep } from "../../utils";
+import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
+import { Client } from "client";
 
 describe("Fetch Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
@@ -41,8 +42,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
       onStart: onStartSpy,
       onSuccess: onSuccessSpy,
     });
-    const client = createClient({ url }).addEffect([effect]);
-    const request = createRequest(client, { endpoint, options: requestConfig })
+    const client = new Client({ url }).addEffect([effect]);
+    const request = client
+      .createRequest<unknown, { value: number }>()({ endpoint, options: requestConfig })
       .setData(data)
       .setEffectKey("test")
       .setQueryParams(queryParams);
@@ -152,7 +154,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
   // Request
   describe("given bindings request methods being used", () => {
     it("should allow for setting data mapper", async () => {
-      const req = createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>(client);
+      const req = client.createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>()({
+        endpoint: "shared-endpoint/",
+      });
       const spy = jest.fn();
       const newData = {
         userId: 11,

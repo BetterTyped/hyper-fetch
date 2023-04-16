@@ -1,14 +1,15 @@
 import EventEmitter from "events";
 
 import { getRequestManagerEvents } from "managers";
-import { createClient, createRequest, sleep } from "../../../utils";
+import { sleep } from "../../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../../server";
+import { Client } from "client";
 
 describe("RequestManager [ Base ]", () => {
   const abortKey = "abort-key";
   const queueKey = "abort-key";
   const requestId = "some-id";
-  let client = createClient();
+  let client = new Client({ url: "shared-base-url" });
   let events = getRequestManagerEvents(new EventEmitter());
 
   beforeAll(() => {
@@ -18,7 +19,7 @@ describe("RequestManager [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient();
+    client = new Client({ url: "shared-base-url" });
     events = getRequestManagerEvents(new EventEmitter());
   });
 
@@ -45,7 +46,7 @@ describe("RequestManager [ Base ]", () => {
   describe("When request is being aborted", () => {
     it("should remove it from dispatcher's queue storage", async () => {
       const spy = jest.fn();
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(request);
       client.onResponse((response) => {
         spy();
@@ -86,7 +87,7 @@ describe("RequestManager [ Base ]", () => {
       const spyById = jest.fn();
       events.onRequestStart(queueKey, spy);
       events.onRequestStartById(requestId, spyById);
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
       const values = {
         requestId,
@@ -103,7 +104,7 @@ describe("RequestManager [ Base ]", () => {
       const spyById = jest.fn();
       events.onResponseStart(queueKey, spy);
       events.onResponseStartById(requestId, spyById);
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
       const values = {
         requestId,
@@ -120,7 +121,7 @@ describe("RequestManager [ Base ]", () => {
       const spyById = jest.fn();
       events.onUploadProgress(queueKey, spy);
       events.onUploadProgressById(requestId, spyById);
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
       const values = {
         progress: 0,
@@ -146,7 +147,7 @@ describe("RequestManager [ Base ]", () => {
       const spyById = jest.fn();
       events.onDownloadProgress(queueKey, spy);
       events.onDownloadProgressById(requestId, spyById);
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
       const values = {
         progress: 0,
@@ -197,7 +198,7 @@ describe("RequestManager [ Base ]", () => {
     const spyById = jest.fn();
     events.onRemove(queueKey, spy);
     events.onRemoveById(requestId, spyById);
-    const request = createRequest(client);
+    const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
     const values = {
       requestId,

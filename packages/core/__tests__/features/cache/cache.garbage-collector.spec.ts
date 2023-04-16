@@ -1,8 +1,8 @@
 import { waitFor } from "@testing-library/dom";
 
 import { CacheValueType } from "cache";
-import { DateInterval } from "index";
-import { createClient, createCache, createRequest, createLazyCacheAdapter } from "../../utils";
+import { Client, DateInterval } from "index";
+import { createCache, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
@@ -25,8 +25,8 @@ describe("Cache [ Garbage Collector ]", () => {
 
   let lazyStorage = new Map<string, CacheValueType>();
 
-  let client = createClient();
-  let request = createRequest(client, { cacheKey, cacheTime, garbageCollection });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     clearKey,
@@ -35,8 +35,8 @@ describe("Cache [ Garbage Collector ]", () => {
   beforeEach(async () => {
     lazyStorage.clear();
     lazyStorage = new Map<string, CacheValueType>();
-    client = createClient();
-    request = createRequest(client, { cacheKey, cacheTime, garbageCollection });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       clearKey,

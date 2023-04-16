@@ -1,5 +1,6 @@
 import { CacheValueType } from "cache";
-import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
+import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
+import { Client } from "client";
 
 describe("Cache [ Lazy Storage ]", () => {
   const cacheKey = "test";
@@ -22,8 +23,8 @@ describe("Cache [ Lazy Storage ]", () => {
   const lazyStorage = new Map();
   const spy = jest.fn();
 
-  let client = createClient();
-  let request = createRequest(client, { cacheKey });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     clearKey,
@@ -31,8 +32,8 @@ describe("Cache [ Lazy Storage ]", () => {
 
   beforeEach(() => {
     lazyStorage.clear();
-    client = createClient();
-    request = createRequest(client, { cacheKey });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       clearKey,

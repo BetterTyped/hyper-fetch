@@ -1,18 +1,17 @@
-import { stringifyQueryParams } from "client";
+import { Client, stringifyQueryParams } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createRequest } from "../../utils";
 
 describe("Client [ Utils ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
   });
 

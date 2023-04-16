@@ -1,11 +1,11 @@
 import { waitFor } from "@testing-library/dom";
 
 import { AppManager, hasDocument, hasWindow } from "managers";
-import { createClient } from "../../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../../server";
+import { Client } from "client";
 
 describe("AppManager [ Base ]", () => {
-  let client = createClient();
+  let client = new Client({ url: "shared-base-url" });
 
   beforeAll(() => {
     startServer();
@@ -14,7 +14,7 @@ describe("AppManager [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient();
+    client = new Client({ url: "shared-base-url" });
   });
 
   afterAll(() => {

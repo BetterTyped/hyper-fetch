@@ -1,16 +1,16 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createAdapter, createClient, createDispatcher, createRequest, sleep } from "../../utils";
-import { BaseAdapterType, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
+import { createAdapter, createDispatcher, sleep } from "../../utils";
+import { BaseAdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Request [ Mocking ]", () => {
   const adapterSpy = jest.fn();
   const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = createClient().setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
   let dispatcher = createDispatcher(client);
-  let request = createRequest(client);
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -19,9 +19,9 @@ describe("Request [ Mocking ]", () => {
   beforeEach(() => {
     resetInterceptors();
     adapter = createAdapter({ callback: adapterSpy });
-    client = createClient().setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
-    request = createRequest(client);
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
     jest.resetAllMocks();
   });
@@ -48,10 +48,12 @@ describe("Request [ Mocking ]", () => {
   });
 
   it("should return timeout error when request takes too long", async () => {
-    const mockedRequest = createRequest(client, { options: { timeout: 10 } }).setMock({
-      data: fixture,
-      config: { responseDelay: 1500 },
-    });
+    const mockedRequest = client
+      .createRequest()({ endpoint: "shared-base-endpoint", options: { timeout: 10 } })
+      .setMock({
+        data: fixture,
+        config: { responseDelay: 1500 },
+      });
 
     const response = await mockedRequest.send({});
 
@@ -62,18 +64,22 @@ describe("Request [ Mocking ]", () => {
   it("should allow to cancel single running request", async () => {
     const firstSpy = jest.fn();
     const secondSpy = jest.fn();
-    const firstRequest = createRequest(client).setMock({
-      data: fixture,
-      config: {
-        responseDelay: 1500,
-      },
-    });
-    const secondRequest = createRequest(client).setMock({
-      data: fixture,
-      config: {
-        responseDelay: 1500,
-      },
-    });
+    const firstRequest = client
+      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .setMock({
+        data: fixture,
+        config: {
+          responseDelay: 1500,
+        },
+      });
+    const secondRequest = client
+      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .setMock({
+        data: fixture,
+        config: {
+          responseDelay: 1500,
+        },
+      });
 
     dispatcher.add(secondRequest);
     const requestId = dispatcher.add(firstRequest);
@@ -146,14 +152,16 @@ describe("Request [ Mocking ]", () => {
   });
 
   it("should allow for passing method to mock and return data conditionally", async () => {
-    const mockedRequest = createRequest(client, { endpoint: "/users/:id" }).setMock((r) => {
-      // TODO - can we fix types here to somehow indicate that it is not 'null'?
-      const params = r.params as any;
-      if (params.id === 11) {
-        return { data: [1, 2, 3], config: { status: 222 } };
-      }
-      return { data: [4, 5, 6] };
-    });
+    const mockedRequest = client
+      .createRequest()({ endpoint: "/users/:id" })
+      .setMock((r) => {
+        // TODO - can we fix types here to somehow indicate that it is not 'null'?
+        const params = r.params as any;
+        if (params.id === 11) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
     const response = await mockedRequest.send({ params: { id: 11 } } as any);
     const response2 = await mockedRequest.send({ params: { id: 13 } } as any);
 
@@ -195,7 +203,7 @@ describe("Request [ Mocking ]", () => {
       }
       return { data: [19, 19, 19] };
     };
-    const mockedRequest = createRequest(client, { endpoint: "users/:id" }).setMock([firstFunction, secondFunction]);
+    const mockedRequest = client.createRequest()({ endpoint: "users/:id" }).setMock([firstFunction, secondFunction]);
 
     const response1 = await mockedRequest.send({ params: { id: 1 } } as any);
     const response2 = await mockedRequest.send({ params: { id: 1 } } as any);
@@ -211,7 +219,7 @@ describe("Request [ Mocking ]", () => {
   });
 
   it("should allow for removing mocker and expecting normal behaviour when executing request", async () => {
-    const mockedRequest = createRequest(client).setMock({ data: fixture });
+    const mockedRequest = client.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
     const response = await mockedRequest.send({});
 
     mockedRequest.removeMock();

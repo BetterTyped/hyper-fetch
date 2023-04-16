@@ -1,14 +1,15 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createDispatcher, createClient, createRequest, createAdapter, sleep } from "../../utils";
+import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createRequestInterceptor } from "../../server/server";
+import { Client } from "client";
 
 describe("Dispatcher [ Requests ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = createClient().setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -17,7 +18,7 @@ describe("Dispatcher [ Requests ]", () => {
 
   beforeEach(() => {
     adapter = createAdapter({ callback: adapterSpy });
-    client = createClient().setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
     resetInterceptors();
     jest.resetAllMocks();
@@ -30,15 +31,15 @@ describe("Dispatcher [ Requests ]", () => {
   describe("Given request gets triggered", () => {
     it("should allow to add request to running requests", async () => {
       const requestId = "test";
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       expect(dispatcher.hasRunningRequest(request.queueKey, requestId)).toBeFalse();
       dispatcher.addRunningRequest(request.queueKey, requestId, request);
       expect(dispatcher.hasRunningRequest(request.queueKey, requestId)).toBeTrue();
     });
 
     it("should get all running requests", async () => {
-      const firstRequest = createRequest(client, { queueKey: "test1" });
-      const secondRequest = createRequest(client, { queueKey: "test2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -51,8 +52,8 @@ describe("Dispatcher [ Requests ]", () => {
       expect(runningRequests).toPartiallyContain({ requestId: secondRequestId });
     });
     it("should get queueKey running requests", async () => {
-      const firstRequest = createRequest(client, { queueKey: "test1" });
-      const secondRequest = createRequest(client, { queueKey: "test2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -73,8 +74,8 @@ describe("Dispatcher [ Requests ]", () => {
       expect(dispatcher.getRunningRequest("fake-namespace", "fake-request-id")).toBeUndefined();
     });
     it("should get single running request", async () => {
-      const firstRequest = createRequest(client, { queueKey: "test1" });
-      const secondRequest = createRequest(client, { queueKey: "test2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -88,8 +89,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
       const thirdSpy = jest.fn();
-      const firstRequest = createRequest(client);
-      const secondRequest = createRequest(client);
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -112,8 +113,8 @@ describe("Dispatcher [ Requests ]", () => {
     it("should allow to cancel single running requests", async () => {
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
-      const firstRequest = createRequest(client);
-      const secondRequest = createRequest(client);
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -134,8 +135,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
       const thirdSpy = jest.fn();
-      const firstRequest = createRequest(client);
-      const secondRequest = createRequest(client);
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -159,8 +160,8 @@ describe("Dispatcher [ Requests ]", () => {
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
       const thirdSpy = jest.fn();
-      const firstRequest = createRequest(client);
-      const secondRequest = createRequest(client);
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(firstRequest, { delay: 5 });
       createRequestInterceptor(secondRequest, { delay: 5 });
 
@@ -187,7 +188,7 @@ describe("Dispatcher [ Requests ]", () => {
     });
     describe("When stoping and starting particular requests", () => {
       it("should allow to stop request", async () => {
-        const request = createRequest(client);
+        const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
         createRequestInterceptor(request, { delay: 5 });
 
         const requestId = dispatcher.add(request);
@@ -206,7 +207,7 @@ describe("Dispatcher [ Requests ]", () => {
         });
       });
       it("should allow to start previously stopped request", async () => {
-        const request = createRequest(client);
+        const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
         createRequestInterceptor(request, { delay: 1 });
 
         const spy = jest.spyOn(client.cache, "set");

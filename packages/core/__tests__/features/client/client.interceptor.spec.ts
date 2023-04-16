@@ -1,10 +1,11 @@
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createRequest, interceptorCallback } from "../../utils";
+import { interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
+import { Client } from "client";
 
 describe("Client [ Interceptor ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
   const spy1 = jest.fn();
   const spy2 = jest.fn();
@@ -15,8 +16,8 @@ describe("Client [ Interceptor ]", () => {
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     resetInterceptors();
     jest.clearAllMocks();
   });

@@ -2,15 +2,16 @@ import { waitFor } from "@testing-library/dom";
 
 import { ResponseReturnType, getErrorMessage, BaseAdapterType } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { createDispatcher, createClient, createAdapter, createRequest, sleep } from "../../utils";
+import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { Client } from "client";
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = createClient().setAdapter(() => adapter);
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -21,8 +22,8 @@ describe("Dispatcher [ Events ]", () => {
     resetInterceptors();
     jest.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
-    client = createClient().setAdapter(() => adapter);
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
     createRequestInterceptor(request);
   });

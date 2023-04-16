@@ -1,7 +1,8 @@
 import { BaseAdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createCache, createRequest, sleep } from "../../utils";
+import { createCache, sleep } from "../../utils";
+import { Client } from "client";
 
 describe("Cache [ Base ]", () => {
   const response: ResponseReturnSuccessType<unknown, BaseAdapterType> = {
@@ -19,8 +20,8 @@ describe("Cache [ Base ]", () => {
     isOffline: false,
   };
 
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
   let cache = createCache(client);
 
   beforeAll(() => {
@@ -28,8 +29,8 @@ describe("Cache [ Base ]", () => {
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
     resetInterceptors();
     jest.resetAllMocks();

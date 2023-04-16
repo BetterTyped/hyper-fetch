@@ -1,12 +1,12 @@
+import { Client } from "client";
 import { LoggerManager } from "managers";
-import { createClient } from "../../../utils";
 
 describe("Logger [ Base ]", () => {
-  let client = createClient();
+  let client = new Client({ url: "shared-base-url" });
   let loggerManager = new LoggerManager(client);
 
   beforeEach(() => {
-    client = createClient();
+    client = new Client({ url: "shared-base-url" });
     loggerManager = new LoggerManager(client);
   });
 

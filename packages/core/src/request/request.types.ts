@@ -273,11 +273,12 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 
+// If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
   RequestSendOptionsType<Request>["data"] extends NegativeTypes
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
       ? (
-          options: RequestSendOptionsType<Request>,
+          options?: RequestSendOptionsType<Request>,
         ) => Promise<
           ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
@@ -287,7 +288,7 @@ export type RequestSendType<Request extends RequestInstance> =
           ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
         >
     : (
-        options?: RequestSendOptionsType<Request>,
+        options: RequestSendOptionsType<Request>,
       ) => Promise<
         ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
       >;
