@@ -17,14 +17,14 @@ export type BaseAdapterType<
   request: RequestInstance,
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
-  genericMapper?: {
+  DO_NOT_USE?: {
     method?: MethodType;
     options?: AdapterOptions;
     status?: StatusType;
     additionalData?: AdditionalData;
     queryParams?: QueryParams;
   },
-  // any any any as a way to avoid circular reference that destroyed request type.
+  // [any any any] as a way to avoid circular reference that destroyed request type.
 ) => Promise<ResponseReturnType<any, any, any>>;
 
 /**
