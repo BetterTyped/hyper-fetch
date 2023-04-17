@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsType, HttpStatusType } from "../types";
+import { HttpMethodsType, HttpStatusType } from "../types";
 
 /**
  * Base Adapter

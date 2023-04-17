@@ -79,7 +79,7 @@ describe("Client [ Auth ]", () => {
           const { data } = await refreshRequest.send();
           if (data) {
             callback?.();
-            return req.setUsed(true).send();
+            return req.setUsed(true).send({});
           }
         }
         return res;
