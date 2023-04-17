@@ -56,7 +56,7 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
        */
       bounceType: "throttle";
       /**
-       * How long it should bounce requests.
+       * How long it should interval requests.
        */
       bounceTime?: number;
       /**

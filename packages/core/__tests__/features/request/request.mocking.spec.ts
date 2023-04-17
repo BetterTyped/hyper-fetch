@@ -124,7 +124,6 @@ describe("Request [ Mocking ]", () => {
     };
     const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
       retries: 1,
-      isSuccess: true,
       isCanceled: false,
       isOffline: false,
     };

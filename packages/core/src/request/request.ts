@@ -24,8 +24,6 @@ import {
   QueryParamsType,
   ResponseReturnType,
   AdapterInstance,
-  ExtractAdapterAdditionalDataType,
-  OverrideAdapterAdditionalData,
 } from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
@@ -85,8 +83,8 @@ export class Request<
   mockData?: RequestDataMockTypes<Response, typeof this>;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
-    response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
-  ) => ResponseReturnType<any, any, any>;
+    response: ResponseReturnType<any, any, any>,
+  ) => ResponseReturnType<Response, GlobalError | LocalError, AdapterType>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -362,14 +360,10 @@ export class Request<
    * @param onResponse our callback
    * @returns
    */
-  public setResponseMapper = <
-    NewResponse = Response,
-    NewError = GlobalError | LocalError,
-    NewAdditionalData = ExtractAdapterAdditionalDataType<AdapterType>,
-  >(
+  public setResponseMapper = <NewResponse = Response, NewError = GlobalError | LocalError>(
     responseMapper?: (
       response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
-    ) => ResponseReturnType<NewResponse, NewError, OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>>,
+    ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
   ) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>() as unknown as Request<
       Response,
@@ -378,7 +372,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>,
+      AdapterType,
       HasData,
       HasParams,
       HasQuery
@@ -393,7 +387,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      OverrideAdapterAdditionalData<NewAdditionalData, AdapterType>,
+      AdapterType,
       HasData,
       HasParams,
       HasQuery

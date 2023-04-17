@@ -33,7 +33,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
 ): UseSubmitReturnType<RequestType> => {
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
-  const mergedOptions = useMemo(
+  const mergedOptions: UseSubmitOptionsType<RequestType> = useMemo(
     () => ({
       ...useSubmitDefaultOptions,
       ...globalConfig.useSubmitConfig,

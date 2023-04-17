@@ -7,14 +7,15 @@ describe("Cache [ Lazy Storage ]", () => {
   const cacheTime = 10000;
   const clearKey = "test";
   const cacheData: CacheValueType = {
-    data: { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isSuccess: true,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: null,
+    error: null,
+    status: 200,
+    isSuccess: true,
+    additionalData: {},
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime,
     clearKey,
     garbageCollection: Infinity,
@@ -44,7 +45,7 @@ describe("Cache [ Lazy Storage ]", () => {
   describe("when using lazy storage", () => {
     it("should new data to lazy storage", async () => {
       cache.events.onData(cacheKey, spy);
-      await cache.set(request, cacheData.data, cacheData.details);
+      await cache.set(request, cacheData);
       await sleep(10);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -60,10 +61,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should not emit stale data", async () => {
-      await cache.options.lazyStorage.set(cacheKey, {
-        ...cacheData,
-        details: { ...cacheData.details, timestamp: +new Date() - cacheTime },
-      });
+      await cache.options.lazyStorage.set(cacheKey, { ...cacheData, timestamp: +new Date() - cacheTime });
       cache.events.onData(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);

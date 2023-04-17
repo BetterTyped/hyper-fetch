@@ -43,6 +43,38 @@ describe("useTrackingState [ Events ]", () => {
       });
     });
   });
+  describe("given request is mapping response", () => {
+    describe("when receiving data", () => {
+      it("should map the data", async () => {
+        const { result } = renderUseTrackedState(
+          request.setResponseMapper((response) => {
+            return { ...response, data: "new-data" };
+          }),
+        );
+
+        act(() => {
+          result.current[2].setRenderKey("data");
+          result.current[2].setCacheData({
+            data: true as any,
+            error: null,
+            status: 200,
+            isSuccess: true,
+            additionalData: {},
+            retries: 0,
+            timestamp: +new Date(),
+            isCanceled: false,
+            isOffline: false,
+            cacheTime: request.cacheTime,
+            clearKey: request.client.cache.clearKey,
+            garbageCollection: Infinity,
+          });
+        });
+
+        expect(result.current[0].data).toBe("new-data");
+        // Todo
+      });
+    });
+  });
   describe("given custom deepCompare option is passed", () => {
     describe("when deepCompare is function", () => {
       it("should trigger with two values", async () => {
@@ -55,14 +87,15 @@ describe("useTrackingState [ Events ]", () => {
         act(() => {
           result.current[2].setRenderKey("data");
           result.current[2].setCacheData({
-            data: { data: true, error: null, status: 200, isSuccess: true, additionalData: {} },
-            details: {
-              retries: 0,
-              timestamp: +new Date(),
-              isSuccess: true,
-              isCanceled: false,
-              isOffline: false,
-            },
+            data: true,
+            error: null,
+            status: 200,
+            isSuccess: true,
+            additionalData: {},
+            retries: 0,
+            timestamp: +new Date(),
+            isCanceled: false,
+            isOffline: false,
             cacheTime: request.cacheTime,
             clearKey: request.client.cache.clearKey,
             garbageCollection: Infinity,
@@ -80,14 +113,15 @@ describe("useTrackingState [ Events ]", () => {
         act(() => {
           result.current[2].setRenderKey("data");
           result.current[2].setCacheData({
-            data: { data: true, error: null, status: 200, isSuccess: true, additionalData: {} },
-            details: {
-              retries: 0,
-              timestamp: null,
-              isSuccess: true,
-              isCanceled: false,
-              isOffline: false,
-            },
+            data: true,
+            error: null,
+            status: 200,
+            isSuccess: true,
+            additionalData: {},
+            retries: 0,
+            timestamp: null,
+            isCanceled: false,
+            isOffline: false,
             cacheTime: request.cacheTime,
             clearKey: request.client.cache.clearKey,
             garbageCollection: Infinity,

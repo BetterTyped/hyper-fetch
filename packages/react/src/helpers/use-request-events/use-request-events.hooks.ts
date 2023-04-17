@@ -84,7 +84,8 @@ export const useRequestEvents = <T extends RequestInstance>({
     data: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     details: ResponseDetailsType,
   ) => {
-    const { isOffline, isSuccess, isCanceled } = details;
+    const { isSuccess } = data;
+    const { isOffline, isCanceled } = details;
     if (request.offline && isOffline && !isSuccess) {
       logger.debug("Performing offline error callback", { data, details });
       onOfflineErrorCallback.current?.({ response: data[1] as ExtractErrorType<T>, request: cmd, details });

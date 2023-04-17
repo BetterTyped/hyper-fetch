@@ -22,20 +22,17 @@ export const createCacheData = <T extends RequestInstance>(
     isSuccess: true,
     additionalData: {},
   };
-  const detailsValue = {
+  const detailsValue: ResponseDetailsType = {
     retries: 0,
     timestamp: +new Date(),
-    isSuccess: true,
     isCanceled: false,
-    isRefreshed: false,
     isOffline: false,
-    isStopped: false,
     ...rest?.details,
   };
 
   request.client.cache.storage.set<any, any, BaseAdapterType>(request.cacheKey, {
-    data: dataValue,
-    details: detailsValue,
+    ...dataValue,
+    ...detailsValue,
     cacheTime: 1000,
     clearKey: request.client.cache.clearKey,
     garbageCollection: Infinity,

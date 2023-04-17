@@ -224,7 +224,7 @@ describe("Dispatcher [ Requests ]", () => {
           expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
           expect(spy).toBeCalledTimes(2);
           expect(cacheValue).toBeDefined();
-          expect(cacheValue?.details.isCanceled).toBeFalse();
+          expect(cacheValue?.isCanceled).toBeFalse();
         });
       });
 

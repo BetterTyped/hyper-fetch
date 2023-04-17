@@ -10,14 +10,15 @@ describe("Cache [ Garbage Collector ]", () => {
   const clearKey = "test";
   const garbageCollection = 10;
   const cacheData: CacheValueType = {
-    data: { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isSuccess: true,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: null,
+    error: null,
+    status: 200,
+    isSuccess: true,
+    additionalData: {},
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime,
     clearKey,
     garbageCollection,
@@ -43,18 +44,18 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     jest.resetAllMocks();
     jest.clearAllMocks();
-    cacheData.details.timestamp = +new Date();
+    cacheData.timestamp = +new Date();
   });
 
   describe("when garbage collector is triggered", () => {
     it("should garbage collect data from sync storage", async () => {
-      cache.set(request, cacheData.data, cacheData.details);
+      cache.set(request, cacheData);
       await waitFor(() => {
         expect(cache.get(cacheKey)).not.toBeDefined();
       });
     });
     it("should garbage collect data from lazy storage", async () => {
-      cache.set(request, cacheData.data, cacheData.details);
+      cache.set(request, cacheData);
       cache.scheduleGarbageCollector(request.cacheKey);
 
       await waitFor(async () => {
@@ -86,7 +87,7 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should schedule garbage collection when resource is added", async () => {
       const spy = jest.spyOn(cache, "scheduleGarbageCollector");
-      cache.set(request, cacheData.data, cacheData.details);
+      cache.set(request, cacheData);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });

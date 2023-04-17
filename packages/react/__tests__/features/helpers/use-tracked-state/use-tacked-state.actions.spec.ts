@@ -63,6 +63,29 @@ describe("useTrackedState [ Actions ]", () => {
 
       expect(result.current[0].status).toBe(900);
     });
+    it("should allow to set isSuccess", async () => {
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setIsSuccess(false, false);
+      });
+
+      await waitFor(() => {
+        expect(result.current[0].isSuccess).toBe(false);
+      });
+    });
+    it("should allow to set additionalData", async () => {
+      const additionalData = {};
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setAdditionalData(additionalData, false);
+      });
+
+      await waitFor(() => {
+        expect(result.current[0].additionalData).toBe(additionalData);
+      });
+    });
     it("should allow to set timestamp", async () => {
       const value = new Date();
       const { result } = renderUseTrackedState(request);
@@ -128,6 +151,30 @@ describe("useTrackedState [ Actions ]", () => {
 
       act(() => {
         result.current[1].setStatus(900, true);
+      });
+
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+      });
+    });
+    it("should allow to set isSuccess", async () => {
+      const spy = jest.spyOn(request.client.cache, "set");
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setIsSuccess(false, true);
+      });
+
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+      });
+    });
+    it("should allow to set additionalData", async () => {
+      const spy = jest.spyOn(request.client.cache, "set");
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setAdditionalData({}, true);
       });
 
       await waitFor(() => {

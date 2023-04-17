@@ -92,7 +92,6 @@ describe("Dispatcher [ Events ]", () => {
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       };
@@ -120,7 +119,6 @@ describe("Dispatcher [ Events ]", () => {
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isSuccess: false,
         isCanceled: false,
         isOffline: false,
       };
@@ -155,7 +153,6 @@ describe("Dispatcher [ Events ]", () => {
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
-        isSuccess: true,
         isCanceled: false,
         isOffline: false,
       };
@@ -185,7 +182,6 @@ describe("Dispatcher [ Events ]", () => {
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isSuccess: false,
         isCanceled: true,
         isOffline: false,
       };

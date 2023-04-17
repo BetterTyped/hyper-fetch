@@ -30,17 +30,17 @@ describe("useFetch [ Revalidate ]", () => {
   it("should allow to prevent revalidation on mount", async () => {
     const spy = jest.fn();
     const customMock = { something: "123" };
-    client.cache.set(
-      request,
-      { data: customMock, error: null, status: 200, isSuccess: true, additionalData: {} },
-      {
-        retries: 0,
-        timestamp: +new Date(),
-        isSuccess: true,
-        isCanceled: false,
-        isOffline: false,
-      },
-    );
+    client.cache.set(request, {
+      data: customMock,
+      error: null,
+      status: 200,
+      isSuccess: true,
+      additionalData: {},
+      retries: 0,
+      timestamp: +new Date(),
+      isCanceled: false,
+      isOffline: false,
+    });
 
     const response = renderUseFetch(request, { revalidateOnMount: false });
     act(() => {
@@ -68,17 +68,17 @@ describe("useFetch [ Revalidate ]", () => {
   });
   it("should allow to revalidate on mount", async () => {
     const customMock = { something: "123" };
-    client.cache.set(
-      request,
-      { data: customMock, error: null, status: 200, isSuccess: true, additionalData: {} },
-      {
-        retries: 0,
-        timestamp: +new Date(),
-        isSuccess: true,
-        isCanceled: false,
-        isOffline: false,
-      },
-    );
+    client.cache.set(request, {
+      data: customMock,
+      error: null,
+      status: 200,
+      isSuccess: true,
+      additionalData: {},
+      retries: 0,
+      timestamp: +new Date(),
+      isCanceled: false,
+      isOffline: false,
+    });
 
     const response = renderUseFetch(request, { revalidateOnMount: true });
 

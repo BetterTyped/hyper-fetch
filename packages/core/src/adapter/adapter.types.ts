@@ -68,16 +68,6 @@ export type ExtractUnionAdapter<
     >
   : never;
 
-export type OverrideAdapterAdditionalData<NewAdditionalData, T> = T extends BaseAdapterType<
-  infer O,
-  infer M,
-  infer S,
-  any,
-  infer Q
->
-  ? BaseAdapterType<O, M, S, NewAdditionalData, Q>
-  : never;
-
 /**
  * Options
  */

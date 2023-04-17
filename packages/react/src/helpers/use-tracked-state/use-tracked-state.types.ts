@@ -86,6 +86,10 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
    */
   setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   /**
+   * Action to set custom isSuccess. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   */
+  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void;
+  /**
    * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
   setAdditionalData: (

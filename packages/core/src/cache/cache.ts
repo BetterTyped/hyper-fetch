@@ -60,33 +60,33 @@ export class Cache<C extends ClientInstance> {
    */
   set = <Response, Error>(
     request: RequestInstance | RequestJSON<RequestInstance>,
-    response: ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>,
-    details: ResponseDetailsType,
+    response: ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> &
+      ResponseDetailsType,
   ): void => {
-    this.logger.debug("Processing cache response", { request, response, details });
+    this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
     const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const data = getCacheData(cachedData?.data, response);
+    const data = getCacheData(cachedData, response);
 
-    const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
+    const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
 
     this.events.emitCacheData<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(
       cacheKey,
       newCacheData,
     );
-    this.logger.debug("Emitting cache response", { request, response, details });
+    this.logger.debug("Emitting cache response", { request, data });
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      return this.logger.debug("Prevented saving response to cache", { request, response, details });
+      return this.logger.debug("Prevented saving response to cache", { request, data });
     }
 
     // Only success data is valid for the cache store
-    if (details.isSuccess) {
-      this.logger.debug("Saving response to cache storage", { request, response, details });
+    if (response.isSuccess) {
+      this.logger.debug("Saving response to cache storage", { request, data });
       this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
@@ -164,8 +164,8 @@ export class Cache<C extends ClientInstance> {
     const hasLazyData = this.lazyStorage && data;
     if (hasLazyData) {
       const now = +new Date();
-      const isNewestData = syncData ? syncData.details.timestamp < data.details.timestamp : true;
-      const isStaleData = data.cacheTime <= now - data.details.timestamp;
+      const isNewestData = syncData ? syncData.timestamp < data.timestamp : true;
+      const isStaleData = data.cacheTime <= now - data.timestamp;
       const isValidLazyData = data.clearKey === this.clearKey;
 
       if (!isValidLazyData) {
@@ -211,7 +211,7 @@ export class Cache<C extends ClientInstance> {
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.garbageCollection + cacheData.details.timestamp - +new Date();
+      const timeLeft = cacheData.garbageCollection + cacheData.timestamp - +new Date();
       if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
         this.logger.info("Cache value is Infinite", { cacheKey });
       } else if (timeLeft >= 0) {

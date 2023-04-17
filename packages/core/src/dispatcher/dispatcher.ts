@@ -523,7 +523,6 @@ export class Dispatcher {
     this.deleteRunningRequest(queueKey, requestId);
 
     const requestDetails: ResponseDetailsType = {
-      isSuccess: response.isSuccess,
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
@@ -541,7 +540,7 @@ export class Dispatcher {
     // Global response emitter to handle request execution
     requestManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
-    cache.set(request, response, requestDetails);
+    cache.set(request, { ...response, ...requestDetails });
     this.logger.info("Request finished", { requestId, request, response, requestDetails });
 
     // On cancelled

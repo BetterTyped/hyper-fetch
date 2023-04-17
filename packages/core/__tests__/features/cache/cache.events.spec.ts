@@ -11,14 +11,15 @@ describe("Cache [ Events ]", () => {
   const spy = jest.fn();
 
   const cacheData: CacheValueType = {
-    data: { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isSuccess: true,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: null,
+    error: null,
+    status: 200,
+    isSuccess: true,
+    additionalData: {},
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime: request.cacheTime,
     clearKey: cache.clearKey,
     garbageCollection: 300000,
@@ -41,7 +42,7 @@ describe("Cache [ Events ]", () => {
     it("should trigger onChange event when data is set", async () => {
       const newCache = createCache(client, { onChange: spy });
 
-      newCache.set(request, cacheData.data, cacheData.details);
+      newCache.set(request, cacheData);
 
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(request.cacheKey, cacheData);
@@ -57,34 +58,34 @@ describe("Cache [ Events ]", () => {
   });
   describe("when revalidate event is triggered", () => {
     it("should revalidate cache using cache key", async () => {
-      cache.set(
-        request,
-        { data: {}, error: null, status: 200, isSuccess: true, additionalData: {} },
-        {
-          retries: 0,
-          timestamp: +new Date(),
-          isSuccess: true,
-          isCanceled: false,
-          isOffline: false,
-        },
-      );
+      cache.set(request, {
+        data: {},
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: {},
+        retries: 0,
+        timestamp: +new Date(),
+        isCanceled: false,
+        isOffline: false,
+      });
       cache.events.onRevalidate(cacheKey, spy);
       await cache.revalidate(cacheKey);
       await sleep(1);
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex", async () => {
-      cache.set(
-        request,
-        { data: null, error: null, status: 200, isSuccess: true, additionalData: {} },
-        {
-          retries: 0,
-          timestamp: +new Date(),
-          isSuccess: true,
-          isCanceled: false,
-          isOffline: false,
-        },
-      );
+      cache.set(request, {
+        data: null,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: {},
+        retries: 0,
+        timestamp: +new Date(),
+        isCanceled: false,
+        isOffline: false,
+      });
       cache.events.onRevalidate(cacheKey, spy);
       await cache.revalidate(new RegExp(cacheKey));
       await sleep(1);

@@ -15,7 +15,6 @@ describe("Cache [ Base ]", () => {
   const details: ResponseDetailsType = {
     retries: 0,
     timestamp: +new Date(),
-    isSuccess: true,
     isCanceled: false,
     isOffline: false,
   };
@@ -44,7 +43,7 @@ describe("Cache [ Base ]", () => {
     it("should initialize cache", async () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
 
       expect(cache.get(request.cacheKey)).toBeDefined();
     });
@@ -54,7 +53,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onData(request.cacheKey, trigger);
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
@@ -62,7 +61,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should delete cache", async () => {
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       cache.delete(request.cacheKey);
       await sleep(1);
 
@@ -73,7 +72,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onRevalidate(request.cacheKey, trigger);
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       await cache.revalidate(request.cacheKey);
       await sleep(1);
 
@@ -86,7 +85,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onData(request.cacheKey, trigger);
 
-      cache.set(request.setCache(false), response, details);
+      cache.set(request.setCache(false), { ...response, ...details });
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
@@ -94,9 +93,9 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should allow to get cache keys", async () => {
-      cache.set(request.setCacheKey("1"), response, details);
-      cache.set(request.setCacheKey("2"), response, details);
-      cache.set(request.setCacheKey("3"), response, details);
+      cache.set(request.setCacheKey("1"), { ...response, ...details });
+      cache.set(request.setCacheKey("2"), { ...response, ...details });
+      cache.set(request.setCacheKey("3"), { ...response, ...details });
 
       expect(cache.keys()).toHaveLength(3);
       expect(cache.keys()).toStrictEqual(["1", "2", "3"]);
@@ -109,7 +108,7 @@ describe("Cache [ Base ]", () => {
 
       cache.events.onRevalidate(request.cacheKey, trigger);
 
-      cache.set(request.setCache(false), response, details);
+      cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();
 
       expect(trigger).toBeCalledTimes(0);

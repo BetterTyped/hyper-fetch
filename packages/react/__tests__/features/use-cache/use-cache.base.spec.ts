@@ -9,14 +9,15 @@ import { testInitialState, testSuccessState } from "../../shared";
 describe("useCache [ Base ]", () => {
   let request = createRequest();
   const cacheData: CacheValueType = {
-    data: { data: { test: 1 }, error: null, status: 200, isSuccess: true, additionalData: {} },
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isSuccess: true,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: { test: 1 },
+    error: null,
+    status: 200,
+    isSuccess: true,
+    additionalData: {},
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime: request.cacheTime,
     clearKey: request.client.cache.clearKey,
     garbageCollection: Infinity,
@@ -61,11 +62,11 @@ describe("useCache [ Base ]", () => {
   describe("given cache is present", () => {
     describe("when reading the state", () => {
       it("should return state", async () => {
-        client.cache.set(request, cacheData.data, cacheData.details);
+        client.cache.set(request, cacheData);
         const response = renderUseCache(request);
 
-        await testSuccessState(cacheData.data.data, response);
-        expect(+response.result.current.timestamp).toBe(cacheData.details.timestamp);
+        await testSuccessState(cacheData.data, response);
+        expect(+response.result.current.timestamp).toBe(cacheData.timestamp);
         expect(response.result.current.retries).toBe(0);
       });
       it("should allow to revalidate by Request", async () => {
