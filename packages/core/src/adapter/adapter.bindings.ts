@@ -217,13 +217,6 @@ export const getAdapterBindings = async <
     return progressTimestamp;
   };
 
-  const isSuccessfulResponse = (status: ExtractAdapterStatusType<T>) => {
-    if (!status || status >= 400) {
-      return false;
-    }
-    return true;
-  };
-
   // Success
 
   const onSuccess = async (
@@ -235,7 +228,7 @@ export const getAdapterBindings = async <
     let response = {
       data: responseData,
       error: null,
-      isSuccess: isSuccessfulResponse(status),
+      isSuccess: true,
       status,
       additionalData,
     };
@@ -262,7 +255,7 @@ export const getAdapterBindings = async <
       data: null,
       status,
       error,
-      isSuccess: isSuccessfulResponse(status),
+      isSuccess: false,
       additionalData,
     } as ResponseReturnErrorType<any, T>;
 

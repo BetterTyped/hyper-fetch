@@ -80,7 +80,7 @@ export const getInitialState = <T extends RequestInstance>(
     data: cacheState?.data.data ?? initialState.data,
     error: cacheState?.data.error ?? initialState.error,
     status: cacheState?.data.status ?? initialState.status,
-    isSuccess: cacheData?.data.isSuccess ?? initialState.isSuccess,
+    isSuccess: cacheState?.data.isSuccess ?? initialState.isSuccess,
     additionalData: cacheState?.data.additionalData ?? request.client.defaultAdditionalData,
     retries: cacheState?.details.retries ?? initialState.retries,
     timestamp: getTimestamp(cacheState?.details.timestamp ?? initialState.timestamp),

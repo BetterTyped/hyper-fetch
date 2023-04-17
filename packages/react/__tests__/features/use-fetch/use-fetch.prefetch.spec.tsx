@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { client, createRequest } from "../../utils";
 
 describe("useFetch [ Prefetch ]", () => {
-  let request = createRequest<any, null>();
+  let request = createRequest<any, undefined>();
   let mock = createRequestInterceptor(request);
 
   beforeAll(() => {
@@ -29,7 +29,7 @@ describe("useFetch [ Prefetch ]", () => {
 
   describe("when request is triggered while mounting page", () => {
     it("should pre-fetch data", async () => {
-      await request.send();
+      await request.send({});
 
       createRequestInterceptor(request, { fixture: { wrongData: 123 } });
 
@@ -48,7 +48,7 @@ describe("useFetch [ Prefetch ]", () => {
     it("should not show error when pre-fetching is failed and fetch again", async () => {
       const errorMock = createRequestInterceptor(request, { status: 400 });
 
-      await request.send();
+      await request.send({});
 
       const successMock = createRequestInterceptor(request);
 

@@ -28,6 +28,7 @@ export const testSuccessState = async <
     const response = getCurrentState(render);
     expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
+    expect(response.isSuccess).toBeTrue();
     expect(response.status).toBe(200);
     expect(response.additionalData).toStrictEqual({});
     expect(response.retries).toBeNumber();
@@ -56,6 +57,7 @@ export const testErrorState = async <
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
+    expect(response.isSuccess).toBeFalse();
     expect(response.additionalData).toStrictEqual({});
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {

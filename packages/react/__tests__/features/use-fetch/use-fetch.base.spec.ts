@@ -60,6 +60,7 @@ describe("useFetch [ Base ]", () => {
       await testCacheState({ data: null, error: null, status: null, isSuccess: true, additionalData: {} }, view);
     });
     it("should allow to use initial data", async () => {
+      await testClientIsolation(client);
       const initialData: ResponseReturnType<unknown, Error, BaseAdapterType> = {
         data: { test: [1, 2, 3] },
         error: null,
@@ -81,7 +82,9 @@ describe("useFetch [ Base ]", () => {
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
-      await sleep(50);
+      await act(async () => {
+        await sleep(50);
+      });
       expect(spy).toBeCalledTimes(1);
     });
   });
