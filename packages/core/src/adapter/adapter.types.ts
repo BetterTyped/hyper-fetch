@@ -8,18 +8,13 @@ import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsT
 export type AdapterInstance = BaseAdapterType<any, any, any, any, any>;
 
 export type BaseAdapterType<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdapterOptions = AdapterOptionsType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MethodType = HttpMethodsType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   StatusType = HttpStatusType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   QueryParams = QueryParamsType | string,
-> = <T extends RequestInstance>(
-  request: T,
+> = (
+  request: RequestInstance,
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
   genericMapper?: {
@@ -29,7 +24,8 @@ export type BaseAdapterType<
     additionalData?: AdditionalData;
     queryParams?: QueryParams;
   },
-) => Promise<ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>;
+  // any any any as a way to avoid circular reference that destroyed request type.
+) => Promise<ResponseReturnType<any, any, any>>;
 
 /**
  * Extractors

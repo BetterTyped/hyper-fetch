@@ -622,7 +622,7 @@ export class Request<
 // getUser.send();
 // getUser.setParams({ id: "" }).send({ params: { id: "" } });
 // getUser.setParams(null).send();
-// getUser.send({ params: { id: null } });
+// getUser.send({ params: { id: null } });   // <----- Should fail
 //
 // // ================>
 //
@@ -631,7 +631,7 @@ export class Request<
 // postUser.setData({ name: "" }).send();
 // // Fail
 // postUser.send({ queryParams: "" });
-// postUser.send({ data: null });
+// postUser.send({ data: null });  // <------ Should fail
 // postUser.setData(null).send();
 // postUser.send();
 // postUser.setData({ name: "" }).send({ data: { name: "" } });
@@ -662,7 +662,7 @@ export class Request<
 // mappedReq.setData({ name: "" }).send();
 // // Fail
 // mappedReq.send({ queryParams: "" });
-// mappedReq.send({ data: undefined });
+// mappedReq.send({ data: undefined });  // <---- should fail
 // mappedReq.setData(null).send();
 // mappedReq.setData(null).send({ data: null, queryParams: () => null });
 // mappedReq.send();
