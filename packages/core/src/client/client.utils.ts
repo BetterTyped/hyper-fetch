@@ -54,7 +54,7 @@ export const interceptResponse = async <GlobalErrorType, AdapterType extends Ada
 // Mappers
 
 export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = hasWindow() && window?.FormData && request.data instanceof FormData;
+  const isFormData = hasWindow() && request.data instanceof FormData;
   const headers: HeadersInit = {};
 
   if (!isFormData) headers["Content-Type"] = "application/json";
@@ -64,7 +64,7 @@ export const getAdapterHeaders = (request: RequestInstance) => {
 };
 
 export const getAdapterPayload = (data: unknown): string | FormData => {
-  const isFormData = hasWindow() && window?.FormData && data instanceof FormData;
+  const isFormData = hasWindow() && data instanceof FormData;
   if (isFormData) return data;
 
   return stringifyValue(data);

@@ -27,23 +27,47 @@ describe("Request [ Sending ]", () => {
 
   describe("When using request's exec method", () => {
     it("should return adapter response", async () => {
-      const requestExecution = request.exec({});
+      const requestExecution = request.exec();
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
       const response = await requestExecution;
       expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
     });
+    it("should return mapped adapter response", async () => {
+      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec();
+      await sleep(5);
+      expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
+      const response = await requestExecution;
+      expect(response).toStrictEqual({
+        data: { nested: fixture },
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: {},
+      });
+    });
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
-      const response = await request.send({});
+      const response = await request.send();
 
       expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+    });
+    it("should return mapped adapter response", async () => {
+      const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send();
+
+      expect(response).toStrictEqual({
+        data: { nested: fixture },
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: {},
+      });
     });
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
       createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.send({});
+      const requestExecution = request.send();
       await sleep(5);
       client.appManager.setOnline(false);
 
@@ -61,7 +85,7 @@ describe("Request [ Sending ]", () => {
     it("should wait to resolve request retries", async () => {
       const spy = jest.fn();
       createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.setRetry(1).setRetryTime(30).send({});
+      const requestExecution = request.setRetry(1).setRetryTime(30).send();
       await sleep(5);
 
       const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
@@ -76,7 +100,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should return error once request got removed", async () => {
       createRequestInterceptor(request, { delay: 10, status: 400 });
-      const requestExecution = request.send({});
+      const requestExecution = request.send();
       await sleep(2);
 
       const runningRequests = client.fetchDispatcher.getAllRunningRequest();

@@ -331,7 +331,7 @@ export class Request<
   };
 
   public setRequestMapper = (
-    requestMapper?: <R extends RequestInstance>(
+    requestMapper: <R extends RequestInstance>(
       requestId: string,
       request: Request<
         Response,

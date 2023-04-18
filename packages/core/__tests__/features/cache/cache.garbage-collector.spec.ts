@@ -120,5 +120,29 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(spy).toBeCalledWith(cacheKey);
       });
     });
+    it("should not schedule garbage collection for Infinity", async () => {
+      const storage = new Map();
+      storage.set(cacheKey, { ...cacheData, garbageCollection: Infinity });
+      const cacheInstance = createCache(client, {
+        storage,
+        clearKey,
+      });
+
+      await waitFor(() => {
+        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
+      });
+    });
+    it("should not schedule garbage collection for null", async () => {
+      const storage = new Map();
+      storage.set(cacheKey, { ...cacheData, garbageCollection: null });
+      const cacheInstance = createCache(client, {
+        storage,
+        clearKey,
+      });
+
+      await waitFor(() => {
+        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
+      });
+    });
   });
 });

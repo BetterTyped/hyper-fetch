@@ -210,4 +210,14 @@ describe("RequestManager [ Base ]", () => {
     expect(spy).toBeCalledTimes(1);
     expect(spyById).toBeCalledTimes(1);
   });
+  it("should not throw on not existing controller", async () => {
+    client.requestManager.addAbortController("test2", "test2");
+    const emptyAbortController = client.requestManager.getAbortController("test", "test");
+    const emptyAbortController2 = client.requestManager.getAbortController("test2", "test");
+
+    expect(emptyAbortController).not.toBeDefined();
+    expect(emptyAbortController2).not.toBeDefined();
+    expect(() => client.requestManager.useAbortController("test", "test")).not.toThrow();
+    expect(() => client.requestManager.useAbortController("test2", "test")).not.toThrow();
+  });
 });

@@ -26,8 +26,10 @@ describe("Client [ Methods ]", () => {
     it("should assign default request config [setRequestDefaultOptions]", async () => {
       const options: Partial<RequestOptionsType<string, AdapterOptionsType>> = { method: "POST" };
       client.setRequestDefaultOptions(() => options);
+      const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.requestDefaultOptions(request.requestOptions as any)).toEqual(options);
+      expect(client.requestDefaultOptions(request.requestOptions)).toEqual(options);
+      expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
       const options: AdapterOptionsType = { timeout: 12312312 };

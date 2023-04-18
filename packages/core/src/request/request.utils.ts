@@ -145,7 +145,9 @@ export const sendRequest = <Request extends RequestInstance>(
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
     >(requestId, (response, details) => {
-      const { isSuccess } = response;
+      const responseData = request.responseMapper?.(response) || response;
+
+      const { isSuccess } = responseData;
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
@@ -155,12 +157,9 @@ export const sendRequest = <Request extends RequestInstance>(
       // When request is in retry mode we need to listen for retries end
       if (!isSuccess && willRetry) return;
 
-      if (request.responseMapper) {
-        return request.responseMapper(response);
-      }
+      options?.onResponse?.(responseData, details);
 
-      options?.onResponse?.(response, details);
-      resolve(response);
+      resolve(responseData);
 
       // Unmount Listeners
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -169,7 +168,7 @@ export const sendRequest = <Request extends RequestInstance>(
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
-      options.onRemove?.(...props);
+      options?.onRemove?.(...props);
       resolve({
         data: null,
         status: null,
