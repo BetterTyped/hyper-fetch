@@ -76,67 +76,11 @@ export class Request<
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
   mock?: Generator<
-    GeneratorReturnMockTypes<
-      Response,
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-    GeneratorReturnMockTypes<
-      Response,
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-    GeneratorReturnMockTypes<
-      Response,
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>
   >;
-  mockData?: RequestDataMockTypes<
-    Response,
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >
-  >;
+  mockData?: RequestDataMockTypes<Response, this>;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<any, any, any>,
@@ -344,23 +288,7 @@ export class Request<
     return cloned;
   };
 
-  public setMock = (
-    mockData: RequestDataMockTypes<
-      Response,
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-  ) => {
+  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
     const mockGenerator = function* mocked(mockedValues: RequestDataMockTypes<Response, RequestInstance>) {
       if (Array.isArray(mockData)) {
         let iteration = 0;
@@ -386,23 +314,7 @@ export class Request<
     return this;
   };
 
-  public setRequestMapper = (
-    requestMapper: <R extends RequestInstance>(
-      requestId: string,
-      request: Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >,
-    ) => R,
-  ) => {
+  public setRequestMapper = (requestMapper: <R extends RequestInstance>(requestId: string, request: this) => R) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
     cloned.requestMapper = requestMapper;
@@ -421,18 +333,7 @@ export class Request<
       response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
     ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
   ) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>() as unknown as Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >;
+    const cloned = this.clone<HasData, HasParams, HasQuery>() as unknown as this;
 
     cloned.responseMapper = responseMapper as any;
 
@@ -463,30 +364,15 @@ export class Request<
     return endpoint;
   };
 
-  public toJSON(): RequestJSON<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >,
-    ExtractAdapterOptions<AdapterType>,
-    QueryParams
-  > {
+  public toJSON(): RequestJSON<this, ExtractAdapterOptions<AdapterType>, QueryParams> {
     return {
       requestOptions: this.requestOptions,
       endpoint: this.endpoint,
       headers: this.headers,
       auth: this.auth,
       method: this.method,
-      params: this.params,
-      data: this.data,
+      params: this.params as any,
+      data: this.data as any,
       queryParams: this.queryParams,
       options: this.options,
       cancelable: this.cancelable,
@@ -574,48 +460,9 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public exec: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-  ) => {
+  public exec: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any) as Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >;
+    const request = this.clone(options as any) as this;
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -644,63 +491,11 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public send: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >,
-  ) => {
+  public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const request = this.clone(rest as any) as Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterType,
-      HasData,
-      HasParams,
-      HasQuery
-    >;
-    return sendRequest<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterType,
-        HasData,
-        HasParams,
-        HasQuery
-      >
-    >(request, options);
+    const request = this.clone(rest as any) as any;
+    return sendRequest<this>(request, options);
   };
 }
 
