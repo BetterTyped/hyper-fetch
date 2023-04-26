@@ -2,8 +2,9 @@ import { set, ref, DataSnapshot } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
-import { seedRealtimeDatabase, Tea } from "./utils/seed";
+import { seedRealtimeDatabase, Tea } from "../utils/seed";
 import { db } from "./index";
+import { firestoreDb } from "../firestore";
 
 describe("Realtime Database [ Methods ]", () => {
   beforeEach(async () => {
@@ -18,6 +19,7 @@ describe("Realtime Database [ Methods ]", () => {
   describe("onValue", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      // const client2 = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
@@ -52,15 +54,11 @@ describe("Realtime Database [ Methods ]", () => {
         additionalData: { unsubscribe },
       } = await onValueReq.send();
 
-      const {
-        data: { data: cacheAfterOnValue },
-      } = onValueReq.client.cache.get(onValueReq.cacheKey);
+      const { data: cacheAfterOnValue } = onValueReq.client.cache.get(onValueReq.cacheKey);
 
       await pushReq.send();
 
-      const {
-        data: { data: cacheAfterPush },
-      } = onValueReq.client.cache.get(onValueReq.cacheKey);
+      const { data: cacheAfterPush } = onValueReq.client.cache.get(onValueReq.cacheKey);
 
       if (unsubscribe) {
         unsubscribe();
@@ -68,9 +66,7 @@ describe("Realtime Database [ Methods ]", () => {
 
       await pushReq.send();
 
-      const {
-        data: { data: cacheAfterUnsub },
-      } = onValueReq.client.cache.get(onValueReq.cacheKey);
+      const { data: cacheAfterUnsub } = onValueReq.client.cache.get(onValueReq.cacheKey);
 
       expect(data).toStrictEqual(cacheAfterOnValue);
       expect(Object.values(cacheAfterPush)).toHaveLength(11);
@@ -84,7 +80,7 @@ describe("Realtime Database [ Methods ]", () => {
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
-        method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "get",
       });
       const { data, additionalData, status, isSuccess, error } = await req.send();
       expect(data).toHaveLength(10);
@@ -102,7 +98,7 @@ describe("Realtime Database [ Methods ]", () => {
       const req = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
@@ -119,13 +115,13 @@ describe("Realtime Database [ Methods ]", () => {
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "get",
         })
         .setParams({ teaId: 1 });
       const setReq = client
         .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
-          method: "set", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "set",
         })
         .setParams({ teaId: 1 })
         .setData(newData);
@@ -140,14 +136,14 @@ describe("Realtime Database [ Methods ]", () => {
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
       const setReq = client
         .createRequest<Tea, { data: null }>()({
           endpoint: ":teaId",
-          method: "set", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "set",
         })
         .setParams({ teaId: 1 })
         .setData({ data: null });
@@ -196,7 +192,7 @@ describe("Realtime Database [ Methods ]", () => {
         .setData(newData);
       const getReq = client.createRequest<Tea>()({
         endpoint: ":teaId",
-        method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "get",
       });
       await updateReq.send({ params: { teaId: 1 } });
       // TODO - if we do not pass any params even if the endpoint technically requires them - it still passes. Should we throw error?
@@ -211,14 +207,14 @@ describe("Realtime Database [ Methods ]", () => {
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "get",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
-        .createRequest<Tea, { data: null }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "remove", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+          method: "remove",
         })
         .setParams({ teaId: 1 });
 

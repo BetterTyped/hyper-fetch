@@ -29,29 +29,29 @@ const setCacheManually = <R extends RequestInstance>(
   additionalData,
 ) => {
   if (response.status === "success") {
-    request.client.cache.set(
-      request,
-      { data: response.value, status: "success", error: null, isSuccess: true, additionalData },
-      {
-        isSuccess: true,
-        isCanceled: false,
-        isOffline: false,
-        retries: 0,
-        timestamp: +new Date(),
-      },
-    );
+    request.client.cache.set(request, {
+      data: response.value,
+      status: "success",
+      error: null,
+      isSuccess: true,
+      additionalData,
+      isCanceled: false,
+      isOffline: false,
+      retries: 0,
+      timestamp: +new Date(),
+    });
   } else {
-    request.client.cache.set(
-      request,
-      { data: null, status: "error", error: response.value, isSuccess: false, additionalData },
-      {
-        isSuccess: false,
-        isCanceled: false,
-        isOffline: false,
-        retries: 0,
-        timestamp: +new Date(),
-      },
-    );
+    request.client.cache.set(request, {
+      data: null,
+      status: "error",
+      error: response.value,
+      isSuccess: false,
+      additionalData,
+      isCanceled: false,
+      isOffline: false,
+      retries: 0,
+      timestamp: +new Date(),
+    });
   }
 };
 

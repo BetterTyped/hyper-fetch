@@ -1,7 +1,7 @@
 import { ref, set, orderByChild, limitToFirst, startAt, endAt } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
-import { seedRealtimeDatabase, Tea } from "./utils/seed";
+import { seedRealtimeDatabase, Tea } from "../utils/seed";
 import { db } from "./index";
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
 

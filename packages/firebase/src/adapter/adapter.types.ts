@@ -1,11 +1,19 @@
-import { Firestore, DocumentSnapshot } from "firebase/firestore";
 import { Database, DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
 import { BaseAdapterType } from "@hyper-fetch/core";
-import { CollectionReference, DocumentReference } from "@firebase/firestore";
+import { CollectionReference, DocumentReference, Firestore, DocumentSnapshot } from "firebase/firestore";
 
-export type FirebaseDBs = Database | Firestore;
+export type FirebaseDBTypes = Database | Firestore;
+export type FirebaseAdapterTypes<T> = T extends Database ? FirebaseRealtimeAdapterType : FirestoreAdapterType;
 
-export type FirebaseAdapterType =
+export type FirestoreAdapterType = BaseAdapterType<
+  DefaultFirebaseAdapterOptions,
+  FirestoreDBMethods,
+  FirestoreStatuses,
+  FirestoreDBAdditionalData,
+  any
+>;
+
+export type FirebaseRealtimeAdapterType =
   | BaseAdapterType<
       DefaultFirebaseAdapterOptions & { onlyOnce: boolean },
       "onValue",
@@ -47,16 +55,7 @@ export type DefaultFirebaseAdapterOptions = {
   // toArray?: boolean
 };
 
-export enum RealtimeMethods {
-  GET = "GET",
-  PUSH = "PUSH",
-}
-
 export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
-// export type RealtimeListeners =
-//   | "onValue"  <--- most important
-//   | "onDataChange" <---  most important
-//   | "onComplete"; <---   most important
 
 export type RealtimeDBStatuses = "success" | "error";
 export type RealtimeDbOnValueMethodAdditionalData = {

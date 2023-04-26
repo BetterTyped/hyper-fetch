@@ -7,6 +7,7 @@ import {
   ExtractAdapterMethodType,
   ExtractAdapterOptions,
   ExtractAdapterQueryParamsType,
+  ExtractUnionAdapter,
   HeaderMappingType,
   QueryStringifyOptionsType,
   ResponseReturnType,
@@ -337,16 +338,28 @@ export class Client<
     LocalError extends ClientErrorType | undefined = undefined,
     QueryParams = ExtractAdapterQueryParamsType<AdapterType>,
   >() => {
-    return <EndpointType extends string, RequestAdapterType extends AdapterType>(
-      params: RequestOptionsType<
-        EndpointType,
-        ExtractAdapterOptions<RequestAdapterType>,
-        ExtractAdapterMethodType<RequestAdapterType>
-      >,
+    return <
+      EndpointType extends string,
+      AdapterOptions extends ExtractAdapterOptions<AdapterType>,
+      MethodType extends ExtractAdapterMethodType<AdapterType>,
+    >(
+      params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
     ) =>
-      new Request<Response, Payload, QueryParams, GlobalErrorType, LocalError, EndpointType, RequestAdapterType>(
-        this as unknown as Client<GlobalErrorType, RequestAdapterType>,
-        params,
-      );
+      new Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalErrorType,
+        LocalError,
+        EndpointType,
+        ExtractUnionAdapter<
+          AdapterType,
+          {
+            method: MethodType;
+            options: AdapterOptions;
+            queryParams: QueryParams;
+          }
+        >
+      >(this, params);
   };
 }

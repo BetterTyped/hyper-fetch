@@ -76,11 +76,67 @@ export class Request<
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
   mock?: Generator<
-    GeneratorReturnMockTypes<Response, typeof this>,
-    GeneratorReturnMockTypes<Response, typeof this>,
-    GeneratorReturnMockTypes<Response, typeof this>
+    GeneratorReturnMockTypes<
+      Response,
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >,
+    GeneratorReturnMockTypes<
+      Response,
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >,
+    GeneratorReturnMockTypes<
+      Response,
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >
   >;
-  mockData?: RequestDataMockTypes<Response, typeof this>;
+  mockData?: RequestDataMockTypes<
+    Response,
+    Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >
+  >;
   requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
   responseMapper?: (
     response: ResponseReturnType<any, any, any>,
@@ -518,9 +574,48 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public exec: RequestSendType<typeof this> = async (options?: RequestSendOptionsType<typeof this>) => {
+  public exec: RequestSendType<
+    Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >
+  > = async (
+    options?: RequestSendOptionsType<
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >,
+  ) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any) as typeof this;
+    const request = this.clone(options as any) as Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -549,11 +644,63 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public send: RequestSendType<typeof this> = async (options?: RequestSendOptionsType<typeof this>) => {
+  public send: RequestSendType<
+    Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >
+  > = async (
+    options?: RequestSendOptionsType<
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >,
+  ) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const request = this.clone(rest as any) as typeof this;
-    return sendRequest<typeof this>(request, options);
+    const request = this.clone(rest as any) as Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      AdapterType,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
+    return sendRequest<
+      Request<
+        Response,
+        Payload,
+        QueryParams,
+        GlobalError,
+        LocalError,
+        Endpoint,
+        AdapterType,
+        HasData,
+        HasParams,
+        HasQuery
+      >
+    >(request, options);
   };
 }
 
