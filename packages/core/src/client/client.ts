@@ -57,7 +57,7 @@ export class Client<
 
   // Config
   adapter: AdapterType;
-  cache: Cache<typeof this>;
+  cache: Cache<this>;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
 
@@ -101,7 +101,7 @@ export class Client<
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
     this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<typeof this>;
+    this.cache = (cache?.(this) || new Cache(this)) as Cache<this>;
     this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
     this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   }
@@ -324,7 +324,7 @@ export class Client<
     this.cache.emitter.removeAllListeners();
 
     this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<typeof this>;
+    this.cache = (cache?.(this) || new Cache(this)) as Cache<this>;
     this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
     this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   };
