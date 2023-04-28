@@ -9,7 +9,7 @@ const initializeFirestore = () => {
   const db = getFirestore(app);
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
 
-  setLogLevel("debug");
+  setLogLevel("info");
 
   return db;
 };

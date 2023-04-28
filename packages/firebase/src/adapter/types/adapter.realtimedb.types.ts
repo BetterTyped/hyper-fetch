@@ -1,49 +1,37 @@
-import { Database, DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
 import { BaseAdapterType } from "@hyper-fetch/core";
-import { CollectionReference, DocumentReference, Firestore, DocumentSnapshot } from "firebase/firestore";
+import { DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
 
-export type FirebaseDBTypes = Database | Firestore;
-export type FirebaseAdapterTypes<T> = T extends Database ? FirebaseRealtimeAdapterType : FirestoreAdapterType;
-
-export type FirestoreAdapterType = BaseAdapterType<
-  DefaultFirebaseAdapterOptions,
-  FirestoreDBMethods,
-  FirestoreStatuses,
-  FirestoreDBAdditionalData,
-  any
->;
-
-export type FirebaseRealtimeAdapterType =
+export type RealtimeDbAdapterType =
   | BaseAdapterType<
-      DefaultFirebaseAdapterOptions & { onlyOnce: boolean },
+      DefaultRealtimeDBAdapterOptions & { onlyOnce: boolean },
       "onValue",
       RealtimeDBStatuses,
       RealtimeDbOnValueMethodAdditionalData,
       RealtimeDBQueryParams
     >
   | BaseAdapterType<
-      DefaultFirebaseAdapterOptions,
+      DefaultRealtimeDBAdapterOptions,
       "get",
       RealtimeDBStatuses,
       RealtimeDbGetMethodAdditionalData,
       RealtimeDBQueryParams
     >
   | BaseAdapterType<
-      DefaultFirebaseAdapterOptions,
+      DefaultRealtimeDBAdapterOptions,
       "push",
       RealtimeDBStatuses,
       RealtimeDbPushMethodAdditionalData,
       RealtimeDBQueryParams
     >
   | BaseAdapterType<
-      DefaultFirebaseAdapterOptions,
+      DefaultRealtimeDBAdapterOptions,
       "set" | "update" | "remove",
       RealtimeDBStatuses,
       RealtimeDbDefaultAdditionalData,
       RealtimeDBQueryParams
     >;
 
-export type DefaultFirebaseAdapterOptions = {
+export type DefaultRealtimeDBAdapterOptions = {
   data?: string;
   filterBy?: QueryConstraint | QueryConstraint[];
   orderBy?: QueryConstraint | QueryConstraint[];
@@ -84,13 +72,3 @@ export type RealtimeDBQueryParams = {
   //   | "limitToFirst" | "limitToLast" | "startAt" | "startAfter" | "endAt" | "endBefore" | "equalTo";
   filterBy?: QueryConstraint[];
 };
-
-export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc" | "onSnapshot";
-
-export type FirestoreDBAdditionalData = {
-  ref?: DocumentReference | CollectionReference;
-  snapshot?: DocumentSnapshot;
-};
-
-// TODO check firestore statuses
-export type FirestoreStatuses = "success" | "error";

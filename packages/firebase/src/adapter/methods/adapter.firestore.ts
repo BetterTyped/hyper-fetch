@@ -10,24 +10,62 @@ import {
   getDocs,
   onSnapshot,
 } from "@firebase/firestore";
+import { RequestInstance } from "@hyper-fetch/core";
+import {
+  CollectionReference,
+  DocumentReference,
+  QueryFieldFilterConstraint,
+  QueryLimitConstraint,
+  QueryOrderByConstraint,
+} from "firebase/firestore";
 
-import { FirestoreDBMethods } from "../adapter.types";
+import { FirestoreDBMethods } from "../types/adapter.firestore.types";
 
-export const getFirestoreMethods = (
+const getDocOrCollectionFunction = (
+  fullUrl: string,
+): ((...any) => DocumentReference) | ((...any) => CollectionReference) => {
+  const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
+  const pathElements = withoutSurroundingSlashes.split("/").length;
+  return pathElements % 2 === 0 ? doc : collection;
+};
+export const getFirestoreMethods = <R extends RequestInstance>(
+  request: R,
   database: Firestore,
   url: string,
   onSuccess,
   onError,
   resolve,
-): Record<FirestoreDBMethods, (data) => void> => {
+): Record<
+  FirestoreDBMethods,
+  (data: {
+    constraints?: {
+      limit?: QueryLimitConstraint;
+      orderBy?: QueryOrderByConstraint[];
+      filterBy?: QueryFieldFilterConstraint[];
+    };
+    data?: any;
+  }) => void
+> => {
+  // const [fullUrl] = url.split("?");
+  // TODO - handle trying to pass collection to onSnapshot and raise appropriate error. or do as a query?
+  // TODO - do we want to return changed/modified/removed - listen to diff
+  // TODO - what do we want to do on error
+  // const referenceFunc = getDocOrCollectionFunction(fullUrl);
   const methods: Record<FirestoreDBMethods, (data) => void> = {
     onSnapshot: async () => {
+      // includeMetadataChanges: true option
       // TODO - handle Query -> collection
       const path = doc(database, url);
-      // TODO - add onError callback
-      const unsub = onSnapshot(path, (snapshot) => {
-        onSuccess(snapshot.data(), "success", { ref: path, snapshot, unsubscribe: unsub }, resolve);
-      });
+      const unsub = onSnapshot(
+        path,
+        (snapshot) => {
+          onSuccess(snapshot.data(), "success", { ref: path, snapshot, unsubscribe: unsub }, resolve);
+        },
+        (error) => {
+          // "error" or firebase error exposed
+          onError(error, "error", {}, resolve);
+        },
+      );
     },
     getDoc: async () => {
       const path = doc(database, url);
@@ -41,14 +79,17 @@ export const getFirestoreMethods = (
     getDocs: async () => {
       const path = collection(database, url);
       try {
-        const snapshots = await getDocs(path);
-        // TODO check
-        onSuccess(snapshots.docs, "success", { ref: path, snapshot: snapshots }, resolve);
+        const querySnapshot = await getDocs(path);
+        const result = [];
+        querySnapshot.forEach((d) => {
+          result.push(d.data());
+        });
+        onSuccess(result, "success", { ref: path, snapshot: querySnapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    setDoc: async (data: any) => {
+    setDoc: async ({ data }) => {
       const path = doc(database, url);
       try {
         await setDoc(path, data);
@@ -57,7 +98,7 @@ export const getFirestoreMethods = (
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    addDoc: async (data: any) => {
+    addDoc: async ({ data }) => {
       const path = collection(database, url);
       try {
         const docRef = await addDoc(path, data);
@@ -66,7 +107,7 @@ export const getFirestoreMethods = (
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    updateDoc: async (data: any) => {
+    updateDoc: async ({ data }) => {
       const path = doc(database, url);
       try {
         await updateDoc(path, data);

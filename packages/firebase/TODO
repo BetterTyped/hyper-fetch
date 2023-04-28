@@ -1,0 +1,7 @@
+# Handle adding/removing snapshot from additionalData - should it be there or not by default
+# Check what happens if passing collection to doc methods
+# Add emptyResource status if no data returned.
+# Double check passing filtering to every method
+# TODO - observe only on changed/remove/added for onSnapshot
+# RealtimeDB remember about push changes array to object with some strange indexes
+https://firebase.google.com/docs/firestore/query-data/listen#view_changes_between_snapshots

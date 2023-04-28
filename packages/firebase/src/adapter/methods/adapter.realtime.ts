@@ -13,7 +13,8 @@ import {
 } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethods } from "../adapter.types";
+import { setCacheManually } from "../utils";
+import { RealtimeDBMethods } from "../types/adapter.realtimedb.types";
 
 const getOrderedResult = (snapshot: DataSnapshot) => {
   const res = [];
@@ -23,46 +24,17 @@ const getOrderedResult = (snapshot: DataSnapshot) => {
   return res;
 };
 
-const setCacheManually = <R extends RequestInstance>(
-  request: R,
-  response: { value: any; status: "success" | "error" },
-  additionalData,
-) => {
-  if (response.status === "success") {
-    request.client.cache.set(request, {
-      data: response.value,
-      status: "success",
-      error: null,
-      isSuccess: true,
-      additionalData,
-      isCanceled: false,
-      isOffline: false,
-      retries: 0,
-      timestamp: +new Date(),
-    });
-  } else {
-    request.client.cache.set(request, {
-      data: null,
-      status: "error",
-      error: response.value,
-      isSuccess: false,
-      additionalData,
-      isCanceled: false,
-      isOffline: false,
-      retries: 0,
-      timestamp: +new Date(),
-    });
-  }
-};
-
-export const getRealtimeDBMethods = <DType, R extends RequestInstance>(
+export const getRealtimeDBMethods = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,
   onSuccess,
   onError,
   resolve,
-): Record<RealtimeDBMethods, (data: { constraints: QueryConstraint[]; data: DType }) => void> => {
+): Record<
+  RealtimeDBMethods,
+  (data: { constraints: { filterBy?: QueryConstraint[]; orderBy?: QueryConstraint }; data: any }) => void
+> => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods: Record<RealtimeDBMethods, (data) => void> = {
