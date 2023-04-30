@@ -51,11 +51,7 @@ export const firebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
             throw new Error(`Cannot find method ${method} in Firestore available methods.`);
           }
           selectedMethod({
-            constraints: {
-              filterBy: queryParams?.filterBy || [],
-              orderBy: queryParams?.orderBy || [],
-              limit: queryParams?.limit || null,
-            },
+            constraints: queryParams?.constraints ? queryParams.constraints : [],
             data,
           });
         }

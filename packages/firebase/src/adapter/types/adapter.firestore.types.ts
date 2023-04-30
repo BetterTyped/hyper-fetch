@@ -9,6 +9,7 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
+import { QueryEndAtConstraint, QueryStartAtConstraint } from "@firebase/firestore";
 
 export type FirestoreAdapterType =
   | BaseAdapterType<
@@ -41,9 +42,13 @@ export type FirestoreAdapterType =
     >;
 
 export type FirestoreQueryParams = {
-  orderBy?: QueryOrderByConstraint[];
-  limit?: QueryLimitConstraint;
-  filterBy?: QueryFieldFilterConstraint[];
+  constraints?: (
+    | QueryOrderByConstraint
+    | QueryLimitConstraint
+    | QueryFieldFilterConstraint
+    | QueryStartAtConstraint
+    | QueryEndAtConstraint
+  )[];
 };
 
 export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc" | "onSnapshot";

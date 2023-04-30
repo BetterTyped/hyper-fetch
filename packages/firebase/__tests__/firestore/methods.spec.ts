@@ -2,12 +2,13 @@
  * @jest-environment node
  */
 import { Client } from "@hyper-fetch/core";
-import { DocumentSnapshot, QuerySnapshot } from "firebase/firestore";
+import { DocumentSnapshot, QuerySnapshot, where } from "firebase/firestore";
 
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
 import { seedFirestoreDatabase, Tea } from "../utils/seed";
 import { firestoreDb } from "./index";
 import { deleteCollectionForWeb } from "./utils";
+import { params } from "../../src/adapter/utils/params.wrapper";
 
 describe("Firestore [ Methods ]", () => {
   beforeEach(async () => {
@@ -40,44 +41,87 @@ describe("Firestore [ Methods ]", () => {
 
       additionalData.unsubscribe();
     });
-    // it("should change HF cache if data is changed in firebase after onSnapshot listener creation", async () => {
-    //   const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
-    //   const onValueReq = client
-    //     .createRequest<Tea[]>()({
-    //       endpoint: ":teaId",
-    //       method: "onValue",
-    //     })
-    //     .setParams({ teaId: 1 });
-    //   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-    //   const pushReq = client
-    //     .createRequest<Tea, Tea>()({
-    //       endpoint: "",
-    //       method: "push",
-    //     })
-    //     .setData(newData);
-    //   const {
-    //     data,
-    //     additionalData: { unsubscribe },
-    //   } = await onValueReq.send();
-    //
-    //   const { data: cacheAfterOnValue } = onValueReq.client.cache.get(onValueReq.cacheKey);
-    //
-    //   await pushReq.send();
-    //
-    //   const { data: cacheAfterPush } = onValueReq.client.cache.get(onValueReq.cacheKey);
-    //
-    //   if (unsubscribe) {
-    //     unsubscribe();
-    //   }
-    //
-    //   await pushReq.send();
-    //
-    //   const { data: cacheAfterUnsub } = onValueReq.client.cache.get(onValueReq.cacheKey);
-    //
-    //   expect(data).toStrictEqual(cacheAfterOnValue);
-    //   expect(Object.values(cacheAfterPush)).toHaveLength(11);
-    //   expect(Object.values(cacheAfterUnsub)).toHaveLength(11);
-    // });
+    it("should allow for listening to multiple documents and change HF cache if data is changed in firebase after onSnapshot listener creation", async () => {
+      const initialCache = [
+        {
+          amount: 50,
+          year: 2022,
+          origin: "China",
+          name: "Bi Luo Chun",
+          type: "Green",
+        },
+        {
+          amount: 150,
+          year: 2023,
+          origin: "China",
+          name: "Taiping Hou Kui",
+          type: "Green",
+        },
+        {
+          amount: 25,
+          year: 2021,
+          origin: "Japan",
+          name: "Hon.yama Sencha",
+          type: "Green",
+        },
+      ];
+      const newData = {
+        origin: "Poland",
+        type: "Green",
+        year: 2043,
+        name: "Pou Ran Do Cha",
+        amount: 100,
+      };
+      const afterUpdateCache = [...initialCache, newData];
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const onSnapshotReq = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onSnapshot",
+      });
+      // Should listen for changes only for Green teas
+      const {
+        additionalData: { unsubscribe },
+      } = await onSnapshotReq.send({ queryParams: { constraints: params([where("type", "==", "Green")]) } });
+
+      // Jak się dostać do cacheKey kiedy dopiero w send wskazujemy queryParams?
+      const afterOnSnapshotCache = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
+
+      const shouldCacheData = newData as Tea;
+      const shouldNotCacheData = {
+        ...newData,
+        type: "Oolong",
+      } as Tea;
+
+      const shouldCacheAddDocRequest = client
+        .createRequest<Tea, Tea>()({
+          endpoint: "",
+          method: "addDoc",
+        })
+        .setData(shouldCacheData);
+      const shouldNotCacheAddDocRequest = client
+        .createRequest<Tea, Tea>()({
+          endpoint: "",
+          method: "addDoc",
+        })
+        .setData(shouldNotCacheData);
+
+      await shouldCacheAddDocRequest.send();
+      await shouldNotCacheAddDocRequest.send();
+
+      const { data: afterAddDocCache } = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
+
+      if (unsubscribe) {
+        unsubscribe();
+      }
+
+      await shouldCacheAddDocRequest.send();
+
+      const { data: afterUnsubCache } = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
+
+      expect(afterOnSnapshotCache.data).toStrictEqual(initialCache);
+      expect(afterAddDocCache).toStrictEqual(afterUpdateCache);
+      expect(afterUnsubCache).toStrictEqual(afterUpdateCache);
+    });
   });
 
   describe("getDoc", () => {
@@ -104,7 +148,6 @@ describe("Firestore [ Methods ]", () => {
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",

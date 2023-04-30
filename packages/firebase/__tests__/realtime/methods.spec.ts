@@ -4,7 +4,6 @@ import { Client } from "@hyper-fetch/core";
 import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
 import { seedRealtimeDatabase, Tea } from "../utils/seed";
 import { db } from "./index";
-import { firestoreDb } from "../firestore";
 
 describe("Realtime Database [ Methods ]", () => {
   beforeEach(async () => {

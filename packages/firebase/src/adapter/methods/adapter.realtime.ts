@@ -13,8 +13,8 @@ import {
 } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { setCacheManually } from "../utils";
 import { RealtimeDBMethods } from "../types/adapter.realtimedb.types";
+import { setCacheManually } from "../utils/set.cache.manually";
 
 const getOrderedResult = (snapshot: DataSnapshot) => {
   const res = [];
