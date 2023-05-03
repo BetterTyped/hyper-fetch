@@ -1,6 +1,3 @@
-import { Database, set, ref } from "firebase/database";
-import { Firestore, doc, setDoc } from "firebase/firestore";
-
 export type Tea = {
   name: string;
   type: "Green" | "Hong" | "White" | "Puerh" | "Oolong";
@@ -21,20 +18,3 @@ export const teas = [
   { id: 8, name: "Wild White Tea", type: "White", origin: "China", year: 2017 },
   { id: 9, name: "Sheng HK Red Wild", type: "Puerh", origin: "China", year: 1980 },
 ];
-export const seedRealtimeDatabase = async (db: Database) => {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const tea of teas) {
-    const { id, ...data } = tea;
-    // eslint-disable-next-line no-await-in-loop
-    await set(ref(db, `teas/${id}`), data);
-  }
-};
-
-export const seedFirestoreDatabase = async (db: Firestore) => {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const tea of teas) {
-    const { id, ...data } = tea;
-    // eslint-disable-next-line no-await-in-loop
-    await setDoc(doc(db, "teas", `${id}`), data);
-  }
-};

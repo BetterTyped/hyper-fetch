@@ -1,23 +1,24 @@
 import { set, ref, DataSnapshot } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
-import { seedRealtimeDatabase, Tea } from "../utils/seed";
-import { db } from "./index";
+import { firebaseWebAdapter } from "../../../src/adapter/adapter.firebase.web";
+import { realtimeDbWeb } from "./initialize.web";
+import { seedRealtimeDatabaseWeb } from "../../utils/seed.web";
+import { Tea } from "../../utils/seed.data";
 
-describe("Realtime Database [ Methods ]", () => {
+describe("Realtime Database Web [ Methods ]", () => {
   beforeEach(async () => {
-    await set(ref(db, "teas/"), null);
-    await seedRealtimeDatabase(db);
+    await set(ref(realtimeDbWeb, "teas/"), null);
+    await seedRealtimeDatabaseWeb(realtimeDbWeb);
   });
 
   afterAll(async () => {
-    await set(ref(db, "teas/"), null);
+    await set(ref(realtimeDbWeb, "teas/"), null);
   });
 
   describe("onValue", () => {
     it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       // const client2 = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
@@ -36,7 +37,7 @@ describe("Realtime Database [ Methods ]", () => {
       additionalData.unsubscribe();
     });
     it("should change HF cache if data is changed in firebase after onValue listener creation", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const onValueReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue",
@@ -75,7 +76,7 @@ describe("Realtime Database [ Methods ]", () => {
 
   describe("get", () => {
     it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
@@ -92,7 +93,7 @@ describe("Realtime Database [ Methods ]", () => {
     });
 
     it("should return data for dynamic endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea>()({
@@ -110,7 +111,7 @@ describe("Realtime Database [ Methods ]", () => {
     // TODO - what should set return as data?
     it("should set data", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
@@ -131,7 +132,7 @@ describe("Realtime Database [ Methods ]", () => {
       expect(additionalData.snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
@@ -157,7 +158,7 @@ describe("Realtime Database [ Methods ]", () => {
   describe("push", () => {
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const getReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",
@@ -182,7 +183,7 @@ describe("Realtime Database [ Methods ]", () => {
   describe("update", () => {
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const updateReq = client
         .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
@@ -202,7 +203,7 @@ describe("Realtime Database [ Methods ]", () => {
 
   describe("remove", () => {
     it("should allow for removing data", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",

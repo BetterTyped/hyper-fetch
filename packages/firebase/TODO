@@ -7,21 +7,4 @@
 # TODO - observe only on changed/remove/added for onSnapshot
 # RealtimeDB remember about push changes array to object with some strange indexes
 # TODO - add collection group!
-# TODO - in the documentation mention that startAt and endAt queries should go to the filterBy
-# TODO - what is easier:
- {filterBy: [where(type, ==, Green)], orderBy: orderBy("year"), limit: limit(3)}
- OR
- {constraints: [where(type, ==, Green), orderBy("year"), limit(3)]}
-https://firebase.google.com/docs/firestore/query-data/listen#view_changes_between_snapshots
-
-
-In cache of firebase endpoints - we should add initial url to the request.endpoint cache method.
-Otherwise it will be - for instance - onValue_
-
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
-      const onSnapshotReq = client.createRequest<Tea[]>()({
-        endpoint: "",
-        method: "onSnapshot",
-      });
-In the example above the cache key will be onSnapshot_
-it should be onSnapshot_teas
+# TODO - check if set method for Realtime may allow for setting multiple objects

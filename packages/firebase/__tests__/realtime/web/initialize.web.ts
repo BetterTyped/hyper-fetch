@@ -14,4 +14,4 @@ const initializeRealtimeDB = () => {
   return db;
 };
 
-export const db = initializeRealtimeDB();
+export const realtimeDbWeb = initializeRealtimeDB();

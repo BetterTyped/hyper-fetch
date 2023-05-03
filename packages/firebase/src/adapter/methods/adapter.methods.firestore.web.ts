@@ -10,16 +10,14 @@ import {
   getDocs,
   onSnapshot,
   query,
-  QueryFieldFilterConstraint,
-  QueryLimitConstraint,
-  QueryOrderByConstraint,
   QuerySnapshot,
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
-import { QueryEndAtConstraint, QueryStartAtConstraint } from "@firebase/firestore";
+import { limit, orderBy, where, startAt, startAfter, endAt, endBefore } from "@firebase/firestore";
 
 import { FirestoreDBMethods } from "../types/adapter.firestore.types";
 import { setCacheManually } from "../utils/set.cache.manually";
+import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
 
 const isDocOrQuery = (fullUrl: string): string => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
@@ -35,7 +33,42 @@ const getQueryData = (snapshot: QuerySnapshot) => {
   return result;
 };
 
-export const getFirestoreMethods = <R extends RequestInstance>(
+const parseConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+  switch (type) {
+    case FirebaseQueryConstraints.WHERE: {
+      const [fieldPath, strOp, value] = values;
+      return where(fieldPath, strOp, value);
+    }
+    case FirebaseQueryConstraints.ORDER_BY: {
+      const [field, ord] = values;
+      return orderBy(field, ord);
+    }
+    case FirebaseQueryConstraints.LIMIT: {
+      const [limitValue] = values;
+      return limit(limitValue);
+    }
+    case FirebaseQueryConstraints.START_AT: {
+      const [docOrFields] = values;
+      return startAt(docOrFields);
+    }
+    case FirebaseQueryConstraints.START_AFTER: {
+      const [docOrFields] = values;
+      return startAfter(docOrFields);
+    }
+    case FirebaseQueryConstraints.END_AT: {
+      const [docOrFields] = values;
+      return endAt(docOrFields);
+    }
+    case FirebaseQueryConstraints.END_BEFORE: {
+      const [docOrFields] = values;
+      return endBefore(docOrFields);
+    }
+    default:
+      throw new Error(`Unknown method ${type}`);
+  }
+};
+
+export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   request: R,
   database: Firestore,
   url: string,
@@ -44,34 +77,22 @@ export const getFirestoreMethods = <R extends RequestInstance>(
   resolve,
 ): Record<
   FirestoreDBMethods,
-  (data: {
-    constraints?: (
-      | QueryLimitConstraint
-      | QueryOrderByConstraint
-      | QueryFieldFilterConstraint
-      | QueryStartAtConstraint
-      | QueryEndAtConstraint
-    )[];
-    data?: any;
-  }) => void
+  (data: { constraints?: { type: FirebaseQueryConstraints; values: any[] }[]; data?: any }) => void
 > => {
   const [cleanUrl] = url.split("?");
   // TODO - handle trying to pass collection to onSnapshot and raise appropriate error. or do as a query?
   // TODO - do we want to return changed/modified/removed - listen to diff
   // TODO - what do we want to do on error
   const methods: Record<FirestoreDBMethods, (data) => void> = {
-    onSnapshot: async ({
-      constraints = [],
-    }: {
-      constraints: (QueryLimitConstraint | QueryOrderByConstraint | QueryFieldFilterConstraint)[];
-    }) => {
+    onSnapshot: async ({ constraints = [] }: { constraints: any[] }) => {
       // includeMetadataChanges: true option
       let path;
       const queryType = isDocOrQuery(cleanUrl);
       if (queryType === "doc") {
         path = doc(database, cleanUrl);
       } else {
-        path = query(collection(database, cleanUrl), ...constraints);
+        const queryConstraints = constraints.map((constr) => parseConstraint(constr));
+        path = query(collection(database, cleanUrl), ...queryConstraints);
       }
       const unsub = onSnapshot(
         path,
@@ -98,13 +119,10 @@ export const getFirestoreMethods = <R extends RequestInstance>(
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    getDocs: async ({
-      constraints = [],
-    }: {
-      constraints: (QueryLimitConstraint | QueryOrderByConstraint | QueryFieldFilterConstraint)[];
-    }) => {
+    getDocs: async ({ constraints = [] }: { constraints: any[] }) => {
+      const queryConstraints = constraints.map((constr) => parseConstraint(constr));
       const path = collection(database, cleanUrl);
-      const q = query(path, ...constraints);
+      const q = query(path, ...queryConstraints);
       try {
         const querySnapshot = await getDocs(q);
         const result = [];

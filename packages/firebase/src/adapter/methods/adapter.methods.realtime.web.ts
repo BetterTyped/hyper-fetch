@@ -5,16 +5,32 @@ import {
   onValue,
   push,
   query,
-  QueryConstraint,
   ref,
   remove,
   set,
   update,
+  orderByChild,
+  orderByKey,
+  orderByValue,
+  startAt,
+  startAfter,
+  endAt,
+  endBefore,
+  equalTo,
+  limitToFirst,
+  limitToLast,
 } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "../types/adapter.realtimedb.types";
 import { setCacheManually } from "../utils/set.cache.manually";
+import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+
+const isDocOrQuery = (fullUrl: string): string => {
+  const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
+  const pathElements = withoutSurroundingSlashes.split("/").length;
+  return pathElements % 2 === 0 ? "doc" : "query";
+};
 
 const getOrderedResult = (snapshot: DataSnapshot) => {
   const res = [];
@@ -24,33 +40,68 @@ const getOrderedResult = (snapshot: DataSnapshot) => {
   return res;
 };
 
-export const getRealtimeDBMethods = <R extends RequestInstance>(
+const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+  switch (type) {
+    case FirebaseQueryConstraints.ORDER_BY_CHILD: {
+      const [value] = values;
+      return orderByChild(value);
+    }
+    case FirebaseQueryConstraints.ORDER_BY_KEY: {
+      return orderByKey();
+    }
+    case FirebaseQueryConstraints.ORDER_BY_VALUE: {
+      return orderByValue();
+    }
+    case FirebaseQueryConstraints.START_AT: {
+      const [[value]] = values;
+      return startAt(value);
+    }
+    case FirebaseQueryConstraints.START_AFTER: {
+      const [[value]] = values;
+      return startAfter(value);
+    }
+    case FirebaseQueryConstraints.END_AT: {
+      const [[value]] = values;
+      return endAt(value);
+    }
+    case FirebaseQueryConstraints.END_BEFORE: {
+      const [[value]] = values;
+      return endBefore(value);
+    }
+    case FirebaseQueryConstraints.LIMIT_TO_FIRST: {
+      const [value] = values;
+      return limitToFirst(value);
+    }
+    case FirebaseQueryConstraints.LIMIT_TO_LAST: {
+      const [value] = values;
+      return limitToLast(value);
+    }
+    case FirebaseQueryConstraints.EQUAL_TO: {
+      const [value] = values;
+      return equalTo(value);
+    }
+    default:
+      throw new Error(`Unknown method ${type}`);
+  }
+};
+
+export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,
   onSuccess,
   onError,
   resolve,
-): Record<
-  RealtimeDBMethods,
-  (data: { constraints: { filterBy?: QueryConstraint[]; orderBy?: QueryConstraint }; data: any }) => void
-> => {
+): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any }) => void> => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods: Record<RealtimeDBMethods, (data) => void> = {
-    onValue: async ({
-      constraints,
-    }: {
-      constraints: { filterBy: QueryConstraint[]; orderBy: QueryConstraint | null };
-    }) => {
-      const params = [...constraints.filterBy];
-      if (constraints.orderBy) {
-        params.push(constraints.orderBy);
-      }
+    onValue: async ({ constraints }: { constraints: any[] }) => {
+      const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
       const unsub = onValue(q, (snapshot) => {
         try {
-          const res = constraints.orderBy ? getOrderedResult(snapshot) : snapshot.val();
+          const res = getOrderedResult(snapshot);
           const additionalData = { ref: path, snapshot, unsubscribe: unsub };
           setCacheManually(request, { value: res, status: "success" }, additionalData);
           onSuccess(res, "success", additionalData, resolve);
@@ -61,15 +112,12 @@ export const getRealtimeDBMethods = <R extends RequestInstance>(
         }
       });
     },
-    get: async ({ constraints }: { constraints: { filterBy: QueryConstraint[]; orderBy: QueryConstraint | null } }) => {
-      const params = [...constraints.filterBy];
-      if (constraints.orderBy) {
-        params.push(constraints.orderBy);
-      }
+    get: async ({ constraints }) => {
+      const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
       try {
         const snapshot = await get(q);
-        const res = constraints.orderBy ? getOrderedResult(snapshot) : snapshot.val();
+        const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResult(snapshot);
         onSuccess(res, "success", { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path, snapshot: null }, resolve);

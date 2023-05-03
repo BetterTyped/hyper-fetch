@@ -2,26 +2,26 @@
  * @jest-environment node
  */
 import { Client } from "@hyper-fetch/core";
-import { DocumentSnapshot, QuerySnapshot, where } from "firebase/firestore";
+import { DocumentSnapshot, QuerySnapshot } from "firebase-admin/firestore";
 
-import { firebaseAdapter } from "../../src/adapter/adapter.firebase";
-import { seedFirestoreDatabase, Tea } from "../utils/seed";
-import { firestoreDb } from "./index";
-import { deleteCollectionForWeb } from "./utils";
-import { params } from "../../src/adapter/utils/params.wrapper";
+import { seedFirestoreDatabaseAdmin } from "../../utils/seed.admin";
+import { firestoreDbAdmin } from "./initialize.admin";
+import { firebaseAdminAdapter } from "../../../src/adapter/adapter.firebase.admin";
+import { Tea } from "../../utils/seed.data";
+import { $where } from "../../../src/adapter/constraints/constraints.firebase";
 
-describe("Firestore [ Methods ]", () => {
+describe("Firestore Admin [ Methods ]", () => {
   beforeEach(async () => {
-    await seedFirestoreDatabase(firestoreDb);
+    await seedFirestoreDatabaseAdmin(firestoreDbAdmin);
   });
 
   afterEach(async () => {
-    await deleteCollectionForWeb(firestoreDb, "teas/");
+    await firestoreDbAdmin.recursiveDelete(firestoreDbAdmin.collection("teas"));
   });
 
   describe("onSnapshot", () => {
-    it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+    it("should return data available for document", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -42,6 +42,7 @@ describe("Firestore [ Methods ]", () => {
       additionalData.unsubscribe();
     });
     it("should allow for listening to multiple documents and change HF cache if data is changed in firebase after onSnapshot listener creation", async () => {
+      const cacheKey = "onSnapshot_?constraints[]=where_type%3D%3DGreen";
       const initialCache = [
         {
           amount: 50,
@@ -73,7 +74,7 @@ describe("Firestore [ Methods ]", () => {
         amount: 100,
       };
       const afterUpdateCache = [...initialCache, newData];
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const onSnapshotReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onSnapshot",
@@ -81,11 +82,10 @@ describe("Firestore [ Methods ]", () => {
       // Should listen for changes only for Green teas
       const {
         additionalData: { unsubscribe },
-      } = await onSnapshotReq.send({ queryParams: { constraints: params([where("type", "==", "Green")]) } });
+      } = await onSnapshotReq.send({ queryParams: { constraints: [$where("type", "==", "Green")] } });
 
       // Jak się dostać do cacheKey kiedy dopiero w send wskazujemy queryParams?
-      const afterOnSnapshotCache = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
-
+      const afterOnSnapshotCache = onSnapshotReq.client.cache.get(cacheKey);
       const shouldCacheData = newData as Tea;
       const shouldNotCacheData = {
         ...newData,
@@ -108,7 +108,7 @@ describe("Firestore [ Methods ]", () => {
       await shouldCacheAddDocRequest.send();
       await shouldNotCacheAddDocRequest.send();
 
-      const { data: afterAddDocCache } = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
+      const { data: afterAddDocCache } = onSnapshotReq.client.cache.get(cacheKey);
 
       if (unsubscribe) {
         unsubscribe();
@@ -116,7 +116,7 @@ describe("Firestore [ Methods ]", () => {
 
       await shouldCacheAddDocRequest.send();
 
-      const { data: afterUnsubCache } = onSnapshotReq.client.cache.get("onSnapshot_?constraints[]=where_%3D%3D_Green");
+      const { data: afterUnsubCache } = onSnapshotReq.client.cache.get(cacheKey);
 
       expect(afterOnSnapshotCache.data).toStrictEqual(initialCache);
       expect(afterAddDocCache).toStrictEqual(afterUpdateCache);
@@ -126,7 +126,7 @@ describe("Firestore [ Methods ]", () => {
 
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
@@ -147,7 +147,7 @@ describe("Firestore [ Methods ]", () => {
 
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -164,10 +164,9 @@ describe("Firestore [ Methods ]", () => {
   });
 
   describe("setDoc", () => {
-    // TODO - what should set return as data?
     it("should set data", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
@@ -186,14 +185,14 @@ describe("Firestore [ Methods ]", () => {
       const { data, additionalData } = await getReq.send();
 
       expect(data).toStrictEqual(newData);
-      expect(additionalData.snapshot.exists()).toBe(true);
+      expect(additionalData.snapshot.exists).toBe(true);
     });
   });
 
   describe("addDoc", () => {
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const getReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -220,7 +219,7 @@ describe("Firestore [ Methods ]", () => {
     // TODO add test for deleting a field
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const updateReq = client
         .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
@@ -240,7 +239,7 @@ describe("Firestore [ Methods ]", () => {
 
   describe("deleteDoc", () => {
     it("should allow for removing data", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
@@ -266,7 +265,7 @@ describe("Firestore [ Methods ]", () => {
         type: "Green",
       });
       expect(data).toBe(undefined);
-      expect(additionalData.snapshot.exists()).toBe(false);
+      expect(additionalData.snapshot.exists).toBe(false);
     });
   });
 });

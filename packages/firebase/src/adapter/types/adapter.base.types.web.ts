@@ -4,7 +4,7 @@ import { Firestore } from "firebase/firestore";
 import { RealtimeDbAdapterType } from "./adapter.realtimedb.types";
 import { FirestoreAdapterType } from "./adapter.firestore.types";
 
-export type FirebaseDBTypes = Database | Firestore;
+export type FirebaseWebDBTypes = Database | Firestore;
 export type FirebaseAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;
 
 // TODO add and handle status for 'emptyResource' resource

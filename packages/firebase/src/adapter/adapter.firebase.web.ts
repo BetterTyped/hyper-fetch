@@ -9,15 +9,15 @@ import {
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
-import { getRealtimeDBMethods } from "./methods/adapter.realtime";
-import { getFirestoreMethods } from "./methods/adapter.firestore";
-import { FirebaseAdapterTypes, FirebaseDBTypes } from "./types/adapter.base.types";
+import { getRealtimeDBMethodsWeb } from "./methods/adapter.methods.realtime.web";
+import { FirebaseAdapterTypes, FirebaseWebDBTypes } from "./types/adapter.base.types.web";
 import { RealtimeDBMethods, RealtimeDBQueryParams } from "./types/adapter.realtimedb.types";
 import { FirestoreDBMethods, FirestoreQueryParams } from "./types/adapter.firestore.types";
+import { getFirestoreMethodsWeb } from "./methods/adapter.methods.firestore.web";
 
 // TODO - add pre and post validation for firebase
 
-export const firebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
+export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
   const adapter: FirebaseAdapterTypes<T> = async <R extends RequestInstance>(request: R, requestId: string) => {
     const { fullUrl, onSuccess, onError } = await getAdapterBindings(request, requestId, 0, {});
     return new Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>>(
@@ -29,13 +29,13 @@ export const firebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
             queryParams,
             data,
           }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data } = request;
-          const availableMethods = getRealtimeDBMethods(request, database, fullUrl, onSuccess, onError, resolve);
+          const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
           const selectedMethod = availableMethods[method];
           if (!selectedMethod) {
             throw new Error(`Cannot find method ${method} in Realtime DB available methods.`);
           }
           selectedMethod({
-            constraints: { filterBy: queryParams?.filterBy || [], orderBy: queryParams?.orderBy || null },
+            constraints: queryParams?.constraints || [],
             data,
           });
         }
@@ -45,7 +45,7 @@ export const firebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
             queryParams,
             data,
           }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data } = request;
-          const availableMethods = getFirestoreMethods(request, database, fullUrl, onSuccess, onError, resolve);
+          const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
           const selectedMethod = availableMethods[method];
           if (!selectedMethod) {
             throw new Error(`Cannot find method ${method} in Firestore available methods.`);

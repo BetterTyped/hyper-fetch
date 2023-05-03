@@ -1,6 +1,8 @@
 import { BaseAdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
 
+import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+
 export type RealtimeDbAdapterType =
   | BaseAdapterType<
       DefaultRealtimeDBAdapterOptions & { onlyOnce: boolean },
@@ -67,8 +69,5 @@ export type RealtimeDbPushMethodAdditionalData = {
 };
 
 export type RealtimeDBQueryParams = {
-  // "orderByChild" | "orderByKey" | "orderByValue";
-  orderBy?: QueryConstraint;
-  //   | "limitToFirst" | "limitToLast" | "startAt" | "startAfter" | "endAt" | "endBefore" | "equalTo";
-  filterBy?: QueryConstraint[];
+  constraints?: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[];
 };

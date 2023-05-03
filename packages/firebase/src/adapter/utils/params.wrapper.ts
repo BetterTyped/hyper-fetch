@@ -53,7 +53,7 @@ const realtimeConstraintStringifyMap = {
     return () => `startAt_${_value}_${_key}`;
   },
   QueryEndAtConstraint: ({ _value, _key }) => {
-    return () => `startAt_${_value}_${_key}`;
+    return () => `endAt_${_value}_${_key}`;
   },
 };
 
