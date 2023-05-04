@@ -51,3 +51,9 @@ coverage
 
 # Next.js
 .next
+
+# Firebase
+database-debug.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log

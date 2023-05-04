@@ -1,8 +1,6 @@
 import {
   RequestSendOptionsType,
   ParamsType,
-  getSimpleKey,
-  getRequestKey,
   RequestSendType,
   PayloadType,
   RequestJSON,
@@ -146,10 +144,10 @@ export class Request<
     this.cacheTime = requestJSON?.cacheTime ?? cacheTime;
     this.queued = requestJSON?.queued ?? queued;
     this.offline = requestJSON?.offline ?? offline;
-    this.abortKey = requestJSON?.abortKey ?? abortKey ?? getSimpleKey(this);
-    this.cacheKey = requestJSON?.cacheKey ?? cacheKey ?? getRequestKey(this);
-    this.queueKey = requestJSON?.queueKey ?? queueKey ?? getSimpleKey(this);
-    this.effectKey = requestJSON?.effectKey ?? effectKey ?? getSimpleKey(this);
+    this.abortKey = requestJSON?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
+    this.cacheKey = requestJSON?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
+    this.queueKey = requestJSON?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
+    this.effectKey = requestJSON?.effectKey ?? effectKey ?? this.client.effectKeyMapper(this);
     this.used = requestJSON?.used ?? false;
     this.deduplicate = requestJSON?.deduplicate ?? deduplicate;
     this.deduplicateTime = requestJSON?.deduplicateTime ?? deduplicateTime;

@@ -26,7 +26,7 @@ import {
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { RequestEffectInstance } from "effect";
-import { Request, RequestInstance, RequestOptionsType } from "request";
+import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
@@ -74,6 +74,10 @@ export class Client<
   requestDefaultOptions?: (
     options: RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>,
   ) => Partial<RequestOptionsType<string, ExtractAdapterOptions<AdapterType>, ExtractAdapterMethodType<AdapterType>>>;
+  abortKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
+  cacheKeyMapper?: (request: RequestInstance) => string = getRequestKey;
+  queueKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
+  effectKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
 
   // Utils
 
@@ -271,6 +275,23 @@ export class Client<
     this.effects = this.effects.filter((currentEffect) => currentEffect.getEffectKey() !== name);
 
     return this;
+  };
+
+  /**
+   * Key setters
+   */
+
+  setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
+    this.abortKeyMapper = callback;
+  };
+  setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
+    this.cacheKeyMapper = callback;
+  };
+  setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
+    this.queueKeyMapper = callback;
+  };
+  setEffectKeyMapper = (callback: (request: RequestInstance) => string) => {
+    this.effectKeyMapper = callback;
   };
 
   /**

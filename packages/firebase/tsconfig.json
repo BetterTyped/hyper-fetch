@@ -1,10 +1,9 @@
 {
   "extends": "../../tsconfig.json",
-  "type": "module",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "baseUrl": "./src",
-    "esModuleInterop": true
+    "jsx": "react-jsx"
   },
-  "exclude": ["dist", "jest.config.ts"]
+  "exclude": ["__tests__", "jest.config.ts"]
 }
