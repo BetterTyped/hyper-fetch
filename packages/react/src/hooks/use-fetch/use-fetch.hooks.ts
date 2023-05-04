@@ -4,7 +4,7 @@ import { useDebounce, useThrottle } from "@better-hooks/performance";
 import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
 import { useRequestEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, getRefreshTime } from "hooks/use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
 import { InvalidationKeyType } from "types";
@@ -99,9 +99,6 @@ export const useFetch = <RequestType extends RequestInstance>(
 
   function handleRefresh() {
     if (!refresh) return;
-    const time = getRefreshTime(refreshTime, state.timestamp);
-
-    logger.debug(`Starting refresh counter, request will be send in ${time}ms`);
 
     refreshDebounce.debounce(() => {
       const isBlurred = !appManager.isFocused;
@@ -120,7 +117,7 @@ export const useFetch = <RequestType extends RequestInstance>(
 
       // Start new refresh counter
       handleRefresh();
-    }, time);
+    });
   }
 
   const handleRevalidation = (invalidateKey: InvalidationKeyType) => {

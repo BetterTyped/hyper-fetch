@@ -180,7 +180,14 @@ export const useRequestEvents = <T extends RequestInstance>({
   // ******************
 
   const addLifecycleListeners = (req: T, requestId?: string) => {
+    /**
+     * useFetch handles requesting by general keys
+     * This makes it possible to deduplicate requests from different places and share data
+     */
     if (!requestId) {
+      // It's important to clear previously attached listeners to not cause some additional response/request
+      // events to be triggered during lifecycle
+      clearLifecycleListeners();
       const { queueKey, cacheKey } = req;
       const requestStartUnmount = requestManager.events.onRequestStart(queueKey, handleRequestStart(req));
       const responseStartUnmount = requestManager.events.onResponseStart(queueKey, handleResponseStart(req));
@@ -200,6 +207,9 @@ export const useRequestEvents = <T extends RequestInstance>({
 
       return unmount;
     }
+    /**
+     * useSubmit handles requesting by requestIds, this makes it possible to track single requests
+     */
     const requestRemove = requestManager.events.onRemoveById(requestId, handleRemove);
     const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart(req));
     const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart(req));
