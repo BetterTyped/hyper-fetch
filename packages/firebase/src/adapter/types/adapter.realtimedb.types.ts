@@ -47,7 +47,7 @@ export type DefaultRealtimeDBAdapterOptions = {
 
 export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
 
-export type RealtimeDBStatuses = "success" | "error";
+export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodAdditionalData = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;

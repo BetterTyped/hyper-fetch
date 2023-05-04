@@ -12,6 +12,7 @@ import { $where } from "../../../src/adapter/constraints/constraints.firebase";
 
 describe("Firestore Admin [ Methods ]", () => {
   beforeEach(async () => {
+    await firestoreDbAdmin.recursiveDelete(firestoreDbAdmin.collection("teas"));
     await seedFirestoreDatabaseAdmin(firestoreDbAdmin);
   });
 
@@ -36,6 +37,46 @@ describe("Firestore Admin [ Methods ]", () => {
       expect(additionalData).toHaveProperty("ref");
       expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return data available for collection", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onSnapshot",
+      });
+
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+
+      expect(data).toHaveLength(10);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return emptyResource status for non existing endpoint", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onSnapshot",
+      });
+
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(status).toBe("emptyResource");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
 
@@ -143,6 +184,24 @@ describe("Firestore Admin [ Methods ]", () => {
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
+    it("should return emptyResource status for non existing endpoint", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(status).toBe("emptyResource");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+    });
   });
 
   describe("getDocs", () => {
@@ -158,6 +217,21 @@ describe("Firestore Admin [ Methods ]", () => {
       expect(additionalData).toHaveProperty("ref");
       expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
       expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+    });
+    it("should return emptyResource status for non existing endpoint", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(status).toBe("emptyResource");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
@@ -264,7 +338,7 @@ describe("Firestore Admin [ Methods ]", () => {
         name: "Taiping Hou Kui",
         type: "Green",
       });
-      expect(data).toBe(undefined);
+      expect(data).toBe(null);
       expect(additionalData.snapshot.exists).toBe(false);
     });
   });

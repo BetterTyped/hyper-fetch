@@ -15,7 +15,11 @@ const getOrderedResult = (snapshot: DataSnapshot) => {
   snapshot.forEach((child) => {
     res.push(child.val());
   });
-  return res;
+  return res.length > 0 ? res : null;
+};
+
+const getStatus = (res: any) => {
+  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
 };
 
 const applyConstraint = (ref: Reference, { type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
@@ -84,10 +88,11 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
       const q = applyConstraints(path, constraints);
       q.on("value", (snapshot) => {
         try {
-          const res = getOrderedResult(snapshot);
+          const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResult(snapshot);
+          const status = getStatus(res);
           const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
-          setCacheManually(request, { value: res, status: "success" }, additionalData);
-          onSuccess(res, "success", additionalData, resolve);
+          setCacheManually(request, { value: res, status }, additionalData);
+          onSuccess(res, status, additionalData, resolve);
         } catch (e) {
           const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
           setCacheManually(request, { value: e, status: "error" }, additionalData);
@@ -100,7 +105,8 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
         const docOrQuery = isDocOrQuery(fullUrl);
         const snapshot = await path.get();
         const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResult(snapshot);
-        onSuccess(res, "success", { ref: path, snapshot }, resolve);
+        const status = getStatus(res);
+        onSuccess(res, status, { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path, snapshot: null }, resolve);
       }

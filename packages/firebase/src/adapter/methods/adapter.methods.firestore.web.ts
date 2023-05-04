@@ -25,12 +25,16 @@ const isDocOrQuery = (fullUrl: string): string => {
   return pathElements % 2 === 0 ? "doc" : "query";
 };
 
+const getStatus = (res: any) => {
+  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
+};
+
 const getQueryData = (snapshot: QuerySnapshot) => {
   const result = [];
   snapshot.docs.forEach((d) => {
     result.push(d.data());
   });
-  return result;
+  return result.length > 0 ? result : null;
 };
 
 const parseConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
@@ -80,9 +84,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   (data: { constraints?: { type: FirebaseQueryConstraints; values: any[] }[]; data?: any }) => void
 > => {
   const [cleanUrl] = url.split("?");
-  // TODO - handle trying to pass collection to onSnapshot and raise appropriate error. or do as a query?
   // TODO - do we want to return changed/modified/removed - listen to diff
-  // TODO - what do we want to do on error
   const methods: Record<FirestoreDBMethods, (data) => void> = {
     onSnapshot: async ({ constraints = [] }: { constraints: any[] }) => {
       // includeMetadataChanges: true option
@@ -98,12 +100,12 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
         path,
         (snapshot) => {
           const additionalData = { ref: path, snapshot, unsubscribe: unsub };
-          const result = queryType === "doc" ? snapshot.data() : getQueryData(snapshot);
-          setCacheManually(request, { value: result, status: "success" }, additionalData);
-          onSuccess(result, "success", { ref: path, snapshot, unsubscribe: unsub }, resolve);
+          const result = queryType === "doc" ? snapshot.data() || null : getQueryData(snapshot);
+          const status = getStatus(result);
+          setCacheManually(request, { value: result, status }, additionalData);
+          onSuccess(result, status, { ref: path, snapshot, unsubscribe: unsub }, resolve);
         },
         (error) => {
-          // "error" or firebase error exposed
           const additionalData = { ref: path, unsubscribe: unsub };
           setCacheManually(request, { value: error, status: "error" }, additionalData);
           onError(error, "error", {}, resolve);
@@ -114,7 +116,9 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       const path = doc(database, cleanUrl);
       try {
         const snapshot = await getDoc(path);
-        onSuccess(snapshot.data(), "success", { ref: path, snapshot }, resolve);
+        const result = snapshot.data() || null;
+        const status = result ? "success" : "emptyResource";
+        onSuccess(result, status, { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
       }
@@ -125,11 +129,10 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       const q = query(path, ...queryConstraints);
       try {
         const querySnapshot = await getDocs(q);
-        const result = [];
-        querySnapshot.forEach((d) => {
-          result.push(d.data());
-        });
-        onSuccess(result, "success", { ref: path, snapshot: querySnapshot }, resolve);
+        const result = getQueryData(querySnapshot);
+        const status = getStatus(result);
+
+        onSuccess(result, status, { ref: path, snapshot: querySnapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
       }

@@ -37,7 +37,11 @@ const getOrderedResult = (snapshot: DataSnapshot) => {
   snapshot.forEach((child) => {
     res.push(child.val());
   });
-  return res;
+  return res.length > 0 ? res : null;
+};
+
+const getStatus = (res: any) => {
+  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
 };
 
 const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
@@ -101,10 +105,12 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
       const q = query(path, ...params);
       const unsub = onValue(q, (snapshot) => {
         try {
-          const res = getOrderedResult(snapshot);
+          const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResult(snapshot);
           const additionalData = { ref: path, snapshot, unsubscribe: unsub };
-          setCacheManually(request, { value: res, status: "success" }, additionalData);
-          onSuccess(res, "success", additionalData, resolve);
+          // Deliberate == instead of ===
+          const status = getStatus(res);
+          setCacheManually(request, { value: res, status }, additionalData);
+          onSuccess(res, status, additionalData, resolve);
         } catch (e) {
           const additionalData = { ref: path, snapshot, unsubscribe: unsub };
           setCacheManually(request, { value: e, status: "error" }, additionalData);
@@ -118,7 +124,8 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
       try {
         const snapshot = await get(q);
         const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResult(snapshot);
-        onSuccess(res, "success", { ref: path, snapshot }, resolve);
+        const status = getStatus(res);
+        onSuccess(res, status, { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path, snapshot: null }, resolve);
       }

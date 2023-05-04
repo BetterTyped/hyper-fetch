@@ -1,5 +1,3 @@
-# TODO IMPORTANT - CACHE KEY PROBLEM FOR onValue, onSnapshot, possibly for others - problem with request endpoint? # MACIEJ
-# Handle adding/removing snapshot from additionalData - should it be there or not by default
 # Handle listening on changes/added/removed
 # Check what happens if passing collection to doc methods
 # Add emptyResource status if no data returned.
@@ -8,3 +6,5 @@
 # RealtimeDB remember about push changes array to object with some strange indexes
 # TODO - add collection group!
 # TODO - check if set method for Realtime may allow for setting multiple objects
+# TODO - tests whether proper events are emitted
+Mocker

@@ -20,7 +20,7 @@ describe("Realtime Database Admin [ Methods ]", () => {
   });
 
   describe("onValue", () => {
-    it("should return data available for endpoint", async () => {
+    it("should return data available for collection", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
@@ -32,6 +32,42 @@ describe("Realtime Database Admin [ Methods ]", () => {
       expect(additionalData).toHaveProperty("unsubscribe");
       expect(additionalData).toHaveProperty("ref");
       expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return data available for doc", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "onValue",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onValue",
+      });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(status).toBe("emptyResource");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
 
@@ -91,7 +127,6 @@ describe("Realtime Database Admin [ Methods ]", () => {
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
-
     it("should return data for dynamic endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
@@ -104,6 +139,19 @@ describe("Realtime Database Admin [ Methods ]", () => {
 
       const { data } = await req.send();
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
+    });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
+      const req = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "get",
+        })
+        .setParams({ teaId: 1 });
+
+      const { data, status } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(status).toStrictEqual("emptyResource");
     });
   });
 

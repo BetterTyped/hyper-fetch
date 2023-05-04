@@ -21,7 +21,28 @@ describe("Firestore Web [ Methods ]", () => {
   });
 
   describe("onSnapshot", () => {
-    it("should return data available for endpoint", async () => {
+    it("should return data available for collection", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onSnapshot",
+      });
+
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+
+      expect(data).toHaveLength(10);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      // TODO check if querysnapshot in types
+      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return data available for doc", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client
         .createRequest<Tea[]>()({
@@ -37,6 +58,27 @@ describe("Firestore Web [ Methods ]", () => {
       expect(additionalData).toHaveProperty("ref");
       expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "onSnapshot",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(status).toBe("emptyResource");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
 
@@ -85,7 +127,6 @@ describe("Firestore Web [ Methods ]", () => {
         additionalData: { unsubscribe },
       } = await onSnapshotReq.send({ queryParams: { constraints: [$where("type", "==", "Green")] } });
 
-      // Jak się dostać do cacheKey kiedy dopiero w send wskazujemy queryParams?
       const afterOnSnapshotCache = onSnapshotReq.client.cache.get(cacheKey);
 
       const shouldCacheData = newData as Tea;
@@ -145,6 +186,24 @@ describe("Firestore Web [ Methods ]", () => {
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(status).toBe("emptyResource");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+    });
   });
 
   describe("getDocs", () => {
@@ -163,10 +222,21 @@ describe("Firestore Web [ Methods ]", () => {
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+      const { data, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(status).toBe("emptyResource");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+    });
   });
 
   describe("setDoc", () => {
-    // TODO - what should set return as data?
     it("should set data", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));

@@ -44,7 +44,7 @@ describe("Realtime Database Web [Constraints]", () => {
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
-        method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "get",
       });
       const { data } = await req.send({
         queryParams: { constraints: [$orderByChild("origin"), $limitToFirst(5)] },
@@ -56,7 +56,7 @@ describe("Realtime Database Web [Constraints]", () => {
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
-        method: "get", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
+        method: "get",
       });
       const { data } = await req.send({
         queryParams: { constraints: [$orderByChild("year"), $startAt(2021), $endAt(2022)] },

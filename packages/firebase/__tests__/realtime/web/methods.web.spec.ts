@@ -17,9 +17,8 @@ describe("Realtime Database Web [ Methods ]", () => {
   });
 
   describe("onValue", () => {
-    it("should return data available for endpoint", async () => {
+    it("should return data available for collection", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
-      // const client2 = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue", // shows RealtimeDBMethods | FirestoreDBMethods type - need to fix to show only one
@@ -31,6 +30,46 @@ describe("Realtime Database Web [ Methods ]", () => {
       expect(additionalData).toHaveProperty("ref");
       expect(additionalData.snapshot).toBeInstanceOf(DataSnapshot);
       expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return data available for doc", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "onValue",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(DataSnapshot);
+      expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "onValue",
+        })
+        .setParams({ teaId: 1 });
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(additionalData).toHaveProperty("snapshot");
+      expect(additionalData).toHaveProperty("unsubscribe");
+      expect(additionalData).toHaveProperty("ref");
+      expect(additionalData.snapshot).toBeInstanceOf(DataSnapshot);
+      expect(status).toBe("emptyResource");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
 
@@ -91,7 +130,6 @@ describe("Realtime Database Web [ Methods ]", () => {
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
     });
-
     it("should return data for dynamic endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
@@ -104,6 +142,19 @@ describe("Realtime Database Web [ Methods ]", () => {
 
       const { data } = await req.send();
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
+    });
+    it("should return emptyResource status for non existing resource", async () => {
+      const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+      const req = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "get",
+        })
+        .setParams({ teaId: 1 });
+
+      const { data, status } = await req.send();
+      expect(data).toStrictEqual(null);
+      expect(status).toStrictEqual("emptyResource");
     });
   });
 
@@ -195,7 +246,7 @@ describe("Realtime Database Web [ Methods ]", () => {
         method: "get",
       });
       await updateReq.send({ params: { teaId: 1 } });
-      // TODO - if we do not pass any params even if the endpoint technically requires them - it still passes. Should we throw error?
+
       const { data } = await getReq.send({ params: { teaId: 1 } });
       expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green" });
     });
