@@ -1,7 +1,7 @@
 import { getErrorMessage } from "adapter";
 import { sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { Client } from "client";
+import { Client, xhrAdditionalData } from "client";
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
@@ -31,7 +31,13 @@ describe("Request [ Sending ]", () => {
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should return mapped adapter response", async () => {
       const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec();
@@ -43,7 +49,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
   });
@@ -51,7 +57,13 @@ describe("Request [ Sending ]", () => {
     it("should return adapter response", async () => {
       const response = await request.send();
 
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should return mapped adapter response", async () => {
       const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send();
@@ -61,7 +73,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should wait to resolve request in online mode", async () => {
@@ -79,7 +91,13 @@ describe("Request [ Sending ]", () => {
       });
 
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
       expect(spy).toBeCalledTimes(1);
     });
     it("should wait to resolve request retries", async () => {
@@ -95,7 +113,13 @@ describe("Request [ Sending ]", () => {
       });
 
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
       expect(spy).toBeCalledTimes(1);
     });
     it("should return error once request got removed", async () => {
@@ -112,7 +136,7 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("deleted"),
         status: null,
         isSuccess: null,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       });
     });
     it("should call remove error", async () => {
@@ -138,16 +162,22 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       });
-      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(res3).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     /**
      * Solved #40 https://github.com/BetterTyped/hyper-fetch/issues/40
@@ -168,16 +198,22 @@ describe("Request [ Sending ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       });
-      expect(res3).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(res3).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
 
     it("should allow to call the request callbacks", async () => {

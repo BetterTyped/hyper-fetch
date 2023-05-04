@@ -1,3 +1,4 @@
+import { xhrAdditionalData } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer } from "../../../server";
@@ -59,7 +60,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             isSuccess: true,
-            additionalData: {},
+            additionalData: xhrAdditionalData,
             retries: 0,
             timestamp: +new Date(),
             isCanceled: false,
@@ -91,7 +92,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             isSuccess: true,
-            additionalData: {},
+            additionalData: xhrAdditionalData,
             retries: 0,
             timestamp: +new Date(),
             isCanceled: false,
@@ -117,7 +118,7 @@ describe("useTrackingState [ Events ]", () => {
             error: null,
             status: 200,
             isSuccess: true,
-            additionalData: {},
+            additionalData: xhrAdditionalData,
             retries: 0,
             timestamp: null,
             isCanceled: false,

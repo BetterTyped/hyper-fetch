@@ -13,6 +13,20 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => 
   return new Error("Unexpected error");
 };
 
+export const getResponseHeaders = (headersString: string): Record<string, string> => {
+  const arr = headersString.trim().split(/[\r\n]+/);
+
+  const headers = {};
+  arr.forEach((line) => {
+    const parts = line.split(": ");
+    const header = parts.shift();
+    const value = parts.join(": ");
+    headers[header] = value;
+  });
+
+  return headers;
+};
+
 // Responses
 
 export const parseResponse = (response: string | unknown) => {

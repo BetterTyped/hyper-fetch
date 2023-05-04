@@ -1,4 +1,5 @@
 import { BaseAdapterType, ResponseReturnType } from "adapter";
+import { xhrAdditionalData } from "client";
 import { RequestInstance } from "request";
 import { sleep } from "./helpers.utils";
 
@@ -13,7 +14,7 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
     }
 
     callback?.();
-    return response || { data: null, error: null, isSuccess: true, status: 200, additionalData: {} };
+    return response || { data: null, error: null, isSuccess: true, status: 200, additionalData: xhrAdditionalData };
   };
 };
 

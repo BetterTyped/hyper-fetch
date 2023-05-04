@@ -1,3 +1,4 @@
+import { xhrAdditionalData } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -35,7 +36,7 @@ describe("useFetch [ Revalidate ]", () => {
       error: null,
       status: 200,
       isSuccess: true,
-      additionalData: {},
+      additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       retries: 0,
       timestamp: +new Date(),
       isCanceled: false,
@@ -73,7 +74,7 @@ describe("useFetch [ Revalidate ]", () => {
       error: null,
       status: 200,
       isSuccess: true,
-      additionalData: {},
+      additionalData: xhrAdditionalData,
       retries: 0,
       timestamp: +new Date(),
       isCanceled: false,

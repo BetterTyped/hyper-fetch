@@ -1,10 +1,17 @@
 import { waitFor } from "@testing-library/dom";
 
 import { createAdapter, createDispatcher, sleep } from "../../utils";
-import { BaseAdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
+import {
+  BaseAdapterType,
+  Client,
+  getErrorMessage,
+  ResponseDetailsType,
+  ResponseReturnType,
+  xhrAdditionalData,
+} from "../../../src";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
-describe("Request [ Mocking ]", () => {
+describe("Mocker [ Base ]", () => {
   const adapterSpy = jest.fn();
   const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
@@ -35,7 +42,13 @@ describe("Request [ Mocking ]", () => {
       const mockedRequest = request.setMock({ data: fixture });
       const requestExecution = mockedRequest.exec({});
       const response = await requestExecution;
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: xhrAdditionalData,
+      });
     });
   });
   describe("When using request's send method", () => {
@@ -43,7 +56,13 @@ describe("Request [ Mocking ]", () => {
       const mockedRequest = request.setMock({ data: fixture });
       const response = await mockedRequest.send({});
 
-      expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: xhrAdditionalData,
+      });
     });
   });
 
@@ -120,7 +139,7 @@ describe("Request [ Mocking ]", () => {
       error: null,
       status: 200,
       isSuccess: true,
-      additionalData: {},
+      additionalData: xhrAdditionalData,
     };
     const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
       retries: 1,
@@ -217,7 +236,7 @@ describe("Request [ Mocking ]", () => {
     expect(response5.data).toStrictEqual([4, 5, 6]);
   });
 
-  it("should allow for removing mocker and expecting normal behaviour when executing request", async () => {
+  it("should allow for removing mocker and expecting normal behavior when executing request", async () => {
     const mockedRequest = client.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
     const response = await mockedRequest.send({});
 
@@ -225,7 +244,13 @@ describe("Request [ Mocking ]", () => {
     const data = createRequestInterceptor(mockedRequest, { fixture: { data: [64, 64, 64] } });
     const response2 = await mockedRequest.send({});
 
-    expect(response).toStrictEqual({ data: fixture, error: null, status: 200, isSuccess: true, additionalData: {} });
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      isSuccess: true,
+      additionalData: xhrAdditionalData,
+    });
     expect(response2.data).toStrictEqual(data);
   });
 });

@@ -1,20 +1,23 @@
 import { getCacheData, getCacheIdKey, getCacheKey, getRevalidateEventKey } from "cache";
 import { BaseAdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
+import { xhrAdditionalData } from "client";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {
     it("should not override cache on retry or refresh error response", async () => {
-      const previousResponse = { data: {}, error: null, status: 200, additionalData: {} } as ResponseReturnSuccessType<
-        Record<string, string>,
-        BaseAdapterType
-      >;
+      const previousResponse = {
+        data: {},
+        error: null,
+        status: 200,
+        additionalData: xhrAdditionalData,
+      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType>;
       const errorResponse: ResponseReturnErrorType<Record<string, string>, BaseAdapterType> & ResponseDetailsType = {
         data: null,
         error: {},
         status: 400,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -40,7 +43,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -51,7 +54,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -66,7 +69,7 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -77,7 +80,7 @@ describe("Cache [ Utils ]", () => {
         error: {},
         status: 400,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,

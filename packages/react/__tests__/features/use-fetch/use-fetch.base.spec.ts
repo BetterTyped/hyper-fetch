@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react";
-import { BaseAdapterType, ResponseReturnType } from "@hyper-fetch/core";
+import { BaseAdapterType, ResponseReturnType, xhrAdditionalData } from "@hyper-fetch/core";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -38,7 +38,7 @@ describe("useFetch [ Base ]", () => {
       await testClientIsolation(client);
       const mock = createRequestInterceptor(request);
       const [cache] = createCacheData(request, {
-        data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: {} },
+        data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: xhrAdditionalData },
         details: { retries: 2 },
       });
       const view = renderUseFetch(request);
@@ -50,14 +50,17 @@ describe("useFetch [ Base ]", () => {
       const mock = createRequestInterceptor(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
-          data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: {} },
+          data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: xhrAdditionalData },
           details: { timestamp, retries: 3 },
         });
       });
 
       const view = renderUseFetch(request.setCacheTime(10));
 
-      await testCacheState({ data: null, error: null, status: null, isSuccess: true, additionalData: {} }, view);
+      await testCacheState(
+        { data: null, error: null, status: null, isSuccess: true, additionalData: xhrAdditionalData },
+        view,
+      );
     });
     it("should allow to use initial data", async () => {
       await testClientIsolation(client);
@@ -66,7 +69,7 @@ describe("useFetch [ Base ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       };
       const view = renderUseFetch(request, { disabled: true, initialData });
 

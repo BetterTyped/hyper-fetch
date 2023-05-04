@@ -12,12 +12,10 @@ import {
 } from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
 import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
+import { mocker } from "mocker";
 
-export const getAdapterBindings = async <
-  R extends RequestInstance = RequestInstance,
-  T extends AdapterInstance = BaseAdapterType,
->(
-  req: R,
+export const getAdapterBindings = async <T extends AdapterInstance = BaseAdapterType>(
+  req: RequestInstance,
   requestId: string,
   systemErrorStatus: ExtractAdapterStatusType<T>,
   systemErrorAdditionalData: ExtractAdapterAdditionalDataType<T>,
@@ -42,10 +40,10 @@ export const getAdapterBindings = async <
   logger.debug(`Starting request middleware callbacks`);
 
   try {
-    request = (await request.client.__modifyRequest(req)) as R;
+    request = await request.client.__modifyRequest(req);
 
     if (request.auth) {
-      request = (await request.client.__modifyAuth(req)) as R;
+      request = await request.client.__modifyAuth(req);
     }
 
     if (request.requestMapper) {
@@ -66,7 +64,7 @@ export const getAdapterBindings = async <
   try {
     payload = payloadMapper(data);
     if (request.dataMapper) {
-      payload = request.dataMapper<ExtractPayloadType<R>>(data);
+      payload = request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
     }
   } catch (err) {
     processingError = err;
@@ -331,13 +329,30 @@ export const getAdapterBindings = async <
     return () => controller.signal.removeEventListener("abort", fn);
   };
 
-  const requestWrapper = (
-    promise: () => Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, T>>,
-  ): Promise<ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, T>> => {
+  const makeRequest = (
+    apiCall: (
+      resolve: (value: ResponseReturnType<any, any, T> | PromiseLike<ResponseReturnType<any, any, T>>) => void,
+    ) => void,
+  ): Promise<ResponseReturnType<any, any, T>> => {
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorAdditionalData, () => null);
     }
-    return promise();
+    if (req.mock) {
+      return mocker(request, {
+        onError,
+        onResponseEnd,
+        onTimeoutError,
+        onRequestEnd,
+        createAbortListener,
+        onResponseProgress,
+        onRequestProgress,
+        onResponseStart,
+        onBeforeRequest,
+        onRequestStart,
+        onSuccess,
+      });
+    }
+    return new Promise(apiCall);
   };
 
   return {
@@ -362,6 +377,6 @@ export const getAdapterBindings = async <
     onTimeoutError,
     onUnexpectedError,
     onError,
-    requestWrapper,
+    makeRequest,
   };
 };

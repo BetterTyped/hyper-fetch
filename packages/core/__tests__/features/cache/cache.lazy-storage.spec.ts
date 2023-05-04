@@ -1,6 +1,6 @@
 import { CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
-import { Client } from "client";
+import { Client, xhrAdditionalData } from "client";
 
 describe("Cache [ Lazy Storage ]", () => {
   const cacheKey = "test";
@@ -11,7 +11,7 @@ describe("Cache [ Lazy Storage ]", () => {
     error: null,
     status: 200,
     isSuccess: true,
-    additionalData: {},
+    additionalData: xhrAdditionalData,
     retries: 0,
     timestamp: +new Date(),
     isCanceled: false,

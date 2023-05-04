@@ -4,7 +4,7 @@ import { ResponseReturnType, getErrorMessage, BaseAdapterType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { Client } from "client";
+import { Client, xhrAdditionalData } from "client";
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
@@ -88,7 +88,7 @@ describe("Dispatcher [ Events ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
@@ -115,7 +115,7 @@ describe("Dispatcher [ Events ]", () => {
         error: mock,
         status: 400,
         isSuccess: false,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
@@ -149,7 +149,7 @@ describe("Dispatcher [ Events ]", () => {
         error: null,
         status: 200,
         isSuccess: true,
-        additionalData: {},
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
@@ -178,7 +178,7 @@ describe("Dispatcher [ Events ]", () => {
         error: getErrorMessage("abort"),
         status: 0,
         isSuccess: false,
-        additionalData: {},
+        additionalData: xhrAdditionalData,
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,

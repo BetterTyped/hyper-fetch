@@ -13,7 +13,12 @@ describe("useCache [ Base ]", () => {
     error: null,
     status: 200,
     isSuccess: true,
-    additionalData: {},
+    additionalData: {
+      headers: {
+        "content-type": "application/json",
+        "x-powered-by": "msw",
+      },
+    },
     retries: 0,
     timestamp: +new Date(),
     isCanceled: false,

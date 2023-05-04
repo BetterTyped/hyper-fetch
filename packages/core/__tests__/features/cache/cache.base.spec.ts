@@ -2,7 +2,7 @@ import { BaseAdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createCache, sleep } from "../../utils";
-import { Client } from "client";
+import { Client, xhrAdditionalData } from "client";
 
 describe("Cache [ Base ]", () => {
   const response: ResponseReturnSuccessType<unknown, BaseAdapterType> = {
@@ -10,7 +10,7 @@ describe("Cache [ Base ]", () => {
     error: null,
     status: 200,
     isSuccess: true,
-    additionalData: {},
+    additionalData: xhrAdditionalData,
   };
   const details: ResponseDetailsType = {
     retries: 0,

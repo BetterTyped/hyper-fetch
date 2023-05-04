@@ -30,7 +30,9 @@ export const testSuccessState = async <
     expect(response.data).toBeDefined();
     expect(response.isSuccess).toBeTrue();
     expect(response.status).toBe(200);
-    expect(response.additionalData).toStrictEqual({});
+    expect(response.additionalData).toStrictEqual({
+      headers: { "content-type": "application/json", "x-powered-by": "msw" },
+    });
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
@@ -58,7 +60,8 @@ export const testErrorState = async <
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
     expect(response.isSuccess).toBeFalse();
-    expect(response.additionalData).toStrictEqual({});
+    expect(response.additionalData).toHaveProperty("headers");
+    expect(Object.keys(response.additionalData)).toHaveLength(1);
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);

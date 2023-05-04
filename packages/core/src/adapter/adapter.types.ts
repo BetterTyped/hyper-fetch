@@ -74,8 +74,9 @@ export type ExtractUnionAdapter<
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
 
-// TODO - add headers later
-export type AdapterAdditionalDataType = Record<string, any>;
+export type AdapterAdditionalDataType = {
+  headers: Record<string, string>;
+};
 
 export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 

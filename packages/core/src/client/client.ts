@@ -13,6 +13,7 @@ import {
   ResponseReturnType,
 } from "adapter";
 import {
+  xhrAdditionalData,
   ClientErrorType,
   ClientInstance,
   ClientOptionsType,
@@ -63,7 +64,7 @@ export class Client<
 
   defaultMethod: ExtractAdapterMethodType<AdapterType> = HttpMethodsEnum.get as ExtractAdapterMethodType<AdapterType>;
   defaultAdditionalData: ExtractAdapterAdditionalDataType<AdapterType> =
-    {} as ExtractAdapterAdditionalDataType<AdapterType>;
+    xhrAdditionalData as ExtractAdapterAdditionalDataType<AdapterType>;
 
   // Registered requests effect
   effects: RequestEffectInstance[] = [];

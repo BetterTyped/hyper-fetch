@@ -120,7 +120,7 @@ describe("Client [ Base ]", () => {
       expect(spy).toBeCalledTimes(2);
     });
     it("should assign new defaultAdditionalData", async () => {
-      const defaultAdditionalData = { test: 1 };
+      const defaultAdditionalData = { headers: { test: "1" } };
       const client = new Client({
         url: "shared-base-url",
       }).setDefaultAdditionalData(defaultAdditionalData);

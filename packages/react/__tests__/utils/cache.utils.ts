@@ -6,6 +6,7 @@ import {
   ExtractErrorType,
   ExtractAdapterType,
   BaseAdapterType,
+  xhrAdditionalData,
 } from "@hyper-fetch/core";
 
 export const createCacheData = <T extends RequestInstance>(
@@ -20,7 +21,7 @@ export const createCacheData = <T extends RequestInstance>(
     error: null,
     status: 200,
     isSuccess: true,
-    additionalData: {},
+    additionalData: xhrAdditionalData,
   };
   const detailsValue: ResponseDetailsType = {
     retries: 0,

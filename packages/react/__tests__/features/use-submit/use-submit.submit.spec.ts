@@ -1,4 +1,4 @@
-import { RequestSendType } from "@hyper-fetch/core";
+import { RequestSendType, xhrAdditionalData } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -35,7 +35,13 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(data).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should call onSettle", async () => {
       const spy = jest.fn();
@@ -61,7 +67,13 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(data).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should return data from submit method on offline", async () => {
       let data: unknown = null;
@@ -80,7 +92,13 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: { value: "string" } });
       });
 
-      expect(data).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(data).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should allow to change submit details", async () => {
       // Todo
@@ -138,7 +156,13 @@ describe("useSubmit [ Base ]", () => {
         data = await response.result.current.submit({ data: null, queryParams: "?something=test" });
       });
 
-      expect(data).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(data).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
     it("should throw error when hook is disabled", async () => {
       let res: Awaited<ReturnType<RequestSendType<typeof request>>> = {} as Awaited<
@@ -154,7 +178,7 @@ describe("useSubmit [ Base ]", () => {
       expect(res.data).toBeNull();
       expect(res.error).toBeInstanceOf(Error);
       expect(res.status).toBe(null);
-      expect(res.additionalData).toStrictEqual({});
+      expect(res.additionalData).toStrictEqual(xhrAdditionalData);
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
@@ -171,7 +195,13 @@ describe("useSubmit [ Base ]", () => {
         });
       });
 
-      expect(data).toStrictEqual({ data: mock, error: null, status: 200, isSuccess: true, additionalData: {} });
+      expect(data).toStrictEqual({
+        data: mock,
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
     });
   });
 });

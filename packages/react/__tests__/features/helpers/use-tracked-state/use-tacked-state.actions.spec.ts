@@ -75,7 +75,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set additionalData", async () => {
-      const additionalData = {};
+      const additionalData = { headers: { test: "1" } };
       const { result } = renderUseTrackedState(request);
 
       act(() => {
@@ -170,11 +170,12 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set additionalData", async () => {
+      const additionalData = { headers: { test: "1" } };
       const spy = jest.spyOn(request.client.cache, "set");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setAdditionalData({}, true);
+        result.current[1].setAdditionalData(additionalData, true);
       });
 
       await waitFor(() => {

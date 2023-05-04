@@ -36,7 +36,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should make a request and return error data with status", async () => {
@@ -47,7 +47,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -84,7 +84,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
     window.XMLHttpRequest = xml;
   });
 });

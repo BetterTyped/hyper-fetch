@@ -46,7 +46,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should make a request and return error data with status", async () => {
@@ -57,7 +57,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -98,6 +98,6 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toEqual(mock);
     expect(error).toBeNull();
     expect(status).toEqual(200);
-    expect(additionalData).toStrictEqual({});
+    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 });
