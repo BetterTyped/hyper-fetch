@@ -10,7 +10,9 @@ describe("Fetch Adapter [ Server ]", () => {
   const requestId = "test";
 
   let client = new Client({ url: "shared-base-url" });
+  let clientHttps = new Client({ url: "https://shared-base-url" });
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -18,7 +20,9 @@ describe("Fetch Adapter [ Server ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
+    clientHttps = new Client({ url: "https://shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
     client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
@@ -36,6 +40,11 @@ describe("Fetch Adapter [ Server ]", () => {
     createRequestInterceptor(request);
     client.appManager.isBrowser = true;
     await expect(() => adapter(request, requestId)).not.toThrow();
+  });
+
+  it("should pick https module", async () => {
+    createRequestInterceptor(request);
+    await expect(() => adapter(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {

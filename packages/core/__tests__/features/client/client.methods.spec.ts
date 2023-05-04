@@ -161,5 +161,17 @@ describe("Client [ Methods ]", () => {
 
       expect(client.payloadMapper).toEqual(callback);
     });
+    it("should assign key mappers", async () => {
+      const callback = () => "";
+      client.setAbortKeyMapper(callback);
+      client.setCacheKeyMapper(callback);
+      client.setQueueKeyMapper(callback);
+      client.setEffectKeyMapper(callback);
+
+      expect(client.abortKeyMapper).toEqual(callback);
+      expect(client.cacheKeyMapper).toEqual(callback);
+      expect(client.queueKeyMapper).toEqual(callback);
+      expect(client.effectKeyMapper).toEqual(callback);
+    });
   });
 });

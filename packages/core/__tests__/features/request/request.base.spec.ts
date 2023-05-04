@@ -105,4 +105,46 @@ describe("Fetch Adapter [ Base ]", () => {
     expect(spy).toHaveBeenCalled();
     expect(spy.mock.calls[0][0].queryParams).toStrictEqual(queryParams);
   });
+
+  it("Should allow to validate before sending request", async () => {
+    const message = "something went wrong";
+    const mapper = () => {
+      throw new Error(message);
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setRequestMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
+  });
+
+  it("Should allow to validate response", async () => {
+    const message = "something went wrong";
+    const mapper = (res) => {
+      return { ...res, data: null, error: new Error(message) };
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setResponseMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
+  });
+
+  it("Should allow to validate in data mapper", async () => {
+    const message = "something went wrong";
+    const mapper = () => {
+      throw new Error(message);
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setDataMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
+  });
 });

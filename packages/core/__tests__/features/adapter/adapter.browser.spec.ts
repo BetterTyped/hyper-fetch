@@ -63,7 +63,6 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(error.message).toEqual(getErrorMessage("abort").message);
   });
 
-  // TODO-fix error.message unknown - timeoutRequest: any
   it("should return timeout error when request takes too long", async () => {
     const timeoutRequest = request.setOptions({ timeout: 5 });
     createRequestInterceptor(timeoutRequest, { delay: 20 });
@@ -85,6 +84,27 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    window.XMLHttpRequest = xml;
+  });
+
+  it("should allow to set options", async () => {
+    const xml = window.XMLHttpRequest;
+    let instance: null | XMLHttpRequest = null;
+    class ExtendedXml extends XMLHttpRequest {
+      constructor() {
+        super();
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        instance = this;
+      }
+    }
+
+    window.XMLHttpRequest = ExtendedXml;
+
+    const timeoutRequest = request.setOptions({ timeout: 50 });
+    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    await adapter(timeoutRequest, requestId);
+    expect(instance.timeout).toBe(50);
+
     window.XMLHttpRequest = xml;
   });
 });

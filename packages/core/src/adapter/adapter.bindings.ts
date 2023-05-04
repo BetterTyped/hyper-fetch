@@ -71,7 +71,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = BaseAdapter
   }
 
   const config: ExtractAdapterOptions<T> = {
-    ...request.requestOptions.options,
+    ...request.options,
   } as ExtractAdapterOptions<T>;
 
   const getRequestStartTimestamp = () => {

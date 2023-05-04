@@ -47,16 +47,6 @@ export const getUploadSize = (payload: string) => {
   return payload.length;
 };
 
-export const fileToBuffer = (file: File | Blob) => {
-  return new Promise<Uint8Array>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(new Uint8Array(reader.result as ArrayBufferLike));
-    };
-    reader.readAsArrayBuffer(file);
-  });
-};
-
 export const getStreamPayload = (payload: string | null) => {
   return payload;
 };

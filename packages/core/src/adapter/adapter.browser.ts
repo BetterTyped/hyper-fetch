@@ -30,6 +30,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
     xhr.timeout = defaultTimeout;
 
     const abort = () => xhr.abort();
+
     // Inject xhr options
     Object.entries(config).forEach(([name, value]) => {
       xhr[name] = value;
