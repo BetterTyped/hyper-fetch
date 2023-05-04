@@ -381,6 +381,6 @@ export class Client<
             queryParams: QueryParams;
           }
         >
-      >(this, params);
+      >(this as any, params);
   };
 }
