@@ -1,5 +1,5 @@
 {
-  "name": "@hyper-fetch/adapter-firebase",
+  "name": "@hyper-fetch/firebase",
   "version": "0.0.0",
   "private": false,
   "description": "",
@@ -15,7 +15,7 @@
     "clean": "npx rimraf dist",
     "test": "firebase emulators:exec 'jest --watchAll'",
     "coverage": "firebase emulators:exec 'jest --watchAll --coverage'",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
+    "test-pipeline": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --no-cache --detectOpenHandles --forceExit'",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",
