@@ -76,14 +76,27 @@ export const getInitialState = <T extends RequestInstance>(
   const cacheState = getValidCacheData<T>(request, initialData, cacheData);
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
+  if (cacheState) {
+    return {
+      data: cacheState.data,
+      error: cacheState.error,
+      status: cacheState.status,
+      isSuccess: cacheState.isSuccess,
+      additionalData: cacheState.additionalData,
+      retries: cacheState.retries,
+      timestamp: getTimestamp(cacheState.timestamp),
+      loading: initialLoading,
+    };
+  }
+
   return {
-    data: cacheState?.data ?? initialState.data,
-    error: cacheState?.error ?? initialState.error,
-    status: cacheState?.status ?? initialState.status,
-    isSuccess: cacheState?.isSuccess ?? initialState.isSuccess,
-    additionalData: cacheState?.additionalData ?? request.client.defaultAdditionalData,
-    retries: cacheState?.retries ?? initialState.retries,
-    timestamp: getTimestamp(cacheState?.timestamp ?? initialState.timestamp),
+    data: initialState.data,
+    error: initialState.error,
+    status: initialState.status,
+    isSuccess: initialState.isSuccess,
+    additionalData: request.client.defaultAdditionalData,
+    retries: initialState.retries,
+    timestamp: getTimestamp(initialState.timestamp),
     loading: initialLoading,
   };
 };

@@ -1,6 +1,7 @@
 import { xhrAdditionalData } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
+import { initialState } from "helpers";
 import { startServer, resetInterceptors, stopServer } from "../../../server";
 import { createRequest, renderUseTrackedState } from "../../../utils";
 
@@ -24,6 +25,21 @@ describe("useTrackingState [ Events ]", () => {
     request = createRequest();
   });
 
+  describe("given state is initialized", () => {
+    describe("when cache is empty", () => {
+      it("should init with default data", async () => {
+        const { result } = renderUseTrackedState(request);
+
+        expect(result.current[0].data).toBe(initialState.data);
+        expect(result.current[0].error).toBe(initialState.error);
+        expect(result.current[0].status).toBe(initialState.status);
+        expect(result.current[0].isSuccess).toBe(initialState.isSuccess);
+        expect(result.current[0].additionalData).toStrictEqual(request.client.defaultAdditionalData);
+        expect(result.current[0].retries).toBe(0);
+        expect(result.current[0].loading).toBe(initialState.loading);
+      });
+    });
+  });
   describe("given dependency tracking is active", () => {
     describe("when updating the state values and dependency tracking is on", () => {
       it("should not rerender hook when deep equal values are the same", async () => {
@@ -72,7 +88,7 @@ describe("useTrackingState [ Events ]", () => {
         });
 
         expect(result.current[0].data).toBe("new-data");
-        // Todo
+        expect(result.current[0].error).toBe(null);
       });
     });
   });

@@ -6,7 +6,7 @@ import { client, createRequest, renderUseSubmit, waitForRender } from "../../uti
 
 describe("useSubmit [ Bounce ]", () => {
   const hookDebounceOptions = { bounce: true, bounceType: "debounce", bounceTime: 50 } as const;
-  const hookThrottleOptions = { bounce: true, bounceType: "throttle", bounceTime: 50 } as const;
+  const hookThrottleOptions = { bounce: true, bounceType: "throttle", bounceTime: 50, bounceTimeout: 50 } as const;
 
   let request = createRequest<null, null>({ method: "POST" });
 
@@ -256,7 +256,7 @@ describe("useSubmit [ Bounce ]", () => {
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         await act(async () => {
-          await response.rerender({ bounceTime: newBounceTime });
+          await response.rerender({ bounceTime: newBounceTime, bounceTimeout: newBounceTime });
         });
 
         await waitForRender(1);
