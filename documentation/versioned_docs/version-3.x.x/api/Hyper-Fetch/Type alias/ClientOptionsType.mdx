@@ -1,0 +1,61 @@
+
+
+# ClientOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { ClientOptionsType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Configuration setup for the client
+
+</span></div><p class="api-docs__definition">
+
+Defined in [client/client.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/client/client.types.ts#L12)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type ClientOptionsType = {
+  adapter: AdapterType; 
+  appManager: <B>(client: B) => B[appManager]; 
+  cache: <B>(client: B) => B[cache]; 
+  fetchDispatcher: <B>(client: B) => B[submitDispatcher]; 
+  submitDispatcher: <B>(client: B) => B[fetchDispatcher]; 
+  url: string; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  adapter: (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
+  appManager: (client: B) => B[appManager];
+  cache: (client: B) => B[cache];
+  fetchDispatcher: (client: B) => B[submitDispatcher];
+  submitDispatcher: (client: B) => B[fetchDispatcher];
+  url: string;
+}
+```
+
+</div>

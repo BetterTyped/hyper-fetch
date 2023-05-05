@@ -1,0 +1,47 @@
+
+
+# RequestSendType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestSendType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [request/request.types.ts:267](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L267)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type RequestSendType<Request> = RequestSendOptionsType<Request>[data] extends NegativeTypes ? RequestSendOptionsType<Request>[params] extends NegativeTypes ? (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>> : (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>> : (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+RequestSendOptionsType<Request>[data] extends NegativeTypes ? (RequestSendOptionsType<Request>[params] extends NegativeTypes ? (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>> : (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>) : (options?: RequestSendOptionsType<Request>) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+```
+
+</div>

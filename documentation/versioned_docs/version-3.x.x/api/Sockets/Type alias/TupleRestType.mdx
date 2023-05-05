@@ -1,0 +1,47 @@
+
+
+# TupleRestType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { TupleRestType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [types/tuple.types.ts:1](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/sockets/src/types/tuple.types.ts#L1)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type TupleRestType<T> = T extends [first: any, rest: infer  Rest] ? Rest extends any[] ? Rest : [] : [];
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+T extends [first: any, rest: infer Rest] ? (Rest extends any[] ? Rest : [undefined]) : [undefined]
+```
+
+</div>

@@ -1,0 +1,33 @@
+---
+sidebar_position: 1
+title: How to fetch with React hook useFetch
+sidebar_label: Fetching
+---
+
+# Fetching
+
+For fetching data use the [`useFetch`](/documentation/04-react/02-core/use-fetch.mdx) hook that automates request
+handling. There are tons of [options](/documentation/04-react/02-core/use-fetch.mdx#options) to adjust this hook so check
+out the [documentation](/documentation/04-react/02-core/use-fetch.mdx).
+
+---
+
+### Examples
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
+
+const { data, error, loading } = useFetch(getUsers)
+
+```
+
+```tsx
+import { getUsers, getUser } from "server/user";
+
+...
+
+const { data, error, loading } = useFetch(getUser.setParams({ userId: 1 }))
+
+```

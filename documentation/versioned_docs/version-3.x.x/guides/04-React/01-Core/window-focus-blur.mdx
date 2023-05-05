@@ -1,0 +1,36 @@
+---
+title: Window Focus & Blur
+sidebar_label: Window Focus & Blur
+---
+
+Sometimes we want to react to events related to the active window. Then we can use options in useFetch such as
+`refreshBlurred`, `refreshOnBlur`, `refreshOnFocus` and `refreshOnReconnect`.
+
+### `refreshBlurred`
+
+This options allow our hook to refresh data even if user blurred our window.
+
+### `refreshOnBlur`
+
+This options allow our hook to trigger refresh data exactly when user blur our window.
+
+### `refreshOnFocus`
+
+This options allow our hook to trigger refresh data exactly when user focus our window.
+
+### `refreshOnReconnect`
+
+This options allow our hook to trigger refresh data exactly when network is restored.
+
+---
+
+### Example
+
+```tsx
+const { data, error, loading } = useFetch(getList, {
+  refreshBlurred: true,
+  refreshOnBlur: true,
+  refreshOnFocus: true,
+  refreshOnReconnect: true,
+});
+```

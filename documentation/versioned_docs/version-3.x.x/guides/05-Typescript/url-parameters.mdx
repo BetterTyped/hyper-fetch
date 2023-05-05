@@ -1,0 +1,24 @@
+---
+sidebar_position: 5
+title: Setting Url Parameters Type
+sidebar_label: Url Parameters
+---
+
+# URL Parameters
+
+The types generated from the endpoint value string are extremely useful. Thanks to this, our request is able to suggest
+the required parameters to execute the query itself.
+
+---
+
+### Example
+
+```ts
+const getUser = client.createRequest<ResponseType>()({
+  endpoint: "/users/:userId",
+});
+
+getUser.send({ params: { userId: 1 } });
+// Or
+getUser.setParams({ userId: 1 }).send();
+```

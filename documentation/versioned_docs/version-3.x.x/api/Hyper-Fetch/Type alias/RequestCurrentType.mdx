@@ -1,0 +1,59 @@
+
+
+# RequestCurrentType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestCurrentType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [request/request.types.ts:168](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L168)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type RequestCurrentType<Response,Payload,QueryParams,ErrorType,GenericEndpoint,AdapterOptions,MappedData> = { data?: PayloadType<Payload, MappedData>; headers?: HeadersInit; mockCallback?: (data: Payload) => ResponseType<Response, ErrorType>; params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes; queryParams?: QueryParams | NegativeTypes; updatedAbortKey?: boolean; updatedCacheKey?: boolean; updatedEffectKey?: boolean; updatedQueueKey?: boolean; used?: boolean } & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions>>>;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: MappedData extends never ? Payload : MappedData | \null\ | \undefined\;
+  headers: HeadersInit;
+  mockCallback: (data: Payload) => ResponseType<Response, ErrorType>;
+  params: string extends T ? NegativeTypes : (T extends `${string}:,${infer Param}/,${infer Rest}` ? [k in \Param\ | \keyof ExtractRouteParams<Rest>\]: ParamType : (T extends `${string}:,${infer Param}` ? [k in Param]: ParamType : NegativeTypes)) | \null\ | \undefined\;
+  queryParams: QueryParams | \null\ | \undefined\;
+  updatedAbortKey: boolean;
+  updatedCacheKey: boolean;
+  updatedEffectKey: boolean;
+  updatedQueueKey: boolean;
+  used: boolean;
+  ...params2: Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions>>>;
+}
+```
+
+</div>
