@@ -12,6 +12,8 @@ import {
   RequestInstance,
   RequestDataMockTypes,
   GeneratorReturnMockTypes,
+  RequestMapper,
+  ResponseMapper,
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
@@ -20,7 +22,6 @@ import {
   ExtractAdapterMethodType,
   ExtractAdapterOptions,
   QueryParamsType,
-  ResponseReturnType,
   AdapterInstance,
 } from "adapter";
 import { NegativeTypes } from "types";
@@ -79,10 +80,8 @@ export class Request<
     GeneratorReturnMockTypes<Response, this>
   >;
   mockData?: RequestDataMockTypes<Response, this>;
-  requestMapper?: <R extends RequestInstance>(requestId: string, request: RequestInstance) => R;
-  responseMapper?: (
-    response: ResponseReturnType<any, any, any>,
-  ) => ResponseReturnType<Response, GlobalError | LocalError, AdapterType>;
+  requestMapper?: RequestMapper<this>;
+  responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -278,14 +277,6 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setDataMapper = <DataMapper extends (data: Payload) => any>(dataMapper: DataMapper) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
-
-    cloned.dataMapper = dataMapper;
-
-    return cloned;
-  };
-
   public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
     const mockGenerator = function* mocked(mockedValues: RequestDataMockTypes<Response, RequestInstance>) {
       if (Array.isArray(mockData)) {
@@ -312,7 +303,29 @@ export class Request<
     return this;
   };
 
-  public setRequestMapper = (requestMapper: <R extends RequestInstance>(requestId: string, request: this) => R) => {
+  /**
+   * Mappers
+   */
+
+  /**
+   * Map data before it gets send to the server
+   * @param dataMapper
+   * @returns
+   */
+  public setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+
+    cloned.dataMapper = dataMapper;
+
+    return cloned;
+  };
+
+  /**
+   * Map request before it gets send to the server
+   * @param requestMapper mapper of the request
+   * @returns new request
+   */
+  public setRequestMapper = (requestMapper: RequestMapper<this>) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
     cloned.requestMapper = requestMapper;
@@ -321,19 +334,16 @@ export class Request<
   };
 
   /**
-   * Map
-   * @param cacheKey explicitly provided key will allow us to prevent the cache collisions with non mapped requests or dynamically added mappers
-   * @param onResponse our callback
-   * @returns
+   * Map the response to the new interface
+   * @param responseMapper our mapping callback
+   * @returns new response
    */
   public setResponseMapper = <NewResponse = Response, NewError = GlobalError | LocalError>(
-    responseMapper?: (
-      response: ResponseReturnType<Response, GlobalError | LocalError, AdapterType>,
-    ) => ResponseReturnType<NewResponse, NewError, AdapterType>,
+    responseMapper?: ResponseMapper<this, NewResponse, NewError>,
   ) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>() as unknown as this;
+    const cloned = this.clone<HasData, HasParams, HasQuery>();
 
-    cloned.responseMapper = responseMapper as any;
+    cloned.responseMapper = responseMapper;
 
     return cloned as unknown as Request<
       NewResponse,
@@ -357,7 +367,7 @@ export class Request<
       });
     }
     if (queryParams) {
-      endpoint += this.client.stringifyQueryParams(queryParams as QueryParamsType);
+      endpoint += this.client.stringifyQueryParams(queryParams as unknown as QueryParamsType);
     }
     return endpoint;
   };

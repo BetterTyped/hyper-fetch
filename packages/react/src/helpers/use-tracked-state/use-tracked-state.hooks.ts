@@ -125,11 +125,12 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const mapResponseData = (
+  const mapResponseData = async (
     data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-  ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
+  ): Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>> => {
     if (responseMapper) {
-      return { ...data, ...responseMapper(data) };
+      const newResponse = await responseMapper(data);
+      return { ...data, ...newResponse };
     }
     return data;
   };
@@ -137,7 +138,7 @@ export const useTrackedState = <T extends RequestInstance>({
   const setCacheData = async (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
-    const localData = mapResponseData(cacheData);
+    const localData = await mapResponseData(cacheData);
     const newStateValues: UseTrackedStateType<T> = {
       data: localData.data,
       error: localData.error,

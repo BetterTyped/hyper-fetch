@@ -47,7 +47,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = BaseAdapter
     }
 
     if (request.requestMapper) {
-      request = request.requestMapper(requestId, request);
+      request = await request.requestMapper(requestId, request);
     }
   } catch (err) {
     processingError = err;
@@ -64,7 +64,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = BaseAdapter
   try {
     payload = payloadMapper(data);
     if (request.dataMapper) {
-      payload = request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
+      payload = await request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
     }
   } catch (err) {
     processingError = err;

@@ -330,3 +330,16 @@ export type RequestInstance = Request<
   any,
   any
 >;
+
+// Mappers
+
+export type RequestMapper<Request extends RequestInstance> = <NewRequest extends RequestInstance>(
+  requestId: string,
+  request: Request,
+) => NewRequest | Promise<NewRequest>;
+
+export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (
+  response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+) =>
+  | ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>
+  | Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>;

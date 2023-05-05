@@ -7,8 +7,36 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const path = require("path");
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const docsVersions = require("./versions.json");
+
 const apiDocs = "api";
 const apiDocsDir = "docs/api";
+
+const getVersions = () => {
+  const versionsCount = Number(docsVersions[0][0]) + 1;
+  const versions = {};
+
+  Array(versionsCount)
+    .fill(0)
+    .forEach((_, index) => {
+      const version = index + 1;
+
+      if (versionsCount === version) {
+        versions.current = {
+          label: `${version}.x.x`,
+          path: "",
+        };
+      } else {
+        versions[`${version}.x.x`] = {
+          noIndex: true,
+        };
+      }
+    });
+
+  return versions;
+};
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -99,18 +127,7 @@ const config = {
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           lastVersion: "current",
-          versions: {
-            current: {
-              label: "3.x.x",
-              path: "",
-            },
-            "1.x.x": {
-              noIndex: true,
-            },
-            "2.x.x": {
-              noIndex: true,
-            },
-          },
+          versions: getVersions(),
         },
         blog: {
           showReadingTime: true,
