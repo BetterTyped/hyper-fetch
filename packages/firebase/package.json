@@ -22,7 +22,7 @@
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "tests": "yarn lint-staged",
+    "tests": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1'",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-v${version}'"
   },
   "publishConfig": {
@@ -47,12 +47,10 @@
     "firebase-admin": "^11.5.0",
     "firebase-tools": "^11.23.1"
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "firebase emulators:exec 'jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit'"
-    ]
-  },
   "keywords": [
-    "firebase"
+    "firebase",
+    "firestore",
+    "realtime",
+    "database"
   ]
 }

@@ -38,6 +38,22 @@ You can trigger a request with the `send` method, which adds a request to the qu
 
 ---
 
+## Related guides
+
+- [Parameters](/guides/Basic/parameters/)
+- [Query Parameters](/guides/Basic/query-params/)
+- [Payload](/guides/Basic/payload/)
+- [Dispatching](/guides/Basic/dispatching/)
+- [Retries](/guides/Basic/retries/)
+- [Error handling](/guides/Basic/error-handling/)
+- [Data mapping](/guides/Basic/data-mapping/)
+- [Validation](/guides/Advanced/validation/)
+- [Mapping](/guides/Advanced/mapping/)
+- [Deduplication](/guides/Advanced/deduplication/)
+- [Queueing](/guides/Advanced/queueing/)
+
+---
+
 ## Initialization
 
 Request should be initialized from the Client instance with `createRequest` method. This passes a shared reference to
@@ -78,6 +94,18 @@ export const deleteUser = client.createRequest<null>()({
   method: "DELETE",
   endpoint: "/users/:userId",
 });
+
+// Usage
+
+const { data, error } = getUsers.send({ queryParams: { page: 1 } });
+
+const { data, error } = getUsers.send({ params: { userId: 23 } });
+
+const { data, error } = postUser.send({ data: { name: "Maciej" } });
+
+const { data, error } = patchUser.send({ params: { userId: 12 }, data: { name: "Kacper" } });
+
+const { data, error } = deleteUser.send({ params: { userId: 88 } });
 ```
 
 ---
@@ -91,7 +119,7 @@ of the configurations are optional. You can also prepare a global configuration 
 setup between requests.
 
 ```tsx
-const postUser = client.createRequest<null>()({
+const postUser = client.createRequest<null, {name: string}>()({
   endpoint: "/some-endpoint",
   headers: {},
   auth: true,
@@ -108,6 +136,8 @@ const postUser = client.createRequest<null>()({
   disableRequestInterceptors: false,
   disableResponseInterceptors: false,
 });
+
+const { data, error } = postUser.send({ data: { name: "Maciej" } })
 ```
 
 ### Request Data
@@ -172,7 +202,7 @@ getNotes.send();
 getUsers.setQueryParams({ search: "John", sort: "age" }).send();
 
 // Multiple chained Send
-getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
+const { data, error } = getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
 ```
 
 #### For usage with **`React`** checkout our [hooks docs](/documentation/04-react/01-overview.mdx).
@@ -216,7 +246,7 @@ const request = getUser;
 
 request.setParams({ userId: 1 }); // Returns CLONED request with assigned params
 
-request.send(); // Server error - no params
+const { data, error } = request.send(); // Server error - no params
 ```
 
 ```tsx
@@ -226,7 +256,7 @@ const request = getUser;
 
 const requestWithParams = request.setParams({ userId: 1 }); // Returns CLONED request with assigned params
 
-requestWithParams.send(); // Success
+const { data, error } = requestWithParams.send(); // Success
 ```
 
 ---
