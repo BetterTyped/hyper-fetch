@@ -120,6 +120,7 @@ export const sendRequest = <Request extends RequestInstance>(
   return new Promise<
     ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
   >((resolve) => {
+    let isResolved = false;
     const requestId = dispatcher.add(request);
     options?.onSettle?.(requestId, request);
 
@@ -144,8 +145,10 @@ export const sendRequest = <Request extends RequestInstance>(
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
-    >(requestId, (response, details) => {
-      const responseData = request.responseMapper?.(response) || response;
+    >(requestId, async (response, details) => {
+      isResolved = true;
+
+      const responseData = (await request.responseMapper?.(response)) || response;
 
       const { isSuccess } = responseData;
       const isOfflineStatus = request.offline && details.isOffline;
@@ -168,18 +171,20 @@ export const sendRequest = <Request extends RequestInstance>(
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
-      options?.onRemove?.(...props);
-      resolve({
-        data: null,
-        status: null,
-        isSuccess: null,
-        error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-        additionalData: request.client.defaultAdditionalData,
-      });
+      if (!isResolved) {
+        options?.onRemove?.(...props);
+        resolve({
+          data: null,
+          status: null,
+          isSuccess: null,
+          error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
+          additionalData: request.client.defaultAdditionalData,
+        });
 
-      // Unmount Listeners
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      umountAll();
+        // Unmount Listeners
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
+      }
     });
 
     function umountAll() {
