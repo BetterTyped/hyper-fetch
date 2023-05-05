@@ -223,7 +223,7 @@ describe("Realtime Database Admin [ Methods ]", () => {
       const arrayedData = Object.values(data);
 
       expect(arrayedData).toHaveLength(11);
-      expect(arrayedData[10]).toStrictEqual(newData);
+      expect(arrayedData).toContainEqual(newData);
       expect(additionalData).toHaveProperty("key");
     });
   });

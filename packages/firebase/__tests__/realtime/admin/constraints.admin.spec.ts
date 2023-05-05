@@ -40,7 +40,6 @@ describe("Realtime Database Admin [Constraints]", () => {
   describe("Filtering and ordering", () => {
     it("Should allow to limit the result and order it", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",
