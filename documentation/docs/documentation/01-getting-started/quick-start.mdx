@@ -74,7 +74,7 @@ import { postLogin } from "server/auth";
 ...
 
 const handleLogin = async (values: {email: string, password: string}) => {
-  const [data, error, status] = await postLogin.send({data: values})
+  const { data, error, status } = await postLogin.send({data: values})
 
   if(data) {
     // perform login

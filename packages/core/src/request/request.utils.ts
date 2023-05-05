@@ -161,7 +161,6 @@ export const sendRequest = <Request extends RequestInstance>(
       if (!isSuccess && willRetry) return;
 
       options?.onResponse?.(responseData, details);
-
       resolve(responseData);
 
       // Unmount Listeners

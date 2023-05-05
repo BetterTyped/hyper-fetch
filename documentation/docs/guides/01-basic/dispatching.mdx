@@ -18,7 +18,7 @@ import { postLogin } from "server/auth";
 ...
 
 const handleLogin = async (values: {email: string, password: string}) => {
-  const [data, error, status] = await postLogin.setData(values).send();
+  const { data, error, status } = await postLogin.setData(values).send();
 
   if(data) {
     // perform login
@@ -47,7 +47,7 @@ import { postData } from "server/auth";
 ...
 
 const handleSend = async (values: ValuesType) => {
-  const [data, error, status] = await postData.send({
+  const { data, error, status } = await postData.send({
     data: values,
     params: { accountId: 2 },
     queryParams: { param1: "test", param2: [1,2,3] }
@@ -65,4 +65,26 @@ const handleSend = async (values: ValuesType) => {
 
 ...
 
+```
+
+### Lifecycle
+
+`send()` method allow us to hook into request lifecycle. We can do it with one of following methods.
+
+{@import Hyper-Fetch FetchSendActionsType preview}
+
+#### Example
+
+```ts
+const { data, error, status } = await getData.send({
+  onSettle: (requestId) => {
+    console.log(`Starting request: ${requestId}`);
+  },
+  onDownloadProgress: (values) => {
+    console.log(`Download progress: ${values}`);
+  },
+  onResponse: (response) => {
+    console.log(`Got response: ${response}`);
+  },
+});
 ```

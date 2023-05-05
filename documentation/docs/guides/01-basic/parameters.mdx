@@ -39,6 +39,5 @@ console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
 ```ts
 const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
 
-const request = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
-console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
+const response = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
 ```

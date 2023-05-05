@@ -39,3 +39,16 @@ export const client = new Client({ url }).setRequestDefaultOptions((requestOptio
   };
 });
 ```
+
+### Add your own key mappers
+
+Data and requests made within our library are organized by keys. Each key is generated from request metadata such as
+parameters, query parameters, endpoint and method. They can be replaced by the way you choose to segregate and organize
+data with your own key mappers. Key must be a string value.
+
+```ts
+client.setQueueKeyMapper((request) => `Custom_Key_${request.method}_${request.endpoint}`);
+client.setAbortKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);
+client.setCacheKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);
+client.setEffectKeyMapper((request) => `Abort_Key_${request.method}_${request.endpoint}`);
+```

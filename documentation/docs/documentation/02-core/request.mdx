@@ -258,7 +258,7 @@ someRequest.setData(); // Require the 'Payload' type
 someRequest.setParams(); // Require { categoryId: Param } type
 someRequest.setQueryParams(); // Require the 'QueryParams' type
 
-const [data, error] = someRequest.send();
+const { data, error } = someRequest.send();
 
 data; // Has 'Response' type
 error; // Has 'GlobalError' or 'LocalError' type
