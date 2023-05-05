@@ -10,7 +10,7 @@ import {
   QuerySnapshot,
 } from "firebase/firestore";
 
-import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+import { FirebaseQueryConstraints } from "constraints";
 
 export type FirestoreAdapterType =
   | BaseAdapterType<
@@ -70,7 +70,6 @@ export type FirestoreRefOnlyAdditionalData = {
 
 export type FirestoreStatuses = "success" | "error";
 
-// TODO - ask check AdapterOptions/QueryParams for filterBy, orderBy, limitBY
 export type DefaultFirestoreAdapterOptions = {
   data?: string;
   filterBy?: QueryFieldFilterConstraint[];

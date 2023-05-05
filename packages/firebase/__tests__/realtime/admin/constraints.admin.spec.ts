@@ -1,22 +1,21 @@
 import { ref, set } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
-import { realtimeDbWeb } from "./initialize.web";
-import { firebaseWebAdapter } from "adapter";
-import { seedRealtimeDatabaseWeb } from "../../utils/seed.web";
+import { firebaseAdminAdapter } from "adapter";
 import { Tea } from "../../utils/seed.data";
 import { $endAt, $limitToFirst, $orderByChild, $startAt } from "constraints";
+import { realtimeDBAdmin } from "./initialize.admin";
+import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
 
-describe("Realtime Database Web [Constraints]", () => {
+describe("Realtime Database Admin [Constraints]", () => {
   beforeEach(async () => {
-    await set(ref(realtimeDbWeb, "teas/"), null);
-    await seedRealtimeDatabaseWeb(realtimeDbWeb);
+    await set(ref(realtimeDBAdmin, "teas"), null);
+    await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
   });
 
   describe("Ordering", () => {
     it("Should allow ordering by child", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",
@@ -40,7 +39,7 @@ describe("Realtime Database Web [Constraints]", () => {
   });
   describe("Filtering and ordering", () => {
     it("Should allow to limit the result and order it", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
       // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
@@ -52,8 +51,7 @@ describe("Realtime Database Web [Constraints]", () => {
       expect(data.map((tea) => tea.origin)).toStrictEqual(["China", "China", "China", "China", "China"]);
     });
     it("Should allow to combine multiple filterings", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(realtimeDBAdmin));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",

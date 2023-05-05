@@ -3,12 +3,12 @@
  */
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseWebAdapter } from "../../../src/adapter/adapter.firebase.web";
+import { firebaseWebAdapter } from "adapter";
 import { firestoreDbWeb } from "./initialize.web";
 import { seedFirestoreDatabaseWeb } from "../../utils/seed.web";
 import { Tea } from "../../utils/seed.data";
 import { deleteCollectionForWeb } from "../../utils/clean.web";
-import { $limit, $orderBy, $where } from "../../../src/adapter/constraints/constraints.firebase";
+import { $limit, $orderBy, $where } from "constraints";
 
 describe("Firestore Web [ Constraints ]", () => {
   beforeEach(async () => {

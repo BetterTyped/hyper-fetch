@@ -93,14 +93,14 @@ export type ResponseReturnSuccessType<GenericDataType, AdapterType extends Adapt
   data: GenericDataType;
   error: null;
   status: ExtractAdapterStatusType<AdapterType> | null;
-  isSuccess: true;
+  isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 export type ResponseReturnErrorType<GenericErrorType, AdapterType extends AdapterInstance> = {
   data: null;
   error: GenericErrorType;
   status: ExtractAdapterStatusType<AdapterType> | null;
-  isSuccess: false;
+  isSuccess: boolean;
   additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
 };
 

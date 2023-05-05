@@ -1,7 +1,7 @@
 import { BaseAdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
 
-import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+import { FirebaseQueryConstraints } from "constraints";
 
 export type RealtimeDbAdapterType =
   | BaseAdapterType<

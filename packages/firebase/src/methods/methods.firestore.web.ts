@@ -10,34 +10,22 @@ import {
   getDocs,
   onSnapshot,
   query,
-  QuerySnapshot,
+  limit,
+  orderBy,
+  where,
+  startAt,
+  startAfter,
+  endAt,
+  endBefore,
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
-import { limit, orderBy, where, startAt, startAfter, endAt, endBefore } from "@firebase/firestore";
 
-import { FirestoreDBMethods } from "../types/adapter.firestore.types";
-import { setCacheManually } from "../utils/set.cache.manually";
-import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+import { FirestoreDBMethods } from "adapter/types";
+import { FirebaseQueryConstraints } from "constraints";
+import { getStatus, isDocOrQuery, setCacheManually } from "./utils/utils.base";
+import { getOrderedResultFirestore } from "./utils/utils.firestore";
 
-const isDocOrQuery = (fullUrl: string): string => {
-  const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
-  const pathElements = withoutSurroundingSlashes.split("/").length;
-  return pathElements % 2 === 0 ? "doc" : "query";
-};
-
-const getStatus = (res: any) => {
-  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
-};
-
-const getQueryData = (snapshot: QuerySnapshot) => {
-  const result = [];
-  snapshot.docs.forEach((d) => {
-    result.push(d.data());
-  });
-  return result.length > 0 ? result : null;
-};
-
-const parseConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
   switch (type) {
     case FirebaseQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -93,14 +81,14 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       if (queryType === "doc") {
         path = doc(database, cleanUrl);
       } else {
-        const queryConstraints = constraints.map((constr) => parseConstraint(constr));
+        const queryConstraints = constraints.map((constr) => mapConstraint(constr));
         path = query(collection(database, cleanUrl), ...queryConstraints);
       }
       const unsub = onSnapshot(
         path,
         (snapshot) => {
           const additionalData = { ref: path, snapshot, unsubscribe: unsub };
-          const result = queryType === "doc" ? snapshot.data() || null : getQueryData(snapshot);
+          const result = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
           setCacheManually(request, { value: result, status }, additionalData);
           onSuccess(result, status, { ref: path, snapshot, unsubscribe: unsub }, resolve);
@@ -124,12 +112,12 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       }
     },
     getDocs: async ({ constraints = [] }: { constraints: any[] }) => {
-      const queryConstraints = constraints.map((constr) => parseConstraint(constr));
+      const queryConstraints = constraints.map((constr) => mapConstraint(constr));
       const path = collection(database, cleanUrl);
       const q = query(path, ...queryConstraints);
       try {
         const querySnapshot = await getDocs(q);
-        const result = getQueryData(querySnapshot);
+        const result = getOrderedResultFirestore(querySnapshot);
         const status = getStatus(result);
 
         onSuccess(result, status, { ref: path, snapshot: querySnapshot }, resolve);

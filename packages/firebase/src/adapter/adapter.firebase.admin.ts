@@ -1,13 +1,17 @@
 import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
 import { Firestore } from "firebase-admin/firestore";
 
-import { FirestoreAdapterType, FirestoreDBMethods, FirestoreQueryParams } from "./types/adapter.firestore.types";
-import { FirebaseAdminAdapterTypes, FirebaseAdminDBTypes } from "./types/adapter.base.types.admin";
-import { getFirestoreMethodsAdmin } from "./methods/adapter.methods.firestore.admin";
-import { RealtimeDbAdapterType, RealtimeDBMethods, RealtimeDBQueryParams } from "./types/adapter.realtimedb.types";
-import { getRealtimeDBMethodsAdmin } from "./methods/adapter.methods.realtime.admin";
-
-// TODO - add pre and post validation for firebase
+import {
+  FirestoreAdapterType,
+  FirestoreDBMethods,
+  FirestoreQueryParams,
+  FirebaseAdminAdapterTypes,
+  FirebaseAdminDBTypes,
+  RealtimeDbAdapterType,
+  RealtimeDBMethods,
+  RealtimeDBQueryParams,
+} from "adapter/types";
+import { getFirestoreMethodsAdmin, getRealtimeDBMethodsAdmin } from "methods";
 
 export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T) => {
   const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {

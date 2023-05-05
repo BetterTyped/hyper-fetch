@@ -12,7 +12,7 @@ describe("Realtime Database Web [ Methods ]", () => {
     await seedRealtimeDatabaseWeb(realtimeDbWeb);
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await set(ref(realtimeDbWeb, "teas/"), null);
   });
 

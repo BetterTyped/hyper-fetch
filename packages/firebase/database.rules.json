@@ -3,7 +3,9 @@
     ".read": true,
     ".write": true,
     "teas": {
-        ".indexOn": ["origin", "year"]
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["origin", "year"]
     }
   }
 }

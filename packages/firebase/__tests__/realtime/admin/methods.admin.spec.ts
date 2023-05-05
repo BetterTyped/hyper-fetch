@@ -7,7 +7,7 @@ import { Client } from "@hyper-fetch/core";
 import { realtimeDBAdmin } from "./initialize.admin";
 import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
 import { Tea } from "../../utils/seed.data";
-import { firebaseAdminAdapter } from "../../../src/adapter/adapter.firebase.admin";
+import { firebaseAdminAdapter } from "adapter";
 
 describe("Realtime Database Admin [ Methods ]", () => {
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe("Realtime Database Admin [ Methods ]", () => {
     await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await realtimeDBAdmin.ref("teas").set(null);
   });
 

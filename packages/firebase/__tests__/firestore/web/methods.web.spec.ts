@@ -4,12 +4,12 @@
 import { Client } from "@hyper-fetch/core";
 import { DocumentSnapshot, QuerySnapshot } from "firebase/firestore";
 
-import { firebaseWebAdapter } from "../../../src/adapter/adapter.firebase.web";
+import { firebaseWebAdapter } from "adapter";
 import { firestoreDbWeb } from "./initialize.web";
 import { seedFirestoreDatabaseWeb } from "../../utils/seed.web";
 import { Tea } from "../../utils/seed.data";
 import { deleteCollectionForWeb } from "../../utils/clean.web";
-import { $where } from "../../../src/adapter/constraints/constraints.firebase";
+import { $where } from "constraints";
 
 describe("Firestore Web [ Methods ]", () => {
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("Firestore Web [ Methods ]", () => {
   });
 
   afterEach(async () => {
-    await deleteCollectionForWeb(firestoreDbWeb, "teas/");
+    await deleteCollectionForWeb(firestoreDbWeb, "teas");
   });
 
   describe("onSnapshot", () => {
@@ -337,7 +337,7 @@ describe("Firestore Web [ Methods ]", () => {
         name: "Taiping Hou Kui",
         type: "Green",
       });
-      expect(data).toBe(undefined);
+      expect(data).toBe(null);
       expect(additionalData.snapshot.exists()).toBe(false);
     });
   });

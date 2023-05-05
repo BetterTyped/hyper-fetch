@@ -1,79 +1,77 @@
-import { Database, DataSnapshot, Reference } from "firebase-admin/database";
+import {
+  Database,
+  get,
+  onValue,
+  push,
+  query,
+  ref,
+  remove,
+  set,
+  update,
+  orderByChild,
+  orderByKey,
+  orderByValue,
+  startAt,
+  startAfter,
+  endAt,
+  endBefore,
+  equalTo,
+  limitToFirst,
+  limitToLast,
+} from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethods } from "../types/adapter.realtimedb.types";
-import { setCacheManually } from "../utils/set.cache.manually";
-import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+import { RealtimeDBMethods } from "adapter/types";
+import { FirebaseQueryConstraints } from "constraints";
+import { getOrderedResultRealtime } from "./utils/utils.realtime";
+import { getStatus, isDocOrQuery, setCacheManually } from "./utils/utils.base";
 
-const isDocOrQuery = (fullUrl: string): string => {
-  const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
-  const pathElements = withoutSurroundingSlashes.split("/").length;
-  return pathElements % 2 === 0 ? "doc" : "query";
-};
-const getOrderedResult = (snapshot: DataSnapshot) => {
-  const res = [];
-  snapshot.forEach((child) => {
-    res.push(child.val());
-  });
-  return res.length > 0 ? res : null;
-};
-
-const getStatus = (res: any) => {
-  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
-};
-
-const applyConstraint = (ref: Reference, { type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
   switch (type) {
     case FirebaseQueryConstraints.ORDER_BY_CHILD: {
       const [value] = values;
-      return ref.orderByChild(value);
+      return orderByChild(value);
     }
     case FirebaseQueryConstraints.ORDER_BY_KEY: {
-      return ref.orderByKey();
+      return orderByKey();
     }
     case FirebaseQueryConstraints.ORDER_BY_VALUE: {
-      return ref.orderByValue();
+      return orderByValue();
     }
     case FirebaseQueryConstraints.START_AT: {
       const [[value]] = values;
-      return ref.startAt(value);
+      return startAt(value);
     }
     case FirebaseQueryConstraints.START_AFTER: {
       const [[value]] = values;
-      return ref.startAfter(value);
+      return startAfter(value);
     }
     case FirebaseQueryConstraints.END_AT: {
       const [[value]] = values;
-      return ref.endAt(value);
+      return endAt(value);
     }
     case FirebaseQueryConstraints.END_BEFORE: {
       const [[value]] = values;
-      return ref.endBefore(value);
+      return endBefore(value);
     }
     case FirebaseQueryConstraints.LIMIT_TO_FIRST: {
       const [value] = values;
-      return ref.limitToFirst(value);
+      return limitToFirst(value);
     }
     case FirebaseQueryConstraints.LIMIT_TO_LAST: {
       const [value] = values;
-      return ref.limitToLast(value);
+      return limitToLast(value);
     }
     case FirebaseQueryConstraints.EQUAL_TO: {
       const [value] = values;
-      return ref.equalTo(value);
+      return equalTo(value);
     }
     default:
       throw new Error(`Unknown method ${type}`);
   }
 };
 
-const applyConstraints = (ref: Reference, constraints: { type: FirebaseQueryConstraints; values: any[] }[]) => {
-  return constraints.reduce((collection, constraint) => {
-    return applyConstraint(collection, constraint);
-  }, ref);
-};
-
-export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
+export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,
@@ -82,29 +80,31 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   resolve,
 ): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any }) => void> => {
   const [fullUrl] = url.split("?");
-  const path = database.ref(fullUrl);
+  const path = ref(database, fullUrl);
   const methods: Record<RealtimeDBMethods, (data) => void> = {
     onValue: async ({ constraints }: { constraints: any[] }) => {
-      const q = applyConstraints(path, constraints);
-      q.on("value", (snapshot) => {
+      const params = constraints.map((constraint) => mapConstraint(constraint));
+      const q = query(path, ...params);
+      const unsub = onValue(q, (snapshot) => {
         try {
-          const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResult(snapshot);
+          const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
           const status = getStatus(res);
-          const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
           setCacheManually(request, { value: res, status }, additionalData);
           onSuccess(res, status, additionalData, resolve);
         } catch (e) {
-          const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
+          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
           setCacheManually(request, { value: e, status: "error" }, additionalData);
           onError(e, "error", additionalData, resolve);
         }
       });
     },
-    get: async () => {
+    get: async ({ constraints }) => {
+      const params = constraints.map((constraint) => mapConstraint(constraint));
+      const q = query(path, ...params);
       try {
-        const docOrQuery = isDocOrQuery(fullUrl);
-        const snapshot = await path.get();
-        const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResult(snapshot);
+        const snapshot = await get(q);
+        const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
         const status = getStatus(res);
         onSuccess(res, status, { ref: path, snapshot }, resolve);
       } catch (e) {
@@ -114,7 +114,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     set: async ({ data }) => {
       try {
         // TODO - should the response be the data that has been set?
-        await path.set(data);
+        await set(path, data);
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
@@ -122,7 +122,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     },
     push: async ({ data }) => {
       try {
-        const resRef = await path.push(data);
+        const resRef = await push(path, data);
         onSuccess(null, "success", { ref: resRef, key: resRef.key }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
@@ -130,7 +130,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     },
     update: async ({ data }) => {
       try {
-        await path.update(data);
+        await update(path, data);
         onSuccess(null, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
@@ -138,7 +138,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     },
     remove: async () => {
       try {
-        await path.remove();
+        await remove(path);
         onSuccess(null, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);

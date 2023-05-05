@@ -13,8 +13,8 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
-    "test": "firebase emulators:exec 'jest --watchAll'",
-    "coverage": "firebase emulators:exec 'jest --watchAll --coverage'",
+    "test": "firebase emulators:exec 'jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit'",
+    "coverage": "firebase emulators:exec 'jest --watchAll --coverage --maxWorkers=1'",
     "test-pipeline": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --no-cache --detectOpenHandles --forceExit'",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
@@ -49,7 +49,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "yarn jest --passWithNoTests"
+      "firebase emulators:exec 'jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit'"
     ]
   },
   "keywords": [

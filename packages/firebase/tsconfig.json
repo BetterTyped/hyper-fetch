@@ -3,7 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": "./src",
-    "jsx": "react-jsx"
   },
   "exclude": ["__tests__", "jest.config.ts"]
 }

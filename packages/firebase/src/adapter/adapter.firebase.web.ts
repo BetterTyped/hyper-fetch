@@ -2,23 +2,27 @@ import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
-import { getRealtimeDBMethodsWeb } from "./methods/adapter.methods.realtime.web";
-import { FirebaseAdapterTypes, FirebaseWebDBTypes } from "./types/adapter.base.types.web";
-import { RealtimeDbAdapterType, RealtimeDBMethods, RealtimeDBQueryParams } from "./types/adapter.realtimedb.types";
-import { FirestoreAdapterType, FirestoreDBMethods, FirestoreQueryParams } from "./types/adapter.firestore.types";
-import { getFirestoreMethodsWeb } from "./methods/adapter.methods.firestore.web";
-
-// TODO - add pre and post validation for firebase
+import { getRealtimeDBMethodsWeb, getFirestoreMethodsWeb } from "methods";
+import {
+  FirebaseWebAdapterTypes,
+  FirebaseWebDBTypes,
+  RealtimeDbAdapterType,
+  RealtimeDBMethods,
+  RealtimeDBQueryParams,
+  FirestoreAdapterType,
+  FirestoreDBMethods,
+  FirestoreQueryParams,
+} from "adapter/types";
 
 export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
-  const adapter: FirebaseAdapterTypes<T> = async (request, requestId) => {
+  const adapter: FirebaseWebAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError } = await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(
       request,
       requestId,
       "error",
       {},
     );
-    return new Promise<ResponseReturnType<any, any, FirebaseAdapterTypes<T>>>((resolve) => {
+    return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
       // eslint-disable-next-line no-console
       if (database instanceof Database) {
         const {

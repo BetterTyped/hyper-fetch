@@ -4,10 +4,10 @@
 import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../utils/seed.data";
-import { $limit, $orderBy, $where } from "../../../src/adapter/constraints/constraints.firebase";
+import { $limit, $orderBy, $where } from "constraints";
 import { seedFirestoreDatabaseAdmin } from "../../utils/seed.admin";
 import { firestoreDbAdmin } from "./initialize.admin";
-import { firebaseAdminAdapter } from "../../../src/adapter/adapter.firebase.admin";
+import { firebaseAdminAdapter } from "adapter";
 
 describe("Firestore Admin [ Constraints ]", () => {
   beforeEach(async () => {

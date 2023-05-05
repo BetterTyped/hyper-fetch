@@ -1,39 +1,27 @@
-import {
-  Firestore,
-  CollectionReference,
-  DocumentReference,
-  DocumentSnapshot,
-  QuerySnapshot,
-} from "firebase-admin/firestore";
+import { Firestore, CollectionReference, DocumentReference, DocumentSnapshot, Query } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreDBMethods } from "../types/adapter.firestore.types";
-import { setCacheManually } from "../utils/set.cache.manually";
-import { FirebaseQueryConstraints } from "../constraints/constraints.firebase";
+import { FirestoreDBMethods } from "adapter";
+import { FirebaseQueryConstraints } from "constraints";
+import { getStatus, setCacheManually } from "./utils/utils.base";
+import { getOrderedResultFirestore } from "./utils/utils.firestore";
 
-const getStatus = (res: any) => {
-  return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
-};
 const getRef = (db: Firestore, fullUrl: string) => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
   const urlParts = withoutSurroundingSlashes.split("/").map((element, index) => {
     return index % 2 === 0 ? ["collection", element] : ["doc", element];
   });
-  // @ts-ignore
+
   return urlParts.reduce((_db, value) => {
     const [method, pathPart] = value;
-    if (method === "doc") {
+    if (method === "doc" && "doc" in _db) {
       return _db.doc(pathPart);
     }
-    return _db.collection(pathPart);
-  }, db) as CollectionReference | DocumentReference;
-};
-const getQueryData = (snapshot: QuerySnapshot) => {
-  const result = [];
-  snapshot.docs.forEach((d) => {
-    result.push(d.data());
-  });
-  return result.length > 0 ? result : null;
+    if (method === "collection" && "collection" in _db) {
+      return _db.collection(pathPart);
+    }
+    return _db;
+  }, db as unknown as Firestore | CollectionReference | DocumentReference) as CollectionReference | DocumentReference;
 };
 
 const applyConstraint = (
@@ -103,15 +91,15 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   const methods: Record<FirestoreDBMethods, (data) => void> = {
     onSnapshot: async ({ constraints = [] }: { constraints: { type: FirebaseQueryConstraints; values: any[] }[] }) => {
       // includeMetadataChanges: true option
-      let pathRef = getRef(database, cleanUrl);
+      let pathRef: DocumentReference | Query = getRef(database, cleanUrl);
       if (pathRef instanceof CollectionReference) {
-        // @ts-ignore
         pathRef = applyConstraints(pathRef, constraints);
       }
       const unsub = pathRef.onSnapshot(
         (snapshot) => {
           const additionalData = { ref: pathRef, snapshot, unsubscribe: unsub };
-          const result = snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getQueryData(snapshot);
+          const result =
+            snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
           setCacheManually(request, { value: result, status }, additionalData);
           onSuccess(result, status, { ref: pathRef, snapshot, unsubscribe: unsub }, resolve);
@@ -142,7 +130,7 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
 
       try {
         const querySnapshot = await query.get();
-        const result = getQueryData(querySnapshot);
+        const result = getOrderedResultFirestore(querySnapshot);
         const status = getStatus(result);
 
         onSuccess(result, status, { ref: path, snapshot: querySnapshot }, resolve);

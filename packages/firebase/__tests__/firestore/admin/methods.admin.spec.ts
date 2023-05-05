@@ -6,9 +6,9 @@ import { DocumentSnapshot, QuerySnapshot } from "firebase-admin/firestore";
 
 import { seedFirestoreDatabaseAdmin } from "../../utils/seed.admin";
 import { firestoreDbAdmin } from "./initialize.admin";
-import { firebaseAdminAdapter } from "../../../src/adapter/adapter.firebase.admin";
+import { firebaseAdminAdapter } from "adapter";
 import { Tea } from "../../utils/seed.data";
-import { $where } from "../../../src/adapter/constraints/constraints.firebase";
+import { $where } from "constraints";
 
 describe("Firestore Admin [ Methods ]", () => {
   beforeEach(async () => {
