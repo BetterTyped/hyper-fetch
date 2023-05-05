@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
     "test": "firebase emulators:exec 'jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit'",
-    "coverage": "firebase emulators:exec 'jest --watchAll --coverage --maxWorkers=1'",
+    "coverage": "firebase emulators:exec 'jest --watchAll --coverage --maxWorkers=1 --detectOpenHandles --forceExit'",
     "test-pipeline": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --no-cache --detectOpenHandles --forceExit'",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
@@ -22,7 +22,7 @@
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "tests": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1'",
+    "tests": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --detectOpenHandles --forceExit'",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-v${version}'"
   },
   "publishConfig": {

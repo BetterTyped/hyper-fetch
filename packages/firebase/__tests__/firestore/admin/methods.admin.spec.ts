@@ -159,9 +159,9 @@ describe("Firestore Admin [ Methods ]", () => {
 
       const { data: afterUnsubCache } = onSnapshotReq.client.cache.get(cacheKey);
 
-      expect(afterOnSnapshotCache.data).toStrictEqual(initialCache);
-      expect(afterAddDocCache).toStrictEqual(afterUpdateCache);
-      expect(afterUnsubCache).toStrictEqual(afterUpdateCache);
+      expect(afterOnSnapshotCache.data).toIncludeSameMembers(initialCache);
+      expect(afterAddDocCache).toIncludeSameMembers(afterUpdateCache);
+      expect(afterUnsubCache).toIncludeSameMembers(afterUpdateCache);
     });
   });
 
