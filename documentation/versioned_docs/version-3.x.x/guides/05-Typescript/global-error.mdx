@@ -1,0 +1,26 @@
+---
+sidebar_position: 1
+title: Typescript - Global Error
+sidebar_label: Global Error
+---
+
+# Global Error
+
+Usually, we can get a very specific type of error from the backend, so we can propagate its type between our requests.We
+do it during the setup of our client.
+
+:::info
+
+Remember to add the Error type, which is returned from internal errors like Canceled / Timeout / Unexpected Error.
+
+:::
+
+---
+
+### Example
+
+```ts
+type GlobalErrors = Error | { message: string };
+
+export const client = new Client<GlobalErrors>({ url });
+```
