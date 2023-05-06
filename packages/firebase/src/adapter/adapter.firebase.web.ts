@@ -29,7 +29,8 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           method = "onValue" as RealtimeDBMethods,
           queryParams,
           data,
-        }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data } = request;
+          options,
+        }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
         const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
@@ -37,6 +38,7 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
         }
         selectedMethod({
           constraints: queryParams?.constraints || [],
+          options,
           data,
         });
       }

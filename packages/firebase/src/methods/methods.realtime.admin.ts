@@ -64,13 +64,15 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   onSuccess,
   onError,
   resolve,
-): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any }) => void> => {
+): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any; options: Record<string, any> }) => void> => {
   const [fullUrl] = url.split("?");
   const path = database.ref(fullUrl);
   const methods: Record<RealtimeDBMethods, (data) => void> = {
-    onValue: async ({ constraints }: { constraints: any[] }) => {
+    onValue: async ({ constraints, options }: { constraints: any[]; options: Record<string, any> }) => {
       const q = applyConstraints(path, constraints);
-      q.on("value", (snapshot) => {
+      const method = options.onlyOnce === true ? "once" : "on";
+
+      q[method]("value", (snapshot) => {
         try {
           const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
           const status = getStatus(res);

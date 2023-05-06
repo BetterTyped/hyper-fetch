@@ -1,4 +1,3 @@
-import { ref, set } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdminAdapter } from "adapter";
@@ -9,7 +8,7 @@ import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
 
 describe("Realtime Database Admin [Constraints]", () => {
   beforeEach(async () => {
-    await set(ref(realtimeDBAdmin, "teas"), null);
+    await realtimeDBAdmin.ref("teas").set(null);
     await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
   });
 

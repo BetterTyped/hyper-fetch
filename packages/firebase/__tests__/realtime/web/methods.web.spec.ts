@@ -1,7 +1,7 @@
 import { set, ref, DataSnapshot } from "firebase/database";
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseWebAdapter } from "../../../src/adapter/adapter.firebase.web";
+import { firebaseWebAdapter } from "adapter";
 import { realtimeDbWeb } from "./initialize.web";
 import { seedRealtimeDatabaseWeb } from "../../utils/seed.web";
 import { Tea } from "../../utils/seed.data";
@@ -110,6 +110,38 @@ describe("Realtime Database Web [ Methods ]", () => {
       expect(data).toStrictEqual(cacheAfterOnValue);
       expect(Object.values(cacheAfterPush)).toHaveLength(11);
       expect(Object.values(cacheAfterUnsub)).toHaveLength(11);
+    });
+    it("should not change HF cache if method is called with onlyOnce option", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+      const onValueReq = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onValue",
+        options: { onlyOnce: true },
+      });
+      const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
+      const pushReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: "",
+          method: "push",
+        })
+        .setData(newData);
+      const {
+        data,
+        additionalData: { unsubscribe },
+      } = await onValueReq.send();
+
+      const { data: cacheAfterOnValue } = onValueReq.client.cache.get(onValueReq.cacheKey);
+
+      await pushReq.send();
+
+      const { data: cacheAfterPush } = onValueReq.client.cache.get(onValueReq.cacheKey);
+
+      if (unsubscribe) {
+        unsubscribe();
+      }
+
+      expect(data).toStrictEqual(cacheAfterOnValue);
+      expect(cacheAfterPush).toHaveLength(10);
     });
   });
 
@@ -223,10 +255,9 @@ describe("Realtime Database Web [ Methods ]", () => {
         .setData(newData);
       const { additionalData } = await pushReq.send();
       const { data } = await getReq.send();
-      const arrayedData = Object.values(data);
 
-      expect(arrayedData).toHaveLength(11);
-      expect(arrayedData).toContainEqual(newData);
+      expect(data).toHaveLength(11);
+      expect(data).toContainEqual(newData);
       expect(additionalData).toHaveProperty("key");
     });
   });

@@ -1,10 +1,12 @@
 # Handle listening on changes/added/removed
 # Check what happens if passing collection to doc methods
-# Add emptyResource status if no data returned.
 # Double check passing filtering to every method
 # TODO - observe only on changed/remove/added for onSnapshot
-# RealtimeDB remember about push changes array to object with some strange indexes
 # TODO - add collection group!
 # TODO - check if set method for Realtime may allow for setting multiple objects
 # TODO - tests whether proper events are emitted
+# TODO - check Firebase priority
 Mocker
+
+Mention this in docs:
+  // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/

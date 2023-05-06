@@ -78,26 +78,31 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
   onSuccess,
   onError,
   resolve,
-): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any }) => void> => {
+): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any; options: Record<string, any> }) => void> => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods: Record<RealtimeDBMethods, (data) => void> = {
-    onValue: async ({ constraints }: { constraints: any[] }) => {
+    onValue: async ({ constraints, options }: { constraints: any[]; options: Record<string, any> }) => {
+      const onlyOnce = options?.onlyOnce || false;
       const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
-      const unsub = onValue(q, (snapshot) => {
-        try {
-          const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
-          const status = getStatus(res);
-          setCacheManually(request, { value: res, status }, additionalData);
-          onSuccess(res, status, additionalData, resolve);
-        } catch (e) {
-          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
-          setCacheManually(request, { value: e, status: "error" }, additionalData);
-          onError(e, "error", additionalData, resolve);
-        }
-      });
+      const unsub = onValue(
+        q,
+        (snapshot) => {
+          try {
+            const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+            const additionalData = { ref: path, snapshot, unsubscribe: unsub };
+            const status = getStatus(res);
+            setCacheManually(request, { value: res, status }, additionalData);
+            onSuccess(res, status, additionalData, resolve);
+          } catch (e) {
+            const additionalData = { ref: path, snapshot, unsubscribe: unsub };
+            setCacheManually(request, { value: e, status: "error" }, additionalData);
+            onError(e, "error", additionalData, resolve);
+          }
+        },
+        { onlyOnce },
+      );
     },
     get: async ({ constraints }) => {
       const params = constraints.map((constraint) => mapConstraint(constraint));

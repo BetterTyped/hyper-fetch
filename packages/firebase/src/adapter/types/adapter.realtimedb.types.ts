@@ -1,11 +1,11 @@
 import { BaseAdapterType } from "@hyper-fetch/core";
-import { DatabaseReference, DataSnapshot, QueryConstraint, Unsubscribe } from "firebase/database";
+import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database";
 
 import { FirebaseQueryConstraints } from "constraints";
 
 export type RealtimeDbAdapterType =
   | BaseAdapterType<
-      DefaultRealtimeDBAdapterOptions & { onlyOnce: boolean },
+      { onlyOnce: boolean },
       "onValue",
       RealtimeDBStatuses,
       RealtimeDbOnValueMethodAdditionalData,
@@ -34,15 +34,7 @@ export type RealtimeDbAdapterType =
     >;
 
 export type DefaultRealtimeDBAdapterOptions = {
-  data?: string;
-  filterBy?: QueryConstraint | QueryConstraint[];
-  orderBy?: QueryConstraint | QueryConstraint[];
-  refetch?: boolean; // For update / push / etc. ? Update returns void. Should we allow for an option that is 'update and refetch my data'?
-  // TODO - only for onValue
   priority?: number;
-
-  // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/
-  // toArray?: boolean
 };
 
 export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
