@@ -70,7 +70,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   const methods: Record<RealtimeDBMethods, (data) => void> = {
     onValue: async ({ constraints, options }: { constraints: any[]; options: Record<string, any> }) => {
       const q = applyConstraints(path, constraints);
-      const method = options.onlyOnce === true ? "once" : "on";
+      const method = options?.onlyOnce === true ? "once" : "on";
 
       q[method]("value", (snapshot) => {
         try {
