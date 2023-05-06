@@ -11,12 +11,12 @@
     "start": "nx run-many --target=start --all --parallel=3",
     "start:react": "nx serve reactjs",
     "start:next": "nx serve next",
-    "build": "nx run-many --target=build --projects=core,react,sockets,firebase --parallel=3",
+    "build": "nx run-many --target=build --projects=core,react,sockets,adapter-firebase --parallel=3",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "test": "nx run-many --target=test-pipeline --projects=core,react,sockets,firebase --parallel=1",
-    "lint": "nx run-many --target=lint --projects=core,react,sockets,firebase --parallel=3",
-    "typecheck": "nx run-many --target=typecheck --projects=core,react,sockets,firebase --parallel=3",
-    "release": "nx run-many --target=release --projects=core,react,sockets,firebase --parallel=1"
+    "test": "nx run-many --target=test-pipeline --projects=core,react,sockets,adapter-firebase --parallel=1",
+    "lint": "nx run-many --target=lint --projects=core,react,sockets,adapter-firebase --parallel=3",
+    "typecheck": "nx run-many --target=typecheck --projects=core,react,sockets,adapter-firebase --parallel=3",
+    "release": "nx run-many --target=release --projects=core,react,sockets,fadapter-irebase --parallel=1"
   },
   "private": true,
   "dependencies": {
