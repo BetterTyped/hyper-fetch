@@ -3,11 +3,13 @@ import { Client } from "@hyper-fetch/core";
 import { firebaseAdminAdapter } from "adapter";
 import { Tea } from "../../utils/seed.data";
 import { $endAt, $limitToFirst, $orderByChild, $startAt } from "constraints";
-import { realtimeDBAdmin } from "./initialize.admin";
 import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
+import { realtimeDBAdmin as db } from "./initialize.admin";
 
 describe("Realtime Database Admin [Constraints]", () => {
+  let realtimeDBAdmin;
   beforeEach(async () => {
+    realtimeDBAdmin = await db;
     await realtimeDBAdmin.ref("teas").set(null);
     await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
   });

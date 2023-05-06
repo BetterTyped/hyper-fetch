@@ -118,7 +118,6 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
     },
     set: async ({ data }) => {
       try {
-        // TODO - should the response be the data that has been set?
         await set(path, data);
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {

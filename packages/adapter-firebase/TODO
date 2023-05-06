@@ -10,3 +10,7 @@ Mocker
 
 Mention this in docs:
   // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/
+
+
+Future releases:
+- priority for firebase realtime
