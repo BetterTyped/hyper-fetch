@@ -120,7 +120,7 @@ describe("Mocker [ Base ]", () => {
       .setRetry(1)
       .setRetryTime(50)
       .setMock([
-        { data: { data: [1, 2, 3] }, config: { status: 400 } },
+        { data: { data: [1, 2, 3] }, config: { status: 400, isSuccess: false } },
         { data: { data: [1, 2, 3] }, config: { status: 200 } },
       ]);
 
@@ -252,5 +252,35 @@ describe("Mocker [ Base ]", () => {
       additionalData: xhrAdditionalData,
     });
     expect(response2.data).toStrictEqual(data);
+  });
+
+  it("should allow for mocking additionalData", async () => {
+    const mockedRequest = request.setMock({ data: fixture, additionalData: { someAdditionalData: true } });
+    const response = await mockedRequest.send({});
+
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      isSuccess: true,
+      additionalData: { someAdditionalData: true },
+    });
+  });
+
+  it("should allow for setting status that is not a number", async () => {
+    const mockedRequest = request.setMock({
+      data: fixture,
+      additionalData: { someAdditionalData: true },
+      config: { status: "success" },
+    });
+    const response = await mockedRequest.send({});
+
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: "success",
+      isSuccess: true,
+      additionalData: { someAdditionalData: true },
+    });
   });
 });

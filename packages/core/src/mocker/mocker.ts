@@ -1,9 +1,6 @@
 import { RequestInstance } from "../request";
-import { getAdapterBindings } from "../adapter/adapter.bindings";
-import { AdapterInstance, BaseAdapterType, ResponseReturnType } from "../adapter/adapter.types";
+import { getAdapterBindings, AdapterInstance, BaseAdapterType, ResponseReturnType } from "adapter";
 
-// Todo - is it possible to mock snapshot? does it make sense?
-// Todo - additional data mocking
 export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
   request: RequestInstance,
   {
@@ -38,8 +35,14 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
-    const { data, config = {} } = result;
-    const { status = 200, responseDelay = 5, requestSentDuration = 0, responseReceivedDuration = 0 } = config;
+    const { data, config = {}, additionalData } = result;
+    const {
+      status = 200,
+      isSuccess = true,
+      responseDelay = 5,
+      requestSentDuration = 0,
+      responseReceivedDuration = 0,
+    } = config;
     const calculateDurations = () => {
       if (timeout && requestSentDuration + responseReceivedDuration > timeout) {
         return [Math.floor(timeout / 2) - 1, Math.floor(timeout / 2) - 1];
@@ -47,9 +50,6 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
       return [requestSentDuration, responseReceivedDuration];
     };
     const [adjustedRequestSentDuration, adjustedResponseReceivedDuration] = calculateDurations();
-
-    // TODO - should we adjust for firebase and non-number status in this release?
-    const isSuccess = status < 400;
 
     createAbortListener(0 as any, request.client.defaultAdditionalData, () => {}, resolve);
 
@@ -79,14 +79,17 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
       onResponseStart();
       await progress(adjustedResponseReceivedDuration, onResponseProgress);
       if (isSuccess) {
-        onSuccess(data, status as any, request.client.defaultAdditionalData, resolve);
+        onSuccess(data, status as any, additionalData || request.client.defaultAdditionalData, resolve);
       } else {
-        onError(data, status as any, request.client.defaultAdditionalData, resolve);
+        onError(data, status as any, additionalData || request.client.defaultAdditionalData, resolve);
       }
     };
 
     if (timeout && responseDelay > timeout) {
-      setTimeout(() => onTimeoutError(0 as any, request.client.defaultAdditionalData, resolve), timeout + 1);
+      setTimeout(
+        () => onTimeoutError(0 as any, additionalData || request.client.defaultAdditionalData, resolve),
+        timeout + 1,
+      );
     } else {
       setTimeout(getResponse, responseDelay);
     }
