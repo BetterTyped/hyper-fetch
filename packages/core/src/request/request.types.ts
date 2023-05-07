@@ -293,29 +293,6 @@ export type RequestSendType<Request extends RequestInstance> =
         ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
       >;
 
-export type RequestMockType<Response> = {
-  data: Response | Response[] | (() => Response);
-  config?: {
-    status?: number;
-    responseDelay?: number;
-    requestSentDuration?: number;
-    responseReceivedDuration?: number;
-  };
-};
-
-export type RequestDataMockTypes<Response, Request extends RequestInstance> =
-  | RequestMockType<Response>
-  | RequestMockType<Response>[]
-  | ((r: Request) => RequestMockType<Response>)
-  | ((r: Request) => RequestMockType<Response>)[]
-  | ((r: Request) => Promise<RequestMockType<Response>>)
-  | ((r: Request) => Promise<RequestMockType<Response>>)[];
-
-export type GeneratorReturnMockTypes<Response, Request extends RequestInstance> =
-  | RequestMockType<Response>
-  | ((r: Request) => RequestMockType<Response>)
-  | ((r: Request) => Promise<RequestMockType<Response>>);
-
 // Instance
 
 export type RequestInstance = Request<

@@ -10,8 +10,6 @@ import {
   RequestCurrentType,
   PayloadMapperType,
   RequestInstance,
-  RequestDataMockTypes,
-  GeneratorReturnMockTypes,
   RequestMapper,
   ResponseMapper,
 } from "request";
@@ -26,6 +24,7 @@ import {
 } from "adapter";
 import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
+import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.

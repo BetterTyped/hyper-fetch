@@ -4,7 +4,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 import { FirestoreDBMethods } from "adapter";
 import { FirebaseQueryConstraints } from "constraints";
 import { getStatus, setCacheManually } from "./utils/utils.base";
-import { getOrderedResultFirestore } from "./utils/utils.firestore";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "./utils/utils.firestore";
 
 const getRef = (db: Firestore, fullUrl: string) => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
@@ -84,12 +84,19 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
     // TODO fix any
     constraints?: any[];
     data?: any;
+    options?: Record<string, any>;
   }) => void
 > => {
   const [cleanUrl] = url.split("?");
   // TODO - do we want to return changed/modified/removed - listen to diff
   const methods: Record<FirestoreDBMethods, (data) => void> = {
-    onSnapshot: async ({ constraints = [] }: { constraints: { type: FirebaseQueryConstraints; values: any[] }[] }) => {
+    onSnapshot: async ({
+      constraints = [],
+      options,
+    }: {
+      constraints: { type: FirebaseQueryConstraints; values: any[] }[];
+      options?: Record<string, any>;
+    }) => {
       // includeMetadataChanges: true option
       let pathRef: DocumentReference | Query = getRef(database, cleanUrl);
       if (pathRef instanceof CollectionReference) {
@@ -97,12 +104,13 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
       }
       const unsub = pathRef.onSnapshot(
         (snapshot) => {
-          const additionalData = { ref: pathRef, snapshot, unsubscribe: unsub };
           const result =
             snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
+          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const additionalData = { ref: pathRef, snapshot, unsubscribe: unsub, groupedResult };
           setCacheManually(request, { value: result, status }, additionalData);
-          onSuccess(result, status, { ref: pathRef, snapshot, unsubscribe: unsub }, resolve);
+          onSuccess(result, status, additionalData, resolve);
         },
         (error) => {
           // "error" or firebase error exposed
@@ -138,10 +146,11 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    setDoc: async ({ data }) => {
+    setDoc: async ({ data, options }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
+      const merge = options?.merge === true;
       try {
-        const res = await path.set(data);
+        const res = await path.set(data, { merge });
         onSuccess(res, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);

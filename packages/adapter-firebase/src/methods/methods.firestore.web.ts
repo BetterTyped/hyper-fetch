@@ -23,7 +23,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 import { FirestoreDBMethods } from "adapter/types";
 import { FirebaseQueryConstraints } from "constraints";
 import { getStatus, isDocOrQuery, setCacheManually } from "./utils/utils.base";
-import { getOrderedResultFirestore } from "./utils/utils.firestore";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "./utils/utils.firestore";
 
 const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
   switch (type) {
@@ -69,13 +69,15 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   resolve,
 ): Record<
   FirestoreDBMethods,
-  (data: { constraints?: { type: FirebaseQueryConstraints; values: any[] }[]; data?: any }) => void
+  (data: {
+    constraints?: { type: FirebaseQueryConstraints; values: any[] }[];
+    data?: any;
+    options: Record<string, any>;
+  }) => void
 > => {
   const [cleanUrl] = url.split("?");
-  // TODO - do we want to return changed/modified/removed - listen to diff
   const methods: Record<FirestoreDBMethods, (data) => void> = {
-    onSnapshot: async ({ constraints = [] }: { constraints: any[] }) => {
-      // includeMetadataChanges: true option
+    onSnapshot: async ({ constraints = [], options }: { constraints: any[]; options: Record<string, any> }) => {
       let path;
       const queryType = isDocOrQuery(cleanUrl);
       if (queryType === "doc") {
@@ -87,11 +89,12 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       const unsub = onSnapshot(
         path,
         (snapshot) => {
-          const additionalData = { ref: path, snapshot, unsubscribe: unsub };
           const result = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
+          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const additionalData = { ref: path, snapshot, unsubscribe: unsub, groupedResult };
           setCacheManually(request, { value: result, status }, additionalData);
-          onSuccess(result, status, { ref: path, snapshot, unsubscribe: unsub }, resolve);
+          onSuccess(result, status, additionalData, resolve);
         },
         (error) => {
           const additionalData = { ref: path, unsubscribe: unsub };
@@ -125,10 +128,11 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    setDoc: async ({ data }) => {
+    setDoc: async ({ data, options }) => {
       const path = doc(database, cleanUrl);
+      const merge = options?.merge === true;
       try {
-        await setDoc(path, data);
+        await setDoc(path, data, { merge });
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);

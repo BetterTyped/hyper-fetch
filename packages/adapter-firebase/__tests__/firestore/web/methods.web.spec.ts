@@ -34,11 +34,81 @@ describe("Firestore Web [ Methods ]", () => {
       expect(additionalData).toHaveProperty("snapshot");
       expect(additionalData).toHaveProperty("unsubscribe");
       expect(additionalData).toHaveProperty("ref");
-      // TODO check if querysnapshot in types
       expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
       expect(status).toBe("success");
       expect(isSuccess).toBe(true);
       expect(error).toBe(null);
+
+      additionalData.unsubscribe();
+    });
+    it("should inform about changes when groupByChangeType option is added", async () => {
+      const newTeaData = {
+        origin: "Poland",
+        type: "Green",
+        year: 2043,
+        name: "Pou Ran Do Cha",
+        amount: 100,
+      } as Tea;
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onSnapshot",
+        options: { groupByChangeType: true },
+      });
+
+      const { data, additionalData, status, isSuccess, error } = await req.send();
+
+      const addTeaReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: "",
+          method: "addDoc",
+        })
+        .setData(newTeaData);
+
+      await addTeaReq.send();
+      const afterAdded = req.client.cache.get(req.cacheKey);
+
+      const updateTeaReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "updateDoc",
+        })
+        .setData(newTeaData);
+
+      await updateTeaReq.send({ params: { teaId: 1 } });
+      const afterUpdated = req.client.cache.get(req.cacheKey);
+
+      const removeReq = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "deleteDoc",
+        })
+        .setParams({ teaId: 1 });
+      await removeReq.send();
+      const afterRemoved = req.client.cache.get(req.cacheKey);
+
+      expect(data).toHaveLength(10);
+      expect(additionalData.groupedResult.added).toHaveLength(10);
+      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(status).toBe("success");
+      expect(isSuccess).toBe(true);
+      expect(error).toBe(null);
+
+      expect(afterAdded.additionalData.groupedResult).toStrictEqual({
+        added: [newTeaData],
+        removed: [],
+        modified: [],
+      });
+      expect(afterUpdated.additionalData.groupedResult).toStrictEqual({
+        added: [],
+        removed: [],
+        modified: [newTeaData],
+      });
+      expect(afterRemoved.additionalData.groupedResult).toStrictEqual({
+        added: [],
+        removed: [newTeaData],
+        modified: [],
+      });
 
       additionalData.unsubscribe();
     });
@@ -170,7 +240,6 @@ describe("Firestore Web [ Methods ]", () => {
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -258,6 +327,30 @@ describe("Firestore Web [ Methods ]", () => {
       const { data, additionalData } = await getReq.send();
 
       expect(data).toStrictEqual(newData);
+      expect(additionalData.snapshot.exists()).toBe(true);
+    });
+    it("should merge data if merge options is passed", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const getReq = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+      const { data: existingData } = await getReq.send();
+      const setReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "setDoc",
+          options: { merge: true },
+        })
+        .setParams({ teaId: 1 })
+        .setData({ name: "Pou Ran Do Cha" } as Tea);
+
+      await setReq.send();
+      const { data, additionalData } = await getReq.send();
+
+      expect(data).toStrictEqual({ ...existingData, name: "Pou Ran Do Cha" });
       expect(additionalData.snapshot.exists()).toBe(true);
     });
   });

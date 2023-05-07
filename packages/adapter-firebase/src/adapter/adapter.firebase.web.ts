@@ -47,7 +47,8 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           method = "onSnapshot",
           queryParams,
           data,
-        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data } = request;
+          options,
+        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
         const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
@@ -56,6 +57,7 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
         selectedMethod({
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,
+          options,
         });
       }
     });
