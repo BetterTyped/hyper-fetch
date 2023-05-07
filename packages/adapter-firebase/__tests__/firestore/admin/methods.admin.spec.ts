@@ -333,6 +333,30 @@ describe("Firestore Admin [ Methods ]", () => {
       expect(data).toStrictEqual(newData);
       expect(additionalData.snapshot.exists).toBe(true);
     });
+    it("should merge data if merge options is passed", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const getReq = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+      const { data: existingData } = await getReq.send();
+      const setReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "setDoc",
+          options: { merge: true },
+        })
+        .setParams({ teaId: 1 })
+        .setData({ name: "Pou Ran Do Cha" } as Tea);
+
+      await setReq.send();
+      const { data, additionalData } = await getReq.send();
+
+      expect(data).toStrictEqual({ ...existingData, name: "Pou Ran Do Cha" });
+      expect(additionalData.snapshot.exists).toBe(true);
+    });
   });
 
   describe("addDoc", () => {

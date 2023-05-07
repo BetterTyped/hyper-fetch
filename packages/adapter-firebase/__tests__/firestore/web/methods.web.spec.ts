@@ -41,7 +41,6 @@ describe("Firestore Web [ Methods ]", () => {
 
       additionalData.unsubscribe();
     });
-
     it("should inform about changes when groupByChangeType option is added", async () => {
       const newTeaData = {
         origin: "Poland",
@@ -241,7 +240,6 @@ describe("Firestore Web [ Methods ]", () => {
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -329,6 +327,30 @@ describe("Firestore Web [ Methods ]", () => {
       const { data, additionalData } = await getReq.send();
 
       expect(data).toStrictEqual(newData);
+      expect(additionalData.snapshot.exists()).toBe(true);
+    });
+    it("should merge data if merge options is passed", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+      const getReq = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+      const { data: existingData } = await getReq.send();
+      const setReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "setDoc",
+          options: { merge: true },
+        })
+        .setParams({ teaId: 1 })
+        .setData({ name: "Pou Ran Do Cha" } as Tea);
+
+      await setReq.send();
+      const { data, additionalData } = await getReq.send();
+
+      expect(data).toStrictEqual({ ...existingData, name: "Pou Ran Do Cha" });
       expect(additionalData.snapshot.exists()).toBe(true);
     });
   });

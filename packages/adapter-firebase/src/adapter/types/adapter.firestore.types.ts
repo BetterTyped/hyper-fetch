@@ -1,8 +1,5 @@
 import { BaseAdapterType } from "@hyper-fetch/core";
 import {
-  QueryFieldFilterConstraint,
-  QueryLimitConstraint,
-  QueryOrderByConstraint,
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
   DocumentReference,
@@ -20,26 +17,27 @@ export type FirestoreAdapterType =
       FirestoreOnSnapshotAdditionalData,
       FirestoreQueryParams
     >
+  | BaseAdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreAdditionalData, FirestoreQueryParams>
   | BaseAdapterType<
-      DefaultFirestoreAdapterOptions,
-      "getDoc",
-      FirestoreStatuses,
-      FirestoreAdditionalData,
-      FirestoreQueryParams
-    >
-  | BaseAdapterType<
-      DefaultFirestoreAdapterOptions,
+      Record<string, never>,
       "getDocs",
       FirestoreStatuses,
       FirestoreGetDocsAdditionalData,
       FirestoreQueryParams
     >
   | BaseAdapterType<
-      DefaultFirestoreAdapterOptions,
-      "setDoc" | "addDoc" | "updateDoc" | "deleteDoc",
+      { merge: boolean },
+      "setDoc",
+      FirestoreStatuses,
+      FirestoreGetDocsAdditionalData,
+      Record<string, never>
+    >
+  | BaseAdapterType<
+      Record<string, never>,
+      "updateDoc" | "addDoc" | "deleteDoc",
       FirestoreStatuses,
       FirestoreRefOnlyAdditionalData,
-      FirestoreQueryParams // Is it possible to block query params?
+      Record<string, never>
     >;
 
 export type FirestoreQueryParams = {
@@ -70,14 +68,3 @@ export type FirestoreRefOnlyAdditionalData = {
 };
 
 export type FirestoreStatuses = "success" | "error";
-
-export type DefaultFirestoreAdapterOptions = {
-  data?: string;
-  filterBy?: QueryFieldFilterConstraint[];
-  orderBy?: QueryOrderByConstraint[];
-  limit?: QueryLimitConstraint;
-  refetch?: boolean; // For update / push / etc. ? Update returns void. Should we allow for an option that is 'update and refetch my data'?
-
-  // Option for getting non sequential arrays as arrays https://firebase.blog/posts/2014/04/best-practices-arrays-in-firebase/
-  // toArray?: boolean
-};

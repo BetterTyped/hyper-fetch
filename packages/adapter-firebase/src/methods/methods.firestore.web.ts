@@ -128,10 +128,11 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
         onError(e, "error", { ref: path }, resolve);
       }
     },
-    setDoc: async ({ data }) => {
+    setDoc: async ({ data, options }) => {
       const path = doc(database, cleanUrl);
+      const merge = options?.merge === true;
       try {
-        await setDoc(path, data);
+        await setDoc(path, data, { merge });
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
