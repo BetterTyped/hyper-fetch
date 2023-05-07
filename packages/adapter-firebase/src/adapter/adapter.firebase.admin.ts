@@ -28,7 +28,8 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           method = "onSnapshot",
           queryParams,
           data,
-        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data } = request;
+          options,
+        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
         const availableMethods = getFirestoreMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve);
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
@@ -37,6 +38,7 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
         selectedMethod({
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,
+          options,
         });
       } else {
         // TODO - fix selecting realtime

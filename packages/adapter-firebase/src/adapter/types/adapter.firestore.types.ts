@@ -14,7 +14,7 @@ import { FirebaseQueryConstraints } from "constraints";
 
 export type FirestoreAdapterType =
   | BaseAdapterType<
-      DefaultFirestoreAdapterOptions,
+      { groupByChangeType: boolean },
       "onSnapshot",
       FirestoreStatuses,
       FirestoreOnSnapshotAdditionalData,
@@ -57,6 +57,7 @@ export type FirestoreOnSnapshotAdditionalData = {
   ref?: DocumentReference | CollectionReference;
   snapshot?: DocumentSnapshot;
   unsubscribe?: FirestoreUnsubscribe;
+  groupedResult?: { added: DocumentSnapshot[]; modified: DocumentSnapshot[]; removed: DocumentSnapshot[] };
 };
 
 export type FirestoreGetDocsAdditionalData = {
