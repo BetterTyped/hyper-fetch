@@ -1,5 +1,4 @@
-import { collection, getDocs, deleteDoc } from "firebase/firestore";
-import { Firestore } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, Firestore } from "firebase/firestore";
 // https://github.com/firebase/snippets-node/blob/e5f6214059bdbc63f94ba6600f7f84e96325548d/firestore/main/index.js#L889-L921
 
 export async function deleteCollectionForWeb(firestoreDb: Firestore, path: string) {
