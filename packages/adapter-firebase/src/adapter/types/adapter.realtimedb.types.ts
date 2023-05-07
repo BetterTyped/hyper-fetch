@@ -23,14 +23,14 @@ export type RealtimeDbAdapterType =
       "push",
       RealtimeDBStatuses,
       RealtimeDbPushMethodAdditionalData,
-      RealtimeDBQueryParams
+      Record<string, never>
     >
   | BaseAdapterType<
       DefaultRealtimeDBAdapterOptions,
       "set" | "update" | "remove",
       RealtimeDBStatuses,
       RealtimeDbDefaultAdditionalData,
-      RealtimeDBQueryParams
+      Record<string, never>
     >;
 
 export type DefaultRealtimeDBAdapterOptions = {
