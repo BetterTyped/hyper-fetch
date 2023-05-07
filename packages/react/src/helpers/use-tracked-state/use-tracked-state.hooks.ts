@@ -125,28 +125,37 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const mapResponseData = async (
+  const mapResponseData = (
     data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-  ): Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>> => {
+  ):
+    | Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>
+    | CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
     if (responseMapper) {
-      const newResponse = await responseMapper(data);
-      return { ...data, ...newResponse };
+      const response = responseMapper(data);
+      if (response instanceof Promise) {
+        return new Promise((resolve) => {
+          (async () => {
+            const newResponse = await response;
+            resolve({ ...data, ...newResponse });
+          })();
+        });
+      }
+      return { ...data, ...response };
     }
     return data;
   };
 
-  const setCacheData = async (
+  const handleCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
-    const localData = await mapResponseData(cacheData);
     const newStateValues: UseTrackedStateType<T> = {
-      data: localData.data,
-      error: localData.error,
-      status: localData.status,
-      isSuccess: localData.isSuccess,
-      additionalData: localData.additionalData,
-      retries: localData.retries,
-      timestamp: new Date(localData.timestamp),
+      data: cacheData.data,
+      error: cacheData.error,
+      status: cacheData.status,
+      isSuccess: cacheData.isSuccess,
+      additionalData: cacheData.additionalData,
+      retries: cacheData.retries,
+      timestamp: new Date(cacheData.timestamp),
       loading: state.current.loading,
     };
 
@@ -164,6 +173,20 @@ export const useTrackedState = <T extends RequestInstance>({
     };
 
     renderKeyTrigger(changedKeys);
+  };
+
+  const setCacheData = (
+    cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ): Promise<void> | void => {
+    const data = mapResponseData(cacheData);
+
+    if (data instanceof Promise) {
+      return (async () => {
+        const promiseData = await data;
+        handleCacheData(promiseData);
+      })();
+    }
+    return handleCacheData(data);
   };
 
   // ******************

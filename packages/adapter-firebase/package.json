@@ -39,7 +39,20 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
-    "firebase": "*"
+    "firebase": "*",
+    "firebase-admin": "*",
+    "firebase-tools": "*"
+  },
+  "peerDependenciesMeta": {
+    "firebase": {
+      "optional": true
+    },
+    "firebase-admin": {
+      "optional": true
+    },
+    "firebase-tools": {
+      "optional": true
+    }
   },
   "dependencies": {},
   "devDependencies": {

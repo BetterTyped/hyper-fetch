@@ -1,4 +1,4 @@
-import { OrderByDirection, WhereFilterOp } from "@firebase/firestore";
+import { OrderByDirection, WhereFilterOp } from "firebase/firestore";
 
 export enum FirebaseQueryConstraints {
   WHERE = "where",

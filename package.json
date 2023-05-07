@@ -31,7 +31,7 @@
     "@commitlint/config-conventional": "^17.0.2",
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
-    "@jest/types": "^29.3.1",
+    "@jest/transform": "^28.1.3",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.4",
     "@nrwl/cypress": "15.8.5",
@@ -54,7 +54,6 @@
     "@vitest/coverage-c8": "~0.25.8",
     "@vitest/ui": "^0.25.8",
     "@zerollup/ts-transform-paths": "^1.7.18",
-    "babel-jest": "29.4.3",
     "commitlint": "^17.0.2",
     "cypress": "^12.2.0",
     "docusaurus-docgen": "^1.1.4",
@@ -138,6 +137,8 @@
   "peerDependencies": {
     "events": "*",
     "firebase": "*",
+    "firebase-admin": "*",
+    "firebase-tools": "*",
     "http": "*",
     "stream": "*"
   }

@@ -145,27 +145,44 @@ export const sendRequest = <Request extends RequestInstance>(
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
-    >(requestId, async (response, details) => {
+    >(requestId, (response, details) => {
       isResolved = true;
 
-      const responseData = (await request.responseMapper?.(response)) || response;
+      const mapping = request.responseMapper?.(response);
 
-      const { isSuccess } = responseData;
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
-      // When going offline we can't handle the request as it will be postponed to later resolve
-      if (!isSuccess && isOfflineStatus) return;
+      const handleResponse = (isSuccess: boolean, data: any) => {
+        // When going offline we can't handle the request as it will be postponed to later resolve
+        if (!isSuccess && isOfflineStatus) return;
 
-      // When request is in retry mode we need to listen for retries end
-      if (!isSuccess && willRetry) return;
+        // When request is in retry mode we need to listen for retries end
+        if (!isSuccess && willRetry) return;
 
-      options?.onResponse?.(responseData, details);
-      resolve(responseData);
+        options?.onResponse?.(data, details);
+        resolve(data);
 
-      // Unmount Listeners
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      umountAll();
+        // Unmount Listeners
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
+      };
+
+      // Create async await ONLY when we make a promise mapper
+      if (mapping instanceof Promise) {
+        (async () => {
+          const responseData = await mapping;
+
+          const { isSuccess } = responseData;
+          handleResponse(isSuccess, responseData);
+        })();
+      }
+      // For sync mapping operations we should not use async actions
+      else {
+        const data = mapping || response;
+        const { isSuccess } = data;
+        handleResponse(isSuccess, data);
+      }
     });
 
     // When removed from queue storage we need to clean event listeners and return proper error
