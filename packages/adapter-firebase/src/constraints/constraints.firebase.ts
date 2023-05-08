@@ -39,7 +39,6 @@ export const $limit = (num: number) => {
   };
 };
 
-// TODO - find a better way without using types from any package
 const startEndConstraintsImpl = (constraintType: FirebaseQueryConstraints) => {
   return (...docOrFields: any[]) => {
     if (docOrFields.length === 1 && docOrFields[0].query) {

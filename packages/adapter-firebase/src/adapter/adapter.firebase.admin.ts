@@ -41,7 +41,6 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           options,
         });
       } else {
-        // TODO - fix selecting realtime
         const {
           method = "onValue" as RealtimeDBMethods,
           queryParams,

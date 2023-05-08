@@ -88,7 +88,6 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   }) => void
 > => {
   const [cleanUrl] = url.split("?");
-  // TODO - do we want to return changed/modified/removed - listen to diff
   const methods: Record<FirestoreDBMethods, (data) => void> = {
     onSnapshot: async ({
       constraints = [],
