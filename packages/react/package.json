@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3",
-    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --coverage",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",

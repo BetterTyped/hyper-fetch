@@ -32,7 +32,7 @@ jobs:
         run: yarn jest --clearCache
 
       - name: Test
-        run: yarn test --coverage
+        run: yarn test
 
       - name: Send Report
         uses: paambaati/codeclimate-action@v3.0.0
