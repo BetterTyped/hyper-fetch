@@ -1,3 +1,3 @@
 #!/bin/bash
 
-firebase emulators:exec "jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit $*"
+# firebase emulators:exec "jest --watchAll --maxWorkers=1 --detectOpenHandles --forceExit $*"

@@ -310,9 +310,9 @@ export type RequestInstance = Request<
 
 // Mappers
 
-export type RequestMapper<Request extends RequestInstance> = <NewRequest extends RequestInstance>(
-  requestId: string,
+export type RequestMapper<Request extends RequestInstance, NewRequest extends RequestInstance> = (
   request: Request,
+  requestId: string,
 ) => NewRequest | Promise<NewRequest>;
 
 export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (

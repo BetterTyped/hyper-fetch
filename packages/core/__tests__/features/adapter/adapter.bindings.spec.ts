@@ -4,6 +4,7 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
 import { Client, xhrAdditionalData } from "client";
+import { RequestInstance } from "request";
 
 describe("Fetch Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
@@ -179,6 +180,27 @@ describe("Fetch Adapter [ Bindings ]", () => {
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(payload).toBe(`${newData.userId}_${newData.role}`);
+    });
+    it("should allow for setting request mapper", async () => {
+      const req = client.createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>()({
+        endpoint: "shared-endpoint/",
+      });
+      const spy = jest.fn();
+      const newData = {
+        userId: 11,
+        role: "ADMIN",
+      };
+
+      const requestMapped = req.setRequestMapper<RequestInstance>((r) => {
+        spy();
+        return (r as RequestInstance).setData(`${newData.userId}_${newData.role}`);
+      });
+      const requestSetData = requestMapped.setData(newData);
+
+      const { payload } = await getAdapterBindings(requestSetData, requestId, 0, xhrAdditionalData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(payload).toBe(`"${newData.userId}_${newData.role}"`);
     });
     describe("when onRequestStart got executed", () => {
       it("should use effect lifecycle method", async () => {

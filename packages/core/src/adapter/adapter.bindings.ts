@@ -47,7 +47,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = BaseAdapter
     }
 
     if (request.requestMapper) {
-      request = await request.requestMapper(requestId, request);
+      request = await request.requestMapper(request, requestId);
     }
   } catch (err) {
     processingError = err;

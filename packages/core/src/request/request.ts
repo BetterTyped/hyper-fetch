@@ -79,7 +79,7 @@ export class Request<
     GeneratorReturnMockTypes<Response, this>
   >;
   mockData?: RequestDataMockTypes<Response, this>;
-  requestMapper?: RequestMapper<this>;
+  requestMapper?: RequestMapper<this, any>;
   responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
@@ -324,7 +324,7 @@ export class Request<
    * @param requestMapper mapper of the request
    * @returns new request
    */
-  public setRequestMapper = (requestMapper: RequestMapper<this>) => {
+  public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
     cloned.requestMapper = requestMapper;

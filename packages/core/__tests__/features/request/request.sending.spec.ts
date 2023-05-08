@@ -76,6 +76,19 @@ describe("Request [ Sending ]", () => {
         additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
+    it("should return async mapped adapter response", async () => {
+      const response = await request
+        .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } }))
+        .send();
+
+      expect(response).toStrictEqual({
+        data: { nested: fixture },
+        error: null,
+        status: 200,
+        isSuccess: true,
+        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      });
+    });
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
       createRequestInterceptor(request, { delay: 10, status: 400 });

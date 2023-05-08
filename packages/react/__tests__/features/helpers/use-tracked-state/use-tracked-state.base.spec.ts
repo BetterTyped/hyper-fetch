@@ -1,5 +1,5 @@
 import { xhrAdditionalData } from "@hyper-fetch/core";
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 
 import { initialState } from "helpers";
 import { startServer, resetInterceptors, stopServer } from "../../../server";
@@ -89,6 +89,36 @@ describe("useTrackingState [ Events ]", () => {
 
         expect(result.current[0].data).toBe("new-data");
         expect(result.current[0].error).toBe(null);
+      });
+      it("should map the async data", async () => {
+        const { result } = renderUseTrackedState(
+          request.setResponseMapper(async (response) => {
+            return Promise.resolve({ ...response, data: "new-data" });
+          }),
+        );
+
+        act(() => {
+          result.current[2].setRenderKey("data");
+          result.current[2].setCacheData({
+            data: true as any,
+            error: null,
+            status: 200,
+            isSuccess: true,
+            additionalData: xhrAdditionalData,
+            retries: 0,
+            timestamp: +new Date(),
+            isCanceled: false,
+            isOffline: false,
+            cacheTime: request.cacheTime,
+            clearKey: request.client.cache.clearKey,
+            garbageCollection: Infinity,
+          });
+        });
+
+        await waitFor(() => {
+          expect(result.current[0].data).toBe("new-data");
+          expect(result.current[0].error).toBe(null);
+        });
       });
     });
   });
