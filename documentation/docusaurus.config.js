@@ -103,6 +103,12 @@ const config = {
             dir: path.join(__dirname, "../packages/sockets"),
             entryPath: "src/index.ts",
           },
+          {
+            logo: "/img/features/firebase.png",
+            title: "Firebase",
+            dir: path.join(__dirname, "../packages/adapter-firebase"),
+            entryPath: "src/index.ts",
+          },
         ],
       },
     ],

@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/firebase",
   "version": "0.0.0",
   "private": false,
-  "description": "",
+  "description": "First class Firebase adapter for Hyper Fetch",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
@@ -65,6 +65,8 @@
     "firebase",
     "firestore",
     "realtime",
-    "database"
+    "storage",
+    "database",
+    "authentication"
   ]
 }
