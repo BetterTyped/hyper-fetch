@@ -240,7 +240,6 @@ describe("Firestore Admin [ Methods ]", () => {
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -258,7 +257,6 @@ describe("Firestore Admin [ Methods ]", () => {
     });
     it("should return emptyResource status for non existing endpoint", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -401,7 +399,6 @@ describe("Firestore Admin [ Methods ]", () => {
         method: "getDoc",
       });
       await updateReq.send({ params: { teaId: 1 } });
-      // TODO - if we do not pass any params even if the endpoint technically requires them - it still passes. Should we throw error?
       const { data } = await getReq.send({ params: { teaId: 1 } });
       expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green" });
     });

@@ -257,7 +257,6 @@ describe("Firestore Web [ Methods ]", () => {
     });
     it("should return emptyResource status for non existing resource", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
-      // TODO - I am not sure that we should return additionalData by default, at least snapshot - it results in larger requests.
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -380,9 +379,6 @@ describe("Firestore Web [ Methods ]", () => {
   });
 
   describe("updateDoc", () => {
-    // TODO add test for nested fields update
-    // TODO add test for elements in the array update
-    // TODO add test for deleting a field
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
@@ -397,7 +393,6 @@ describe("Firestore Web [ Methods ]", () => {
         method: "getDoc",
       });
       await updateReq.send({ params: { teaId: 1 } });
-      // TODO - if we do not pass any params even if the endpoint technically requires them - it still passes. Should we throw error?
       const { data } = await getReq.send({ params: { teaId: 1 } });
       expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green" });
     });
