@@ -92,13 +92,13 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
           const result = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-          const additionalData = { ref: path, snapshot, unsubscribe: unsub, groupedResult };
-          setCacheManually(request, { value: result, status }, additionalData);
-          onSuccess(result, status, additionalData, resolve);
+          const extra = { ref: path, snapshot, unsubscribe: unsub, groupedResult };
+          setCacheManually(request, { value: result, status }, extra);
+          onSuccess(result, status, extra, resolve);
         },
         (error) => {
-          const additionalData = { ref: path, unsubscribe: unsub };
-          setCacheManually(request, { value: error, status: "error" }, additionalData);
+          const extra = { ref: path, unsubscribe: unsub };
+          setCacheManually(request, { value: error, status: "error" }, extra);
           onError(error, "error", {}, resolve);
         },
       );

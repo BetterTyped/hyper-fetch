@@ -557,7 +557,7 @@ export class Dispatcher {
       return this.logger.debug("Request canceled", { response, requestDetails, request });
     }
     // On offline
-    if (!response.isSuccess && isOfflineResponseStatus) {
+    if (!response.success && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
       if (!offline) {
         this.logger.warning("Removing non-offline request", { response, requestDetails, request });
@@ -567,7 +567,7 @@ export class Dispatcher {
       return this.logger.debug("Awaiting for network restoration", { response, requestDetails, request });
     }
     // On success
-    if (response.isSuccess) {
+    if (response.success) {
       this.delete(queueKey, requestId, abortKey);
       return this.logger.debug("Successful response, removing request from queue.", {
         response,
@@ -576,7 +576,7 @@ export class Dispatcher {
       });
     }
     // On retry
-    if (!response.isSuccess && canRetry) {
+    if (!response.success && canRetry) {
       this.logger.debug("Waiting for retry", { response, requestDetails, request });
       // Perform retry once request is failed
       setTimeout(() => {

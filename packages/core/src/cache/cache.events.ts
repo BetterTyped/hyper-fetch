@@ -9,9 +9,9 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param cacheKey
    * @param data
    */
-  emitCacheData: <Response, Error, AdapterType extends AdapterInstance>(
+  emitCacheData: <Response, Error, Adapter extends AdapterInstance>(
     cacheKey: string,
-    data: CacheValueType<Response, Error, AdapterType>,
+    data: CacheValueType<Response, Error, Adapter>,
   ): void => {
     emitter.emit(getCacheKey(cacheKey), data);
   },
@@ -27,9 +27,9 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onData: <Response, Error, AdapterType extends AdapterInstance>(
+  onData: <Response, Error, Adapter extends AdapterInstance>(
     cacheKey: string,
-    callback: (data: CacheValueType<Response, Error, AdapterType>) => void,
+    callback: (data: CacheValueType<Response, Error, Adapter>) => void,
   ): VoidFunction => {
     emitter.on(getCacheKey(cacheKey), callback);
     return () => emitter.removeListener(getCacheKey(cacheKey), callback);

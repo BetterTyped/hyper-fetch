@@ -6,9 +6,9 @@ export const getCacheData = <T extends RequestInstance>(
   previousResponse: ExtractAdapterReturnType<T> | undefined,
   response: ExtractAdapterReturnType<T> & ResponseDetailsType,
 ): ExtractAdapterReturnType<T> & ResponseDetailsType => {
-  const { data, isSuccess } = response;
+  const { data, success } = response;
 
-  const previousData = !isSuccess && previousResponse ? previousResponse.data : null;
+  const previousData = !success && previousResponse ? previousResponse.data : null;
   const computedData = data || previousData;
 
   return { ...response, data: computedData };

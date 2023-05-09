@@ -13,12 +13,12 @@ export const getTestSuite = (
         endpoint: "",
         method: "get",
       });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("ref");
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
     });
     it("should return data for dynamic endpoint", async () => {

@@ -153,12 +153,12 @@ export const sendRequest = <Request extends RequestInstance>(
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
-      const handleResponse = (isSuccess: boolean, data: any) => {
+      const handleResponse = (success: boolean, data: any) => {
         // When going offline we can't handle the request as it will be postponed to later resolve
-        if (!isSuccess && isOfflineStatus) return;
+        if (!success && isOfflineStatus) return;
 
         // When request is in retry mode we need to listen for retries end
-        if (!isSuccess && willRetry) return;
+        if (!success && willRetry) return;
 
         options?.onResponse?.(data, details);
         resolve(data);
@@ -173,15 +173,15 @@ export const sendRequest = <Request extends RequestInstance>(
         (async () => {
           const responseData = await mapping;
 
-          const { isSuccess } = responseData;
-          handleResponse(isSuccess, responseData);
+          const { success } = responseData;
+          handleResponse(success, responseData);
         })();
       }
       // For sync mapping operations we should not use async actions
       else {
         const data = mapping || response;
-        const { isSuccess } = data;
-        handleResponse(isSuccess, data);
+        const { success } = data;
+        handleResponse(success, data);
       }
     });
 
@@ -192,9 +192,9 @@ export const sendRequest = <Request extends RequestInstance>(
         resolve({
           data: null,
           status: null,
-          isSuccess: null,
+          success: null,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-          additionalData: request.client.defaultAdditionalData,
+          extra: request.client.defaultExtra,
         });
 
         // Unmount Listeners

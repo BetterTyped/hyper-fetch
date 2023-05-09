@@ -1,7 +1,7 @@
 import { getErrorMessage } from "adapter";
 import { sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { Client, xhrAdditionalData } from "client";
+import { Client, xhrExtra } from "client";
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
@@ -35,8 +35,8 @@ describe("Request [ Sending ]", () => {
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should return mapped adapter response", async () => {
@@ -48,8 +48,8 @@ describe("Request [ Sending ]", () => {
         data: { nested: fixture },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
   });
@@ -61,8 +61,8 @@ describe("Request [ Sending ]", () => {
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should return mapped adapter response", async () => {
@@ -72,8 +72,8 @@ describe("Request [ Sending ]", () => {
         data: { nested: fixture },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should return async mapped adapter response", async () => {
@@ -85,8 +85,8 @@ describe("Request [ Sending ]", () => {
         data: { nested: fixture },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should wait to resolve request in online mode", async () => {
@@ -108,8 +108,8 @@ describe("Request [ Sending ]", () => {
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
       expect(spy).toBeCalledTimes(1);
     });
@@ -130,8 +130,8 @@ describe("Request [ Sending ]", () => {
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
       expect(spy).toBeCalledTimes(1);
     });
@@ -148,8 +148,8 @@ describe("Request [ Sending ]", () => {
         data: null,
         error: getErrorMessage("deleted"),
         status: null,
-        isSuccess: null,
-        additionalData: xhrAdditionalData,
+        success: null,
+        extra: xhrExtra,
       });
     });
     it("should call remove error", async () => {
@@ -174,22 +174,22 @@ describe("Request [ Sending ]", () => {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
       });
       expect(res3).toStrictEqual({
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     /**
@@ -210,22 +210,22 @@ describe("Request [ Sending ]", () => {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
       });
       expect(res2).toStrictEqual({
         data: null,
         error: getErrorMessage("abort"),
         status: 0,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
       });
       expect(res3).toStrictEqual({
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
 

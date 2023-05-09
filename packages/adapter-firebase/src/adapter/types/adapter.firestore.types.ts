@@ -1,4 +1,4 @@
-import { BaseAdapterType } from "@hyper-fetch/core";
+import { AdapterType } from "@hyper-fetch/core";
 import {
   Unsubscribe as FirestoreUnsubscribe,
   CollectionReference,
@@ -10,33 +10,21 @@ import {
 import { FirebaseQueryConstraints } from "constraints";
 
 export type FirestoreAdapterType =
-  | BaseAdapterType<
+  | AdapterType<
       { groupByChangeType: boolean },
       "onSnapshot",
       FirestoreStatuses,
-      FirestoreOnSnapshotAdditionalData,
+      FirestoreOnSnapshotExtra,
       FirestoreQueryParams
     >
-  | BaseAdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreAdditionalData, FirestoreQueryParams>
-  | BaseAdapterType<
-      Record<string, never>,
-      "getDocs",
-      FirestoreStatuses,
-      FirestoreGetDocsAdditionalData,
-      FirestoreQueryParams
-    >
-  | BaseAdapterType<
-      { merge: boolean },
-      "setDoc",
-      FirestoreStatuses,
-      FirestoreGetDocsAdditionalData,
-      Record<string, never>
-    >
-  | BaseAdapterType<
+  | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
+  | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
+  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>>
+  | AdapterType<
       Record<string, never>,
       "updateDoc" | "addDoc" | "deleteDoc",
       FirestoreStatuses,
-      FirestoreRefOnlyAdditionalData,
+      FirestoreRefOnlyExtra,
       Record<string, never>
     >;
 
@@ -46,24 +34,24 @@ export type FirestoreQueryParams = {
 
 export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc" | "onSnapshot";
 
-export type FirestoreAdditionalData = {
+export type FirestoreExtra = {
   ref?: DocumentReference;
   snapshot?: DocumentSnapshot;
 };
 
-export type FirestoreOnSnapshotAdditionalData = {
+export type FirestoreOnSnapshotExtra = {
   ref?: DocumentReference | CollectionReference;
   snapshot?: DocumentSnapshot;
   unsubscribe?: FirestoreUnsubscribe;
   groupedResult?: { added: DocumentSnapshot[]; modified: DocumentSnapshot[]; removed: DocumentSnapshot[] };
 };
 
-export type FirestoreGetDocsAdditionalData = {
+export type FirestoreGetDocsExtra = {
   ref?: CollectionReference;
   snapshot?: QuerySnapshot;
 };
 
-export type FirestoreRefOnlyAdditionalData = {
+export type FirestoreRefOnlyExtra = {
   ref?: DocumentReference;
 };
 

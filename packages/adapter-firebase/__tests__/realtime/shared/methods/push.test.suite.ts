@@ -21,12 +21,12 @@ export const pushTestSuite = (
           options: {},
         })
         .setData(newData);
-      const { additionalData } = await pushReq.send();
+      const { extra } = await pushReq.send();
       const { data } = await getReq.send();
 
       expect(data).toHaveLength(11);
       expect(data).toContainEqual(newData);
-      expect(additionalData).toHaveProperty("key");
+      expect(extra).toHaveProperty("key");
     });
   });
 };

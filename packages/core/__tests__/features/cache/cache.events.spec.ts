@@ -1,6 +1,6 @@
 import { CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
-import { Client, xhrAdditionalData } from "client";
+import { Client, xhrExtra } from "client";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
@@ -14,8 +14,8 @@ describe("Cache [ Events ]", () => {
     data: null,
     error: null,
     status: 200,
-    isSuccess: true,
-    additionalData: xhrAdditionalData,
+    success: true,
+    extra: xhrExtra,
     retries: 0,
     timestamp: +new Date(),
     isCanceled: false,
@@ -62,8 +62,8 @@ describe("Cache [ Events ]", () => {
         data: {},
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -79,8 +79,8 @@ describe("Cache [ Events ]", () => {
         data: null,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,

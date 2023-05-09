@@ -1,7 +1,7 @@
 import { getCacheData, getCacheIdKey, getCacheKey, getRevalidateEventKey } from "cache";
-import { BaseAdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
+import { AdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { xhrAdditionalData } from "client";
+import { xhrExtra } from "client";
 
 describe("Cache [ Utils ]", () => {
   describe("when getCacheData function is used", () => {
@@ -10,14 +10,14 @@ describe("Cache [ Utils ]", () => {
         data: {},
         error: null,
         status: 200,
-        additionalData: xhrAdditionalData,
-      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType>;
-      const errorResponse: ResponseReturnErrorType<Record<string, string>, BaseAdapterType> & ResponseDetailsType = {
+        extra: xhrExtra,
+      } as ResponseReturnSuccessType<Record<string, string>, AdapterType>;
+      const errorResponse: ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType = {
         data: null,
         error: {},
         status: 400,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
@@ -28,8 +28,8 @@ describe("Cache [ Utils ]", () => {
         data: previousResponse.data,
         error: errorResponse.error,
         status: errorResponse.status,
-        isSuccess: errorResponse.isSuccess,
-        additionalData: errorResponse.additionalData,
+        success: errorResponse.success,
+        extra: errorResponse.extra,
         retries: 0,
         timestamp: errorResponse.timestamp,
         isCanceled: false,
@@ -42,24 +42,24 @@ describe("Cache [ Utils ]", () => {
         data: { test: "1" },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType> & ResponseDetailsType;
+      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       const newResponse = {
         data: { test: "2" },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType> & ResponseDetailsType;
+      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       expect(getCacheData(previousResponse, newResponse)).toStrictEqual(newResponse);
     });
 
@@ -68,24 +68,24 @@ describe("Cache [ Utils ]", () => {
         data: {},
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, BaseAdapterType> & ResponseDetailsType;
+      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       const errorResponse = {
         data: null,
         error: {},
         status: 400,
-        isSuccess: false,
-        additionalData: xhrAdditionalData,
+        success: false,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnErrorType<Record<string, string>, BaseAdapterType> & ResponseDetailsType;
+      } as ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);
     });

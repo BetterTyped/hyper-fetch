@@ -246,13 +246,13 @@ export const useFetch = <RequestType extends RequestInstance>(
       setRenderKey("status");
       return state.status;
     },
-    get isSuccess() {
-      setRenderKey("isSuccess");
-      return state.isSuccess;
+    get success() {
+      setRenderKey("success");
+      return state.success;
     },
-    get additionalData() {
-      setRenderKey("additionalData");
-      return state.additionalData;
+    get extra() {
+      setRenderKey("extra");
+      return state.extra;
     },
     get retries() {
       setRenderKey("retries");

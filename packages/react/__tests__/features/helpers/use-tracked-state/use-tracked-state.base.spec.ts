@@ -1,4 +1,4 @@
-import { xhrAdditionalData } from "@hyper-fetch/core";
+import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { initialState } from "helpers";
@@ -33,8 +33,8 @@ describe("useTrackingState [ Events ]", () => {
         expect(result.current[0].data).toBe(initialState.data);
         expect(result.current[0].error).toBe(initialState.error);
         expect(result.current[0].status).toBe(initialState.status);
-        expect(result.current[0].isSuccess).toBe(initialState.isSuccess);
-        expect(result.current[0].additionalData).toStrictEqual(request.client.defaultAdditionalData);
+        expect(result.current[0].success).toBe(initialState.success);
+        expect(result.current[0].extra).toStrictEqual(request.client.defaultExtra);
         expect(result.current[0].retries).toBe(0);
         expect(result.current[0].loading).toBe(initialState.loading);
       });
@@ -75,8 +75,8 @@ describe("useTrackingState [ Events ]", () => {
             data: true as any,
             error: null,
             status: 200,
-            isSuccess: true,
-            additionalData: xhrAdditionalData,
+            success: true,
+            extra: xhrExtra,
             retries: 0,
             timestamp: +new Date(),
             isCanceled: false,
@@ -103,8 +103,8 @@ describe("useTrackingState [ Events ]", () => {
             data: true as any,
             error: null,
             status: 200,
-            isSuccess: true,
-            additionalData: xhrAdditionalData,
+            success: true,
+            extra: xhrExtra,
             retries: 0,
             timestamp: +new Date(),
             isCanceled: false,
@@ -137,8 +137,8 @@ describe("useTrackingState [ Events ]", () => {
             data: true,
             error: null,
             status: 200,
-            isSuccess: true,
-            additionalData: xhrAdditionalData,
+            success: true,
+            extra: xhrExtra,
             retries: 0,
             timestamp: +new Date(),
             isCanceled: false,
@@ -163,8 +163,8 @@ describe("useTrackingState [ Events ]", () => {
             data: true,
             error: null,
             status: 200,
-            isSuccess: true,
-            additionalData: xhrAdditionalData,
+            success: true,
+            extra: xhrExtra,
             retries: 0,
             timestamp: null,
             isCanceled: false,

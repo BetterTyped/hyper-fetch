@@ -50,23 +50,23 @@ describe("Fetch Adapter [ Server ]", () => {
   it("should make a request and return success data with status", async () => {
     const data = createRequestInterceptor(request, { fixture: { data: [] } });
 
-    const { data: response, error, status, additionalData } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await adapter(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should make a request and return error data with status", async () => {
     const data = createRequestInterceptor(request, { status: 400 });
 
-    const { data: response, error, status, additionalData } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await adapter(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -102,11 +102,11 @@ describe("Fetch Adapter [ Server ]", () => {
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
 
-    const { data: response, error, status, additionalData } = await adapter(postRequest, requestId);
+    const { data: response, error, status, extra } = await adapter(postRequest, requestId);
 
     expect(response).toEqual(mock);
     expect(error).toBeNull();
     expect(status).toEqual(200);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 });

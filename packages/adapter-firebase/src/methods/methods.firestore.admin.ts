@@ -107,14 +107,14 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
             snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-          const additionalData = { ref: pathRef, snapshot, unsubscribe: unsub, groupedResult };
-          setCacheManually(request, { value: result, status }, additionalData);
-          onSuccess(result, status, additionalData, resolve);
+          const extra = { ref: pathRef, snapshot, unsubscribe: unsub, groupedResult };
+          setCacheManually(request, { value: result, status }, extra);
+          onSuccess(result, status, extra, resolve);
         },
         (error) => {
           // "error" or firebase error exposed
-          const additionalData = { ref: pathRef, unsubscribe: unsub };
-          setCacheManually(request, { value: error, status: "error" }, additionalData);
+          const extra = { ref: pathRef, unsubscribe: unsub };
+          setCacheManually(request, { value: error, status: "error" }, extra);
           onError(error, "error", {}, resolve);
         },
       );

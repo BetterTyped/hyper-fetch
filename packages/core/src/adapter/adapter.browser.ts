@@ -1,8 +1,8 @@
-import { getAdapterBindings, BaseAdapterType, getResponseHeaders, parseResponse, parseErrorResponse } from "adapter";
-import { xhrAdditionalData } from "client";
+import { getAdapterBindings, AdapterType, getResponseHeaders, parseResponse, parseErrorResponse } from "adapter";
+import { xhrExtra } from "client";
 import { defaultTimeout } from "./adapter.constants";
 
-export const adapter: BaseAdapterType = async (request, requestId) => {
+export const adapter: AdapterType = async (request, requestId) => {
   const {
     makeRequest,
     fullUrl,
@@ -19,7 +19,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<BaseAdapterType>(request, requestId, 0, {
+  } = await getAdapterBindings<AdapterType>(request, requestId, 0, {
     headers: {},
   });
 
@@ -43,7 +43,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(0, xhrAdditionalData, abort, resolve);
+    const unmountListener = createAbortListener(0, xhrExtra, abort, resolve);
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -61,7 +61,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError(0, xhrAdditionalData, resolve);
+    xhr.ontimeout = () => onTimeoutError(0, xhrExtra, resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -70,10 +70,10 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
 
       if (event.target && event.target.readyState === finishedState) {
         const { status } = event.target;
-        const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
+        const success = String(status).startsWith("2") || String(status).startsWith("3");
         const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
-        if (isSuccess) {
+        if (success) {
           const data = parseResponse(event.target.response);
           onSuccess(data, status, { headers: responseHeaders }, resolve);
         } else {

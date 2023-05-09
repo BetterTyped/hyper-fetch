@@ -63,27 +63,27 @@ describe("useTrackedState [ Actions ]", () => {
 
       expect(result.current[0].status).toBe(900);
     });
-    it("should allow to set isSuccess", async () => {
+    it("should allow to set success", async () => {
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setIsSuccess(false, false);
+        result.current[1].setSuccess(false, false);
       });
 
       await waitFor(() => {
-        expect(result.current[0].isSuccess).toBe(false);
+        expect(result.current[0].success).toBe(false);
       });
     });
-    it("should allow to set additionalData", async () => {
-      const additionalData = { headers: { test: "1" } };
+    it("should allow to set extra", async () => {
+      const extra = { headers: { test: "1" } };
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setAdditionalData(additionalData, false);
+        result.current[1].setExtra(extra, false);
       });
 
       await waitFor(() => {
-        expect(result.current[0].additionalData).toBe(additionalData);
+        expect(result.current[0].extra).toBe(extra);
       });
     });
     it("should allow to set timestamp", async () => {
@@ -157,25 +157,25 @@ describe("useTrackedState [ Actions ]", () => {
         expect(spy).toBeCalledTimes(1);
       });
     });
-    it("should allow to set isSuccess", async () => {
+    it("should allow to set success", async () => {
       const spy = jest.spyOn(request.client.cache, "set");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setIsSuccess(false, true);
+        result.current[1].setSuccess(false, true);
       });
 
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
       });
     });
-    it("should allow to set additionalData", async () => {
-      const additionalData = { headers: { test: "1" } };
+    it("should allow to set extra", async () => {
+      const extra = { headers: { test: "1" } };
       const spy = jest.spyOn(request.client.cache, "set");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setAdditionalData(additionalData, true);
+        result.current[1].setExtra(extra, true);
       });
 
       await waitFor(() => {

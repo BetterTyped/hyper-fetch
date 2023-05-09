@@ -76,13 +76,13 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
         try {
           const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
           const status = getStatus(res);
-          const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
-          setCacheManually(request, { value: res, status }, additionalData);
-          onSuccess(res, status, additionalData, resolve);
+          const extra = { ref: path, snapshot, unsubscribe: () => q.off("value") };
+          setCacheManually(request, { value: res, status }, extra);
+          onSuccess(res, status, extra, resolve);
         } catch (e) {
-          const additionalData = { ref: path, snapshot, unsubscribe: () => q.off("value") };
-          setCacheManually(request, { value: e, status: "error" }, additionalData);
-          onError(e, "error", additionalData, resolve);
+          const extra = { ref: path, snapshot, unsubscribe: () => q.off("value") };
+          setCacheManually(request, { value: e, status: "error" }, extra);
+          onError(e, "error", extra, resolve);
         }
       });
     },

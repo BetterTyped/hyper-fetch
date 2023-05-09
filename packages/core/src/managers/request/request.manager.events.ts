@@ -66,10 +66,10 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  emitResponse: <AdapterType extends AdapterInstance>(
+  emitResponse: <Adapter extends AdapterInstance>(
     cacheKey: string,
     requestId: string,
-    response: ResponseReturnType<unknown, unknown, AdapterType>,
+    response: ResponseReturnType<unknown, unknown, Adapter>,
     details: ResponseDetailsType,
   ): void => {
     emitter.emit(getResponseIdEventKey(requestId), response, details);
@@ -164,17 +164,17 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Response
-  onResponse: <Response, ErrorType, AdapterType extends AdapterInstance>(
+  onResponse: <Response, ErrorType, Adapter extends AdapterInstance>(
     cacheKey: string,
-    callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseReturnType<Response, ErrorType, Adapter>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseEventKey(cacheKey), callback);
     return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
   },
   // Response by requestId
-  onResponseById: <Response, ErrorType, AdapterType extends AdapterInstance>(
+  onResponseById: <Response, ErrorType, Adapter extends AdapterInstance>(
     requestId: string,
-    callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void,
+    callback: (response: ResponseReturnType<Response, ErrorType, Adapter>, details: ResponseDetailsType) => void,
   ): VoidFunction => {
     emitter.on(getResponseIdEventKey(requestId), callback);
     return () => emitter.removeListener(getResponseIdEventKey(requestId), callback);

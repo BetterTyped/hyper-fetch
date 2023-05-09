@@ -1,5 +1,3 @@
-
-
 # UseCommandEventsPropsType
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { UseCommandEventsPropsType } from "@hyper-fetch/react"
+import { UseCommandEventsPropsType } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { UseCommandEventsPropsType } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-command-events/use-command-events.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21)
+Defined in
+[helpers/use-command-events/use-command-events.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-command-events/use-command-events.types.ts#L21)
 
 </p><div class="api-docs__section">
 
@@ -32,12 +29,12 @@ Defined in [helpers/use-command-events/use-command-events.types.ts:21](https://g
 
 ```ts
 type UseCommandEventsPropsType<T> = {
-  actions: UseTrackedStateActions<T>; 
-  command: T; 
-  dispatcher: Dispatcher; 
-  logger: LoggerType; 
-  setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void; 
-}
+  actions: UseTrackedStateActions<T>;
+  command: T;
+  dispatcher: Dispatcher;
+  logger: LoggerType;
+  setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
+};
 ```
 
 </div><div class="api-docs__section">
@@ -58,7 +55,7 @@ type UseCommandEventsPropsType<T> = {
   };
   command: T;
   dispatcher: Dispatcher;
-  logger: Record<LoggerLevelType, (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void>;
+  logger: Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
   setCacheData: (cacheData: CacheValueType<ExtractResponse<T>, ExtractError<T>>) => void;
 }
 ```

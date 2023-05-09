@@ -1,7 +1,7 @@
 import { RequestInstance } from "../request";
-import { getAdapterBindings, AdapterInstance, BaseAdapterType, ResponseReturnType } from "adapter";
+import { getAdapterBindings, AdapterInstance, AdapterType, ResponseReturnType } from "adapter";
 
-export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
+export const mocker = async <T extends AdapterInstance = AdapterType>(
   request: RequestInstance,
   {
     onError,
@@ -35,10 +35,10 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
-    const { data, config = {}, additionalData } = result;
+    const { data, config = {}, extra } = result;
     const {
       status = 200,
-      isSuccess = true,
+      success = true,
       responseDelay = 5,
       requestSentDuration = 0,
       responseReceivedDuration = 0,
@@ -51,7 +51,7 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
     };
     const [adjustedRequestSentDuration, adjustedResponseReceivedDuration] = calculateDurations();
 
-    createAbortListener(0 as any, request.client.defaultAdditionalData, () => {}, resolve);
+    createAbortListener(0 as any, request.client.defaultExtra, () => {}, resolve);
 
     onBeforeRequest();
     onRequestStart();
@@ -78,18 +78,15 @@ export const mocker = async <T extends AdapterInstance = BaseAdapterType>(
       onRequestEnd();
       onResponseStart();
       await progress(adjustedResponseReceivedDuration, onResponseProgress);
-      if (isSuccess) {
-        onSuccess(data, status as any, additionalData || request.client.defaultAdditionalData, resolve);
+      if (success) {
+        onSuccess(data, status as any, extra || request.client.defaultExtra, resolve);
       } else {
-        onError(data, status as any, additionalData || request.client.defaultAdditionalData, resolve);
+        onError(data, status as any, extra || request.client.defaultExtra, resolve);
       }
     };
 
     if (timeout && responseDelay > timeout) {
-      setTimeout(
-        () => onTimeoutError(0 as any, additionalData || request.client.defaultAdditionalData, resolve),
-        timeout + 1,
-      );
+      setTimeout(() => onTimeoutError(0 as any, extra || request.client.defaultExtra, resolve), timeout + 1);
     } else {
       setTimeout(getResponse, responseDelay);
     }

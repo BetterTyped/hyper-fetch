@@ -14,9 +14,9 @@ export const logger: LoggerFunctionType = (log) => {
     const module = `%c[${log.module}]:[${getTime()}]:`;
     const message = `${emoji}${module} ${log.message}`;
 
-    if (log.additionalData?.length) {
+    if (log.extra?.length) {
       console.groupCollapsed(message, styles);
-      log.additionalData.forEach((data) => {
+      log.extra.forEach((data) => {
         console.log(data);
       });
       console.groupEnd();

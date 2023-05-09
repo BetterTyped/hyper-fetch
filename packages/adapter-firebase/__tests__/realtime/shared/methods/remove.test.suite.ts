@@ -23,8 +23,8 @@ export const removeTestSuite = (
       .setParams({ teaId: 1 });
 
     await removeReq.send();
-    const { data, additionalData } = await getReq.send();
+    const { data, extra } = await getReq.send();
     expect(data).toBe(null);
-    expect(additionalData.snapshot.exists()).toBe(false);
+    expect(extra.snapshot.exists()).toBe(false);
   });
 };

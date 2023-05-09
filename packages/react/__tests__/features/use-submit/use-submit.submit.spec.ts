@@ -1,4 +1,4 @@
-import { RequestSendType, xhrAdditionalData } from "@hyper-fetch/core";
+import { RequestSendType, xhrExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -39,8 +39,8 @@ describe("useSubmit [ Base ]", () => {
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should call onSettle", async () => {
@@ -71,8 +71,8 @@ describe("useSubmit [ Base ]", () => {
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should return data from submit method on offline", async () => {
@@ -96,8 +96,8 @@ describe("useSubmit [ Base ]", () => {
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should allow to change submit details", async () => {
@@ -160,8 +160,8 @@ describe("useSubmit [ Base ]", () => {
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
     it("should throw error when hook is disabled", async () => {
@@ -178,7 +178,7 @@ describe("useSubmit [ Base ]", () => {
       expect(res.data).toBeNull();
       expect(res.error).toBeInstanceOf(Error);
       expect(res.status).toBe(null);
-      expect(res.additionalData).toStrictEqual(xhrAdditionalData);
+      expect(res.extra).toStrictEqual(xhrExtra);
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
@@ -199,8 +199,8 @@ describe("useSubmit [ Base ]", () => {
         data: mock,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
     });
   });

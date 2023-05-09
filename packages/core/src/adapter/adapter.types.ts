@@ -5,13 +5,13 @@ import { HttpMethodsType, HttpStatusType } from "../types";
  * Base Adapter
  */
 
-export type AdapterInstance = BaseAdapterType<any, any, any, any, any>;
+export type AdapterInstance = AdapterType<any, any, any, any, any>;
 
-export type BaseAdapterType<
+export type AdapterType<
   AdapterOptions = AdapterOptionsType,
   MethodType = HttpMethodsType,
   StatusType = HttpStatusType,
-  AdditionalData extends Record<string, any> = AdapterAdditionalDataType,
+  Extra extends Record<string, any> = AdapterExtraType,
   QueryParams = QueryParamsType | string,
 > = (
   request: RequestInstance,
@@ -21,7 +21,7 @@ export type BaseAdapterType<
     method?: MethodType;
     options?: AdapterOptions;
     status?: StatusType;
-    additionalData?: AdditionalData;
+    extra?: Extra;
     queryParams?: QueryParams;
   },
   // [any any any] as a way to avoid circular reference that destroyed request type.
@@ -31,40 +31,28 @@ export type BaseAdapterType<
  * Extractors
  */
 
-export type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer O, any, any, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends BaseAdapterType<any, infer M, any, any, any> ? M : never;
-export type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
-export type ExtractAdapterAdditionalDataType<T> = T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
-export type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never;
+export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
+export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
 // Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
-  AdapterType extends AdapterInstance,
+  Adapter extends AdapterInstance,
   Values extends {
     method?: any;
     options?: any;
     status?: any;
-    additionalData?: any;
+    extra?: any;
     queryParams?: any;
   },
 > = Extract<
-  AdapterType,
-  BaseAdapterType<
-    Values["options"],
-    Values["method"],
-    Values["status"],
-    Values["additionalData"],
-    Values["queryParams"]
-  >
+  Adapter,
+  AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
 > extends AdapterInstance
   ? Extract<
-      AdapterType,
-      BaseAdapterType<
-        Values["options"],
-        Values["method"],
-        Values["status"],
-        Values["additionalData"],
-        Values["queryParams"]
-      >
+      Adapter,
+      AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
     >
   : never;
 
@@ -74,7 +62,7 @@ export type ExtractUnionAdapter<
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
 
-export type AdapterAdditionalDataType = {
+export type AdapterExtraType = {
   headers: Record<string, string>;
 };
 
@@ -82,26 +70,26 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseReturnType<GenericDataType, GenericErrorType, AdapterType extends AdapterInstance> = {
+export type ResponseReturnType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;
-  status: ExtractAdapterStatusType<AdapterType> | null;
-  isSuccess: boolean;
-  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
 };
-export type ResponseReturnSuccessType<GenericDataType, AdapterType extends AdapterInstance> = {
+export type ResponseReturnSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
   data: GenericDataType;
   error: null;
-  status: ExtractAdapterStatusType<AdapterType> | null;
-  isSuccess: boolean;
-  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
 };
-export type ResponseReturnErrorType<GenericErrorType, AdapterType extends AdapterInstance> = {
+export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
   data: null;
   error: GenericErrorType;
-  status: ExtractAdapterStatusType<AdapterType> | null;
-  isSuccess: boolean;
-  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
 };
 
 // QueryParams

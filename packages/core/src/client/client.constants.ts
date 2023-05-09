@@ -1,4 +1,4 @@
-import { AdapterAdditionalDataType } from "adapter";
+import { AdapterExtraType } from "adapter";
 
 export const stringifyDefaultOptions = {
   strict: true,
@@ -10,6 +10,6 @@ export const stringifyDefaultOptions = {
   skipEmptyString: true,
 } as const;
 
-export const xhrAdditionalData: AdapterAdditionalDataType = {
+export const xhrExtra: AdapterExtraType = {
   headers: {},
 };

@@ -14,15 +14,15 @@ export const isDocOrQuery = (fullUrl: string): string => {
 export const setCacheManually = <R extends RequestInstance>(
   request: R,
   response: { value: any; status: "success" | "error" | "emptyResource" },
-  additionalData,
+  extra,
 ) => {
   if (["success", "emptyResource"].includes(response.status)) {
     request.client.cache.set(request, {
       data: response.value,
       status: "success",
       error: null,
-      isSuccess: true,
-      additionalData,
+      success: true,
+      extra,
       isCanceled: false,
       isOffline: false,
       retries: 0,
@@ -33,8 +33,8 @@ export const setCacheManually = <R extends RequestInstance>(
       data: null,
       status: "error",
       error: response.value,
-      isSuccess: false,
-      additionalData,
+      success: false,
+      extra,
       isCanceled: false,
       isOffline: false,
       retries: 0,

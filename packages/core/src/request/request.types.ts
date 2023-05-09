@@ -18,8 +18,8 @@ import {
   ResponseReturnType,
   QueryParamsType,
   ProgressType,
-  ExtractAdapterOptions,
-  BaseAdapterType,
+  ExtractAdapterOptionsType,
+  AdapterType,
   ExtractAdapterMethodType,
 } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
@@ -63,7 +63,7 @@ export type RequestJSON<
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptions<ExtractAdapterType<Request>>;
+  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
   data: PayloadType<ExtractPayloadType<Request>>;
   params: Params | NegativeTypes;
   queryParams: QueryParams | NegativeTypes;
@@ -302,7 +302,7 @@ export type RequestInstance = Request<
   any,
   any,
   any,
-  BaseAdapterType<any, any, any, any, any>,
+  AdapterType<any, any, any, any, any>,
   any,
   any,
   any

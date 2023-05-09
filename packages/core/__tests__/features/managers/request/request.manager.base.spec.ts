@@ -178,7 +178,7 @@ describe("RequestManager [ Base ]", () => {
     const details = {
       retries: 0,
       timestamp: +new Date(),
-      isSuccess: true,
+      success: true,
       isCanceled: false,
       isOffline: false,
     };
@@ -186,7 +186,7 @@ describe("RequestManager [ Base ]", () => {
     events.emitResponse(
       queueKey,
       requestId,
-      { data: null, error: null, status: 200, isSuccess: true, additionalData: null },
+      { data: null, error: null, status: 200, success: true, extra: null },
       details,
     );
 

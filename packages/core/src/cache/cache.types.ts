@@ -23,9 +23,9 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
   /**
    * Callback for every change in the storage
    */
-  onChange?: <Response = any, Error = any, AdapterType extends AdapterInstance = AdapterInstance>(
+  onChange?: <Response = any, Error = any, Adapter extends AdapterInstance = AdapterInstance>(
     key: string,
-    data: CacheValueType<Response, Error, AdapterType>,
+    data: CacheValueType<Response, Error, Adapter>,
   ) => void;
   /**
    * Callback for every delete in the storage
@@ -37,8 +37,8 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
 export type CacheValueType<
   Response = any,
   Error = any,
-  AdapterType extends AdapterInstance = AdapterInstance,
-> = ResponseReturnType<Response, Error, AdapterType> &
+  Adapter extends AdapterInstance = AdapterInstance,
+> = ResponseReturnType<Response, Error, Adapter> &
   ResponseDetailsType & {
     cacheTime: number;
     clearKey: string;
@@ -47,25 +47,25 @@ export type CacheValueType<
 
 // Storage
 export type CacheAsyncStorageType = {
-  set: <Response, Error, AdapterType extends AdapterInstance>(
+  set: <Response, Error, Adapter extends AdapterInstance>(
     key: string,
-    data: CacheValueType<Response, Error, AdapterType>,
+    data: CacheValueType<Response, Error, Adapter>,
   ) => Promise<void>;
-  get: <Response, Error, AdapterType extends AdapterInstance>(
+  get: <Response, Error, Adapter extends AdapterInstance>(
     key: string,
-  ) => Promise<CacheValueType<Response, Error, AdapterType> | undefined>;
+  ) => Promise<CacheValueType<Response, Error, Adapter> | undefined>;
   keys: () => Promise<string[] | IterableIterator<string> | string[]>;
   delete: (key: string) => Promise<void>;
 };
 
 export type CacheStorageType = {
-  set: <Response, Error, AdapterType extends AdapterInstance>(
+  set: <Response, Error, Adapter extends AdapterInstance>(
     key: string,
-    data: CacheValueType<Response, Error, AdapterType>,
+    data: CacheValueType<Response, Error, Adapter>,
   ) => void;
-  get: <Response, Error, AdapterType extends AdapterInstance>(
+  get: <Response, Error, Adapter extends AdapterInstance>(
     key: string,
-  ) => CacheValueType<Response, Error, AdapterType> | undefined;
+  ) => CacheValueType<Response, Error, Adapter> | undefined;
   keys: () => string[] | IterableIterator<string> | string[];
   delete: (key: string) => void;
   clear: () => void;

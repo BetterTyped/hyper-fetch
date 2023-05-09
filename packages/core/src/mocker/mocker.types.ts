@@ -4,12 +4,12 @@ export type RequestMockType<Response> = {
   data: Response | Response[] | (() => Response);
   config?: {
     status?: number | string;
-    isSuccess?: boolean;
+    success?: boolean;
     responseDelay?: number;
     requestSentDuration?: number;
     responseReceivedDuration?: number;
   };
-  additionalData?: any;
+  extra?: any;
 };
 
 export type RequestDataMockTypes<Response, Request extends RequestInstance> =

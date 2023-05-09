@@ -1,35 +1,35 @@
-import { BaseAdapterType } from "@hyper-fetch/core";
+import { AdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database";
 
 import { FirebaseQueryConstraints } from "constraints";
 
 export type RealtimeDbAdapterType =
-  | BaseAdapterType<
+  | AdapterType<
       { onlyOnce: boolean },
       "onValue",
       RealtimeDBStatuses,
-      RealtimeDbOnValueMethodAdditionalData,
+      RealtimeDbOnValueMethodExtra,
       RealtimeDBQueryParams
     >
-  | BaseAdapterType<
+  | AdapterType<
       DefaultRealtimeDBAdapterOptions,
       "get",
       RealtimeDBStatuses,
-      RealtimeDbGetMethodAdditionalData,
+      RealtimeDbGetMethodExtra,
       RealtimeDBQueryParams
     >
-  | BaseAdapterType<
+  | AdapterType<
       DefaultRealtimeDBAdapterOptions,
       "push",
       RealtimeDBStatuses,
-      RealtimeDbPushMethodAdditionalData,
+      RealtimeDbPushMethodExtra,
       Record<string, never>
     >
-  | BaseAdapterType<
+  | AdapterType<
       DefaultRealtimeDBAdapterOptions,
       "set" | "update" | "remove",
       RealtimeDBStatuses,
-      RealtimeDbDefaultAdditionalData,
+      RealtimeDbDefaultExtra,
       Record<string, never>
     >;
 
@@ -40,22 +40,22 @@ export type DefaultRealtimeDBAdapterOptions = {
 export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
 
 export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
-export type RealtimeDbOnValueMethodAdditionalData = {
+export type RealtimeDbOnValueMethodExtra = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
   unsubscribe: Unsubscribe;
 };
 
-export type RealtimeDbGetMethodAdditionalData = {
+export type RealtimeDbGetMethodExtra = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
 };
 
-export type RealtimeDbDefaultAdditionalData = {
+export type RealtimeDbDefaultExtra = {
   ref: DatabaseReference;
 };
 
-export type RealtimeDbPushMethodAdditionalData = {
+export type RealtimeDbPushMethodExtra = {
   ref: DatabaseReference;
   key: string;
 };

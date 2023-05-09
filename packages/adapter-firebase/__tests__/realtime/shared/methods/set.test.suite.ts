@@ -25,9 +25,9 @@ export const setTestSuite = (
         .setData(newData);
 
       await setReq.send();
-      const { data, additionalData } = await getReq.send();
+      const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
-      expect(additionalData.snapshot.exists()).toBe(true);
+      expect(extra.snapshot.exists()).toBe(true);
     });
     it("should allow for removing data via set", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
@@ -47,9 +47,9 @@ export const setTestSuite = (
         .setData({ data: null });
 
       await setReq.send();
-      const { data, additionalData } = await getReq.send();
+      const { data, extra } = await getReq.send();
       expect(data).toBe(null);
-      expect(additionalData.snapshot.exists()).toBe(false);
+      expect(extra.snapshot.exists()).toBe(false);
     });
   });
 };

@@ -31,23 +31,23 @@ describe("Fetch Adapter [ Browser ]", () => {
   it("should make a request and return success data with status", async () => {
     const data = createRequestInterceptor(request, { fixture: { data: [] } });
 
-    const { data: response, error, status, additionalData } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await adapter(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should make a request and return error data with status", async () => {
     const data = createRequestInterceptor(request, { status: 400 });
 
-    const { data: response, error, status, additionalData } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await adapter(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -78,12 +78,12 @@ describe("Fetch Adapter [ Browser ]", () => {
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
 
-    const { data: response, error, status, additionalData } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await adapter(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(additionalData).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
     window.XMLHttpRequest = xml;
   });
 

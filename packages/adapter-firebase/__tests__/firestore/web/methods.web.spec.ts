@@ -28,18 +28,18 @@ describe("Firestore Web [ Methods ]", () => {
         method: "onSnapshot",
       });
 
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
 
       expect(data).toHaveLength(10);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(QuerySnapshot);
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should inform about changes when groupByChangeType option is added", async () => {
       const newTeaData = {
@@ -56,7 +56,7 @@ describe("Firestore Web [ Methods ]", () => {
         options: { groupByChangeType: true },
       });
 
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
 
       const addTeaReq = client
         .createRequest<Tea, Tea>()({
@@ -88,29 +88,29 @@ describe("Firestore Web [ Methods ]", () => {
       const afterRemoved = req.client.cache.get(req.cacheKey);
 
       expect(data).toHaveLength(10);
-      expect(additionalData.groupedResult.added).toHaveLength(10);
-      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(extra.groupedResult.added).toHaveLength(10);
+      expect(extra.snapshot).toBeInstanceOf(QuerySnapshot);
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      expect(afterAdded.additionalData.groupedResult).toStrictEqual({
+      expect(afterAdded.extra.groupedResult).toStrictEqual({
         added: [newTeaData],
         removed: [],
         modified: [],
       });
-      expect(afterUpdated.additionalData.groupedResult).toStrictEqual({
+      expect(afterUpdated.extra.groupedResult).toStrictEqual({
         added: [],
         removed: [],
         modified: [newTeaData],
       });
-      expect(afterRemoved.additionalData.groupedResult).toStrictEqual({
+      expect(afterRemoved.extra.groupedResult).toStrictEqual({
         added: [],
         removed: [newTeaData],
         modified: [],
       });
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should return data available for doc", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
@@ -120,18 +120,18 @@ describe("Firestore Web [ Methods ]", () => {
           method: "onSnapshot",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
 
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should return emptyResource status for non existing resource", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
@@ -141,18 +141,18 @@ describe("Firestore Web [ Methods ]", () => {
           method: "onSnapshot",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
 
       expect(data).toStrictEqual(null);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("emptyResource");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should allow for listening to multiple documents and change HF cache if data is changed in firebase after onSnapshot listener creation", async () => {
       const cacheKey = "onSnapshot_?constraints[]=where_type%3D%3DGreen";
@@ -194,7 +194,7 @@ describe("Firestore Web [ Methods ]", () => {
       });
       // Should listen for changes only for Green teas
       const {
-        additionalData: { unsubscribe },
+        extra: { unsubscribe },
       } = await onSnapshotReq.send({ queryParams: { constraints: [$where("type", "==", "Green")] } });
 
       const afterOnSnapshotCache = onSnapshotReq.client.cache.get(cacheKey);
@@ -246,13 +246,13 @@ describe("Firestore Web [ Methods ]", () => {
           method: "getDoc",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
     });
     it("should return emptyResource status for non existing resource", async () => {
@@ -263,13 +263,13 @@ describe("Firestore Web [ Methods ]", () => {
           method: "getDoc",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toStrictEqual(null);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(DocumentSnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(DocumentSnapshot);
       expect(status).toBe("emptyResource");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
     });
   });
@@ -281,13 +281,13 @@ describe("Firestore Web [ Methods ]", () => {
         endpoint: "",
         method: "getDocs",
       });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("ref");
-      expect(additionalData.snapshot).toBeInstanceOf(QuerySnapshot);
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("ref");
+      expect(extra.snapshot).toBeInstanceOf(QuerySnapshot);
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
     });
     it("should return emptyResource status for non existing resource", async () => {
@@ -296,10 +296,10 @@ describe("Firestore Web [ Methods ]", () => {
         endpoint: "",
         method: "getDocs",
       });
-      const { data, status, isSuccess, error } = await req.send();
+      const { data, status, success, error } = await req.send();
       expect(data).toStrictEqual(null);
       expect(status).toBe("emptyResource");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
     });
   });
@@ -323,10 +323,10 @@ describe("Firestore Web [ Methods ]", () => {
         .setData(newData);
 
       await setReq.send();
-      const { data, additionalData } = await getReq.send();
+      const { data, extra } = await getReq.send();
 
       expect(data).toStrictEqual(newData);
-      expect(additionalData.snapshot.exists()).toBe(true);
+      expect(extra.snapshot.exists()).toBe(true);
     });
     it("should merge data if merge options is passed", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
@@ -347,10 +347,10 @@ describe("Firestore Web [ Methods ]", () => {
         .setData({ name: "Pou Ran Do Cha" } as Tea);
 
       await setReq.send();
-      const { data, additionalData } = await getReq.send();
+      const { data, extra } = await getReq.send();
 
       expect(data).toStrictEqual({ ...existingData, name: "Pou Ran Do Cha" });
-      expect(additionalData.snapshot.exists()).toBe(true);
+      expect(extra.snapshot.exists()).toBe(true);
     });
   });
 
@@ -417,7 +417,7 @@ describe("Firestore Web [ Methods ]", () => {
 
       const { data: beforeRemoval } = await getReq.send();
       await removeReq.send();
-      const { data, additionalData } = await getReq.send();
+      const { data, extra } = await getReq.send();
       expect(beforeRemoval).toStrictEqual({
         amount: 150,
         year: 2023,
@@ -426,7 +426,7 @@ describe("Firestore Web [ Methods ]", () => {
         type: "Green",
       });
       expect(data).toBe(null);
-      expect(additionalData.snapshot.exists()).toBe(false);
+      expect(extra.snapshot.exists()).toBe(false);
     });
   });
 });

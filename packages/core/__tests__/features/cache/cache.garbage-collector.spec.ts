@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
 
 import { CacheValueType } from "cache";
-import { Client, DateInterval, xhrAdditionalData } from "index";
+import { Client, DateInterval, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Garbage Collector ]", () => {
@@ -13,8 +13,8 @@ describe("Cache [ Garbage Collector ]", () => {
     data: null,
     error: null,
     status: 200,
-    isSuccess: true,
-    additionalData: xhrAdditionalData,
+    success: true,
+    extra: xhrExtra,
     retries: 0,
     timestamp: +new Date(),
     isCanceled: false,

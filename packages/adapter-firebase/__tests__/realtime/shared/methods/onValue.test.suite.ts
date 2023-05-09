@@ -13,16 +13,16 @@ export const onValueTestSuite = (
         endpoint: "",
         method: "onValue",
       });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should return data available for doc", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
@@ -32,16 +32,16 @@ export const onValueTestSuite = (
           method: "onValue",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should return emptyResource status for non existing doc", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(adapterFunction);
@@ -51,16 +51,16 @@ export const onValueTestSuite = (
           method: "onValue",
         })
         .setParams({ teaId: 1 });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toStrictEqual(null);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
       expect(status).toBe("emptyResource");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should return emptyResource status for non existing collection", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(adapterFunction);
@@ -68,16 +68,16 @@ export const onValueTestSuite = (
         endpoint: "",
         method: "onValue",
       });
-      const { data, additionalData, status, isSuccess, error } = await req.send();
+      const { data, extra, status, success, error } = await req.send();
       expect(data).toStrictEqual(null);
-      expect(additionalData).toHaveProperty("snapshot");
-      expect(additionalData).toHaveProperty("unsubscribe");
-      expect(additionalData).toHaveProperty("ref");
+      expect(extra).toHaveProperty("snapshot");
+      expect(extra).toHaveProperty("unsubscribe");
+      expect(extra).toHaveProperty("ref");
       expect(status).toBe("emptyResource");
-      expect(isSuccess).toBe(true);
+      expect(success).toBe(true);
       expect(error).toBe(null);
 
-      additionalData.unsubscribe();
+      extra.unsubscribe();
     });
     it("should change HF cache if data is changed in firebase after onValue listener creation", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
@@ -94,7 +94,7 @@ export const onValueTestSuite = (
         .setData(newData);
       const {
         data,
-        additionalData: { unsubscribe },
+        extra: { unsubscribe },
       } = await onValueReq.send();
 
       const { data: cacheAfterOnValue } = onValueReq.client.cache.get(onValueReq.cacheKey);
@@ -131,7 +131,7 @@ export const onValueTestSuite = (
         .setData(newData);
       const {
         data,
-        additionalData: { unsubscribe },
+        extra: { unsubscribe },
       } = await onValueReq.send();
 
       const { data: cacheAfterOnValue } = onValueReq.client.cache.get(onValueReq.cacheKey);

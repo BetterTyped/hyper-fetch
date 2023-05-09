@@ -8,7 +8,7 @@ import {
   ExtractAdapterReturnType,
   Dispatcher,
   ExtractAdapterType,
-  ExtractAdapterAdditionalDataType,
+  ExtractAdapterExtraType,
   ResponseDetailsType,
 } from "@hyper-fetch/core";
 
@@ -71,7 +71,7 @@ export const getInitialState = <T extends RequestInstance>(
   const cacheData = cache.get<
     ExtractResponseType<T>,
     ExtractErrorType<T>,
-    ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>
+    ExtractAdapterExtraType<ExtractAdapterType<T>>
   >(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialData, cacheData);
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
@@ -81,8 +81,8 @@ export const getInitialState = <T extends RequestInstance>(
       data: cacheState.data,
       error: cacheState.error,
       status: cacheState.status,
-      isSuccess: cacheState.isSuccess,
-      additionalData: cacheState.additionalData,
+      success: cacheState.success,
+      extra: cacheState.extra,
       retries: cacheState.retries,
       timestamp: getTimestamp(cacheState.timestamp),
       loading: initialLoading,
@@ -93,8 +93,8 @@ export const getInitialState = <T extends RequestInstance>(
     data: initialState.data,
     error: initialState.error,
     status: initialState.status,
-    isSuccess: initialState.isSuccess,
-    additionalData: request.client.defaultAdditionalData,
+    success: initialState.success,
+    extra: request.client.defaultExtra,
     retries: initialState.retries,
     timestamp: getTimestamp(initialState.timestamp),
     loading: initialLoading,

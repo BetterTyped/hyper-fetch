@@ -28,9 +28,9 @@ export const testSuccessState = async <
     const response = getCurrentState(render);
     expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
-    expect(response.isSuccess).toBeTrue();
+    expect(response.success).toBeTrue();
     expect(response.status).toBe(200);
-    expect(response.additionalData).toStrictEqual({
+    expect(response.extra).toStrictEqual({
       headers: { "content-type": "application/json", "x-powered-by": "msw" },
     });
     expect(response.retries).toBeNumber();
@@ -59,9 +59,9 @@ export const testErrorState = async <
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
-    expect(response.isSuccess).toBeFalse();
-    expect(response.additionalData).toHaveProperty("headers");
-    expect(Object.keys(response.additionalData)).toHaveLength(1);
+    expect(response.success).toBeFalse();
+    expect(response.extra).toHaveProperty("headers");
+    expect(Object.keys(response.extra)).toHaveLength(1);
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
@@ -81,7 +81,7 @@ export const testCacheState = async <T extends ResponseReturnType<any, any, any>
     expect(response.data).toStrictEqual(mock.data);
     expect(response.error).toStrictEqual(mock.error);
     expect(response.status).toBe(mock.status);
-    expect(response.additionalData).toStrictEqual(mock.additionalData);
+    expect(response.extra).toStrictEqual(mock.extra);
   });
 };
 

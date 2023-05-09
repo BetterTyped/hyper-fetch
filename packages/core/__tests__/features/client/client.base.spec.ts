@@ -119,13 +119,13 @@ describe("Client [ Base ]", () => {
       client.clear();
       expect(spy).toBeCalledTimes(2);
     });
-    it("should assign new defaultAdditionalData", async () => {
-      const defaultAdditionalData = { headers: { test: "1" } };
+    it("should assign new defaultExtra", async () => {
+      const defaultExtra = { headers: { test: "1" } };
       const client = new Client({
         url: "shared-base-url",
-      }).setDefaultAdditionalData(defaultAdditionalData);
+      }).setDefaultExtra(defaultExtra);
 
-      expect(client.defaultAdditionalData).toStrictEqual(defaultAdditionalData);
+      expect(client.defaultExtra).toStrictEqual(defaultExtra);
     });
     it("should assign new defaultMethod", async () => {
       const defaultMethod = "POST";

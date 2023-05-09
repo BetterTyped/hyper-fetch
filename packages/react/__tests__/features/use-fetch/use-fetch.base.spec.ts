@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react";
-import { BaseAdapterType, ResponseReturnType, xhrAdditionalData } from "@hyper-fetch/core";
+import { AdapterType, ResponseReturnType, xhrExtra } from "@hyper-fetch/core";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -38,7 +38,7 @@ describe("useFetch [ Base ]", () => {
       await testClientIsolation(client);
       const mock = createRequestInterceptor(request);
       const [cache] = createCacheData(request, {
-        data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: xhrAdditionalData },
+        data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
         details: { retries: 2 },
       });
       const view = renderUseFetch(request);
@@ -50,26 +50,23 @@ describe("useFetch [ Base ]", () => {
       const mock = createRequestInterceptor(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
-          data: { data: mock, error: null, status: 200, isSuccess: true, additionalData: xhrAdditionalData },
+          data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
           details: { timestamp, retries: 3 },
         });
       });
 
       const view = renderUseFetch(request.setCacheTime(10));
 
-      await testCacheState(
-        { data: null, error: null, status: null, isSuccess: true, additionalData: xhrAdditionalData },
-        view,
-      );
+      await testCacheState({ data: null, error: null, status: null, success: true, extra: xhrExtra }, view);
     });
     it("should allow to use initial data", async () => {
       await testClientIsolation(client);
-      const initialData: ResponseReturnType<unknown, Error, BaseAdapterType> = {
+      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       };
       const view = renderUseFetch(request, { disabled: true, initialData });
 

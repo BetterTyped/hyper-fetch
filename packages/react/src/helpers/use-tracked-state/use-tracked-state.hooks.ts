@@ -152,8 +152,8 @@ export const useTrackedState = <T extends RequestInstance>({
       data: cacheData.data,
       error: cacheData.error,
       status: cacheData.status,
-      isSuccess: cacheData.isSuccess,
-      additionalData: cacheData.additionalData,
+      success: cacheData.success,
+      extra: cacheData.extra,
       retries: cacheData.retries,
       timestamp: new Date(cacheData.timestamp),
       loading: state.current.loading,
@@ -197,7 +197,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setData: (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), isSuccess: true, data });
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: true, data });
       } else {
         state.current.data = data;
         renderKeyTrigger(["data"]);
@@ -206,7 +206,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setError: (error, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), isSuccess: false, error });
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: false, error });
       } else {
         state.current.error = error;
         renderKeyTrigger(["error"]);
@@ -235,22 +235,22 @@ export const useTrackedState = <T extends RequestInstance>({
         renderKeyTrigger(["status"]);
       }
     },
-    setIsSuccess: (isSuccess, emitToCache = defaultCacheEmitting) => {
+    setSuccess: (success, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), isSuccess });
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success });
       } else {
-        state.current.isSuccess = isSuccess;
-        renderKeyTrigger(["isSuccess"]);
+        state.current.success = success;
+        renderKeyTrigger(["success"]);
       }
     },
-    setAdditionalData: (additionalData, emitToCache = defaultCacheEmitting) => {
+    setExtra: (extra, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), additionalData });
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), extra });
       } else {
-        state.current.additionalData = additionalData;
-        renderKeyTrigger(["additionalData"]);
+        state.current.extra = extra;
+        renderKeyTrigger(["extra"]);
       }
     },
     setRetries: (retries, emitToCache = defaultCacheEmitting) => {

@@ -1,7 +1,7 @@
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
-import { Client, xhrAdditionalData } from "client";
+import { Client, xhrExtra } from "client";
 
 describe("Client [ Interceptor ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -61,7 +61,7 @@ describe("Client [ Interceptor ]", () => {
 
       client.onError(callbackAsync).onError(callbackSync).onError(callbackLast);
       await client.__modifyErrorResponse(
-        { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
+        { data: null, error: null, status: 400, success: false, extra: xhrExtra },
         request,
       );
 
@@ -74,7 +74,7 @@ describe("Client [ Interceptor ]", () => {
 
       client.onSuccess(callbackAsync).onSuccess(callbackSync).onSuccess(callbackLast);
       await client.__modifySuccessResponse(
-        { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
+        { data: null, error: null, status: 400, success: false, extra: xhrExtra },
         request,
       );
 
@@ -86,10 +86,7 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onResponse(callbackAsync).onResponse(callbackSync).onResponse(callbackLast);
-      await client.__modifyResponse(
-        { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
-        request,
-      );
+      await client.__modifyResponse({ data: null, error: null, status: 400, success: false, extra: xhrExtra }, request);
 
       testCallbacksExecution([spy1, spy2, spy3]);
     });
@@ -101,7 +98,7 @@ describe("Client [ Interceptor ]", () => {
 
       await expect(
         client.__modifyErrorResponse(
-          { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
+          { data: null, error: null, status: 400, success: false, extra: xhrExtra },
           request,
         ),
       ).rejects.toThrow();
@@ -111,7 +108,7 @@ describe("Client [ Interceptor ]", () => {
 
       await expect(
         client.__modifySuccessResponse(
-          { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
+          { data: null, error: null, status: 400, success: false, extra: xhrExtra },
           request,
         ),
       ).rejects.toThrow();
@@ -120,10 +117,7 @@ describe("Client [ Interceptor ]", () => {
       client.onResponse(() => undefined as any);
 
       await expect(
-        client.__modifyResponse(
-          { data: null, error: null, status: 400, isSuccess: false, additionalData: xhrAdditionalData },
-          request,
-        ),
+        client.__modifyResponse({ data: null, error: null, status: 400, success: false, extra: xhrExtra }, request),
       ).rejects.toThrow();
     });
   });

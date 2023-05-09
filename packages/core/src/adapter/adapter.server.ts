@@ -3,13 +3,13 @@ import stream from "stream";
 import https from "https";
 
 import { getAdapterBindings } from "./adapter.bindings";
-import { BaseAdapterType } from "./adapter.types";
+import { AdapterType } from "./adapter.types";
 import { defaultTimeout } from "./adapter.constants";
 import { getStreamPayload, getUploadSize, parseErrorResponse, parseResponse } from "./adapter.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
-import { xhrAdditionalData } from "client";
+import { xhrExtra } from "client";
 
-export const adapter: BaseAdapterType = async (request, requestId) => {
+export const adapter: AdapterType = async (request, requestId) => {
   const {
     makeRequest,
     fullUrl,
@@ -27,7 +27,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<BaseAdapterType>(request, requestId, 0, xhrAdditionalData);
+  } = await getAdapterBindings<AdapterType>(request, requestId, 0, xhrExtra);
 
   const { method = HttpMethodsEnum.get, client } = request;
   const httpClient = client.url.includes("https://") ? https : http;
@@ -53,7 +53,7 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
   return makeRequest((resolve) => {
     const httpRequest = httpClient.request(options, (response) => {
       response.setEncoding("utf8");
-      unmountListener = createAbortListener(0, xhrAdditionalData, response.destroy, resolve);
+      unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
 
       let chunks = "";
       const totalDownloadBytes = Number(response.headers["content-length"]);
@@ -68,9 +68,9 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
 
       response.on("end", () => {
         const { statusCode } = response;
-        const isSuccess = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
+        const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
-        if (isSuccess) {
+        if (success) {
           const data = parseResponse(chunks);
           onSuccess(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
         } else {
@@ -84,8 +84,8 @@ export const adapter: BaseAdapterType = async (request, requestId) => {
       });
     });
 
-    httpRequest.on("timeout", () => onTimeoutError(0, xhrAdditionalData, resolve));
-    httpRequest.on("error", (error) => onError(error, 0, xhrAdditionalData, resolve));
+    httpRequest.on("timeout", () => onTimeoutError(0, xhrExtra, resolve));
+    httpRequest.on("error", (error) => onError(error, 0, xhrExtra, resolve));
 
     if (payloadChunks) {
       const readableStream = stream.Readable.from(payloadChunks, { objectMode: false })

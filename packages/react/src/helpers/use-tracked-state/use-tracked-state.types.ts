@@ -8,7 +8,7 @@ import {
   LoggerType,
   ExtractAdapterType,
   ExtractAdapterStatusType,
-  ExtractAdapterAdditionalDataType,
+  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -53,11 +53,11 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   /**
    * Request additional response data
    */
-  additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>;
+  extra: ExtractAdapterExtraType<ExtractAdapterType<T>>;
   /**
    * Information whether request succeeded
    */
-  isSuccess: boolean;
+  success: boolean;
   /**
    * Request attempts
    */
@@ -86,16 +86,13 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
    */
   setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   /**
-   * Action to set custom isSuccess. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   * Action to set custom success. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void;
+  setSuccess: (success: boolean, emitToCache?: boolean) => void;
   /**
    * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setAdditionalData: (
-    additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>,
-    emitToCache?: boolean,
-  ) => void;
+  setExtra: (extra: ExtractAdapterExtraType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   /**
    * Action to set custom retries count. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */

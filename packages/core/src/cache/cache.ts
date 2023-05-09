@@ -85,7 +85,7 @@ export class Cache<C extends ClientInstance> {
     }
 
     // Only success data is valid for the cache store
-    if (response.isSuccess) {
+    if (response.success) {
       this.logger.debug("Saving response to cache storage", { request, data });
       this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
@@ -99,11 +99,11 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error, AdapterType extends AdapterInstance>(
+  get = <Response, Error, Adapter extends AdapterInstance>(
     cacheKey: string,
-  ): CacheValueType<Response, Error, AdapterType> | undefined => {
-    this.getLazyResource<Response, Error, AdapterType>(cacheKey);
-    const cachedData = this.storage.get<Response, Error, AdapterType>(cacheKey);
+  ): CacheValueType<Response, Error, Adapter> | undefined => {
+    this.getLazyResource<Response, Error, Adapter>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, Adapter>(cacheKey);
     return cachedData;
   };
 
@@ -154,11 +154,11 @@ export class Cache<C extends ClientInstance> {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error, AdapterType extends AdapterInstance>(
+  getLazyResource = async <Response, Error, Adapter extends AdapterInstance>(
     cacheKey: string,
-  ): Promise<CacheValueType<Response, Error, AdapterType> | undefined> => {
-    const data = await this.lazyStorage?.get<Response, Error, AdapterType>(cacheKey);
-    const syncData = this.storage.get<Response, Error, AdapterType>(cacheKey);
+  ): Promise<CacheValueType<Response, Error, Adapter> | undefined> => {
+    const data = await this.lazyStorage?.get<Response, Error, Adapter>(cacheKey);
+    const syncData = this.storage.get<Response, Error, Adapter>(cacheKey);
 
     // No data in lazy storage
     const hasLazyData = this.lazyStorage && data;
@@ -172,8 +172,8 @@ export class Cache<C extends ClientInstance> {
         this.lazyStorage.delete(cacheKey);
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
-        this.storage.set<Response, Error, AdapterType>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, AdapterType>(cacheKey, data);
+        this.storage.set<Response, Error, Adapter>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, Adapter>(cacheKey, data);
         return data;
       }
     }

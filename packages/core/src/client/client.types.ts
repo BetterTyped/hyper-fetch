@@ -1,10 +1,10 @@
 import { RequestInstance } from "request";
-import { ResponseReturnType, BaseAdapterType, QueryParamsType, AdapterInstance } from "adapter";
+import { ResponseReturnType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
 import { Client } from "client";
 import { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, BaseAdapterType<any, any, any, any>>;
+export type ClientInstance = Client<any, AdapterType<any, any, any, any>>;
 export type ExtractAdapterTypeFromClient<T> = T extends Client<any, infer A> ? A : never;
 
 /**
@@ -18,7 +18,7 @@ export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * Custom adapter initialization prop
    */
-  adapter?: BaseAdapterType;
+  adapter?: AdapterType;
   /**
    * Custom cache initialization prop
    */
@@ -40,14 +40,10 @@ export type ClientOptionsType<C extends ClientInstance> = {
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<
-  Response = any,
-  Error = any,
-  AdapterType extends AdapterInstance = BaseAdapterType,
-> = (
-  response: ResponseReturnType<Response, Error, AdapterType>,
+export type ResponseInterceptorType<Response = any, Error = any, Adapter extends AdapterInstance = AdapterType> = (
+  response: ResponseReturnType<Response, Error, Adapter>,
   request: RequestInstance,
-) => Promise<ResponseReturnType<any, any, AdapterType>> | ResponseReturnType<any, any, AdapterType>;
+) => Promise<ResponseReturnType<any, any, Adapter>> | ResponseReturnType<any, any, Adapter>;
 
 // Stringify
 

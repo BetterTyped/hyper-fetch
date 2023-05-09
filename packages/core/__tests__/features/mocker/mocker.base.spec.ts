@@ -1,14 +1,7 @@
 import { waitFor } from "@testing-library/dom";
 
 import { createAdapter, createDispatcher, sleep } from "../../utils";
-import {
-  BaseAdapterType,
-  Client,
-  getErrorMessage,
-  ResponseDetailsType,
-  ResponseReturnType,
-  xhrAdditionalData,
-} from "../../../src";
+import { AdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseReturnType, xhrExtra } from "../../../src";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Mocker [ Base ]", () => {
@@ -40,28 +33,28 @@ describe("Mocker [ Base ]", () => {
   describe("When using request's exec method", () => {
     it("should return adapter response", async () => {
       const mockedRequest = request.setMock({ data: fixture });
-      const requestExecution = mockedRequest.exec({});
+      const requestExecution = mockedRequest.exec();
       const response = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
       });
     });
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
       const mockedRequest = request.setMock({ data: fixture });
-      const response = await mockedRequest.send({});
+      const response = await mockedRequest.send();
 
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
         status: 200,
-        isSuccess: true,
-        additionalData: xhrAdditionalData,
+        success: true,
+        extra: xhrExtra,
       });
     });
   });
@@ -74,7 +67,7 @@ describe("Mocker [ Base ]", () => {
         config: { responseDelay: 1500 },
       });
 
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     expect(response.data).toBe(null);
     expect(response.error.message).toEqual(getErrorMessage("timeout").message);
@@ -115,12 +108,12 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("Should allow for retrying request", async () => {
-    let response: [ResponseReturnType<unknown, unknown, BaseAdapterType>, ResponseDetailsType];
+    let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
     const requestWithRetry = request
       .setRetry(1)
       .setRetryTime(50)
       .setMock([
-        { data: { data: [1, 2, 3] }, config: { status: 400, isSuccess: false } },
+        { data: { data: [1, 2, 3] }, config: { status: 400, success: false } },
         { data: { data: [1, 2, 3] }, config: { status: 200 } },
       ]);
 
@@ -134,12 +127,12 @@ describe("Mocker [ Base ]", () => {
       expect(response).toBeDefined();
     });
 
-    const adapterResponse: ResponseReturnType<unknown, unknown, BaseAdapterType> = {
+    const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
       data: { data: [1, 2, 3] },
       error: null,
       status: 200,
-      isSuccess: true,
-      additionalData: xhrAdditionalData,
+      success: true,
+      extra: xhrExtra,
     };
     const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
       retries: 1,
@@ -238,49 +231,49 @@ describe("Mocker [ Base ]", () => {
 
   it("should allow for removing mocker and expecting normal behavior when executing request", async () => {
     const mockedRequest = client.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     mockedRequest.removeMock();
     const data = createRequestInterceptor(mockedRequest, { fixture: { data: [64, 64, 64] } });
-    const response2 = await mockedRequest.send({});
+    const response2 = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
       error: null,
       status: 200,
-      isSuccess: true,
-      additionalData: xhrAdditionalData,
+      success: true,
+      extra: xhrExtra,
     });
     expect(response2.data).toStrictEqual(data);
   });
 
-  it("should allow for mocking additionalData", async () => {
-    const mockedRequest = request.setMock({ data: fixture, additionalData: { someAdditionalData: true } });
-    const response = await mockedRequest.send({});
+  it("should allow for mocking extra", async () => {
+    const mockedRequest = request.setMock({ data: fixture, extra: { someExtra: true } });
+    const response = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
       error: null,
       status: 200,
-      isSuccess: true,
-      additionalData: { someAdditionalData: true },
+      success: true,
+      extra: { someExtra: true },
     });
   });
 
   it("should allow for setting status that is not a number", async () => {
     const mockedRequest = request.setMock({
       data: fixture,
-      additionalData: { someAdditionalData: true },
+      extra: { someExtra: true },
       config: { status: "success" },
     });
-    const response = await mockedRequest.send({});
+    const response = await mockedRequest.send();
 
     expect(response).toStrictEqual({
       data: fixture,
       error: null,
       status: "success",
-      isSuccess: true,
-      additionalData: { someAdditionalData: true },
+      success: true,
+      extra: { someExtra: true },
     });
   });
 });

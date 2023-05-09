@@ -16,9 +16,9 @@ import {
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
 import {
-  BaseAdapterType,
+  AdapterType,
   ExtractAdapterMethodType,
-  ExtractAdapterOptions,
+  ExtractAdapterOptionsType,
   QueryParamsType,
   AdapterInstance,
 } from "adapter";
@@ -44,7 +44,7 @@ export class Request<
   GlobalError, // Global Error Type
   LocalError, // Additional Error for specific endpoint
   Endpoint extends string,
-  AdapterType extends AdapterInstance = BaseAdapterType,
+  Adapter extends AdapterInstance = AdapterType,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
@@ -52,11 +52,11 @@ export class Request<
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: ExtractAdapterMethodType<AdapterType>;
+  method: ExtractAdapterMethodType<Adapter>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
   data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
-  options?: ExtractAdapterOptions<AdapterType> | undefined;
+  options?: ExtractAdapterOptionsType<Adapter> | undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -88,19 +88,19 @@ export class Request<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly client: Client<GlobalError, AdapterType>,
+    readonly client: Client<GlobalError, Adapter>,
     readonly requestOptions: RequestOptionsType<
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >,
     readonly requestJSON?:
       | RequestCurrentType<
           Payload,
           QueryParams,
           Endpoint,
-          ExtractAdapterOptions<AdapterType>,
-          ExtractAdapterMethodType<AdapterType>
+          ExtractAdapterOptionsType<Adapter>,
+          ExtractAdapterMethodType<Adapter>
         >
       | undefined,
   ) {
@@ -178,7 +178,7 @@ export class Request<
     return this.clone<HasData, HasParams, true>({ queryParams });
   };
 
-  public setOptions = (options: ExtractAdapterOptions<AdapterType>) => {
+  public setOptions = (options: ExtractAdapterOptionsType<Adapter>) => {
     return this.clone<HasData, HasParams, true>({ options });
   };
 
@@ -187,11 +187,7 @@ export class Request<
   };
 
   public setRetry = (
-    retry: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
-    >["retry"],
+    retry: RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>["retry"],
   ) => {
     return this.clone({ retry });
   };
@@ -199,8 +195,8 @@ export class Request<
   public setRetryTime = (
     retryTime: RequestOptionsType<
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >["retryTime"],
   ) => {
     return this.clone({ retryTime });
@@ -209,19 +205,15 @@ export class Request<
   public setGarbageCollection = (
     garbageCollection: RequestOptionsType<
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >["garbageCollection"],
   ) => {
     return this.clone({ garbageCollection });
   };
 
   public setCache = (
-    cache: RequestOptionsType<
-      Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
-    >["cache"],
+    cache: RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>["cache"],
   ) => {
     return this.clone({ cache });
   };
@@ -229,8 +221,8 @@ export class Request<
   public setCacheTime = (
     cacheTime: RequestOptionsType<
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >["cacheTime"],
   ) => {
     return this.clone({ cacheTime });
@@ -351,7 +343,7 @@ export class Request<
       GlobalError,
       LocalError,
       Endpoint,
-      AdapterType,
+      Adapter,
       HasData,
       HasParams,
       HasQuery
@@ -371,7 +363,7 @@ export class Request<
     return endpoint;
   };
 
-  public toJSON(): RequestJSON<this, ExtractAdapterOptions<AdapterType>, QueryParams> {
+  public toJSON(): RequestJSON<this, ExtractAdapterOptionsType<Adapter>, QueryParams> {
     return {
       requestOptions: this.requestOptions,
       endpoint: this.endpoint,
@@ -411,17 +403,17 @@ export class Request<
       Payload,
       QueryParams,
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >,
-  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q> {
+  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q> {
     const json = this.toJSON();
     const requestJSON: RequestCurrentType<
       Payload,
       QueryParams,
       Endpoint,
-      ExtractAdapterOptions<AdapterType>,
-      ExtractAdapterMethodType<AdapterType>
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     > = {
       ...json,
       ...options,
@@ -434,7 +426,7 @@ export class Request<
       data: (options?.data || this.data) as any,
     };
 
-    const cloned = new Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, AdapterType, D, P, Q>(
+    const cloned = new Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q>(
       this.client,
       this.requestOptions,
       requestJSON,
