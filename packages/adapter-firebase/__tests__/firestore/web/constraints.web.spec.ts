@@ -11,8 +11,11 @@ import { deleteCollectionForWeb } from "../../utils/clean.web";
 import { $limit, $orderBy, $where } from "constraints";
 
 describe("Firestore Web [ Constraints ]", () => {
+  let client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
+
   beforeEach(async () => {
     await seedFirestoreDatabaseWeb(firestoreDbWeb);
+    client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
   });
 
   afterEach(async () => {
@@ -21,7 +24,6 @@ describe("Firestore Web [ Constraints ]", () => {
 
   describe("filtering", () => {
     it("should return filtered data based on single filter", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -31,7 +33,6 @@ describe("Firestore Web [ Constraints ]", () => {
       expect(data.map((tea) => tea.type)).toStrictEqual(["Green", "Green", "Green"]);
     });
     it("should return filtered data based on compound AND filter", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -45,7 +46,6 @@ describe("Firestore Web [ Constraints ]", () => {
   });
   describe("ordering", () => {
     it("should allow for returning ordered data", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -56,7 +56,6 @@ describe("Firestore Web [ Constraints ]", () => {
   });
   describe("limiting", () => {
     it("should allow for limiting returned data", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",
@@ -69,7 +68,6 @@ describe("Firestore Web [ Constraints ]", () => {
 
   describe("complex contraint", () => {
     it("should allow for filtering, ordering and limiting in the same query", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(firestoreDbWeb));
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "getDocs",

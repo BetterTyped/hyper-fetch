@@ -1,14 +1,21 @@
 import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
+import { testLifecycleEvents } from "../../../shared/request-events.shared";
 import { Tea } from "../../../utils/seed.data";
 
 export const getTestSuite = (
   adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("get", () => {
+    let client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
+    let clientBees = new Client({ url: "bees/" }).setAdapter(adapterFunction);
+    beforeEach(() => {
+      clientBees = new Client({ url: "bees/" }).setAdapter(adapterFunction);
+      client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
+    });
+
     it("should return data available for endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",
@@ -22,7 +29,6 @@ export const getTestSuite = (
       expect(error).toBe(null);
     });
     it("should return data for dynamic endpoint", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const req = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
@@ -34,8 +40,7 @@ export const getTestSuite = (
       expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
     });
     it("should return emptyResource status for non existing resource", async () => {
-      const client = new Client({ url: "bees/" }).setAdapter(adapterFunction);
-      const req = client
+      const req = clientBees
         .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "get",
@@ -45,6 +50,16 @@ export const getTestSuite = (
       const { data, status } = await req.send();
       expect(data).toStrictEqual(null);
       expect(status).toStrictEqual("emptyResource");
+    });
+    it("should emit lifecycle events", async () => {
+      const req = clientBees
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "get",
+        })
+        .setParams({ teaId: 1 });
+
+      await testLifecycleEvents(req);
     });
   });
 };

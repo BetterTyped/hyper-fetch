@@ -1,7 +1,6 @@
 import { RequestInstance } from "@hyper-fetch/core";
-import { waitFor } from "@testing-library/dom";
 
-export const testLifecycleEvents = async (request: RequestInstance) => {
+export const testLifecycleEvents = async <R extends RequestInstance>(request: R) => {
   const spy1 = jest.fn();
   const spy2 = jest.fn();
   const spy3 = jest.fn();
@@ -15,18 +14,21 @@ export const testLifecycleEvents = async (request: RequestInstance) => {
   request.client.requestManager.events.onDownloadProgress(request.queueKey, spy4);
   request.client.requestManager.events.onResponse(request.cacheKey, spy5);
 
-  request.send({
+  const response = request.send({
     onSettle: (requestId) => {
       request.client.requestManager.events.onResponseById(requestId, spy6);
     },
-  });
+  } as any);
 
-  await waitFor(() => {
-    expect(spy1).toBeCalledTimes(1);
-    expect(spy2).toBeCalledTimes(1);
-    expect(spy3).toBeCalledTimes(2);
-    expect(spy4).toBeCalledTimes(2);
-    expect(spy5).toBeCalledTimes(1);
-    expect(spy6).toBeCalledTimes(1);
-  });
+  // eslint-disable-next-line no-promise-executor-return
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(1);
+  expect(spy3).toBeCalledTimes(2);
+  expect(spy4).toBeCalledTimes(2);
+  expect(spy5).toBeCalledTimes(1);
+  expect(spy6).toBeCalledTimes(1);
+
+  return response;
 };

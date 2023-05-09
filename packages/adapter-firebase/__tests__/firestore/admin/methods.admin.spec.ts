@@ -9,6 +9,7 @@ import { firestoreDbAdmin } from "./initialize.admin";
 import { firebaseAdminAdapter } from "adapter";
 import { Tea } from "../../utils/seed.data";
 import { $where } from "constraints";
+import { testLifecycleEvents } from "../../shared/request-events.shared";
 
 describe("Firestore Admin [ Methods ]", () => {
   beforeEach(async () => {
@@ -433,6 +434,68 @@ describe("Firestore Admin [ Methods ]", () => {
       });
       expect(data).toBe(null);
       expect(extra.snapshot.exists).toBe(false);
+    });
+  });
+
+  describe("when request is getting send", () => {
+    it("should emit lifecycle events", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+
+      const request = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "setDoc",
+          options: { merge: true },
+        })
+        .setParams({ teaId: 1 })
+        .setData({ name: "Pou Ran Do Cha" } as Tea);
+
+      await testLifecycleEvents(request);
+    });
+    it("should emit lifecycle events", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const request = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+
+      await testLifecycleEvents(request);
+    });
+    it("should emit lifecycle events", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const request = client.createRequest<Tea>()({
+        endpoint: "",
+        method: "getDocs",
+      });
+
+      await testLifecycleEvents(request);
+    });
+    it("should emit lifecycle events", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+      const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
+
+      const request = client
+        .createRequest<Tea, Tea>()({
+          endpoint: ":teaId",
+          method: "updateDoc",
+        })
+        .setData(newData);
+
+      await testLifecycleEvents(request);
+    });
+    it("should emit lifecycle events", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdminAdapter(firestoreDbAdmin));
+
+      const request = client
+        .createRequest<Tea>()({
+          endpoint: ":teaId",
+          method: "deleteDoc",
+        })
+        .setParams({ teaId: 1 });
+
+      await testLifecycleEvents(request);
     });
   });
 });

@@ -2,13 +2,20 @@ import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../utils/seed.data";
 import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
+import { testLifecycleEvents } from "../../../shared/request-events.shared";
 
 export const onValueTestSuite = (
   adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("onValue", () => {
+    let client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
+    let clientBees = new Client({ url: "bees/" }).setAdapter(adapterFunction);
+    beforeEach(() => {
+      clientBees = new Client({ url: "bees/" }).setAdapter(adapterFunction);
+      client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
+    });
+
     it("should return data available for collection", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue",
@@ -25,7 +32,6 @@ export const onValueTestSuite = (
       extra.unsubscribe();
     });
     it("should return data available for doc", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const req = client
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
@@ -44,8 +50,7 @@ export const onValueTestSuite = (
       extra.unsubscribe();
     });
     it("should return emptyResource status for non existing doc", async () => {
-      const client = new Client({ url: "bees/" }).setAdapter(adapterFunction);
-      const req = client
+      const req = clientBees
         .createRequest<Tea[]>()({
           endpoint: ":teaId",
           method: "onValue",
@@ -63,9 +68,8 @@ export const onValueTestSuite = (
       extra.unsubscribe();
     });
     it("should return emptyResource status for non existing collection", async () => {
-      const client = new Client({ url: "bees/" }).setAdapter(adapterFunction);
       const req = client.createRequest<Tea[]>()({
-        endpoint: "",
+        endpoint: "bees/",
         method: "onValue",
       });
       const { data, extra, status, success, error } = await req.send();
@@ -80,7 +84,6 @@ export const onValueTestSuite = (
       extra.unsubscribe();
     });
     it("should change HF cache if data is changed in firebase after onValue listener creation", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const onValueReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue",
@@ -116,7 +119,6 @@ export const onValueTestSuite = (
       expect(Object.values(cacheAfterUnsub)).toHaveLength(11);
     });
     it("should not change HF cache if method is called with onlyOnce option", async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const onValueReq = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "onValue",
@@ -146,6 +148,24 @@ export const onValueTestSuite = (
 
       expect(data).toStrictEqual(cacheAfterOnValue);
       expect(cacheAfterPush).toHaveLength(10);
+    });
+    it("should emit lifecycle events", async () => {
+      const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
+
+      const req = client.createRequest<Tea[]>()({
+        endpoint: "",
+        method: "onValue",
+      });
+      const pushReq = client
+        .createRequest<Tea, Tea>()({
+          endpoint: "",
+          method: "push",
+        })
+        .setData(newData);
+
+      await pushReq.send();
+      const { extra } = await testLifecycleEvents(req);
+      extra.unsubscribe();
     });
   });
 };
