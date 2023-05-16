@@ -30,7 +30,7 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     | "onSuccess"
   >,
 ) => {
-  const timeout = request.requestOptions.options?.timeout;
+  const timeout = request.requestOptions.options?.timeout || request.options?.timeout;
   const mock = request.mock.next();
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
@@ -51,7 +51,7 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     };
     const [adjustedRequestSentDuration, adjustedResponseReceivedDuration] = calculateDurations();
 
-    createAbortListener(0 as any, request.client.defaultExtra, () => {}, resolve);
+    createAbortListener(0 as any, {} as any, () => {}, resolve);
 
     onBeforeRequest();
     onRequestStart();
@@ -79,14 +79,14 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       onResponseStart();
       await progress(adjustedResponseReceivedDuration, onResponseProgress);
       if (success) {
-        onSuccess(data, status as any, extra || request.client.defaultExtra, resolve);
+        onSuccess(data, status as any, extra || {}, resolve);
       } else {
-        onError(data, status as any, extra || request.client.defaultExtra, resolve);
+        onError(data, status as any, extra || {}, resolve);
       }
     };
 
     if (timeout && responseDelay > timeout) {
-      setTimeout(() => onTimeoutError(0 as any, extra || request.client.defaultExtra, resolve), timeout + 1);
+      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), timeout + 1);
     } else {
       setTimeout(getResponse, responseDelay);
     }

@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
 
 import { createAdapter, createDispatcher, sleep } from "../../utils";
-import { AdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseReturnType, xhrExtra } from "../../../src";
+import { AdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseReturnType } from "../../../src";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Mocker [ Base ]", () => {
@@ -40,7 +40,7 @@ describe("Mocker [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: {},
       });
     });
   });
@@ -54,7 +54,7 @@ describe("Mocker [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: xhrExtra,
+        extra: {},
       });
     });
   });
@@ -132,7 +132,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: xhrExtra,
+      extra: {} as any,
     };
     const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
       retries: 1,
@@ -242,7 +242,7 @@ describe("Mocker [ Base ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: xhrExtra,
+      extra: {},
     });
     expect(response2.data).toStrictEqual(data);
   });
@@ -274,6 +274,21 @@ describe("Mocker [ Base ]", () => {
       status: "success",
       success: true,
       extra: { someExtra: true },
+    });
+  });
+  it("should adjust requestSentDuration and responseReceivedDuration if timeout is set", async () => {
+    const timedOutRequest = request.setOptions({ timeout: 1000 });
+    const mockedRequest = timedOutRequest.setMock({
+      data: fixture,
+      config: { requestSentDuration: 5000, responseReceivedDuration: 5000 },
+    });
+    const response = await mockedRequest.send();
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
     });
   });
 });
