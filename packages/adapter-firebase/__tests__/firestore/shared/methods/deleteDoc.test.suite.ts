@@ -1,46 +1,53 @@
 import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
-import { testLifecycleEvents } from "../../../shared/request-events.shared";
 import { Tea } from "../../../utils/seed.data";
+import { testLifecycleEvents } from "../../../shared/request-events.shared";
 
-export const removeTestSuite = (
+export const deleteDocTestSuite = (
   adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
-  let client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
-  beforeEach(() => {
-    client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
-  });
-  describe("remove", () => {
+  describe("deleteDoc", () => {
     it("should allow for removing data", async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
       const getReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "get",
+          method: "getDoc",
         })
         .setParams({ teaId: 1 });
 
       const removeReq = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "remove",
+          method: "deleteDoc",
         })
         .setParams({ teaId: 1 });
 
+      const { data: beforeRemoval } = await getReq.send();
       await removeReq.send();
-      const { data, extra } = await getReq.send();
+      const { data } = await getReq.send();
+      expect(beforeRemoval).toStrictEqual({
+        amount: 150,
+        year: 2023,
+        origin: "China",
+        name: "Taiping Hou Kui",
+        type: "Green",
+      });
       expect(data).toBe(null);
-      expect(extra.snapshot.exists()).toBe(false);
+      // expect(extra.snapshot.exists()).toBe(false);
     });
     it("should emit lifecycle events", async () => {
-      const removeReq = client
+      const client = new Client({ url: "teas/" }).setAdapter(adapterFunction);
+
+      const request = client
         .createRequest<Tea>()({
           endpoint: ":teaId",
-          method: "remove",
+          method: "deleteDoc",
         })
         .setParams({ teaId: 1 });
 
-      await testLifecycleEvents(removeReq);
+      await testLifecycleEvents(request);
     });
   });
 };

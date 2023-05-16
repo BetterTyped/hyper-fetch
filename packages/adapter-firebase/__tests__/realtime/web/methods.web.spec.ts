@@ -16,6 +16,4 @@ describe("Realtime Database Web [ Methods ]", () => {
   });
 
   methodsSharedTestCases(() => firebaseWebAdapter(realtimeDbWeb));
-
-  describe("remove", () => {});
 });

@@ -78,6 +78,7 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   onSuccess,
   onError,
   resolve,
+  events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
 ): Record<
   FirestoreDBMethods,
   (data: {
@@ -101,8 +102,11 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
       if (pathRef instanceof CollectionReference) {
         pathRef = applyConstraints(pathRef, constraints);
       }
+      events.onRequestStart();
       const unsub = pathRef.onSnapshot(
         (snapshot) => {
+          events.onRequestEnd();
+          events.onResponseStart();
           const result =
             snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
@@ -110,79 +114,111 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
           const extra = { ref: pathRef, snapshot, unsubscribe: unsub, groupedResult };
           setCacheManually(request, { value: result, status }, extra);
           onSuccess(result, status, extra, resolve);
+          events.onResponseEnd();
         },
         (error) => {
-          // "error" or firebase error exposed
+          events.onRequestEnd();
+          events.onResponseStart();
           const extra = { ref: pathRef, unsubscribe: unsub };
           setCacheManually(request, { value: error, status: "error" }, extra);
           onError(error, "error", {}, resolve);
+          events.onResponseEnd();
         },
       );
     },
     getDoc: async () => {
-      // TODO - test for nested collection and nested doc
+      events.onRequestStart();
       const path = getRef(database, cleanUrl);
       try {
         const snapshot = (await path.get()) as DocumentSnapshot;
+        events.onRequestEnd();
+        events.onResponseStart();
         const result = snapshot.data() || null;
         const status = result ? "success" : "emptyResource";
         onSuccess(result, status, { ref: path, snapshot }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     getDocs: async ({ constraints = [] }: { constraints: any[] }) => {
       const path = getRef(database, cleanUrl) as CollectionReference;
       const query = applyConstraints(path, constraints);
 
       try {
+        events.onRequestStart();
         const querySnapshot = await query.get();
+        events.onRequestEnd();
+        events.onResponseStart();
         const result = getOrderedResultFirestore(querySnapshot);
         const status = getStatus(result);
 
         onSuccess(result, status, { ref: path, snapshot: querySnapshot }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     setDoc: async ({ data, options }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       const merge = options?.merge === true;
       try {
+        events.onRequestStart();
         const res = await path.set(data, { merge });
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(res, "success", { ref: path }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     addDoc: async ({ data }) => {
       const ref = getRef(database, cleanUrl) as CollectionReference;
       try {
+        events.onRequestStart();
         const docRef = await ref.add(data);
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(data, "success", { ref: docRef }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref }, resolve);
       }
+      events.onResponseEnd();
     },
     updateDoc: async ({ data }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       try {
+        events.onRequestStart();
         await path.update(data);
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
-    // TODO - check if handling DeleteField for cache works.
     deleteDoc: async () => {
       const path = getRef(database, cleanUrl) as DocumentReference;
       try {
-        // Precondition?
+        events.onRequestStart();
         await path.delete();
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(null, "success", { ref: path }, resolve);
       } catch (e) {
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
   };
 

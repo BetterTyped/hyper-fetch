@@ -16,12 +16,8 @@ import {
 
 export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
   const adapter: FirebaseWebAdapterTypes<T> = async (request, requestId) => {
-    const { fullUrl, onSuccess, onError } = await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(
-      request,
-      requestId,
-      "error",
-      {},
-    );
+    const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
+      await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
     return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
       // eslint-disable-next-line no-console
       if (database instanceof Database) {
@@ -31,7 +27,12 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           data,
           options,
         }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
-        const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
+        const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
+          onResponseStart,
+          onResponseEnd,
+          onRequestStart,
+          onRequestEnd,
+        });
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
           throw new Error(`Cannot find method ${method} in Realtime DB available methods.`);
@@ -49,7 +50,12 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           data,
           options,
         }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
-        const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve);
+        const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
+          onResponseStart,
+          onResponseEnd,
+          onRequestStart,
+          onRequestEnd,
+        });
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
           throw new Error(`Cannot find method ${method} in Firestore available methods.`);

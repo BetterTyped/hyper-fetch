@@ -67,6 +67,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   onSuccess,
   onError,
   resolve,
+  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
 ): Record<
   FirestoreDBMethods,
   (data: {
@@ -86,84 +87,127 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
         const queryConstraints = constraints.map((constr) => mapConstraint(constr));
         path = query(collection(database, cleanUrl), ...queryConstraints);
       }
+      events.onRequestStart();
       const unsub = onSnapshot(
         path,
         (snapshot) => {
+          events.onRequestEnd();
+          events.onResponseStart();
           const result = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(result);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: path, snapshot, unsubscribe: unsub, groupedResult };
           setCacheManually(request, { value: result, status }, extra);
           onSuccess(result, status, extra, resolve);
+          events.onResponseEnd();
         },
         (error) => {
+          events.onRequestEnd();
+          events.onResponseStart();
           const extra = { ref: path, unsubscribe: unsub };
           setCacheManually(request, { value: error, status: "error" }, extra);
           onError(error, "error", {}, resolve);
+          events.onResponseEnd();
         },
       );
     },
     getDoc: async () => {
       const path = doc(database, cleanUrl);
       try {
+        events.onRequestStart();
         const snapshot = await getDoc(path);
+        events.onRequestEnd();
+        events.onResponseStart();
         const result = snapshot.data() || null;
         const status = result ? "success" : "emptyResource";
         onSuccess(result, status, { ref: path, snapshot }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     getDocs: async ({ constraints = [] }: { constraints: any[] }) => {
       const queryConstraints = constraints.map((constr) => mapConstraint(constr));
       const path = collection(database, cleanUrl);
       const q = query(path, ...queryConstraints);
       try {
+        events.onRequestStart();
         const querySnapshot = await getDocs(q);
+        events.onRequestEnd();
+        events.onResponseStart();
         const result = getOrderedResultFirestore(querySnapshot);
         const status = getStatus(result);
 
         onSuccess(result, status, { ref: path, snapshot: querySnapshot }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     setDoc: async ({ data, options }) => {
       const path = doc(database, cleanUrl);
       const merge = options?.merge === true;
       try {
+        events.onRequestStart();
         await setDoc(path, data, { merge });
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     addDoc: async ({ data }) => {
       const path = collection(database, cleanUrl);
       try {
+        events.onRequestStart();
         const docRef = await addDoc(path, data);
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(data, "success", { ref: docRef }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     updateDoc: async ({ data }) => {
       const path = doc(database, cleanUrl);
       try {
+        events.onRequestStart();
         await updateDoc(path, data);
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(data, "success", { ref: path }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
     deleteDoc: async () => {
       const path = doc(database, cleanUrl);
       try {
+        events.onRequestStart();
         await deleteDoc(path);
+        events.onRequestEnd();
+        events.onResponseStart();
         onSuccess(null, "success", { ref: path }, resolve);
       } catch (e) {
+        events.onRequestEnd();
+        events.onResponseStart();
         onError(e, "error", { ref: path }, resolve);
       }
+      events.onResponseEnd();
     },
   };
 

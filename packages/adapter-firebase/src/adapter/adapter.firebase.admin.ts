@@ -15,12 +15,8 @@ import { getFirestoreMethodsAdmin, getRealtimeDBMethodsAdmin } from "methods";
 
 export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T) => {
   const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
-    const { fullUrl, onSuccess, onError } = await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(
-      request,
-      requestId,
-      "error",
-      {},
-    );
+    const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
+      await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
     return new Promise<ResponseReturnType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
       // eslint-disable-next-line no-console
       if (database instanceof Firestore) {
@@ -30,7 +26,12 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           data,
           options,
         }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
-        const availableMethods = getFirestoreMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve);
+        const availableMethods = getFirestoreMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
+          onRequestStart,
+          onResponseEnd,
+          onResponseStart,
+          onRequestEnd,
+        });
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
           throw new Error(`Cannot find method ${method} in Firestore available methods.`);
@@ -47,7 +48,12 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           data,
           options,
         }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
-        const availableMethods = getRealtimeDBMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve);
+        const availableMethods = getRealtimeDBMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
+          onRequestStart,
+          onResponseEnd,
+          onResponseStart,
+          onRequestEnd,
+        });
         const selectedMethod = availableMethods[method];
         if (!selectedMethod) {
           throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
