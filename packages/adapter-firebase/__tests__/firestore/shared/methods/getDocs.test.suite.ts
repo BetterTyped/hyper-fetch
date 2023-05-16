@@ -1,5 +1,4 @@
 import { Client } from "@hyper-fetch/core";
-import { QuerySnapshot } from "firebase/firestore";
 
 import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
 import { Tea } from "../../../utils/seed.data";
