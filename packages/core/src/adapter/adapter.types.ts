@@ -94,7 +94,7 @@ export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterIns
 
 // QueryParams
 
-export type QueryParamValuesType = number | string | boolean | null | undefined;
+export type QueryParamValuesType = number | string | boolean | null | undefined | Record<any, any>;
 export type QueryParamType = QueryParamValuesType | Array<QueryParamValuesType> | Record<string, QueryParamValuesType>;
 export type QueryParamsType = Record<string, QueryParamType>;
 
@@ -134,6 +134,15 @@ export type QueryStringifyOptionsType = {
    * Skip keys with empty string
    */
   skipEmptyString?: boolean;
+
+  /**
+   * Parsing function for date type query param
+   */
+  dateParser?: (value: QueryParamType) => string;
+  /**
+   * Parsing function for object type query param
+   */
+  objectParser?: (value: QueryParamType) => string;
 };
 
 // Progress

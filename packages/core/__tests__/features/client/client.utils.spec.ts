@@ -32,7 +32,21 @@ describe("Client [ Utils ]", () => {
       expect(stringifyQueryParams({ value: 10 })).toBe("?value=10");
       expect(stringifyQueryParams({ value: "test" })).toBe("?value=test");
       expect(stringifyQueryParams({ value: [1, 2, 3] })).toBe("?value[]=1&value[]=2&value[]=3");
-      expect(stringifyQueryParams({ value: { data: "test" } })).toBe("?value=%5Bobject%20Object%5D");
+      expect(stringifyQueryParams({ value: { data: "test" } })).toBe("?value=%7B%22data%22%3A%22test%22%7D");
+      expect(
+        stringifyQueryParams({
+          value: {
+            filter: {
+              firstName: "john",
+              other: {
+                hobbies: ["dancing", "singing"],
+              },
+            },
+          },
+        }),
+      ).toBe(
+        "?value=%7B%22filter%22%3A%7B%22firstName%22%3A%22john%22%2C%22other%22%3A%7B%22hobbies%22%3A%5B%22dancing%22%2C%22singing%22%5D%7D%7D%7D",
+      );
     });
     it("should encode not allowed characters values", async () => {
       expect(stringifyQueryParams({ value: "[]" })).toBe("?value=%5B%5D");

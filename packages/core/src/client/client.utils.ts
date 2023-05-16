@@ -109,7 +109,19 @@ const encodeParams = (key: string, value: QueryParamType, options: QueryStringif
     return "";
   }
 
-  return `${encodeValue(key, options)}=${encodeValue(String(value), options)}`;
+  const parsedValue = () => {
+    if (value instanceof Date) {
+      return options.dateParser?.(value) || value.toISOString();
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      return options.objectParser?.(value) || JSON.stringify(value);
+    }
+
+    return String(value);
+  };
+
+  return `${encodeValue(key, options)}=${encodeValue(parsedValue(), options)}`;
 };
 
 const encodeArray = (key: string, array: Array<QueryParamValuesType>, options: QueryStringifyOptionsType): string => {
