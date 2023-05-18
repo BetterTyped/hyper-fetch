@@ -1,0 +1,85 @@
+
+
+# useSocketState
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { useSocketState } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/helpers/use-socket-state/use-socket-state.hooks.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/helpers/use-socket-state/use-socket-state.hooks.ts#L7)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+useSocketState<DataType>(socket, __namedParameters)
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="socket"><td class="api-docs__param-name required">
+
+### socket 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SocketInstance`
+
+</td></tr><tr param-data="__namedParameters"><td class="api-docs__param-name required">
+
+### \_\_namedParameters 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`UseSocketStateProps`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+readonly [UseSocketStateType<DataType>, {
+  setConnected: (connected: boolean) => void;
+  setConnecting: (connecting: boolean) => void;
+  setData: (data: DataType) => void;
+  setTimestamp: (timestamp: number) => void;
+}, {
+  onClose: (callback: VoidFunction) => void;
+  onConnecting: (callback: VoidFunction) => void;
+  onError: (callback: (event: ErrorType) => void) => void;
+  onOpen: (callback: VoidFunction) => void;
+  onReconnecting: (callback: (attempts: number) => void) => void;
+  onReconnectingStop: (callback: (attempts: number) => void) => void;
+}, {
+  setRenderKey: (renderKey: keyof UseSocketStateType<DataType>) => void;
+}]
+```
+
+</div>

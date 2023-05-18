@@ -1,0 +1,63 @@
+
+
+# UseTrackedStateProps
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseTrackedStateProps } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.types.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L16)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type UseTrackedStateProps<T> = {
+  deepCompare: boolean | typeof isEqual; 
+  defaultCacheEmitting: boolean; 
+  dependencyTracking: boolean; 
+  dispatcher: Dispatcher; 
+  initialData: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null; 
+  logger: LoggerType; 
+  request: T; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  deepCompare: boolean | typeof isEqual;
+  defaultCacheEmitting: boolean;
+  dependencyTracking: boolean;
+  dispatcher: Dispatcher;
+  initialData: {additionalData:\ExtractAdapterAdditionalDataType<AdapterType>\ | \null\,data:\GenericDataType\ | \null\,error:\GenericErrorType\ | \null\,isSuccess:boolean,status:\ExtractAdapterStatusType<AdapterType>\ | \null\} | null;
+  logger: Record<LoggerLevelType, (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void>;
+  request: T;
+}
+```
+
+</div>

@@ -1,0 +1,55 @@
+
+
+# UseCacheOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseCacheOptionsType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/hooks/use-cache/use-cache.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type UseCacheOptionsType<T> = {
+  deepCompare: boolean | typeof isEqual; 
+  dependencyTracking: boolean; 
+  initialData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>[data] | null; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  deepCompare: boolean | typeof isEqual;
+  dependencyTracking: boolean;
+  initialData: {\n  ...params1: ResponseReturnType<Response, Error, AdapterType>;\n  ...params2: ResponseDetailsType;\n  cacheTime: number;\n  clearKey: string;\n  garbageCollection: number;\n}[data] | null;
+}
+```
+
+</div>

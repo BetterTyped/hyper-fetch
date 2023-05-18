@@ -1,0 +1,63 @@
+
+
+# FetchSendActionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { FetchSendActionsType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [request/request.types.ts:263](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L263)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type FetchSendActionsType<Request> = {
+  onDownloadProgress: (values: ProgressType, details: RequestEventType<Request>) => void; 
+  onRemove: (details: RequestEventType<Request>) => void; 
+  onRequestStart: (details: RequestEventType<Request>) => void; 
+  onResponse: (response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, details: ResponseDetailsType) => void; 
+  onResponseStart: (details: RequestEventType<Request>) => void; 
+  onSettle: (requestId: string, request: Request) => void; 
+  onUploadProgress: (values: ProgressType, details: RequestEventType<Request>) => void; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  onDownloadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;
+  onRemove: (details: RequestEventType<Request>) => void;
+  onRequestStart: (details: RequestEventType<Request>) => void;
+  onResponse: (response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, details: ResponseDetailsType) => void;
+  onResponseStart: (details: RequestEventType<Request>) => void;
+  onSettle: (requestId: string, request: Request) => void;
+  onUploadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;
+}
+```
+
+</div>

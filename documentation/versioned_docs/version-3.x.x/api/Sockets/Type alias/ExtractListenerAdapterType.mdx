@@ -1,0 +1,47 @@
+
+
+# ExtractListenerAdapterType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { ExtractListenerAdapterType } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [types/extract.types.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/sockets/src/types/extract.types.ts#L20)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type ExtractListenerAdapterType<E> = E extends Listener<any, infer  A> ? A : never;
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+E extends Listener<any, infer A> ? A : never
+```
+
+</div>

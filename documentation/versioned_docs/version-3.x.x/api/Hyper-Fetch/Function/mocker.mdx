@@ -1,0 +1,71 @@
+
+
+# mocker
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { mocker } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [mocker/mocker.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/mocker/mocker.ts#L7)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+mocker<T>(request, __namedParameters)
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="request"><td class="api-docs__param-name required">
+
+### request 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`RequestInstance`
+
+</td></tr><tr param-data="__namedParameters"><td class="api-docs__param-name required">
+
+### \_\_namedParameters 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`Pick<{ config: ExtractAdapterOptions<T>; createAbortListener: (status: ExtractAdapterStatusType<T>, abortAdditionalData: ExtractAdapterAdditionalDataType<T>, callback: () => void, resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void) => () => void; data: any; fullUrl: string; getAbortController: () => AbortController; getRequestStartTimestamp: () => number; getResponseStartTimestamp: () => number; headers: HeadersInit; makeRequest: (apiCall: (resolve: (value: ResponseReturnType<any, any, T> | PromiseLike<ResponseReturnType<any, any, T>>) => void) => void) => Promise<ResponseReturnType<any, any, T>>; onAbortError: (status: ExtractAdapterStatusType<T>, additionalData: ExtractAdapterAdditionalDataType<T>, resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void) => Promise<ResponseReturnErrorType<any, T>>; onBeforeRequest: () => void; onError: (error: any, status: ExtractAdapterStatusType<T>, additionalData: ExtractAdapterAdditionalDataType<T>, resolve: (value: ResponseReturnErrorType<any, T>) => void) => Promise<ResponseReturnErrorType<any, T>>; onRequestEnd: () => number; onRequestProgress: (progress: ProgressDataType) => number; onRequestStart: (progress?: ProgressDataType) => number; onResponseEnd: () => number; onResponseProgress: (progress: ProgressDataType) => number; onResponseStart: (progress?: ProgressDataType) => number; onSuccess: (responseData: any, status: ExtractAdapterStatusType<T>, additionalData: ExtractAdapterAdditionalDataType<T>, resolve: (value: ResponseReturnErrorType<any, T>) => void) => Promise<ResponseReturnSuccessType<ExtractResponseType<T>, T>>; onTimeoutError: (status: ExtractAdapterStatusType<T>, additionalData: ExtractAdapterAdditionalDataType<T>, resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void) => Promise<ResponseReturnErrorType<any, T>>; onUnexpectedError: (status: ExtractAdapterStatusType<T>, additionalData: ExtractAdapterAdditionalDataType<T>, resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void) => Promise<ResponseReturnErrorType<any, T>>; payload: any }, onRequestStart | onResponseStart | onError | onSuccess | onResponseEnd | onTimeoutError | onRequestEnd | createAbortListener | onResponseProgress | onRequestProgress | onBeforeRequest>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+Promise<ResponseReturnType<any, any, any>>
+```
+
+</div>

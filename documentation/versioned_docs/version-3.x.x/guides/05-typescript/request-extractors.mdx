@@ -1,0 +1,121 @@
+---
+title: Request Extractors
+sidebar_label: Request Extractors
+---
+
+The request generic type is huge, but essential. For this reason, to facilitate the work of you and ours, we have
+created special type extractors.
+
+---
+
+### ExtractResponseType
+
+```ts
+type ResponseType = ExtractResponseType<typeof getUser>; // { id: number, name: string, email: string }
+```
+
+---
+
+### ExtractPayloadType
+
+```ts
+type PayloadType = ExtractPayloadType<typeof postFile>; // { id: number, file: string }
+```
+
+---
+
+### ExtractQueryParamsType
+
+```ts
+type QueryParamsType = ExtractQueryParamsType<typeof getUsers>; // { search?: string, roles: "Admin" | "User" }
+```
+
+---
+
+### ExtractErrorType
+
+It will extract both - global and local error types.
+
+```ts
+type ErrorType = ExtractErrorType<typeof postUser>; // GlobalErrorType & LocalErrorType
+```
+
+---
+
+### ExtractGlobalErrorType
+
+```ts
+type ErrorType = ExtractGlobalErrorType<typeof postUser>; // GlobalErrorType
+```
+
+---
+
+### ExtractLocalErrorType
+
+```ts
+type ErrorType = ExtractLocalErrorType<typeof postUser>; // GlobalErrorType
+```
+
+---
+
+### ExtractParamsType
+
+```ts
+type UrlParamsType = ExtractParamsType<typeof patchUser>; // { userId: ParamType }
+```
+
+---
+
+### ExtractEndpointType
+
+```ts
+type EndpointType = ExtractEndpointType<typeof patchUser>; // "/users/:userId"
+```
+
+---
+
+### ExtractAdapterOptionsType
+
+```ts
+type AdapterOptionsType = ExtractAdapterOptionsType<typeof patchUser>; // { timeout?: number, ... }
+```
+
+---
+
+### ExtractAdapterReturnType
+
+It will extract exact adapter response format with [response, error, status].
+
+```ts
+type AdapterReturnType = ExtractAdapterReturnType<typeof patchUser>; // [ResponseType, ErrorType, number]
+```
+
+---
+
+### ExtractHasDataType
+
+If data was already added to the request.
+
+```ts
+type HasDataType = ExtractHasDataType<typeof patchUser>; // true | false
+```
+
+---
+
+### ExtractHasParamsType
+
+If params were already added to the request.
+
+```ts
+type HasParamsType = ExtractHasParamsType<typeof patchUser>; // true | false
+```
+
+---
+
+### ExtractHasQueryParamsType
+
+If query params were already added to the request.
+
+```ts
+type HasQueryParamsType = ExtractHasQueryParamsType<typeof patchUser>; // true | false
+```

@@ -1,0 +1,59 @@
+
+
+# ResponseReturnType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { ResponseReturnType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [adapter/adapter.types.ts:85](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.types.ts#L85)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type ResponseReturnType<GenericDataType,GenericErrorType,AdapterType> = {
+  additionalData: ExtractAdapterAdditionalDataType<AdapterType> | null; 
+  data: GenericDataType | null; 
+  error: GenericErrorType | null; 
+  isSuccess: boolean; 
+  status: ExtractAdapterStatusType<AdapterType> | null; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never | null;
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  isSuccess: boolean;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never | null;
+}
+```
+
+</div>

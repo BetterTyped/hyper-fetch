@@ -1,0 +1,131 @@
+
+
+# RequestJSON
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestJSON } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Dump of the request used to later recreate it
+
+</span></div><p class="api-docs__definition">
+
+Defined in [request/request.types.ts:40](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L40)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type RequestJSON<Request,AdapterOptions,QueryParams,Params> = {
+  abortKey: string; 
+  auth: boolean; 
+  cache: boolean; 
+  cacheKey: string; 
+  cacheTime: number; 
+  cancelable: boolean; 
+  data: PayloadType<ExtractPayloadType<Request>>; 
+  deduplicate: boolean; 
+  deduplicateTime: number; 
+  disableRequestInterceptors: boolean | undefined; 
+  disableResponseInterceptors: boolean | undefined; 
+  effectKey: string; 
+  endpoint: string; 
+  garbageCollection: number; 
+  headers: HeadersInit; 
+  method: ExtractAdapterMethodType<ExtractAdapterType<Request>>; 
+  offline: boolean; 
+  options: AdapterOptions | ExtractAdapterOptions<ExtractAdapterType<Request>>; 
+  params: Params | NegativeTypes; 
+  queryParams: QueryParams | NegativeTypes; 
+  queueKey: string; 
+  queued: boolean; 
+  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterType<Request>, ExtractAdapterMethodType<ExtractAdapterType<Request>>>; 
+  retry: number; 
+  retryTime: number; 
+  updatedAbortKey: boolean; 
+  updatedCacheKey: boolean; 
+  updatedEffectKey: boolean; 
+  updatedQueueKey: boolean; 
+  used: boolean; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  abortKey: string;
+  auth: boolean;
+  cache: boolean;
+  cacheKey: string;
+  cacheTime: number;
+  cancelable: boolean;
+  data: Payload | \null\ | \undefined\;
+  deduplicate: boolean;
+  deduplicateTime: number;
+  disableRequestInterceptors: boolean | undefined;
+  disableResponseInterceptors: boolean | undefined;
+  effectKey: string;
+  endpoint: string;
+  garbageCollection: number;
+  headers: HeadersInit;
+  method: T extends BaseAdapterType<any, infer M, any, any, any> ? M : never;
+  offline: boolean;
+  options: AdapterOptions | T extends BaseAdapterType<infer O, any, any, any, any> ? O : never;
+  params: Params | \null\ | \undefined\;
+  queryParams: QueryParams | \null\ | \undefined\;
+  queueKey: string;
+  queued: boolean;
+  requestOptions: {
+    abortKey: string;
+    auth: boolean;
+    cache: boolean;
+    cacheKey: string;
+    cacheTime: number;
+    cancelable: boolean;
+    deduplicate: boolean;
+    deduplicateTime: number;
+    disableRequestInterceptors: boolean;
+    disableResponseInterceptors: boolean;
+    effectKey: string;
+    endpoint: GenericEndpoint;
+    garbageCollection: number;
+    headers: HeadersInit;
+    method: RequestMethods;
+    offline: boolean;
+    options: AdapterOptions;
+    queueKey: string;
+    queued: boolean;
+    retry: number;
+    retryTime: number;
+  };
+  retry: number;
+  retryTime: number;
+  updatedAbortKey: boolean;
+  updatedCacheKey: boolean;
+  updatedEffectKey: boolean;
+  updatedQueueKey: boolean;
+  used: boolean;
+}
+```
+
+</div>

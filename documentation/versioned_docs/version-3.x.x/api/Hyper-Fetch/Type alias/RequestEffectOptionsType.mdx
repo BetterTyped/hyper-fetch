@@ -1,0 +1,61 @@
+
+
+# RequestEffectOptionsType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestEffectOptionsType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [effect/request.effect.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.types.ts#L10)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type RequestEffectOptionsType<T> = {
+  effectKey: string; 
+  onError: (response: ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
+  onFinished: (response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
+  onStart: (request: RequestInstance) => void; 
+  onSuccess: (response: ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
+  onTrigger: (request: RequestInstance) => void; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  effectKey: string;
+  onError: (response: ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
+  onFinished: (response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
+  onStart: (request: RequestInstance) => void;
+  onSuccess: (response: ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
+  onTrigger: (request: RequestInstance) => void;
+}
+```
+
+</div>

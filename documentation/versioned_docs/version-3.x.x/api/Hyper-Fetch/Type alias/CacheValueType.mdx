@@ -1,0 +1,60 @@
+
+
+# CacheValueType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { CacheValueType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [cache/cache.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/cache/cache.types.ts#L37)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type CacheValueType<Response,Error,AdapterType> = ResponseReturnType<Response, Error, AdapterType> & ResponseDetailsType & { cacheTime: number; clearKey: string; garbageCollection: number };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never | null;
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  isSuccess: boolean;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never | null;
+  isCanceled: boolean;
+  isOffline: boolean;
+  retries: number;
+  timestamp: number;
+  cacheTime: number;
+  clearKey: string;
+  garbageCollection: number;
+}
+```
+
+</div>

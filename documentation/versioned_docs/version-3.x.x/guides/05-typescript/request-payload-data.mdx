@@ -1,0 +1,27 @@
+---
+sidebar_position: 4
+title: Setting Request Payload Data Type
+sidebar_label: Request Payload Data
+---
+
+# Request Payload Data Type
+
+One of the basic functionality of typescript in this type of library, that is specifying the request type of payload. We
+define here the data that we want to send to the server.
+
+---
+
+### Example
+
+```ts
+type RequestPayloadType = {
+  name: string;
+  email: string;
+  age: number;
+};
+
+const postUser = client.createRequest<ResponseType, RequestPayloadType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+```

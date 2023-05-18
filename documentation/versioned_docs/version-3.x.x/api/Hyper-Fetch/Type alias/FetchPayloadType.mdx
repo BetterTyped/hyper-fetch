@@ -1,0 +1,53 @@
+
+
+# FetchPayloadType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { FetchPayloadType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+If the request data is not filled it will throw an error
+
+</span></div><p class="api-docs__definition">
+
+Defined in [request/request.types.ts:241](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L241)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type FetchPayloadType<Payload,HasData> = Payload extends NegativeTypes ? { data?: NegativeTypes } : HasData extends true ? { data?: NegativeTypes } : { data: NonNullable<Payload> };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+Payload extends NegativeTypes ? {
+    data: NegativeTypes;
+  } : (HasData extends true ? {
+  data: NegativeTypes;
+} : {
+  data: NonNullable<Payload>;
+})
+```
+
+</div>

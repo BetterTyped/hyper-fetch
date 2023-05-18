@@ -1,0 +1,68 @@
+
+
+# UseCacheReturnType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { UseCacheReturnType } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/hooks/use-cache/use-cache.types.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-cache/use-cache.types.ts#L27)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type single">
+
+```ts
+type UseCacheReturnType<T> = UseTrackedStateType<T> & UseTrackedStateActions<T> & { onCacheChange: (callback: OnFinishedCallbackType<T>) => void; onCacheError: (callback: OnErrorCallbackType<T>) => void; onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void; revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void };
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? \G\ | \L\ : never;
+  isSuccess: boolean;
+  loading: boolean;
+  retries: number;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
+  timestamp: null | Date;
+  setAdditionalData: (additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
+  onCacheError: (callback: OnErrorCallbackType<T>) => void;
+  onCacheSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void;
+}
+```
+
+</div>
