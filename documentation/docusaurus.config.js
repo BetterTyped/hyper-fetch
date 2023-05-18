@@ -158,10 +158,9 @@ const config = {
         indexName: "hyperfetch",
       },
       navbar: {
-        title: "Hyper Fetch",
         logo: {
           alt: "Hyper Fetch",
-          src: "img/logo.svg",
+          src: "img/brand/HF.svg",
         },
         items: [
           {

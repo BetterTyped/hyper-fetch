@@ -262,9 +262,18 @@ html[data-theme="dark"] body .navbar {
 
 .navbar__logo img {
   height: 100%;
-  max-width: 22px;
-  margin-right: -4px;
-  animation: wiggle 2s infinite;
+  max-height: 30px;
+  min-width: 120px;
+  margin-right: -25px;
+  margin-top: 3px;
+}
+
+html[data-theme="light"] body .navbar__logo img {
+  content: url("/img/brand/HF_Black.svg") !important;
+}
+
+.navbar__logo:hover img {
+  opacity: 0.8;
 }
 
 .navbar__title {
@@ -275,24 +284,6 @@ html[data-theme="dark"] body .navbar {
 .navbar__items--right {
   flex-direction: row-reverse;
   gap: 10px;
-}
-
-@keyframes wiggle {
-  0% {
-    transform: rotate(0deg);
-  }
-  80% {
-    transform: rotate(-1deg) scale(0.95);
-  }
-  85% {
-    transform: rotate(7deg) scale(1.05);
-  }
-  95% {
-    transform: rotate(-5deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
 }
 
 /* Search */
