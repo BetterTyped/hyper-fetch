@@ -100,6 +100,7 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
             const status = getStatus(res);
             setCacheManually(request, { value: res, status }, extra);
             onSuccess(res, status, extra, resolve);
+            events.onResponseEnd();
           },
           { onlyOnce },
         );
@@ -109,8 +110,8 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
         const extra = { ref: path, snapshot: null, unsubscribe: unsub };
         setCacheManually(request, { value: e, status: "error" }, extra);
         onError(e, "error", extra, resolve);
+        events.onResponseEnd();
       }
-      events.onResponseEnd();
     },
     get: async ({ constraints }) => {
       const params = constraints.map((constraint) => mapConstraint(constraint));

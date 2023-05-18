@@ -1,4 +1,0 @@
-
-Testing:
-1. Running the: firebase emulators:start --project demo-test --only firestore,database,ui
-  - the `--project demo-test` is only required for the ui to work.

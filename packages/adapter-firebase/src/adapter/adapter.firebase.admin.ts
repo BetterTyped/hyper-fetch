@@ -18,7 +18,6 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
     const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
     return new Promise<ResponseReturnType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
-      // eslint-disable-next-line no-console
       if (database instanceof Firestore) {
         const {
           method = "onSnapshot",

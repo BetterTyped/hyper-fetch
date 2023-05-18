@@ -19,7 +19,6 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
     const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
     return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
-      // eslint-disable-next-line no-console
       if (database instanceof Database) {
         const {
           method = "onValue" as RealtimeDBMethods,
