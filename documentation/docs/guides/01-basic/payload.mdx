@@ -29,5 +29,5 @@ console.log(request.data); // Output: { name: "Maciej" }
 #### Directly on send method
 
 ```ts
-const response = createUser.send({ data: { name: "Maciej" } }); // Must match `DataType`
+const response = await createUser.send({ data: { name: "Maciej" } }); // Must match `DataType`
 ```
