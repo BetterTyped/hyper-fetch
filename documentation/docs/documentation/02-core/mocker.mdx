@@ -6,33 +6,97 @@ sidebar_label: Mocking
 
 ## Introduction
 
-**`Request Mocking`** is a feature that allows for stubbing/mocking the response from a given endpoint,
- **keeping the complete request lifecycle and events**. That means - setting a mock
-
----
-
-## Purpose
-
-- Configures request templates
-- Standardizes the system’s data schema
-- Sends requests via dispatchers
-
----
-
-## Related guides
+**`Request Mocking`** is a feature that allows for stubbing/mocking the response for a given endpoint,
+ **keeping the complete request lifecycle and events**.
 
 ---
 
 ## Initialization
 
+You can mock the response via the request `setMock` method:
+
+```tsx
+const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });
+```
+
+This way, the mockedRequest will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`.
+
 ---
 
 
-### Trigger request
+## Config
 
-You can perform a request with the `send` method.
+`setMock` method accepts also the `config` object, that allows for tweaking our response.
 
----
+```tsx
+    const request = client
+      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .setMock({
+        data: {mocking: 'is fun'},
+        config: {
+          responseDelay: 1500,
+          status: 200
+        },
+      });
 
-## Features
+
+```
+ - `status` - setting the response status - it may be number or string  - **default: 200**
+ - `success` - informs whether the request should be as successful or not - **default: true**
+ - `responseDelay` - number of milliseconds the response should be delayed for. // TODO - Guide with showing how to timeout
+ - `requestSentDuration` and `responseReceivedDuration` - two variables that indicate how long request/response phase should take (in milliseconds).
+    If combined take longer than provided timeout, each values will be automatically adjusted to last half the timeout time.
+
+
+## Usage and use cases
+
+Mocker can be used in a few ways.
+1. It can accept an object (as presented above):
+```tsx
+const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });  // Always returns data: { test: 1, array: [200, 300, 404]
+```
+2. It can accept an array of values. In this case - values will be iterated over cyclically and applied each time a request is executed.
+
+```tsx
+  request.setMock([
+    { data: { data: [1, 2, 3] }, config: { status: 400, success: false } },
+    { data: { data: [1, 2, 3] }, config: { status: 200 } },
+  ]);
+
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 200 } }
+await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
+```
+3. It also accepts method that has access to the request itself. This allows for dynamic mocking, dependent on the passed arguments during execution.
+```tsx
+    const mockedRequest = client
+      .createRequest()({ endpoint: "/users/:id" })
+      .setMock((r) => {
+        const { params } = r;
+        if (params.id === 11) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
+```
+4. The passed method may be asynchronous:
+```tsx
+    const mockedRequest = client
+      .createRequest<Record<string, any>>()({ endpoint: "users/:id" })
+      .setMock(async (r) => {
+        if (r?.params?.id === 1) {
+          return { data: [1, 2, 3], config: { status: 222 } };
+        }
+        return { data: [4, 5, 6] };
+      });
+```
+It is also possible to pass a list of functions - the mocker will cycle over them and execute the correct one each time
+a request is executed.
+
+## Removal
+
+If, for any reason, user needs to remove mocker from request, it is possible to be done via `removeMock` method.
+```tsx
+mockedRequest.removeMock();
+```
 

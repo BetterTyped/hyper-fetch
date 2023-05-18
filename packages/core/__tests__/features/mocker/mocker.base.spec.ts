@@ -166,8 +166,7 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = client
       .createRequest()({ endpoint: "/users/:id" })
       .setMock((r) => {
-        // TODO - can we fix types here to somehow indicate that it is not 'null'?
-        const params = r.params as any;
+        const { params } = r;
         if (params.id === 11) {
           return { data: [1, 2, 3], config: { status: 222 } };
         }
