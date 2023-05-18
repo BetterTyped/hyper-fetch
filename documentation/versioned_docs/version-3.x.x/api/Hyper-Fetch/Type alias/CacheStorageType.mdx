@@ -22,7 +22,7 @@ import { CacheStorageType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/cache/cache.types.ts#L49)
+Defined in [cache/cache.types.ts:61](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/cache/cache.types.ts#L61)
 
 </p><div class="api-docs__section">
 
@@ -34,9 +34,9 @@ Defined in [cache/cache.types.ts:49](https://github.com/BetterTyped/hyper-fetch/
 type CacheStorageType = {
   clear: () => void; 
   delete: (key: string) => void; 
-  get: <Response,Error>(key: string) => CacheValueType<Response, Error> | undefined; 
+  get: <Response,Error,AdapterType>(key: string) => CacheValueType<Response, Error, AdapterType> | undefined; 
   keys: () => string[] | IterableIterator<string> | string[]; 
-  set: <Response,Error>(key: string, data: CacheValueType<Response, Error>) => void; 
+  set: <Response,Error,AdapterType>(key: string, data: CacheValueType<Response, Error, AdapterType>) => void; 
 }
 ```
 
@@ -50,9 +50,9 @@ type CacheStorageType = {
 {
   clear: () => void;
   delete: (key: string) => void;
-  get: (key: string) => CacheValueType<Response, Error> | undefined;
+  get: (key: string) => CacheValueType<Response, Error, AdapterType> | undefined;
   keys: () => string[] | IterableIterator<string> | string[];
-  set: (key: string, data: CacheValueType<Response, Error>) => void;
+  set: (key: string, data: CacheValueType<Response, Error, AdapterType>) => void;
 }
 ```
 

@@ -22,7 +22,7 @@ import { useFetch } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+Defined in [react/src/hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -70,17 +70,21 @@ Hook options
 
 ```ts
 {
-  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any, any> ? D : never;
-  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any, any> ? \G\ | \L\ : never;
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? \G\ | \L\ : never;
+  isSuccess: boolean;
   loading: boolean;
   retries: number;
-  status: null | number;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
   timestamp: null | Date;
+  setAdditionalData: (additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
   setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   setRetries: (retries: number, emitToCache?: boolean) => void;
-  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
   abort: () => void;
   onAbort: (callback: OnErrorCallbackType<T>) => void;

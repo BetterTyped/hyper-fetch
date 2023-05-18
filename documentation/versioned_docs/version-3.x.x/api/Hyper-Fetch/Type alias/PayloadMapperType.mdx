@@ -22,7 +22,7 @@ import { PayloadMapperType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:164](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L164)
+Defined in [request/request.types.ts:179](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L179)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:164](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type single">
 
 ```ts
-type PayloadMapperType<PayloadType,MappedData> = (data: PayloadType) => MappedData;
+type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewDataType;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type PayloadMapperType<PayloadType,MappedData> = (data: PayloadType) => MappedDa
 </div><div class="api-docs__returns">
 
 ```ts
-(data: PayloadType) => MappedData
+(data: Payload) => NewDataType
 ```
 
 </div>

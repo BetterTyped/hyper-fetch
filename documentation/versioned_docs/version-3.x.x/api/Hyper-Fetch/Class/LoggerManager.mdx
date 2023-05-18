@@ -1,3 +1,5 @@
+
+
 # LoggerManager
 
 <div class="api-docs__separator" data-reactroot="">
@@ -7,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { LoggerManager } from "@hyper-fetch/core";
+import { LoggerManager } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -16,14 +18,13 @@ import { LoggerManager } from "@hyper-fetch/core";
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each
-client. We can set up the logging level based on available values. This manager enable to initialize the logging
-instance per individual module like Client, Request etc. Which can give you better feedback on the logging itself.
+This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each client.
+We can set up the logging level based on available values. This manager enable to initialize the logging instance per individual module
+like Client, Request etc. Which can give you better feedback on the logging itself.
 
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L11)
+Defined in [managers/logger/logger.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +32,7 @@ Defined in
 
 </div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="client"><td class="api-docs__param-name required">
 
-### client
+### client 
 
 `Required`
 
@@ -41,7 +42,7 @@ Defined in
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name optional">
 
-### options
+### options 
 
 `Optional`
 
@@ -63,10 +64,11 @@ Defined in
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L15)
+Defined in [managers/logger/logger.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L15)
 
 </p><div class="api-docs__section">
 
@@ -75,7 +77,7 @@ Defined in
 </div><div class="api-docs__property-type">
 
 ```ts
-EventEmitter;
+EventEmitter
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="severity"><h3 class="api-docs__name">
@@ -88,10 +90,11 @@ EventEmitter;
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L13)
+Defined in [managers/logger/logger.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -100,7 +103,7 @@ Defined in
 </div><div class="api-docs__property-type">
 
 ```ts
-SeverityType;
+SeverityType
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
@@ -117,10 +120,11 @@ SeverityType;
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L12)
+Defined in [managers/logger/logger.manager.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -143,7 +147,7 @@ Defined in
 </div><div class="api-docs__preview fn">
 
 ```ts
-init(module);
+init(module)
 ```
 
 </div><div class="api-docs__section">
@@ -152,10 +156,11 @@ init(module);
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L26)
+Defined in [managers/logger/logger.manager.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L26)
 
 </p><div class="api-docs__section">
 
@@ -163,7 +168,7 @@ Defined in
 
 </div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="module"><td class="api-docs__param-name required">
 
-#### module
+#### module 
 
 `Required`
 
@@ -178,7 +183,7 @@ Defined in
 </div><div class="api-docs__returns">
 
 ```ts
-Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
+Record<LoggerLevelType, (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void>
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="setSeverity"><h3 class="api-docs__name">
@@ -192,7 +197,7 @@ Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType
 </div><div class="api-docs__preview fn">
 
 ```ts
-setSeverity(severity);
+setSeverity(severity)
 ```
 
 </div><div class="api-docs__section">
@@ -201,10 +206,11 @@ setSeverity(severity);
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.ts#L22)
+Defined in [managers/logger/logger.manager.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -212,7 +218,7 @@ Defined in
 
 </div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="severity"><td class="api-docs__param-name required">
 
-#### severity
+#### severity 
 
 `Required`
 

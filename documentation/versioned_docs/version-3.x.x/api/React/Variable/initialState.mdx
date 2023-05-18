@@ -22,7 +22,7 @@ import { initialState } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.constants.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/helpers/use-tracked-state/use-tracked-state.constants.ts#L3)
 
 </p><div class="api-docs__section">
 
@@ -42,11 +42,13 @@ const initialState = UseTrackedStateType
 
 ```ts
 {
-  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any, any> ? D : never;
-  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any, any> ? \G\ | \L\ : never;
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never;
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? \G\ | \L\ : never;
+  isSuccess: boolean;
   loading: boolean;
   retries: number;
-  status: null | number;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never;
   timestamp: null | Date;
 }
 ```

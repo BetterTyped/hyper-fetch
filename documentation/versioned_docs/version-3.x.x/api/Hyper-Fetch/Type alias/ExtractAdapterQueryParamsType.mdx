@@ -1,6 +1,6 @@
 
 
-# ResponseErrorType
+# ExtractAdapterQueryParamsType
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { ResponseErrorType } from "@hyper-fetch/core"
+import { ExtractAdapterQueryParamsType } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,7 +22,7 @@ import { ResponseErrorType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.types.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.types.ts#L19)
+Defined in [adapter/adapter.types.ts:38](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.types.ts#L38)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/adapter.types.ts:19](https://github.com/BetterTyped/hyper-fe
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ResponseErrorType<GenericErrorType> = [null, GenericErrorType, number | null];
+type ExtractAdapterQueryParamsType<T> = T extends BaseAdapterType<any, any, any, any, infer  Q> ? Q : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ResponseErrorType<GenericErrorType> = [null, GenericErrorType, number | nul
 </div><div class="api-docs__returns">
 
 ```ts
-[null, GenericErrorType, number | null]
+T extends BaseAdapterType<any, any, any, any, infer Q> ? Q : never
 ```
 
 </div>

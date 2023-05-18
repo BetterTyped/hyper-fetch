@@ -22,7 +22,7 @@ import { ExtractHasQueryParamsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:53](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/types/fetch.types.ts#L53)
+Defined in [types/fetch.types.ts:48](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/types/fetch.types.ts#L48)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/fetch.types.ts:53](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractHasQueryParamsType<T> = T extends Request<any, any, any, any, any, any, any, any, any, infer  Q, any> ? Q : never;
+type ExtractHasQueryParamsType<T> = T extends Request<any, any, any, any, any, any, any, any, any, infer  Q> ? Q : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractHasQueryParamsType<T> = T extends Request<any, any, any, any, any, a
 </div><div class="api-docs__returns">
 
 ```ts
-T extends Request<any, any, any, any, any, any, any, any, any, infer Q, any> ? Q : never
+T extends Request<any, any, any, any, any, any, any, any, any, infer Q> ? Q : never
 ```
 
 </div>

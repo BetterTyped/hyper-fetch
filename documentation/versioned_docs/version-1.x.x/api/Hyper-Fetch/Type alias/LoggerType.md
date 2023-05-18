@@ -1,3 +1,5 @@
+
+
 # LoggerType
 
 <div class="api-docs__separator">
@@ -7,7 +9,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { LoggerType } from "@hyper-fetch/core";
+import { LoggerType } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -16,10 +18,11 @@ import { LoggerType } from "@hyper-fetch/core";
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
+
+
 </span></div><p class="api-docs__definition">
 
-Defined in
-[managers/logger/logger.manager.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/managers/logger/logger.manager.types.ts#L7)
+Defined in [managers/logger/logger.manager.types.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/managers/logger/logger.manager.types.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -28,7 +31,7 @@ Defined in
 </div><div class="api-docs__preview type single">
 
 ```ts
-type LoggerType = Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
+type LoggerType = Record<LoggerLevelType, (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void>;
 ```
 
 </div><div class="api-docs__section">
@@ -38,7 +41,7 @@ type LoggerType = Record<LoggerLevelType, (message: LoggerMessageType, ...extra:
 </div><div class="api-docs__returns">
 
 ```ts
-Record<LoggerLevelType, (message: LoggerMessageType, ...extra: LoggerMessageType[]) => void>;
+Record<LoggerLevelType, (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => void>
 ```
 
 </div>

@@ -22,7 +22,7 @@ import { RequestEffectOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.types.ts#L10)
+Defined in [effect/request.effect.types.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.types.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -33,10 +33,10 @@ Defined in [effect/request.effect.types.ts:10](https://github.com/BetterTyped/hy
 ```ts
 type RequestEffectOptionsType<T> = {
   effectKey: string; 
-  onError: (response: ResponseErrorType<ExtractErrorType<T>>, request: RequestInstance) => void; 
-  onFinished: (response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>, request: RequestInstance) => void; 
+  onError: (response: ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
+  onFinished: (response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
   onStart: (request: RequestInstance) => void; 
-  onSuccess: (response: ResponseSuccessType<ExtractResponseType<T>>, request: RequestInstance) => void; 
+  onSuccess: (response: ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void; 
   onTrigger: (request: RequestInstance) => void; 
 }
 ```
@@ -50,10 +50,10 @@ type RequestEffectOptionsType<T> = {
 ```ts
 {
   effectKey: string;
-  onError: (response: ResponseErrorType<ExtractErrorType<T>>, request: RequestInstance) => void;
-  onFinished: (response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>, request: RequestInstance) => void;
+  onError: (response: ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
+  onFinished: (response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
   onStart: (request: RequestInstance) => void;
-  onSuccess: (response: ResponseSuccessType<ExtractResponseType<T>>, request: RequestInstance) => void;
+  onSuccess: (response: ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>, request: RequestInstance) => void;
   onTrigger: (request: RequestInstance) => void;
 }
 ```

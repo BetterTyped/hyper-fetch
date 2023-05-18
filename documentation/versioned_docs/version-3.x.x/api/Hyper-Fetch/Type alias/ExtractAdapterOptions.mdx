@@ -1,6 +1,6 @@
 
 
-# AdapterType
+# ExtractAdapterOptions
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { AdapterType } from "@hyper-fetch/core"
+import { ExtractAdapterOptions } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +18,11 @@ import { AdapterType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
+Extractors
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.types.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.types.ts#L5)
+Defined in [adapter/adapter.types.ts:34](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.types.ts#L34)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/adapter.types.ts:5](https://github.com/BetterTyped/hyper-fet
 </div><div class="api-docs__preview type single">
 
 ```ts
-type AdapterType = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
+type ExtractAdapterOptions<T> = T extends BaseAdapterType<infer  O, any, any, any, any> ? O : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type AdapterType = (request: RequestInstance, requestId: string) => Promise<Resp
 </div><div class="api-docs__returns">
 
 ```ts
-(request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>
+T extends BaseAdapterType<infer O, any, any, any, any> ? O : never
 ```
 
 </div>

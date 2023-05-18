@@ -22,7 +22,7 @@ import { LoggerResponseEventData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/logger/logger.manager.types.ts#L30)
+Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/logger/logger.manager.types.ts#L30)
 
 </p><div class="api-docs__section">
 
@@ -31,11 +31,11 @@ Defined in [managers/logger/logger.manager.types.ts:30](https://github.com/Bette
 </div><div class="api-docs__preview type">
 
 ```ts
-type LoggerResponseEventData = {
+type LoggerResponseEventData<AdapterType> = {
   details: ResponseDetailsType; 
   request: RequestInstance; 
   requestId: string; 
-  response: ResponseType<unknown, unknown>; 
+  response: ResponseReturnType<unknown, unknown, AdapterType>; 
 }
 ```
 
@@ -49,14 +49,19 @@ type LoggerResponseEventData = {
 {
   details: {
     isCanceled: boolean;
-    isFailed: boolean;
     isOffline: boolean;
     retries: number;
     timestamp: number;
   };
-  request: Request<any, any, any, any, any, any, any, any, any, any, any>;
+  request: Request<any, any, any, any, any, any, BaseAdapterType<any, any, any, any, any>, any, any, any>;
   requestId: string;
-  response: [GenericDataType | null, GenericErrorType | null, number | null];
+  response: {
+    additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never | null;
+    data: GenericDataType | null;
+    error: GenericErrorType | null;
+    isSuccess: boolean;
+    status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never | null;
+  };
 }
 ```
 

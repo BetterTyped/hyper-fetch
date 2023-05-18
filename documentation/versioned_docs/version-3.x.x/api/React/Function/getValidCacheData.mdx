@@ -22,7 +22,7 @@ import { getValidCacheData } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L33)
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.utils.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L35)
 
 </p><div class="api-docs__section">
 
@@ -66,7 +66,7 @@ getValidCacheData<T>(request, initialData, cacheData)
 
 </td><td class="api-docs__param-type">
 
-`CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>`
+`CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, AdapterInstance>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -76,10 +76,10 @@ getValidCacheData<T>(request, initialData, cacheData)
 
 ```ts
 {
+  ...params1: ResponseReturnType<Response, Error, AdapterType>;
+  ...params2: ResponseDetailsType;
   cacheTime: number;
   clearKey: string;
-  data: ResponseType<Response, Error>;
-  details: ResponseDetailsType;
   garbageCollection: number;
 }
 ```

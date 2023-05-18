@@ -1,6 +1,6 @@
 
 
-# requestSendRequest
+# sendRequest
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { requestSendRequest } from "@hyper-fetch/core"
+import { sendRequest } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,7 +22,7 @@ import { requestSendRequest } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.utils.ts#L113)
+Defined in [request/request.utils.ts:113](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.utils.ts#L113)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.utils.ts:113](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview fn">
 
 ```ts
-requestSendRequest<Request>(request, options)
+sendRequest<Request>(request, options)
 ```
 
 </div><div class="api-docs__section">
@@ -65,7 +65,7 @@ requestSendRequest<Request>(request, options)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+Promise<ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>
 ```
 
 </div>

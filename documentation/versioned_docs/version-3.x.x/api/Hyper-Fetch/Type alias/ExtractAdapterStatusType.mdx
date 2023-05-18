@@ -1,6 +1,6 @@
 
 
-# ExtractHasMappedDataType
+# ExtractAdapterStatusType
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { ExtractHasMappedDataType } from "@hyper-fetch/core"
+import { ExtractAdapterStatusType } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,7 +22,7 @@ import { ExtractHasMappedDataType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:57](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/types/fetch.types.ts#L57)
+Defined in [adapter/adapter.types.ts:36](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.types.ts#L36)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/fetch.types.ts:57](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractHasMappedDataType<T> = T extends Request<any, any, any, any, any, any, any, any, any, any, infer  M> ? M : never;
+type ExtractAdapterStatusType<T> = T extends BaseAdapterType<any, any, infer  S, any, any> ? S : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractHasMappedDataType<T> = T extends Request<any, any, any, any, any, an
 </div><div class="api-docs__returns">
 
 ```ts
-T extends Request<any, any, any, any, any, any, any, any, any, any, infer M> ? M : never
+T extends BaseAdapterType<any, any, infer S, any, any> ? S : never
 ```
 
 </div>

@@ -1,6 +1,6 @@
 
 
-# ResponseSuccessType
+# xhrAdditionalData
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { ResponseSuccessType } from "@hyper-fetch/core"
+import { xhrAdditionalData } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,16 +22,16 @@ import { ResponseSuccessType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.types.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.types.ts#L18)
+Defined in [client/client.constants.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/client/client.constants.ts#L13)
 
 </p><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type single">
+</div><div class="api-docs__preview var">
 
 ```ts
-type ResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
+const xhrAdditionalData = AdapterAdditionalDataType
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,9 @@ type ResponseSuccessType<GenericDataType> = [GenericDataType, null, number | nul
 </div><div class="api-docs__returns">
 
 ```ts
-[GenericDataType, null, number | null]
+{
+  headers: Record<string, string>;
+}
 ```
 
 </div>

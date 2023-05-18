@@ -22,7 +22,7 @@ import { getRequestManagerEvents } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/managers/request/request.manager.events.ts#L27)
+Defined in [managers/request/request.manager.events.ts:27](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.events.ts#L27)
 
 </p><div class="api-docs__section">
 
@@ -61,7 +61,7 @@ getRequestManagerEvents(emitter)
   emitLoading: (queueKey: string, requestId: string, values: RequestLoadingEventType) => void;
   emitRemove: (queueKey: string, requestId: string, details: RequestEventType<T>) => void;
   emitRequestStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>) => void;
-  emitResponse: (cacheKey: string, requestId: string, response: ResponseType<unknown, unknown>, details: ResponseDetailsType) => void;
+  emitResponse: (cacheKey: string, requestId: string, response: ResponseReturnType<unknown, unknown, AdapterType>, details: ResponseDetailsType) => void;
   emitResponseStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>) => void;
   emitUploadProgress: (queueKey: string, requestId: string, values: ProgressType, details: RequestEventType<RequestInstance>) => void;
   onAbort: (abortKey: string, callback: (request: RequestInstance) => void) => VoidFunction;
@@ -74,8 +74,8 @@ getRequestManagerEvents(emitter)
   onRemoveById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
   onRequestStart: (queueKey: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
   onRequestStartById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
-  onResponse: (cacheKey: string, callback: (response: ResponseType<Response, ErrorType>, details: ResponseDetailsType) => void) => VoidFunction;
-  onResponseById: (requestId: string, callback: (response: ResponseType<Response, ErrorType>, details: ResponseDetailsType) => void) => VoidFunction;
+  onResponse: (cacheKey: string, callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void) => VoidFunction;
+  onResponseById: (requestId: string, callback: (response: ResponseReturnType<Response, ErrorType, AdapterType>, details: ResponseDetailsType) => void) => VoidFunction;
   onResponseStart: (queueKey: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
   onResponseStartById: (requestId: string, callback: (details: RequestEventType<T>) => void) => VoidFunction;
   onUploadProgress: (queueKey: string, callback: (values: ProgressType, details: RequestEventType<T>) => void) => VoidFunction;

@@ -22,25 +22,16 @@ import { UseSubmitOptionsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/hooks/use-submit/use-submit.types.ts#L21)
+Defined in [react/src/hooks/use-submit/use-submit.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-submit/use-submit.types.ts#L21)
 
 </p><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type">
+</div><div class="api-docs__preview type single">
 
 ```ts
-type UseSubmitOptionsType<T> = {
-  bounce: boolean; 
-  bounceTime: number; 
-  bounceTimeout: number; 
-  bounceType: debounce | throttle; 
-  deepCompare: boolean | typeof isEqual; 
-  dependencyTracking: boolean; 
-  disabled: boolean; 
-  initialData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>[data] | null; 
-}
+type UseSubmitOptionsType<T> = { bounce?: boolean; deepCompare?: boolean | typeof isEqual; dependencyTracking?: boolean; disabled?: boolean; initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>[data] | null } & ({ bounceTime?: number; bounceType?: debounce } | { bounceTime?: number; bounceTimeout?: number; bounceType: throttle });
 ```
 
 </div><div class="api-docs__section">
@@ -52,13 +43,11 @@ type UseSubmitOptionsType<T> = {
 ```ts
 {
   bounce: boolean;
-  bounceTime: number;
-  bounceTimeout: number;
-  bounceType: debounce | throttle;
   deepCompare: boolean | typeof isEqual;
   dependencyTracking: boolean;
   disabled: boolean;
-  initialData: ResponseType<Response, Error> | null;
+  initialData: {\n  ...params1: ResponseReturnType<Response, Error, AdapterType>;\n  ...params2: ResponseDetailsType;\n  cacheTime: number;\n  clearKey: string;\n  garbageCollection: number;\n}[data] | null;
+  ...params2: {bounceTime:number,bounceType:debounce} | {bounceTime:number,bounceTimeout:number,bounceType:throttle};
 }
 ```
 

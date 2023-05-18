@@ -1,6 +1,6 @@
 
 
-# fileToBuffer
+# getResponseHeaders
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { fileToBuffer } from "@hyper-fetch/core"
+import { getResponseHeaders } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,7 +22,7 @@ import { fileToBuffer } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.utils.ts:41](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.utils.ts#L41)
+Defined in [adapter/adapter.utils.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.utils.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -31,22 +31,22 @@ Defined in [adapter/adapter.utils.ts:41](https://github.com/BetterTyped/hyper-fe
 </div><div class="api-docs__preview fn">
 
 ```ts
-fileToBuffer(file)
+getResponseHeaders(headersString)
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="file"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="headersString"><td class="api-docs__param-name required">
 
-### file 
+### headersString 
 
 `Required`
 
 </td><td class="api-docs__param-type">
 
-`File | Blob`
+`string`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -55,7 +55,7 @@ fileToBuffer(file)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise<Uint8Array>
+Record<string, string>
 ```
 
 </div>

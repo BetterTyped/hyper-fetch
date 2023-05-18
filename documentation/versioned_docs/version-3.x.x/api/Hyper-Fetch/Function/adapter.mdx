@@ -22,7 +22,7 @@ import { adapter } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.ts#L6)
+Defined in [adapter/adapter.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [adapter/adapter.ts:6](https://github.com/BetterTyped/hyper-fetch/blo
 </div><div class="api-docs__preview fn">
 
 ```ts
-adapter(request, requestId)
+adapter(request, requestId, DO_NOT_USE)
 ```
 
 </div><div class="api-docs__section">
@@ -58,6 +58,16 @@ adapter(request, requestId)
 
 `string`
 
+</td></tr><tr param-data="DO_NOT_USE"><td class="api-docs__param-name optional">
+
+### DO\_NOT\_USE 
+
+`Optional`
+
+</td><td class="api-docs__param-type">
+
+`{ additionalData?: AdapterAdditionalDataType; method?: HttpMethodsType; options?: Partial<XMLHttpRequest>; queryParams?: string | QueryParamsType; status?: number }`
+
 </td></tr></tbody></table></div><div class="api-docs__section">
 
 ## Returns
@@ -65,7 +75,7 @@ adapter(request, requestId)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise<ResponseType<any, any>>
+Promise<ResponseReturnType<any, any, any>>
 ```
 
 </div>

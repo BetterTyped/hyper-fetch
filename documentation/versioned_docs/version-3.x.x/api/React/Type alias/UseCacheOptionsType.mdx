@@ -22,7 +22,7 @@ import { UseCacheOptionsType } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-cache/use-cache.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
+Defined in [react/src/hooks/use-cache/use-cache.types.ts:12](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-cache/use-cache.types.ts#L12)
 
 </p><div class="api-docs__section">
 
@@ -48,7 +48,7 @@ type UseCacheOptionsType<T> = {
 {
   deepCompare: boolean | typeof isEqual;
   dependencyTracking: boolean;
-  initialData: ResponseType<Response, Error> | null;
+  initialData: {\n  ...params1: ResponseReturnType<Response, Error, AdapterType>;\n  ...params2: ResponseDetailsType;\n  cacheTime: number;\n  clearKey: string;\n  garbageCollection: number;\n}[data] | null;
 }
 ```
 

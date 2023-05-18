@@ -22,7 +22,7 @@ import { PayloadType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:166](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L166)
+Defined in [request/request.types.ts:181](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L181)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:166](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type single">
 
 ```ts
-type PayloadType<Payload,MappedData> = (MappedData extends never ? Payload : MappedData) | NegativeTypes;
+type PayloadType<Payload> = Payload | NegativeTypes;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type PayloadType<Payload,MappedData> = (MappedData extends never ? Payload : Map
 </div><div class="api-docs__returns">
 
 ```ts
-MappedData extends never ? Payload : MappedData | \null\ | \undefined\
+Payload | \null\ | \undefined\
 ```
 
 </div>

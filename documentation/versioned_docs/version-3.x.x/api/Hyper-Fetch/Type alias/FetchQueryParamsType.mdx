@@ -22,7 +22,7 @@ It will check if the query params are already set
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:208](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L208)
+Defined in [request/request.types.ts:220](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L220)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:208](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type single">
 
 ```ts
-type FetchQueryParamsType<QueryParams,HasQuery> = HasQuery extends true ? { queryParams?: NegativeTypes } : { queryParams?: QueryParams | string };
+type FetchQueryParamsType<QueryParams,HasQuery> = HasQuery extends true ? { queryParams?: NegativeTypes } : { queryParams?: QueryParams };
 ```
 
 </div><div class="api-docs__section">
@@ -44,7 +44,7 @@ type FetchQueryParamsType<QueryParams,HasQuery> = HasQuery extends true ? { quer
 HasQuery extends true ? {
     queryParams: NegativeTypes;
   } : {
-    queryParams: QueryParams | string;
+    queryParams: QueryParams;
   }
 ```
 

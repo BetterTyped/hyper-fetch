@@ -22,7 +22,7 @@ import { useEmitter } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-emitter/use-emitter.hooks.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/hooks/use-emitter/use-emitter.hooks.ts#L10)
+Defined in [react/src/hooks/use-emitter/use-emitter.hooks.ts:8](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/hooks/use-emitter/use-emitter.hooks.ts#L8)
 
 </p><div class="api-docs__section">
 
@@ -68,7 +68,7 @@ useEmitter<EmitterType>(emitter, options)
 {
   connected: boolean;
   connecting: boolean;
-  emit: any;
+  emit: (options?: Partial<EmitterCloneOptionsType<any, any>>, ack?: (error: Error, response: any) => void) => string;
   onClose: (callback: VoidFunction) => void;
   onConnecting: (callback: VoidFunction) => void;
   onError: (callback: (event: ErrorType) => void) => void;
@@ -76,7 +76,7 @@ useEmitter<EmitterType>(emitter, options)
   onOpen: (callback: VoidFunction) => void;
   onReconnecting: (callback: (attempts: number) => void) => void;
   onReconnectingStop: (callback: (attempts: number) => void) => void;
-  reconnect: any;
+  reconnect: number;
   setConnected: (connected: boolean) => void;
   setConnecting: (connecting: boolean) => void;
   setData: (data: unknown) => void;

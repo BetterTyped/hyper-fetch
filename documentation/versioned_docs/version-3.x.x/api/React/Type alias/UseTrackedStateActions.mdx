@@ -22,7 +22,7 @@ import { UseTrackedStateActions } from "@hyper-fetch/react"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:60](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L60)
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.types.ts:71](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/react/src/helpers/use-tracked-state/use-tracked-state.types.ts#L71)
 
 </p><div class="api-docs__section">
 
@@ -32,11 +32,13 @@ Defined in [helpers/use-tracked-state/use-tracked-state.types.ts:60](https://git
 
 ```ts
 type UseTrackedStateActions<T> = {
+  setAdditionalData: (additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>, emitToCache?: boolean) => void; 
   setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void; 
   setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void; 
+  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void; 
   setLoading: (loading: boolean, emitToHooks?: boolean) => void; 
   setRetries: (retries: number, emitToCache?: boolean) => void; 
-  setStatus: (status: number | null, emitToCache?: boolean) => void; 
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void; 
   setTimestamp: (timestamp: Date, emitToCache?: boolean) => void; 
 }
 ```
@@ -49,11 +51,13 @@ type UseTrackedStateActions<T> = {
 
 ```ts
 {
+  setAdditionalData: (additionalData: ExtractAdapterAdditionalDataType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
   setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setIsSuccess: (isSuccess: boolean, emitToCache?: boolean) => void;
   setLoading: (loading: boolean, emitToHooks?: boolean) => void;
   setRetries: (retries: number, emitToCache?: boolean) => void;
-  setStatus: (status: number | null, emitToCache?: boolean) => void;
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
   setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
 }
 ```

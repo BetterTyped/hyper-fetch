@@ -1,6 +1,6 @@
 
 
-# ExtractQueryParamsType
+# ExtractClientAdapterType
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +9,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { ExtractQueryParamsType } from "@hyper-fetch/core"
+import { ExtractClientAdapterType } from "@hyper-fetch/core"
 ```
 
 </div><div class="api-docs__section">
@@ -22,7 +22,7 @@ import { ExtractQueryParamsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/types/fetch.types.ts#L17)
+Defined in [types/client.types.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/types/client.types.ts#L4)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/fetch.types.ts:17](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractQueryParamsType<T> = T extends Request<any, any, infer  Q, any, any, any, any, any, any, any, any> ? Q : never;
+type ExtractClientAdapterType<T> = T extends Client<any, infer  A> ? A : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractQueryParamsType<T> = T extends Request<any, any, infer  Q, any, any,
 </div><div class="api-docs__returns">
 
 ```ts
-T extends Request<any, any, infer Q, any, any, any, any, any, any, any, any> ? Q : never
+T extends Client<any, infer A> ? A : never
 ```
 
 </div>

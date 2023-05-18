@@ -22,7 +22,7 @@ import { getCacheData } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.utils.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/cache/cache.utils.ts#L5)
+Defined in [cache/cache.utils.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/cache/cache.utils.ts#L5)
 
 </p><div class="api-docs__section">
 
@@ -56,7 +56,7 @@ getCacheData<T>(previousResponse, response)
 
 </td><td class="api-docs__param-type">
 
-`ExtractAdapterReturnType<T>`
+`ExtractAdapterReturnType<T> & ResponseDetailsType`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 
@@ -65,7 +65,17 @@ getCacheData<T>(previousResponse, response)
 </div><div class="api-docs__returns">
 
 ```ts
-[GenericDataType | null, GenericErrorType | null, number | null]
+{
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never | null;
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  isSuccess: boolean;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never | null;
+  isCanceled: boolean;
+  isOffline: boolean;
+  retries: number;
+  timestamp: number;
+}
 ```
 
 </div>

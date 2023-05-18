@@ -22,22 +22,16 @@ import { CacheValueType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [cache/cache.types.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/cache/cache.types.ts#L33)
+Defined in [cache/cache.types.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/cache/cache.types.ts#L37)
 
 </p><div class="api-docs__section">
 
 ## Preview
 
-</div><div class="api-docs__preview type">
+</div><div class="api-docs__preview type single">
 
 ```ts
-type CacheValueType<Response,Error> = {
-  cacheTime: number; 
-  clearKey: string; 
-  data: ResponseType<Response, Error>; 
-  details: ResponseDetailsType; 
-  garbageCollection: number; 
-}
+type CacheValueType<Response,Error,AdapterType> = ResponseReturnType<Response, Error, AdapterType> & ResponseDetailsType & { cacheTime: number; clearKey: string; garbageCollection: number };
 ```
 
 </div><div class="api-docs__section">
@@ -48,16 +42,17 @@ type CacheValueType<Response,Error> = {
 
 ```ts
 {
+  additionalData: T extends BaseAdapterType<any, any, any, infer A, any> ? A : never | null;
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  isSuccess: boolean;
+  status: T extends BaseAdapterType<any, any, infer S, any, any> ? S : never | null;
+  isCanceled: boolean;
+  isOffline: boolean;
+  retries: number;
+  timestamp: number;
   cacheTime: number;
   clearKey: string;
-  data: [GenericDataType | null, GenericErrorType | null, number | null];
-  details: {
-    isCanceled: boolean;
-    isFailed: boolean;
-    isOffline: boolean;
-    retries: number;
-    timestamp: number;
-  };
   garbageCollection: number;
 }
 ```

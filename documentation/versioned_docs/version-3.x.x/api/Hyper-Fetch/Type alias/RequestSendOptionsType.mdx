@@ -22,7 +22,7 @@ import { RequestSendOptionsType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:244](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L244)
+Defined in [request/request.types.ts:253](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L253)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:244](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type single">
 
 ```ts
-type RequestSendOptionsType<Request> = FetchQueryParamsType<ExtractQueryParamsType<Request>, ExtractHasQueryParamsType<Request>> & FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> & FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> & Omit<FetchOptionsType<ExtractAdapterOptionsType<Request>>, params | data> & FetchSendActionsType<Request> & RequestQueueOptions;
+type RequestSendOptionsType<Request> = FetchQueryParamsType<ExtractRequestQueryParamsType<Request>, ExtractHasQueryParamsType<Request>> & FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> & FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> & Omit<FetchOptionsType<ExtractAdapterType<Request>>, params | data> & FetchSendActionsType<Request> & RequestQueueOptions;
 ```
 
 </div><div class="api-docs__section">
@@ -45,11 +45,11 @@ type RequestSendOptionsType<Request> = FetchQueryParamsType<ExtractQueryParamsTy
   ...params1: HasQuery extends true ? {
   queryParams: NegativeTypes;
 } : {
-  queryParams: QueryParams | string;
+  queryParams: QueryParams;
 };
   ...params2: ExtractRouteParams<Endpoint> extends NegativeTypes ? {
   params: NegativeTypes;
-} : (true extends HasParams ? {
+} : (HasParams extends true ? {
   params: NegativeTypes;
 } : {
   params: NonNullable<ExtractRouteParams<Endpoint>>;
@@ -65,7 +65,7 @@ type RequestSendOptionsType<Request> = FetchQueryParamsType<ExtractQueryParamsTy
   onDownloadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;
   onRemove: (details: RequestEventType<Request>) => void;
   onRequestStart: (details: RequestEventType<Request>) => void;
-  onResponse: (response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>, details: ResponseDetailsType) => void;
+  onResponse: (response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, details: ResponseDetailsType) => void;
   onResponseStart: (details: RequestEventType<Request>) => void;
   onSettle: (requestId: string, request: Request) => void;
   onUploadProgress: (values: ProgressType, details: RequestEventType<Request>) => void;

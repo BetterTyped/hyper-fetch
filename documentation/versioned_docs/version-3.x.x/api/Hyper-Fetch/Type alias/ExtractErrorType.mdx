@@ -22,7 +22,7 @@ import { ExtractErrorType } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/types/fetch.types.ts#L21)
+Defined in [types/fetch.types.ts:20](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/types/fetch.types.ts#L20)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [types/fetch.types.ts:21](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractErrorType<T> = T extends Request<any, any, any, infer  G, infer  L, any, any, any, any, any, any> ? G | L : never;
+type ExtractErrorType<T> = T extends Request<any, any, any, infer  G, infer  L, any, any, any, any, any> ? G | L : never;
 ```
 
 </div><div class="api-docs__section">
@@ -41,7 +41,7 @@ type ExtractErrorType<T> = T extends Request<any, any, any, infer  G, infer  L, 
 </div><div class="api-docs__returns">
 
 ```ts
-T extends Request<any, any, any, infer G, infer L, any, any, any, any, any, any> ? G | L : never
+T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never
 ```
 
 </div>

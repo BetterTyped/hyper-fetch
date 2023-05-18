@@ -22,7 +22,7 @@ import { getAdapterBindings } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [adapter/adapter.bindings.ts:5](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/adapter/adapter.bindings.ts#L5)
+Defined in [adapter/adapter.bindings.ts:17](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/adapter/adapter.bindings.ts#L17)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +31,16 @@ Defined in [adapter/adapter.bindings.ts:5](https://github.com/BetterTyped/hyper-
 </div><div class="api-docs__preview fn">
 
 ```ts
-getAdapterBindings<ConfigType>(cmd, requestId)
+getAdapterBindings<T>(req, requestId, systemErrorStatus, systemErrorAdditionalData)
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cmd"><td class="api-docs__param-name required">
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="req"><td class="api-docs__param-name required">
 
-### cmd 
+### req 
 
 `Required`
 
@@ -57,6 +57,26 @@ getAdapterBindings<ConfigType>(cmd, requestId)
 </td><td class="api-docs__param-type">
 
 `string`
+
+</td></tr><tr param-data="systemErrorStatus"><td class="api-docs__param-name required">
+
+### systemErrorStatus 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ExtractAdapterStatusType<T>`
+
+</td></tr><tr param-data="systemErrorAdditionalData"><td class="api-docs__param-name required">
+
+### systemErrorAdditionalData 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ExtractAdapterAdditionalDataType<T>`
 
 </td></tr></tbody></table></div><div class="api-docs__section">
 

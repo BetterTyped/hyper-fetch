@@ -22,7 +22,7 @@ Configuration options for request creation
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:77](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L77)
+Defined in [request/request.types.ts:88](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L88)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:77](https://github.com/BetterTyped/hyper-fe
 </div><div class="api-docs__preview type">
 
 ```ts
-type RequestOptionsType<GenericEndpoint,AdapterOptions> = {
+type RequestOptionsType<GenericEndpoint,AdapterOptions,RequestMethods> = {
   abortKey: string; 
   auth: boolean; 
   cache: boolean; 
@@ -46,7 +46,7 @@ type RequestOptionsType<GenericEndpoint,AdapterOptions> = {
   endpoint: GenericEndpoint; 
   garbageCollection: number; 
   headers: HeadersInit; 
-  method: HttpMethodsType; 
+  method: RequestMethods; 
   offline: boolean; 
   options: AdapterOptions; 
   queueKey: string; 
@@ -78,7 +78,7 @@ type RequestOptionsType<GenericEndpoint,AdapterOptions> = {
   endpoint: GenericEndpoint;
   garbageCollection: number;
   headers: HeadersInit;
-  method: GET | POST | PUT | PATCH | DELETE;
+  method: RequestMethods;
   offline: boolean;
   options: AdapterOptions;
   queueKey: string;

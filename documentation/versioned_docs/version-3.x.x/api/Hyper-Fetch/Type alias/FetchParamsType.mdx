@@ -22,7 +22,7 @@ If the request endpoint parameters are not filled it will throw an error
 
 </span></div><p class="api-docs__definition">
 
-Defined in [request/request.types.ts:220](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/request/request.types.ts#L220)
+Defined in [request/request.types.ts:229](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/request/request.types.ts#L229)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +31,7 @@ Defined in [request/request.types.ts:220](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview type single">
 
 ```ts
-type FetchParamsType<Endpoint,HasParams> = ExtractRouteParams<Endpoint> extends NegativeTypes ? { params?: NegativeTypes } : true extends HasParams ? { params?: NegativeTypes } : { params: NonNullable<ExtractRouteParams<Endpoint>> };
+type FetchParamsType<Endpoint,HasParams> = ExtractRouteParams<Endpoint> extends NegativeTypes ? { params?: NegativeTypes } : HasParams extends true ? { params?: NegativeTypes } : { params: NonNullable<ExtractRouteParams<Endpoint>> };
 ```
 
 </div><div class="api-docs__section">
@@ -43,7 +43,7 @@ type FetchParamsType<Endpoint,HasParams> = ExtractRouteParams<Endpoint> extends 
 ```ts
 ExtractRouteParams<Endpoint> extends NegativeTypes ? {
     params: NegativeTypes;
-  } : (true extends HasParams ? {
+  } : (HasParams extends true ? {
   params: NegativeTypes;
 } : {
   params: NonNullable<ExtractRouteParams<Endpoint>>;

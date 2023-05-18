@@ -22,7 +22,7 @@ import { RequestEffect } from "@hyper-fetch/core"
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L6)
+Defined in [effect/request.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L6)
 
 </p><div class="api-docs__section">
 
@@ -56,7 +56,7 @@ Defined in [effect/request.effect.ts:6](https://github.com/BetterTyped/hyper-fet
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L7)
+Defined in [effect/request.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -96,7 +96,7 @@ getEffectKey()
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L9)
+Defined in [effect/request.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -132,7 +132,7 @@ onError(response, request)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L22)
+Defined in [effect/request.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L22)
 
 </p><div class="api-docs__section">
 
@@ -146,7 +146,7 @@ Defined in [effect/request.effect.ts:22](https://github.com/BetterTyped/hyper-fe
 
 </td><td class="api-docs__param-type">
 
-`ResponseErrorType<ExtractErrorType<T>>`
+`ResponseReturnErrorType<ExtractErrorType<T>, ExtractAdapterType<T>>`
 
 </td></tr><tr param-data="request"><td class="api-docs__param-name required">
 
@@ -192,7 +192,7 @@ onFinished(response, request)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L25)
+Defined in [effect/request.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L25)
 
 </p><div class="api-docs__section">
 
@@ -206,7 +206,7 @@ Defined in [effect/request.effect.ts:25](https://github.com/BetterTyped/hyper-fe
 
 </td><td class="api-docs__param-type">
 
-`ResponseType<ExtractResponseType<T>, ExtractErrorType<T>>`
+`ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>`
 
 </td></tr><tr param-data="request"><td class="api-docs__param-name required">
 
@@ -252,7 +252,7 @@ onStart(request)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L16)
+Defined in [effect/request.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -302,7 +302,7 @@ onSuccess(response, request)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L19)
+Defined in [effect/request.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -316,7 +316,7 @@ Defined in [effect/request.effect.ts:19](https://github.com/BetterTyped/hyper-fe
 
 </td><td class="api-docs__param-type">
 
-`ResponseSuccessType<ExtractResponseType<T>>`
+`ResponseReturnSuccessType<ExtractResponseType<T>, ExtractAdapterType<T>>`
 
 </td></tr><tr param-data="request"><td class="api-docs__param-name required">
 
@@ -362,7 +362,7 @@ onTrigger(request)
 
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/request.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/3f01c37e/packages/core/src/effect/request.effect.ts#L13)
+Defined in [effect/request.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/effect/request.effect.ts#L13)
 
 </p><div class="api-docs__section">
 
