@@ -46,10 +46,11 @@
   </a>
 </p>
 
-**`Hyper Fetch`** is fetching framework. What makes it unique is the `typesafe design` and the `ease of use`. This
-library `can run in the browser and on the server` with any framework. With our library fetching, architecture and
-access to requests lifecycle is fabulously simple, thanks to which you can
-**`create new components or functionalities much faster`** and all of this in accordance with good practices!
+**`Hyper Fetch`** is the unique fetching framework `designed for simplicity and efficiency`. With its **`typesafe`**
+design and user-friendly interface, it offers seamless integration both in the browser and on the server. Experience the
+power of next gen framework as it simplifies architecture, grants access to request lifecycle, and enables rapid
+development of new components and functionalities together with `realtime data exchange`. Embrace good practices
+effortlessly with Hyper Fetch.
 
 **[Documentation](https://hyperfetch.bettertyped.com/) •
 [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) •
