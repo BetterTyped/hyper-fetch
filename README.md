@@ -1,6 +1,6 @@
 <h1 align="center">
 
-⚡ <br /> Hyper Fetch
+<img src="./.github/assets/readme.png" alt="Hyper Fetch" />
 
 </h1>
 
