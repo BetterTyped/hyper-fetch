@@ -97,15 +97,15 @@ export const deleteUser = client.createRequest<null>()({
 
 // Usage
 
-const { data, error } = getUsers.send({ queryParams: { page: 1 } });
+const { data, error } = await getUsers.send({ queryParams: { page: 1 } });
 
-const { data, error } = getUsers.send({ params: { userId: 23 } });
+const { data, error } = await getUsers.send({ params: { userId: 23 } });
 
-const { data, error } = postUser.send({ data: { name: "Maciej" } });
+const { data, error } = await postUser.send({ data: { name: "Maciej" } });
 
-const { data, error } = patchUser.send({ params: { userId: 12 }, data: { name: "Kacper" } });
+const { data, error } = await patchUser.send({ params: { userId: 12 }, data: { name: "Kacper" } });
 
-const { data, error } = deleteUser.send({ params: { userId: 88 } });
+const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 ```
 
 ---
@@ -137,7 +137,7 @@ const postUser = client.createRequest<null, {name: string}>()({
   disableResponseInterceptors: false,
 });
 
-const { data, error } = postUser.send({ data: { name: "Maciej" } })
+const { data, error } = await postUser.send({ data: { name: "Maciej" } })
 ```
 
 ### Request Data
@@ -202,7 +202,7 @@ getNotes.send();
 getUsers.setQueryParams({ search: "John", sort: "age" }).send();
 
 // Multiple chained Send
-const { data, error } = getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
+const { data, error } = await getCategory.setParams({ categoryId: 2 }).setQueryParams({ sortNotes: "age" }).send();
 ```
 
 #### For usage with **`React`** checkout our [hooks docs](/documentation/04-react/01-overview.mdx).
@@ -246,7 +246,7 @@ const request = getUser;
 
 request.setParams({ userId: 1 }); // Returns CLONED request with assigned params
 
-const { data, error } = request.send(); // Server error - no params
+const { data, error } = await request.send(); // Server error - no params
 ```
 
 ```tsx
@@ -256,7 +256,7 @@ const request = getUser;
 
 const requestWithParams = request.setParams({ userId: 1 }); // Returns CLONED request with assigned params
 
-const { data, error } = requestWithParams.send(); // Success
+const { data, error } = await requestWithParams.send(); // Success
 ```
 
 ---
