@@ -200,7 +200,7 @@ export const getData = client.createRequest<ResponseType, RequestType, LocalErro
 Executing previously prepared requests is very simple. We can do this using the send method.
 
 ```ts
-const [data, error, status] = await getData.send();
+const { data, error, status } = await getData.send();
 ```
 
 #### Mutation request
@@ -222,7 +222,7 @@ We can also pass them directly to the send method, which will add them to the re
 
 ```ts
 // OR pass dynamic data directly to '.send' method
-const [data, error, status] = await postData.send({
+const { data, error, status } = await postData.send({
   params: { accountId: 104 },
   data: { name: "My new entity", description: "Some description" },
   queryParams: { paramOne: "test", paramTwo: "test2" },
@@ -331,7 +331,7 @@ onError((error) => {
 });
 
 const handleSubmit = (values: ValuesType, { setSubmitting }: FormikHelpers) => {
-  const [data, error, status] = await submit(); // Submit method returns data!
+  const { data, error, status } = await submit(); // Submit method returns data!
   setSubmitting(false);
   if (data) {
     notification.success("Done!", data);
