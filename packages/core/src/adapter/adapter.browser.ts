@@ -1,33 +1,36 @@
-import { getAdapterBindings, defaultTimeout, ResponseType, AdapterType } from "adapter";
-import { parseErrorResponse, parseResponse } from "./adapter.utils";
+import { getAdapterBindings, AdapterType, getResponseHeaders, parseResponse, parseErrorResponse } from "adapter";
+import { xhrExtra } from "client";
+import { defaultTimeout } from "./adapter.constants";
 
 export const adapter: AdapterType = async (request, requestId) => {
   const {
+    makeRequest,
     fullUrl,
-    headers,
-    payload,
     config,
-    createAbortListener,
-    onBeforeRequest,
-    onRequestStart,
-    onRequestProgress,
-    onRequestEnd,
-    onResponseStart,
-    onResponseProgress,
-    onSuccess,
+    headers,
     onError,
     onResponseEnd,
     onTimeoutError,
-  } = await getAdapterBindings(request, requestId);
+    onRequestEnd,
+    createAbortListener,
+    onResponseProgress,
+    onRequestProgress,
+    onResponseStart,
+    onBeforeRequest,
+    onRequestStart,
+    onSuccess,
+  } = await getAdapterBindings<AdapterType>(request, requestId, 0, {
+    headers: {},
+  });
 
-  const { method } = request;
+  const { method = "GET" } = request;
 
-  const xhr = new XMLHttpRequest();
-  xhr.timeout = defaultTimeout;
+  return makeRequest((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.timeout = defaultTimeout;
 
-  const abort = () => xhr.abort();
+    const abort = () => xhr.abort();
 
-  return new Promise<ResponseType<unknown, unknown>>((resolve) => {
     // Inject xhr options
     Object.entries(config).forEach(([name, value]) => {
       xhr[name] = value;
@@ -37,10 +40,10 @@ export const adapter: AdapterType = async (request, requestId) => {
     xhr.open(method, fullUrl, true);
 
     // Set Headers
-    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value));
+    Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(abort, resolve);
+    const unmountListener = createAbortListener(0, xhrExtra, abort, resolve);
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -58,7 +61,7 @@ export const adapter: AdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError;
+    xhr.ontimeout = () => onTimeoutError(0, xhrExtra, resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -67,15 +70,16 @@ export const adapter: AdapterType = async (request, requestId) => {
 
       if (event.target && event.target.readyState === finishedState) {
         const { status } = event.target;
-        const isSuccess = String(status).startsWith("2") || String(status).startsWith("3");
+        const success = String(status).startsWith("2") || String(status).startsWith("3");
+        const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
-        if (isSuccess) {
+        if (success) {
           const data = parseResponse(event.target.response);
-          onSuccess(data, status, resolve);
+          onSuccess(data, status, { headers: responseHeaders }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
           const data = parseErrorResponse(event.target.response);
-          onError(data, status, resolve);
+          onError(data, status, { headers: responseHeaders }, resolve);
         }
       }
     };
@@ -84,6 +88,6 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest();
     onRequestStart();
 
-    xhr.send(payload);
+    xhr.send();
   });
 };

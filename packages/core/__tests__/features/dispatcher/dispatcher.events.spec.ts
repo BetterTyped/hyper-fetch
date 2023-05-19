@@ -1,16 +1,17 @@
 import { waitFor } from "@testing-library/dom";
 
-import { ResponseType, getErrorMessage } from "adapter";
+import { ResponseReturnType, getErrorMessage, AdapterType } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { createDispatcher, createClient, createAdapter, createRequest, sleep } from "../../utils";
+import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { Client, xhrExtra } from "client";
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = createClient().setAdapter(() => adapter);
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -21,8 +22,8 @@ describe("Dispatcher [ Events ]", () => {
     resetInterceptors();
     jest.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
-    client = createClient().setAdapter(() => adapter);
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
     createRequestInterceptor(request);
   });
@@ -73,7 +74,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should emit proper data response", async () => {
-      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = createRequestInterceptor(request);
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -82,10 +83,15 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown> = [mock, null, 200];
+      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+        data: mock,
+        error: null,
+        status: 200,
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: false,
         isCanceled: false,
         isOffline: false,
       };
@@ -95,7 +101,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper failed response", async () => {
-      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = createRequestInterceptor(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -104,10 +110,15 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown> = [null, mock, 400];
+      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+        data: null,
+        error: mock,
+        status: 400,
+        success: false,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: true,
         isCanceled: false,
         isOffline: false,
       };
@@ -117,7 +128,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper retry response", async () => {
-      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
       createRequestInterceptor(requestWithRetry, { status: 400, delay: 0 });
 
@@ -133,10 +144,15 @@ describe("Dispatcher [ Events ]", () => {
 
       const mock = createRequestInterceptor(requestWithRetry);
 
-      const adapterResponse: ResponseType<unknown, unknown> = [mock, null, 200];
+      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+        data: mock,
+        error: null,
+        status: 200,
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
-        isFailed: false,
         isCanceled: false,
         isOffline: false,
       };
@@ -146,7 +162,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper cancel response", async () => {
-      let response: [ResponseType<unknown, unknown>, ResponseDetailsType];
+      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
       createRequestInterceptor(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -157,10 +173,15 @@ describe("Dispatcher [ Events ]", () => {
       await sleep(1);
       client.requestManager.abortAll();
 
-      const adapterResponse: ResponseType<unknown, unknown> = [null, getErrorMessage("abort"), 0];
+      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+        data: null,
+        error: getErrorMessage("abort"),
+        status: 0,
+        success: false,
+        extra: xhrExtra,
+      };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
-        isFailed: true,
         isCanceled: true,
         isOffline: false,
       };

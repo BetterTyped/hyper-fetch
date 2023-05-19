@@ -1,20 +1,26 @@
-import { ResponseSuccessType } from "adapter";
+import { AdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createCache, createRequest, sleep } from "../../utils";
+import { createCache, sleep } from "../../utils";
+import { Client, xhrExtra } from "client";
 
 describe("Cache [ Base ]", () => {
-  const response: ResponseSuccessType<unknown> = [{ data: 123 }, null, 200];
+  const response: ResponseReturnSuccessType<unknown, AdapterType> = {
+    data: 123,
+    error: null,
+    status: 200,
+    success: true,
+    extra: xhrExtra,
+  };
   const details: ResponseDetailsType = {
     retries: 0,
     timestamp: +new Date(),
-    isFailed: false,
     isCanceled: false,
     isOffline: false,
   };
 
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
   let cache = createCache(client);
 
   beforeAll(() => {
@@ -22,8 +28,8 @@ describe("Cache [ Base ]", () => {
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
     resetInterceptors();
     jest.resetAllMocks();
@@ -37,7 +43,7 @@ describe("Cache [ Base ]", () => {
     it("should initialize cache", async () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
 
       expect(cache.get(request.cacheKey)).toBeDefined();
     });
@@ -47,7 +53,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onData(request.cacheKey, trigger);
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
@@ -55,7 +61,7 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should delete cache", async () => {
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       cache.delete(request.cacheKey);
       await sleep(1);
 
@@ -66,7 +72,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onRevalidate(request.cacheKey, trigger);
 
-      cache.set(request.setCache(true), response, details);
+      cache.set(request.setCache(true), { ...response, ...details });
       await cache.revalidate(request.cacheKey);
       await sleep(1);
 
@@ -79,7 +85,7 @@ describe("Cache [ Base ]", () => {
       const trigger = jest.fn();
       const unmount = cache.events.onData(request.cacheKey, trigger);
 
-      cache.set(request.setCache(false), response, details);
+      cache.set(request.setCache(false), { ...response, ...details });
       unmount();
 
       expect(trigger).toBeCalledTimes(1);
@@ -87,9 +93,9 @@ describe("Cache [ Base ]", () => {
     });
 
     it("should allow to get cache keys", async () => {
-      cache.set(request.setCacheKey("1"), response, details);
-      cache.set(request.setCacheKey("2"), response, details);
-      cache.set(request.setCacheKey("3"), response, details);
+      cache.set(request.setCacheKey("1"), { ...response, ...details });
+      cache.set(request.setCacheKey("2"), { ...response, ...details });
+      cache.set(request.setCacheKey("3"), { ...response, ...details });
 
       expect(cache.keys()).toHaveLength(3);
       expect(cache.keys()).toStrictEqual(["1", "2", "3"]);
@@ -102,7 +108,7 @@ describe("Cache [ Base ]", () => {
 
       cache.events.onRevalidate(request.cacheKey, trigger);
 
-      cache.set(request.setCache(false), response, details);
+      cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();
 
       expect(trigger).toBeCalledTimes(0);

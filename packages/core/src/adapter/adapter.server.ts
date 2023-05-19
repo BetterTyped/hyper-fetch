@@ -1,106 +1,106 @@
 import http, { OutgoingHttpHeaders } from "http";
-import https from "https";
 import stream from "stream";
+import https from "https";
 
-import { getAdapterBindings, defaultTimeout, ResponseType, AdapterType, AdapterOptionsType } from "adapter";
-import { parseErrorResponse, parseResponse, getUploadSize, getStreamPayload } from "./adapter.utils";
+import { getAdapterBindings } from "./adapter.bindings";
+import { AdapterType } from "./adapter.types";
+import { defaultTimeout } from "./adapter.constants";
+import { getStreamPayload, getUploadSize, parseErrorResponse, parseResponse } from "./adapter.utils";
+import { HttpMethodsEnum } from "../constants/http.constants";
+import { xhrExtra } from "client";
 
 export const adapter: AdapterType = async (request, requestId) => {
   const {
+    makeRequest,
     fullUrl,
+    config,
     headers,
     payload,
-    config,
-    createAbortListener,
-    onBeforeRequest,
-    onRequestStart,
-    onRequestProgress,
-    onRequestEnd,
-    onResponseStart,
-    onResponseProgress,
-    onSuccess,
-    onTimeoutError,
     onError,
     onResponseEnd,
-  } = await getAdapterBindings<AdapterOptionsType>(request, requestId);
-  const { method, client } = request;
+    onTimeoutError,
+    onRequestEnd,
+    createAbortListener,
+    onResponseProgress,
+    onRequestProgress,
+    onResponseStart,
+    onBeforeRequest,
+    onRequestStart,
+    onSuccess,
+  } = await getAdapterBindings<AdapterType>(request, requestId, 0, xhrExtra);
+
+  const { method = HttpMethodsEnum.get, client } = request;
   const httpClient = client.url.includes("https://") ? https : http;
+  const options = {
+    path: fullUrl,
+    method,
+    headers: headers as OutgoingHttpHeaders,
+    timeout: defaultTimeout,
+  };
 
-  return new Promise<ResponseType<unknown, unknown>>((resolve) => {
-    const execute = async () => {
-      const options = {
-        path: fullUrl,
-        method,
-        headers: headers as OutgoingHttpHeaders,
-        timeout: defaultTimeout,
-      };
+  Object.entries(config).forEach(([name, value]) => {
+    options[name] = value;
+  });
 
-      // Inject xhr options
-      Object.entries(config).forEach(([name, value]) => {
-        options[name] = value;
+  let unmountListener = () => null;
+  onBeforeRequest();
+
+  const totalUploadBytes = payload ? Number(getUploadSize(payload)) : 0;
+  let uploadedBytes = 0;
+
+  const payloadChunks = await getStreamPayload(payload);
+
+  return makeRequest((resolve) => {
+    const httpRequest = httpClient.request(options, (response) => {
+      response.setEncoding("utf8");
+      unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
+
+      let chunks = "";
+      const totalDownloadBytes = Number(response.headers["content-length"]);
+      let downloadedBytes = 0;
+
+      response.on("data", (chunk) => {
+        if (!chunks) onResponseStart();
+        downloadedBytes += chunk.length;
+        chunks += chunk;
+        onResponseProgress({ total: totalDownloadBytes, loaded: downloadedBytes });
       });
 
-      let unmountListener = () => null;
-      onBeforeRequest();
+      response.on("end", () => {
+        const { statusCode } = response;
+        const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
-      const totalUploadBytes = payload ? Number(getUploadSize(payload)) : 0;
-      let uploadedBytes = 0;
+        if (success) {
+          const data = parseResponse(chunks);
+          onSuccess(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+        } else {
+          // delay to finish after onabort/ontimeout
+          const data = parseErrorResponse(chunks);
+          onError(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+        }
 
-      const payloadChunks = await getStreamPayload(payload);
-
-      const httpRequest = httpClient.request(options, (response) => {
-        response.setEncoding("utf8");
-
-        let chunks = "";
-        const totalDownloadBytes = Number(response.headers["content-length"]);
-        let downloadedBytes = 0;
-
-        response.on("data", (chunk) => {
-          if (!chunks) onResponseStart();
-          downloadedBytes += chunk.length;
-          chunks += chunk;
-          onResponseProgress({ total: totalDownloadBytes, loaded: downloadedBytes });
-        });
-
-        response.on("end", () => {
-          const { statusCode } = response;
-          const isSuccess = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
-
-          if (isSuccess) {
-            const data = parseResponse(chunks);
-            onSuccess(data, statusCode, resolve);
-          } else {
-            // delay to finish after onabort/ontimeout
-            const data = parseErrorResponse(chunks);
-            onError(data, statusCode, resolve);
-          }
-
-          unmountListener();
-          onResponseEnd();
-        });
+        unmountListener();
+        onResponseEnd();
       });
+    });
 
-      unmountListener = createAbortListener(httpRequest.destroy, resolve);
+    httpRequest.on("timeout", () => onTimeoutError(0, xhrExtra, resolve));
+    httpRequest.on("error", (error) => onError(error, 0, xhrExtra, resolve));
 
-      httpRequest.on("timeout", () => onTimeoutError(resolve));
-      httpRequest.on("error", (error) => onError(error, 0, resolve));
+    if (payloadChunks) {
+      const readableStream = stream.Readable.from(payloadChunks, { objectMode: false })
+        .on("data", (chunk) => {
+          if (!uploadedBytes) onRequestStart();
+          uploadedBytes += chunk.length;
+          onRequestProgress({ total: totalUploadBytes, loaded: uploadedBytes });
+        })
+        .on("end", () => {
+          onRequestEnd();
+        });
 
-      if (payloadChunks) {
-        const readableStream = stream.Readable.from(payloadChunks, { objectMode: false })
-          .on("data", (chunk) => {
-            if (!uploadedBytes) onRequestStart();
-            uploadedBytes += chunk.length;
-            onRequestProgress({ total: totalUploadBytes, loaded: uploadedBytes });
-          })
-          .on("end", () => {
-            onRequestEnd();
-          });
-
-        readableStream.pipe(httpRequest);
-      } else {
-        httpRequest.end();
-      }
-    };
-    execute();
+      readableStream.pipe(httpRequest);
+    } else {
+      httpRequest.end();
+    }
   });
 };

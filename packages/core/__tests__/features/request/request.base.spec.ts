@@ -1,17 +1,16 @@
-import { createClient, createRequest } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { QueryParamsType } from "../../../src";
+import { Client, QueryParamsType } from "../../../src";
 
 describe("Fetch Adapter [ Base ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "/shared-endpoint" });
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -54,7 +53,7 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting custom params", async () => {
     // The queue should receive request with the appropriate header
-    const comm = client.createRequest<unknown, unknown, any, QueryParamsType>()({
+    const comm = client.createRequest<unknown, undefined, any, QueryParamsType>()({
       endpoint: "/some-endpoint/:shopId/:productId",
     });
     const spy = jest.fn(client.fetchDispatcher.add);
@@ -78,7 +77,9 @@ describe("Fetch Adapter [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
-    const c = request.setData(data);
+    const req = client.createRequest<unknown, { userId: number; role: string }>()({ endpoint: "/shared-endpoint" });
+
+    const c = req.setData(data);
     createRequestInterceptor(c);
 
     await c.send();
@@ -88,32 +89,9 @@ describe("Fetch Adapter [ Base ]", () => {
     expect(spy.mock.calls[0][0].data).toEqual(data);
   });
 
-  it("should allow for setting data mapper", async () => {
-    const comm = createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>(client);
-    const spy = jest.fn(client.fetchDispatcher.add);
-    jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
-    const data = {
-      userId: 11,
-      role: "ADMIN",
-    };
-    createRequestInterceptor(comm);
-    function dataMapper({ role, userId }: { role: string; userId: number }): string {
-      return `${userId}_${role}`;
-    }
-
-    const requestMapped = comm.setDataMapper(dataMapper);
-    const requestSetData = requestMapped.setData(data);
-
-    await requestSetData.send();
-
-    expect(requestSetData.data).toStrictEqual(`${data.userId}_${data.role}`);
-    expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0][0].data).toStrictEqual(`${data.userId}_${data.role}`);
-  });
-
   it("Should allow for setting queryParams", async () => {
     const queryParams = { userId: 11 };
-    const comm = client.createRequest<unknown, unknown, any, QueryParamsType>()({
+    const comm = client.createRequest<unknown, undefined, any, QueryParamsType>()({
       endpoint: "/some-endpoint/",
     });
     createRequestInterceptor(comm);
@@ -126,5 +104,47 @@ describe("Fetch Adapter [ Base ]", () => {
     expect(requestQueryParams.queryParams).toStrictEqual(queryParams);
     expect(spy).toHaveBeenCalled();
     expect(spy.mock.calls[0][0].queryParams).toStrictEqual(queryParams);
+  });
+
+  it("Should allow to validate before sending request", async () => {
+    const message = "something went wrong";
+    const mapper = () => {
+      throw new Error(message);
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setRequestMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
+  });
+
+  it("Should allow to validate response", async () => {
+    const message = "something went wrong";
+    const mapper = (res) => {
+      return { ...res, data: null, error: new Error(message) };
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setResponseMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
+  });
+
+  it("Should allow to validate in data mapper", async () => {
+    const message = "something went wrong";
+    const mapper = () => {
+      throw new Error(message);
+    };
+    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setDataMapper(mapper);
+    createRequestInterceptor(mapperRequest);
+
+    const { data, error } = await mapperRequest.send();
+
+    expect(error.message).toStrictEqual(message);
+    expect(data).toBe(null);
   });
 });

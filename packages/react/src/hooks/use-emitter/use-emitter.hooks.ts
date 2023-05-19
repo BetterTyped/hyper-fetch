@@ -5,8 +5,6 @@ import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
 import { useConfigProvider } from "config-provider";
 
-// Todo bounce
-
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
   options: UseEmitterOptionsType,

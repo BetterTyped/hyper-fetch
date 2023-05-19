@@ -3,7 +3,7 @@
 .container {
   position: relative;
   min-height: 400px;
-  padding: 80px 0 120px;
+  padding: 120px 0 160px;
   max-width: 100vw;
   overflow: hidden;
 }
@@ -15,13 +15,28 @@
 
 .productHunt {
   position: absolute;
-  bottom: 0;
+  bottom: 20px;
   left: 50%;
   transform: translate(-50%);
 }
 
 .productHunt img {
   width: 180px;
+}
+
+.logo {
+  display: flex;
+  width: auto;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+.logo img {
+  width: 200px;
+}
+
+html[data-theme="light"] body .logo img {
+  content: url("/img/brand/HF_Black.svg") !important;
 }
 
 .title {
@@ -34,7 +49,7 @@
 
 .tagline {
   font-size: 3.2em;
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
   text-align: center;
   font-weight: 700;
@@ -345,8 +360,8 @@ html[data-theme="dark"] .addition {
 /* Stars */
 .stars {
   display: flex;
-  margin-top: 5px;
-  margin-bottom: 10px;
+  margin-top: -35px;
+  margin-bottom: 40px;
 }
 
 .githubStars {
@@ -398,4 +413,42 @@ html[data-theme="light"] .githubStars {
 
 .githubStars:hover {
   opacity: 0.7;
+}
+
+.glow {
+  border-radius: 100%;
+  background: radial-gradient(
+    var(--ifm-color-emphasis-300),
+    var(--ifm-color-emphasis-200),
+    var(--ifm-color-emphasis-100),
+    rgba(0, 0, 0, 0)
+  );
+  transform: translate(-50%, -50%);
+}
+
+.glowFirst {
+  position: absolute;
+  top: 0;
+  left: 25%;
+  opacity: 0.12;
+  width: 500px;
+  height: 500px;
+}
+
+.glowSecond {
+  position: absolute;
+  top: 10%;
+  left: 80%;
+  opacity: 0.09;
+  width: 700px;
+  height: 700px;
+}
+
+.glowThird {
+  position: absolute;
+  top: 120%;
+  left: 48%;
+  opacity: 0.2;
+  width: 1000px;
+  height: 700px;
 }

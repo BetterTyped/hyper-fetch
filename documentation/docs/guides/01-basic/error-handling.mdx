@@ -15,7 +15,7 @@ the second tuple element and for this reason we can always expect resolved statu
 :::
 
 ```tsx
-const [_, error] = await request.send();
+const { error } = await request.send();
 ```
 
 ---
@@ -37,7 +37,7 @@ export const client = new Client<GlobalErrorType>({ url });
 Now the error type of our request will reflect `GlobalErrorType`.
 
 ```ts
-const [_, error] = await request.send();
+const { error } = await request.send();
 
 console.log(error); // null | GlobalErrorType;
 ```
@@ -69,7 +69,7 @@ const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>
 Now the error type of our request will union of `GlobalError` and `LocalErrorType`.
 
 ```ts
-const [_, error] = await request.send();
+const { error } = await request.send();
 
 console.log(error); // null | GlobalErrorType | LocalErrorType;
 ```

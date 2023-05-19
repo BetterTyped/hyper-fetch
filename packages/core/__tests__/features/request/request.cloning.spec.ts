@@ -1,18 +1,18 @@
-import { createClient, createRequest } from "../../utils";
+import { Client } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Request [ Cloning ]", () => {
   const endpoint = "/users/:userId";
 
-  let client = createClient();
-  let request = createRequest(client, { endpoint });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client, { endpoint });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint });
     resetInterceptors();
     jest.resetAllMocks();
   });

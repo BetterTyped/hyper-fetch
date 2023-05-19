@@ -1,3 +1,5 @@
+import { AdapterExtraType } from "adapter";
+
 export const stringifyDefaultOptions = {
   strict: true,
   encode: true,
@@ -7,3 +9,7 @@ export const stringifyDefaultOptions = {
   skipNull: true,
   skipEmptyString: true,
 } as const;
+
+export const xhrExtra: AdapterExtraType = {
+  headers: {},
+};

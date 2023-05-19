@@ -25,42 +25,42 @@ export class LoggerManager {
 
   init = (module: string): LoggerType => {
     return {
-      error: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+      error: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
         this.logger({
           level: "error",
           module,
           message,
-          additionalData,
+          extra,
           severity: this.severity,
           enabled: this.client.debug,
         });
       },
-      warning: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+      warning: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
         this.logger({
           level: "warning",
           module,
           message,
-          additionalData,
+          extra,
           severity: this.severity,
           enabled: this.client.debug,
         });
       },
-      info: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+      info: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
         this.logger({
           level: "info",
           module,
           message,
-          additionalData,
+          extra,
           severity: this.severity,
           enabled: this.client.debug,
         });
       },
-      debug: (message: LoggerMessageType, ...additionalData: LoggerMessageType[]) => {
+      debug: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
         this.logger({
           level: "debug",
           module,
           message,
-          additionalData,
+          extra,
           severity: this.severity,
           enabled: this.client.debug,
         });

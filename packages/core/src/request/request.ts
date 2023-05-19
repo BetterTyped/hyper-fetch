@@ -1,27 +1,34 @@
 import {
   RequestSendOptionsType,
   ParamsType,
-  getSimpleKey,
-  getRequestKey,
   RequestSendType,
   PayloadType,
-  RequestDump,
+  RequestJSON,
   RequestOptionsType,
   ExtractRouteParams,
-  requestSendRequest,
+  sendRequest,
   RequestCurrentType,
   PayloadMapperType,
+  RequestInstance,
+  RequestMapper,
+  ResponseMapper,
 } from "request";
 import { Client } from "client";
 import { getUniqueRequestId } from "utils";
-import { QueryParamsType } from "adapter";
-import { HttpMethodsType, NegativeTypes } from "types";
+import {
+  AdapterType,
+  ExtractAdapterMethodType,
+  ExtractAdapterOptionsType,
+  QueryParamsType,
+  AdapterInstance,
+} from "adapter";
+import { NegativeTypes } from "types";
 import { DateInterval } from "constants/time.constants";
-import { HttpMethodsEnum } from "constants/http.constants";
+import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.
- * We can setup basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
+ * We can set up basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
  * :::info Usage
  * We should not use this class directly in the standard development flow. We can initialize it using the `createRequest` method on the **Client** class.
  * :::
@@ -33,24 +40,23 @@ import { HttpMethodsEnum } from "constants/http.constants";
 export class Request<
   Response,
   Payload,
-  QueryParams extends QueryParamsType | string,
+  QueryParams,
   GlobalError, // Global Error Type
   LocalError, // Additional Error for specific endpoint
   Endpoint extends string,
-  AdapterOptions,
+  Adapter extends AdapterInstance = AdapterType,
   HasData extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
-  MappedData = undefined,
 > {
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: HttpMethodsType;
+  method: ExtractAdapterMethodType<Adapter>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
-  data: PayloadType<Payload, MappedData>;
+  data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
-  options?: AdapterOptions | undefined;
+  options?: ExtractAdapterOptionsType<Adapter> | undefined;
   cancelable: boolean;
   retry: number;
   retryTime: number;
@@ -66,6 +72,15 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
+  dataMapper?: PayloadMapperType<Payload>;
+  mock?: Generator<
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>
+  >;
+  mockData?: RequestDataMockTypes<Response, this>;
+  requestMapper?: RequestMapper<this, any>;
+  responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -73,26 +88,27 @@ export class Request<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly client: Client<GlobalError, AdapterOptions>,
-    readonly requestOptions: RequestOptionsType<Endpoint, AdapterOptions>,
-    readonly requestDump?:
+    readonly client: Client<GlobalError, Adapter>,
+    readonly requestOptions: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >,
+    readonly requestJSON?:
       | RequestCurrentType<
-          Response,
           Payload,
           QueryParams,
-          GlobalError | LocalError,
           Endpoint,
-          AdapterOptions,
-          MappedData
+          ExtractAdapterOptionsType<Adapter>,
+          ExtractAdapterMethodType<Adapter>
         >
       | undefined,
-    readonly dataMapper?: PayloadMapperType<Payload, MappedData>,
   ) {
     const {
       endpoint,
       headers,
       auth = true,
-      method = HttpMethodsEnum.get,
+      method = client.defaultMethod,
       options,
       cancelable = false,
       retry = 0,
@@ -110,34 +126,34 @@ export class Request<
       deduplicateTime = 10,
     } = { ...this.client.requestDefaultOptions?.(requestOptions), ...requestOptions };
 
-    this.endpoint = requestDump?.endpoint ?? endpoint;
-    this.headers = requestDump?.headers ?? headers;
-    this.auth = requestDump?.auth ?? auth;
+    this.endpoint = requestJSON?.endpoint ?? endpoint;
+    this.headers = requestJSON?.headers ?? headers;
+    this.auth = requestJSON?.auth ?? auth;
     this.method = method;
-    this.params = requestDump?.params;
-    this.data = requestDump?.data;
-    this.queryParams = requestDump?.queryParams;
-    this.options = requestDump?.options ?? options;
-    this.cancelable = requestDump?.cancelable ?? cancelable;
-    this.retry = requestDump?.retry ?? retry;
-    this.retryTime = requestDump?.retryTime ?? retryTime;
-    this.garbageCollection = requestDump?.garbageCollection ?? garbageCollection;
-    this.cache = requestDump?.cache ?? cache;
-    this.cacheTime = requestDump?.cacheTime ?? cacheTime;
-    this.queued = requestDump?.queued ?? queued;
-    this.offline = requestDump?.offline ?? offline;
-    this.abortKey = requestDump?.abortKey ?? abortKey ?? getSimpleKey(this);
-    this.cacheKey = requestDump?.cacheKey ?? cacheKey ?? getRequestKey(this);
-    this.queueKey = requestDump?.queueKey ?? queueKey ?? getSimpleKey(this);
-    this.effectKey = requestDump?.effectKey ?? effectKey ?? getSimpleKey(this);
-    this.used = requestDump?.used ?? false;
-    this.deduplicate = requestDump?.deduplicate ?? deduplicate;
-    this.deduplicateTime = requestDump?.deduplicateTime ?? deduplicateTime;
+    this.params = requestJSON?.params;
+    this.data = requestJSON?.data;
+    this.queryParams = requestJSON?.queryParams;
+    this.options = requestJSON?.options ?? options;
+    this.cancelable = requestJSON?.cancelable ?? cancelable;
+    this.retry = requestJSON?.retry ?? retry;
+    this.retryTime = requestJSON?.retryTime ?? retryTime;
+    this.garbageCollection = requestJSON?.garbageCollection ?? garbageCollection;
+    this.cache = requestJSON?.cache ?? cache;
+    this.cacheTime = requestJSON?.cacheTime ?? cacheTime;
+    this.queued = requestJSON?.queued ?? queued;
+    this.offline = requestJSON?.offline ?? offline;
+    this.abortKey = requestJSON?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
+    this.cacheKey = requestJSON?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
+    this.queueKey = requestJSON?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
+    this.effectKey = requestJSON?.effectKey ?? effectKey ?? this.client.effectKeyMapper(this);
+    this.used = requestJSON?.used ?? false;
+    this.deduplicate = requestJSON?.deduplicate ?? deduplicate;
+    this.deduplicateTime = requestJSON?.deduplicateTime ?? deduplicateTime;
 
-    this.updatedAbortKey = requestDump?.updatedAbortKey ?? false;
-    this.updatedCacheKey = requestDump?.updatedCacheKey ?? false;
-    this.updatedQueueKey = requestDump?.updatedQueueKey ?? false;
-    this.updatedEffectKey = requestDump?.updatedEffectKey ?? false;
+    this.updatedAbortKey = requestJSON?.updatedAbortKey ?? false;
+    this.updatedCacheKey = requestJSON?.updatedCacheKey ?? false;
+    this.updatedQueueKey = requestJSON?.updatedQueueKey ?? false;
+    this.updatedEffectKey = requestJSON?.updatedEffectKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -153,9 +169,8 @@ export class Request<
   };
 
   public setData = <D extends Payload>(data: D) => {
-    const modifiedData = this.dataMapper?.(data) || data;
-    return this.clone<D extends null ? false : true, HasParams, HasQuery, MappedData>({
-      data: modifiedData as PayloadType<Payload, MappedData>,
+    return this.clone<D extends null ? false : true, HasParams, HasQuery>({
+      data,
     });
   };
 
@@ -163,7 +178,7 @@ export class Request<
     return this.clone<HasData, HasParams, true>({ queryParams });
   };
 
-  public setOptions = (options: AdapterOptions) => {
+  public setOptions = (options: ExtractAdapterOptionsType<Adapter>) => {
     return this.clone<HasData, HasParams, true>({ options });
   };
 
@@ -171,25 +186,45 @@ export class Request<
     return this.clone({ cancelable });
   };
 
-  public setRetry = (retry: RequestOptionsType<Endpoint, AdapterOptions>["retry"]) => {
+  public setRetry = (
+    retry: RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>["retry"],
+  ) => {
     return this.clone({ retry });
   };
 
-  public setRetryTime = (retryTime: RequestOptionsType<Endpoint, AdapterOptions>["retryTime"]) => {
+  public setRetryTime = (
+    retryTime: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >["retryTime"],
+  ) => {
     return this.clone({ retryTime });
   };
 
   public setGarbageCollection = (
-    garbageCollection: RequestOptionsType<Endpoint, AdapterOptions>["garbageCollection"],
+    garbageCollection: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >["garbageCollection"],
   ) => {
     return this.clone({ garbageCollection });
   };
 
-  public setCache = (cache: RequestOptionsType<Endpoint, AdapterOptions>["cache"]) => {
+  public setCache = (
+    cache: RequestOptionsType<Endpoint, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>["cache"],
+  ) => {
     return this.clone({ cache });
   };
 
-  public setCacheTime = (cacheTime: RequestOptionsType<Endpoint, AdapterOptions>["cacheTime"]) => {
+  public setCacheTime = (
+    cacheTime: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >["cacheTime"],
+  ) => {
     return this.clone({ cacheTime });
   };
 
@@ -233,8 +268,86 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setDataMapper = <DataMapper extends (data: Payload) => any>(mapper: DataMapper) => {
-    return this.clone<HasData, HasParams, HasQuery>(undefined, mapper);
+  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
+    const mockGenerator = function* mocked(mockedValues: RequestDataMockTypes<Response, RequestInstance>) {
+      if (Array.isArray(mockData)) {
+        let iteration = 0;
+        // eslint-disable-next-line no-restricted-syntax
+        while (true) {
+          yield mockedValues[iteration];
+          iteration = mockData.length === iteration + 1 ? 0 : iteration + 1;
+        }
+      } else {
+        while (true) {
+          yield mockData;
+        }
+      }
+    };
+    this.mockData = mockData;
+    this.mock = mockGenerator(mockData);
+    return this;
+  };
+
+  public removeMock = () => {
+    this.mockData = null;
+    this.mock = null;
+    return this;
+  };
+
+  /**
+   * Mappers
+   */
+
+  /**
+   * Map data before it gets send to the server
+   * @param dataMapper
+   * @returns
+   */
+  public setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+
+    cloned.dataMapper = dataMapper;
+
+    return cloned;
+  };
+
+  /**
+   * Map request before it gets send to the server
+   * @param requestMapper mapper of the request
+   * @returns new request
+   */
+  public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+
+    cloned.requestMapper = requestMapper;
+
+    return cloned;
+  };
+
+  /**
+   * Map the response to the new interface
+   * @param responseMapper our mapping callback
+   * @returns new response
+   */
+  public setResponseMapper = <NewResponse = Response, NewError = GlobalError | LocalError>(
+    responseMapper?: ResponseMapper<this, NewResponse, NewError>,
+  ) => {
+    const cloned = this.clone<HasData, HasParams, HasQuery>();
+
+    cloned.responseMapper = responseMapper;
+
+    return cloned as unknown as Request<
+      NewResponse,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      Adapter,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
   };
 
   private paramsMapper = (params: ParamsType | null | undefined, queryParams: QueryParams | NegativeTypes): string => {
@@ -245,36 +358,20 @@ export class Request<
       });
     }
     if (queryParams) {
-      endpoint += this.client.stringifyQueryParams(queryParams);
+      endpoint += this.client.stringifyQueryParams(queryParams as unknown as QueryParamsType);
     }
     return endpoint;
   };
 
-  public dump(): RequestDump<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterOptions,
-      HasData,
-      HasParams,
-      HasQuery,
-      MappedData
-    >,
-    AdapterOptions,
-    QueryParams
-  > {
+  public toJSON(): RequestJSON<this, ExtractAdapterOptionsType<Adapter>, QueryParams> {
     return {
       requestOptions: this.requestOptions,
       endpoint: this.endpoint,
       headers: this.headers,
       auth: this.auth,
       method: this.method,
-      params: this.params,
-      data: this.data,
+      params: this.params as any,
+      data: this.data as any,
       queryParams: this.queryParams,
       options: this.options,
       cancelable: this.cancelable,
@@ -301,46 +398,24 @@ export class Request<
     };
   }
 
-  public clone<
-    D extends true | false = HasData,
-    P extends true | false = HasParams,
-    Q extends true | false = HasQuery,
-    NewMappedData = MappedData,
-  >(
+  public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
     options?: RequestCurrentType<
-      Response,
       Payload,
       QueryParams,
-      GlobalError | LocalError,
       Endpoint,
-      AdapterOptions,
-      NewMappedData
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     >,
-    mapper?: PayloadMapperType<Payload, NewMappedData>,
-  ): Request<
-    Response,
-    Payload,
-    QueryParams,
-    GlobalError,
-    LocalError,
-    Endpoint,
-    AdapterOptions,
-    D,
-    P,
-    Q,
-    NewMappedData
-  > {
-    const dump = this.dump();
-    const requestDump: RequestCurrentType<
-      Response,
+  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q> {
+    const json = this.toJSON();
+    const requestJSON: RequestCurrentType<
       Payload,
       QueryParams,
-      GlobalError | LocalError,
       Endpoint,
-      AdapterOptions,
-      NewMappedData
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
     > = {
-      ...dump,
+      ...json,
       ...options,
       abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
@@ -351,21 +426,19 @@ export class Request<
       data: (options?.data || this.data) as any,
     };
 
-    const mapperFn = (mapper || this.dataMapper) as typeof mapper;
+    const cloned = new Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q>(
+      this.client,
+      this.requestOptions,
+      requestJSON,
+    );
 
-    const cloned = new Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterOptions,
-      D,
-      P,
-      Q,
-      NewMappedData
-    >(this.client, this.requestOptions, requestDump, mapperFn);
+    // Inherit methods
+    cloned.dataMapper = this.dataMapper;
+    cloned.responseMapper = this.responseMapper;
+    cloned.requestMapper = this.requestMapper;
+
+    cloned.mockData = this.mockData;
+    cloned.mock = this.mock;
 
     return cloned;
   }
@@ -386,39 +459,9 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public exec: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterOptions,
-      HasData,
-      HasParams,
-      HasQuery,
-      MappedData
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterOptions,
-        HasData,
-        HasParams,
-        HasQuery,
-        MappedData
-      >
-    >,
-  ) => {
+  public exec: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any);
+    const request = this.clone(options as any) as this;
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -429,6 +472,10 @@ export class Request<
 
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);
+
+    if (request.responseMapper) {
+      return request.responseMapper(response);
+    }
 
     return response;
   };
@@ -443,86 +490,42 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public send: RequestSendType<
-    Request<
-      Response,
-      Payload,
-      QueryParams,
-      GlobalError,
-      LocalError,
-      Endpoint,
-      AdapterOptions,
-      HasData,
-      HasParams,
-      HasQuery,
-      MappedData
-    >
-  > = async (
-    options?: RequestSendOptionsType<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterOptions,
-        HasData,
-        HasParams,
-        HasQuery,
-        MappedData
-      >
-    >,
-  ) => {
+  public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const request = this.clone(rest as any);
-    return requestSendRequest<
-      Request<
-        Response,
-        Payload,
-        QueryParams,
-        GlobalError,
-        LocalError,
-        Endpoint,
-        AdapterOptions,
-        HasData,
-        HasParams,
-        HasQuery,
-        MappedData
-      >
-    >(request, options);
+    const request = this.clone(rest as any) as any;
+    return sendRequest<this>(request, options);
   };
 }
 
 // /**
 //  * Typescript test cases
 //  */
-
+//
 // const client = new Client({
 //   url: "http://localhost:3000",
 // });
-
+//
 // const getUsers = client.createRequest<{ id: string }[]>()({
 //   method: "GET",
 //   endpoint: "/users",
 // });
-
+//
 // const getUser = client.createRequest<{ id: string }>()({
 //   method: "GET",
 //   endpoint: "/users/:id",
 // });
-
+//
 // const postUser = client.createRequest<{ id: string }, { name: string }>()({
 //   method: "POST",
 //   endpoint: "/users",
 // });
-
+//
 // const patchUser = client.createRequest<{ id: string }, { name: string }>()({
 //   method: "PATCH",
 //   endpoint: "/users/:id",
 // });
-
+//
 // const mappedReq = client
 //   .createRequest<{ id: string }, { name: string }>()({
 //     method: "POST",
@@ -533,9 +536,9 @@ export class Request<
 //     formData.append("key", data.name);
 //     return formData;
 //   });
-
+//
 // // ================>
-
+//
 // // OK
 // getUsers.send({ queryParams: "" });
 // getUsers.setQueryParams("").send();
@@ -543,9 +546,9 @@ export class Request<
 // getUsers.send({ data: "" });
 // getUsers.send({ params: "" });
 // getUsers.setQueryParams("").send({ queryParams: "" });
-
+//
 // // ================>
-
+//
 // // OK
 // getUser.send({ params: { id: "" }, queryParams: "" });
 // getUser.setParams({ id: "" }).send({ queryParams: "" });
@@ -554,22 +557,22 @@ export class Request<
 // getUser.send();
 // getUser.setParams({ id: "" }).send({ params: { id: "" } });
 // getUser.setParams(null).send();
-// getUser.send({ params: { id: null } });
-
+// getUser.send({ params: { id: null } });   // <----- Should fail
+//
 // // ================>
-
+//
 // // OK
 // postUser.send({ data: { name: "" } });
 // postUser.setData({ name: "" }).send();
 // // Fail
 // postUser.send({ queryParams: "" });
-// postUser.send({ data: null });
+// postUser.send({ data: null });  // <------ Should fail
 // postUser.setData(null).send();
 // postUser.send();
 // postUser.setData({ name: "" }).send({ data: { name: "" } });
-
+//
 // // ================>
-
+//
 // // OK
 // patchUser.send({ params: { id: "" }, data: { name: "" } });
 // patchUser.setParams({ id: "" }).setData({ name: "" }).send();
@@ -586,15 +589,15 @@ export class Request<
 //   .setParams({ id: "" })
 //   .setData({ name: "" })
 //   .send({ params: { id: "" } });
-
+//
 // // ================>
-
+//
 // // OK
 // mappedReq.send({ data: { name: "" } });
 // mappedReq.setData({ name: "" }).send();
 // // Fail
 // mappedReq.send({ queryParams: "" });
-// mappedReq.send({ data: undefined });
+// mappedReq.send({ data: undefined });  // <---- should fail
 // mappedReq.setData(null).send();
 // mappedReq.setData(null).send({ data: null, queryParams: () => null });
 // mappedReq.send();

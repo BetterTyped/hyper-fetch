@@ -36,11 +36,29 @@ export const postUserProfile = client
     // Transform data:UserProfile into FormData
     const formData = new FormData();
 
-    Object.entries(([key, value]) => {
+    Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
     // Return new data format
     return formData;
+  });
+```
+
+### Map whole request
+
+Below example show the implementation of request mapping. We can make each `postUserProfile` request to add custom
+headers or any other value to the request before sending it later on when we use it in our application. This way we can
+implement mappers, validators and any async logic. Throwing an error makes request to return error just like we get it
+from the "real" query.
+
+```ts
+export const postUserProfile = client
+  .createRequest<boolean, UserProfile>()({
+    method: "PATCH",
+    endpoint: "/users/profile/:userId",
+  })
+  .setRequestMapper((request) => {
+    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" });
   });
 ```

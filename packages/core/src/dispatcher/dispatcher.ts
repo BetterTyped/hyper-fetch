@@ -3,19 +3,18 @@ import EventEmitter from "events";
 import {
   QueueDataType,
   getRequestType,
-  isFailedRequest,
   canRetryRequest,
   getDispatcherEvents,
   DispatcherRequestType,
   DispatcherOptionsType,
   DispatcherStorageType,
-  DispatcherStorageValueType,
+  QueueElementType,
   RunningRequestValueType,
 } from "dispatcher";
 import { ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
 import { ResponseDetailsType, LoggerType } from "managers";
-import { RequestInstance, Request } from "request";
+import { RequestInstance } from "request";
 import { getErrorMessage } from "adapter";
 
 /**
@@ -25,7 +24,7 @@ import { getErrorMessage } from "adapter";
 export class Dispatcher {
   public emitter = new EventEmitter();
   public events = getDispatcherEvents(this.emitter);
-  public storage: DispatcherStorageType = new Map<string, QueueDataType<RequestInstance>>();
+  public storage: DispatcherStorageType = new Map<string, QueueDataType<any>>();
 
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
@@ -136,7 +135,7 @@ export class Dispatcher {
    */
   addQueueElement = <Request extends RequestInstance = RequestInstance>(
     queueKey: string,
-    dispatcherDump: DispatcherStorageValueType<Request>,
+    dispatcherDump: QueueElementType<Request>,
   ) => {
     const queue = this.getQueue<Request>(queueKey);
     queue.requests.push(dispatcherDump);
@@ -181,7 +180,7 @@ export class Dispatcher {
 
     const isStopped = queue && queue.stopped;
     const isOffline = !this.client.appManager.isOnline;
-    const isConcurrent = !queueElement?.requestDump.queued;
+    const isConcurrent = !queueElement?.request.queued;
     const isInactive = !runningRequests.length;
     const isEmpty = !queueElement;
 
@@ -379,10 +378,10 @@ export class Dispatcher {
   // eslint-disable-next-line class-methods-use-this
   createStorageElement = <Request extends RequestInstance>(request: Request) => {
     const requestId = getUniqueRequestId(request.queueKey);
-    const storageElement: DispatcherStorageValueType<Request> = {
+    const storageElement: QueueElementType<Request> = {
       requestId,
       timestamp: +new Date(),
-      requestDump: request.dump(),
+      request,
       retries: 0,
       stopped: false,
     };
@@ -445,11 +444,10 @@ export class Dispatcher {
   delete = (queueKey: string, requestId: string, abortKey: string) => {
     this.logger.debug("Deleting request", { queueKey, requestId, abortKey });
     const queue = this.getQueue(queueKey);
-    const existingRequest = queue.requests.find((req) => req.requestId === requestId);
+    const queueElement = queue.requests.find((req) => req.requestId === requestId);
 
-    if (!existingRequest) return;
+    if (!queueElement) return;
 
-    const request = new Request(this.client, existingRequest.requestDump.requestOptions, existingRequest.requestDump);
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
     this.storage.set(queueKey, queue);
 
@@ -462,7 +460,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.client.requestManager.events.emitRemove(queueKey, requestId, { requestId, request });
+    this.client.requestManager.events.emitRemove(queueKey, requestId, { requestId, request: queueElement.request });
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -475,12 +473,11 @@ export class Dispatcher {
    * Request can run for some time, once it's done, we have to check if it's successful or if it was aborted
    * It can be different once the previous call was set as cancelled and removed from queue before this request got resolved
    */
-  performRequest = async (storageElement: DispatcherStorageValueType) => {
-    const request = new Request(this.client, storageElement.requestDump.requestOptions, storageElement.requestDump);
-    const { requestDump, requestId } = storageElement;
+  performRequest = async (storageElement: QueueElementType) => {
+    const { request, requestId } = storageElement;
     this.logger.info("Performing request", { request, requestId });
 
-    const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = requestDump;
+    const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = request;
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
@@ -518,17 +515,14 @@ export class Dispatcher {
     // Do not continue the request handling when it got stopped and request was unsuccessful
     // Or when the request was aborted/canceled
     const isOfflineResponseStatus = !appManager.isOnline;
-    // Request is failed when there is the error message or the status is 0 or equal/bigger than 400
-    const isFailed = isFailedRequest(response);
     // If there is no running request with this id, it means it was cancelled and removed during send
-    const isCancelMessage = getErrorMessage("abort").message === response[1]?.message;
+    const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
     const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
 
     // Remove running request, must be called after isCancelled
     this.deleteRunningRequest(queueKey, requestId);
 
     const requestDetails: ResponseDetailsType = {
-      isFailed,
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
@@ -546,24 +540,24 @@ export class Dispatcher {
     // Global response emitter to handle request execution
     requestManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
     // Cache event to emit the data inside and store it
-    cache.set(request, response, requestDetails);
+    cache.set(request, { ...response, ...requestDetails });
     this.logger.info("Request finished", { requestId, request, response, requestDetails });
 
     // On cancelled
     if (isCanceled) {
       const queue = this.getQueue(queueKey);
-      const existingRequest = queue.requests.find((req) => req.requestId === requestId);
+      const queueElement = queue.requests.find((req) => req.requestId === requestId);
 
       // do not remove cancelled request as it may be result of manual queue pause
       // if abort was done without stop action we can remove request
-      if (!queue.stopped && !existingRequest?.stopped) {
+      if (!queue.stopped && !queueElement?.stopped) {
         this.logger.debug("Request paused", { response, requestDetails, request });
         return this.delete(queueKey, requestId, abortKey);
       }
       return this.logger.debug("Request canceled", { response, requestDetails, request });
     }
     // On offline
-    if (isFailed && isOfflineResponseStatus) {
+    if (!response.success && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
       if (!offline) {
         this.logger.warning("Removing non-offline request", { response, requestDetails, request });
@@ -573,7 +567,7 @@ export class Dispatcher {
       return this.logger.debug("Awaiting for network restoration", { response, requestDetails, request });
     }
     // On success
-    if (!isFailed) {
+    if (response.success) {
       this.delete(queueKey, requestId, abortKey);
       return this.logger.debug("Successful response, removing request from queue.", {
         response,
@@ -582,7 +576,7 @@ export class Dispatcher {
       });
     }
     // On retry
-    if (isFailed && canRetry) {
+    if (!response.success && canRetry) {
       this.logger.debug("Waiting for retry", { response, requestDetails, request });
       // Perform retry once request is failed
       setTimeout(() => {

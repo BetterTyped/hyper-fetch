@@ -2,13 +2,15 @@ import {
   QueryParamType,
   QueryParamsType,
   QueryParamValuesType,
-  ResponseType,
+  ResponseReturnType,
   QueryStringifyOptionsType,
+  AdapterInstance,
 } from "adapter";
 import { RequestInstance } from "request";
 import { stringifyDefaultOptions } from "client";
 import { NegativeTypes } from "types";
 import { RequestInterceptorType, ResponseInterceptorType } from "./client.types";
+import { hasWindow } from "managers";
 
 // Utils
 
@@ -33,9 +35,9 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   return newRequest;
 };
 
-export const interceptResponse = async <GlobalErrorType>(
+export const interceptResponse = async <GlobalErrorType, Adapter extends AdapterInstance>(
   interceptors: ResponseInterceptorType[],
-  response: ResponseType<any, GlobalErrorType>,
+  response: ResponseReturnType<any, GlobalErrorType, Adapter>,
   request: RequestInstance,
 ) => {
   let newResponse = response;
@@ -52,7 +54,7 @@ export const interceptResponse = async <GlobalErrorType>(
 // Mappers
 
 export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = request.data instanceof FormData;
+  const isFormData = hasWindow() && request.data instanceof FormData;
   const headers: HeadersInit = {};
 
   if (!isFormData) headers["Content-Type"] = "application/json";
@@ -62,7 +64,7 @@ export const getAdapterHeaders = (request: RequestInstance) => {
 };
 
 export const getAdapterPayload = (data: unknown): string | FormData => {
-  const isFormData = data instanceof FormData;
+  const isFormData = hasWindow() && data instanceof FormData;
   if (isFormData) return data;
 
   return stringifyValue(data);
@@ -107,7 +109,19 @@ const encodeParams = (key: string, value: QueryParamType, options: QueryStringif
     return "";
   }
 
-  return `${encodeValue(key, options)}=${encodeValue(String(value), options)}`;
+  const parsedValue = () => {
+    if (value instanceof Date) {
+      return options.dateParser?.(value) || value.toISOString();
+    }
+
+    if (typeof value === "object" && !Array.isArray(value)) {
+      return options.objectParser?.(value) || JSON.stringify(value);
+    }
+
+    return String(value);
+  };
+
+  return `${encodeValue(key, options)}=${encodeValue(parsedValue(), options)}`;
 };
 
 const encodeArray = (key: string, array: Array<QueryParamValuesType>, options: QueryStringifyOptionsType): string => {

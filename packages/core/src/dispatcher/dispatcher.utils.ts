@@ -1,6 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseType } from "adapter";
-import { DispatcherRequestType, DispatcherStorageValueType } from "dispatcher";
+import { DispatcherRequestType, QueueElementType } from "dispatcher";
 
 // Events
 
@@ -30,7 +29,7 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
   return false;
 };
 
-export const getRequestType = (request: RequestInstance, latestRequest: DispatcherStorageValueType | undefined) => {
+export const getRequestType = (request: RequestInstance, latestRequest: QueueElementType | undefined) => {
   const { queued, cancelable, deduplicate } = request;
   const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
 
@@ -44,12 +43,4 @@ export const getRequestType = (request: RequestInstance, latestRequest: Dispatch
     return DispatcherRequestType.deduplicated;
   }
   return DispatcherRequestType.allAtOnce;
-};
-
-export const isFailedRequest = (data: ResponseType<unknown, unknown>) => {
-  const [, , status] = data;
-  if (!status || status >= 400) {
-    return true;
-  }
-  return false;
 };

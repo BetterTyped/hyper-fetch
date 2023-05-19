@@ -1,20 +1,20 @@
 import { RequestEffect } from "effect";
-import { StringifyCallbackType } from "client";
+import { Client, StringifyCallbackType } from "client";
 import { RequestOptionsType, Request } from "request";
 import { AdapterOptionsType, QueryStringifyOptionsType } from "adapter";
 import { LoggerManager } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createAdapter, createRequest, interceptorCallback, middlewareCallback } from "../../utils";
+import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
 
 describe("Client [ Methods ]", () => {
-  let client = createClient();
-
+  let client = new Client({ url: "shared-base-url" });
+  const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
+    client = new Client({ url: "shared-base-url" });
     resetInterceptors();
   });
 
@@ -26,14 +26,16 @@ describe("Client [ Methods ]", () => {
     it("should assign default request config [setRequestDefaultOptions]", async () => {
       const options: Partial<RequestOptionsType<string, AdapterOptionsType>> = { method: "POST" };
       client.setRequestDefaultOptions(() => options);
+      const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.requestDefaultOptions(createRequest(client).requestOptions)).toEqual(options);
+      expect(client.requestDefaultOptions(request.requestOptions)).toEqual(options);
+      expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
       const options: AdapterOptionsType = { timeout: 12312312 };
       client.setAdapterDefaultOptions(() => options);
 
-      expect(client.adapterDefaultOptions(createRequest(client))).toEqual(options);
+      expect(client.adapterDefaultOptions(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = { strict: false };
@@ -158,6 +160,18 @@ describe("Client [ Methods ]", () => {
       client.setPayloadMapper(callback);
 
       expect(client.payloadMapper).toEqual(callback);
+    });
+    it("should assign key mappers", async () => {
+      const callback = () => "";
+      client.setAbortKeyMapper(callback);
+      client.setCacheKeyMapper(callback);
+      client.setQueueKeyMapper(callback);
+      client.setEffectKeyMapper(callback);
+
+      expect(client.abortKeyMapper).toEqual(callback);
+      expect(client.cacheKeyMapper).toEqual(callback);
+      expect(client.queueKeyMapper).toEqual(callback);
+      expect(client.effectKeyMapper).toEqual(callback);
     });
   });
 });

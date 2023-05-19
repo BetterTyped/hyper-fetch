@@ -1,8 +1,9 @@
+import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch, sleep } from "../../utils";
+import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
 
 describe("useFetch [ Revalidate ]", () => {
   let request = createRequest();
@@ -30,10 +31,14 @@ describe("useFetch [ Revalidate ]", () => {
   it("should allow to prevent revalidation on mount", async () => {
     const spy = jest.fn();
     const customMock = { something: "123" };
-    client.cache.set(request, [customMock, null, 200], {
+    client.cache.set(request, {
+      data: customMock,
+      error: null,
+      status: 200,
+      success: true,
+      extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       retries: 0,
       timestamp: +new Date(),
-      isFailed: false,
       isCanceled: false,
       isOffline: false,
     });
@@ -50,6 +55,7 @@ describe("useFetch [ Revalidate ]", () => {
   it("should allow to prevent revalidation on mount", async () => {
     const spy = jest.fn();
     const response = renderUseFetch(request, { revalidateOnMount: false });
+
     act(() => {
       response.result.current.onFinished(() => {
         spy();
@@ -58,15 +64,19 @@ describe("useFetch [ Revalidate ]", () => {
     });
     renderUseFetch(request, { revalidateOnMount: false });
 
-    await sleep(50);
+    await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
   });
   it("should allow to revalidate on mount", async () => {
     const customMock = { something: "123" };
-    client.cache.set(request, [customMock, null, 200], {
+    client.cache.set(request, {
+      data: customMock,
+      error: null,
+      status: 200,
+      success: true,
+      extra: xhrExtra,
       retries: 0,
       timestamp: +new Date(),
-      isFailed: false,
       isCanceled: false,
       isOffline: false,
     });

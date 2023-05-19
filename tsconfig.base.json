@@ -9,6 +9,9 @@
     },
     {
       "path": "./packages/sockets"
+    },
+    {
+      "path": "./packages/adapter-firebase"
     }
   ]
 }

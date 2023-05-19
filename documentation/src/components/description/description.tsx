@@ -17,35 +17,54 @@ export function Description(): JSX.Element {
         <div className={clsx(styles.row)}>
           <div className={clsx(styles.block)}>
             <div className={styles.imageWrapper}>
-              <img className={styles.featureSvg} alt="box" src="/img/features/070-file hosting.svg" />
+              <img className={styles.featureSvg} alt="box" src="/img/features/049-messenger.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Http, Graphql, Websocket, SSE</h3>
+            <h3 className={clsx(styles.title)}>Full typesafety</h3>
             <div className={clsx(styles.description)}>
-              There is nothing impossible for us, we provide unlimited possibilities for data exchange, the necessary
-              tools and easy-to-implement solutions. We support all popular solutions and protocols, including the
-              websocket.
+              Make changes and iterate with confidence by taking full advantage of Typescript.
             </div>
           </div>
           <div className={clsx(styles.block)}>
             <div className={styles.imageWrapper}>
-              <img className={styles.featureSvg} alt="bolt" src="/img/features/049-messenger.svg" />
+              <img className={styles.featureSvg} alt="box" src="/img/features/041-whatsapp.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Replace and customize the system</h3>
+            <h3 className={clsx(styles.title)}>Realtime connection</h3>
             <div className={clsx(styles.description)}>
-              Are you used to proven tools such as Axios, Socket.io or fetch? You can easily use them with Hyper Fetch,
-              we do not limit the possibility of combining our platform with existing solutions. This applies to most
-              class items included with package.
+              Solution for easy integration between queries and an open communication channel.
             </div>
           </div>
           <div className={clsx(styles.block)}>
             <div className={styles.imageWrapper}>
-              <img className={styles.featureSvg} alt="case" src="/img/features/047-pin.svg" />
+              <img className={styles.featureSvg} alt="box" src="/img/features/026-tips.svg" />
             </div>
-            <h3 className={clsx(styles.title)}>Persistence and offline first</h3>
+            <h3 className={clsx(styles.title)}>Easy progress tracking</h3>
             <div className={clsx(styles.description)}>
-              The most advanced solution for persistence and offline first. We based our framework on requests and
-              strict data standards, which allows us to store not only data returned from queries, but also entire
-              requests before sending them!
+              Preview each request and access upload and download status in a fabulously simple way.
+            </div>
+          </div>
+          <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="box" src="/img/features/059-slack.svg" />
+            </div>
+            <h3 className={clsx(styles.title)}>Adaptable by design</h3>
+            <div className={clsx(styles.description)}>Written to support all formats, requirements and protocols.</div>
+          </div>
+          <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="box" src="/img/features/012-daily health app.svg" />
+            </div>
+            <h3 className={clsx(styles.title)}>Offline first and persistent</h3>
+            <div className={clsx(styles.description)}>
+              Deliver a top-notch experience to your users regardless of their connection status.
+            </div>
+          </div>
+          <div className={clsx(styles.block)}>
+            <div className={styles.imageWrapper}>
+              <img className={styles.featureSvg} alt="box" src="/img/features/064-movies app.svg" />
+            </div>
+            <h3 className={clsx(styles.title)}>With great DX</h3>
+            <div className={clsx(styles.description)}>
+              Our code will walk you through the ropes thanks to its outstanding autocomplete capabilities.
             </div>
           </div>
         </div>

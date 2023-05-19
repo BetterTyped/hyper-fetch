@@ -1,11 +1,12 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createClient, createRequest, sleep } from "../../../utils";
+import { sleep } from "../../../utils";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../../server";
+import { Client } from "client";
 
 describe("RequestManager [ Events ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -14,8 +15,8 @@ describe("RequestManager [ Events ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   });
 
   afterAll(() => {

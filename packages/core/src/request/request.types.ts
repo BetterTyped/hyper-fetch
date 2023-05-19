@@ -3,18 +3,25 @@ import {
   NegativeTypes,
   ExtractParamsType,
   ExtractPayloadType,
-  HttpMethodsType,
-  ExtractQueryParamsType,
-  ExtractAdapterOptionsType,
+  ExtractRequestQueryParamsType,
+  ExtractAdapterType,
   ExtractEndpointType,
   ExtractHasDataType,
   ExtractHasParamsType,
   ExtractHasQueryParamsType,
   ExtractErrorType,
   ExtractResponseType,
+  HttpMethodsType,
 } from "types";
 import { Request } from "request";
-import { ResponseType, QueryParamsType, ProgressType } from "adapter";
+import {
+  ResponseReturnType,
+  QueryParamsType,
+  ProgressType,
+  ExtractAdapterOptionsType,
+  AdapterType,
+  ExtractAdapterMethodType,
+} from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
 // Progress
@@ -30,16 +37,20 @@ export type AdapterProgressType = {
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestDump<
+export type RequestJSON<
   Request extends RequestInstance,
   // Bellow generics provided only to overcome the typescript bugs
   AdapterOptions = unknown,
   QueryParams = QueryParamsType,
   Params = ExtractParamsType<Request>,
 > = {
-  requestOptions: RequestOptionsType<string, AdapterOptions | ExtractAdapterOptionsType<Request>>;
+  requestOptions: RequestOptionsType<
+    string,
+    AdapterOptions | ExtractAdapterType<Request>,
+    ExtractAdapterMethodType<ExtractAdapterType<Request>>
+  >;
   endpoint: string;
-  method: HttpMethodsType;
+  method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
   auth: boolean;
   cancelable: boolean;
@@ -52,8 +63,8 @@ export type RequestDump<
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptionsType<Request>;
-  data: PayloadType<ExtractPayloadType<Request>, unknown>;
+  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
+  data: PayloadType<ExtractPayloadType<Request>>;
   params: Params | NegativeTypes;
   queryParams: QueryParams | NegativeTypes;
   abortKey: string;
@@ -74,7 +85,11 @@ export type RequestDump<
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions> = {
+export type RequestOptionsType<
+  GenericEndpoint extends string,
+  AdapterOptions extends Record<string, any>,
+  RequestMethods = HttpMethodsType,
+> = {
   /**
    * Determine the endpoint for request request
    */
@@ -88,9 +103,9 @@ export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions> =
    */
   auth?: boolean;
   /**
-   * Request method GET | POST | PATCH | PUT | DELETE
+   * Request method GET | POST | PATCH | PUT | DELETE or set of method names handled by adapter
    */
-  method?: HttpMethodsType;
+  method?: RequestMethods;
   /**
    * Should enable cancelable mode in the Dispatcher
    */
@@ -161,30 +176,27 @@ export type RequestOptionsType<GenericEndpoint extends string, AdapterOptions> =
   deduplicateTime?: number;
 };
 
-export type PayloadMapperType<PayloadType, MappedData> = (data: PayloadType) => MappedData;
+export type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewDataType;
 
-export type PayloadType<Payload, MappedData> = (MappedData extends never ? Payload : MappedData) | NegativeTypes;
+export type PayloadType<Payload> = Payload | NegativeTypes;
 
 export type RequestCurrentType<
-  Response,
   Payload,
   QueryParams,
-  ErrorType,
   GenericEndpoint extends string,
   AdapterOptions,
-  MappedData,
+  MethodsType = HttpMethodsType,
 > = {
   used?: boolean;
   params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
   queryParams?: QueryParams | NegativeTypes;
-  data?: PayloadType<Payload, MappedData>;
-  mockCallback?: ((data: Payload) => ResponseType<Response, ErrorType>) | undefined;
+  data?: PayloadType<Payload>;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
   updatedQueueKey?: boolean;
   updatedEffectKey?: boolean;
-} & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions>>>;
+} & Partial<NullableKeys<RequestOptionsType<GenericEndpoint, AdapterOptions, MethodsType>>>;
 
 export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
@@ -205,13 +217,10 @@ export type FetchOptionsType<AdapterOptions> = Omit<
 /**
  * It will check if the query params are already set
  */
-export type FetchQueryParamsType<
-  QueryParams extends QueryParamsType | string,
-  HasQuery extends true | false = false,
-> = HasQuery extends true
+export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
   ? { queryParams?: NegativeTypes }
   : {
-      queryParams?: QueryParams | string;
+      queryParams?: QueryParams;
     };
 
 /**
@@ -222,7 +231,7 @@ export type FetchParamsType<
   HasParams extends true | false,
 > = ExtractRouteParams<Endpoint> extends NegativeTypes
   ? { params?: NegativeTypes }
-  : true extends HasParams
+  : HasParams extends true
   ? { params?: NegativeTypes }
   : { params: NonNullable<ExtractRouteParams<Endpoint>> };
 
@@ -242,12 +251,12 @@ export type RequestQueueOptions = {
 // Request making
 
 export type RequestSendOptionsType<Request extends RequestInstance> = FetchQueryParamsType<
-  ExtractQueryParamsType<Request>,
+  ExtractRequestQueryParamsType<Request>,
   ExtractHasQueryParamsType<Request>
 > &
   FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
   FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
-  Omit<FetchOptionsType<ExtractAdapterOptionsType<Request>>, "params" | "data"> &
+  Omit<FetchOptionsType<ExtractAdapterType<Request>>, "params" | "data"> &
   FetchSendActionsType<Request> &
   RequestQueueOptions;
 
@@ -258,25 +267,56 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
   onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onResponse?: (
-    response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>,
+    response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
     details: ResponseDetailsType,
   ) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 
+// If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
   RequestSendOptionsType<Request>["data"] extends NegativeTypes
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
       ? (
           options?: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+        ) => Promise<
+          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+        >
       : (
-          options?: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>
+          options: RequestSendOptionsType<Request>,
+        ) => Promise<
+          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+        >
     : (
-        options?: RequestSendOptionsType<Request>,
-      ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>;
+        options: RequestSendOptionsType<Request>,
+      ) => Promise<
+        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+      >;
 
 // Instance
 
-export type RequestInstance = Request<any, any, any, any, any, any, any, any, any, any, any>;
+export type RequestInstance = Request<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  AdapterType<any, any, any, any, any>,
+  any,
+  any,
+  any
+>;
+
+// Mappers
+
+export type RequestMapper<Request extends RequestInstance, NewRequest extends RequestInstance> = (
+  request: Request,
+  requestId: string,
+) => NewRequest | Promise<NewRequest>;
+
+export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (
+  response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+) =>
+  | ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>
+  | Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>;

@@ -28,7 +28,7 @@ describe("Logger [ Utils ]", () => {
         expect(logSpy).toBeCalledTimes(1);
       });
       it("should allow to log additional data", async () => {
-        const additionalData = [{ test: 1 }];
+        const extra = [{ test: 1 }];
 
         logger({
           module: "Test",
@@ -36,7 +36,7 @@ describe("Logger [ Utils ]", () => {
           message: "Test",
           enabled: true,
           severity: 3,
-          additionalData,
+          extra,
         });
         expect(logSpy).toBeCalledTimes(1);
         expect(groupCollapsedSpy).toBeCalledTimes(1);
@@ -64,9 +64,9 @@ describe("Logger [ Utils ]", () => {
 //     const module = `%c[${log.module}]:[${getTime()}]:`;
 //     const message = `${emoji}${module} ${log.message}`;
 
-//     if (log.additionalData?.length) {
+//     if (log.extra?.length) {
 //       console.groupCollapsed(message, styles);
-//       log.additionalData.forEach((data) => {
+//       log.extra.forEach((data) => {
 //         console.log(data);
 //       });
 //       console.groupEnd();

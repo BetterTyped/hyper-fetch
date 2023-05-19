@@ -36,7 +36,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
-    bounceTimeout = useFetchDefaultOptions.bounceTimeout,
+    bounceTimeout = useFetchDefaultOptions.bounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   } = {
     ...useFetchDefaultOptions,
@@ -44,7 +44,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     ...options,
   };
 
-  const updateKey = JSON.stringify(request.dump());
+  const updateKey = JSON.stringify(request.toJSON());
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const refreshDebounce = useDebounce({ delay: refreshTime });
@@ -57,7 +57,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
   /**
-   * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
+   * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
   const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<RequestType>({
     logger,
@@ -210,7 +210,7 @@ export const useFetch = <RequestType extends RequestInstance>(
 
   /**
    * Initialization of the events related to data exchange with cache and queue
-   * This allow to share the state with other hooks and keep it related
+   * This allows to share the state with other hooks and keep it related
    */
   useDidUpdate(handleMountEvents, [updateKey], true);
 
@@ -245,6 +245,14 @@ export const useFetch = <RequestType extends RequestInstance>(
     get status() {
       setRenderKey("status");
       return state.status;
+    },
+    get success() {
+      setRenderKey("success");
+      return state.success;
+    },
+    get extra() {
+      setRenderKey("extra");
+      return state.extra;
     },
     get retries() {
       setRenderKey("retries");

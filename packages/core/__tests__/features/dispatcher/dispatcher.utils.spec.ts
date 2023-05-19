@@ -1,22 +1,22 @@
 import {
   canRetryRequest,
-  DispatcherStorageValueType,
+  QueueElementType,
   DispatcherRequestType,
   getDispatcherChangeEventKey,
   getDispatcherDrainedEventKey,
   getDispatcherStatusEventKey,
   getIsEqualTimestamp,
   getRequestType,
-  isFailedRequest,
 } from "dispatcher";
-import { createDispatcher, createClient, createAdapter, createRequest } from "../../utils";
+import { createDispatcher, createAdapter } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { Client } from "client";
 
 describe("Dispatcher [ Utils ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = createClient().setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -25,7 +25,7 @@ describe("Dispatcher [ Utils ]", () => {
 
   beforeEach(() => {
     adapter = createAdapter({ callback: adapterSpy });
-    client = createClient().setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
     resetInterceptors();
     jest.resetAllMocks();
@@ -45,7 +45,7 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using getRequest method", () => {
     it("should give stored request", async () => {
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(request);
 
       const requestId = dispatcher.add(request);
@@ -53,7 +53,7 @@ describe("Dispatcher [ Utils ]", () => {
       expect(storedRequest).toBeDefined();
     });
     it("should not return request from empty store", async () => {
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(request);
 
       const storedRequest = dispatcher.getRequest(request.queueKey, "test");
@@ -62,7 +62,7 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using clear methods", () => {
     it("should clear request from queue", async () => {
-      const request = createRequest(client);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       createRequestInterceptor(request);
 
       dispatcher.stop(request.queueKey);
@@ -86,20 +86,6 @@ describe("Dispatcher [ Utils ]", () => {
       expect(getIsEqualTimestamp(+new Date(), 10)).toBeFalse();
     });
   });
-  describe("When using isFailedRequest util", () => {
-    it("should return true on error statuses", async () => {
-      expect(isFailedRequest([null, null, 400])).toBeTrue();
-      expect(isFailedRequest([null, null, 0])).toBeTrue();
-      expect(isFailedRequest([null, null, 500])).toBeTrue();
-      expect(isFailedRequest([null, null, 404])).toBeTrue();
-    });
-    it("should return false on success statuses", async () => {
-      expect(isFailedRequest([null, null, 304])).toBeFalse();
-      expect(isFailedRequest([null, null, 200])).toBeFalse();
-      expect(isFailedRequest([null, null, 202])).toBeFalse();
-      expect(isFailedRequest([null, null, 201])).toBeFalse();
-    });
-  });
   describe("When using canRetryRequest util", () => {
     it("should return true if retry is possible", async () => {
       expect(canRetryRequest(0, 1)).toBeTrue();
@@ -121,14 +107,14 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
-      const request = createRequest(client, { deduplicate: true });
-      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
+      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.deduplicated);
     });
     it("should return cancelable type", async () => {
-      const request = createRequest(client, { cancelable: true });
-      const duplicated: DispatcherStorageValueType<typeof request> = dispatcher.createStorageElement(request);
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
+      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.previousCanceled);
     });

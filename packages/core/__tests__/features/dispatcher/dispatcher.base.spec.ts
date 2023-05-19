@@ -1,18 +1,19 @@
 import { QueueDataType } from "dispatcher";
-import { createDispatcher, createClient, createRequest } from "../../utils";
+import { createDispatcher } from "../../utils";
 import { resetInterceptors, startServer, stopServer } from "../../server";
+import { Client } from "client";
 
 describe("Dispatcher [ Basic ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -23,7 +24,7 @@ describe("Dispatcher [ Basic ]", () => {
 
   describe("When lifecycle events get triggered", () => {
     it("should allow to change storage", async () => {
-      const storage = new Map<string, QueueDataType>();
+      const storage = new Map<string, QueueDataType<any>>();
       const newDispatcher = createDispatcher(client, { storage });
 
       const dispatcherDump = newDispatcher.createStorageElement(request);

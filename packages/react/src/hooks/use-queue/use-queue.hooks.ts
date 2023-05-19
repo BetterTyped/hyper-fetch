@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { RequestInstance, getRequestDispatcher, DispatcherStorageValueType } from "@hyper-fetch/core";
+import { RequestInstance, getRequestDispatcher, QueueElementType } from "@hyper-fetch/core";
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
@@ -37,7 +37,7 @@ export const useQueue = <Request extends RequestInstance>(
   // Mapping
   // ******************
 
-  const createRequestsArray = (queueElements: DispatcherStorageValueType<Request>[]): QueueRequest<Request>[] => {
+  const createRequestsArray = (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
     return queueElements.map<QueueRequest<Request>>((req) => ({
       ...req,
       stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),

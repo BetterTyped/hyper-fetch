@@ -40,7 +40,7 @@ describe("useRequestEvents [ Utils ]", () => {
         response.result.current[1].addLifecycleListeners(request);
         response.result.current[1].addLifecycleListeners(request);
 
-        await request.send();
+        await request.send({});
       });
 
       expect(spy).toBeCalledTimes(1);

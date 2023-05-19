@@ -13,6 +13,20 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => 
   return new Error("Unexpected error");
 };
 
+export const getResponseHeaders = (headersString: string): Record<string, string> => {
+  const arr = headersString.trim().split(/[\r\n]+/);
+
+  const headers = {};
+  arr.forEach((line) => {
+    const parts = line.split(": ");
+    const header = parts.shift();
+    const value = parts.join(": ");
+    headers[header] = value;
+  });
+
+  return headers;
+};
+
 // Responses
 
 export const parseResponse = (response: string | unknown) => {
@@ -29,31 +43,10 @@ export const parseErrorResponse = <T extends RequestInstance>(response: unknown)
 
 // Request
 
-export const getUploadSize = (payload: FormData | string) => {
-  if (payload instanceof FormData) {
-    return Array.from(payload.values())
-      .map((value) => (typeof value === "string" ? value.length : value.size))
-      .reduce((a, b) => a + b, 0);
-  }
+export const getUploadSize = (payload: string) => {
   return payload.length;
 };
 
-export const fileToBuffer = (file: File | Blob) => {
-  return new Promise<Uint8Array>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(new Uint8Array(reader.result as ArrayBufferLike));
-    };
-    reader.readAsArrayBuffer(file);
-  });
-};
-
-export const getStreamPayload = (payload: FormData | string | null) => {
-  if (payload instanceof FormData) {
-    const parts = Array.from(payload.values()).map((value) =>
-      typeof value === "string" ? value : fileToBuffer(value),
-    );
-    return Promise.all(parts);
-  }
+export const getStreamPayload = (payload: string | null) => {
   return payload;
 };

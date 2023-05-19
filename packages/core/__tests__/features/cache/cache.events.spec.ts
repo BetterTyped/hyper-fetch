@@ -1,31 +1,33 @@
 import { CacheValueType } from "cache";
-import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
+import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
+import { Client, xhrExtra } from "client";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
 
-  let client = createClient();
-  let request = createRequest(client, { cacheKey, cache: true });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
   let cache = createCache(client);
   const spy = jest.fn();
 
   const cacheData: CacheValueType = {
-    data: [null, null, 200],
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isFailed: false,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: null,
+    error: null,
+    status: 200,
+    success: true,
+    extra: xhrExtra,
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime: request.cacheTime,
     clearKey: cache.clearKey,
     garbageCollection: 300000,
   };
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client, { cacheKey, cache: true });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cache: true });
     cache = createCache(client);
     jest.resetAllMocks();
   });
@@ -40,7 +42,7 @@ describe("Cache [ Events ]", () => {
     it("should trigger onChange event when data is set", async () => {
       const newCache = createCache(client, { onChange: spy });
 
-      newCache.set(request, cacheData.data, cacheData.details);
+      newCache.set(request, cacheData);
 
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(request.cacheKey, cacheData);
@@ -56,10 +58,14 @@ describe("Cache [ Events ]", () => {
   });
   describe("when revalidate event is triggered", () => {
     it("should revalidate cache using cache key", async () => {
-      cache.set(request, [{}, null, 200], {
+      cache.set(request, {
+        data: {},
+        error: null,
+        status: 200,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
-        isFailed: false,
         isCanceled: false,
         isOffline: false,
       });
@@ -69,10 +75,14 @@ describe("Cache [ Events ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should revalidate cache using regex", async () => {
-      cache.set(request, [null, null, 200], {
+      cache.set(request, {
+        data: null,
+        error: null,
+        status: 200,
+        success: true,
+        extra: xhrExtra,
         retries: 0,
         timestamp: +new Date(),
-        isFailed: false,
         isCanceled: false,
         isOffline: false,
       });

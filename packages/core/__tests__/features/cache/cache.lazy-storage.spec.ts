@@ -1,19 +1,21 @@
 import { CacheValueType } from "cache";
-import { createClient, createCache, createRequest, createLazyCacheAdapter, sleep } from "../../utils";
+import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
+import { Client, xhrExtra } from "client";
 
 describe("Cache [ Lazy Storage ]", () => {
   const cacheKey = "test";
   const cacheTime = 10000;
   const clearKey = "test";
   const cacheData: CacheValueType = {
-    data: [null, null, 200],
-    details: {
-      retries: 0,
-      timestamp: +new Date(),
-      isFailed: false,
-      isCanceled: false,
-      isOffline: false,
-    },
+    data: null,
+    error: null,
+    status: 200,
+    success: true,
+    extra: xhrExtra,
+    retries: 0,
+    timestamp: +new Date(),
+    isCanceled: false,
+    isOffline: false,
     cacheTime,
     clearKey,
     garbageCollection: Infinity,
@@ -22,8 +24,8 @@ describe("Cache [ Lazy Storage ]", () => {
   const lazyStorage = new Map();
   const spy = jest.fn();
 
-  let client = createClient();
-  let request = createRequest(client, { cacheKey });
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     clearKey,
@@ -31,8 +33,8 @@ describe("Cache [ Lazy Storage ]", () => {
 
   beforeEach(() => {
     lazyStorage.clear();
-    client = createClient();
-    request = createRequest(client, { cacheKey });
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       clearKey,
@@ -43,7 +45,7 @@ describe("Cache [ Lazy Storage ]", () => {
   describe("when using lazy storage", () => {
     it("should new data to lazy storage", async () => {
       cache.events.onData(cacheKey, spy);
-      await cache.set(request, cacheData.data, cacheData.details);
+      await cache.set(request, cacheData);
       await sleep(10);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -59,10 +61,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should not emit stale data", async () => {
-      await cache.options.lazyStorage.set(cacheKey, {
-        ...cacheData,
-        details: { ...cacheData.details, timestamp: +new Date() - cacheTime },
-      });
+      await cache.options.lazyStorage.set(cacheKey, { ...cacheData, timestamp: +new Date() - cacheTime });
       cache.events.onData(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);

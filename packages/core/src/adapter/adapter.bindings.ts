@@ -1,15 +1,34 @@
-import { getErrorMessage, ResponseSuccessType, ResponseErrorType, ProgressDataType } from "adapter";
+import {
+  getErrorMessage,
+  ResponseReturnSuccessType,
+  ResponseReturnErrorType,
+  ProgressDataType,
+  ExtractAdapterOptionsType,
+  ExtractAdapterStatusType,
+  ExtractAdapterExtraType,
+  AdapterType,
+  AdapterInstance,
+  ResponseReturnType,
+} from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
-import { ExtractResponseType, ExtractErrorType } from "types";
+import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
+import { mocker } from "mocker";
 
-export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance, requestId: string) => {
-  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = cmd.client;
+export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>(
+  req: RequestInstance,
+  requestId: string,
+  systemErrorStatus: ExtractAdapterStatusType<T>,
+  systemErrorExtra: ExtractAdapterExtraType<T>,
+) => {
+  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
 
   const logger = loggerManager.init("Adapter");
 
+  let processingError = null;
+
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
-  let request = cmd;
+  let request = req;
 
   // Progress
   let requestTotal = 1;
@@ -20,10 +39,18 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   // Pre request modifications
   logger.debug(`Starting request middleware callbacks`);
 
-  request = await request.client.__modifyRequest(cmd);
+  try {
+    request = await request.client.__modifyRequest(req);
 
-  if (request.auth) {
-    request = await request.client.__modifyAuth(cmd);
+    if (request.auth) {
+      request = await request.client.__modifyAuth(req);
+    }
+
+    if (request.requestMapper) {
+      request = await request.requestMapper(request, requestId);
+    }
+  } catch (err) {
+    processingError = err;
   }
 
   // Request Setup
@@ -32,8 +59,20 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
   const fullUrl = url + endpoint;
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
-  const payload = payloadMapper(data);
-  const config: ConfigType = { ...request.requestOptions.options };
+  let payload = data;
+
+  try {
+    payload = payloadMapper(data);
+    if (request.dataMapper) {
+      payload = await request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
+    }
+  } catch (err) {
+    processingError = err;
+  }
+
+  const config: ExtractAdapterOptionsType<T> = {
+    ...request.options,
+  } as ExtractAdapterOptionsType<T>;
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
@@ -178,12 +217,19 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
 
   // Success
 
-  const onSuccess = async <T extends RequestInstance>(
-    responseData: unknown,
-    status: number,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
-  ): Promise<ResponseSuccessType<ExtractResponseType<T>>> => {
-    let response = [responseData, null, status] as ResponseSuccessType<ExtractResponseType<T>>;
+  const onSuccess = async (
+    responseData: any,
+    status: ExtractAdapterStatusType<T>,
+    extra: ExtractAdapterExtraType<T>,
+    resolve: (value: ResponseReturnErrorType<any, T>) => void,
+  ): Promise<ResponseReturnSuccessType<ExtractResponseType<T>, T>> => {
+    let response = {
+      data: responseData,
+      error: null,
+      success: true,
+      status,
+      extra,
+    };
     response = await request.client.__modifyResponse(response, request);
     response = await request.client.__modifySuccessResponse(response, request);
 
@@ -197,12 +243,19 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
 
   // Errors
 
-  const onError = async <T extends RequestInstance>(
-    error: Error | ExtractErrorType<T>,
-    status: number,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
-  ): Promise<ResponseErrorType<ExtractErrorType<T>>> => {
-    let responseData = [null, error, status] as ResponseErrorType<ExtractErrorType<T>>;
+  const onError = async (
+    error: any,
+    status: ExtractAdapterStatusType<T>,
+    extra: ExtractAdapterExtraType<T>,
+    resolve: (value: ResponseReturnErrorType<any, T>) => void,
+  ): Promise<ResponseReturnErrorType<any, T>> => {
+    let responseData = {
+      data: null,
+      status,
+      error,
+      success: false,
+      extra,
+    } as ResponseReturnErrorType<any, T>;
 
     responseData = await request.client.__modifyResponse(responseData, request);
     responseData = await request.client.__modifyErrorResponse(responseData, request);
@@ -215,25 +268,31 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     return responseData;
   };
 
-  const onAbortError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+  const onAbortError = (
+    status: ExtractAdapterStatusType<T>,
+    extra: ExtractAdapterExtraType<T>,
+    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage("abort");
-    return onError(error, 0, resolve);
+    return onError(error, status, extra, resolve);
   };
 
-  const onTimeoutError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+  const onTimeoutError = (
+    status: ExtractAdapterStatusType<T>,
+    extra: ExtractAdapterExtraType<T>,
+    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage("timeout");
-    return onError(error, 0, resolve);
+    return onError(error, status, extra, resolve);
   };
 
-  const onUnexpectedError = <T extends RequestInstance>(
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+  const onUnexpectedError = (
+    status: ExtractAdapterStatusType<T>,
+    extra: ExtractAdapterExtraType<T>,
+    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage();
-    return onError(error, 0, resolve);
+    return onError(error, status, extra, resolve);
   };
 
   // Abort
@@ -242,9 +301,11 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     return requestManager.getAbortController(abortKey, requestId);
   };
 
-  const createAbortListener = <T extends RequestInstance>(
+  const createAbortListener = (
+    status: ExtractAdapterStatusType<T>,
+    abortExtra: ExtractAdapterExtraType<T>,
     callback: () => void,
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>>) => void,
+    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const controller = getAbortController();
     if (!controller) {
@@ -252,12 +313,12 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     }
 
     const fn = () => {
-      onAbortError(resolve);
+      onAbortError(status, abortExtra, resolve);
       callback();
       requestManager.events.emitAbort(abortKey, requestId, request);
     };
 
-    // Instant abort when we stack many requests triggered at once and we receive aborted controller
+    // Instant abort when we stack many requests triggered at once, and we receive aborted controller
     if (controller.signal.aborted) {
       fn();
     }
@@ -268,8 +329,35 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     return () => controller.signal.removeEventListener("abort", fn);
   };
 
+  const makeRequest = (
+    apiCall: (
+      resolve: (value: ResponseReturnType<any, any, T> | PromiseLike<ResponseReturnType<any, any, T>>) => void,
+    ) => void,
+  ): Promise<ResponseReturnType<any, any, T>> => {
+    if (processingError) {
+      return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
+    }
+    if (req.mock) {
+      return mocker(request, {
+        onError,
+        onResponseEnd,
+        onTimeoutError,
+        onRequestEnd,
+        createAbortListener,
+        onResponseProgress,
+        onRequestProgress,
+        onResponseStart,
+        onBeforeRequest,
+        onRequestStart,
+        onSuccess,
+      });
+    }
+    return new Promise(apiCall);
+  };
+
   return {
     fullUrl,
+    data,
     headers,
     payload,
     config,
@@ -289,5 +377,6 @@ export const getAdapterBindings = async <ConfigType = any>(cmd: RequestInstance,
     onTimeoutError,
     onUnexpectedError,
     onError,
+    makeRequest,
   };
 };

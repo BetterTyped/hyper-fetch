@@ -18,8 +18,7 @@ a `name`, such as: `:userId` or `:productId`. We place them in the endpoint stri
 
 ### Setting url parameters
 
-You can set query params by using the `setQueryParams` method on request. It's type can be configured on request
-creation.
+You can set params by using the `setParams` method on request. It's type can be configured on request creation.
 
 ```ts
 const getUsers = client.createRequest()({ endpoint: "/users/:userId" });
@@ -40,6 +39,5 @@ console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
 ```ts
 const getProduct = client.createRequest()({ endpoint: "/entities/:categoryId/:productId" });
 
-const request = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
-console.log(request.endpoint); // Output: "/entities/12/Z24PBW443"
+const response = getProduct.send({ params: { categoryId: 12, productId: "Z24PBW443" } });
 ```

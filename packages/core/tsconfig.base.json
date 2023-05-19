@@ -5,9 +5,9 @@
     "baseUrl": "./src",
     "paths": {
       "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"]
+      "@server-adapter": ["./adapter/adapter.browser.ts"]
     }
   },
-  "include": ["./src/index.ts"],
-  "exclude": ["dist", "__tests__", "jest.config.ts"]
+  "include": ["./src/index.ts", "__tests__/*"],
+  "exclude": ["dist", "jest.config.ts"]
 }

@@ -1,0 +1,95 @@
+---
+title: Guide - Mapping
+sidebar_label: Mapping
+---
+
+# Response Mapping
+
+We can set the mapping of the data returned from the request. These data will NOT be modified in the cache, only within
+the given request. This means that the mapping will be included locally and not globally in the cache. By making two
+requests to the same place with two different mappers, we can still use everything the library offers - deduplication,
+cache, etc. Mapper does not affect other requests, only the one in which it is attached. Thanks to this, we do not have
+to change the cache keys additionally for each mapped request.
+
+:::info
+
+Mappers can be asynchronus. This way we can build up bigger responses.
+
+:::
+
+#### Example
+
+```ts
+export const getUser = client
+  .createRequest<UserModel>()({
+    method: "GET",
+    endpoint: "/users/:userId",
+  })
+  .setResponseMapper(async (response) => {
+    if (response.data) {
+      const products = await getProducts.send();
+      return {
+        ...response,
+        data: {
+          ...response.data,
+          products, // Add custom data to response
+          createdAt: new Date(response.data.createdAt), // Always transform ISO string to Date!
+        },
+      };
+    }
+    return response;
+  });
+```
+
+## Model Hydration
+
+We can hydrate class models which can parse our data.
+
+For example User class can parse dates from ISO string into Date object, generate nicknames, full name etc.
+
+```ts
+export const getUser = client
+  .createRequest<UserModel>()({
+    method: "GET",
+    endpoint: "/users/:userId",
+  })
+  .setResponseMapper((response) => {
+    if (response.data) {
+      return new User(response.data);
+    }
+    return response;
+  });
+```
+
+---
+
+# Request Mapping
+
+It is possible to map the request. This means that before executing the request, we can make any changes to it. Thanks
+to this, we can validate the sent data, change their format or state.
+
+:::info
+
+Mappers can be asynchronus. This way we can build up bigger responses.
+
+:::
+
+#### Example
+
+```ts
+export const postUser = client
+  .createRequest<UserModel, UserData>()({
+    method: "POST",
+    endpoint: "/users/:userId",
+  })
+  .setRequestMapper((request) => {
+    const formData = new FormData();
+
+    Object.entries(request.data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // Add custom headers and map data for every request
+    return request.setHeaders({ ...request.headers, "X-Better-Typed": "My custom header" }).setData(formData);
+  });
+```

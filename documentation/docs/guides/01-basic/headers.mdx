@@ -32,3 +32,13 @@ const request = createUser.setHeaders({
 });
 console.log(request.headers); // Output: { "Content-Type": "application/json" }
 ```
+
+#### Directly on send method
+
+```ts
+const response = getUser.send({
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+```

@@ -73,6 +73,14 @@ export const useCache = <T extends RequestInstance>(
       setRenderKey("status");
       return state.status;
     },
+    get success() {
+      setRenderKey("success");
+      return state.success;
+    },
+    get extra() {
+      setRenderKey("extra");
+      return state.extra;
+    },
     get retries() {
       setRenderKey("retries");
       return state.retries;

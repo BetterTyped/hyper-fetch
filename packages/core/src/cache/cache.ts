@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
-import { ResponseType } from "adapter";
-import { ClientInstance } from "client";
+import { AdapterInstance, ResponseReturnType } from "adapter";
+import { ClientInstance, ExtractAdapterTypeFromClient } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
   CacheOptionsType,
@@ -11,7 +11,7 @@ import {
   getCacheEvents,
   CacheValueType,
 } from "cache";
-import { RequestDump, RequestInstance } from "request";
+import { RequestJSON, RequestInstance } from "request";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -20,7 +20,7 @@ import { RequestDump, RequestInstance } from "request";
  * Keys used to save the values are created dynamically on the Request class
  *
  */
-export class Cache {
+export class Cache<C extends ClientInstance> {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
@@ -30,7 +30,7 @@ export class Cache {
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
 
-  constructor(public client: ClientInstance, public options?: CacheOptionsType) {
+  constructor(public client: C, public options?: CacheOptionsType) {
     this.storage = this.options?.storage || new Map<string, CacheValueType>();
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
@@ -59,33 +59,36 @@ export class Cache {
    * @returns
    */
   set = <Response, Error>(
-    request: RequestInstance | RequestDump<RequestInstance>,
-    response: ResponseType<Response, Error>,
-    details: ResponseDetailsType,
+    request: RequestInstance | RequestJSON<RequestInstance>,
+    response: ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> &
+      ResponseDetailsType,
   ): void => {
-    this.logger.debug("Processing cache response", { request, response, details });
+    this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
-    const cachedData = this.storage.get<Response, Error>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const data = getCacheData(cachedData?.data, response);
+    const data = getCacheData(cachedData, response);
 
-    const newCacheData: CacheValueType = { data, details, cacheTime, clearKey: this.clearKey, garbageCollection };
+    const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
 
-    this.events.emitCacheData<Response, Error>(cacheKey, newCacheData);
-    this.logger.debug("Emitting cache response", { request, response, details });
+    this.events.emitCacheData<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(
+      cacheKey,
+      newCacheData,
+    );
+    this.logger.debug("Emitting cache response", { request, data });
 
     // If request should not use cache - just emit response data
     if (!cache) {
-      return this.logger.debug("Prevented saving response to cache", { request, response, details });
+      return this.logger.debug("Prevented saving response to cache", { request, data });
     }
 
     // Only success data is valid for the cache store
-    if (!details.isFailed) {
-      this.logger.debug("Saving response to cache storage", { request, response, details });
-      this.storage.set<Response, Error>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error>(cacheKey, newCacheData);
+    if (response.success) {
+      this.logger.debug("Saving response to cache storage", { request, data });
+      this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
     }
@@ -96,9 +99,11 @@ export class Cache {
    * @param cacheKey
    * @returns
    */
-  get = <Response, Error>(cacheKey: string): CacheValueType<Response, Error> | undefined => {
-    this.getLazyResource<Response, Error>(cacheKey);
-    const cachedData = this.storage.get<Response, Error>(cacheKey);
+  get = <Response, Error, Adapter extends AdapterInstance>(
+    cacheKey: string,
+  ): CacheValueType<Response, Error, Adapter> | undefined => {
+    this.getLazyResource<Response, Error, Adapter>(cacheKey);
+    const cachedData = this.storage.get<Response, Error, Adapter>(cacheKey);
     return cachedData;
   };
 
@@ -149,24 +154,26 @@ export class Cache {
    * Used to receive data from lazy storage
    * @param cacheKey
    */
-  getLazyResource = async <Response, Error>(cacheKey: string): Promise<CacheValueType<Response, Error> | undefined> => {
-    const data = await this.lazyStorage?.get<Response, Error>(cacheKey);
-    const syncData = this.storage.get<Response, Error>(cacheKey);
+  getLazyResource = async <Response, Error, Adapter extends AdapterInstance>(
+    cacheKey: string,
+  ): Promise<CacheValueType<Response, Error, Adapter> | undefined> => {
+    const data = await this.lazyStorage?.get<Response, Error, Adapter>(cacheKey);
+    const syncData = this.storage.get<Response, Error, Adapter>(cacheKey);
 
     // No data in lazy storage
     const hasLazyData = this.lazyStorage && data;
     if (hasLazyData) {
       const now = +new Date();
-      const isNewestData = syncData ? syncData.details.timestamp < data.details.timestamp : true;
-      const isStaleData = data.cacheTime <= now - data.details.timestamp;
+      const isNewestData = syncData ? syncData.timestamp < data.timestamp : true;
+      const isStaleData = data.cacheTime <= now - data.timestamp;
       const isValidLazyData = data.clearKey === this.clearKey;
 
       if (!isValidLazyData) {
         this.lazyStorage.delete(cacheKey);
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
-        this.storage.set<Response, Error>(cacheKey, data);
-        this.events.emitCacheData<Response, Error>(cacheKey, data);
+        this.storage.set<Response, Error, Adapter>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, Adapter>(cacheKey, data);
         return data;
       }
     }
@@ -204,7 +211,7 @@ export class Cache {
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.garbageCollection + cacheData.details.timestamp - +new Date();
+      const timeLeft = cacheData.garbageCollection + cacheData.timestamp - +new Date();
       if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
         this.logger.info("Cache value is Infinite", { cacheKey });
       } else if (timeLeft >= 0) {

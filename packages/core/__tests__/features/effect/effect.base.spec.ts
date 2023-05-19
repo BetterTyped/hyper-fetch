@@ -1,11 +1,12 @@
 import { waitFor } from "@testing-library/dom";
 
-import { createClient, createRequest, createEffect } from "../../utils";
+import { createEffect } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { Client } from "client";
 
 describe("Effect [ Base ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -14,8 +15,8 @@ describe("Effect [ Base ]", () => {
   beforeEach(() => {
     resetInterceptors();
     jest.resetAllMocks();
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
   });
 
   afterAll(() => {

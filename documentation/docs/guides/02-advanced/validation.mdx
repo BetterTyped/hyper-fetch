@@ -1,0 +1,71 @@
+---
+title: Guide - Validation
+sidebar_label: Validation
+---
+
+Validation in HF is based on mappers. When one of the mappers throws an error, then we catch it and return it as a
+request error. In this way, we can validate requests and interrupt their processing (not send them) or response when we
+receive data from the server.
+
+# Response validation
+
+We can check if the data received from the query is correct and return an error as a result of the validator failure.
+
+```ts
+import { z } from "zod";
+
+const User = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+export const getUser = client
+  .createRequest<UserModel>()({
+    method: "GET",
+    endpoint: "/users/:userId",
+  })
+  .setResponseMapper(async (response) => {
+    User.parse(response); // Throw return request error
+
+    return response;
+  });
+
+// Usage
+
+const { error } = await getUser.send({ params: { userId: 1 } });
+
+console.log(error); // ZodError
+```
+
+---
+
+# Request validation
+
+We can set global validators that will check the correctness of the data sent and return an error in case of a problem.
+At this point, the request will NOT be sent and our request will not be executed. Thanks to this, we can easily
+implement data validation in the entire project without copying our validation locally.
+
+```ts
+import { z } from "zod";
+
+const User = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+export const postUser = client
+  .createRequest<UserModel, UserData>()({
+    method: "POST",
+    endpoint: "/users/:userId",
+  })
+  .setRequestMapper(async (request) => {
+    User.parse(request.data); // Throw error
+
+    return response;
+  });
+
+// Usage
+const { error } = await getUser.send({ params: { userId: 1 }, data: {} });
+
+console.log(error); // ZodError
+```

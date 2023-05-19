@@ -1,26 +1,100 @@
 import { RequestInstance } from "request";
+import { HttpMethodsType, HttpStatusType } from "../types";
 
-// Adapter
+/**
+ * Base Adapter
+ */
 
-export type AdapterType = (request: RequestInstance, requestId: string) => Promise<ResponseType<any, any>>;
+export type AdapterInstance = AdapterType<any, any, any, any, any>;
+
+export type AdapterType<
+  AdapterOptions = AdapterOptionsType,
+  MethodType = HttpMethodsType,
+  StatusType = HttpStatusType,
+  Extra extends Record<string, any> = AdapterExtraType,
+  QueryParams = QueryParamsType | string,
+> = (
+  request: RequestInstance,
+  requestId: string,
+  // This is never used in the application, we pass this type to have unions extracting possibilities
+  DO_NOT_USE?: {
+    method?: MethodType;
+    options?: AdapterOptions;
+    status?: StatusType;
+    extra?: Extra;
+    queryParams?: QueryParams;
+  },
+  // [any any any] as a way to avoid circular reference that destroyed request type.
+) => Promise<ResponseReturnType<any, any, any>>;
+
+/**
+ * Extractors
+ */
+
+export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
+export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
+// Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
+export type ExtractUnionAdapter<
+  Adapter extends AdapterInstance,
+  Values extends {
+    method?: any;
+    options?: any;
+    status?: any;
+    extra?: any;
+    queryParams?: any;
+  },
+> = Extract<
+  Adapter,
+  AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+> extends AdapterInstance
+  ? Extract<
+      Adapter,
+      AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+    >
+  : never;
+
+/**
+ * Options
+ */
 
 export type AdapterOptionsType = Partial<XMLHttpRequest>;
+
+export type AdapterExtraType = {
+  headers: Record<string, string>;
+};
 
 export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseType<GenericDataType, GenericErrorType> = [
-  GenericDataType | null,
-  GenericErrorType | null,
-  number | null,
-];
-export type ResponseSuccessType<GenericDataType> = [GenericDataType, null, number | null];
-export type ResponseErrorType<GenericErrorType> = [null, GenericErrorType, number | null];
+export type ResponseReturnType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
+  data: GenericDataType | null;
+  error: GenericErrorType | null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+};
+export type ResponseReturnSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
+  data: GenericDataType;
+  error: null;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+};
+export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
+  data: null;
+  error: GenericErrorType;
+  status: ExtractAdapterStatusType<Adapter> | null;
+  success: boolean;
+  extra: ExtractAdapterExtraType<Adapter> | null;
+};
 
 // QueryParams
 
-export type QueryParamValuesType = number | string | boolean | null | undefined;
+export type QueryParamValuesType = number | string | boolean | null | undefined | Record<any, any>;
 export type QueryParamType = QueryParamValuesType | Array<QueryParamValuesType> | Record<string, QueryParamValuesType>;
 export type QueryParamsType = Record<string, QueryParamType>;
 
@@ -60,6 +134,15 @@ export type QueryStringifyOptionsType = {
    * Skip keys with empty string
    */
   skipEmptyString?: boolean;
+
+  /**
+   * Parsing function for date type query param
+   */
+  dateParser?: (value: QueryParamType) => string;
+  /**
+   * Parsing function for object type query param
+   */
+  objectParser?: (value: QueryParamType) => string;
 };
 
 // Progress
@@ -76,4 +159,9 @@ export type ProgressType = {
   total: number;
   loaded: number;
   startTimestamp: number;
+};
+
+export type AdapterBindingsReturnType = {
+  fullUrl: string;
+  config;
 };

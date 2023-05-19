@@ -1,18 +1,17 @@
-import { stringifyQueryParams } from "client";
+import { Client, stringifyQueryParams } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createClient, createRequest } from "../../utils";
 
 describe("Client [ Utils ]", () => {
-  let client = createClient();
-  let request = createRequest(client);
+  let client = new Client({ url: "shared-base-url" });
+  let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    client = createClient();
-    request = createRequest(client);
+    client = new Client({ url: "shared-base-url" });
+    request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
   });
 
@@ -29,11 +28,28 @@ describe("Client [ Utils ]", () => {
       expect(stringifyQueryParams({ value: undefined }, { skipEmptyString: true })).toBe("");
       expect(stringifyQueryParams({ value: null }, { skipNull: true })).toBe("");
     });
+    it("should encode date value to isoString by default", async () => {
+      expect(stringifyQueryParams({ value: new Date("2023-05-12T22:32:32") })).toInclude(`?value=2023-05-12`);
+    });
     it("should encode truthy values", async () => {
       expect(stringifyQueryParams({ value: 10 })).toBe("?value=10");
       expect(stringifyQueryParams({ value: "test" })).toBe("?value=test");
       expect(stringifyQueryParams({ value: [1, 2, 3] })).toBe("?value[]=1&value[]=2&value[]=3");
-      expect(stringifyQueryParams({ value: { data: "test" } })).toBe("?value=%5Bobject%20Object%5D");
+      expect(stringifyQueryParams({ value: { data: "test" } })).toBe("?value=%7B%22data%22%3A%22test%22%7D");
+      expect(
+        stringifyQueryParams({
+          value: {
+            filter: {
+              firstName: "john",
+              other: {
+                hobbies: ["dancing", "singing"],
+              },
+            },
+          },
+        }),
+      ).toBe(
+        "?value=%7B%22filter%22%3A%7B%22firstName%22%3A%22john%22%2C%22other%22%3A%7B%22hobbies%22%3A%5B%22dancing%22%2C%22singing%22%5D%7D%7D%7D",
+      );
     });
     it("should encode not allowed characters values", async () => {
       expect(stringifyQueryParams({ value: "[]" })).toBe("?value=%5B%5D");

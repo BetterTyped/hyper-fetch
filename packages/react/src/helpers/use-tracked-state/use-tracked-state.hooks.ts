@@ -1,6 +1,12 @@
 import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
-import { ExtractErrorType, CacheValueType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
+import {
+  ExtractErrorType,
+  CacheValueType,
+  ExtractResponseType,
+  RequestInstance,
+  ExtractAdapterType,
+} from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -27,7 +33,7 @@ export const useTrackedState = <T extends RequestInstance>({
   dependencyTracking,
   defaultCacheEmitting = true,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { client, cacheKey, queueKey, cacheTime } = request;
+  const { client, cacheKey, queueKey, cacheTime, responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
@@ -42,7 +48,7 @@ export const useTrackedState = <T extends RequestInstance>({
   const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
 
-    return isStaleCacheData(cacheTime, cacheData?.details.timestamp || state.current.timestamp);
+    return isStaleCacheData(cacheTime, cacheData?.timestamp || state.current.timestamp);
   };
 
   // ******************
@@ -72,9 +78,9 @@ export const useTrackedState = <T extends RequestInstance>({
       // Get cache state
       const newState = getInitialState(initialData, dispatcher, request);
 
-      const hasInitialState = initialData?.[0] === state.current.data;
+      const hasInitialState = isEqual(initialData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
-      const shouldLoadInitialCache = !hasState && state.current.data;
+      const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
       if (shouldLoadInitialCache || shouldRemovePreviousData) {
@@ -119,13 +125,37 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const setCacheData = async (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => {
+  const mapResponseData = (
+    data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ):
+    | Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>
+    | CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
+    if (responseMapper) {
+      const response = responseMapper(data);
+      if (response instanceof Promise) {
+        return new Promise((resolve) => {
+          (async () => {
+            const newResponse = await response;
+            resolve({ ...data, ...newResponse });
+          })();
+        });
+      }
+      return { ...data, ...response };
+    }
+    return data;
+  };
+
+  const handleCacheData = (
+    cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ) => {
     const newStateValues: UseTrackedStateType<T> = {
-      data: cacheData.data[0],
-      error: cacheData.data[1],
-      status: cacheData.data[2],
-      retries: cacheData.details.retries,
-      timestamp: new Date(cacheData.details.timestamp),
+      data: cacheData.data,
+      error: cacheData.error,
+      status: cacheData.status,
+      success: cacheData.success,
+      extra: cacheData.extra,
+      retries: cacheData.retries,
+      timestamp: new Date(cacheData.timestamp),
       loading: state.current.loading,
     };
 
@@ -145,6 +175,20 @@ export const useTrackedState = <T extends RequestInstance>({
     renderKeyTrigger(changedKeys);
   };
 
+  const setCacheData = (
+    cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+  ): Promise<void> | void => {
+    const data = mapResponseData(cacheData);
+
+    if (data instanceof Promise) {
+      return (async () => {
+        const promiseData = await data;
+        handleCacheData(promiseData);
+      })();
+    }
+    return handleCacheData(data);
+  };
+
   // ******************
   // Actions
   // ******************
@@ -153,7 +197,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setData: (data, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, [data, currentState.error, currentState.status], getDetailsState(state.current));
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: true, data });
       } else {
         state.current.data = data;
         renderKeyTrigger(["data"]);
@@ -162,11 +206,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setError: (error, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(
-          request,
-          [currentState.data, error, currentState.status],
-          getDetailsState(state.current, { isFailed: !!error }),
-        );
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: false, error });
       } else {
         state.current.error = error;
         renderKeyTrigger(["error"]);
@@ -189,20 +229,34 @@ export const useTrackedState = <T extends RequestInstance>({
     setStatus: (status, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, [currentState.data, currentState.error, status], getDetailsState(state.current));
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), status });
       } else {
         state.current.status = status;
         renderKeyTrigger(["status"]);
       }
     },
+    setSuccess: (success, emitToCache = defaultCacheEmitting) => {
+      if (emitToCache) {
+        const currentState = state.current;
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), success });
+      } else {
+        state.current.success = success;
+        renderKeyTrigger(["success"]);
+      }
+    },
+    setExtra: (extra, emitToCache = defaultCacheEmitting) => {
+      if (emitToCache) {
+        const currentState = state.current;
+        cache.set(request, { ...currentState, ...getDetailsState(state.current), extra });
+      } else {
+        state.current.extra = extra;
+        renderKeyTrigger(["extra"]);
+      }
+    },
     setRetries: (retries, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(
-          request,
-          [currentState.data, currentState.error, currentState.status],
-          getDetailsState(state.current, { retries }),
-        );
+        cache.set(request, { ...currentState, ...getDetailsState(state.current, { retries }) });
       } else {
         state.current.retries = retries;
         renderKeyTrigger(["retries"]);
@@ -211,11 +265,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setTimestamp: (timestamp, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(
-          request,
-          [currentState.data, currentState.error, currentState.status],
-          getDetailsState(state.current, { timestamp: +timestamp }),
-        );
+        cache.set(request, { ...currentState, ...getDetailsState(state.current, { timestamp: +timestamp }) });
       } else {
         state.current.timestamp = timestamp;
         renderKeyTrigger(["timestamp"]);

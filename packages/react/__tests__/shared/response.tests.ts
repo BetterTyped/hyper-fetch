@@ -1,5 +1,5 @@
 import { waitFor, RenderHookResult } from "@testing-library/react";
-import { ResponseType, RequestInstance } from "@hyper-fetch/core";
+import { ResponseReturnType, RequestInstance } from "@hyper-fetch/core";
 
 import { UseFetchReturnType } from "hooks/use-fetch";
 import { UseSubmitReturnType } from "hooks/use-submit";
@@ -28,7 +28,11 @@ export const testSuccessState = async <
     const response = getCurrentState(render);
     expect(response.data).toStrictEqual(mock as Record<string, unknown>);
     expect(response.data).toBeDefined();
+    expect(response.success).toBeTrue();
     expect(response.status).toBe(200);
+    expect(response.extra).toStrictEqual({
+      headers: { "content-type": "application/json", "x-powered-by": "msw" },
+    });
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
@@ -55,6 +59,9 @@ export const testErrorState = async <
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
+    expect(response.success).toBeFalse();
+    expect(response.extra).toHaveProperty("headers");
+    expect(Object.keys(response.extra)).toHaveLength(1);
     expect((status >= 400 && status < 600) || status === 0).toBeTruthy();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
@@ -65,15 +72,16 @@ export const testErrorState = async <
   });
 };
 
-export const testCacheState = async <T extends ResponseType<any, any>, H extends RenderHookResult<any, any>>(
+export const testCacheState = async <T extends ResponseReturnType<any, any, any>, H extends RenderHookResult<any, any>>(
   mock: T,
   render: H,
 ) => {
   await waitFor(() => {
     const response = getCurrentState(render);
-    expect(response.data).toStrictEqual(mock[0]);
-    expect(response.error).toStrictEqual(mock[1]);
-    expect(response.status).toBe(mock[2]);
+    expect(response.data).toStrictEqual(mock.data);
+    expect(response.error).toStrictEqual(mock.error);
+    expect(response.status).toBe(mock.status);
+    expect(response.extra).toStrictEqual(mock.extra);
   });
 };
 

@@ -5896,10 +5896,10 @@ dns-packet@^5.2.2:
   dependencies:
     "@leichtgewicht/ip-codec" "^2.0.1"
 
-docusaurus-docgen@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/docusaurus-docgen/-/docusaurus-docgen-1.2.0.tgz#630382752f959ee18b9268f348eabc1bf86e9e32"
-  integrity sha512-dWTtvlGndgSfMfsmtSt89qZIbSTzuYma40Ho/C1rkpPLznRneEBmjBML94A17Ngy6VIy7tnTrAqKxukEJySLjA==
+docusaurus-docgen@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/docusaurus-docgen/-/docusaurus-docgen-1.2.1.tgz#53d7570fa2e82a6ff46557b92c69ca2c63ae2c0e"
+  integrity sha512-T+YlwRx9vXC2BnZPCIzTP5Ts856m1b6/LQ7SAbdKGtt5r2F1wO0udtCM9DfD0ypKtjH4C6gM6U1P+JYINfxoLw==
   dependencies:
     "@docusaurus/plugin-content-docs" "2.0.0-beta.20"
     fs-extra "^10.0.0"

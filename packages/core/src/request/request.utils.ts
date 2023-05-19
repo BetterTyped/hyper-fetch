@@ -1,8 +1,8 @@
-import { ProgressType, ResponseType, getErrorMessage } from "adapter";
-import { AdapterProgressEventType, RequestInstance, RequestDump, RequestSendOptionsType } from "request";
+import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
+import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
-import { canRetryRequest, Dispatcher, isFailedRequest } from "dispatcher";
-import { ExtractErrorType, ExtractResponseType } from "types";
+import { canRetryRequest, Dispatcher } from "dispatcher";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 export const stringifyKey = (value: unknown): string => {
   try {
@@ -66,7 +66,7 @@ export const getProgressData = (
 };
 
 // Keys
-export const getSimpleKey = (request: RequestInstance | RequestDump<RequestInstance>): string => {
+export const getSimpleKey = (request: RequestInstance | RequestJSON<RequestInstance>): string => {
   return `${request.method}_${request.requestOptions.endpoint}_${request.cancelable}`;
 };
 
@@ -78,7 +78,7 @@ export const getSimpleKey = (request: RequestInstance | RequestDump<RequestInsta
  * @returns
  */
 export const getRequestKey = (
-  request: RequestInstance | RequestDump<RequestInstance>,
+  request: RequestInstance | RequestJSON<RequestInstance>,
   useInitialValues?: boolean,
 ): string => {
   /**
@@ -110,14 +110,17 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   return [dispatcher, isFetchDispatcher];
 };
 
-export const requestSendRequest = <Request extends RequestInstance>(
+export const sendRequest = <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
 ) => {
   const { requestManager } = request.client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
-  return new Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>>>((resolve) => {
+  return new Promise<
+    ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+  >((resolve) => {
+    let isResolved = false;
     const requestId = dispatcher.add(request);
     options?.onSettle?.(requestId, request);
 
@@ -140,34 +143,64 @@ export const requestSendRequest = <Request extends RequestInstance>(
     // When resolved
     const unmountResponse = requestManager.events.onResponseById<
       ExtractResponseType<Request>,
-      ExtractErrorType<Request>
+      ExtractErrorType<Request>,
+      ExtractAdapterType<Request>
     >(requestId, (response, details) => {
-      const isFailed = isFailedRequest(response);
+      isResolved = true;
+
+      const mapping = request.responseMapper?.(response);
+
       const isOfflineStatus = request.offline && details.isOffline;
       const willRetry = canRetryRequest(details.retries, request.retry);
 
-      // When going offline we can't handle the request as it will be postponed to later resolve
-      if (isFailed && isOfflineStatus) return;
+      const handleResponse = (success: boolean, data: any) => {
+        // When going offline we can't handle the request as it will be postponed to later resolve
+        if (!success && isOfflineStatus) return;
 
-      // When request is in retry mode we need to listen for retries end
-      if (isFailed && willRetry) return;
+        // When request is in retry mode we need to listen for retries end
+        if (!success && willRetry) return;
 
-      options?.onResponse?.(response, details);
-      resolve(response);
+        options?.onResponse?.(data, details);
+        resolve(data);
 
-      // Unmount Listeners
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      umountAll();
+        // Unmount Listeners
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
+      };
+
+      // Create async await ONLY when we make a promise mapper
+      if (mapping instanceof Promise) {
+        (async () => {
+          const responseData = await mapping;
+
+          const { success } = responseData;
+          handleResponse(success, responseData);
+        })();
+      }
+      // For sync mapping operations we should not use async actions
+      else {
+        const data = mapping || response;
+        const { success } = data;
+        handleResponse(success, data);
+      }
     });
 
     // When removed from queue storage we need to clean event listeners and return proper error
     const unmountRemoveQueueElement = requestManager.events.onRemoveById<Request>(requestId, (...props) => {
-      options.onRemove?.(...props);
-      resolve([null, getErrorMessage("deleted") as unknown as ExtractErrorType<Request>, 0]);
+      if (!isResolved) {
+        options?.onRemove?.(...props);
+        resolve({
+          data: null,
+          status: null,
+          success: null,
+          error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
+          extra: request.client.defaultExtra,
+        });
 
-      // Unmount Listeners
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      umountAll();
+        // Unmount Listeners
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        umountAll();
+      }
     });
 
     function umountAll() {

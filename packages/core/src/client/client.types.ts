@@ -1,15 +1,16 @@
 import { RequestInstance } from "request";
-import { ResponseType, AdapterType, QueryParamsType } from "adapter";
+import { ResponseReturnType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
 import { Client } from "client";
 import { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, any>;
+export type ClientInstance = Client<any, AdapterType<any, any, any, any>>;
+export type ExtractAdapterTypeFromClient<T> = T extends Client<any, infer A> ? A : never;
 
 /**
  * Configuration setup for the client
  */
-export type ClientOptionsType = {
+export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * Url to your server
    */
@@ -21,28 +22,28 @@ export type ClientOptionsType = {
   /**
    * Custom cache initialization prop
    */
-  cache?: <B extends ClientInstance>(client: B) => B["cache"];
+  cache?: (client: C) => C["cache"];
   /**
    * Custom app manager initialization prop
    */
-  appManager?: <B extends ClientInstance>(client: B) => B["appManager"];
+  appManager?: (client: C) => C["appManager"];
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: <B extends ClientInstance>(client: B) => B["submitDispatcher"];
+  fetchDispatcher?: (client: C) => C["submitDispatcher"];
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: <B extends ClientInstance>(client: B) => B["fetchDispatcher"];
+  submitDispatcher?: (client: C) => C["fetchDispatcher"];
 };
 
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<Response = any, Error = any> = (
-  response: ResponseType<Response, Error>,
+export type ResponseInterceptorType<Response = any, Error = any, Adapter extends AdapterInstance = AdapterType> = (
+  response: ResponseReturnType<Response, Error, Adapter>,
   request: RequestInstance,
-) => Promise<ResponseType<any, any>> | ResponseType<any, any>;
+) => Promise<ResponseReturnType<any, any, Adapter>> | ResponseReturnType<any, any, Adapter>;
 
 // Stringify
 

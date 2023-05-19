@@ -1,4 +1,4 @@
-import { client } from "api/builder";
+import { client } from "../builder";
 
 export const postFile = client
   .createRequest<{ response: string }, { file: File }>()({
@@ -8,11 +8,7 @@ export const postFile = client
     retry: 0,
   })
   .setDataMapper<FormData>((data) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", data.file);
-      return formData;
-    } catch (err) {
-      return data;
-    }
+    const formData = new FormData();
+    formData.append("file", data.file);
+    return formData;
   });

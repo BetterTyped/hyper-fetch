@@ -1,5 +1,5 @@
 import { act } from "@testing-library/react";
-import { ResponseType } from "@hyper-fetch/core";
+import { AdapterType, ResponseReturnType, xhrExtra } from "@hyper-fetch/core";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -38,7 +38,7 @@ describe("useFetch [ Base ]", () => {
       await testClientIsolation(client);
       const mock = createRequestInterceptor(request);
       const [cache] = createCacheData(request, {
-        data: [mock, null, 200],
+        data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
         details: { retries: 2 },
       });
       const view = renderUseFetch(request);
@@ -47,18 +47,30 @@ describe("useFetch [ Base ]", () => {
     it("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
-      const mock = createRequestInterceptor(request, { delay: 20 });
-      createCacheData(request, { data: [mock, null, 200], details: { timestamp, retries: 3 } });
+      const mock = createRequestInterceptor(request, { delay: 50 });
+      act(() => {
+        createCacheData(request, {
+          data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
+          details: { timestamp, retries: 3 },
+        });
+      });
 
       const view = renderUseFetch(request.setCacheTime(10));
 
-      await testCacheState([null, null, null], view);
+      await testCacheState({ data: null, error: null, status: null, success: true, extra: xhrExtra }, view);
     });
     it("should allow to use initial data", async () => {
-      const initialData: ResponseType<unknown, Error> = [{ test: [1, 2, 3] }, null, 200];
+      await testClientIsolation(client);
+      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+        data: { test: [1, 2, 3] },
+        error: null,
+        status: 200,
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      };
       const view = renderUseFetch(request, { disabled: true, initialData });
 
-      await testSuccessState(initialData[0], view);
+      await testSuccessState(initialData.data, view);
     });
     it("should prefer cache data over initial data", async () => {
       // Todo
@@ -70,7 +82,9 @@ describe("useFetch [ Base ]", () => {
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
-      await sleep(50);
+      await act(async () => {
+        await sleep(50);
+      });
       expect(spy).toBeCalledTimes(1);
     });
   });
