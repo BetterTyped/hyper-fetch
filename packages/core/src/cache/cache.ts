@@ -13,6 +13,7 @@ import {
   CacheMethodType,
 } from "cache";
 import { RequestJSON, RequestInstance } from "request";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -58,15 +59,20 @@ export class Cache<C extends ClientInstance> {
    * @param response
    * @returns
    */
-  set = <Response, Error>(
+  set = <Request extends RequestInstance>(
     request: RequestInstance | RequestJSON<RequestInstance>,
     response: CacheMethodType<
-      ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> & ResponseDetailsType
+      ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+        ResponseDetailsType
     >,
   ): void => {
     this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
-    const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
+    const cachedData = this.storage.get<
+      ExtractResponseType<Request>,
+      ExtractErrorType<Request>,
+      ExtractAdapterType<Request>
+    >(cacheKey);
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
@@ -75,7 +81,7 @@ export class Cache<C extends ClientInstance> {
 
     const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
 
-    this.events.emitCacheData<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
       cacheKey,
       newCacheData,
     );
@@ -102,17 +108,22 @@ export class Cache<C extends ClientInstance> {
    * @param partialResponse
    * @returns
    */
-  update = <Response, Error>(
+  update = <Request extends RequestInstance>(
     request: RequestInstance | RequestJSON<RequestInstance>,
     partialResponse: CacheMethodType<
       Partial<
-        ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> & ResponseDetailsType
+        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+          ResponseDetailsType
       >
     >,
   ): void => {
     this.logger.debug("Processing cache update", { request, partialResponse });
     const { cacheKey } = request;
-    const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
+    const cachedData = this.storage.get<
+      ExtractResponseType<Request>,
+      ExtractErrorType<Request>,
+      ExtractAdapterType<Request>
+    >(cacheKey);
 
     const processedResponse = typeof partialResponse === "function" ? partialResponse(cachedData) : partialResponse;
     if (cachedData) {

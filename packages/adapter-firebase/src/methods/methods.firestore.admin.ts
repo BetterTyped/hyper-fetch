@@ -3,7 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreDBMethods } from "adapter";
 import { FirebaseQueryConstraints } from "constraints";
-import { getStatus, setCacheManually } from "./utils/utils.base";
+import { getStatus, setCacheManually } from "../utils/helpers.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "./utils/utils.firestore";
 
 const getRef = (db: Firestore, fullUrl: string) => {

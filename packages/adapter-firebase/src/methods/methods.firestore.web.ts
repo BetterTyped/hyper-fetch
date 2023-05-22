@@ -22,7 +22,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreDBMethods } from "adapter/types";
 import { FirebaseQueryConstraints } from "constraints";
-import { getStatus, isDocOrQuery, setCacheManually } from "./utils/utils.base";
+import { getStatus, isDocOrQuery, setCacheManually } from "../utils/helpers.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "./utils/utils.firestore";
 
 const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
