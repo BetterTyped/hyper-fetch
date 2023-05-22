@@ -6,9 +6,9 @@ import { EmitterInstance } from "emitter";
 
 export type SocketInstance = Socket<any>;
 
-export type SocketOptionsType<SocketAdapterType> = {
+export type SocketOptionsType<SocketSocketAdapterType> = {
   url: string;
-  adapter?: SocketAdapterType;
+  adapter?: SocketSocketAdapterType;
   auth?: QueryParamsType;
   queryParams?: QueryParamsType | string;
   reconnect?: number;
@@ -18,9 +18,9 @@ export type SocketOptionsType<SocketAdapterType> = {
   queryParamsStringify?: StringifyCallbackType;
 };
 
-export type SocketAdapterOptionsType<SocketAdapterType> =
-  | (SocketOptionsType<SocketAdapterType> & { isSSE: true; adapterOptions?: SSEAdapterOptionsType })
-  | (SocketOptionsType<SocketAdapterType> & {
+export type SocketAdapterOptionsType<SocketSocketAdapterType> =
+  | (SocketOptionsType<SocketSocketAdapterType> & { isSSE: true; adapterOptions?: SSEAdapterOptionsType })
+  | (SocketOptionsType<SocketSocketAdapterType> & {
       adapterOptions?: WSAdapterOptionsType;
     });
 

@@ -5,7 +5,7 @@ export type RemoveListenerCallbackType = () => void;
 
 export type ListenerCallbackType<D = any> = (data: D, event: MessageEvent<D>) => void;
 
-export type AdapterType = {
+export type SocketAdapterType = {
   connecting: boolean;
   listeners: Map<string, Set<ListenerCallbackType>>;
   emit: (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => void;

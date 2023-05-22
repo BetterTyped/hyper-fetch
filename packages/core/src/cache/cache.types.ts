@@ -72,3 +72,5 @@ export type CacheStorageType = {
 };
 
 export type CacheInitialData = Record<string, CacheValueType>;
+
+export type CacheMethodType<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);

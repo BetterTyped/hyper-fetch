@@ -10,6 +10,7 @@ import {
   getCacheData,
   getCacheEvents,
   CacheValueType,
+  CacheMethodType,
 } from "cache";
 import { RequestJSON, RequestInstance } from "request";
 
@@ -55,13 +56,13 @@ export class Cache<C extends ClientInstance> {
    * Set the cache data to the storage
    * @param request
    * @param response
-   * @param details
    * @returns
    */
   set = <Response, Error>(
     request: RequestInstance | RequestJSON<RequestInstance>,
-    response: ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> &
-      ResponseDetailsType,
+    response: CacheMethodType<
+      ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> & ResponseDetailsType
+    >,
   ): void => {
     this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;
@@ -69,7 +70,8 @@ export class Cache<C extends ClientInstance> {
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const data = getCacheData(cachedData, response);
+    const processedResponse = typeof response === "function" ? response(cachedData) : response;
+    const data = getCacheData(cachedData, processedResponse);
 
     const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
 
@@ -85,12 +87,36 @@ export class Cache<C extends ClientInstance> {
     }
 
     // Only success data is valid for the cache store
-    if (response.success) {
+    if (processedResponse.success) {
       this.logger.debug("Saving response to cache storage", { request, data });
       this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
+    }
+  };
+
+  /**
+   * Update the cache data with partial response data
+   * @param request
+   * @param partialResponse
+   * @returns
+   */
+  update = <Response, Error>(
+    request: RequestInstance | RequestJSON<RequestInstance>,
+    partialResponse: CacheMethodType<
+      Partial<
+        ResponseReturnType<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>> & ResponseDetailsType
+      >
+    >,
+  ): void => {
+    this.logger.debug("Processing cache update", { request, partialResponse });
+    const { cacheKey } = request;
+    const cachedData = this.storage.get<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey);
+
+    const processedResponse = typeof partialResponse === "function" ? partialResponse(cachedData) : partialResponse;
+    if (cachedData) {
+      this.set(request, { ...cachedData, ...processedResponse });
     }
   };
 

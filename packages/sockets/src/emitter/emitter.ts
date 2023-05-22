@@ -2,10 +2,10 @@ import { DateInterval, getUniqueRequestId } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
 import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
-import { AdapterType } from "adapter";
+import { SocketAdapterType } from "adapter";
 import { ExtractEmitterOptionsType } from "types/extract.types";
 
-export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData = void> {
+export class Emitter<Payload, Response, Adapter extends SocketAdapterType, MappedData = void> {
   readonly name: string;
   timeout: number;
   data: Payload | null = null;

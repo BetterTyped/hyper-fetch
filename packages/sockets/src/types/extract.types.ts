@@ -1,11 +1,11 @@
-import { AdapterType } from "adapter";
+import { SocketAdapterType } from "adapter";
 import { Emitter } from "emitter";
 import { Listener } from "listener";
 
 // Adapter
 
-export type ExtractEmitterOptionsType<E extends Record<keyof AdapterType | string, any>> = E["emitterOptions"];
-export type ExtractListenerOptionsType<E extends Record<keyof AdapterType | string, any>> = E["listenerOptions"];
+export type ExtractEmitterOptionsType<E extends Record<keyof SocketAdapterType | string, any>> = E["emitterOptions"];
+export type ExtractListenerOptionsType<E extends Record<keyof SocketAdapterType | string, any>> = E["listenerOptions"];
 
 // Emitter
 

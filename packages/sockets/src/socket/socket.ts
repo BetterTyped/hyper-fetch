@@ -23,11 +23,11 @@ import {
   interceptListener,
   interceptEmitter,
 } from "socket";
-import { AdapterType, SocketAdapter } from "adapter";
+import { SocketAdapterType, SocketAdapter } from "adapter";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 
-export class Socket<Adapter extends Record<keyof AdapterType, any>> {
+export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
   public emitter = new EventEmitter();
   public events = getSocketEvents(this.emitter);
 
