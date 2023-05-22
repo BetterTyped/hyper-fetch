@@ -79,7 +79,7 @@ describe("useFetch [ Bounce ]", () => {
         act(() => {
           rerender();
         });
-        await waitForRender(10);
+        await waitForRender();
 
         await waitFor(() => {
           expect(spy).toBeCalledTimes(3);
@@ -140,7 +140,7 @@ describe("useFetch [ Bounce ]", () => {
           act(() => {
             rerender();
           });
-          await waitForRender(10);
+          await waitForRender();
 
           await waitFor(() => {
             expect(spy).toBeCalledTimes(3);
