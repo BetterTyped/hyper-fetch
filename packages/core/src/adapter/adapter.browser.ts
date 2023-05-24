@@ -7,6 +7,7 @@ export const adapter: AdapterType = async (request, requestId) => {
     makeRequest,
     fullUrl,
     config,
+    payload,
     headers,
     onError,
     onResponseEnd,
@@ -88,6 +89,6 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest();
     onRequestStart();
 
-    xhr.send();
+    xhr.send(payload);
   });
 };
