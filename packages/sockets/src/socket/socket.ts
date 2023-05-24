@@ -23,11 +23,11 @@ import {
   interceptListener,
   interceptEmitter,
 } from "socket";
-import { SocketAdapterType, SocketAdapter } from "adapter";
+import { SocketAdapter, SocketAdapterInstance } from "adapter";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 
-export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
+export class Socket<AdapterType extends SocketAdapterInstance> {
   public emitter = new EventEmitter();
   public events = getSocketEvents(this.emitter);
 
@@ -40,16 +40,16 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
   autoConnect: boolean;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<Socket<Adapter>, any>[] = [];
-  __onCloseCallbacks: CloseCallbackType<Socket<Adapter>, any>[] = [];
-  __onReconnectCallbacks: ReconnectCallbackType<Socket<Adapter>>[] = [];
-  __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<Adapter>>[] = [];
-  __onMessageCallbacks: MessageCallbackType<Socket<Adapter>, any>[] = [];
+  __onOpenCallbacks: OpenCallbackType<Socket<AdapterType>, any>[] = [];
+  __onCloseCallbacks: CloseCallbackType<Socket<AdapterType>, any>[] = [];
+  __onReconnectCallbacks: ReconnectCallbackType<Socket<AdapterType>>[] = [];
+  __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<AdapterType>>[] = [];
+  __onMessageCallbacks: MessageCallbackType<Socket<AdapterType>, any>[] = [];
   __onSendCallbacks: SendCallbackType<EmitterInstance>[] = [];
-  __onErrorCallbacks: ErrorCallbackType<Socket<Adapter>, any>[] = [];
+  __onErrorCallbacks: ErrorCallbackType<Socket<AdapterType>, any>[] = [];
 
   // Config
-  adapter: Adapter;
+  adapter: AdapterType;
   loggerManager = new LoggerManager(this);
   appManager = new AppManager();
   queryParamsConfig?: QueryStringifyOptionsType;
@@ -64,7 +64,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
     return stringifyQueryParams(queryParams, this.queryParamsConfig);
   };
 
-  constructor(public options: SocketAdapterOptionsType<Adapter>) {
+  constructor(public options: SocketAdapterOptionsType<AdapterType>) {
     const {
       url,
       auth,
@@ -92,7 +92,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
     }
 
     // Adapter must be initialized at the end
-    this.adapter = adapter || (new SocketAdapter(this) as unknown as Adapter);
+    this.adapter = adapter || (new SocketAdapter(this) as unknown as AdapterType);
   }
 
   /**
@@ -114,7 +114,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
   /**
    * Set the new logger instance to the socket
    */
-  setLogger = (callback: (socket: Socket<Adapter>) => LoggerManager) => {
+  setLogger = (callback: (socket: Socket<AdapterType>) => LoggerManager) => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -146,7 +146,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onOpen<Event = MessageEvent>(callback: OpenCallbackType<Socket<Adapter>, Event>) {
+  onOpen<Event = MessageEvent>(callback: OpenCallbackType<Socket<AdapterType>, Event>) {
     this.__onOpenCallbacks.push(callback);
     return this;
   }
@@ -155,7 +155,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onClose<Event = MessageEvent>(callback: CloseCallbackType<Socket<Adapter>, Event>) {
+  onClose<Event = MessageEvent>(callback: CloseCallbackType<Socket<AdapterType>, Event>) {
     this.__onCloseCallbacks.push(callback);
     return this;
   }
@@ -165,7 +165,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onReconnect(callback: ReconnectCallbackType<Socket<Adapter>>) {
+  onReconnect(callback: ReconnectCallbackType<Socket<AdapterType>>) {
     this.__onReconnectCallbacks.push(callback);
     return this;
   }
@@ -175,7 +175,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onReconnectStop(callback: ReconnectStopCallbackType<Socket<Adapter>>) {
+  onReconnectStop(callback: ReconnectStopCallbackType<Socket<AdapterType>>) {
     this.__onReconnectStopCallbacks.push(callback);
     return this;
   }
@@ -185,7 +185,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onMessage<Event = MessageEvent>(callback: MessageCallbackType<Socket<Adapter>, Event>) {
+  onMessage<Event = MessageEvent>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
     this.__onMessageCallbacks.push(callback);
     return this;
   }
@@ -205,7 +205,7 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param callback
    * @returns
    */
-  onError<Event = MessageEvent>(callback: ErrorCallbackType<Socket<Adapter>, Event>) {
+  onError<Event = MessageEvent>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
     this.__onErrorCallbacks.push(callback);
     return this;
   }
@@ -235,8 +235,8 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param options
    * @returns
    */
-  createListener = <Response>(options: ListenerOptionsType<Adapter>) => {
-    return new Listener<Response, Adapter>(this, options as any);
+  createListener = <Response>(options: ListenerOptionsType<AdapterType>) => {
+    return new Listener<Response, AdapterType>(this, options as any);
   };
 
   /**
@@ -244,10 +244,10 @@ export class Socket<Adapter extends Record<keyof SocketAdapterType, any>> {
    * @param options
    * @returns
    */
-  createEmitter = <Payload, Response = never>(options: EmitterOptionsType<Adapter>) => {
+  createEmitter = <Payload, Response = never>(options: EmitterOptionsType<AdapterType>) => {
     if ("isSSE" in this.options) {
       throw new Error("Cannot create emitters for SSE adapter");
     }
-    return new Emitter<Payload, Response, Adapter>(this, options as any);
+    return new Emitter<Payload, Response, AdapterType>(this, options as any);
   };
 }

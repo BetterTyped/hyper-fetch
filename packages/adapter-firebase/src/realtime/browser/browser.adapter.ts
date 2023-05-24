@@ -4,7 +4,7 @@ import { Database } from "firebase/database";
 import { RealtimeDBMethods, RealtimeDBQueryParams } from "realtime/types";
 import { getRealtimeDBMethodsWeb } from "./browser.methods";
 
-export const realtimeAdapter = (database: Database): SocketAdapterType => {
+export const realtimeBrowserAdapter = (database: Database): SocketAdapterType => {
   const {
     method = "onValue",
     queryParams,

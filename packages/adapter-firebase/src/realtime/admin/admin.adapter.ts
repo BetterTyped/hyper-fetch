@@ -3,7 +3,7 @@ import { Database } from "firebase-admin/database";
 
 import { RealtimeDBMethods, RealtimeDBQueryParams, getRealtimeDBMethodsAdmin } from "realtime";
 
-export const realtimeAdapter = (database: Database): SocketAdapterType => {
+export const realtimeAdminAdapter = (database: Database): SocketAdapterType => {
   const {
     method = "onValue",
     queryParams,
