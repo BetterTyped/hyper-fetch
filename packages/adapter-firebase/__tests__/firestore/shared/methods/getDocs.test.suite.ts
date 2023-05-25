@@ -1,11 +1,11 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
+import { adapterAdmin, adapterWeb } from "../../../../src";
 import { Tea } from "../../../utils/seed.data";
 import { testLifecycleEvents } from "../../../shared/request-events.shared";
 
 export const getDocsTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
 ) => {
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {

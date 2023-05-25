@@ -1,4 +1,4 @@
-import { firebaseAdminAdapter } from "adapter";
+import { adapterAdmin } from "adapter";
 import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
 import { realtimeDBAdmin as db } from "./initialize.admin";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
@@ -11,5 +11,5 @@ describe("Realtime Database Admin [Constraints]", () => {
     await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
   });
 
-  constraintsSharedTestCases(() => firebaseAdminAdapter(realtimeDBAdmin));
+  constraintsSharedTestCases(() => adapterAdmin(realtimeDBAdmin));
 });

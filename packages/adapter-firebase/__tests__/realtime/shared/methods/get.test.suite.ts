@@ -1,11 +1,11 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
+import { adapterAdmin, adapterWeb } from "../../../../src";
 import { testLifecycleEvents } from "../../../shared/request-events.shared";
 import { Tea } from "../../../utils/seed.data";
 
 export const getTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
 ) => {
   describe("get", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction);

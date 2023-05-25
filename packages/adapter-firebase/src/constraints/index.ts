@@ -1,1 +1,1 @@
-export * from "./constraints.firebase";
+export * from "./firebase.constraints";

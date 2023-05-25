@@ -3,7 +3,7 @@
  */
 import { realtimeDBAdmin as db } from "./initialize.admin";
 import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
-import { firebaseAdminAdapter } from "adapter";
+import { adapterAdmin } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {
@@ -21,5 +21,5 @@ describe("Realtime Database Admin [ Methods ]", () => {
     await realtimeDBAdmin.ref("teas").set(null);
   });
 
-  methodsSharedTestCases(() => firebaseAdminAdapter(realtimeDBAdmin));
+  methodsSharedTestCases(() => adapterAdmin(realtimeDBAdmin));
 });

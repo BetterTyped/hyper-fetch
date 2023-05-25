@@ -1,61 +1,10 @@
-import { Database, Reference } from "firebase-admin/database";
+import { Database } from "firebase-admin/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "adapter/types";
-import { FirebaseQueryConstraints } from "constraints";
-import { getStatus, isDocOrQuery, setCacheManually } from "./utils/utils.base";
-import { getOrderedResultRealtime } from "./utils/utils.realtime";
-
-const applyConstraint = (ref: Reference, { type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
-  switch (type) {
-    case FirebaseQueryConstraints.ORDER_BY_CHILD: {
-      const [value] = values;
-      return ref.orderByChild(value);
-    }
-    case FirebaseQueryConstraints.ORDER_BY_KEY: {
-      return ref.orderByKey();
-    }
-    case FirebaseQueryConstraints.ORDER_BY_VALUE: {
-      return ref.orderByValue();
-    }
-    case FirebaseQueryConstraints.START_AT: {
-      const [[value]] = values;
-      return ref.startAt(value);
-    }
-    case FirebaseQueryConstraints.START_AFTER: {
-      const [[value]] = values;
-      return ref.startAfter(value);
-    }
-    case FirebaseQueryConstraints.END_AT: {
-      const [[value]] = values;
-      return ref.endAt(value);
-    }
-    case FirebaseQueryConstraints.END_BEFORE: {
-      const [[value]] = values;
-      return ref.endBefore(value);
-    }
-    case FirebaseQueryConstraints.LIMIT_TO_FIRST: {
-      const [value] = values;
-      return ref.limitToFirst(value);
-    }
-    case FirebaseQueryConstraints.LIMIT_TO_LAST: {
-      const [value] = values;
-      return ref.limitToLast(value);
-    }
-    case FirebaseQueryConstraints.EQUAL_TO: {
-      const [value] = values;
-      return ref.equalTo(value);
-    }
-    default:
-      throw new Error(`Unknown method ${type}`);
-  }
-};
-
-const applyConstraints = (ref: Reference, constraints: { type: FirebaseQueryConstraints; values: any[] }[]) => {
-  return constraints.reduce((collection, constraint) => {
-    return applyConstraint(collection, constraint);
-  }, ref);
-};
+import { getStatus, isDocOrQuery, setCacheManually } from "utils";
+import { getOrderedResultRealtime } from "../realtime.utils";
+import { applyConstraints } from "./realtime.admin.utils";
 
 export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   request: R,

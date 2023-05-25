@@ -11,9 +11,10 @@ import {
   RealtimeDBMethods,
   RealtimeDBQueryParams,
 } from "adapter/types";
-import { getFirestoreMethodsAdmin, getRealtimeDBMethodsAdmin } from "methods";
+import { getFirestoreMethodsAdmin } from "firestore";
+import { getRealtimeDBMethodsAdmin } from "realtime";
 
-export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T) => {
+export const adapterAdmin = <T extends FirebaseAdminDBTypes>(database: T) => {
   const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});

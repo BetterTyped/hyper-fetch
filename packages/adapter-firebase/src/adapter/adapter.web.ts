@@ -2,7 +2,6 @@ import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
-import { getRealtimeDBMethodsWeb, getFirestoreMethodsWeb } from "methods";
 import {
   FirebaseWebAdapterTypes,
   FirebaseWebDBTypes,
@@ -13,8 +12,10 @@ import {
   FirestoreDBMethods,
   FirestoreQueryParams,
 } from "adapter/types";
+import { getRealtimeDBMethodsWeb } from "realtime";
+import { getFirestoreMethodsWeb } from "firestore";
 
-export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
+export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
   const adapter: FirebaseWebAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});

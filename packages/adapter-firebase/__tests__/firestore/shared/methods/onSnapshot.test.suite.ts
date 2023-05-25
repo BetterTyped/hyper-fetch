@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { $where, firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
+import { $where, adapterAdmin, adapterWeb } from "../../../../src";
 import { Tea } from "../../../utils/seed.data";
 
 export const onSnapshotTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
 ) => {
   describe("onSnapshot", () => {
     it("should return data available for collection", async () => {
