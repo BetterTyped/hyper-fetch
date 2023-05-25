@@ -81,25 +81,25 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const handleResponseCallbacks = (
     cmd: T,
-    data: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+    response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     details: ResponseDetailsType,
   ) => {
-    const { success } = data;
+    const { data, error, success } = response;
     const { isOffline, isCanceled } = details;
     if (request.offline && isOffline && !success) {
       logger.debug("Performing offline error callback", { data, details });
-      onOfflineErrorCallback.current?.({ response: data[1] as ExtractErrorType<T>, request: cmd, details });
+      onOfflineErrorCallback.current?.({ response: error, request: cmd, details });
     } else if (isCanceled) {
       logger.debug("Performing abort callback", { data, details });
-      onAbortCallback.current?.({ response: data[1] as ExtractErrorType<T>, request: cmd, details });
+      onAbortCallback.current?.({ response: error, request: cmd, details });
     } else if (success) {
       logger.debug("Performing success callback", { data, details });
-      onSuccessCallback.current?.({ response: data[0] as ExtractResponseType<T>, request: cmd, details });
+      onSuccessCallback.current?.({ response: data, request: cmd, details });
     } else {
       logger.debug("Performing error callback", { data, details });
-      onErrorCallback.current?.({ response: data[1] as ExtractErrorType<T>, request: cmd, details });
+      onErrorCallback.current?.({ response: error, request: cmd, details });
     }
-    onFinishedCallback.current?.({ response: data, request: cmd, details });
+    onFinishedCallback.current?.({ response, request: cmd, details });
   };
 
   // ******************
