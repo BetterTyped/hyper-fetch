@@ -5,7 +5,10 @@ import { RealtimeDBMethods, getOrderedResultRealtime } from "realtime";
 import { FirebaseQueryConstraints } from "constraints";
 import { getStatus, isDocOrQuery, setCacheManually } from "utils";
 
-const applyConstraint = (ref: Reference, { type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+export const applyConstraint = (
+  ref: Reference,
+  { type, values }: { type: FirebaseQueryConstraints; values: any[] },
+) => {
   switch (type) {
     case FirebaseQueryConstraints.ORDER_BY_CHILD: {
       const [value] = values;
