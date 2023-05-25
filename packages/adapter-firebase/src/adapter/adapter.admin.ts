@@ -32,18 +32,18 @@ export const adapterAdmin = <T extends FirebaseAdminDBTypes>(database: T) => {
           onResponseStart,
           onRequestEnd,
         });
-        const selectedMethod = availableMethods[method];
-        if (!selectedMethod) {
-          throw new Error(`Cannot find method ${method} in Firestore available methods.`);
-        }
-        selectedMethod({
+        // TODO add check with ENUM
+        // if (!selectedMethod) {
+        //   throw new Error(`Cannot find method ${method} in Firestore available methods.`);
+        // }
+        availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,
           options,
         });
       } else {
         const {
-          method = "onValue" as RealtimeDBMethods,
+          method = "get" as RealtimeDBMethods,
           queryParams,
           data,
           options,
@@ -54,11 +54,11 @@ export const adapterAdmin = <T extends FirebaseAdminDBTypes>(database: T) => {
           onResponseStart,
           onRequestEnd,
         });
-        const selectedMethod = availableMethods[method];
-        if (!selectedMethod) {
-          throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
-        }
-        selectedMethod({
+        // TODO add check with ENUM
+        // if (!selectedMethod) {
+        //   throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
+        // }
+        availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           options,
           data,

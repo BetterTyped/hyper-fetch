@@ -14,81 +14,52 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   onError,
   resolve,
   events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
-): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any; options: Record<string, any> }) => void> => {
+): ((
+  methodName: RealtimeDBMethods,
+  data: { constraints: any[]; data: any; options: Record<string, any> },
+) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = database.ref(fullUrl);
-  return {
+  const methods = {
     get: async ({ constraints }) => {
-      try {
-        events.onRequestStart();
-        const docOrQuery = isDocOrQuery(fullUrl);
-        const q = applyConstraints(path, constraints);
-        const snapshot = await q.get();
-        events.onRequestEnd();
-        events.onResponseStart();
-        const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-        const status = getStatus(res);
-        onSuccess(res, status, { ref: path, snapshot }, resolve);
-      } catch (e) {
-        events.onRequestEnd();
-        events.onResponseStart();
-        onError(e, "error", { ref: path, snapshot: null }, resolve);
-      }
-      events.onResponseEnd();
+      const docOrQuery = isDocOrQuery(fullUrl);
+      const q = applyConstraints(path, constraints);
+      const snapshot = await q.get();
+      const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+      const status = getStatus(res);
+      return { result: res, status, extra: { ref: path, snapshot } };
     },
     set: async ({ data }) => {
-      try {
-        events.onRequestStart();
-        await path.set(data);
-        events.onRequestEnd();
-        events.onResponseStart();
-        onSuccess(data, "success", { ref: path }, resolve);
-      } catch (e) {
-        onError(e, "error", { ref: path }, resolve);
-      }
-      events.onResponseEnd();
+      await path.set(data);
+      return { result: data, status: "success", extra: { ref: path } };
     },
     push: async ({ data }) => {
-      try {
-        events.onRequestStart();
-        const resRef = await path.push(data);
-        events.onRequestEnd();
-        events.onResponseStart();
-        onSuccess(null, "success", { ref: resRef, key: resRef.key }, resolve);
-      } catch (e) {
-        events.onRequestEnd();
-        events.onResponseStart();
-        onError(e, "error", { ref: path }, resolve);
-      }
-      events.onResponseEnd();
+      const resRef = await path.push(data);
+      return { result: null, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
     update: async ({ data }) => {
-      try {
-        events.onRequestStart();
-        await path.update(data);
-        events.onRequestEnd();
-        events.onResponseStart();
-        onSuccess(null, "success", { ref: path }, resolve);
-      } catch (e) {
-        events.onRequestEnd();
-        events.onResponseStart();
-        onError(e, "error", { ref: path }, resolve);
-      }
-      events.onResponseEnd();
+      await path.update(data);
+      return { result: null, status: "success", extra: { ref: path } };
     },
     remove: async () => {
-      try {
-        events.onRequestStart();
-        await path.remove();
-        events.onRequestEnd();
-        events.onResponseStart();
-        onSuccess(null, "success", { ref: path }, resolve);
-      } catch (e) {
-        events.onRequestEnd();
-        events.onResponseStart();
-        onError(e, "error", { ref: path }, resolve);
-      }
-      events.onResponseEnd();
+      await path.remove();
+      return { result: null, status: "success", extra: { ref: path } };
     },
+  };
+
+  return async (methodName: RealtimeDBMethods, data) => {
+    try {
+      events.onRequestStart();
+      const { result, status, extra } = await methods[methodName](data);
+      events.onRequestEnd();
+      events.onResponseStart();
+      onSuccess(result, status, extra, resolve);
+      events.onResponseEnd();
+    } catch (e) {
+      events.onRequestEnd();
+      events.onResponseStart();
+      onError(e, "error", {}, resolve);
+      events.onResponseEnd();
+    }
   };
 };

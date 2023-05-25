@@ -22,7 +22,7 @@ export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
     return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
       if (database instanceof Database) {
         const {
-          method = "onValue" as RealtimeDBMethods,
+          method = "get" as RealtimeDBMethods,
           queryParams,
           data,
           options,
@@ -33,11 +33,11 @@ export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
           onRequestStart,
           onRequestEnd,
         });
-        const selectedMethod = availableMethods[method];
-        if (!selectedMethod) {
-          throw new Error(`Cannot find method ${method} in Realtime DB available methods.`);
-        }
-        selectedMethod({
+        // TODO add check with enum
+        // if (!selectedMethod) {
+        //   throw new Error(`Cannot find method ${method} in Realtime DB available methods.`);
+        // }
+        availableMethods(method, {
           constraints: queryParams?.constraints || [],
           options,
           data,
@@ -56,11 +56,11 @@ export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
           onRequestStart,
           onRequestEnd,
         });
-        const selectedMethod = availableMethods[method];
-        if (!selectedMethod) {
-          throw new Error(`Cannot find method ${method} in Firestore available methods.`);
-        }
-        selectedMethod({
+        // TODO add check with enum
+        // if (!selectedMethod) {
+        //   throw new Error(`Cannot find method ${method} in Firestore available methods.`);
+        // }
+        availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,
           options,
