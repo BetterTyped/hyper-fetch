@@ -1,2 +1,2 @@
-export * from "./browser.adapter";
+export * from "./browser.socket";
 export * from "./browser.methods";

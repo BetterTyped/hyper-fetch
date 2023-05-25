@@ -24,8 +24,9 @@ export const realtimeAdminAdapter = (database: Database): SocketAdapterType => {
 
   const listen: SocketAdapterType["listen"] = (listener, callback) => {
     listeners.set(listener, callback);
+    const { options } = listener;
     // onValue: async ({ constraints, options }: { constraints: any[]; options: Record<string, any> }) => {
-    const query = applyConstraint(listener.name, listener.options);
+    const query = applyConstraint(listener.name, query);
     const method = options?.onlyOnce === true ? "once" : "on";
     try {
       query[method]("value", (snapshot) => {
