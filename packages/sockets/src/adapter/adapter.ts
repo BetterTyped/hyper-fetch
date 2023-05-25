@@ -236,3 +236,7 @@ export class SocketAdapter<SocketType extends SocketInstance> {
     }
   };
 }
+
+// const socketAdapter = () => {
+//   const {} = adapterBindingsSocket();
+// };

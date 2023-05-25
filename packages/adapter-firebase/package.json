@@ -39,6 +39,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "firebase": "*",
     "firebase-admin": "*",
     "firebase-tools": "*"
