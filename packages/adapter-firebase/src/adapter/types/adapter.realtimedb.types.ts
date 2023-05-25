@@ -3,14 +3,15 @@ import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database"
 
 import { FirebaseQueryConstraints } from "constraints";
 
+// TODO separate type after SocketAdapter is ready
 export type RealtimeDbAdapterType =
-  | AdapterType<
-      { onlyOnce: boolean },
-      "onValue",
-      RealtimeDBStatuses,
-      RealtimeDbOnValueMethodExtra,
-      RealtimeDBQueryParams
-    >
+  // | AdapterType<
+  //     { onlyOnce: boolean },
+  //     "onValue",
+  //     RealtimeDBStatuses,
+  //     RealtimeDbOnValueMethodExtra,
+  //     RealtimeDBQueryParams
+  //   >
   | AdapterType<
       DefaultRealtimeDBAdapterOptions,
       "get",
@@ -37,7 +38,7 @@ export type DefaultRealtimeDBAdapterOptions = {
   priority?: number;
 };
 
-export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove" | "onValue";
+export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove";
 
 export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodExtra = {

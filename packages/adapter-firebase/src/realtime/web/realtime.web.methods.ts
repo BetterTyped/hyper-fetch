@@ -1,9 +1,9 @@
-import { Database, get, onValue, push, query, ref, remove, set, update } from "firebase/database";
+import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "adapter/types";
 import { getOrderedResultRealtime } from "../realtime.utils";
-import { getStatus, isDocOrQuery, setCacheManually } from "utils";
+import { getStatus, isDocOrQuery } from "utils";
 import { mapConstraint } from "./realtime.web.utils";
 
 export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
@@ -17,37 +17,7 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
 ): Record<RealtimeDBMethods, (data: { constraints: any[]; data: any; options: Record<string, any> }) => void> => {
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
-  const methods: Record<RealtimeDBMethods, (data) => void> = {
-    onValue: async ({ constraints, options }: { constraints: any[]; options: Record<string, any> }) => {
-      const onlyOnce = options?.onlyOnce || false;
-      const params = constraints.map((constraint) => mapConstraint(constraint));
-      const q = query(path, ...params);
-      let unsub;
-      try {
-        events.onRequestStart();
-        unsub = onValue(
-          q,
-          (snapshot) => {
-            events.onRequestEnd();
-            events.onResponseStart();
-            const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-            const extra = { ref: path, snapshot, unsubscribe: unsub };
-            const status = getStatus(res);
-            setCacheManually(request, { value: res, status }, extra);
-            onSuccess(res, status, extra, resolve);
-            events.onResponseEnd();
-          },
-          { onlyOnce },
-        );
-      } catch (e) {
-        events.onRequestEnd();
-        events.onResponseStart();
-        const extra = { ref: path, snapshot: null, unsubscribe: unsub };
-        setCacheManually(request, { value: e, status: "error" }, extra);
-        onError(e, "error", extra, resolve);
-        events.onResponseEnd();
-      }
-    },
+  return {
     get: async ({ constraints }) => {
       const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
@@ -123,5 +93,4 @@ export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
       events.onResponseEnd();
     },
   };
-  return methods;
 };

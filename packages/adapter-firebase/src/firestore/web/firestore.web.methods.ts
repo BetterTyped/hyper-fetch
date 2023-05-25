@@ -1,22 +1,21 @@
 import {
-  Firestore,
-  doc,
-  collection,
-  setDoc,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
+  doc,
+  Firestore,
   getDoc,
   getDocs,
-  onSnapshot,
   query,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreDBMethods } from "adapter/types";
 import { FirebaseQueryConstraints } from "constraints";
-import { getStatus, isDocOrQuery, setCacheManually } from "utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
+import { getStatus } from "utils";
+import { getOrderedResultFirestore } from "../firestore.utils";
 import { mapConstraint } from "./firestore.web.utils";
 
 export const getFirestoreMethodsWeb = <R extends RequestInstance>(
@@ -36,40 +35,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   }) => void
 > => {
   const [cleanUrl] = url.split("?");
-  const methods: Record<FirestoreDBMethods, (data) => void> = {
-    onSnapshot: async ({ constraints = [], options }: { constraints: any[]; options: Record<string, any> }) => {
-      let path;
-      const queryType = isDocOrQuery(cleanUrl);
-      if (queryType === "doc") {
-        path = doc(database, cleanUrl);
-      } else {
-        const queryConstraints = constraints.map((constr) => mapConstraint(constr));
-        path = query(collection(database, cleanUrl), ...queryConstraints);
-      }
-      events.onRequestStart();
-      const unsub = onSnapshot(
-        path,
-        (snapshot) => {
-          events.onRequestEnd();
-          events.onResponseStart();
-          const result = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
-          const status = getStatus(result);
-          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-          const extra = { ref: path, snapshot, unsubscribe: unsub, groupedResult };
-          setCacheManually(request, { value: result, status }, extra);
-          onSuccess(result, status, extra, resolve);
-          events.onResponseEnd();
-        },
-        (error) => {
-          events.onRequestEnd();
-          events.onResponseStart();
-          const extra = { ref: path, unsubscribe: unsub };
-          setCacheManually(request, { value: error, status: "error" }, extra);
-          onError(error, "error", {}, resolve);
-          events.onResponseEnd();
-        },
-      );
-    },
+  return {
     getDoc: async () => {
       const path = doc(database, cleanUrl);
       try {
@@ -87,7 +53,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       }
       events.onResponseEnd();
     },
-    getDocs: async ({ constraints = [] }: { constraints: any[] }) => {
+    getDocs: async ({ constraints = [] }) => {
       const queryConstraints = constraints.map((constr) => mapConstraint(constr));
       const path = collection(database, cleanUrl);
       const q = query(path, ...queryConstraints);
@@ -169,6 +135,4 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       events.onResponseEnd();
     },
   };
-
-  return methods;
 };

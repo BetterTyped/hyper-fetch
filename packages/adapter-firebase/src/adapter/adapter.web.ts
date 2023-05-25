@@ -45,7 +45,7 @@ export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
       }
       if (database instanceof Firestore) {
         const {
-          method = "onSnapshot",
+          method = "getDocs",
           queryParams,
           data,
           options,

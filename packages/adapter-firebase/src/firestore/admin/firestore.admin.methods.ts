@@ -1,11 +1,10 @@
-import { Firestore, CollectionReference, DocumentReference, DocumentSnapshot, Query } from "firebase-admin/firestore";
+import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreDBMethods } from "adapter";
-import { FirebaseQueryConstraints } from "constraints";
-import { getStatus, setCacheManually } from "utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
-import { getRef, applyConstraints } from "./firestore.admin.utils";
+import { getStatus } from "utils";
+import { getOrderedResultFirestore } from "../firestore.utils";
+import { applyConstraints, getRef } from "./firestore.admin.utils";
 
 export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   request: R,
@@ -25,43 +24,7 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   }) => void
 > => {
   const [cleanUrl] = url.split("?");
-  const methods: Record<FirestoreDBMethods, (data) => void> = {
-    onSnapshot: async ({
-      constraints = [],
-      options,
-    }: {
-      constraints: { type: FirebaseQueryConstraints; values: any[] }[];
-      options?: Record<string, any>;
-    }) => {
-      // includeMetadataChanges: true option
-      let pathRef: DocumentReference | Query = getRef(database, cleanUrl);
-      if (pathRef instanceof CollectionReference) {
-        pathRef = applyConstraints(pathRef, constraints);
-      }
-      events.onRequestStart();
-      const unsub = pathRef.onSnapshot(
-        (snapshot) => {
-          events.onRequestEnd();
-          events.onResponseStart();
-          const result =
-            snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
-          const status = getStatus(result);
-          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-          const extra = { ref: pathRef, snapshot, unsubscribe: unsub, groupedResult };
-          setCacheManually(request, { value: result, status }, extra);
-          onSuccess(result, status, extra, resolve);
-          events.onResponseEnd();
-        },
-        (error) => {
-          events.onRequestEnd();
-          events.onResponseStart();
-          const extra = { ref: pathRef, unsubscribe: unsub };
-          setCacheManually(request, { value: error, status: "error" }, extra);
-          onError(error, "error", {}, resolve);
-          events.onResponseEnd();
-        },
-      );
-    },
+  return {
     getDoc: async () => {
       events.onRequestStart();
       const path = getRef(database, cleanUrl);
@@ -157,6 +120,4 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
       events.onResponseEnd();
     },
   };
-
-  return methods;
 };

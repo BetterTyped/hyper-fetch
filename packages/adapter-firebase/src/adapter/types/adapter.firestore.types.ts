@@ -9,14 +9,15 @@ import {
 
 import { FirebaseQueryConstraints } from "constraints";
 
+// TODO - separate onSnapshot adapter type when SocketAdapter is ready
 export type FirestoreAdapterType =
-  | AdapterType<
-      { groupByChangeType: boolean },
-      "onSnapshot",
-      FirestoreStatuses,
-      FirestoreOnSnapshotExtra,
-      FirestoreQueryParams
-    >
+  // | AdapterType<
+  //     { groupByChangeType: boolean },
+  //     "onSnapshot",
+  //     FirestoreStatuses,
+  //     FirestoreOnSnapshotExtra,
+  //     FirestoreQueryParams
+  //   >
   | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
   | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
   | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>>
@@ -32,7 +33,7 @@ export type FirestoreQueryParams = {
   constraints?: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[];
 };
 
-export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc" | "onSnapshot";
+export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc";
 
 export type FirestoreExtra = {
   ref?: DocumentReference;

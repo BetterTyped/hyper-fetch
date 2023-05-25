@@ -21,7 +21,7 @@ export const adapterAdmin = <T extends FirebaseAdminDBTypes>(database: T) => {
     return new Promise<ResponseReturnType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
       if (database instanceof Firestore) {
         const {
-          method = "onSnapshot",
+          method = "getDocs",
           queryParams,
           data,
           options,
