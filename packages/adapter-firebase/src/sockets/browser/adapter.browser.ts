@@ -31,8 +31,11 @@ export const socketsAdminAdapter = (database: Database): SocketAdapterType => {
   return {
     connecting: false,
     listeners: new Map(),
+    emit: () => {
+      throw new Error(`Cannot emit from Realtime database socket.`);
+    },
     listen: (listener, callback) => {
-      const onlyOnce = options?.onlyOnce || false;
+      const onlyOnce = listener.options?.onlyOnce || false;
       const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
       let unsub;

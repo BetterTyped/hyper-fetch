@@ -23,11 +23,11 @@ import {
   interceptListener,
   interceptEmitter,
 } from "socket";
-import { ExtractSocketFormatType, SocketAdapterInstance, websocketAdapter } from "adapter";
+import { ExtractSocketFormatType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 
-export class Socket<AdapterType extends SocketAdapterInstance> {
+export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
   public events = getSocketEvents(this.emitter);
 
@@ -40,8 +40,8 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
   autoConnect: boolean;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<Socket<AdapterType>, any>[] = [];
-  __onCloseCallbacks: CloseCallbackType<Socket<AdapterType>, any>[] = [];
+  __onOpenCallbacks: OpenCallbackType<Socket<AdapterType>>[] = [];
+  __onCloseCallbacks: CloseCallbackType<Socket<AdapterType>>[] = [];
   __onReconnectCallbacks: ReconnectCallbackType<Socket<AdapterType>>[] = [];
   __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<AdapterType>>[] = [];
   __onMessageCallbacks: MessageCallbackType<Socket<AdapterType>, any>[] = [];
@@ -92,7 +92,7 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
     }
 
     // Adapter must be initialized at the end
-    this.adapter = (adapter(this) || websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
+    this.adapter = (adapter?.(this) || websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
   }
 
   /**
@@ -146,7 +146,7 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
    * @param callback
    * @returns
    */
-  onOpen<Event = ExtractSocketFormatType<AdapterType>>(callback: OpenCallbackType<Socket<AdapterType>, Event>) {
+  onOpen(callback: OpenCallbackType<Socket<AdapterType>>) {
     this.__onOpenCallbacks.push(callback);
     return this;
   }
@@ -155,7 +155,7 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
    * @param callback
    * @returns
    */
-  onClose<Event = ExtractSocketFormatType<AdapterType>>(callback: CloseCallbackType<Socket<AdapterType>, Event>) {
+  onClose(callback: CloseCallbackType<Socket<AdapterType>>) {
     this.__onCloseCallbacks.push(callback);
     return this;
   }
@@ -236,7 +236,7 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
    * @returns
    */
   createListener = <Response>(options: ListenerOptionsType<AdapterType>) => {
-    return new Listener<Response, AdapterType>(this, options as any);
+    return new Listener<Response, AdapterType>(this, options);
   };
 
   /**
@@ -245,9 +245,6 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
    * @returns
    */
   createEmitter = <Payload, Response = never>(options: EmitterOptionsType<AdapterType>) => {
-    if ("isSSE" in this.options) {
-      throw new Error("Cannot create emitters for SSE adapter");
-    }
-    return new Emitter<Payload, Response, AdapterType>(this, options as any);
+    return new Emitter<Payload, Response, AdapterType>(this, options);
   };
 }

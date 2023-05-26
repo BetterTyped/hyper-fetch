@@ -1,6 +1,12 @@
 import { useRef } from "react";
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import { ListenerInstance, ExtractListenerAdapterType } from "@hyper-fetch/sockets";
+import {
+  ListenerInstance,
+  ExtractListenerAdapterType,
+  ExtractSocketExtraType,
+  ExtractListenerResponseType,
+  ExtractSocketFormatType,
+} from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
@@ -15,10 +21,11 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const onEventCallback = useRef<
     | null
-    | ((
-        data: ExtractListenerAdapterType<ListenerType>,
-        event: MessageEvent<ExtractListenerAdapterType<ListenerType>>,
-      ) => void)
+    | ((response: {
+        data: ExtractListenerResponseType<ListenerType>;
+        event: ExtractSocketFormatType<ExtractListenerAdapterType<ListenerType>>;
+        extra: ExtractSocketExtraType<ExtractListenerAdapterType<ListenerType>>;
+      }) => void)
   >(null);
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
@@ -29,8 +36,8 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen((data, event) => {
-      onEventCallback.current?.(data, event);
+    removeListenerRef.current = listener.listen(({ data, event, extra }) => {
+      onEventCallback.current?.({ data, event, extra });
       actions.setData(data);
       actions.setTimestamp(+new Date());
     });

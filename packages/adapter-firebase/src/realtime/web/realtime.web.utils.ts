@@ -1,4 +1,3 @@
-import { FirebaseQueryConstraints } from "../../constraints";
 import {
   endAt,
   endBefore,
@@ -11,6 +10,8 @@ import {
   startAfter,
   startAt,
 } from "firebase/database";
+
+import { FirebaseQueryConstraints } from "../../constraints";
 
 export const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
   switch (type) {

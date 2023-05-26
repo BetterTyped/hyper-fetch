@@ -12,8 +12,8 @@ export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
   auth?: QueryParamsType;
   reconnect?: number;
   reconnectTime?: number;
-  autoConnect?: boolean;
   queryParams?: QueryParamsType | string;
+  autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptionsType;
   queryParamsStringify?: StringifyCallbackType;
   adapterOptions?: ExtractSocketOptionsType<AdapterType>;
@@ -21,8 +21,8 @@ export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
 
 export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
 export type ReconnectStopCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
-export type OpenCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;
-export type CloseCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;
+export type OpenCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
+export type CloseCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;
 export type MessageCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => Event;
 export type SendCallbackType<EmitterType extends EmitterInstance> = (emitter: EmitterType) => EmitterInstance;
 export type ErrorCallbackType<SocketType extends SocketInstance, Event> = (event: Event, socket: SocketType) => void;

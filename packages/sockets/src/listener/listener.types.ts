@@ -1,8 +1,9 @@
+import { SocketAdapterInstance, ExtractListenerOptionsType } from "adapter";
 import { Listener } from "listener";
 
-export type ListenerInstance = Listener<any, any>;
+export type ListenerInstance = Listener<any, SocketAdapterInstance>;
 
-export type ListenerOptionsType<SocketOptions> = {
+export type ListenerOptionsType<AdapterType extends SocketAdapterInstance> = {
   name: string;
-  options?: SocketOptions;
+  options?: ExtractListenerOptionsType<AdapterType>;
 };

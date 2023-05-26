@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { DateInterval } from "@hyper-fetch/core";
+import { parseResponse } from "@hyper-fetch/core";
 
 import { ListenerInstance } from "listener";
 import { ListenerCallbackType, adapterBindingsSocket, getSSEAdapter, SSEAdapterType } from "adapter";
@@ -12,9 +12,11 @@ import { ListenerCallbackType, adapterBindingsSocket, getSSEAdapter, SSEAdapterT
 
 export const sseAdapter: SSEAdapterType = (socket) => {
   const {
+    open,
+    reconnectionAttempts,
     listeners,
-    removeListener,
     connecting,
+    removeListener,
     onConnect,
     onReconnect,
     onDisconnect,
@@ -22,6 +24,7 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     onOpen,
     onError,
     onEvent,
+    onClose,
   } = adapterBindingsSocket(socket);
 
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
@@ -32,24 +35,25 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     const enabled = onConnect();
     if (!enabled) return;
 
-    const { reconnectTimeout = DateInterval.second * 2 } = socket.options.adapterOptions || {};
-
     // Clean environment
     adapter?.close();
     adapter = getSSEAdapter(socket);
 
+    // Make sure we picked good environment
+    if (!adapter) return;
+
     // Reconnection timeout
     const timeout = setTimeout(() => {
       reconnect();
-    }, reconnectTimeout);
+    }, socket.reconnectTime);
 
     /**
      *  Mount listeners
      */
 
-    adapter.onopen = (event) => {
+    adapter.onopen = () => {
       clearTimeout(timeout);
-      onOpen(event);
+      onOpen();
     };
 
     adapter.onerror = (event) => {
@@ -57,21 +61,20 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     };
 
     adapter.onmessage = (event) => {
-      onEvent(event, undefined);
+      const response = parseResponse(event);
+      onEvent(response.data.name, response.data, response, undefined);
     };
   };
 
   const disconnect = () => {
     onDisconnect();
-    adapter.close();
+    adapter?.close();
+    onClose();
     clearTimers();
   };
 
   const reconnect = () => {
-    const enabled = onReconnect();
-    if (enabled) {
-      connect();
-    }
+    onReconnect(disconnect, connect);
   };
 
   const clearTimers = () => {
@@ -87,12 +90,25 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     throw new Error("Cannot emit events in SSE mode");
   };
 
+  // Initialize
+
+  if (socket.autoConnect) {
+    connect();
+  }
+  socket.appManager.events.onOnline(() => {
+    if (socket.autoConnect && !open) {
+      connect();
+    }
+  });
+
   return {
+    open,
+    reconnectionAttempts,
     listeners,
+    connecting,
     listen,
     removeListener,
     emit,
-    connecting,
     connect,
     reconnect,
     disconnect,

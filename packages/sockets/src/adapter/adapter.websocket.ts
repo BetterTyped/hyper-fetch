@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { DateInterval } from "@hyper-fetch/core";
+import { DateInterval, parseResponse } from "@hyper-fetch/core";
 
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
@@ -19,9 +19,11 @@ import {
 
 export const websocketAdapter: WebsocketAdapterType = (socket) => {
   const {
+    open,
     listeners,
-    removeListener,
     connecting,
+    reconnectionAttempts,
+    removeListener,
     onConnect,
     onReconnect,
     onDisconnect,
@@ -41,40 +43,40 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     const enabled = onConnect();
     if (!enabled) return;
 
-    const { reconnectTimeout = DateInterval.second * 2 } = socket.options.adapterOptions || {};
-
     // Clean environment
     adapter?.close();
     adapter = getWebsocketAdapter(socket);
 
+    // Make sure we picked good environment
+    if (!adapter) return;
+
     // Reconnection timeout
     const timeout = setTimeout(() => {
       reconnect();
-    }, reconnectTimeout);
+    }, socket.reconnectTime);
 
     /**
      *  Mount listeners
      */
 
-    adapter.onopen = (event) => {
+    adapter.onopen = () => {
       clearTimeout(timeout);
-      onOpen(event);
+      onOpen();
       onHeartbeat();
     };
 
-    if (adapter && "onclose" in adapter) {
-      adapter.onclose = (event) => {
-        onClose(event);
-        clearTimers();
-      };
-    }
+    adapter.onclose = () => {
+      onClose();
+      clearTimers();
+    };
 
     adapter.onerror = (event) => {
       onError(event);
     };
 
     adapter.onmessage = (event) => {
-      onEvent(event, undefined);
+      const response = parseResponse(event);
+      onEvent(response.data.name, response.data, response, undefined);
       onHeartbeat();
     };
   };
@@ -86,10 +88,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const reconnect = () => {
-    const enabled = onReconnect();
-    if (enabled) {
-      connect();
-    }
+    onReconnect(disconnect, connect);
   };
 
   const clearTimers = () => {
@@ -98,9 +97,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const sendEventMessage = (payload: WSMessageType) => {
-    if (adapter && "send" in adapter) {
-      adapter.send(JSON.stringify({ id: payload.id, name: payload.name, data: payload.data }));
-    }
+    adapter.send(JSON.stringify({ id: payload.id, name: payload.name, data: payload.data }));
   };
 
   const onHeartbeat = () => {
@@ -129,7 +126,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   const emit = async (
     eventMessageId: string,
     emitter: EmitterInstance,
-    ack?: (error: Error | null, response: MessageEvent<any>) => void,
+    ack?: (error: Error | null, response: Parameters<ListenerCallbackType<WebsocketAdapterType, any>>[0]) => void,
   ) => {
     const enabled = onEmit(emitter);
 
@@ -137,9 +134,9 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
 
     if (ack) {
       let timeout;
-      const unmount = onListen({ name: emitter.name }, ({ data }) => {
-        if (data.id === eventMessageId) {
-          ack(null, data);
+      const unmount = onListen({ name: emitter.name }, (response) => {
+        if (response.data.id === eventMessageId) {
+          ack(null, response);
           clearTimeout(timeout);
         }
       });
@@ -154,12 +151,25 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     socket.events.emitEmitterEvent(emitterInstance);
   };
 
+  // Initialize
+
+  if (socket.autoConnect) {
+    connect();
+  }
+  socket.appManager.events.onOnline(() => {
+    if (socket.autoConnect && !open) {
+      connect();
+    }
+  });
+
   return {
+    open,
     listeners,
+    reconnectionAttempts,
+    connecting,
     listen,
     removeListener,
     emit,
-    connecting,
     connect,
     reconnect,
     disconnect,

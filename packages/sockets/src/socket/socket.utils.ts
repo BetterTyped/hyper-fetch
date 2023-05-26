@@ -15,8 +15,8 @@ export const getListenerEventByNameKey = (event: string) => `${event}_listener_e
 export const getEmitterEventByNameKey = (event: string) => `${event}_emitter_event`;
 
 export const interceptListener = <Socket extends SocketInstance>(
-  interceptors: MessageCallbackType<Socket, MessageEvent>[],
-  response: MessageEvent,
+  interceptors: MessageCallbackType<Socket, any>[],
+  response: any,
   socket: Socket,
 ) => {
   let newResponse = response;

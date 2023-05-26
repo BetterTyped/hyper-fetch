@@ -1,5 +1,3 @@
-import { parseResponse } from "@hyper-fetch/core";
-
 import { SocketInstance } from "socket";
 import { ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
@@ -27,6 +25,7 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
 
     forceClosed = false;
     connecting = true;
+    reconnectionAttempts = 0;
     socket.events.emitConnecting();
     return true;
   };
@@ -36,15 +35,16 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
     open = false;
     connecting = false;
     forceClosed = true;
+    reconnectionAttempts = 0;
     return true;
   };
 
-  const onReconnect = (): boolean => {
-    onDisconnect();
+  const onReconnect = (disconnect: () => void, connect: () => void): boolean => {
+    disconnect();
     if (reconnectionAttempts < socket.reconnect) {
       reconnectionAttempts += 1;
       logger.debug("Reconnecting", { reconnectionAttempts });
-      onConnect();
+      connect();
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
       });
@@ -82,7 +82,7 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
   // Emitters
 
   const onEmit = (emitter: EmitterInstance): boolean => {
-    if (!connecting || !open) {
+    if (connecting || !open) {
       logger.error("Cannot emit event when connection is not open");
       return false;
     }
@@ -92,20 +92,20 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
 
   // Lifecycle
 
-  const onOpen = (event: ExtractSocketFormatType<T>) => {
-    logger.info("Connection open", { event });
+  const onOpen = () => {
+    logger.info("Connection open");
     socket.__onOpenCallbacks.forEach((callback) => {
-      callback(event, socket);
+      callback(socket);
     });
     open = true;
     connecting = false;
     socket.events.emitOpen();
   };
 
-  const onClose = (event: ExtractSocketFormatType<T>) => {
-    logger.info("Connection closed", { event });
+  const onClose = () => {
+    logger.info("Connection closed");
     socket.__onCloseCallbacks.forEach((callback) => {
-      callback(event, socket);
+      callback(socket);
     });
     open = false;
     connecting = false;
@@ -120,16 +120,20 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
     socket.events.emitError(event);
   };
 
-  const onEvent = (event: ExtractSocketFormatType<T>, extra: ExtractSocketExtraType<T>) => {
+  const onEvent = (
+    name: string,
+    response: any,
+    event: ExtractSocketFormatType<T>,
+    extra: ExtractSocketExtraType<T>,
+  ) => {
     logger.info("New event message", { event });
 
-    const response = socket.__modifyResponse(event);
-    const data = parseResponse(response.data);
-    const eventListeners = listeners.get(data.name) || [];
+    const data = socket.__modifyResponse(response);
+    const eventListeners = listeners.get(name) || [];
     eventListeners.forEach((callback) => {
       callback(data, event);
     });
-    socket.events.emitListenerEvent(data.name, { data, event, extra });
+    socket.events.emitListenerEvent(name, { data, event, extra });
   };
 
   return {

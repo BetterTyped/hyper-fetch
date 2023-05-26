@@ -1,23 +1,23 @@
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
-import { SocketInstance } from "socket";
+import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
   data: D;
-  event: MessageEvent<D>;
+  event: ExtractSocketFormatType<AdapterType>;
   extra: ExtractSocketExtraType<AdapterType>;
 }) => void;
 
 export type SocketAdapterType<
-  AdapterOptions = { test: 1 },
-  AdapterFormat = MessageEvent<any>,
-  AdapterExtra = void,
-  ListenerOptions = void,
-  EmitterOptions = void,
+  AdapterOptions extends Record<string, any> = never,
+  AdapterFormat extends Record<string, any> = MessageEvent<any>,
+  AdapterExtra extends Record<string, any> = Record<never, never>,
+  ListenerOptions extends Record<string, any> = never,
+  EmitterOptions extends Record<string, any> = never,
 > = (
-  socket: SocketInstance,
+  socket: Socket<SocketAdapterType<AdapterOptions, AdapterFormat, AdapterExtra, ListenerOptions, EmitterOptions>>,
   DO_NOT_USE?: {
     adapterOptions?: AdapterOptions;
     adapterFormat?: AdapterFormat;
@@ -26,6 +26,8 @@ export type SocketAdapterType<
     emitterOptions?: EmitterOptions;
   },
 ) => {
+  open: boolean;
+  reconnectionAttempts: number;
   listeners: Map<string, Set<ListenerCallbackType<SocketAdapterInstance, any>>>;
   listen: (
     listener: ListenerInstance,
@@ -83,21 +85,13 @@ export type ExtractUnionSocket<
 // Options
 
 export type SSEAdapterOptionsType = {
-  reconnect?: number;
-  reconnectTime?: number;
-  autoConnect?: boolean;
   eventSourceInit?: EventSourceInit;
-  reconnectTimeout?: number;
 };
 
 export type WSAdapterOptionsType = {
-  reconnect?: number;
-  reconnectTime?: number;
-  autoConnect?: boolean;
   protocols?: string[];
   pingTimeout?: number;
   pongTimeout?: number;
-  reconnectTimeout?: number;
   heartbeatMessage?: string;
   heartbeat?: boolean;
 };

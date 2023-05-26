@@ -10,21 +10,6 @@ export const socketsAdminAdapter = (database: Database): SocketAdapterType => {
     data,
     options,
   }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
-  const availableMethods = getRealtimeDBMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
-    onRequestStart,
-    onResponseEnd,
-    onResponseStart,
-    onRequestEnd,
-  });
-  const selectedMethod = availableMethods[method];
-  if (!selectedMethod) {
-    throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
-  }
-  selectedMethod({
-    constraints: queryParams?.constraints ? queryParams.constraints : [],
-    options,
-    data,
-  });
 
   return {
     connecting: false,

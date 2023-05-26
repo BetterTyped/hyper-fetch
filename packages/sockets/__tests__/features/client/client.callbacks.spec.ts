@@ -55,6 +55,9 @@ describe("Socket Adapter [ Callbacks ]", () => {
     const spy = jest.fn().mockImplementation((em) => em);
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
+
+    await server.connected;
+
     emitter.setData({ test: "1" }).emit();
 
     await waitFor(() => {

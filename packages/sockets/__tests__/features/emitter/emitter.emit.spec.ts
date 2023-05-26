@@ -14,11 +14,12 @@ describe("Emitter [ Emit ]", () => {
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket, { timeout: 10 });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     server = createWsServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket, { timeout: 10 });
     jest.resetAllMocks();
+    await server.connected;
   });
 
   it("should emit event message", async () => {
@@ -52,7 +53,7 @@ describe("Emitter [ Emit ]", () => {
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(null, { id, name: emitter.name, data: response });
+      expect(spy).toBeCalledWith(null, { id, name: emitter.name, data: response, extra: undefined });
     });
   });
 

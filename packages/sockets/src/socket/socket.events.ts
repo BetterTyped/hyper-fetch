@@ -16,10 +16,10 @@ import {
 } from "socket";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
-import { ExtractSocketExtraType, SocketAdapterType } from "adapter";
+import { ExtractSocketExtraType, ExtractSocketFormatType, SocketAdapterInstance } from "adapter";
 
-export const getSocketEvents = <T extends SocketAdapterType>(eventEmitter: EventEmitter) => ({
-  emitError: <ResponseType = MessageEvent>(event: ResponseType): void => {
+export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: EventEmitter) => ({
+  emitError: <ResponseType>(event: ResponseType): void => {
     eventEmitter.emit(getErrorKey(), event);
   },
   emitOpen: (): void => {
@@ -37,9 +37,9 @@ export const getSocketEvents = <T extends SocketAdapterType>(eventEmitter: Event
   emitReconnectingStop: (attempts: number): void => {
     eventEmitter.emit(getReconnectingStopKey(), attempts);
   },
-  emitListenerEvent: <ResponseType = MessageEvent>(
+  emitListenerEvent: <ResponseType>(
     name: string,
-    { data, event, extra }: { data: ResponseType; event: MessageEvent<ResponseType>; extra: ExtractSocketExtraType<T> },
+    { data, event, extra }: { data: ResponseType; event: ExtractSocketFormatType<T>; extra: ExtractSocketExtraType<T> },
   ): void => {
     eventEmitter.emit(getListenerEventKey(), { data, extra, event });
     eventEmitter.emit(getListenerEventByNameKey(name), { data, extra, event });
@@ -53,7 +53,7 @@ export const getSocketEvents = <T extends SocketAdapterType>(eventEmitter: Event
     eventEmitter.emit(getEmitterEventByNameKey(emitter.name), emitter);
   },
 
-  onError: (callback: <ResponseType = MessageEvent>(event: ResponseType) => void): VoidFunction => {
+  onError: (callback: <ResponseType>(event: ResponseType) => void): VoidFunction => {
     eventEmitter.on(getErrorKey(), callback);
     return () => eventEmitter.removeListener(getErrorKey(), callback);
   },
@@ -84,7 +84,7 @@ export const getSocketEvents = <T extends SocketAdapterType>(eventEmitter: Event
       extra,
     }: {
       data: ResponseType;
-      event: MessageEvent<ResponseType>;
+      event: ExtractSocketFormatType<T>;
       extra: ExtractSocketExtraType<T>;
     }) => void,
   ): VoidFunction => {
@@ -103,7 +103,7 @@ export const getSocketEvents = <T extends SocketAdapterType>(eventEmitter: Event
       extra,
     }: {
       data: ResponseType;
-      event: MessageEvent<ResponseType>;
+      event: ExtractSocketFormatType<T>;
       extra: ExtractSocketExtraType<T>;
     }) => void,
   ): VoidFunction => {

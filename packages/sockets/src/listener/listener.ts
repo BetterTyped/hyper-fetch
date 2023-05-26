@@ -1,18 +1,20 @@
 import { Socket } from "socket";
 import { ListenerOptionsType } from "listener";
-import { ListenerCallbackType, SocketAdapterType } from "adapter";
-import { ExtractListenerOptionsType } from "types/extract.types";
-import { ConnectMethodType } from "types/connect.types";
+import {
+  ExtractSocketExtraType,
+  ListenerCallbackType,
+  SocketAdapterType,
+  ExtractListenerOptionsType,
+  ExtractSocketFormatType,
+} from "adapter";
+import { ConnectMethodType } from "types";
 
 export class Listener<Response, AdapterType extends SocketAdapterType> {
   readonly name: string;
   options?: ExtractListenerOptionsType<AdapterType>;
   connections: ConnectMethodType<AdapterType, Response>[] = [];
 
-  constructor(
-    readonly socket: Socket<AdapterType>,
-    readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<AdapterType>>,
-  ) {
+  constructor(readonly socket: Socket<AdapterType>, readonly listenerOptions?: ListenerOptionsType<AdapterType>) {
     const { name, options } = listenerOptions;
     this.name = name;
     this.options = options;
@@ -30,9 +32,7 @@ export class Listener<Response, AdapterType extends SocketAdapterType> {
     this.connections.push(callback);
   }
 
-  clone(
-    config?: Partial<ListenerOptionsType<ExtractListenerOptionsType<AdapterType>>>,
-  ): Listener<Response, AdapterType> {
+  clone(config?: Partial<ListenerOptionsType<AdapterType>>): Listener<Response, AdapterType> {
     return new Listener<Response, AdapterType>(this.socket, {
       ...this.listenerOptions,
       ...config,
@@ -43,15 +43,21 @@ export class Listener<Response, AdapterType extends SocketAdapterType> {
   listen(callback: ListenerCallbackType<AdapterType, Response>) {
     const instance = this.clone();
 
-    this.socket.adapter.listen(instance, (...args) => {
-      this.connections.forEach((connection) => connection(...args));
-      return callback(...args);
-    });
-
-    const removeListener = () => {
-      this.socket.adapter.removeListener(instance.name, callback);
+    const action = (response: {
+      data: Response;
+      event: ExtractSocketFormatType<AdapterType>;
+      extra: ExtractSocketExtraType<AdapterType>;
+    }) => {
+      this.connections.forEach((connection) => connection(response));
+      return callback(response);
     };
 
-    return [removeListener, callback] as const;
+    this.socket.adapter.listen(instance, action);
+
+    const removeListener = () => {
+      this.socket.adapter.removeListener(instance.name, action);
+    };
+
+    return [removeListener, action] as const;
   }
 }

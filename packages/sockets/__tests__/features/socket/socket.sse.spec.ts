@@ -1,7 +1,8 @@
+import { sseAdapter } from "adapter";
 import { createSocket } from "../../utils/socket.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
-  isSSE: true,
+  adapter: sseAdapter,
 };
 
 describe("Socket [ SSE ]", () => {
@@ -13,6 +14,6 @@ describe("Socket [ SSE ]", () => {
   });
 
   it("should throw emitter create", async () => {
-    expect(() => socket.createEmitter({ name: "test" })).toThrow();
+    expect(socket.createEmitter({ name: "test" }).emit).toThrow();
   });
 });

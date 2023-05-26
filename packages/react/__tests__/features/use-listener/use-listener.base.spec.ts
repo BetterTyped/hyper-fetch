@@ -33,7 +33,7 @@ describe("useListener [ Base ]", () => {
       let receivedData;
       let receivedEventData;
       act(() => {
-        view.result.current.onEvent((data, event) => {
+        view.result.current.onEvent(({ data, event }) => {
           receivedData = data;
           receivedEventData = event;
           spy();
@@ -42,7 +42,7 @@ describe("useListener [ Base ]", () => {
       sendWsEvent(listener, message);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
-        expect(receivedData).toEqual({ data: message, name: listener.name });
+        expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });
     });

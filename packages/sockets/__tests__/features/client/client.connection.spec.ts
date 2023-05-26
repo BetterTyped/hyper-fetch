@@ -50,7 +50,7 @@ describe("Socket Adapter [ Connection ]", () => {
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
     const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 0, autoConnect: false });
+    socket = createSocket({ url, reconnectTime: 5, autoConnect: false });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
     const server = createWsServer({ url });
