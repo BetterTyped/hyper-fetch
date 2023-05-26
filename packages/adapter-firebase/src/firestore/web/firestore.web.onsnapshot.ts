@@ -1,7 +1,7 @@
 import { RequestInstance } from "@hyper-fetch/core";
 import { collection, doc, query, onSnapshot as _onSnapshot, Firestore } from "firebase/firestore";
 
-import { FirebaseQueryConstraints } from "constraints";
+import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 import { getStatus, isDocOrQuery, setCacheManually } from "utils";
 import { mapConstraint } from "./firestore.web.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
@@ -12,7 +12,7 @@ export const onSnapshot =
     constraints = [],
     options,
   }: {
-    constraints: { type: FirebaseQueryConstraints; values: any[] }[];
+    constraints: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
     options?: Record<string, any>;
   }) => {
     const [cleanUrl] = url.split("?");

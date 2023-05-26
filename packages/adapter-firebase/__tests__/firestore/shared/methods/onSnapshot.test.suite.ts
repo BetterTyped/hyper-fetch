@@ -1,7 +1,7 @@
-import { adapterAdmin, adapterWeb } from "adapter";
+import { firebaseAdminAdapter, firebaseWebAdapter } from "adapter";
 
 export const onSnapshotTestSuite = (
-  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
+  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   // describe("onSnapshot", () => {
   //   it("should return data available for collection", async () => {

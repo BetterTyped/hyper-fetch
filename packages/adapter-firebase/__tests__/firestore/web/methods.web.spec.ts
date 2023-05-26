@@ -6,7 +6,7 @@ import { firestoreDbWeb } from "./initialize.web";
 import { seedFirestoreDatabaseWeb } from "../../utils/seed.web";
 import { deleteCollectionForWeb } from "../../utils/clean.web";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
-import { adapterWeb } from "../../../src";
+import { firebaseWebAdapter } from "../../../src";
 
 describe("Firestore Web [ Methods ]", () => {
   beforeEach(async () => {
@@ -17,5 +17,5 @@ describe("Firestore Web [ Methods ]", () => {
     await deleteCollectionForWeb(firestoreDbWeb, "teas");
   });
 
-  methodsSharedTestCases(() => adapterWeb(firestoreDbWeb));
+  methodsSharedTestCases(() => firebaseWebAdapter(firestoreDbWeb));
 });

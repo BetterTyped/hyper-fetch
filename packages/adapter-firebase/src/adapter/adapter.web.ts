@@ -15,7 +15,7 @@ import {
 import { getRealtimeDBMethodsWeb } from "realtime";
 import { getFirestoreMethodsWeb } from "firestore";
 
-export const adapterWeb = <T extends FirebaseWebDBTypes>(database: T) => {
+export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
   const adapter: FirebaseWebAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});

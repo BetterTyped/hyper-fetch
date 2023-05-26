@@ -13,7 +13,7 @@ import {
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreDBMethods } from "adapter/types";
-import { FirebaseQueryConstraints } from "constraints";
+import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 import { getStatus } from "utils";
 import { getOrderedResultFirestore } from "../firestore.utils";
 import { mapConstraint } from "./firestore.web.utils";
@@ -29,7 +29,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
 ): ((
   methodName: FirestoreDBMethods,
   data: {
-    constraints?: { type: FirebaseQueryConstraints; values: any[] }[];
+    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
     data?: any;
     options?: Record<string, any>;
   },
@@ -43,7 +43,11 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
       const status = result ? "success" : "emptyResource";
       return { result, status, extra: { ref: path, snapshot } };
     },
-    getDocs: async ({ constraints = [] }: { constraints?: { type: FirebaseQueryConstraints; values: any[] }[] }) => {
+    getDocs: async ({
+      constraints = [],
+    }: {
+      constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
+    }) => {
       const queryConstraints = constraints.map((constr) => mapConstraint(constr));
       const path = collection(database, cleanUrl);
       const q = query(path, ...queryConstraints);

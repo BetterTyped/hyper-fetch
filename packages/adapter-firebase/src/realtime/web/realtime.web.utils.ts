@@ -11,45 +11,45 @@ import {
   startAt,
 } from "firebase/database";
 
-import { FirebaseQueryConstraints } from "../../constraints";
+import { RealtimeQueryConstraints } from "../../constraints";
 
-export const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+export const mapConstraint = ({ type, values }: { type: RealtimeQueryConstraints; values: any[] }) => {
   switch (type) {
-    case FirebaseQueryConstraints.ORDER_BY_CHILD: {
+    case RealtimeQueryConstraints.ORDER_BY_CHILD: {
       const [value] = values;
       return orderByChild(value);
     }
-    case FirebaseQueryConstraints.ORDER_BY_KEY: {
+    case RealtimeQueryConstraints.ORDER_BY_KEY: {
       return orderByKey();
     }
-    case FirebaseQueryConstraints.ORDER_BY_VALUE: {
+    case RealtimeQueryConstraints.ORDER_BY_VALUE: {
       return orderByValue();
     }
-    case FirebaseQueryConstraints.START_AT: {
+    case RealtimeQueryConstraints.START_AT: {
       const [[value]] = values;
       return startAt(value);
     }
-    case FirebaseQueryConstraints.START_AFTER: {
+    case RealtimeQueryConstraints.START_AFTER: {
       const [[value]] = values;
       return startAfter(value);
     }
-    case FirebaseQueryConstraints.END_AT: {
+    case RealtimeQueryConstraints.END_AT: {
       const [[value]] = values;
       return endAt(value);
     }
-    case FirebaseQueryConstraints.END_BEFORE: {
+    case RealtimeQueryConstraints.END_BEFORE: {
       const [[value]] = values;
       return endBefore(value);
     }
-    case FirebaseQueryConstraints.LIMIT_TO_FIRST: {
+    case RealtimeQueryConstraints.LIMIT_TO_FIRST: {
       const [value] = values;
       return limitToFirst(value);
     }
-    case FirebaseQueryConstraints.LIMIT_TO_LAST: {
+    case RealtimeQueryConstraints.LIMIT_TO_LAST: {
       const [value] = values;
       return limitToLast(value);
     }
-    case FirebaseQueryConstraints.EQUAL_TO: {
+    case RealtimeQueryConstraints.EQUAL_TO: {
       const [value] = values;
       return equalTo(value);
     }

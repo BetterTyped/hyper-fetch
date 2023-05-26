@@ -7,7 +7,7 @@ import {
   Query,
 } from "firebase-admin/lib/firestore";
 
-import { FirebaseQueryConstraints } from "constraints";
+import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 import { applyConstraints, getRef } from "./firestore.admin.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
 import { getStatus, setCacheManually } from "utils";
@@ -18,7 +18,7 @@ export const onSnapshot =
     constraints = [],
     options,
   }: {
-    constraints: { type: FirebaseQueryConstraints; values: any[] }[];
+    constraints: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
     options?: Record<string, any>;
   }) => {
     const [cleanUrl] = url.split("?");

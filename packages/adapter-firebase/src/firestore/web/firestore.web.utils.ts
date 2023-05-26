@@ -1,34 +1,34 @@
 import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
 
-import { FirebaseQueryConstraints } from "../../constraints";
+import { FirestoreQueryConstraints } from "../../constraints";
 
-export const mapConstraint = ({ type, values }: { type: FirebaseQueryConstraints; values: any[] }) => {
+export const mapConstraint = ({ type, values }: { type: FirestoreQueryConstraints; values: any[] }) => {
   switch (type) {
-    case FirebaseQueryConstraints.WHERE: {
+    case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
       return where(fieldPath, strOp, value);
     }
-    case FirebaseQueryConstraints.ORDER_BY: {
+    case FirestoreQueryConstraints.ORDER_BY: {
       const [field, ord] = values;
       return orderBy(field, ord);
     }
-    case FirebaseQueryConstraints.LIMIT: {
+    case FirestoreQueryConstraints.LIMIT: {
       const [limitValue] = values;
       return limit(limitValue);
     }
-    case FirebaseQueryConstraints.START_AT: {
+    case FirestoreQueryConstraints.START_AT: {
       const [docOrFields] = values;
       return startAt(docOrFields);
     }
-    case FirebaseQueryConstraints.START_AFTER: {
+    case FirestoreQueryConstraints.START_AFTER: {
       const [docOrFields] = values;
       return startAfter(docOrFields);
     }
-    case FirebaseQueryConstraints.END_AT: {
+    case FirestoreQueryConstraints.END_AT: {
       const [docOrFields] = values;
       return endAt(docOrFields);
     }
-    case FirebaseQueryConstraints.END_BEFORE: {
+    case FirestoreQueryConstraints.END_BEFORE: {
       const [docOrFields] = values;
       return endBefore(docOrFields);
     }

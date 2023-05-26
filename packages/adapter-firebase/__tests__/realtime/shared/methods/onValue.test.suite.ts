@@ -1,7 +1,7 @@
-import { adapterAdmin, adapterWeb } from "../../../../src";
+import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
 
 export const onValueTestSuite = (
-  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
+  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   // describe("onValue", () => {
   //   let client = new Client({ url: "teas/" }).setAdapter(adapterFunction);

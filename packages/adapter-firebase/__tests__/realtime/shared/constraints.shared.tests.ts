@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { $endAt, $limitToFirst, $orderByChild, $startAt, adapterAdmin, adapterWeb } from "../../../src";
+import { $endAt, $limitToFirst, $orderByChild, $startAt, firebaseAdminAdapter, firebaseWebAdapter } from "../../../src";
 import { Tea } from "../../utils/seed.data";
 
 export const constraintsSharedTestCases = (
-  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
+  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("Ordering", () => {
     it("Should allow ordering by child", async () => {

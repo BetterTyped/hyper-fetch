@@ -5,7 +5,7 @@ import { FirestoreDBMethods } from "adapter";
 import { getStatus } from "utils";
 import { getOrderedResultFirestore } from "../firestore.utils";
 import { applyConstraints, getRef } from "./firestore.admin.utils";
-import { FirebaseQueryConstraints } from "../../constraints";
+import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 
 export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   request: R,
@@ -18,7 +18,7 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
 ): ((
   methodName: FirestoreDBMethods,
   data: {
-    constraints?: { type: FirebaseQueryConstraints; values: any[] }[];
+    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
     data?: any;
     options?: Record<string, any>;
   },

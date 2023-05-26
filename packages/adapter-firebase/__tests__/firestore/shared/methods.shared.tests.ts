@@ -1,4 +1,4 @@
-import { adapterAdmin, adapterWeb } from "../../../src";
+import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../src";
 import { addDocTestSuite } from "./methods/addDoc.test.suite";
 import { deleteDocTestSuite } from "./methods/deleteDoc.test.suite";
 import { getDocTestSuite } from "./methods/getDoc.test.suite";
@@ -8,7 +8,7 @@ import { setDocTestSuite } from "./methods/setDoc.test.suite";
 import { updateDocTestSuite } from "./methods/updateDoc.test.suite";
 
 export const methodsSharedTestCases = (
-  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
+  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   addDocTestSuite(adapterFunction);
   deleteDocTestSuite(adapterFunction);

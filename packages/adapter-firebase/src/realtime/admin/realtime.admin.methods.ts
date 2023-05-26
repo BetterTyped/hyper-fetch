@@ -5,6 +5,7 @@ import { RealtimeDBMethods } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
 import { getOrderedResultRealtime } from "../realtime.utils";
 import { applyConstraints } from "./realtime.admin.utils";
+import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "../../constraints";
 
 export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   request: R,
@@ -16,7 +17,11 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
 ): ((
   methodName: RealtimeDBMethods,
-  data: { constraints: any[]; data: any; options: Record<string, any> },
+  data: {
+    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion>[];
+    data: any;
+    options: Record<string, any>;
+  },
 ) => Promise<void>) => {
   const [fullUrl] = url.split("?");
   const path = database.ref(fullUrl);

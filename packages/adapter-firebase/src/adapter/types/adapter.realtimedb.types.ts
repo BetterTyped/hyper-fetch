@@ -1,7 +1,7 @@
 import { AdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database";
 
-import { FirebaseQueryConstraints } from "constraints";
+import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "constraints";
 
 // TODO separate type after SocketAdapter is ready
 export type RealtimeDbAdapterType =
@@ -62,5 +62,5 @@ export type RealtimeDbPushMethodExtra = {
 };
 
 export type RealtimeDBQueryParams = {
-  constraints?: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[];
+  constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion>[];
 };

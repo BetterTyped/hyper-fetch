@@ -1,11 +1,11 @@
 import { Client } from "@hyper-fetch/core";
 
-import { adapterAdmin, adapterWeb } from "../../../../src";
+import { firebaseAdminAdapter, firebaseWebAdapter } from "../../../../src";
 import { Tea } from "../../../utils/seed.data";
 import { testLifecycleEvents } from "../../../shared/request-events.shared";
 
 export const updateDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof adapterWeb> | ReturnType<typeof adapterAdmin>,
+  adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("updateDoc", () => {
     it("should allow for updating data", async () => {

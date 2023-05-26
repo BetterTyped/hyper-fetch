@@ -7,7 +7,11 @@ import {
   QuerySnapshot,
 } from "firebase/firestore";
 
-import { FirebaseQueryConstraints } from "constraints";
+import {
+  FirestoreConstraintsUnion,
+  FirestorePermittedMethods,
+  PermittedConstraints,
+} from "../../constraints/constraints.types";
 
 // TODO - separate onSnapshot adapter type when SocketAdapter is ready
 export type FirestoreAdapterType =
@@ -20,17 +24,17 @@ export type FirestoreAdapterType =
   //   >
   | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
   | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
-  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>>
+  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
   | AdapterType<
       Record<string, never>,
-      "updateDoc" | "addDoc" | "deleteDoc",
+      "updateDoc" | "addDoc" | "deleteDoc" | "setDoc",
       FirestoreStatuses,
       FirestoreRefOnlyExtra,
       Record<string, never>
     >;
 
 export type FirestoreQueryParams = {
-  constraints?: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[];
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
 };
 
 export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc";
@@ -56,4 +60,4 @@ export type FirestoreRefOnlyExtra = {
   ref?: DocumentReference;
 };
 
-export type FirestoreStatuses = "success" | "error";
+export type FirestoreStatuses = "success" | "error" | "emptyResource";

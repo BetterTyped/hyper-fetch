@@ -1,9 +1,6 @@
 import { OrderByDirection, WhereFilterOp } from "firebase/firestore";
 
-export enum FirebaseQueryConstraints {
-  WHERE = "where",
-  ORDER_BY = "orderBy",
-  LIMIT = "limit",
+export enum RealtimeQueryConstraints {
   START_AT = "startAt",
   START_AFTER = "startAfter",
   END_AT = "endAt",
@@ -15,31 +12,42 @@ export enum FirebaseQueryConstraints {
   LIMIT_TO_LAST = "limitToLast",
   EQUAL_TO = "equalTo",
 }
+
+export enum FirestoreQueryConstraints {
+  WHERE = "where",
+  ORDER_BY = "orderBy",
+  LIMIT = "limit",
+  START_AT = "startAt",
+  START_AFTER = "startAfter",
+  END_AT = "endAt",
+  END_BEFORE = "endBefore",
+}
+
 export const $where = (fieldPath: string, opStr: WhereFilterOp, value: any) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.WHERE}_${fieldPath}${opStr}${value}`,
-    type: FirebaseQueryConstraints.WHERE,
+    toString: () => `${FirestoreQueryConstraints.WHERE}_${fieldPath}${opStr}${value}`,
+    type: FirestoreQueryConstraints.WHERE as const,
     values: [fieldPath, opStr, value],
   };
 };
 
 export const $orderBy = (fieldPath: string, directionStr?: OrderByDirection) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.ORDER_BY}_${fieldPath}_${directionStr || ""}`,
-    type: FirebaseQueryConstraints.ORDER_BY,
+    toString: () => `${FirestoreQueryConstraints.ORDER_BY}_${fieldPath}_${directionStr || ""}`,
+    type: FirestoreQueryConstraints.ORDER_BY as const,
     values: [fieldPath, directionStr],
   };
 };
 
 export const $limit = (num: number) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.LIMIT}_${num}`,
-    type: FirebaseQueryConstraints.LIMIT,
+    toString: () => `${FirestoreQueryConstraints.LIMIT}_${num}`,
+    type: FirestoreQueryConstraints.LIMIT as const,
     values: [num],
   };
 };
 
-const startEndConstraintsImpl = (constraintType: FirebaseQueryConstraints) => {
+const startEndConstraintsImpl = (constraintType: RealtimeQueryConstraints) => {
   return (...docOrFields: any[]) => {
     if (docOrFields.length === 1 && docOrFields[0].query) {
       return {
@@ -56,56 +64,56 @@ const startEndConstraintsImpl = (constraintType: FirebaseQueryConstraints) => {
   };
 };
 
-export const $startAt = startEndConstraintsImpl(FirebaseQueryConstraints.START_AT);
-export const $startAfter = startEndConstraintsImpl(FirebaseQueryConstraints.START_AFTER);
+export const $startAt = startEndConstraintsImpl(RealtimeQueryConstraints.START_AT as const);
+export const $startAfter = startEndConstraintsImpl(RealtimeQueryConstraints.START_AFTER as const);
 
-export const $endAt = startEndConstraintsImpl(FirebaseQueryConstraints.END_AT);
-export const $endAfter = startEndConstraintsImpl(FirebaseQueryConstraints.END_BEFORE);
+export const $endAt = startEndConstraintsImpl(RealtimeQueryConstraints.END_AT as const);
+export const $endBefore = startEndConstraintsImpl(RealtimeQueryConstraints.END_BEFORE as const);
 
 export const $orderByChild = (path: string) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.ORDER_BY_CHILD}_${path}`,
-    type: FirebaseQueryConstraints.ORDER_BY_CHILD,
+    toString: () => `${RealtimeQueryConstraints.ORDER_BY_CHILD}_${path}`,
+    type: RealtimeQueryConstraints.ORDER_BY_CHILD as const,
     values: [path],
   };
 };
 
 export const $orderByKey = () => {
   return {
-    toString: () => `${FirebaseQueryConstraints.ORDER_BY_KEY}`,
-    type: FirebaseQueryConstraints.ORDER_BY_KEY,
+    toString: () => `${RealtimeQueryConstraints.ORDER_BY_KEY}`,
+    type: RealtimeQueryConstraints.ORDER_BY_KEY as const,
     values: [],
   };
 };
 
 export const $orderByValue = () => {
   return {
-    toString: () => `${FirebaseQueryConstraints.ORDER_BY_VALUE}`,
-    type: FirebaseQueryConstraints.ORDER_BY_VALUE,
+    toString: () => `${RealtimeQueryConstraints.ORDER_BY_VALUE}`,
+    type: RealtimeQueryConstraints.ORDER_BY_VALUE as const,
     values: [],
   };
 };
 
 export const $limitToFirst = (num: number) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.LIMIT_TO_FIRST}_${num}`,
-    type: FirebaseQueryConstraints.LIMIT_TO_FIRST,
+    toString: () => `${RealtimeQueryConstraints.LIMIT_TO_FIRST}_${num}`,
+    type: RealtimeQueryConstraints.LIMIT_TO_FIRST as const,
     values: [num],
   };
 };
 
 export const $limitToLast = (num: number) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.LIMIT_TO_LAST}_${num}`,
-    type: FirebaseQueryConstraints.LIMIT_TO_LAST,
+    toString: () => `${RealtimeQueryConstraints.LIMIT_TO_LAST}_${num}`,
+    type: RealtimeQueryConstraints.LIMIT_TO_LAST as const,
     values: [num],
   };
 };
 
 export const $equalTo = (value: any) => {
   return {
-    toString: () => `${FirebaseQueryConstraints.LIMIT_TO_LAST}_${value}`,
-    type: FirebaseQueryConstraints.LIMIT_TO_LAST,
+    toString: () => `${RealtimeQueryConstraints.LIMIT_TO_LAST}_${value}`,
+    type: RealtimeQueryConstraints.EQUAL_TO as const,
     values: [value],
   };
 };
