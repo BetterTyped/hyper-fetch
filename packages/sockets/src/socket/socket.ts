@@ -1,5 +1,14 @@
 import EventEmitter from "events";
-import { QueryStringifyOptionsType, LoggerManager, SeverityType, AppManager, DateInterval } from "@hyper-fetch/core";
+import {
+  stringifyQueryParams,
+  StringifyCallbackType,
+  QueryStringifyOptionsType,
+  LoggerManager,
+  SeverityType,
+  AppManager,
+  DateInterval,
+  QueryParamsType,
+} from "@hyper-fetch/core";
 
 import {
   SocketOptionsType,
@@ -25,6 +34,8 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
   url: string;
   reconnect: number;
   reconnectTime: number;
+  auth?: QueryParamsType | string;
+  queryParams?: QueryParamsType | string;
   debug: boolean;
   autoConnect: boolean;
 
@@ -46,13 +57,39 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
   // Logger
   logger = this.loggerManager.init("Socket");
 
+  /**
+   * Method to stringify query params from objects.
+   */
+  queryParamsStringify: StringifyCallbackType = (queryParams) => {
+    return stringifyQueryParams(queryParams, this.queryParamsConfig);
+  };
+
   constructor(public options: SocketOptionsType<AdapterType>) {
-    const { url, adapter, autoConnect, reconnect, reconnectTime } = this.options;
+    const {
+      url,
+      auth,
+      adapter,
+      queryParams,
+      autoConnect,
+      reconnect,
+      reconnectTime,
+      queryParamsConfig,
+      queryParamsStringify,
+    } = this.options;
     this.url = url;
+    this.auth = auth;
+    this.queryParams = queryParams;
     this.debug = false;
     this.autoConnect = autoConnect ?? true;
     this.reconnect = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
+
+    if (queryParamsConfig) {
+      this.queryParamsConfig = queryParamsConfig;
+    }
+    if (queryParamsStringify) {
+      this.queryParamsStringify = queryParamsStringify;
+    }
 
     // Adapter must be initialized at the end
     this.adapter = (adapter(this) || websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
@@ -79,6 +116,24 @@ export class Socket<AdapterType extends SocketAdapterInstance> {
    */
   setLogger = (callback: (socket: Socket<AdapterType>) => LoggerManager) => {
     this.loggerManager = callback(this);
+    return this;
+  };
+
+  /**
+   * Set the new auth data to the socket
+   */
+  setAuth = (auth: QueryParamsType | string) => {
+    this.auth = auth;
+    this.adapter.reconnect();
+    return this;
+  };
+
+  /**
+   * Set the new query data to the socket
+   */
+  setQuery = (queryParams: QueryParamsType | string) => {
+    this.queryParams = queryParams;
+    this.adapter.reconnect();
     return this;
   };
 

@@ -1,3 +1,5 @@
+import { QueryParamsType, QueryStringifyOptionsType, StringifyCallbackType } from "@hyper-fetch/core";
+
 import { Socket } from "socket";
 import { ExtractSocketOptionsType, SocketAdapterInstance } from "adapter";
 import { EmitterInstance } from "emitter";
@@ -7,9 +9,13 @@ export type SocketInstance = Socket<SocketAdapterInstance>;
 export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
   url: string;
   adapter?: AdapterType;
+  auth?: QueryParamsType;
   reconnect?: number;
   reconnectTime?: number;
   autoConnect?: boolean;
+  queryParams?: QueryParamsType | string;
+  queryParamsConfig?: QueryStringifyOptionsType;
+  queryParamsStringify?: StringifyCallbackType;
   adapterOptions?: ExtractSocketOptionsType<AdapterType>;
 };
 
