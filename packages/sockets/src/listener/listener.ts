@@ -4,21 +4,21 @@ import { ListenerCallbackType, SocketAdapterType } from "adapter";
 import { ExtractListenerOptionsType } from "types/extract.types";
 import { ConnectMethodType } from "types/connect.types";
 
-export class Listener<Response, Adapter extends SocketAdapterType> {
+export class Listener<Response, AdapterType extends SocketAdapterType> {
   readonly name: string;
-  options?: ExtractListenerOptionsType<Adapter>;
-  connections: ConnectMethodType<Response>[] = [];
+  options?: ExtractListenerOptionsType<AdapterType>;
+  connections: ConnectMethodType<AdapterType, Response>[] = [];
 
   constructor(
-    readonly socket: Socket<Adapter>,
-    readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<Adapter>>,
+    readonly socket: Socket<AdapterType>,
+    readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<AdapterType>>,
   ) {
     const { name, options } = listenerOptions;
     this.name = name;
     this.options = options;
   }
 
-  setOptions(options: ExtractListenerOptionsType<Adapter>) {
+  setOptions(options: ExtractListenerOptionsType<AdapterType>) {
     return this.clone({ options });
   }
 
@@ -26,19 +26,21 @@ export class Listener<Response, Adapter extends SocketAdapterType> {
    * Attach global logic to the received events
    * @param callback
    */
-  connect(callback: ConnectMethodType<Response>) {
+  connect(callback: ConnectMethodType<AdapterType, Response>) {
     this.connections.push(callback);
   }
 
-  clone(config?: Partial<ListenerOptionsType<ExtractListenerOptionsType<Adapter>>>): Listener<Response, Adapter> {
-    return new Listener<Response, Adapter>(this.socket, {
+  clone(
+    config?: Partial<ListenerOptionsType<ExtractListenerOptionsType<AdapterType>>>,
+  ): Listener<Response, AdapterType> {
+    return new Listener<Response, AdapterType>(this.socket, {
       ...this.listenerOptions,
       ...config,
       name: this.name,
     });
   }
 
-  listen(callback: ListenerCallbackType<Response>) {
+  listen(callback: ListenerCallbackType<AdapterType, Response>) {
     const instance = this.clone();
 
     this.socket.adapter.listen(instance, (...args) => {

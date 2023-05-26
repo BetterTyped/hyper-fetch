@@ -3,11 +3,11 @@ import { parseResponse } from "@hyper-fetch/core";
 import { SocketInstance } from "socket";
 import { ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
-import { ListenerCallbackType } from "adapter";
+import { ExtractSocketExtraType, ExtractSocketFormatType, ListenerCallbackType, SocketAdapterInstance } from "adapter";
 
-export const adapterBindingsSocket = (socket: SocketInstance) => {
+export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
   const logger = socket.loggerManager.init("Socket Adapter");
-  const listeners: Map<string, Set<ListenerCallbackType>> = new Map();
+  const listeners: Map<string, Set<ListenerCallbackType<T, any>>> = new Map();
 
   let open = false;
   let connecting = false;
@@ -16,32 +16,35 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
 
   // Methods
 
-  const connect = () => {
+  const onConnect = (): boolean => {
     if (!socket.appManager.isOnline || connecting) {
-      return logger.warning("Cannot initialize adapter.", {
+      logger.warning("Cannot initialize adapter.", {
         connecting,
         online: socket.appManager.isOnline,
       });
+      return false;
     }
 
     forceClosed = false;
     connecting = true;
     socket.events.emitConnecting();
+    return true;
   };
 
-  const disconnect = () => {
+  const onDisconnect = (): boolean => {
     logger.debug("Disconnecting", { reconnectionAttempts });
     open = false;
     connecting = false;
     forceClosed = true;
+    return true;
   };
 
-  const reconnect = () => {
-    disconnect();
+  const onReconnect = (): boolean => {
+    onDisconnect();
     if (reconnectionAttempts < socket.reconnect) {
       reconnectionAttempts += 1;
       logger.debug("Reconnecting", { reconnectionAttempts });
-      connect();
+      onConnect();
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
       });
@@ -58,7 +61,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
 
   // Listeners
 
-  const removeListener = (name: string, callback: ListenerCallbackType) => {
+  const removeListener = (name: string, callback: ListenerCallbackType<T, any>): boolean => {
     const listenerGroup = listeners.get(name);
     if (listenerGroup && listenerGroup.has(callback)) {
       logger.debug("Removed event listener", { name });
@@ -69,7 +72,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     return false;
   };
 
-  const listen = (listener: ListenerInstance, callback: ListenerCallbackType) => {
+  const onListen = (listener: Pick<ListenerInstance, "name">, callback: ListenerCallbackType<T, any>): (() => void) => {
     const listenerGroup = listeners.get(listener.name) || listeners.set(listener.name, new Set()).get(listener.name);
 
     listenerGroup.add(callback);
@@ -78,13 +81,18 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
 
   // Emitters
 
-  const emit = (emitter: EmitterInstance) => {
+  const onEmit = (emitter: EmitterInstance): boolean => {
+    if (!connecting || !open) {
+      logger.error("Cannot emit event when connection is not open");
+      return false;
+    }
     socket.events.emitEmitterEvent(emitter);
+    return true;
   };
 
   // Lifecycle
 
-  const onOpen = (event) => {
+  const onOpen = (event: ExtractSocketFormatType<T>) => {
     logger.info("Connection open", { event });
     socket.__onOpenCallbacks.forEach((callback) => {
       callback(event, socket);
@@ -94,7 +102,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     socket.events.emitOpen();
   };
 
-  const onClose = (event) => {
+  const onClose = (event: ExtractSocketFormatType<T>) => {
     logger.info("Connection closed", { event });
     socket.__onCloseCallbacks.forEach((callback) => {
       callback(event, socket);
@@ -104,7 +112,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     socket.events.emitClose();
   };
 
-  const onError = (event) => {
+  const onError = (event: ExtractSocketFormatType<T>) => {
     logger.info("Error message", { event });
     socket.__onErrorCallbacks.forEach((callback) => {
       callback(event, socket);
@@ -112,7 +120,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     socket.events.emitError(event);
   };
 
-  const onEvent = (event) => {
+  const onEvent = (event: ExtractSocketFormatType<T>, extra: ExtractSocketExtraType<T>) => {
     logger.info("New event message", { event });
 
     const response = socket.__modifyResponse(event);
@@ -121,7 +129,7 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     eventListeners.forEach((callback) => {
       callback(data, event);
     });
-    socket.events.emitListenerEvent(data.name, data, event);
+    socket.events.emitListenerEvent(data.name, { data, event, extra });
   };
 
   return {
@@ -129,14 +137,16 @@ export const adapterBindingsSocket = (socket: SocketInstance) => {
     connecting,
     reconnectionAttempts,
     forceClosed,
-    connect,
-    reconnect,
-    disconnect,
-    listen,
-    emit,
+    onConnect,
+    onReconnect,
+    onDisconnect,
+    onListen,
+    onEmit,
     onOpen,
     onClose,
     onError,
     onEvent,
+    listeners,
+    removeListener,
   };
 };

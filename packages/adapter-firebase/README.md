@@ -1,4 +1,4 @@
-# 🔥 Firebase Hyper Fetch
+# 🔥 Hyper Fetch Firebase
 
 <p>
   <a href="https://bettertyped.com/">
@@ -35,7 +35,7 @@
 
 ## About
 
-**`Firebase Hyper Fetch`** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
+**`Hyper Fetch Firebase `** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
 first class Firebase adapter for **browser and server**. With full type-safety we bring requesting to another level.
 
 ## Key Features

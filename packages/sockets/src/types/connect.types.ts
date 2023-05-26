@@ -1,3 +1,5 @@
-import { ListenerCallbackType } from "adapter";
+import { ListenerCallbackType, SocketAdapterInstance } from "adapter";
 
-export type ConnectMethodType<EventType = unknown> = (...args: Parameters<ListenerCallbackType<EventType>>) => void;
+export type ConnectMethodType<AdapterType extends SocketAdapterInstance, EventType = unknown> = (
+  ...args: Parameters<ListenerCallbackType<AdapterType, EventType>>
+) => void;
