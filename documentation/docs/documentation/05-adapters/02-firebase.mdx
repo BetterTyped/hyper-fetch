@@ -1,0 +1,165 @@
+---
+sidebar_position: 2
+title: Firebase
+sidebar_label: Firebase
+---
+
+## Introduction
+
+Hyper Fetch `adapter-firebase` package is a complete integration of `realtime database` and `firestore`, both for
+frontend and backend. It offers single, unified approach for all of them.
+
+## Getting Started
+
+In order to start using the firebase adapter, you have to initialize the firestore/realtime database and set the correct adapter on the `client`.
+
+There are two adapters to chose from:
+1. `firebaseWebAdapter` - for working with web realtime and firestore databases.
+2. `firebaseAdminAdapter` - for admin versions of the packages.
+
+```tsx
+import { firebaseWebAdapter } from "adapter";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+// Firebase firestore database initialization
+const app = initializeApp({
+    projectId: "demo-test-firestore",
+  });
+const db = getFirestore(app);
+
+// Setting up the HyperFetch with a firebase adapter
+const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(db))
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+// Checking the results
+const { data, status, extra, success, error } = await getReq.send()
+```
+
+Resulting `response` is an object that contains the following properties:
+1. data - data returned from the database
+2. status - status indicating whether a request ended with `success`, `error` or `emptyResource`. `emptyResource` occurs when the request to firebase succeeded but
+  no data was returned.
+3. success - general information if overall request succeeded (`true`) or failed (`false`)
+4. error - contains error object if the request failed.
+5. extra - contains additional properties, depending on a method used. For instance, for `getDocs` method - it allows to access `ref` and `snapshot` from firestore firebase.
+
+## Working with Firestore methods
+
+After setting the firestore adapter, we can start performing requests! We should select the appropriate method, corresponding with available
+firebase methods:
+
+```tsx
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs", // "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc"
+});
+
+```
+
+### getDocs
+
+```tsx
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+const { data, status, extra, success, error } = await req.send();
+```
+
+`extra`:
+1. `ref` - endpoint collection reference
+2. `snapshot` - 'raw' `getDocs` firestore collection/query reference snapshot
+
+### getDoc
+
+```tsx
+      const req = client
+        .createRequest<Tea[]>()({
+          endpoint: ":teaId",
+          method: "getDoc",
+        })
+        .setParams({ teaId: 1 });
+
+const { data, status, extra, success, error } = await req.send();
+    // setParams can be also passed in the send() method instead
+```
+
+`extra`:
+1. `ref` - endpoint document reference
+2. `snapshot` - 'raw' firestore document reference snapshot
+
+### setDoc
+
+```tsx
+const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 }
+const setReq = client
+  .createRequest<Tea, Tea>()({
+    endpoint: ":teaId",
+    method: "setDoc",
+    // can also pass options: {merge: true} for achieving the firebase 'merge' option
+  })
+  .setParams({ teaId: 1 })
+  .setData(newData);
+
+await setReq.send();
+const { data } = await getReq.send();
+```
+
+In case of `setDoc` - data returned is the same data as passed for setting.
+
+### addDoc
+
+```tsx
+const addDocReq = client
+  .createRequest<Tea, Tea>()({
+    endpoint: "",
+    method: "addDoc",
+    options: {},
+  })
+  .setData(newData);
+
+await addDocReq.send()
+```
+
+In case of `addDoc` - data returned is the same data as passed for setting.
+
+### deleteDoc
+
+```tsx
+const deleteDocReq = client
+  .createRequest<Tea>()({
+    endpoint: ":teaId",
+    method: "deleteDoc",
+  })
+  .setParams({ teaId: 1 });
+
+await deleteDocReq
+```
+
+In case of `deleteDoc` - data returned equals `null`
+
+## Filtering queries
+
+In order to standardize the interface across both admin/web firestore/realtime, the filtering and limiting queries
+is done via setting the `constraints` queryParam:
+
+```tsx
+import { $limit, $orderBy, $where } from "constraints";
+
+const req = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+})  // or via setQueryParams method
+const { data } = await req.send({
+  queryParams: { constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)] },
+});
+```
+
+User can pass the array of constrains and filters. Please pay attention to the fact that you need to filter via
+method wrappers provided via `adapter-firebase` package: `$where`, `$orderBy`, `$limit`, `$startAt`, `$startAfter`, `$endAt`, `$endAfter`, `$orderByChild`, `$orderByKey`, `$orderByValue`,
+`$limitToFirst`, `$limitToLast`, `$equalTo`. All of these methods works exactly the same as their corresponding firebase equivalents.
