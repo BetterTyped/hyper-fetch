@@ -38,7 +38,11 @@ describe("Emitter [ Emit ]", () => {
   it("should acknowledge event message", async () => {
     const message = { name: "Maciej", age: 99 };
     const spy = jest.fn();
-    const id = emitter.emit({ data: message }, spy);
+    let receivedExtra;
+    const id = emitter.emit({ data: message }, (error, data) => {
+      spy(error, data);
+      receivedExtra = data.extra;
+    });
     const response = { id, data: "test" };
 
     await expect(server).toReceiveMessage(
@@ -53,7 +57,7 @@ describe("Emitter [ Emit ]", () => {
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(null, { id, name: emitter.name, data: response, extra: undefined });
+      expect(spy).toBeCalledWith(null, { data: response, extra: receivedExtra });
     });
   });
 

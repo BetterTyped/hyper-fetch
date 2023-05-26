@@ -65,13 +65,13 @@ describe("Socket [ Events ]", () => {
 
   it("should emit and receive listener event", async () => {
     const value = 1;
-    const event = {} as MessageEvent;
+    const extra = {} as MessageEvent;
     socket.events.onListenerEvent(spy);
     socket.events.onListenerEventByName(listener, spy);
-    socket.events.emitListenerEvent(listener.name, { data: value, event, extra: undefined });
+    socket.events.emitListenerEvent(listener.name, { data: value, extra });
 
     expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith({ data: value, event, extra: undefined });
+    expect(spy).toBeCalledWith({ name: listener.name, data: value, extra });
   });
 
   it("should emit and receive listener remove event", async () => {

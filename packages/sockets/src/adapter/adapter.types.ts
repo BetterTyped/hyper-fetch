@@ -6,21 +6,18 @@ export type RemoveListenerCallbackType = () => void;
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
   data: D;
-  event: ExtractSocketFormatType<AdapterType>;
   extra: ExtractSocketExtraType<AdapterType>;
 }) => void;
 
 export type SocketAdapterType<
   AdapterOptions extends Record<string, any> = never,
-  AdapterFormat extends Record<string, any> = MessageEvent<any>,
   AdapterExtra extends Record<string, any> = Record<never, never>,
   ListenerOptions extends Record<string, any> = never,
   EmitterOptions extends Record<string, any> = never,
 > = (
-  socket: Socket<SocketAdapterType<AdapterOptions, AdapterFormat, AdapterExtra, ListenerOptions, EmitterOptions>>,
+  socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
   DO_NOT_USE?: {
     adapterOptions?: AdapterOptions;
-    adapterFormat?: AdapterFormat;
     adapterExtra?: AdapterExtra;
     listenerOptions?: ListenerOptions;
     emitterOptions?: EmitterOptions;
@@ -41,21 +38,19 @@ export type SocketAdapterType<
   disconnect: () => void;
 };
 
-export type SocketAdapterInstance = SocketAdapterType<any, any, any, any, any>;
+export type SocketAdapterInstance = SocketAdapterType<any, any, any, any>;
 
 // Extractors
 
-export type ExtractSocketOptionsType<T> = T extends SocketAdapterType<infer O, any, any, any, any> ? O : never;
-export type ExtractSocketFormatType<T> = T extends SocketAdapterType<any, infer E, any, any, any> ? E : never;
-export type ExtractSocketExtraType<T> = T extends SocketAdapterType<any, any, infer O, any, any> ? O : never;
-export type ExtractListenerOptionsType<T> = T extends SocketAdapterType<any, any, any, infer E, any> ? E : never;
-export type ExtractEmitterOptionsType<T> = T extends SocketAdapterType<any, any, any, any, infer E> ? E : never;
+export type ExtractSocketOptionsType<T> = T extends SocketAdapterType<infer O, any, any, any> ? O : never;
+export type ExtractSocketExtraType<T> = T extends SocketAdapterType<any, infer E, any, any> ? E : never;
+export type ExtractListenerOptionsType<T> = T extends SocketAdapterType<any, any, infer O, any> ? O : never;
+export type ExtractEmitterOptionsType<T> = T extends SocketAdapterType<any, any, any, infer E> ? E : never;
 
 export type ExtractUnionSocket<
   Adapter extends SocketAdapterInstance,
   Values extends {
     adapterOptions?: any;
-    adapterFormat?: any;
     adapterExtra?: any;
     listenerOptions?: any;
     emitterOptions?: any;
@@ -64,7 +59,6 @@ export type ExtractUnionSocket<
   Adapter,
   SocketAdapterType<
     Values["adapterOptions"],
-    Values["adapterFormat"],
     Values["adapterExtra"],
     Values["listenerOptions"],
     Values["emitterOptions"]
@@ -74,7 +68,6 @@ export type ExtractUnionSocket<
       Adapter,
       SocketAdapterType<
         Values["adapterOptions"],
-        Values["adapterFormat"],
         Values["adapterExtra"],
         Values["listenerOptions"],
         Values["emitterOptions"]
@@ -104,5 +97,6 @@ export type WSMessageType = {
 
 // Adapters
 
-export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<any>>;
-export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<any>>;
+export type SocketData<D = any> = { name: string; data: D };
+export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
+export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;

@@ -1,12 +1,6 @@
 import { Socket } from "socket";
 import { ListenerOptionsType } from "listener";
-import {
-  ExtractSocketExtraType,
-  ListenerCallbackType,
-  SocketAdapterType,
-  ExtractListenerOptionsType,
-  ExtractSocketFormatType,
-} from "adapter";
+import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterType, ExtractListenerOptionsType } from "adapter";
 import { ConnectMethodType } from "types";
 
 export class Listener<Response, AdapterType extends SocketAdapterType> {
@@ -43,11 +37,7 @@ export class Listener<Response, AdapterType extends SocketAdapterType> {
   listen(callback: ListenerCallbackType<AdapterType, Response>) {
     const instance = this.clone();
 
-    const action = (response: {
-      data: Response;
-      event: ExtractSocketFormatType<AdapterType>;
-      extra: ExtractSocketExtraType<AdapterType>;
-    }) => {
+    const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {
       this.connections.forEach((connection) => connection(response));
       return callback(response);
     };

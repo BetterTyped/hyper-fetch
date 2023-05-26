@@ -5,7 +5,6 @@ import {
   ExtractListenerAdapterType,
   ExtractSocketExtraType,
   ExtractListenerResponseType,
-  ExtractSocketFormatType,
 } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
@@ -23,7 +22,6 @@ export const useListener = <ListenerType extends ListenerInstance>(
     | null
     | ((response: {
         data: ExtractListenerResponseType<ListenerType>;
-        event: ExtractSocketFormatType<ExtractListenerAdapterType<ListenerType>>;
         extra: ExtractSocketExtraType<ExtractListenerAdapterType<ListenerType>>;
       }) => void)
   >(null);
@@ -36,8 +34,8 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen(({ data, event, extra }) => {
-      onEventCallback.current?.({ data, event, extra });
+    removeListenerRef.current = listener.listen(({ data, extra }) => {
+      onEventCallback.current?.({ data, extra });
       actions.setData(data);
       actions.setTimestamp(+new Date());
     });

@@ -9,6 +9,7 @@ import {
   adapterBindingsSocket,
   getWebsocketAdapter,
   WebsocketAdapterType,
+  SocketData,
 } from "adapter";
 
 /**
@@ -71,12 +72,15 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     };
 
     adapter.onerror = (event) => {
-      onError(event);
+      onError(new Error(event.type));
     };
 
-    adapter.onmessage = (event) => {
-      const response = parseResponse(event);
-      onEvent(response.data.name, response.data, response, undefined);
+    adapter.onmessage = (event: MessageEvent<SocketData>) => {
+      const parsed: MessageEvent<SocketData> = parseResponse(event);
+      const response: MessageEvent<SocketData>["data"] = parseResponse(parsed.data);
+      const data: MessageEvent<SocketData>["data"]["data"] = parseResponse(response.data);
+
+      onEvent(response.name, data, parsed);
       onHeartbeat();
     };
   };

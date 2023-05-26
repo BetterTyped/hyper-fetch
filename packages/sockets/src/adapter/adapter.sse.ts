@@ -2,7 +2,7 @@
 import { parseResponse } from "@hyper-fetch/core";
 
 import { ListenerInstance } from "listener";
-import { ListenerCallbackType, adapterBindingsSocket, getSSEAdapter, SSEAdapterType } from "adapter";
+import { ListenerCallbackType, adapterBindingsSocket, getSSEAdapter, SSEAdapterType, SocketData } from "adapter";
 
 /**
  * -------------------------------------------
@@ -57,12 +57,15 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     };
 
     adapter.onerror = (event) => {
-      onError(event);
+      onError(new Error(event.type));
     };
 
-    adapter.onmessage = (event) => {
-      const response = parseResponse(event);
-      onEvent(response.data.name, response.data, response, undefined);
+    adapter.onmessage = (event: MessageEvent<SocketData>) => {
+      const parsed: MessageEvent<SocketData> = parseResponse(event);
+      const response: MessageEvent<SocketData>["data"] = parseResponse(parsed.data);
+      const data: MessageEvent<SocketData>["data"]["data"] = parseResponse(response.data);
+
+      onEvent(response.name, data, parsed);
     };
   };
 

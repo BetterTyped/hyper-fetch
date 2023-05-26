@@ -16,7 +16,7 @@ import {
 } from "socket";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
-import { ExtractSocketExtraType, ExtractSocketFormatType, SocketAdapterInstance } from "adapter";
+import { ExtractSocketExtraType, SocketAdapterInstance } from "adapter";
 
 export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: EventEmitter) => ({
   emitError: <ResponseType>(event: ResponseType): void => {
@@ -39,10 +39,10 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
   },
   emitListenerEvent: <ResponseType>(
     name: string,
-    { data, event, extra }: { data: ResponseType; event: ExtractSocketFormatType<T>; extra: ExtractSocketExtraType<T> },
+    { data, extra }: { data: ResponseType; extra: ExtractSocketExtraType<T> },
   ): void => {
-    eventEmitter.emit(getListenerEventKey(), { data, extra, event });
-    eventEmitter.emit(getListenerEventByNameKey(name), { data, extra, event });
+    eventEmitter.emit(getListenerEventKey(), { name, data, extra });
+    eventEmitter.emit(getListenerEventByNameKey(name), { name, data, extra });
   },
   emitListenerRemoveEvent: (name: string): void => {
     eventEmitter.emit(getListenerRemoveKey(), name);
@@ -78,15 +78,7 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
     return () => eventEmitter.removeListener(getReconnectingStopKey(), callback);
   },
   onListenerEvent: <ResponseType = Event>(
-    callback: ({
-      data,
-      event,
-      extra,
-    }: {
-      data: ResponseType;
-      event: ExtractSocketFormatType<T>;
-      extra: ExtractSocketExtraType<T>;
-    }) => void,
+    callback: ({ name, data, extra }: { name: string; data: ResponseType; extra: ExtractSocketExtraType<T> }) => void,
   ): VoidFunction => {
     eventEmitter.on(getListenerEventKey(), callback);
     return () => eventEmitter.removeListener(getListenerEventKey(), callback);
@@ -97,15 +89,7 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
   },
   onListenerEventByName: <ListenerType extends ListenerInstance>(
     listener: ListenerType,
-    callback: ({
-      data,
-      event,
-      extra,
-    }: {
-      data: ResponseType;
-      event: ExtractSocketFormatType<T>;
-      extra: ExtractSocketExtraType<T>;
-    }) => void,
+    callback: ({ name, data, extra }: { name: string; data: ResponseType; extra: ExtractSocketExtraType<T> }) => void,
   ): VoidFunction => {
     eventEmitter.on(getListenerEventByNameKey(listener.name), callback);
     return () => eventEmitter.removeListener(getListenerEventByNameKey(listener.name), callback);

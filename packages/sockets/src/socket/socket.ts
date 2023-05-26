@@ -23,7 +23,7 @@ import {
   interceptListener,
   interceptEmitter,
 } from "socket";
-import { ExtractSocketFormatType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
+import { ExtractSocketExtraType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 
@@ -185,7 +185,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onMessage<Event = ExtractSocketFormatType<AdapterType>>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
+  onMessage<Event = ExtractSocketExtraType<AdapterType>>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
     this.__onMessageCallbacks.push(callback);
     return this;
   }
@@ -205,7 +205,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onError<Event = ExtractSocketFormatType<AdapterType>>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
+  onError<Event = ExtractSocketExtraType<AdapterType>>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
     this.__onErrorCallbacks.push(callback);
     return this;
   }
@@ -220,8 +220,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
     return interceptEmitter(this.__onSendCallbacks, emitter);
   };
 
-  __modifyResponse = (response: ExtractSocketFormatType<AdapterType>) => {
-    return interceptListener(this.__onMessageCallbacks, response, this);
+  __modifyResponse = (data: { data: any; extra: ExtractSocketExtraType<AdapterType> }) => {
+    return interceptListener(this.__onMessageCallbacks, data, this);
   };
 
   /**

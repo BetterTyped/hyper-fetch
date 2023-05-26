@@ -1,7 +1,7 @@
 import { SocketInstance } from "socket";
 import { ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
-import { ExtractSocketExtraType, ExtractSocketFormatType, ListenerCallbackType, SocketAdapterInstance } from "adapter";
+import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterInstance } from "adapter";
 
 export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
   const logger = socket.loggerManager.init("Socket Adapter");
@@ -112,7 +112,7 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
     socket.events.emitClose();
   };
 
-  const onError = (event: ExtractSocketFormatType<T>) => {
+  const onError = (event: Error) => {
     logger.info("Error message", { event });
     socket.__onErrorCallbacks.forEach((callback) => {
       callback(event, socket);
@@ -120,20 +120,16 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
     socket.events.emitError(event);
   };
 
-  const onEvent = (
-    name: string,
-    response: any,
-    event: ExtractSocketFormatType<T>,
-    extra: ExtractSocketExtraType<T>,
-  ) => {
-    logger.info("New event message", { event });
+  const onEvent = (name: string, response: any, resposeExtra: ExtractSocketExtraType<T>) => {
+    logger.info("New event message", { response, resposeExtra });
 
-    const data = socket.__modifyResponse(response);
-    const eventListeners = listeners.get(name) || [];
+    const { data, extra } = socket.__modifyResponse({ data: response, extra: resposeExtra });
+    const eventListeners: Set<ListenerCallbackType<T, any>> = listeners.get(name) || new Set();
+
     eventListeners.forEach((callback) => {
-      callback(data, event);
+      callback({ data, extra });
     });
-    socket.events.emitListenerEvent(name, { data, event, extra });
+    socket.events.emitListenerEvent(name, { data, extra });
   };
 
   return {

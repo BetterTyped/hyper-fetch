@@ -24,11 +24,11 @@ export const useEventMessages = <ResponsesType extends { name: string }>(
 
   useDidUpdate(
     () => {
-      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ data, event }) => {
-        const filterFn = typeof filter === "function" ? () => filter(data, event) : () => filter.includes(data.name);
+      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ name, data, extra }) => {
+        const filterFn = typeof filter === "function" ? () => filter(name, data) : () => filter.includes(name);
         const isFiltered = filter ? filterFn() : false;
         if (!isFiltered) {
-          onEventCallback.current?.(data, event);
+          onEventCallback.current?.(data, extra);
           actions.setData(data);
           actions.setTimestamp(+new Date());
         }

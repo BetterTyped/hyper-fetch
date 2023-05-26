@@ -11,7 +11,7 @@ describe("Socket [ Utils ]", () => {
     const socket = new Socket({ url: wsUrl });
 
     socket.onMessage(() => null);
-    expect(() => interceptListener(socket.__onMessageCallbacks, {} as MessageEvent, socket)).toThrow();
+    expect(() => interceptListener(socket.__onMessageCallbacks, { data: {}, extra: {} } as any, socket)).toThrow();
   });
 
   it("should throw on invalid listener interceptor", async () => {

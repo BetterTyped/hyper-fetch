@@ -33,9 +33,9 @@ describe("useListener [ Base ]", () => {
       let receivedData;
       let receivedEventData;
       act(() => {
-        view.result.current.onEvent(({ data, event }) => {
+        view.result.current.onEvent(({ data, extra }) => {
           receivedData = data;
-          receivedEventData = event;
+          receivedEventData = extra;
           spy();
         });
       });

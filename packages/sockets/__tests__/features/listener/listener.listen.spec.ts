@@ -2,7 +2,7 @@ import { waitFor } from "@testing-library/dom";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sendWsEvent, constructEventData, createWsServer } from "../../websocket/websocket.server";
+import { sendWsEvent, createWsServer } from "../../websocket/websocket.server";
 
 type DataType = { name: string; age: number };
 
@@ -20,12 +20,15 @@ describe("Listener [ Listen ]", () => {
   it("should listen to given event name", async () => {
     const spy = jest.fn();
     const message = { name: "Maciej", age: 99 };
-    listener.listen((data) => spy(data));
+    let receivedExtra;
+    listener.listen((data) => {
+      spy(data);
+      receivedExtra = data.extra;
+    });
     sendWsEvent(listener, message);
 
-    const expectedResponse = constructEventData(listener, message);
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledOnceWith(expectedResponse);
+      expect(spy).toHaveBeenCalledOnceWith({ data: message, extra: receivedExtra });
     });
   });
 

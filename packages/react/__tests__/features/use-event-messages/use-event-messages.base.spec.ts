@@ -44,7 +44,7 @@ describe("useEventMessages [ Base ]", () => {
       sendWsEvent(listener, message);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
-        expect(receivedData).toEqual({ data: message, name: listener.name });
+        expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });
     });
@@ -63,7 +63,7 @@ describe("useEventMessages [ Base ]", () => {
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: (data) => [listener.name].includes(data.name) });
+      const view = renderUseEventMessages(socket, { filter: (name) => [listener.name].includes(name) });
 
       act(() => {
         view.result.current.onEvent(spy);

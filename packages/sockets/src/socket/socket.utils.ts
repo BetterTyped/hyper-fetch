@@ -16,13 +16,13 @@ export const getEmitterEventByNameKey = (event: string) => `${event}_emitter_eve
 
 export const interceptListener = <Socket extends SocketInstance>(
   interceptors: MessageCallbackType<Socket, any>[],
-  response: any,
+  data: { data: any; extra: any },
   socket: Socket,
 ) => {
-  let newResponse = response;
+  let newResponse = data;
   // eslint-disable-next-line no-restricted-syntax
   for (const interceptor of interceptors) {
-    newResponse = interceptor(response, socket);
+    newResponse = interceptor(data, socket);
     if (!newResponse) throw new Error("Listener modifier must return data");
   }
 
