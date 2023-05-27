@@ -3,13 +3,15 @@ import { Firestore } from "firebase-admin/firestore";
 
 import {
   FirestoreAdapterType,
-  FirestoreDBMethods,
+  FirestoreMethodsUnion,
   FirestoreQueryParams,
   FirebaseAdminAdapterTypes,
   FirebaseAdminDBTypes,
   RealtimeDbAdapterType,
-  RealtimeDBMethods,
+  RealtimeDBMethodsUnion,
   RealtimeDBQueryParams,
+  FirestoreMethods,
+  RealtimeDBMethods,
 } from "adapter/types";
 import { getFirestoreMethodsAdmin } from "firestore";
 import { getRealtimeDBMethodsAdmin } from "realtime";
@@ -21,21 +23,20 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
     return new Promise<ResponseReturnType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
       if (database instanceof Firestore) {
         const {
-          method = "getDocs",
+          method = FirestoreMethods.getDocs,
           queryParams,
           data,
           options,
-        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
+        }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
         const availableMethods = getFirestoreMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
           onRequestStart,
           onResponseEnd,
           onResponseStart,
           onRequestEnd,
         });
-        // TODO add check with ENUM
-        // if (!selectedMethod) {
-        //   throw new Error(`Cannot find method ${method} in Firestore available methods.`);
-        // }
+        if (!Object.values(FirestoreMethods).includes(method)) {
+          throw new Error(`Cannot find method ${method} in Firestore available methods.`);
+        }
         availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,
@@ -43,21 +44,20 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
         });
       } else {
         const {
-          method = "get" as RealtimeDBMethods,
+          method = RealtimeDBMethods.get,
           queryParams,
           data,
           options,
-        }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
+        }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
         const availableMethods = getRealtimeDBMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
           onRequestStart,
           onResponseEnd,
           onResponseStart,
           onRequestEnd,
         });
-        // TODO add check with ENUM
-        // if (!selectedMethod) {
-        //   throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
-        // }
+        if (!Object.values(RealtimeDBMethods).includes(method)) {
+          throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
+        }
         availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           options,

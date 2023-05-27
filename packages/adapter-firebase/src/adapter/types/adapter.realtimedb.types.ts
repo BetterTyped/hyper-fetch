@@ -1,7 +1,12 @@
 import { AdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database";
 
-import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "constraints";
+import {
+  PermittedConstraints,
+  RealtimeConstraintsUnion,
+  RealtimePermittedMethods,
+  SharedQueryConstraints,
+} from "constraints";
 
 // TODO separate type after SocketAdapter is ready
 export type RealtimeDbAdapterType =
@@ -38,7 +43,20 @@ export type DefaultRealtimeDBAdapterOptions = {
   priority?: number;
 };
 
-export type RealtimeDBMethods = "set" | "push" | "update" | "get" | "remove";
+export enum RealtimeDBMethods {
+  set = "set",
+  push = "push",
+  update = "update",
+  get = "get",
+  remove = "remove",
+}
+
+export type RealtimeDBMethodsUnion =
+  | RealtimeDBMethods.set
+  | RealtimeDBMethods.push
+  | RealtimeDBMethods.update
+  | RealtimeDBMethods.get
+  | RealtimeDBMethods.remove;
 
 export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodExtra = {
@@ -62,5 +80,5 @@ export type RealtimeDbPushMethodExtra = {
 };
 
 export type RealtimeDBQueryParams = {
-  constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion>[];
+  constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
 };

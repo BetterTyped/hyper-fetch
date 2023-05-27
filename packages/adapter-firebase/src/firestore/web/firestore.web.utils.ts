@@ -1,8 +1,14 @@
 import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
 
-import { FirestoreQueryConstraints } from "../../constraints";
+import { FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
-export const mapConstraint = ({ type, values }: { type: FirestoreQueryConstraints; values: any[] }) => {
+export const mapConstraint = ({
+  type,
+  values,
+}: {
+  type: FirestoreQueryConstraints | SharedQueryConstraints;
+  values: any[];
+}) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -16,19 +22,19 @@ export const mapConstraint = ({ type, values }: { type: FirestoreQueryConstraint
       const [limitValue] = values;
       return limit(limitValue);
     }
-    case FirestoreQueryConstraints.START_AT: {
+    case SharedQueryConstraints.START_AT: {
       const [docOrFields] = values;
       return startAt(docOrFields);
     }
-    case FirestoreQueryConstraints.START_AFTER: {
+    case SharedQueryConstraints.START_AFTER: {
       const [docOrFields] = values;
       return startAfter(docOrFields);
     }
-    case FirestoreQueryConstraints.END_AT: {
+    case SharedQueryConstraints.END_AT: {
       const [docOrFields] = values;
       return endAt(docOrFields);
     }
-    case FirestoreQueryConstraints.END_BEFORE: {
+    case SharedQueryConstraints.END_BEFORE: {
       const [docOrFields] = values;
       return endBefore(docOrFields);
     }

@@ -12,8 +12,13 @@ import {
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreDBMethods } from "adapter/types";
-import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
+import { FirestoreMethodsUnion } from "adapter/types";
+import {
+  FirestoreConstraintsUnion,
+  FirestorePermittedMethods,
+  PermittedConstraints,
+  SharedQueryConstraints,
+} from "constraints";
 import { getStatus } from "utils";
 import { getOrderedResultFirestore } from "../firestore.utils";
 import { mapConstraint } from "./firestore.web.utils";
@@ -27,9 +32,9 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
   resolve,
   events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
 ): ((
-  methodName: FirestoreDBMethods,
+  methodName: FirestoreMethodsUnion,
   data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
+    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
     data?: any;
     options?: Record<string, any>;
   },
@@ -46,7 +51,10 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
     getDocs: async ({
       constraints = [],
     }: {
-      constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
+      constraints?: PermittedConstraints<
+        FirestorePermittedMethods,
+        FirestoreConstraintsUnion | SharedQueryConstraints
+      >[];
     }) => {
       const queryConstraints = constraints.map((constr) => mapConstraint(constr));
       const path = collection(database, cleanUrl);
@@ -79,7 +87,7 @@ export const getFirestoreMethodsWeb = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: FirestoreDBMethods, data) => {
+  return async (methodName: FirestoreMethodsUnion, data) => {
     try {
       events.onRequestStart();
       const { result, status, extra } = await methods[methodName](data);

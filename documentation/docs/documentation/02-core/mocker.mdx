@@ -13,20 +13,20 @@ sidebar_label: Mocking
 
 ## Initialization
 
-You can mock the response via the request `setMock` method:
+You can mock the response via the `request.setMock` method:
 
 ```tsx
 const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });
 ```
 
-This way, the mockedRequest will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`.
+This way, the `mockedRequest` will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`.
 
 ---
 
 
 ## Config
 
-`setMock` method accepts also the `config` object, that allows for tweaking our response.
+The `setMock` method also accepts the `config` object, which allows for tweaking our response.
 
 ```tsx
     const request = client
@@ -41,21 +41,21 @@ This way, the mockedRequest will always return the `data` with value `{ test: 1,
 
 
 ```
- - `status` - setting the response status - it may be number or string  - **default: 200**
- - `success` - informs whether the request should be as successful or not - **default: true**
- - `responseDelay` - number of milliseconds the response should be delayed for.
- - `requestSentDuration` and `responseReceivedDuration` - two variables that indicate how long request/response phase should take (in milliseconds).
-    If combined take longer than provided timeout, each values will be automatically adjusted to last half the timeout time.
+ - `status` -  Sets the response status. This can be a number or a string; the default is `**200**`.
+ - `success` - Informs if the request should be successful or not; the default is `**true**`.
+ - `responseDelay` -The number of milliseconds to delay the response.
+ - `requestSentDuration` and `responseReceivedDuration` - Indicate how long the request/response phase should take in milliseconds.
+If their combined total takes longer than provided timeout, each value will be automatically adjusted to last half of the timeout time.
 
 
 ## Usage and use cases
 
-Mocker can be used in a few ways.
-1. It can accept an object (as presented above):
+The mocker can be used in a few ways.
+1. It can accept an object:
 ```tsx
 const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] } });  // Always returns data: { test: 1, array: [200, 300, 404]
 ```
-2. It can accept an array of values. In this case - values will be iterated over cyclically and applied each time a request is executed.
+2. It can accept an array of values. In this case, values will be iterated over cyclically and applied each time a request is executed:
 
 ```tsx
   request.setMock([
@@ -67,7 +67,7 @@ await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 
 await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 200 } }
 await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 400, success: false } }
 ```
-3. It also accepts method that has access to the request itself. This allows for dynamic mocking, dependent on the passed arguments during execution.
+3. It also accepts methods that have access to the `request` itself. This allows for dynamic mocking, dependent on the passed arguments during execution:
 ```tsx
     const mockedRequest = client
       .createRequest()({ endpoint: "/users/:id" })
@@ -90,12 +90,11 @@ await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 
         return { data: [4, 5, 6] };
       });
 ```
-It is also possible to pass a list of functions - the mocker will cycle over them and execute the correct one each time
-a request is executed.
+You can also pass a list of functions; the mocker will cycle over them and execute the correct one each time a request is executed.
 
 ## Removal
 
-If, for any reason, user needs to remove mocker from request, it is possible to be done via `removeMock` method.
+If you need to remove the mocker from a request, use the `removeMock` method:
 ```tsx
 mockedRequest.removeMock();
 ```

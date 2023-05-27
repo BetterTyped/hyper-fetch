@@ -5,11 +5,12 @@ sidebar_label: Mapping
 
 # Response Mapping
 
-We can set the mapping of the data returned from the request. These data will NOT be modified in the cache, only within
-the given request. This means that the mapping will be included locally and not globally in the cache. By making two
-requests to the same place with two different mappers, we can still use everything the library offers - deduplication,
-cache, etc. Mapper does not affect other requests, only the one in which it is attached. Thanks to this, we do not have
-to change the cache keys additionally for each mapped request.
+You can set the mapping of data returned from the request. This data will not be modified in the cache; it will only be modified within the given request.
+This means that the mapping will be included locally and not globally in the cache.
+
+By making two requests to the same place with two different mappers, we can still use everything the library offers - deduplication, cache, etc.
+The mapper does not affect other requests, only the one to which it is attached.
+Thanks to this, we do not have to change the cache keys for each mapped request.
 
 :::info
 
@@ -33,7 +34,7 @@ export const getUser = client
         data: {
           ...response.data,
           products, // Add custom data to response
-          createdAt: new Date(response.data.createdAt), // Always transform ISO string to Date!
+          createdAt: new Date(response.data.createdAt), // Always transforms ISO string to Date!
         },
       };
     }
@@ -43,9 +44,8 @@ export const getUser = client
 
 ## Model Hydration
 
-We can hydrate class models which can parse our data.
-
-For example User class can parse dates from ISO string into Date object, generate nicknames, full name etc.
+We can hydrate class models, which can parse our data.
+For example, the User class can parse dates from an ISO string into a Date object, generate nicknames or full names, etc.
 
 ```ts
 export const getUser = client
@@ -65,12 +65,11 @@ export const getUser = client
 
 # Request Mapping
 
-It is possible to map the request. This means that before executing the request, we can make any changes to it. Thanks
-to this, we can validate the sent data, change their format or state.
+You can map requests - i.e. make changes to a request before executing it. This allows us to validate the sent data and change its format or state.
 
 :::info
 
-Mappers can be asynchronus. This way we can build up bigger responses.
+Mappers can be asynchronous. This lets us build up bigger responses.
 
 :::
 

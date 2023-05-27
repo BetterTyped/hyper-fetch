@@ -1,11 +1,16 @@
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreDBMethods } from "adapter";
+import { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
 import { getOrderedResultFirestore } from "../firestore.utils";
 import { applyConstraints, getRef } from "./firestore.admin.utils";
-import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
+import {
+  FirestoreConstraintsUnion,
+  FirestorePermittedMethods,
+  PermittedConstraints,
+  SharedQueryConstraints,
+} from "constraints";
 
 export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   request: R,
@@ -16,9 +21,9 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
   resolve,
   events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
 ): ((
-  methodName: FirestoreDBMethods,
+  methodName: FirestoreMethodsUnion,
   data: {
-    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
+    constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
     data?: any;
     options?: Record<string, any>;
   },
@@ -64,7 +69,7 @@ export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: FirestoreDBMethods, data) => {
+  return async (methodName: FirestoreMethodsUnion, data) => {
     try {
       events.onRequestStart();
       const { result, status, extra } = await methods[methodName](data);

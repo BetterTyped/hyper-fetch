@@ -3,13 +3,12 @@ title: Guide - Validation
 sidebar_label: Validation
 ---
 
-Validation in HF is based on mappers. When one of the mappers throws an error, then we catch it and return it as a
-request error. In this way, we can validate requests and interrupt their processing (not send them) or response when we
-receive data from the server.
+Validation in Hyper Fetch is based on mappers. When one of the mappers throws an error, then we catch it and return it as a request error.
+In this way, we can validate requests and interrupt their processing (i.e. not send them) or responses when we receive data from the server.
 
 # Response validation
 
-We can check if the data received from the query is correct and return an error as a result of the validator failure.
+We can check if the data received from the query is correct and return an error if the validation fails.
 
 ```ts
 import { z } from "zod";
@@ -42,8 +41,8 @@ console.log(error); // ZodError
 # Request validation
 
 We can set global validators that will check the correctness of the data sent and return an error in case of a problem.
-At this point, the request will NOT be sent and our request will not be executed. Thanks to this, we can easily
-implement data validation in the entire project without copying our validation locally.
+If there is a problem, the request will not be sent and our request will not be executed. This allows us to easily implement data validation
+in the entire project without copying validation locally.
 
 ```ts
 import { z } from "zod";

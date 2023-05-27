@@ -1,10 +1,10 @@
 import { Reference } from "firebase-admin/lib/database";
 
-import { RealtimeQueryConstraints } from "../../constraints";
+import { RealtimeQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
 export const applyConstraint = (
   ref: Reference,
-  { type, values }: { type: RealtimeQueryConstraints; values: any[] },
+  { type, values }: { type: RealtimeQueryConstraints | SharedQueryConstraints; values: any[] },
 ) => {
   switch (type) {
     case RealtimeQueryConstraints.ORDER_BY_CHILD: {
@@ -17,19 +17,19 @@ export const applyConstraint = (
     case RealtimeQueryConstraints.ORDER_BY_VALUE: {
       return ref.orderByValue();
     }
-    case RealtimeQueryConstraints.START_AT: {
+    case SharedQueryConstraints.START_AT: {
       const [[value]] = values;
       return ref.startAt(value);
     }
-    case RealtimeQueryConstraints.START_AFTER: {
+    case SharedQueryConstraints.START_AFTER: {
       const [[value]] = values;
       return ref.startAfter(value);
     }
-    case RealtimeQueryConstraints.END_AT: {
+    case SharedQueryConstraints.END_AT: {
       const [[value]] = values;
       return ref.endAt(value);
     }
-    case RealtimeQueryConstraints.END_BEFORE: {
+    case SharedQueryConstraints.END_BEFORE: {
       const [[value]] = values;
       return ref.endBefore(value);
     }
