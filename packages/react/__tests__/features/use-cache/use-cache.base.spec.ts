@@ -74,49 +74,49 @@ describe("useCache [ Base ]", () => {
         expect(+response.result.current.timestamp).toBe(cacheData.timestamp);
         expect(response.result.current.retries).toBe(0);
       });
-      it("should allow to revalidate by Request", async () => {
-        const spy = jest.spyOn(client.cache, "revalidate");
+      it("should allow to invalidate by Request", async () => {
+        const spy = jest.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.revalidate(request);
+          result.current.invalidate(request);
         });
 
         expect(spy).toBeCalledTimes(1);
         expect(spy).toBeCalledWith(request.cacheKey);
       });
-      it("should allow to revalidate by RegExp", async () => {
-        const spy = jest.spyOn(client.cache, "revalidate");
+      it("should allow to invalidate by RegExp", async () => {
+        const spy = jest.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.revalidate(new RegExp(request.cacheKey));
+          result.current.invalidate(new RegExp(request.cacheKey));
         });
 
         expect(spy).toBeCalledTimes(1);
         expect(spy).toBeCalledWith(new RegExp(request.cacheKey));
       });
-      it("should allow to revalidate by cacheKey", async () => {
-        const spy = jest.spyOn(client.cache, "revalidate");
+      it("should allow to invalidate by cacheKey", async () => {
+        const spy = jest.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.revalidate(request.cacheKey);
+          result.current.invalidate(request.cacheKey);
         });
 
         expect(spy).toBeCalledTimes(1);
         expect(spy).toBeCalledWith(request.cacheKey);
       });
-      it("should allow to revalidate by default key", async () => {
-        const spy = jest.spyOn(client.cache, "revalidate");
+      it("should allow to invalidate by default key", async () => {
+        const spy = jest.spyOn(client.cache, "invalidate");
 
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.revalidate();
+          result.current.invalidate();
         });
 
         expect(spy).toBeCalledTimes(1);

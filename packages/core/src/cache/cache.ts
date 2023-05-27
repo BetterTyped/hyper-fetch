@@ -60,7 +60,7 @@ export class Cache<C extends ClientInstance> {
    * @returns
    */
   set = <Request extends RequestInstance>(
-    request: RequestInstance | RequestJSON<RequestInstance>,
+    request: RequestInstance | RequestJSON<any>,
     response: CacheMethodType<
       ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
@@ -155,7 +155,7 @@ export class Cache<C extends ClientInstance> {
   };
 
   /**
-   * Delete record from storages and trigger revalidation
+   * Delete record from storages and trigger invalidation event
    * @param cacheKey
    */
   delete = (cacheKey: string): void => {
@@ -166,21 +166,21 @@ export class Cache<C extends ClientInstance> {
   };
 
   /**
-   * Revalidate cache by cacheKey or partial matching with RegExp
+   * Invalidate cache by cacheKey or partial matching with RegExp
    * @param cacheKey
    */
-  revalidate = async (cacheKey: string | RegExp) => {
+  invalidate = async (cacheKey: string | RegExp) => {
     this.logger.debug("Revalidating cache element", { cacheKey });
     const keys = await this.getLazyKeys();
 
     if (typeof cacheKey === "string") {
-      this.events.emitRevalidation(cacheKey);
+      this.events.emitInvalidation(cacheKey);
       this.delete(cacheKey);
     } else {
       // eslint-disable-next-line no-restricted-syntax
       for (const entityKey of keys) {
         if (cacheKey.test(entityKey)) {
-          this.events.emitRevalidation(entityKey);
+          this.events.emitInvalidation(entityKey);
           this.delete(entityKey);
         }
       }

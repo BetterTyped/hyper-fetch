@@ -27,7 +27,7 @@ describe("useFetch [ Offline ]", () => {
   });
 
   describe("when application is offline", () => {
-    it("should not revalidate on offline", async () => {
+    it("should not invalidate on offline", async () => {
       const mock = createRequestInterceptor(request);
       const response = renderUseFetch(request);
 
@@ -37,7 +37,7 @@ describe("useFetch [ Offline ]", () => {
 
       act(() => {
         client.appManager.setOnline(false);
-        response.result.current.revalidate();
+        response.result.current.invalidate();
       });
 
       expect(spy).toBeCalledTimes(0);

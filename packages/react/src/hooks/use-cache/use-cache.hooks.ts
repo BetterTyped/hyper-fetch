@@ -46,13 +46,13 @@ export const useCache = <T extends RequestInstance>(
     setCacheData,
   });
 
-  const revalidate = (invalidateKey?: string | RequestInstance | RegExp) => {
+  const refetch = (invalidateKey?: string | RequestInstance | RegExp) => {
     if (invalidateKey instanceof Request) {
-      cache.revalidate(getRequestKey(invalidateKey, true));
+      cache.invalidate(getRequestKey(invalidateKey, true));
     } else if (invalidateKey) {
-      cache.revalidate(invalidateKey);
+      cache.invalidate(invalidateKey);
     } else {
-      cache.revalidate(cacheKey);
+      cache.invalidate(cacheKey);
     }
   };
 
@@ -93,6 +93,6 @@ export const useCache = <T extends RequestInstance>(
     onCacheSuccess: callbacks.onSuccess,
     onCacheChange: callbacks.onFinished,
     ...actions,
-    revalidate,
+    refetch,
   };
 };

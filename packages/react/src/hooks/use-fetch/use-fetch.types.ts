@@ -20,7 +20,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If `true` it will refetch data in background no matter if we have it from cache.
    */
-  revalidateOnMount?: boolean;
+  fetchOnMount?: boolean;
   /**
    * If cache is empty we can use placeholder data.
    */
@@ -101,7 +101,7 @@ export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<
       reset: () => void;
     };
     /**
-     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

@@ -39,7 +39,7 @@ export type UseCacheReturnType<T extends RequestInstance> = UseTrackedStateType<
      */
     onCacheChange: (callback: OnFinishedCallbackType<T>) => void;
     /**
-     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: string | RegExp | RequestInstance) => void;
+    refetch: (invalidateKey?: string | RegExp | RequestInstance) => void;
   };

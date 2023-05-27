@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
 
-describe("useFetch [ Revalidate ]", () => {
+describe("useFetch [ Invalidate ]", () => {
   let request = createRequest();
   let mock = createRequestInterceptor(request);
 
@@ -43,7 +43,7 @@ describe("useFetch [ Revalidate ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { revalidateOnMount: false });
+    const response = renderUseFetch(request, { fetchOnMount: false });
     act(() => {
       response.result.current.onFinished(spy);
     });
@@ -54,7 +54,7 @@ describe("useFetch [ Revalidate ]", () => {
   });
   it("should allow to prevent revalidation on mount", async () => {
     const spy = jest.fn();
-    const response = renderUseFetch(request, { revalidateOnMount: false });
+    const response = renderUseFetch(request, { fetchOnMount: false });
 
     act(() => {
       response.result.current.onFinished(() => {
@@ -62,12 +62,12 @@ describe("useFetch [ Revalidate ]", () => {
         response.unmount();
       });
     });
-    renderUseFetch(request, { revalidateOnMount: false });
+    renderUseFetch(request, { fetchOnMount: false });
 
     await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
   });
-  it("should allow to revalidate on mount", async () => {
+  it("should allow to invalidate on mount", async () => {
     const customMock = { something: "123" };
     client.cache.set(request, {
       data: customMock,
@@ -81,13 +81,13 @@ describe("useFetch [ Revalidate ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { revalidateOnMount: true });
+    const response = renderUseFetch(request, { fetchOnMount: true });
 
     await waitFor(async () => {
       await testSuccessState(mock, response);
     });
   });
-  it("should allow to revalidate current hook", async () => {
+  it("should allow to invalidate current hook", async () => {
     const response = renderUseFetch(request);
 
     await waitFor(async () => {
@@ -96,14 +96,14 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      response.result.current.revalidate();
+      response.result.current.invalidate();
     });
 
     await waitFor(async () => {
       await testSuccessState(customMock, response);
     });
   });
-  it("should allow to revalidate hook by RegExp", async () => {
+  it("should allow to invalidate hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
@@ -115,7 +115,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate(regexp);
+      responseOne.result.current.invalidate(regexp);
     });
 
     await waitFor(async () => {
@@ -123,7 +123,7 @@ describe("useFetch [ Revalidate ]", () => {
       await testSuccessState(customMock, responseTwo);
     });
   });
-  it("should allow to revalidate hook by keys array", async () => {
+  it("should allow to invalidate hook by keys array", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
@@ -134,7 +134,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate(["Maciej"]);
+      responseOne.result.current.invalidate(["Maciej"]);
     });
 
     await waitFor(async () => {
@@ -142,7 +142,7 @@ describe("useFetch [ Revalidate ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
-  it("should allow to revalidate hook by key", async () => {
+  it("should allow to invalidate hook by key", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
@@ -153,7 +153,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate("Maciej");
+      responseOne.result.current.invalidate("Maciej");
     });
 
     await waitFor(async () => {
@@ -161,7 +161,7 @@ describe("useFetch [ Revalidate ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
-  it("should allow to revalidate hook by request", async () => {
+  it("should allow to invalidate hook by request", async () => {
     const responseOne = renderUseFetch(request.setQueryParams("?something=123"));
     const responseTwo = renderUseFetch(request.setQueryParams("?other=999"));
 
@@ -172,7 +172,7 @@ describe("useFetch [ Revalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.revalidate(request.setQueryParams("?something=123"));
+      responseOne.result.current.invalidate(request.setQueryParams("?something=123"));
     });
 
     await waitFor(async () => {

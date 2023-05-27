@@ -68,12 +68,12 @@ describe("Cache [ Base ]", () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
     });
 
-    it("should revalidate and remove cache", async () => {
+    it("should invalidate and remove cache", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.onRevalidate(request.cacheKey, trigger);
+      const unmount = cache.events.onInvalidate(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
-      await cache.revalidate(request.cacheKey);
+      await cache.invalidate(request.cacheKey);
       await sleep(1);
 
       expect(cache.get(request.cacheKey)).not.toBeDefined();
@@ -106,7 +106,7 @@ describe("Cache [ Base ]", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      cache.events.onRevalidate(request.cacheKey, trigger);
+      cache.events.onInvalidate(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();

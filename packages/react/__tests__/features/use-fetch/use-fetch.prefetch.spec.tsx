@@ -34,7 +34,7 @@ describe("useFetch [ Prefetch ]", () => {
       createRequestInterceptor(request, { fixture: { wrongData: 123 } });
 
       function Page() {
-        const { data } = useFetch(request, { revalidateOnMount: false });
+        const { data } = useFetch(request, { fetchOnMount: false });
         return <div>{JSON.stringify(data)}</div>;
       }
 
@@ -53,7 +53,7 @@ describe("useFetch [ Prefetch ]", () => {
       const successMock = createRequestInterceptor(request);
 
       function Page() {
-        const { data } = useFetch(request, { revalidateOnMount: false });
+        const { data } = useFetch(request, { fetchOnMount: false });
         return <div>{JSON.stringify(data)}</div>;
       }
 

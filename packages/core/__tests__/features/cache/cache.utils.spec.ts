@@ -1,4 +1,4 @@
-import { getCacheData, getCacheIdKey, getCacheKey, getRevalidateEventKey } from "cache";
+import { getCacheData, getCacheIdKey, getCacheKey, getInvalidateEventKey } from "cache";
 import { AdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { xhrExtra } from "client";
@@ -91,8 +91,8 @@ describe("Cache [ Utils ]", () => {
     });
   });
   describe("when key getters are triggered", () => {
-    it("should get proper key from getRevalidateEventKey", async () => {
-      expect(getRevalidateEventKey("1")).toBe("1_revalidate");
+    it("should get proper key from getInvalidateEventKey", async () => {
+      expect(getInvalidateEventKey("1")).toBe("1_invalidate");
     });
     it("should get proper key from getCacheKey", async () => {
       expect(getCacheKey("1")).toBe("1_cache");

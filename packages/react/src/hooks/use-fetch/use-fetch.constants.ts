@@ -10,7 +10,7 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   dependencies: [],
   disabled: false,
   dependencyTracking: true,
-  revalidateOnMount: true,
+  fetchOnMount: true,
   initialData: null,
   refresh: false,
   refreshTime: DateInterval.hour,

@@ -56,8 +56,8 @@ describe("Cache [ Events ]", () => {
       expect(spy).toBeCalledWith(request.cacheKey);
     });
   });
-  describe("when revalidate event is triggered", () => {
-    it("should revalidate cache using cache key", async () => {
+  describe("when invalidate event is triggered", () => {
+    it("should invalidate cache using cache key", async () => {
       cache.set(request, {
         data: {},
         error: null,
@@ -69,12 +69,12 @@ describe("Cache [ Events ]", () => {
         isCanceled: false,
         isOffline: false,
       });
-      cache.events.onRevalidate(cacheKey, spy);
-      await cache.revalidate(cacheKey);
+      cache.events.onInvalidate(cacheKey, spy);
+      await cache.invalidate(cacheKey);
       await sleep(1);
       expect(spy).toBeCalledTimes(1);
     });
-    it("should revalidate cache using regex", async () => {
+    it("should invalidate cache using regex", async () => {
       cache.set(request, {
         data: null,
         error: null,
@@ -86,19 +86,19 @@ describe("Cache [ Events ]", () => {
         isCanceled: false,
         isOffline: false,
       });
-      cache.events.onRevalidate(cacheKey, spy);
-      await cache.revalidate(new RegExp(cacheKey));
+      cache.events.onInvalidate(cacheKey, spy);
+      await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
       expect(spy).toBeCalledTimes(1);
     });
-    it("should revalidate cache using lazyStorage regex", async () => {
+    it("should invalidate cache using lazyStorage regex", async () => {
       const lazyStorage = new Map();
       lazyStorage.set(request.cacheKey, cacheData);
       cache = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
       });
-      cache.events.onRevalidate(cacheKey, spy);
-      await cache.revalidate(new RegExp(cacheKey));
+      cache.events.onInvalidate(cacheKey, spy);
+      await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
       expect(spy).toBeCalledTimes(1);
     });
