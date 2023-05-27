@@ -3,7 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { applyConstraints } from "./realtime.admin.utils";
 import { getStatus, isDocOrQuery, setCacheManually } from "../../utils";
-import { getOrderedResultRealtime } from "../realtime.utils";
+import { getOrderedResultRealtime } from "realtime";
 
 export const onValue =
   (request: RequestInstance, database: Database, url: string) =>

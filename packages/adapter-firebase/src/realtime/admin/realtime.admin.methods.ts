@@ -3,7 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
-import { getOrderedResultRealtime } from "../realtime.utils";
+import { getOrderedResultRealtime } from "realtime";
 import { applyConstraints } from "./realtime.admin.utils";
 import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "../../constraints";
 

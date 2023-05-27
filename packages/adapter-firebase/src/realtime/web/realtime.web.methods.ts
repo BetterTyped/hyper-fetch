@@ -2,7 +2,7 @@ import { Database, get, push, query, ref, remove, set, update } from "firebase/d
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethods } from "adapter/types";
-import { getOrderedResultRealtime } from "../realtime.utils";
+import { getOrderedResultRealtime } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
 import { mapConstraint } from "./realtime.web.utils";
 import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "../../constraints";

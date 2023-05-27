@@ -5,7 +5,7 @@ import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterInstance } f
 
 export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
   const logger = socket.loggerManager.init("Socket Adapter");
-  const listeners: Map<string, Set<ListenerCallbackType<T, any>>> = new Map();
+  const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
   let open = false;
   let connecting = false;
@@ -63,19 +63,25 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
 
   const removeListener = (name: string, callback: ListenerCallbackType<T, any>): boolean => {
     const listenerGroup = listeners.get(name);
-    if (listenerGroup && listenerGroup.has(callback)) {
+    if (listenerGroup) {
+      const unmount = listenerGroup.get(callback);
       logger.debug("Removed event listener", { name });
       socket.events.emitListenerRemoveEvent(name);
       listenerGroup.delete(callback);
+      unmount?.();
       return true;
     }
     return false;
   };
 
-  const onListen = (listener: Pick<ListenerInstance, "name">, callback: ListenerCallbackType<T, any>): (() => void) => {
-    const listenerGroup = listeners.get(listener.name) || listeners.set(listener.name, new Set()).get(listener.name);
+  const onListen = (
+    listener: Pick<ListenerInstance, "name">,
+    callback: ListenerCallbackType<T, any>,
+    unmount: VoidFunction = () => null,
+  ): (() => void) => {
+    const listenerGroup = listeners.get(listener.name) || listeners.set(listener.name, new Map()).get(listener.name);
 
-    listenerGroup.add(callback);
+    listenerGroup.set(callback, unmount);
     return () => removeListener(listener.name, callback);
   };
 
@@ -124,9 +130,9 @@ export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: S
     logger.info("New event message", { response, resposeExtra });
 
     const { data, extra } = socket.__modifyResponse({ data: response, extra: resposeExtra });
-    const eventListeners: Set<ListenerCallbackType<T, any>> = listeners.get(name) || new Set();
+    const eventListeners: Map<ListenerCallbackType<T, any>, VoidFunction> = listeners.get(name) || new Map();
 
-    eventListeners.forEach((callback) => {
+    eventListeners.forEach((_, callback) => {
       callback({ data, extra });
     });
     socket.events.emitListenerEvent(name, { data, extra });

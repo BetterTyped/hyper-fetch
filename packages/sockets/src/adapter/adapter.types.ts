@@ -25,7 +25,7 @@ export type SocketAdapterType<
 ) => {
   open: boolean;
   reconnectionAttempts: number;
-  listeners: Map<string, Set<ListenerCallbackType<SocketAdapterInstance, any>>>;
+  listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
     listener: ListenerInstance,
     callback: ListenerCallbackType<SocketAdapterInstance, any>,
