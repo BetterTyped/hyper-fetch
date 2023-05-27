@@ -11,7 +11,8 @@ import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
-} from "../../constraints/constraints.types";
+  SharedQueryConstraints,
+} from "constraints";
 
 // TODO - separate onSnapshot adapter type when SocketAdapter is ready
 export type FirestoreAdapterType =
@@ -34,10 +35,25 @@ export type FirestoreAdapterType =
     >;
 
 export type FirestoreQueryParams = {
-  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion>[];
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
 };
 
-export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc";
+export enum FirestoreMethods {
+  addDoc = "addDoc",
+  getDoc = "getDoc",
+  getDocs = "getDocs",
+  setDoc = "setDoc",
+  updateDoc = "updateDoc",
+  deleteDoc = "deleteDoc",
+}
+
+export type FirestoreMethodsUnion =
+  | FirestoreMethods.addDoc
+  | FirestoreMethods.getDoc
+  | FirestoreMethods.getDocs
+  | FirestoreMethods.setDoc
+  | FirestoreMethods.updateDoc
+  | FirestoreMethods.deleteDoc;
 
 export type FirestoreExtra = {
   ref?: DocumentReference;

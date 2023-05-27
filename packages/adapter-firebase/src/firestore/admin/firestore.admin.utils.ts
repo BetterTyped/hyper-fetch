@@ -1,6 +1,6 @@
 import { CollectionReference, DocumentReference, Firestore } from "firebase-admin/lib/firestore";
 
-import { FirestoreQueryConstraints } from "../../constraints";
+import { FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
 export const getRef = (db: Firestore, fullUrl: string) => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
@@ -22,7 +22,7 @@ export const getRef = (db: Firestore, fullUrl: string) => {
 
 export const applyConstraint = (
   collectionRef: CollectionReference,
-  { type, values }: { type: FirestoreQueryConstraints; values: any[] },
+  { type, values }: { type: FirestoreQueryConstraints | SharedQueryConstraints; values: any[] },
 ) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
@@ -37,19 +37,19 @@ export const applyConstraint = (
       const [limitValue] = values;
       return collectionRef.limit(limitValue);
     }
-    case FirestoreQueryConstraints.START_AT: {
+    case SharedQueryConstraints.START_AT: {
       const [docOrFields] = values;
       return collectionRef.startAt(docOrFields);
     }
-    case FirestoreQueryConstraints.START_AFTER: {
+    case SharedQueryConstraints.START_AFTER: {
       const [docOrFields] = values;
       return collectionRef.startAfter(docOrFields);
     }
-    case FirestoreQueryConstraints.END_AT: {
+    case SharedQueryConstraints.END_AT: {
       const [docOrFields] = values;
       return collectionRef.endAt(docOrFields);
     }
-    case FirestoreQueryConstraints.END_BEFORE: {
+    case SharedQueryConstraints.END_BEFORE: {
       const [docOrFields] = values;
       return collectionRef.endBefore(docOrFields);
     }

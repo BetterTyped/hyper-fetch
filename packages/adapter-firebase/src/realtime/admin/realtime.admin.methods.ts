@@ -1,11 +1,16 @@
 import { Database } from "firebase-admin/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethods } from "adapter/types";
+import { RealtimeDBMethodsUnion } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
 import { getOrderedResultRealtime } from "realtime";
 import { applyConstraints } from "./realtime.admin.utils";
-import { PermittedConstraints, RealtimeConstraintsUnion, RealtimePermittedMethods } from "../../constraints";
+import {
+  PermittedConstraints,
+  RealtimeConstraintsUnion,
+  RealtimePermittedMethods,
+  SharedQueryConstraints,
+} from "../../constraints";
 
 export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   request: R,
@@ -16,9 +21,9 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
   resolve,
   events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
 ): ((
-  methodName: RealtimeDBMethods,
+  methodName: RealtimeDBMethodsUnion,
   data: {
-    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion>[];
+    constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
     data: any;
     options: Record<string, any>;
   },
@@ -40,11 +45,11 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     },
     push: async ({ data }) => {
       const resRef = await path.push(data);
-      return { result: null, status: "success", extra: { ref: resRef, key: resRef.key } };
+      return { result: data, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
     update: async ({ data }) => {
       await path.update(data);
-      return { result: null, status: "success", extra: { ref: path } };
+      return { result: data, status: "success", extra: { ref: path } };
     },
     remove: async () => {
       await path.remove();
@@ -52,7 +57,7 @@ export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: RealtimeDBMethods, data) => {
+  return async (methodName: RealtimeDBMethodsUnion, data) => {
     try {
       events.onRequestStart();
       const { result, status, extra } = await methods[methodName](data);

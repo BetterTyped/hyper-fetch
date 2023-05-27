@@ -1,10 +1,12 @@
 import { OrderByDirection, WhereFilterOp } from "firebase/firestore";
 
-export enum RealtimeQueryConstraints {
+export enum SharedQueryConstraints {
   START_AT = "startAt",
   START_AFTER = "startAfter",
   END_AT = "endAt",
   END_BEFORE = "endBefore",
+}
+export enum RealtimeQueryConstraints {
   ORDER_BY_CHILD = "orderByChild",
   ORDER_BY_KEY = "orderByKey",
   ORDER_BY_VALUE = "orderByValue",
@@ -17,10 +19,6 @@ export enum FirestoreQueryConstraints {
   WHERE = "where",
   ORDER_BY = "orderBy",
   LIMIT = "limit",
-  START_AT = "startAt",
-  START_AFTER = "startAfter",
-  END_AT = "endAt",
-  END_BEFORE = "endBefore",
 }
 
 export const $where = (fieldPath: string, opStr: WhereFilterOp, value: any) => {
@@ -47,7 +45,7 @@ export const $limit = (num: number) => {
   };
 };
 
-const startEndConstraintsImpl = (constraintType: RealtimeQueryConstraints) => {
+const startEndConstraintsImpl = (constraintType: SharedQueryConstraints) => {
   return (...docOrFields: any[]) => {
     if (docOrFields.length === 1 && docOrFields[0].query) {
       return {
@@ -64,11 +62,11 @@ const startEndConstraintsImpl = (constraintType: RealtimeQueryConstraints) => {
   };
 };
 
-export const $startAt = startEndConstraintsImpl(RealtimeQueryConstraints.START_AT as const);
-export const $startAfter = startEndConstraintsImpl(RealtimeQueryConstraints.START_AFTER as const);
+export const $startAt = startEndConstraintsImpl(SharedQueryConstraints.START_AT as const);
+export const $startAfter = startEndConstraintsImpl(SharedQueryConstraints.START_AFTER as const);
 
-export const $endAt = startEndConstraintsImpl(RealtimeQueryConstraints.END_AT as const);
-export const $endBefore = startEndConstraintsImpl(RealtimeQueryConstraints.END_BEFORE as const);
+export const $endAt = startEndConstraintsImpl(SharedQueryConstraints.END_AT as const);
+export const $endBefore = startEndConstraintsImpl(SharedQueryConstraints.END_BEFORE as const);
 
 export const $orderByChild = (path: string) => {
   return {

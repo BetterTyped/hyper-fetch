@@ -6,11 +6,13 @@ import {
   FirebaseWebAdapterTypes,
   FirebaseWebDBTypes,
   RealtimeDbAdapterType,
-  RealtimeDBMethods,
+  RealtimeDBMethodsUnion,
   RealtimeDBQueryParams,
   FirestoreAdapterType,
-  FirestoreDBMethods,
+  FirestoreMethodsUnion,
   FirestoreQueryParams,
+  FirestoreMethods,
+  RealtimeDBMethods,
 } from "adapter/types";
 import { getRealtimeDBMethodsWeb } from "realtime";
 import { getFirestoreMethodsWeb } from "firestore";
@@ -22,21 +24,20 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
     return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
       if (database instanceof Database) {
         const {
-          method = "get" as RealtimeDBMethods,
+          method = RealtimeDBMethods.get,
           queryParams,
           data,
           options,
-        }: { method: RealtimeDBMethods; queryParams: RealtimeDBQueryParams; data; options } = request;
+        }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
         const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
           onRequestStart,
           onRequestEnd,
         });
-        // TODO add check with enum
-        // if (!selectedMethod) {
-        //   throw new Error(`Cannot find method ${method} in Realtime DB available methods.`);
-        // }
+        if (!Object.values(RealtimeDBMethods).includes(method)) {
+          throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
+        }
         availableMethods(method, {
           constraints: queryParams?.constraints || [],
           options,
@@ -45,11 +46,11 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
       }
       if (database instanceof Firestore) {
         const {
-          method = "getDocs",
+          method = FirestoreMethods.getDocs,
           queryParams,
           data,
           options,
-        }: { method: FirestoreDBMethods; queryParams: FirestoreQueryParams; data; options } = request;
+        }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
         const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
@@ -57,9 +58,9 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           onRequestEnd,
         });
         // TODO add check with enum
-        // if (!selectedMethod) {
-        //   throw new Error(`Cannot find method ${method} in Firestore available methods.`);
-        // }
+        if (!Object.values(FirestoreMethods).includes(method)) {
+          throw new Error(`Cannot find method ${method} in Firestore available methods.`);
+        }
         availableMethods(method, {
           constraints: queryParams?.constraints ? queryParams.constraints : [],
           data,

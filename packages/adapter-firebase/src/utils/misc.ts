@@ -1,5 +1,3 @@
-import { RequestInstance } from "@hyper-fetch/core";
-
 export const getStatus = (res: any) => {
   // Deliberate == instead of ===
   return (Array.isArray(res) && res.length === 0) || res == null ? "emptyResource" : "success";
