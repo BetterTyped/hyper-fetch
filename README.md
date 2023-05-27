@@ -38,9 +38,6 @@
   <a href="https://bestofjs.org/projects/hyper-fetch" rel="nofollow">
     <img alt="Best of JS" src="https://img.shields.io/endpoint?url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=BetterTyped%2Fhyper-fetch%26since=daily" style="max-width: 100%;">
   </a>
-  <a href="https://hits.sh/github.com/BetterTyped/hyper-fetch/">
-    <img src="https://hits.sh/github.com/BetterTyped/hyper-fetch.svg?color=64BC4B&logo=bookmeter" />
-  </a>
   <a href="https://twitter.com/hyper_fetch">
     <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/hyper_fetch?label=Follow%20HyperFetch&style=social">
   </a>
