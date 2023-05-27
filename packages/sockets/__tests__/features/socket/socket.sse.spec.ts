@@ -14,6 +14,6 @@ describe("Socket [ SSE ]", () => {
   });
 
   it("should throw emitter create", async () => {
-    expect(socket.createEmitter({ name: "test" }).emit).toThrow();
+    expect(socket.createEmitter()({ name: "test" }).emit).toThrow();
   });
 });

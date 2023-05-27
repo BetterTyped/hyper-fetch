@@ -21,9 +21,11 @@ describe("Listener [ Listen ]", () => {
     const spy = jest.fn();
     const message = { name: "Maciej", age: 99 };
     let receivedExtra;
-    listener.listen((data) => {
-      spy(data);
-      receivedExtra = data.extra;
+    listener.listen({
+      callback: (data) => {
+        spy(data);
+        receivedExtra = data.extra;
+      },
     });
     sendWsEvent(listener, message);
 
@@ -34,7 +36,7 @@ describe("Listener [ Listen ]", () => {
 
   it("should allow to remove given listener", async () => {
     const spy = jest.fn();
-    const [removeListener] = listener.listen((data) => spy(data));
+    const removeListener = listener.listen({ callback: (data) => spy(data) });
     const message = { name: "Maciej", age: 99 };
     sendWsEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();

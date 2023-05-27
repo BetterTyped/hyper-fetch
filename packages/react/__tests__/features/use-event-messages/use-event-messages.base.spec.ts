@@ -63,7 +63,7 @@ describe("useEventMessages [ Base ]", () => {
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: (name) => [listener.name].includes(name) });
+      const view = renderUseEventMessages(socket, { filter: (name) => [listener.name].includes(name as any) });
 
       act(() => {
         view.result.current.onEvent(spy);

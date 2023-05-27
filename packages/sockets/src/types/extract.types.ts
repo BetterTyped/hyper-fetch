@@ -10,5 +10,6 @@ export type ExtractEmitterMappedDataType<E> = E extends Emitter<any, any, any, i
 
 // Listener
 
-export type ExtractListenerResponseType<T> = T extends Listener<infer R, any> ? R : never;
-export type ExtractListenerAdapterType<E> = E extends Listener<any, infer A> ? A : never;
+export type ExtractListenerResponseType<T> = T extends Listener<infer R, any, any> ? R : never;
+export type ExtractListenerNameType<E> = E extends Listener<any, infer A, any> ? A : never;
+export type ExtractListenerAdapterType<E> = E extends Listener<any, any, infer A> ? A : never;

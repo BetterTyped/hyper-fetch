@@ -28,7 +28,10 @@ export type SocketAdapterType<
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
     listener: ListenerInstance,
-    callback: ListenerCallbackType<SocketAdapterInstance, any>,
+    callback: ListenerCallbackType<
+      SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>,
+      any
+    >,
   ) => RemoveListenerCallbackType;
   removeListener: (name: string, callback: (...args: any) => void) => void;
   emit: (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => void;

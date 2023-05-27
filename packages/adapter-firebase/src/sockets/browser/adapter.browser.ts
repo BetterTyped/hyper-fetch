@@ -1,10 +1,11 @@
-import { ListenerCallbackType, ListenerInstance, SocketAdapterType, adapterBindingsSocket } from "@hyper-fetch/sockets";
+import { adapterBindingsSocket } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
 import { getOrderedResultRealtime, mapConstraint } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
+import { RealtimeSocketAdapterType } from "./adapter.types";
 
-export const realtimeAdapter = (database: Database): SocketAdapterType => {
+export const realtimeAdapter = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
     const {
       open,
@@ -20,6 +21,7 @@ export const realtimeAdapter = (database: Database): SocketAdapterType => {
       onOpen,
       onClose,
       onEvent,
+      onError,
     } = adapterBindingsSocket(socket);
 
     const connect = () => {
@@ -41,31 +43,39 @@ export const realtimeAdapter = (database: Database): SocketAdapterType => {
       onReconnect(disconnect, connect);
     };
 
-    const listen = (listener: ListenerInstance, callback: ListenerCallbackType<any, any>) => {
+    const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
       const fullUrl = socket.url + listener.name;
       const path = ref(database, fullUrl);
 
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
+      // Todo: Kacper fix type
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const params = options?.constraints.map((constraint) => mapConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
-      const unsubscribe = onValue(
-        queryConstraints,
-        (snapshot) => {
-          const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-          const status = getStatus(response);
-          const extra = { ref: path, snapshot, unsubscribe, status };
-          callback({ data: response, extra });
-          onEvent(listener.name, response, extra);
-        },
-        { onlyOnce },
-      );
-      const unmount = onListen(listener, callback, unsubscribe);
+      try {
+        const unsubscribe = onValue(
+          queryConstraints,
+          (snapshot) => {
+            const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+            const status = getStatus(response);
+            const extra = { ref: path, snapshot, unsubscribe, status };
+            callback({ data: response, extra });
+            onEvent(listener.name, response, extra);
+          },
+          { onlyOnce },
+        );
+        const unmount = onListen(listener, callback, unsubscribe);
 
-      return () => {
-        unsubscribe();
-        unmount();
-      };
+        return () => {
+          unsubscribe();
+          unmount();
+        };
+      } catch (error) {
+        onError(error);
+        return () => null;
+      }
     };
 
     const emit = async () => {

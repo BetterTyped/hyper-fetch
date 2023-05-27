@@ -29,15 +29,17 @@ export const useListener = <ListenerType extends ListenerInstance>(
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
 
   const stopListener = () => {
-    removeListenerRef.current?.[0]();
+    removeListenerRef.current?.();
   };
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen(({ data, extra }) => {
-      onEventCallback.current?.({ data, extra });
-      actions.setData(data);
-      actions.setTimestamp(+new Date());
+    removeListenerRef.current = listener.listen({
+      callback: ({ data, extra }) => {
+        onEventCallback.current?.({ data, extra });
+        actions.setData(data);
+        actions.setTimestamp(+new Date());
+      },
     });
   };
 
