@@ -120,7 +120,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     });
   }
 
-  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
+  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Request) {
       cache.invalidate(getRequestKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Request)) {
@@ -130,9 +130,9 @@ export const useFetch = <RequestType extends RequestInstance>(
 
   const refetch = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
     if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleRevalidation);
+      invalidateKey.forEach(handleInvalidation);
     } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleRevalidation(invalidateKey);
+      handleInvalidation(invalidateKey);
     } else {
       handleFetch();
       handleRefresh();

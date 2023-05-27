@@ -171,10 +171,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
   };
 
   // ******************
-  // Revalidation
+  // Invalidation
   // ******************
 
-  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
+  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Request) {
       cache.invalidate(getRequestKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Request)) {
@@ -186,9 +186,9 @@ export const useSubmit = <RequestType extends RequestInstance>(
     if (!invalidateKey) return;
 
     if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleRevalidation);
+      invalidateKey.forEach(handleInvalidation);
     } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleRevalidation(invalidateKey);
+      handleInvalidation(invalidateKey);
     }
   };
 

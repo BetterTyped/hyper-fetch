@@ -28,7 +28,7 @@ describe("useFetch [ Invalidate ]", () => {
     mock = createRequestInterceptor(request);
   });
 
-  it("should allow to prevent revalidation on mount", async () => {
+  it("should allow to prevent invalidation on mount", async () => {
     const spy = jest.fn();
     const customMock = { something: "123" };
     client.cache.set(request, {
@@ -52,7 +52,7 @@ describe("useFetch [ Invalidate ]", () => {
     await sleep(50);
     expect(spy).toBeCalledTimes(0);
   });
-  it("should allow to prevent revalidation on mount", async () => {
+  it("should allow to prevent invalidation on mount", async () => {
     const spy = jest.fn();
     const response = renderUseFetch(request, { fetchOnMount: false });
 

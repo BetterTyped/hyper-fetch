@@ -76,7 +76,7 @@ describe("useFetch [ Refreshing ]", () => {
     await waitForRender(hookOptions.refreshTime * 1.5);
     expect(spy).toBeCalledTimes(1);
   });
-  it("should postpone refresh when revalidation is triggered during countdown", async () => {
+  it("should postpone refresh when invalidation is triggered during countdown", async () => {
     // TODO
   });
   it("should postpone refresh when dependencies change during countdown", async () => {
