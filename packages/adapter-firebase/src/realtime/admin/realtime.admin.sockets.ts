@@ -1,9 +1,8 @@
 import { adapterBindingsSocket } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapConstraint } from "realtime";
+import { getOrderedResultRealtime, mapConstraint, RealtimeSocketAdapterType } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "./realtime.sockets.types";
 
 export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
@@ -52,7 +51,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
       // Todo: Kacper fix type
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const params = options?.constraints.map((constraint) => mapConstraint(constraint)) || [];
+      const params = options?.constraints?.map((constraint) => mapConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
       try {
         const unsubscribe = onValue(
@@ -60,7 +59,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
           (snapshot) => {
             const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
             const status = getStatus(response);
-            const extra = { ref: path, snapshot, unsubscribe, status };
+            const extra = { ref: path, snapshot, status };
             callback({ data: response, extra });
             onEvent(listener.name, response, extra);
           },

@@ -3,10 +3,10 @@
  */
 
 import { firestoreDbBrowser } from "./initialize.web";
-import { seedFirestoreDatabaseBrowser } from "../../utils/seed.web";
-import { deleteCollectionForBrowser } from "../../utils/clean.web";
+import { seedFirestoreDatabaseBrowser } from "../../utils/browser/seed.browser";
+import { deleteCollectionForBrowser } from "../../utils/browser/clean.browser";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseBrowserAdapter } from "../../../src";
+import { firebaseAdapter } from "../../../src";
 
 describe("Firestore Browser [ Methods ]", () => {
   beforeEach(async () => {
@@ -17,5 +17,5 @@ describe("Firestore Browser [ Methods ]", () => {
     await deleteCollectionForBrowser(firestoreDbBrowser, "teas");
   });
 
-  methodsSharedTestCases(() => firebaseBrowserAdapter(firestoreDbBrowser));
+  methodsSharedTestCases(() => firebaseAdapter(firestoreDbBrowser));
 });

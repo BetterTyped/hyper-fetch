@@ -3,7 +3,7 @@
  */
 import { Client } from "@hyper-fetch/core";
 
-import { seedFirestoreDatabaseAdmin } from "../../utils/seed.admin";
+import { seedFirestoreDatabaseAdmin } from "../../utils/admin/seed.admin";
 import { firestoreDbAdmin } from "./initialize.admin";
 import { firebaseAdminAdapter } from "adapter";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";

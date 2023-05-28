@@ -1,15 +1,15 @@
 import { ref, set } from "firebase/database";
 
-import { realtimeDbBrowser } from "./initialize.web";
-import { firebaseBrowserAdapter } from "adapter";
-import { seedRealtimeDatabaseBrowser } from "../../utils/seed.web";
+import { realtimeDBBrowser } from "../../utils";
+import { firebaseAdapter } from "adapter";
+import { seedRealtimeDatabaseBrowser } from "../../utils/browser/seed.browser";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Realtime Database Browser [Constraints]", () => {
   beforeEach(async () => {
-    await set(ref(realtimeDbBrowser, "teas/"), null);
-    await seedRealtimeDatabaseBrowser(realtimeDbBrowser);
+    await set(ref(realtimeDBBrowser, "teas/"), null);
+    await seedRealtimeDatabaseBrowser(realtimeDBBrowser);
   });
 
-  constraintsSharedTestCases(() => firebaseBrowserAdapter(realtimeDbBrowser));
+  constraintsSharedTestCases(() => firebaseAdapter(realtimeDBBrowser));
 });

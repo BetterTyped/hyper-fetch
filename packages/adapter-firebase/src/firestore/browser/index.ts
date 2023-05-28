@@ -1,1 +1,1 @@
-export * from "./firestore.web.methods";
+export * from "./firestore.browser.methods";

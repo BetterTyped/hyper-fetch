@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { seedFirestoreDatabaseAdmin } from "../../utils/seed.admin";
+import { seedFirestoreDatabaseAdmin } from "../../utils/admin/seed.admin";
 import { firestoreDbAdmin } from "./initialize.admin";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 import { firebaseAdminAdapter } from "../../../src";

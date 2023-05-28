@@ -3,18 +3,18 @@
  */
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseBrowserAdapter } from "adapter";
+import { firebaseAdapter } from "adapter";
 import { firestoreDbBrowser } from "./initialize.web";
-import { seedFirestoreDatabaseBrowser } from "../../utils/seed.web";
-import { deleteCollectionForBrowser } from "../../utils/clean.web";
+import { seedFirestoreDatabaseBrowser } from "../../utils/browser/seed.browser";
+import { deleteCollectionForBrowser } from "../../utils/browser/clean.browser";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Firestore Browser [ Constraints ]", () => {
-  let client = new Client({ url: "teas/" }).setAdapter(() => firebaseBrowserAdapter(firestoreDbBrowser));
+  let client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDbBrowser));
 
   beforeEach(async () => {
     await seedFirestoreDatabaseBrowser(firestoreDbBrowser);
-    client = new Client({ url: "teas/" }).setAdapter(() => firebaseBrowserAdapter(firestoreDbBrowser));
+    client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(firestoreDbBrowser));
   });
 
   afterEach(async () => {

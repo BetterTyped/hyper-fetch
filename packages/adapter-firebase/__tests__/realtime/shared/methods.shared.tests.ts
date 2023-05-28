@@ -1,4 +1,4 @@
-import { firebaseAdminAdapter, firebaseBrowserAdapter } from "adapter";
+import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
 import { getTestSuite } from "./methods/get.test.suite";
 import { setTestSuite } from "./methods/set.test.suite";
 import { pushTestSuite } from "./methods/push.test.suite";
@@ -8,7 +8,7 @@ import { onValueTestSuite } from "./methods/onValue.test.suite";
 import { RealtimeSocketAdapterType } from "realtime";
 
 export const methodsSharedTestCases = (
-  adapterFunction: () => ReturnType<typeof firebaseBrowserAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   getTestSuite(adapterFunction);
   setTestSuite(adapterFunction);
@@ -19,7 +19,7 @@ export const methodsSharedTestCases = (
 
 export const socketsMethodsSharedTestCases = (
   adapter: RealtimeSocketAdapterType,
-  coreAdapter: () => ReturnType<typeof firebaseBrowserAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  coreAdapter: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   onValueTestSuite(adapter, coreAdapter);
 };

@@ -1,2 +1,2 @@
-export * from "./web";
+export * from "./browser";
 export * from "./admin";

@@ -1,11 +1,11 @@
 import { Client } from "@hyper-fetch/core";
 
-import { Tea } from "../../../utils/seed.data";
-import { firebaseAdminAdapter, firebaseBrowserAdapter } from "../../../../src";
+import { Tea } from "../../../utils/seed/seed.data";
+import { firebaseAdminAdapter, firebaseAdapter } from "../../../../src";
 import { testLifecycleEvents } from "../../../shared/request-events.shared";
 
 export const setDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseBrowserAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("setDoc", () => {
     it("should set data", async () => {

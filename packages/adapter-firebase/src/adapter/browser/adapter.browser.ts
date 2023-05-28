@@ -1,6 +1,5 @@
 import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
-import { Firestore } from "firebase/firestore";
 
 import {
   FirebaseBrowserAdapterTypes,
@@ -17,7 +16,7 @@ import {
 import { getRealtimeDBMethodsBrowser } from "realtime";
 import { getFirestoreMethodsBrowser } from "firestore";
 
-export const firebaseBrowserAdapter = <T extends FirebaseBrowserDBTypes>(database: T) => {
+export const firebaseAdapter = <T extends FirebaseBrowserDBTypes>(database: T) => {
   const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
@@ -43,8 +42,7 @@ export const firebaseBrowserAdapter = <T extends FirebaseBrowserDBTypes>(databas
           options,
           data,
         });
-      }
-      if (database instanceof Firestore) {
+      } else {
         const {
           method = FirestoreMethods.getDocs,
           queryParams,

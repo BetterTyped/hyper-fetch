@@ -17,9 +17,11 @@ describe("Socket Adapter [ Utils ]", () => {
 
   it("should allow to remove listener", async () => {
     const spy = jest.fn();
-    socket.adapter.listeners.set("test", new Set<any>().add(spy));
+    const spy2 = jest.fn();
+    socket.adapter.listeners.set("test", new Map<any, any>().set(spy, spy2));
     const removed = socket.adapter.removeListener("test", spy);
     expect(removed).toBeTrue();
+    expect(spy2).toHaveBeenCalledOnce();
   });
 
   it("should not throw when removing not existing listener", async () => {

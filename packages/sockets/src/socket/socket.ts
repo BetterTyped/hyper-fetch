@@ -23,9 +23,9 @@ import {
   interceptListener,
   interceptEmitter,
 } from "socket";
-import { ExtractSocketExtraType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
+import { ExtractSocketExtraType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
 
 export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
@@ -92,7 +92,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
     }
 
     // Adapter must be initialized at the end
-    this.adapter = (adapter?.(this) || websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
+    this.adapter = (adapter ? adapter(this) : websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
   }
 
   /**

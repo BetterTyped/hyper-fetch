@@ -1,5 +1,5 @@
 import { AdapterType } from "@hyper-fetch/core";
-import { DatabaseReference, DataSnapshot, Unsubscribe } from "firebase/database";
+import { DatabaseReference, DataSnapshot } from "firebase/database";
 
 import {
   PermittedConstraints,
@@ -62,7 +62,6 @@ export type RealtimeDBStatuses = "success" | "error" | "emptyResource";
 export type RealtimeDbOnValueMethodExtra = {
   ref: DatabaseReference;
   snapshot: DataSnapshot;
-  unsubscribe: Unsubscribe;
 };
 
 export type RealtimeDbGetMethodExtra = {

@@ -1,11 +1,10 @@
 import { adapterBindingsSocket } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapConstraint } from "realtime";
+import { getOrderedResultRealtime, mapConstraint, RealtimeSocketAdapterType } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "./realtime.browser.types";
 
-export const realtimeSocketsBrowser = (database: Database): RealtimeSocketAdapterType => {
+export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
     const {
       open,
@@ -52,7 +51,7 @@ export const realtimeSocketsBrowser = (database: Database): RealtimeSocketAdapte
       // Todo: Kacper fix type
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const params = options?.constraints.map((constraint) => mapConstraint(constraint)) || [];
+      const params = options?.constraints?.map((constraint) => mapConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
       try {
         const unsubscribe = onValue(
@@ -60,7 +59,7 @@ export const realtimeSocketsBrowser = (database: Database): RealtimeSocketAdapte
           (snapshot) => {
             const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
             const status = getStatus(response);
-            const extra = { ref: path, snapshot, unsubscribe, status };
+            const extra = { ref: path, snapshot, status };
             callback({ data: response, extra });
             onEvent(listener.name, response, extra);
           },
@@ -68,10 +67,12 @@ export const realtimeSocketsBrowser = (database: Database): RealtimeSocketAdapte
         );
         const unmount = onListen(listener, callback, unsubscribe);
 
-        return () => {
+        const clearListeners = () => {
           unsubscribe();
           unmount();
         };
+
+        return clearListeners;
       } catch (error) {
         onError(error);
         return () => null;

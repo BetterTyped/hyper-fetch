@@ -1,25 +1,25 @@
 /**
  * @jest-environment node
  */
-import { realtimeDBAdmin as db } from "./initialize.admin";
-import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
+import { realtimeDBAdmin } from "../../utils";
+import { seedRealtimeDatabaseAdmin } from "../../utils/admin/seed.admin";
 import { firebaseAdminAdapter } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {
-  let realtimeDBAdmin;
+  let db;
 
   beforeAll(async () => {
-    realtimeDBAdmin = await db;
+    db = await realtimeDBAdmin;
   });
   beforeEach(async () => {
-    await realtimeDBAdmin.ref("teas").set(null);
-    await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
+    await db.ref("teas").set(null);
+    await seedRealtimeDatabaseAdmin(db);
   });
 
   afterEach(async () => {
-    await realtimeDBAdmin.ref("teas").set(null);
+    await db.ref("teas").set(null);
   });
 
-  methodsSharedTestCases(() => firebaseAdminAdapter(realtimeDBAdmin));
+  methodsSharedTestCases(() => firebaseAdminAdapter(db));
 });

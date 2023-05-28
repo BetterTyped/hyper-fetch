@@ -1,7 +1,7 @@
 import { Database, set, ref } from "firebase/database";
 import { Firestore, doc, setDoc } from "firebase/firestore";
 
-import { teas } from "./seed.data";
+import { teas } from "../seed/seed.data";
 
 export const seedRealtimeDatabaseBrowser = async (db: Database) => {
   // eslint-disable-next-line no-restricted-syntax

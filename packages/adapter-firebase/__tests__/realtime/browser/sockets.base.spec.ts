@@ -1,15 +1,13 @@
-import { realtimeDBAdmin as db } from "../admin/initialize.admin";
+import { set, ref } from "firebase/database";
 
-import { seedRealtimeDatabaseAdmin } from "../../utils/seed.admin";
+import { realtimeDBBrowser, seedRealtimeDatabaseBrowser } from "../../utils";
 import { socketsMethodsSharedTestCases } from "../shared/methods.shared.tests";
-import { realtimeSocketsBrowser } from "realtime";
+import { firebaseAdapter, firebaseSocketsAdapter } from "adapter";
 
-describe("Realtime Database Browser [Methods]", () => {
-  let realtimeDBAdmin;
+describe("Realtime Database Browser [Sockets]", () => {
   beforeEach(async () => {
-    realtimeDBAdmin = await db;
-    await realtimeDBAdmin.ref("teas").set(null);
-    await seedRealtimeDatabaseAdmin(realtimeDBAdmin);
+    await set(ref(realtimeDBBrowser, "teas/"), null);
+    await seedRealtimeDatabaseBrowser(realtimeDBBrowser);
   });
-  socketsMethodsSharedTestCases(realtimeSocketsBrowser(realtimeDBAdmin), () => firebaseAdminAdapter(realtimeDBAdmin));
+  socketsMethodsSharedTestCases(firebaseSocketsAdapter(realtimeDBBrowser), () => firebaseAdapter(realtimeDBBrowser));
 });

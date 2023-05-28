@@ -1,7 +1,7 @@
 import { Firestore } from "firebase-admin/firestore";
 import { Database } from "firebase-admin/database";
 
-import { teas } from "./seed.data";
+import { teas } from "../seed/seed.data";
 
 export const seedFirestoreDatabaseAdmin = async (db: Firestore) => {
   // eslint-disable-next-line no-restricted-syntax
