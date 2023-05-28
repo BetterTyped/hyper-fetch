@@ -14,4 +14,4 @@ const initializeFirestore = () => {
   return db;
 };
 
-export const firestoreDbWeb = initializeFirestore();
+export const firestoreDbBrowser = initializeFirestore();

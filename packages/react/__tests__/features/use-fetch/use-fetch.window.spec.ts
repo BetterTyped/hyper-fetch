@@ -27,7 +27,7 @@ describe("useFetch [ Basic ]", () => {
   it("should refresh on tab focus", async () => {
     const spy = jest.fn();
     createRequestInterceptor(request, { delay: 0 });
-    const response = renderUseFetch(request, { refreshOnFocus: true });
+    const response = renderUseFetch(request, { refetchOnFocus: true });
 
     await waitForRender();
 
@@ -43,7 +43,7 @@ describe("useFetch [ Basic ]", () => {
   it("should refresh on tab blur", async () => {
     const spy = jest.fn();
     createRequestInterceptor(request, { delay: 0 });
-    const response = renderUseFetch(request, { refreshOnBlur: true });
+    const response = renderUseFetch(request, { refetchOnBlur: true });
 
     await waitForRender();
     act(() => {

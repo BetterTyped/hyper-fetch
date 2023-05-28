@@ -5,7 +5,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
 
-describe("useFetch [ Invalidate ]", () => {
+describe("useFetch [ refetch ]", () => {
   let request = createRequest();
   let mock = createRequestInterceptor(request);
 
@@ -67,7 +67,7 @@ describe("useFetch [ Invalidate ]", () => {
     await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
   });
-  it("should allow to invalidate on mount", async () => {
+  it("should allow to refetch on mount", async () => {
     const customMock = { something: "123" };
     client.cache.set(request, {
       data: customMock,
@@ -87,7 +87,7 @@ describe("useFetch [ Invalidate ]", () => {
       await testSuccessState(mock, response);
     });
   });
-  it("should allow to invalidate current hook", async () => {
+  it("should allow to refetch current hook", async () => {
     const response = renderUseFetch(request);
 
     await waitFor(async () => {
@@ -96,14 +96,14 @@ describe("useFetch [ Invalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      response.result.current.invalidate();
+      response.result.current.refetch();
     });
 
     await waitFor(async () => {
       await testSuccessState(customMock, response);
     });
   });
-  it("should allow to invalidate hook by RegExp", async () => {
+  it("should allow to refetch hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
@@ -115,7 +115,7 @@ describe("useFetch [ Invalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.invalidate(regexp);
+      responseOne.result.current.refetch(regexp);
     });
 
     await waitFor(async () => {
@@ -123,7 +123,7 @@ describe("useFetch [ Invalidate ]", () => {
       await testSuccessState(customMock, responseTwo);
     });
   });
-  it("should allow to invalidate hook by keys array", async () => {
+  it("should allow to refetch hook by keys array", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
@@ -134,7 +134,7 @@ describe("useFetch [ Invalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.invalidate(["Maciej"]);
+      responseOne.result.current.refetch(["Maciej"]);
     });
 
     await waitFor(async () => {
@@ -142,7 +142,7 @@ describe("useFetch [ Invalidate ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
-  it("should allow to invalidate hook by key", async () => {
+  it("should allow to refetch hook by key", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
@@ -153,7 +153,7 @@ describe("useFetch [ Invalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.invalidate("Maciej");
+      responseOne.result.current.refetch("Maciej");
     });
 
     await waitFor(async () => {
@@ -161,7 +161,7 @@ describe("useFetch [ Invalidate ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
-  it("should allow to invalidate hook by request", async () => {
+  it("should allow to refetch hook by request", async () => {
     const responseOne = renderUseFetch(request.setQueryParams("?something=123"));
     const responseTwo = renderUseFetch(request.setQueryParams("?other=999"));
 
@@ -172,7 +172,7 @@ describe("useFetch [ Invalidate ]", () => {
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.invalidate(request.setQueryParams("?something=123"));
+      responseOne.result.current.refetch(request.setQueryParams("?something=123"));
     });
 
     await waitFor(async () => {

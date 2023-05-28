@@ -4,7 +4,7 @@ import { startServer, resetInterceptors, stopServer, createRequestInterceptor } 
 import { testErrorState, testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, renderUseSubmit } from "../../utils";
 
-describe("useFetch [ Invalidate ]", () => {
+describe("useFetch [ refetch ]", () => {
   let requestSubmit = createRequest<null, null>({ method: "POST" });
   let requestFetch = createRequest({ endpoint: "fetch-test" });
 
@@ -27,7 +27,7 @@ describe("useFetch [ Invalidate ]", () => {
     requestFetch = createRequest({ endpoint: "fetch-test" });
   });
 
-  it("should allow to invalidate other request on finished", async () => {
+  it("should allow to refetch other request on finished", async () => {
     const submitMock = createRequestInterceptor(requestSubmit);
     const errorFetchMock = createRequestInterceptor(requestFetch, { status: 400 });
     const responseSubmit = renderUseSubmit(requestSubmit);
@@ -38,7 +38,7 @@ describe("useFetch [ Invalidate ]", () => {
 
     act(() => {
       responseSubmit.result.current.onSubmitFinished(() => {
-        responseSubmit.result.current.invalidate(requestFetch);
+        responseSubmit.result.current.refetch(requestFetch);
       });
       responseSubmit.result.current.submit();
     });
@@ -46,61 +46,61 @@ describe("useFetch [ Invalidate ]", () => {
     await testSuccessState(submitMock, responseSubmit);
     await testSuccessState(fetchMock, responseFetch);
   });
-  it("should allow to invalidate by Request", async () => {
+  it("should allow to refetch by Request", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.invalidate(requestSubmit);
+      result.current.refetch(requestSubmit);
     });
 
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
-  it("should allow to invalidate by RegExp", async () => {
+  it("should allow to refetch by RegExp", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.invalidate(new RegExp(requestSubmit.cacheKey));
+      result.current.refetch(new RegExp(requestSubmit.cacheKey));
     });
 
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith(new RegExp(requestSubmit.cacheKey));
   });
-  it("should allow to invalidate by cacheKey", async () => {
+  it("should allow to refetch by cacheKey", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.invalidate(requestSubmit.cacheKey);
+      result.current.refetch(requestSubmit.cacheKey);
     });
 
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
-  it("should allow to invalidate by cacheKey", async () => {
+  it("should allow to refetch by cacheKey", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.invalidate([requestSubmit.cacheKey]);
+      result.current.refetch([requestSubmit.cacheKey]);
     });
 
     expect(spy).toBeCalledTimes(1);
     expect(spy).toBeCalledWith(requestSubmit.cacheKey);
   });
-  it("should not allow to invalidate without key", async () => {
+  it("should not allow to refetch without key", async () => {
     const spy = jest.spyOn(client.cache, "invalidate");
 
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.invalidate(undefined as string);
+      result.current.refetch(undefined as string);
     });
 
     expect(spy).toBeCalledTimes(0);

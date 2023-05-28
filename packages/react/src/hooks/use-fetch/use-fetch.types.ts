@@ -36,19 +36,19 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * Enable/disable data refresh if our tab is not focused(used by user at given time).
    */
-  refreshBlurred?: boolean;
+  refetchBlurred?: boolean;
   /**
    * Enable/disable data refresh if user leaves current tab.
    */
-  refreshOnBlur?: boolean;
+  refetchOnBlur?: boolean;
   /**
    * Enable/disable data refresh if user enters current tab.
    */
-  refreshOnFocus?: boolean;
+  refetchOnFocus?: boolean;
   /**
    * Enable/disable data refresh if network is restored.
    */
-  refreshOnReconnect?: boolean;
+  refetchOnReconnect?: boolean;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */

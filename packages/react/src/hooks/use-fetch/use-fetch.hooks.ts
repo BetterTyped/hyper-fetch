@@ -29,10 +29,10 @@ export const useFetch = <RequestType extends RequestInstance>(
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
-    refreshBlurred = useFetchDefaultOptions.refreshBlurred,
-    refreshOnBlur = useFetchDefaultOptions.refreshOnBlur,
-    refreshOnFocus = useFetchDefaultOptions.refreshOnFocus,
-    refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
+    refetchBlurred = useFetchDefaultOptions.refetchBlurred,
+    refetchOnBlur = useFetchDefaultOptions.refetchOnBlur,
+    refetchOnFocus = useFetchDefaultOptions.refetchOnFocus,
+    refetchOnReconnect = useFetchDefaultOptions.refetchOnReconnect,
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
@@ -107,7 +107,7 @@ export const useFetch = <RequestType extends RequestInstance>(
       const isFetching = dispatcher.hasRunningRequests(request.queueKey);
       const isQueued = dispatcher.getIsActiveQueue(request.queueKey);
       const isActive = isFetching || isQueued;
-      const canRefreshBlurred = isBlurred && refreshBlurred && !isActive;
+      const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
 
       if (canRefreshBlurred || canRefreshFocused) {
@@ -173,19 +173,19 @@ export const useFetch = <RequestType extends RequestInstance>(
     addLifecycleListeners(request);
 
     const focusUnmount = appManager.events.onFocus(() => {
-      if (refreshOnFocus) {
+      if (refetchOnFocus) {
         handleFetch();
         handleRefresh();
       }
     });
     const blurUnmount = appManager.events.onBlur(() => {
-      if (refreshOnBlur) {
+      if (refetchOnBlur) {
         handleFetch();
         handleRefresh();
       }
     });
     const onlineUnmount = appManager.events.onOnline(() => {
-      if (refreshOnReconnect) {
+      if (refetchOnReconnect) {
         handleFetch();
         handleRefresh();
       }

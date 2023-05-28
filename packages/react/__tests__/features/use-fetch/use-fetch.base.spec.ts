@@ -105,7 +105,7 @@ describe("useFetch [ Base ]", () => {
       const mock = createRequestInterceptor(request);
 
       act(() => {
-        view.result.current.invalidate();
+        view.result.current.refetch();
       });
 
       await testSuccessState(mock, view);
@@ -132,7 +132,7 @@ describe("useFetch [ Base ]", () => {
       const errorMock = createRequestInterceptor(request, { status: 400 });
 
       act(() => {
-        view.result.current.invalidate();
+        view.result.current.refetch();
       });
 
       await testErrorState(errorMock, view, mock);

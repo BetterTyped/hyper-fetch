@@ -1,5 +1,5 @@
 export const onSnapshotTestSuite = () =>
-  // adapterFunction: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  // adapterFunction: () => ReturnType<typeof firebaseBrowserAdapter> | ReturnType<typeof firebaseAdminAdapter>,
   {
     // describe("onSnapshot", () => {
     //   it("should return data available for collection", async () => {

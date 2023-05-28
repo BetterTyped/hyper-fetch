@@ -3,9 +3,9 @@ import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/dat
 
 import { getOrderedResultRealtime, mapConstraint } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "./adapter.types";
+import { RealtimeSocketAdapterType } from "./realtime.sockets.types";
 
-export const realtimeAdapter = (database: Database): RealtimeSocketAdapterType => {
+export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
     const {
       open,

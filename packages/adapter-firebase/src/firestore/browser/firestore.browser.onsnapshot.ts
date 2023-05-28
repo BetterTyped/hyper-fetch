@@ -3,8 +3,8 @@ import { collection, doc, query, onSnapshot as _onSnapshot, Firestore } from "fi
 
 import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 import { getStatus, isDocOrQuery, setCacheManually } from "utils";
-import { mapConstraint } from "./firestore.web.utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
+import { mapConstraint } from "./firestore.browser.utils";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils/firestore.utils";
 
 export const onSnapshot =
   (request: RequestInstance, database: Firestore, url: string) =>

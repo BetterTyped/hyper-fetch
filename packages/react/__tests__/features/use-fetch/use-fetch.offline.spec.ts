@@ -27,7 +27,7 @@ describe("useFetch [ Offline ]", () => {
   });
 
   describe("when application is offline", () => {
-    it("should not invalidate on offline", async () => {
+    it("should not refetch on offline", async () => {
       const mock = createRequestInterceptor(request);
       const response = renderUseFetch(request);
 
@@ -37,7 +37,7 @@ describe("useFetch [ Offline ]", () => {
 
       act(() => {
         client.appManager.setOnline(false);
-        response.result.current.invalidate();
+        response.result.current.refetch();
       });
 
       expect(spy).toBeCalledTimes(0);
@@ -56,7 +56,7 @@ describe("useFetch [ Offline ]", () => {
     it("should refetch when coming back online", async () => {
       const spy = jest.fn();
       const mock = createRequestInterceptor(request);
-      const response = renderUseFetch(request, { refreshOnReconnect: true });
+      const response = renderUseFetch(request, { refetchOnReconnect: true });
       await testSuccessState(mock, response);
 
       act(() => {

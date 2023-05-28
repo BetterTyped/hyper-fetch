@@ -9,7 +9,7 @@ import {
 
 import { FirestoreConstraintsUnion, FirestorePermittedMethods, PermittedConstraints } from "constraints";
 import { applyConstraints, getRef } from "./firestore.admin.utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore } from "../firestore.utils";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils/firestore.utils";
 import { getStatus, setCacheManually } from "utils";
 
 export const onSnapshot =

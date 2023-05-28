@@ -2,20 +2,20 @@
  * @jest-environment node
  */
 
-import { firestoreDbWeb } from "./initialize.web";
-import { seedFirestoreDatabaseWeb } from "../../utils/seed.web";
-import { deleteCollectionForWeb } from "../../utils/clean.web";
+import { firestoreDbBrowser } from "./initialize.web";
+import { seedFirestoreDatabaseBrowser } from "../../utils/seed.web";
+import { deleteCollectionForBrowser } from "../../utils/clean.web";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseWebAdapter } from "../../../src";
+import { firebaseBrowserAdapter } from "../../../src";
 
-describe("Firestore Web [ Methods ]", () => {
+describe("Firestore Browser [ Methods ]", () => {
   beforeEach(async () => {
-    await seedFirestoreDatabaseWeb(firestoreDbWeb);
+    await seedFirestoreDatabaseBrowser(firestoreDbBrowser);
   });
 
   afterEach(async () => {
-    await deleteCollectionForWeb(firestoreDbWeb, "teas");
+    await deleteCollectionForBrowser(firestoreDbBrowser, "teas");
   });
 
-  methodsSharedTestCases(() => firebaseWebAdapter(firestoreDbWeb));
+  methodsSharedTestCases(() => firebaseBrowserAdapter(firestoreDbBrowser));
 });

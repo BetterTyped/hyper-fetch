@@ -3,7 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
-import { getOrderedResultFirestore } from "../firestore.utils";
+import { getOrderedResultFirestore } from "../utils/firestore.utils";
 import { applyConstraints, getRef } from "./firestore.admin.utils";
 import {
   FirestoreConstraintsUnion,

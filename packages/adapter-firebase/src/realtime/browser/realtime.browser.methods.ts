@@ -4,7 +4,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 import { RealtimeDBMethodsUnion } from "adapter/types";
 import { getOrderedResultRealtime } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { mapConstraint } from "./realtime.web.utils";
+import { mapConstraint } from "./realtime.browser.utils";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,
@@ -12,7 +12,7 @@ import {
   SharedQueryConstraints,
 } from "../../constraints";
 
-export const getRealtimeDBMethodsWeb = <R extends RequestInstance>(
+export const getRealtimeDBMethodsBrowser = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,

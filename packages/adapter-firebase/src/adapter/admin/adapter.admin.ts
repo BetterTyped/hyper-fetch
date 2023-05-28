@@ -12,7 +12,7 @@ import {
   RealtimeDBQueryParams,
   FirestoreMethods,
   RealtimeDBMethods,
-} from "adapter/types";
+} from "adapter";
 import { getFirestoreMethodsAdmin } from "firestore";
 import { getRealtimeDBMethodsAdmin } from "realtime";
 

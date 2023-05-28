@@ -3,7 +3,7 @@ import { Firestore, doc, setDoc } from "firebase/firestore";
 
 import { teas } from "./seed.data";
 
-export const seedRealtimeDatabaseWeb = async (db: Database) => {
+export const seedRealtimeDatabaseBrowser = async (db: Database) => {
   // eslint-disable-next-line no-restricted-syntax
   for (const tea of teas) {
     const { id, ...data } = tea;
@@ -12,7 +12,7 @@ export const seedRealtimeDatabaseWeb = async (db: Database) => {
   }
 };
 
-export const seedFirestoreDatabaseWeb = async (db: Firestore) => {
+export const seedFirestoreDatabaseBrowser = async (db: Firestore) => {
   // eslint-disable-next-line no-restricted-syntax
   for (const tea of teas) {
     const { id, ...data } = tea;

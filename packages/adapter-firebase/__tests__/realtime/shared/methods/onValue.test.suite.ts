@@ -2,13 +2,13 @@ import { Socket } from "@hyper-fetch/sockets";
 import { waitFor } from "@testing-library/dom";
 import { Client } from "@hyper-fetch/core";
 
-import { RealtimeSocketAdapterType } from "sockets";
 import { Tea } from "../../../utils/seed.data";
-import { firebaseAdminAdapter, firebaseWebAdapter } from "adapter";
+import { firebaseAdminAdapter, firebaseBrowserAdapter } from "adapter";
+import { RealtimeSocketAdapterType } from "realtime";
 
 export const onValueTestSuite = (
   adapter: RealtimeSocketAdapterType,
-  coreAdapter: () => ReturnType<typeof firebaseWebAdapter> | ReturnType<typeof firebaseAdminAdapter>,
+  coreAdapter: () => ReturnType<typeof firebaseBrowserAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("onValue", () => {
     const spy = jest.fn();

@@ -80,7 +80,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.invalidate(request);
+          result.current.refetch(request);
         });
 
         expect(spy).toBeCalledTimes(1);
@@ -92,7 +92,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.invalidate(new RegExp(request.cacheKey));
+          result.current.refetch(new RegExp(request.cacheKey));
         });
 
         expect(spy).toBeCalledTimes(1);
@@ -104,7 +104,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.invalidate(request.cacheKey);
+          result.current.refetch(request.cacheKey);
         });
 
         expect(spy).toBeCalledTimes(1);
@@ -116,7 +116,7 @@ describe("useCache [ Base ]", () => {
         const { result } = renderUseCache(request);
 
         act(() => {
-          result.current.invalidate();
+          result.current.refetch();
         });
 
         expect(spy).toBeCalledTimes(1);

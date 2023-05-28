@@ -3,8 +3,8 @@ import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
 import {
-  FirebaseWebAdapterTypes,
-  FirebaseWebDBTypes,
+  FirebaseBrowserAdapterTypes,
+  FirebaseBrowserDBTypes,
   RealtimeDbAdapterType,
   RealtimeDBMethodsUnion,
   RealtimeDBQueryParams,
@@ -13,15 +13,15 @@ import {
   FirestoreQueryParams,
   FirestoreMethods,
   RealtimeDBMethods,
-} from "adapter/types";
-import { getRealtimeDBMethodsWeb } from "realtime";
-import { getFirestoreMethodsWeb } from "firestore";
+} from "adapter";
+import { getRealtimeDBMethodsBrowser } from "realtime";
+import { getFirestoreMethodsBrowser } from "firestore";
 
-export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) => {
-  const adapter: FirebaseWebAdapterTypes<T> = async (request, requestId) => {
+export const firebaseBrowserAdapter = <T extends FirebaseBrowserDBTypes>(database: T) => {
+  const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
     const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
       await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
-    return new Promise<ResponseReturnType<any, any, FirebaseWebAdapterTypes<T>>>((resolve) => {
+    return new Promise<ResponseReturnType<any, any, FirebaseBrowserAdapterTypes<T>>>((resolve) => {
       if (database instanceof Database) {
         const {
           method = RealtimeDBMethods.get,
@@ -29,7 +29,7 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           data,
           options,
         }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
-        const availableMethods = getRealtimeDBMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getRealtimeDBMethodsBrowser(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
           onRequestStart,
@@ -51,7 +51,7 @@ export const firebaseWebAdapter = <T extends FirebaseWebDBTypes>(database: T) =>
           data,
           options,
         }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
-        const availableMethods = getFirestoreMethodsWeb(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getFirestoreMethodsBrowser(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
           onRequestStart,
