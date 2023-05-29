@@ -1,10 +1,10 @@
 import { waitFor } from "@testing-library/dom";
 
-import { ResponseReturnType, getErrorMessage, AdapterType } from "adapter";
+import { ResponseReturnType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();

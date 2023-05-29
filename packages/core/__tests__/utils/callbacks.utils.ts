@@ -1,5 +1,4 @@
-import { AdapterType, ResponseReturnType } from "adapter";
-import { xhrExtra } from "client";
+import { xhrExtra, AdapterType, ResponseReturnType } from "adapter";
 import { RequestInstance } from "request";
 import { sleep } from "./helpers.utils";
 

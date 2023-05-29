@@ -1,16 +1,14 @@
+import { getAdapterBindings, parseErrorResponse, parseResponse } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
-import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse, parseResponse } from "adapter";
-import { HttpMethodsEnum } from "../constants/http.constants";
+import { gqlExtra, defaultTimeout, GraphQLAdapterType, getRequestValues } from "adapter";
 
-export const adapter: AdapterType = async (request, requestId) => {
+export const adapter: GraphQLAdapterType = async (request, requestId) => {
   const {
     makeRequest,
-    fullUrl,
     config,
     headers,
-    payload,
     onError,
     onResponseEnd,
     onTimeoutError,
@@ -21,10 +19,11 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>(request, requestId, 0, xhrExtra);
+  } = await getAdapterBindings<GraphQLAdapterType>(request, requestId, 0, gqlExtra);
 
-  const { method = HttpMethodsEnum.get, client } = request;
-  const httpClient = client.url.includes("https://") ? https : http;
+  const { fullUrl, payload, method } = getRequestValues(request);
+
+  const httpClient = request.client.url.includes("https://") ? https : http;
   const options = {
     path: fullUrl,
     method,
@@ -48,7 +47,7 @@ export const adapter: AdapterType = async (request, requestId) => {
   return makeRequest((resolve) => {
     const httpRequest = httpClient.request(options, (response) => {
       response.setEncoding("utf8");
-      unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
+      unmountListener = createAbortListener(0, gqlExtra, response.destroy, resolve);
 
       let chunks = "";
       const totalDownloadBytes = Number(response.headers["content-length"]);
@@ -84,8 +83,8 @@ export const adapter: AdapterType = async (request, requestId) => {
       });
     });
 
-    httpRequest.on("timeout", () => onTimeoutError(0, xhrExtra, resolve));
-    httpRequest.on("error", (error) => onError(error, 0, xhrExtra, resolve));
+    httpRequest.on("timeout", () => onTimeoutError(0, gqlExtra, resolve));
+    httpRequest.on("error", (error) => onError(error, 0, gqlExtra, resolve));
     if (payload) {
       httpRequest.write(payload);
     }

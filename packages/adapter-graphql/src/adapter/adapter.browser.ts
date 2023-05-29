@@ -1,19 +1,11 @@
-import {
-  xhrExtra,
-  getAdapterBindings,
-  AdapterType,
-  getResponseHeaders,
-  parseResponse,
-  parseErrorResponse,
-} from "adapter";
-import { defaultTimeout } from "./adapter.constants";
+import { getAdapterBindings, getResponseHeaders, parseResponse, parseErrorResponse } from "@hyper-fetch/core";
 
-export const adapter: AdapterType = async (request, requestId) => {
+import { gqlExtra, GraphQLAdapterType, defaultTimeout, getRequestValues } from "adapter";
+
+export const adapter: GraphQLAdapterType = async (request, requestId) => {
   const {
     makeRequest,
-    fullUrl,
     config,
-    payload,
     headers,
     onError,
     onResponseEnd,
@@ -26,11 +18,9 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>(request, requestId, 0, {
-    headers: {},
-  });
+  } = await getAdapterBindings<GraphQLAdapterType>(request, requestId, 0, gqlExtra);
 
-  const { method = "GET" } = request;
+  const { fullUrl, payload, method } = getRequestValues(request);
 
   return makeRequest((resolve) => {
     const xhr = new XMLHttpRequest();
@@ -50,7 +40,7 @@ export const adapter: AdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(0, xhrExtra, abort, resolve);
+    const unmountListener = createAbortListener(0, gqlExtra, abort, resolve);
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -68,7 +58,7 @@ export const adapter: AdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError(0, xhrExtra, resolve);
+    xhr.ontimeout = () => onTimeoutError(0, gqlExtra, resolve);
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {

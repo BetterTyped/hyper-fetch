@@ -1,7 +1,7 @@
-import { getErrorMessage } from "adapter";
+import { getErrorMessage, xhrExtra } from "adapter";
 import { sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };

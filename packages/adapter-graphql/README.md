@@ -1,4 +1,4 @@
-# 🔥 Hyper Fetch Firebase
+# ⚡ Hyper Fetch
 
 <p>
   <a href="https://bettertyped.com/">
@@ -10,8 +10,8 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm&color=e76f51" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/graphql.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -28,18 +28,18 @@
   <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
     <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B&logo=package" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/graphql?color=64BC4B&logo=package" />
   </a>
 </p>
 
 ## About
 
-**`Hyper Fetch Firebase `** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
-first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
-from the convenience and efficiency of Hyper Fetch for your Firebase-powered projects.
+**`Hyper Fetch GraphQl`** is adapter for Hyper Fetch. It enables seamless communication with GraphQL APIs in Node.js and
+browser environments, simplifying the retrieval and manipulation of data. Benefit from the convenience and efficiency of
+Hyper Fetch for your GraphQL-powered projects.
 
-## Key Features
+## Features
 
 🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
@@ -73,7 +73,7 @@ from the convenience and efficiency of Hyper Fetch for your Firebase-powered pro
 ## Sources
 
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
-- #### [Docs](https://hyperfetch.bettertyped.com/docs/react/overview)
+- #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/firebase)
-- #### [Guides](https://hyperfetch.bettertyped.com/guides/basic/setup)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/graphql)
+- #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)

@@ -1,6 +1,7 @@
 import { CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
+import { xhrExtra } from "adapter";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";

@@ -1,0 +1,85 @@
+{
+  "name": "@hyper-fetch/graphql",
+  "version": "0.0.0",
+  "private": false,
+  "description": "Simple graphql adapter",
+  "author": "Maciej Pyrc <m.pyrc@interia.pl>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "client": "dist/browser/index.esm.js",
+  "browser": "dist/browser/index.esm.js",
+  "server": "dist/server/index.esm.js",
+  "node": "dist/server/index.esm.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./index.d.ts"
+      },
+      "browser": {
+        "require": "./dist/browser/index.cjs.js",
+        "import": "./dist/browser/index.esm.js"
+      },
+      "default": {
+        "require": "./dist/index.cjs.js",
+        "import": "./dist/index.esm.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "prepublishOnly": "yarn build",
+    "clean": "npx rimraf dist",
+    "test": "jest --watchAll --maxWorkers=3",
+    "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
+    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "build": "yarn clean && node ../../scripts/build.js",
+    "postbuild": "rollup -c '../../rollup.config.js'",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "tests": "yarn lint-staged",
+    "release": "yarn semantic-release --extends ./release.config.js -t 'hyper-fetch-v${version}'"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "peerDependencies": {
+    "graphql-tag": "^2.12.6"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "abortcontroller-polyfill": "^1.7.5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "yarn jest --passWithNoTests"
+    ]
+  },
+  "keywords": [
+    "fetch",
+    "xhr",
+    "requests",
+    "js",
+    "fetcher",
+    "graphql",
+    "gql",
+    "gql-request",
+    "gql-node",
+    "gql-browser"
+  ]
+}

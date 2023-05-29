@@ -11,12 +11,12 @@
     "start": "nx run-many --target=start --all --parallel=10",
     "start:react": "nx serve reactjs",
     "start:next": "nx serve next",
-    "build": "nx run-many --target=build --projects=core,react,sockets,adapter-firebase --parallel=10",
+    "build": "nx run-many --target=build --all --exclude=next,reactjs --parallel=10",
     "build:docs": "cd documentation && yarn install && yarn build",
-    "test": "nx run-many --target=test-pipeline --projects=core,react,sockets,adapter-firebase --parallel=1",
-    "lint": "nx run-many --target=lint --projects=core,react,sockets,adapter-firebase --parallel=10",
-    "typecheck": "nx run-many --target=typecheck --projects=core,react,sockets,adapter-firebase --parallel=10",
-    "release": "nx run-many --target=release --projects=core,react,sockets --parallel=1"
+    "test": "nx run-many --target=test-pipeline --all --parallel=1",
+    "lint": "nx run-many --target=lint --all --parallel=10",
+    "typecheck": "nx run-many --target=typecheck --all --parallel=10",
+    "release": "nx run-many --target=release --all --parallel=1"
   },
   "private": true,
   "dependencies": {
@@ -97,7 +97,6 @@
     "tsd": "^0.28.1",
     "tslib": "^2.3.0",
     "typescript": "~4.9.5",
-    "vite": "^4.0.1",
     "vite-plugin-eslint": "^1.8.1",
     "vite-tsconfig-paths": "^4.0.2",
     "vitest": "^0.25.8"
@@ -139,6 +138,7 @@
     "firebase": "*",
     "firebase-admin": "*",
     "firebase-tools": "*",
+    "graphql-tag": "^2.12.6",
     "http": "*",
     "stream": "*"
   }

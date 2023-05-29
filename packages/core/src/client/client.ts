@@ -11,9 +11,9 @@ import {
   HeaderMappingType,
   QueryStringifyOptionsType,
   ResponseReturnType,
+  xhrExtra,
 } from "adapter";
 import {
-  xhrExtra,
   ClientErrorType,
   ClientInstance,
   ClientOptionsType,

@@ -1,8 +1,8 @@
-import { AdapterType, ResponseReturnSuccessType } from "adapter";
+import { xhrExtra, AdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createCache, sleep } from "../../utils";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
 
 describe("Cache [ Base ]", () => {
   const response: ResponseReturnSuccessType<unknown, AdapterType> = {
