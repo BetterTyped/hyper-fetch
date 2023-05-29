@@ -8,11 +8,10 @@ export function Preview(): JSX.Element {
   return (
     <section className={clsx(styles.container)}>
       <div className="container">
-        <h2 className="page-section-title">Simple. Fast. Better.</h2>
+        <h2 className="page-section-title">Simpler. Faster. Better.</h2>
         <div className="page-section-subtitle">
-          Save time needed to handle state and reducers. Save time on http adapter setup and it's dependencies.
-          Everything is set up right after installation, it's fully configured environment with no external
-          dependencies!
+          Reduce the time needed to handle state and reducers. Streamline HTTP adapter setup and its dependencies.
+          Everything is set up right after installation in a fully configured environment with no external dependencies!
         </div>
         <div className={clsx(styles.contact)}>
           <iframe

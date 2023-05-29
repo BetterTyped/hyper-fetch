@@ -152,11 +152,11 @@ export function Features(): JSX.Element {
           </svg>
         </div>
 
-        <h2 className="page-section-title">Future is now. Features are here.</h2>
+        <h2 className="page-section-title">The future is now. Your Must-Have features are here.</h2>
         <div className="page-section-subtitle">
-          We provide not only a full range of functionalities, but also interfaces and possibilities to create solutions
-          tailored to your needs. You can easily connect to the events that power our architecture and you can
-          confidently create your own logic and have full control over the data flow like nowhere else.
+          We provide a full range of functionalities, interfaces and possibilities so you can create solutions tailored
+          to your needs. Easily connect to the events that power our architecture and confidently create your own logic.
+          Hyper Fetch gives you full control over your data flow like no other framework can.
         </div>
         <div className={styles.list}>
           {FeatureList.map((props, idx) => (
