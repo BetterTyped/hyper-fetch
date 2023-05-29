@@ -1,5 +1,3 @@
-import { orderByValue } from "firebase/database";
-
 import {
   $endAt,
   $endBefore,
@@ -10,6 +8,7 @@ import {
   $orderBy,
   $orderByChild,
   $orderByKey,
+  $orderByValue,
   $startAfter,
   $startAt,
   $where,
@@ -26,7 +25,7 @@ export type RealtimePermittedMethods =
   | ReturnType<typeof $endAt>
   | ReturnType<typeof $endBefore>
   | ReturnType<typeof $orderByChild>
-  | ReturnType<typeof orderByValue>
+  | ReturnType<typeof $orderByValue>
   | ReturnType<typeof $orderByKey>
   | ReturnType<typeof $limitToFirst>
   | ReturnType<typeof $limitToLast>
@@ -46,8 +45,8 @@ type ExtractConstraintType<T> = T extends { toString: () => string; type: infer 
   : never;
 
 export type PermittedConstraints<T, U> = ExtractConstraintType<T> extends U ? T : never;
-
-// TODO - why second and third elements compare to LIMIT and all others to FirestorePermittedMethods (that is correct)
+//
+// // TODO - why second and third elements compare to LIMIT and all others to FirestorePermittedMethods (that is correct)
 // type firestoreConstraints = PermittedConstraints<
 //   FirestorePermittedMethods,
 //   FirestoreConstraintsUnion | SharedQueryConstraints
@@ -56,13 +55,13 @@ export type PermittedConstraints<T, U> = ExtractConstraintType<T> extends U ? T 
 //   RealtimePermittedMethods,
 //   RealtimeConstraintsUnion | SharedQueryConstraints
 // >;
-// const firestoreCheck: firestoreConstraints[] = [
-//   $where("type", "==", "Green"),
-//   $orderByChild("sdfs"),
-//   $equalTo("sdfs"),
-//   $equalTo("ds"),
-// ];
-// TODO - same here - why compares incorrect one to 'EQUAL_TO'
+// // const firestoreCheck: firestoreConstraints[] = [
+// //   $where("type", "==", "Green"),
+// //   $orderByChild("sdfs"),
+// //   $equalTo("sdfs"),
+// //   $equalTo("ds"),
+// // ];
+// // TODO - same here - why compares incorrect one to 'EQUAL_TO'
 // const realtimeCheck: realtimeConstraints[] = [
 //   $orderByChild("sdfs"),
 //   $startAt(100),

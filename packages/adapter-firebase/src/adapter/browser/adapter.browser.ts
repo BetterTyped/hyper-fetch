@@ -13,8 +13,8 @@ import {
   FirestoreMethods,
   RealtimeDBMethods,
 } from "adapter";
-import { getRealtimeDBMethodsBrowser } from "realtime";
-import { getFirestoreMethodsBrowser } from "firestore";
+import { getRealtimeDbBrowserMethods } from "realtime";
+import { getFirestoreBrowserMethods } from "firestore";
 
 export const firebaseAdapter = <T extends FirebaseBrowserDBTypes>(database: T) => {
   const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
@@ -28,7 +28,7 @@ export const firebaseAdapter = <T extends FirebaseBrowserDBTypes>(database: T) =
           data,
           options,
         }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
-        const availableMethods = getRealtimeDBMethodsBrowser(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getRealtimeDbBrowserMethods(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
           onRequestStart,
@@ -49,13 +49,13 @@ export const firebaseAdapter = <T extends FirebaseBrowserDBTypes>(database: T) =
           data,
           options,
         }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
-        const availableMethods = getFirestoreMethodsBrowser(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getFirestoreBrowserMethods(request, database, fullUrl, onSuccess, onError, resolve, {
           onResponseStart,
           onResponseEnd,
           onRequestStart,
           onRequestEnd,
         });
-        // TODO add check with enum
+
         if (!Object.values(FirestoreMethods).includes(method)) {
           throw new Error(`Cannot find method ${method} in Firestore available methods.`);
         }

@@ -1,5 +1,5 @@
 import { EmitterInstance } from "emitter";
-import { ListenerInstance } from "listener";
+import { Listener } from "listener";
 import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
@@ -27,7 +27,7 @@ export type SocketAdapterType<
   reconnectionAttempts: number;
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
-    listener: ListenerInstance,
+    listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
     callback: ListenerCallbackType<
       SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>,
       any

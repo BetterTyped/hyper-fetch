@@ -12,7 +12,7 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getFirestoreMethodsAdmin = <R extends RequestInstance>(
+export const getFirestoreAdminMethods = <R extends RequestInstance>(
   request: R,
   database: Firestore,
   url: string,

@@ -10,13 +10,6 @@ import {
 
 // TODO separate type after SocketAdapter is ready
 export type RealtimeDbAdapterType =
-  // | AdapterType<
-  //     { onlyOnce: boolean },
-  //     "onValue",
-  //     RealtimeDBStatuses,
-  //     RealtimeDbOnValueMethodExtra,
-  //     RealtimeDBQueryParams
-  //   >
   | AdapterType<
       DefaultRealtimeDBAdapterOptions,
       "get",

@@ -12,7 +12,7 @@ import {
   SharedQueryConstraints,
 } from "../../constraints";
 
-export const getRealtimeDBMethodsAdmin = <R extends RequestInstance>(
+export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,

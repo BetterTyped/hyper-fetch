@@ -12,7 +12,7 @@ import {
   SharedQueryConstraints,
 } from "../../constraints";
 
-export const getRealtimeDBMethodsBrowser = <R extends RequestInstance>(
+export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,
@@ -31,7 +31,11 @@ export const getRealtimeDBMethodsBrowser = <R extends RequestInstance>(
   const [fullUrl] = url.split("?");
   const path = ref(database, fullUrl);
   const methods = {
-    get: async ({ constraints = [] }: { constraints?: any[] }) => {
+    get: async ({
+      constraints = [],
+    }: {
+      constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+    }) => {
       const params = constraints.map((constraint) => mapConstraint(constraint));
       const q = query(path, ...params);
       const snapshot = await get(q);

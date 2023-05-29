@@ -5,6 +5,5 @@ import { RealtimeDBQueryParams, RealtimeDbOnValueMethodExtra } from "adapter";
 export type RealtimeSocketAdapterType = SocketAdapterType<
   never,
   RealtimeDbOnValueMethodExtra,
-  { onlyOnce: boolean } & RealtimeDBQueryParams,
-  never
+  { onlyOnce: boolean } & RealtimeDBQueryParams
 >;

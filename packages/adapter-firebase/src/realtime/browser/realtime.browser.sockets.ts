@@ -1,4 +1,4 @@
-import { adapterBindingsSocket } from "@hyper-fetch/sockets";
+import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
 import { getOrderedResultRealtime, mapConstraint, RealtimeSocketAdapterType } from "realtime";
@@ -21,7 +21,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       onClose,
       onEvent,
       onError,
-    } = adapterBindingsSocket(socket);
+    } = getSocketAdapterBindings(socket);
 
     const connect = () => {
       const enabled = onConnect();
@@ -48,9 +48,6 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
 
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
-      // Todo: Kacper fix type
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const params = options?.constraints?.map((constraint) => mapConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
       try {
