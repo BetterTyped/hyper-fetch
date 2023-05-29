@@ -23,6 +23,7 @@ export const onValueTestSuite = (
       })
       .setData(newData);
     let socketBees = new Socket({ url: "bees/", adapter });
+
     beforeEach(() => {
       jest.resetAllMocks();
       jest.clearAllMocks();

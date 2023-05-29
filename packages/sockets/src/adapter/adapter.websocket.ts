@@ -6,7 +6,7 @@ import { ListenerInstance } from "listener";
 import {
   ListenerCallbackType,
   WSMessageType,
-  adapterBindingsSocket,
+  getSocketAdapterBindings,
   getWebsocketAdapter,
   WebsocketAdapterType,
   SocketData,
@@ -34,7 +34,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     onClose,
     onError,
     onEvent,
-  } = adapterBindingsSocket(socket);
+  } = getSocketAdapterBindings(socket);
 
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;

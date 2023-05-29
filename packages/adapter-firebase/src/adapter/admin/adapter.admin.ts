@@ -13,8 +13,8 @@ import {
   FirestoreMethods,
   RealtimeDBMethods,
 } from "adapter";
-import { getFirestoreMethodsAdmin } from "firestore";
-import { getRealtimeDBMethodsAdmin } from "realtime";
+import { getFirestoreAdminMethods } from "firestore";
+import { getRealtimeDbAdminMethods } from "realtime";
 
 export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T) => {
   const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
@@ -28,7 +28,7 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           data,
           options,
         }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
-        const availableMethods = getFirestoreMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getFirestoreAdminMethods(request, database, fullUrl, onSuccess, onError, resolve, {
           onRequestStart,
           onResponseEnd,
           onResponseStart,
@@ -49,7 +49,7 @@ export const firebaseAdminAdapter = <T extends FirebaseAdminDBTypes>(database: T
           data,
           options,
         }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
-        const availableMethods = getRealtimeDBMethodsAdmin(request, database, fullUrl, onSuccess, onError, resolve, {
+        const availableMethods = getRealtimeDbAdminMethods(request, database, fullUrl, onSuccess, onError, resolve, {
           onRequestStart,
           onResponseEnd,
           onResponseStart,

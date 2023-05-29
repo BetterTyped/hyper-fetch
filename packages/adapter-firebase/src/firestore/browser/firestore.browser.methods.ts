@@ -23,7 +23,7 @@ import { getStatus } from "utils";
 import { getOrderedResultFirestore } from "../utils/firestore.utils";
 import { mapConstraint } from "./firestore.browser.utils";
 
-export const getFirestoreMethodsBrowser = <R extends RequestInstance>(
+export const getFirestoreBrowserMethods = <R extends RequestInstance>(
   request: R,
   database: Firestore,
   url: string,

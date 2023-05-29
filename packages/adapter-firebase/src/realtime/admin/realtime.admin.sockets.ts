@@ -1,4 +1,4 @@
-import { adapterBindingsSocket } from "@hyper-fetch/sockets";
+import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
 import { getOrderedResultRealtime, mapConstraint, RealtimeSocketAdapterType } from "realtime";
@@ -21,7 +21,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
       onClose,
       onEvent,
       onError,
-    } = adapterBindingsSocket(socket);
+    } = getSocketAdapterBindings(socket);
 
     const connect = () => {
       const enabled = onConnect();

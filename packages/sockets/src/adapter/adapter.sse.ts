@@ -2,7 +2,7 @@
 import { parseResponse } from "@hyper-fetch/core";
 
 import { ListenerInstance } from "listener";
-import { ListenerCallbackType, adapterBindingsSocket, getSSEAdapter, SSEAdapterType, SocketData } from "adapter";
+import { ListenerCallbackType, getSocketAdapterBindings, getSSEAdapter, SSEAdapterType, SocketData } from "adapter";
 
 /**
  * -------------------------------------------
@@ -25,7 +25,7 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     onError,
     onEvent,
     onClose,
-  } = adapterBindingsSocket(socket);
+  } = getSocketAdapterBindings(socket);
 
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;

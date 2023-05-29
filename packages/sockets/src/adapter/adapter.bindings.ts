@@ -3,7 +3,7 @@ import { ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
 import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterInstance } from "adapter";
 
-export const adapterBindingsSocket = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
+export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
   const logger = socket.loggerManager.init("Socket Adapter");
   const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
