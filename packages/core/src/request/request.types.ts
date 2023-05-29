@@ -86,7 +86,7 @@ export type RequestJSON<
  * Configuration options for request creation
  */
 export type RequestOptionsType<
-  GenericEndpoint extends string,
+  GenericEndpoint,
   AdapterOptions extends Record<string, any>,
   RequestMethods = HttpMethodsType,
 > = {

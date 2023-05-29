@@ -1,4 +1,5 @@
-import { AdapterType, NegativeTypes } from "@hyper-fetch/core";
+import { AdapterType, NegativeTypes, QueryParamsType } from "@hyper-fetch/core";
+import { DocumentNode } from "graphql/language/ast";
 
 export enum GraphQlMethod {
   POST = "POST",
@@ -7,7 +8,16 @@ export enum GraphQlMethod {
 
 export type GraphQlExtraType = { headers: HeadersInit };
 
-export type GraphQLAdapterType = AdapterType<Partial<XMLHttpRequest>, GraphQlMethod, number, GraphQlExtraType>;
+export type GraphQlEndpointType = string | DocumentNode;
+
+export type GraphQLAdapterType = AdapterType<
+  Partial<XMLHttpRequest>,
+  GraphQlMethod,
+  number,
+  GraphQlExtraType,
+  QueryParamsType | string,
+  GraphQlEndpointType
+>;
 
 // Extract
 

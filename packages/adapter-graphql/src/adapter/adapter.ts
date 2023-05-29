@@ -1,12 +1,27 @@
 import * as browser from "@browser-adapter";
 import * as server from "@server-adapter";
-import { AdapterType, HttpMethodsEnum } from "@hyper-fetch/core";
+import { HttpMethodsEnum, ClientInstance } from "@hyper-fetch/core";
+import { print } from "graphql/language/printer";
 
-export const graphqlAdapter: AdapterType = async (request, requestId) => {
-  request.client.setDefaultMethod(HttpMethodsEnum.post);
+import { GraphQLAdapterType, GraphQlEndpointType } from "adapter";
 
-  if (typeof XMLHttpRequest !== "undefined") {
-    return browser.adapter(request, requestId);
-  }
-  return server.adapter(request, requestId);
+export const graphqlAdapter = (client: ClientInstance) => {
+  const adapter: GraphQLAdapterType = async (request, requestId) => {
+    if (typeof XMLHttpRequest !== "undefined") {
+      return browser.adapter(request, requestId);
+    }
+    return server.adapter(request, requestId);
+  };
+
+  const mapper = <E extends GraphQlEndpointType>(endpoint: E): string => {
+    if (typeof endpoint === "string") {
+      return endpoint;
+    }
+    return print(endpoint);
+  };
+
+  return client
+    .setDefaultMethod(HttpMethodsEnum.post)
+    .setEndpointMapper(mapper)
+    .setAdapter(() => adapter);
 };

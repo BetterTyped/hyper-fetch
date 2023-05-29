@@ -48,3 +48,7 @@ export type ResponseInterceptorType<Response = any, Error = any, Adapter extends
 // Stringify
 
 export type StringifyCallbackType = (queryParams: QueryParamsType | string | NegativeTypes) => string;
+
+// Mapper
+
+export type DefaultEndpointMapper = (endpoint: any) => string;

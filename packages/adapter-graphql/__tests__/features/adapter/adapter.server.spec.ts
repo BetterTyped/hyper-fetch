@@ -2,7 +2,6 @@
  * @jest-environment node
  */
 import { Client } from "@hyper-fetch/core";
-import { print } from "graphql/language/printer";
 
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { graphqlAdapter } from "adapter";
@@ -10,12 +9,10 @@ import { GetUserQueryResponse, getUserQuery } from "../../constants/queries.cons
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
 describe("Graphql Adapter [ Server ]", () => {
-  const requestId = "test";
-
-  let client = new Client({ url: "https://shared-base-url/graphql" });
-  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: print(getUserQuery) });
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
+  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
-    endpoint: print(loginMutation),
+    endpoint: loginMutation,
   });
 
   beforeAll(() => {
@@ -23,14 +20,11 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "https://shared-base-url/graphql" });
-    request = client.createRequest<GetUserQueryResponse>()({ endpoint: print(getUserQuery) });
+    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
+    request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
     mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
-      endpoint: print(loginMutation),
+      endpoint: loginMutation,
     });
-
-    request.client.requestManager.addAbortController(request.abortKey, requestId);
-    mutation.client.requestManager.addAbortController(mutation.abortKey, requestId);
     resetInterceptors();
     jest.resetAllMocks();
   });
@@ -42,7 +36,7 @@ describe("Graphql Adapter [ Server ]", () => {
   it("should make a request and return success data with status", async () => {
     const data = createRequestInterceptor(request, { fixture: { username: "prc", firstName: "Maciej" } });
 
-    const { data: response, error, status, extra } = await graphqlAdapter(request, requestId);
+    const { data: response, error, status, extra } = await request.send(request);
 
     expect(response).toStrictEqual({ data });
     expect(status).toBe(200);
@@ -53,7 +47,7 @@ describe("Graphql Adapter [ Server ]", () => {
   it("should make a request and return error data with status", async () => {
     const data = createRequestInterceptor(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await graphqlAdapter(request, requestId);
+    const { data: response, error, status, extra } = await request.send(request);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
@@ -75,13 +69,12 @@ describe("Graphql Adapter [ Server ]", () => {
       error,
       status,
       extra,
-    } = await graphqlAdapter(
-      mutation.setData({
+    } = await mutation
+      .setData({
         username: "Kacper",
         password: "Kacper1234",
-      }),
-      requestId,
-    );
+      })
+      .send();
 
     expect(response).toStrictEqual({ data });
     expect(status).toBe(200);

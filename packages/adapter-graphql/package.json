@@ -56,14 +56,13 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "peerDependencies": {
-    "graphql-tag": "^2.12.6"
-  },
+  "peerDependencies": {},
   "dependencies": {
     "events": "^3.3.0"
   },
   "devDependencies": {
-    "abortcontroller-polyfill": "^1.7.5"
+    "abortcontroller-polyfill": "^1.7.5",
+    "graphql-tag": "^2.12.6"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
