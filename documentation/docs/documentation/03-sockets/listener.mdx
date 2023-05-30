@@ -59,9 +59,11 @@ export const onUserStatusChange = socketInstance.createListener<UserStatusType>(
 Use the `listen` method to start the listening for incoming events.
 
 ```tsx
-onChatMessage.listen((message) => {
-  // message have type ChatMessageType
-  console.log(message);
+onChatMessage.listen({
+  callback: (message) => {
+    // message have type ChatMessageType
+    console.log(message);
+  },
 });
 ```
 
@@ -70,7 +72,7 @@ onChatMessage.listen((message) => {
 Use the returned method to stop listening.
 
 ```tsx
-const removeEvent = onChatMessage.listen((message) => console.log(message));
+const removeEvent = onChatMessage.listen({ callback: (message) => console.log(message) });
 
 ...
 
@@ -81,7 +83,7 @@ Remove event listeners directly from the adapter
 
 ```tsx
 const callback = (message) => console.log(message);
-const removeEvent = onChatMessage.listen(callback);
+const removeEvent = onChatMessage.listen({ callback });
 
 ...
 
@@ -92,9 +94,11 @@ socket.adapter.listeners.get(onChatMessage.name).delete(callback) // We remove s
 Listen to event `once`
 
 ```tsx
-const removeEvent = onChatMessage.listen((message) => {
-  console.log(message);
-  removeEvent(); // We listen only to single event
+const removeEvent = onChatMessage.listen({
+  callback: (message) => {
+    console.log(message);
+    removeEvent(); // We listen only to single event
+  },
 });
 ```
 

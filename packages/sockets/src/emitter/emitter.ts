@@ -1,10 +1,18 @@
 import { DateInterval, ExtractRouteParams, ParamsType, getUniqueRequestId } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
+import { EmitterAcknowledgeType, EmitterOptionsType, EmitType } from "emitter";
 import { SocketAdapterType, ExtractEmitterOptionsType } from "adapter";
 
-export class Emitter<Payload, Response, Name extends string, AdapterType extends SocketAdapterType, MappedData = void> {
+export class Emitter<
+  Payload,
+  Response,
+  Name extends string,
+  AdapterType extends SocketAdapterType,
+  MappedData = void,
+  HasParams extends boolean = false,
+  HasData extends boolean = false,
+> {
   readonly name: Name;
   params?: ParamsType;
   timeout: number;
@@ -34,9 +42,9 @@ export class Emitter<Payload, Response, Name extends string, AdapterType extends
 
   setData(data: Payload) {
     if (this.dataMapper) {
-      return this.clone<MappedData>({ data: this.dataMapper(data) });
+      return this.clone<MappedData, MappedData, HasParams, true>({ data: this.dataMapper(data) });
     }
-    return this.clone({ data });
+    return this.clone<Payload, MappedData, HasParams, true>({ data });
   }
 
   setDataMapper = <MapperData>(mapper: (data: Payload) => MapperData) => {
@@ -44,7 +52,7 @@ export class Emitter<Payload, Response, Name extends string, AdapterType extends
   };
 
   setParams(params: ExtractRouteParams<Name>) {
-    return this.clone({ params });
+    return this.clone<Payload, MappedData, true>({ params });
   }
 
   private paramsMapper = (params: ParamsType | null | undefined): Name => {
@@ -58,11 +66,16 @@ export class Emitter<Payload, Response, Name extends string, AdapterType extends
     return endpoint as Name;
   };
 
-  clone<NewPayload = Payload, MapperData = MappedData>(
-    options?: Partial<EmitterCloneOptionsType<NewPayload, Name, AdapterType>>,
+  clone<
+    NewPayload = Payload,
+    MapperData = MappedData,
+    Params extends boolean = HasParams,
+    Data extends boolean = HasData,
+  >(
+    options?: Partial<EmitterOptionsType<Name, AdapterType>> & { params?: ParamsType; data?: NewPayload },
     mapper?: (data: NewPayload) => MapperData,
-  ): Emitter<NewPayload, Response, Name, AdapterType, MapperData> {
-    const json: Partial<Emitter<NewPayload, Response, Name, AdapterType, MapperData>> = {
+  ) {
+    const json: Partial<Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
@@ -71,7 +84,7 @@ export class Emitter<Payload, Response, Name extends string, AdapterType extends
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<NewPayload, Response, Name, AdapterType, MapperData>(
+    return new Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>(
       this.socket,
       this.emitterOptions,
       json,
@@ -79,14 +92,19 @@ export class Emitter<Payload, Response, Name extends string, AdapterType extends
     );
   }
 
-  emit(
-    options?: Partial<EmitterCloneOptionsType<Payload, Name, AdapterType>>,
-    ack?: (error: Error | null, response: Response) => void,
-  ) {
-    const instance = this.clone(options);
+  emit: EmitType<this> = ({
+    data,
+    options,
+    ack,
+  }: {
+    data?: Payload;
+    options?: Partial<EmitterOptionsType<Name, AdapterType>>;
+    ack?: EmitterAcknowledgeType<any, AdapterType>;
+  } = {}) => {
+    const instance = this.clone({ ...options, data });
     const eventMessageId = getUniqueRequestId(this.name);
 
     this.socket.adapter.emit(eventMessageId, instance, ack);
     return eventMessageId;
-  }
+  };
 }

@@ -1,11 +1,16 @@
 import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { ListenerOptionsType } from "listener";
-import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterType, ExtractListenerOptionsType } from "adapter";
+import { ListenType, ListenerOptionsType } from "listener";
+import { ExtractSocketExtraType, SocketAdapterType, ExtractListenerOptionsType } from "adapter";
 import { ConnectMethodType } from "types";
 
-export class Listener<Response, Name extends string, AdapterType extends SocketAdapterType> {
+export class Listener<
+  Response,
+  Name extends string,
+  AdapterType extends SocketAdapterType,
+  HasParams extends boolean = false,
+> {
   readonly name: Name;
   params?: ParamsType;
   options?: ExtractListenerOptionsType<AdapterType>;
@@ -22,7 +27,7 @@ export class Listener<Response, Name extends string, AdapterType extends SocketA
   }
 
   setParams(params: ExtractRouteParams<Name>) {
-    return this.clone({ params });
+    return this.clone<true>({ params });
   }
 
   private paramsMapper = (params: ParamsType | null | undefined): Name => {
@@ -40,24 +45,27 @@ export class Listener<Response, Name extends string, AdapterType extends SocketA
    * Attach global logic to the received events
    * @param callback
    */
-  connect(callback: ConnectMethodType<AdapterType, Response>) {
+  onData(callback: ConnectMethodType<AdapterType, Response>) {
     this.connections.push(callback);
+    return this;
   }
 
-  clone(options?: Partial<ListenerOptionsType<Name, AdapterType>>): Listener<Response, Name, AdapterType> {
-    return new Listener<Response, Name, AdapterType>(this.socket, {
+  clone<Params extends boolean = HasParams>(
+    options?: Partial<ListenerOptionsType<Name, AdapterType>>,
+  ): Listener<Response, Name, AdapterType> {
+    return new Listener<Response, Name, AdapterType, Params>(this.socket, {
       ...this.listenerOptions,
       ...options,
       name: this.paramsMapper(options?.params || this.params),
     });
   }
 
-  listen({ callback }: { callback: ListenerCallbackType<AdapterType, Response> }) {
-    const instance = this.clone();
+  listen: ListenType<this> = ({ callback, ...options }) => {
+    const instance = this.clone(options);
 
     const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {
       this.connections.forEach((connection) => connection(response));
-      return callback(response);
+      return callback(response as any);
     };
 
     this.socket.adapter.listen(instance, action);
@@ -67,5 +75,5 @@ export class Listener<Response, Name extends string, AdapterType extends SocketA
     };
 
     return removeListener;
-  }
+  };
 }

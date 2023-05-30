@@ -21,10 +21,10 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     },
   };
 
-  const emit: typeof emitter.emit = (...args) => {
+  const emit: typeof emitter.emit = (emitOptions) => {
     actions.setTimestamp(+new Date());
     onEventCallback.current?.(emitter);
-    return emitter.emit(...args);
+    return emitter.emit(emitOptions);
   };
 
   return {

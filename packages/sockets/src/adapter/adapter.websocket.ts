@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { DateInterval, parseResponse } from "@hyper-fetch/core";
 
-import { EmitterInstance } from "emitter";
+import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import {
   ListenerCallbackType,
@@ -130,7 +130,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   const emit = async (
     eventMessageId: string,
     emitter: EmitterInstance,
-    ack?: (error: Error | null, response: Parameters<ListenerCallbackType<WebsocketAdapterType, any>>[0]) => void,
+    ack?: EmitterAcknowledgeType<any, WebsocketAdapterType>,
   ) => {
     const enabled = onEmit(emitter);
 

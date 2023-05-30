@@ -24,4 +24,10 @@ describe("Listener [ Base ]", () => {
     const newListener = listener.setOptions(options);
     expect(newListener.options).toStrictEqual(options);
   });
+
+  it("should allow to set params", async () => {
+    const newListener = socket.createListener()({ name: "test/:testId" }).setParams({ testId: 1 });
+    expect(newListener.name).toBe("test/1");
+    expect(newListener.clone().name).toBe("test/1");
+  });
 });

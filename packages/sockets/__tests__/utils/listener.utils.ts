@@ -7,6 +7,6 @@ export const createListener = <ResponseType = any>(
   socket: SocketInstance,
   options?: Partial<ListenerOptionsType<any, any>>,
 ) => {
-  const randomKey = getUniqueRequestId("some-event-listener");
+  const randomKey = getUniqueRequestId("some-event-listener") as string;
   return socket.createListener<ResponseType>()({ name: randomKey, ...options });
 };

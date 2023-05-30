@@ -46,4 +46,34 @@ describe("Listener [ Listen ]", () => {
     sendWsEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
   });
+
+  it("should allow to set params", async () => {
+    const spy = jest.fn();
+    const listenerWithParams = socket.createListener<ResponseType>()({ name: "test/:testId" });
+    const removeListener = listenerWithParams.listen({ params: { testId: 1 }, callback: (data) => spy(data) });
+    const message = { name: "Maciej", age: 99 };
+    sendWsEvent(listenerWithParams.setParams({ testId: 1 }), message);
+    expect(spy).toHaveBeenCalledOnce();
+    removeListener();
+    sendWsEvent(listenerWithParams, message);
+    sendWsEvent(listenerWithParams, message);
+    sendWsEvent(listenerWithParams, message);
+    expect(spy).toHaveBeenCalledOnce();
+  });
+
+  it("should allow to for making connection", async () => {
+    const spy = jest.fn();
+    let receivedData;
+    const removeListener = listener
+      .onData(({ data }) => {
+        receivedData = data;
+        spy();
+      })
+      .listen({ callback: () => null });
+    const message = { name: "Maciej", age: 99 };
+    sendWsEvent(listener, message);
+    expect(spy).toHaveBeenCalledOnce();
+    expect(receivedData).toStrictEqual(message);
+    removeListener();
+  });
 });

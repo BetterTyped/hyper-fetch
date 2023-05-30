@@ -12,12 +12,12 @@ type DataType = {
 describe("Emitter [ Emit ]", () => {
   let server = createWsServer();
   let socket = createSocket();
-  let emitter = createEmitter<DataType>(socket, { timeout: 10 });
+  let emitter = createEmitter<DataType>(socket, { timeout: 4000 });
 
   beforeEach(async () => {
     server = createWsServer();
     socket = createSocket();
-    emitter = createEmitter<DataType>(socket, { timeout: 10 });
+    emitter = createEmitter<DataType>(socket, { timeout: 4000 });
     jest.resetAllMocks();
     await server.connected;
   });
@@ -39,9 +39,12 @@ describe("Emitter [ Emit ]", () => {
     const message = { name: "Maciej", age: 99 };
     const spy = jest.fn();
     let receivedExtra;
-    const id = emitter.emit({ data: message }, (error, data) => {
-      spy(error, data);
-      receivedExtra = data.extra;
+    const id = emitter.emit({
+      data: message,
+      ack: (error, data) => {
+        spy(error, data);
+        receivedExtra = data.extra;
+      },
     });
     const response = { id, data: "test" };
 
@@ -64,7 +67,7 @@ describe("Emitter [ Emit ]", () => {
   it("should not acknowledge event message", async () => {
     const message = { name: "Maciej", age: 99 };
     const spy = jest.fn();
-    const id = emitter.emit({ data: message }, spy);
+    const id = emitter.emit({ data: message, ack: spy, options: { timeout: 1 } });
 
     await expect(server).toReceiveMessage(
       JSON.stringify({

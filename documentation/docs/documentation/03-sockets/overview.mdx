@@ -8,10 +8,14 @@ Sockets module was created to handle listeners and emitters on open connections.
 created with different approach to things like interceptors or data exchange itself but has some architecture decisions
 in common, like singleton pattern.
 
-## Package goal
+## Main Goals 🔮
 
-- Neutral standard for data exchange
-- Architecture to support composing our logic with existing adapters like socket.io
-- Possibility to attach own adapter with ease and flexibility
-- Separation of listeners and emitters to clearly split responsibility
-- SSE and Websocket handling with single package
+✅ Neutral standard for data exchange
+
+✅ Architecture to support composing our logic with existing clients like socket.io, firebase, etc.
+
+✅ Possibility to attach own adapters with ease and type safety
+
+✅ Separation of listeners and emitters to clearly split responsibility
+
+✅ SSE and Websocket by default
