@@ -20,21 +20,6 @@
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
   </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-Websockets-CE4257?logo=broadcast&logoColor=white" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-Server%20Sent%20Events-ECB10C?logo=unread&logoColor=white&color=blueviolet" />
-  </a>
   <a href="https://bestofjs.org/projects/hyper-fetch" rel="nofollow">
     <img alt="Best of JS" src="https://img.shields.io/endpoint?url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=BetterTyped%2Fhyper-fetch%26since=daily" style="max-width: 100%;">
   </a>
@@ -121,7 +106,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
   <tbody>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">⚡ Hyper Fetch</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core">Hyper Fetch</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/core">
@@ -137,7 +122,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets" >🛰️ Hyper Fetch Sockets</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets" >Sockets</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
@@ -153,7 +138,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >⚛️ React Hyper Fetch</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/react" >React </a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/react">
@@ -164,6 +149,38 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
         <a href="https://www.npmjs.com/package/@hyper-fetch/react">
           <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/react?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >Firebase</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/firebase?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >GraphQL</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/firebase?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=E10098&logo=package" />
         </a>
       </td>
     </tr>

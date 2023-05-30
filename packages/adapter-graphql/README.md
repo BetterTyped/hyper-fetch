@@ -1,4 +1,4 @@
-# ⚡ Hyper Fetch
+# 🎡 Hyper Fetch GraphQL
 
 <p>
   <a href="https://bettertyped.com/">
@@ -35,7 +35,7 @@
 
 ## About
 
-**`Hyper Fetch GraphQl`** is adapter for Hyper Fetch. It enables seamless communication with GraphQL APIs in Node.js and
+**`Hyper Fetch GraphQL`** is adapter for Hyper Fetch. It enables seamless communication with GraphQL APIs in Node.js and
 browser environments, simplifying the retrieval and manipulation of data. Benefit from the convenience and efficiency of
 Hyper Fetch for your GraphQL-powered projects.
 
