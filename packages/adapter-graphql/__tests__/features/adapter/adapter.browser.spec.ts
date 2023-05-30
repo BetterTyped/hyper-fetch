@@ -1,11 +1,11 @@
 /**
  * @jest-environment jsdom
  */
-import { Client } from "@hyper-fetch/core";
+import { Client, getErrorMessage } from "@hyper-fetch/core";
 
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { graphqlAdapter } from "adapter";
-import { GetUserQueryResponse, getUserQuery } from "../../constants/queries.constants";
+import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
 describe("Graphql Adapter [ Browser ]", () => {
@@ -38,6 +38,22 @@ describe("Graphql Adapter [ Browser ]", () => {
     const data = createRequestInterceptor(request, { fixture: { username: "prc", firstName: "Maciej" } });
 
     const { data: response, error, status, extra } = await request.send();
+
+    expect(response).toStrictEqual({ data });
+    expect(status).toBe(200);
+    expect(error).toBe(null);
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+  });
+
+  it("should make a request with string endpoint", async () => {
+    const data = createRequestInterceptor(request, { fixture: { username: "prc", firstName: "Maciej" } });
+
+    const {
+      data: response,
+      error,
+      status,
+      extra,
+    } = await client.createRequest()({ endpoint: getUserQueryString }).send();
 
     expect(response).toStrictEqual({ data });
     expect(status).toBe(200);
@@ -81,5 +97,53 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+  });
+
+  it("should allow to cancel request and return error", async () => {
+    createRequestInterceptor(request, { delay: 5 });
+
+    setTimeout(() => {
+      request.abort();
+    }, 2);
+
+    const { data: response, error } = await request.send();
+
+    expect(response).toBe(null);
+    expect(error.message).toEqual(getErrorMessage("abort").message);
+  });
+
+  it("should not throw when XMLHttpRequest is not available on window", async () => {
+    const data = createRequestInterceptor(request, { delay: 20 });
+    const xml = window.XMLHttpRequest;
+    window.XMLHttpRequest = undefined as any;
+
+    const { data: response, error, status, extra } = await request.send();
+
+    expect(response).toStrictEqual({ data });
+    expect(status).toBe(200);
+    expect(error).toBe(null);
+    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    window.XMLHttpRequest = xml;
+  });
+
+  it("should allow to set options", async () => {
+    const xml = window.XMLHttpRequest;
+    let instance: null | XMLHttpRequest = null;
+    class ExtendedXml extends XMLHttpRequest {
+      constructor() {
+        super();
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        instance = this;
+      }
+    }
+
+    window.XMLHttpRequest = ExtendedXml;
+
+    const timeoutRequest = request.setOptions({ timeout: 50 });
+    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    await timeoutRequest.send();
+    expect(instance.timeout).toBe(50);
+
+    window.XMLHttpRequest = xml;
   });
 });

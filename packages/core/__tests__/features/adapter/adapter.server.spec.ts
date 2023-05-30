@@ -1,6 +1,8 @@
 /**
  * @jest-environment node
  */
+import http from "http";
+
 import { adapter } from "../../../src/adapter/adapter.server";
 import { getErrorMessage } from "adapter";
 import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
@@ -8,6 +10,7 @@ import { Client } from "client";
 
 describe("Fetch Adapter [ Server ]", () => {
   const requestId = "test";
+  const requestCopy = http.request;
 
   let client = new Client({ url: "shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
@@ -108,5 +111,44 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(error).toBeNull();
     expect(status).toEqual(200);
     expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+  });
+
+  it("should allow to calculate payload size", async () => {
+    let receivedOptions: any;
+    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+
+    jest.spyOn(http, "request").mockImplementation((options, callback) => {
+      receivedOptions = options;
+      return requestCopy(options, callback);
+    });
+    createRequestInterceptor(mutation);
+
+    await mutation.send({
+      data: {
+        username: "Kacper",
+        password: "Kacper1234",
+      },
+    });
+
+    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
+  });
+
+  it("should allow to calculate Buffer size", async () => {
+    let receivedOptions: any;
+    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+
+    jest.spyOn(http, "request").mockImplementation((options, callback) => {
+      receivedOptions = options;
+      return requestCopy(options, callback);
+    });
+    createRequestInterceptor(mutation);
+
+    const buffer = Buffer.from("test");
+
+    await mutation.send({
+      data: buffer as any,
+    });
+
+    expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);
   });
 });

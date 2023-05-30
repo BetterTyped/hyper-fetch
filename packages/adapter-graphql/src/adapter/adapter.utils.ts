@@ -1,21 +1,21 @@
 import { RequestInstance, HttpMethodsEnum } from "@hyper-fetch/core";
-import { print } from "graphql/language/printer";
-
-// Requests
 
 export const getRequestValues = (request: RequestInstance) => {
-  const method = request.method || HttpMethodsEnum.post;
-  const isPostRequest = method === HttpMethodsEnum.post;
-  const query = typeof request.endpoint === "string" ? request.endpoint : print(request.endpoint);
+  const { method } = request;
+
+  const isPostRequest = request.method === HttpMethodsEnum.post;
+
+  const query = request.endpoint;
+  const variables = request.data;
 
   const fullUrl = isPostRequest
     ? request.client.url
-    : request.client.url + request.client.stringifyQueryParams({ query, variables: request.data });
+    : request.client.url + request.client.stringifyQueryParams({ query, variables });
 
   const payload = isPostRequest
     ? JSON.stringify({
-        query: request.endpoint,
-        variables: request.data,
+        query,
+        variables,
       })
     : null;
 

@@ -33,6 +33,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
+import { NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -101,7 +102,7 @@ export class Client<
    * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
    */
   // eslint-disable-next-line class-methods-use-this
-  endpointMapper: EndpointMapper | any = (endpoint) => endpoint;
+  endpointMapper: EndpointMapper = ((endpoint) => endpoint) as any;
 
   // Logger
   logger = this.loggerManager.init("Client");
@@ -202,7 +203,7 @@ export class Client<
    * Set the request payload mapping function which get triggered before request get send
    */
   setEndpointMapper = <NewEndpointMapper extends DefaultEndpointMapper>(endpointMapper: NewEndpointMapper) => {
-    this.endpointMapper = endpointMapper;
+    this.endpointMapper = endpointMapper as any;
     return this as unknown as Client<GlobalErrorType, Adapter, NewEndpointMapper>;
   };
 
@@ -392,11 +393,32 @@ export class Client<
     >(
       params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
     ) => {
-      type GenericEndpoint = EndpointType extends string ? EndpointType : string;
+      const endpoint = this.endpointMapper(params.endpoint);
+
+      type GenericEndpoint = EndpointType extends string ? EndpointType : typeof endpoint;
+      type ExtractedAdapterType = ExtractUnionAdapter<
+        Adapter,
+        {
+          method: MethodType;
+          options: AdapterOptions;
+          queryParams: QueryParams;
+          endpointType: EndpointType;
+        }
+      > extends NegativeTypes
+        ? AdapterType
+        : ExtractUnionAdapter<
+            Adapter,
+            {
+              method: MethodType;
+              options: AdapterOptions;
+              queryParams: QueryParams;
+              endpointType: EndpointType;
+            }
+          >;
 
       const mappedParams: RequestOptionsType<GenericEndpoint, AdapterOptions, MethodType> = {
         ...params,
-        endpoint: this.endpointMapper(params.endpoint) as GenericEndpoint,
+        endpoint: endpoint as GenericEndpoint,
       };
 
       return new Request<
@@ -406,15 +428,8 @@ export class Client<
         GlobalErrorType,
         LocalError,
         GenericEndpoint,
-        ExtractUnionAdapter<
-          Adapter,
-          {
-            method: MethodType;
-            options: AdapterOptions;
-            queryParams: QueryParams;
-          }
-        >
-      >(this as any, mappedParams);
+        ExtractedAdapterType
+      >(this as any, mappedParams as any);
     };
   };
 }
