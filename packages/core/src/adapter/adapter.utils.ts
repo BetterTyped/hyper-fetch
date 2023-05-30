@@ -30,15 +30,11 @@ export const getResponseHeaders = (headersString: string): Record<string, string
 // Responses
 
 export const parseResponse = (response: string | unknown) => {
-  if (typeof response === "string") {
-    try {
-      return JSON.parse(response as string);
-    } catch (err) {
-      return response;
-    }
+  try {
+    return JSON.parse(response as string);
+  } catch (err) {
+    return response;
   }
-
-  return response;
 };
 
 export const parseErrorResponse = <T extends RequestInstance>(response: unknown): ExtractErrorType<T> => {

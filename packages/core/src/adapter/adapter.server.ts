@@ -40,9 +40,7 @@ export const adapter: AdapterType = async (request, requestId) => {
   onBeforeRequest();
 
   if (payload) {
-    options.headers["Content-Length"] = Buffer.isBuffer(payload)
-      ? payload.length
-      : Buffer.byteLength(JSON.stringify(payload));
+    options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
   }
 
   return makeRequest((resolve) => {

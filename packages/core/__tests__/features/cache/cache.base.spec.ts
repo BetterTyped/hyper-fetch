@@ -43,9 +43,24 @@ describe("Cache [ Base ]", () => {
     it("should initialize cache", async () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
 
-      cache.set(request.setCache(true), { ...response, ...details });
+      cache.set(request.setCache(true), { ...response, ...details, data: "TEST!" });
 
       expect(cache.get(request.cacheKey)).toBeDefined();
+      expect(cache.get(request.cacheKey).data).toBe("TEST!");
+
+      cache.set(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+
+      expect(cache.get(request.cacheKey).data).toBe("TEST! WOW!");
+    });
+    it("should update cache", async () => {
+      cache.set(request.setCache(true), { ...response, ...details });
+      cache.update(request.setCache(true), { ...response, ...details, data: "SUPER TEST!" });
+
+      expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST!");
+
+      cache.update(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+
+      expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST! WOW!");
     });
   });
   describe("When managing cache data", () => {

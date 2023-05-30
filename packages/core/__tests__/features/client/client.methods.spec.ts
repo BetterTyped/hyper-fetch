@@ -38,10 +38,16 @@ describe("Client [ Methods ]", () => {
       expect(client.adapterDefaultOptions(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
-      const options: QueryStringifyOptionsType = { strict: false };
+      const options: QueryStringifyOptionsType = {
+        strict: false,
+        dateParser: () => "date",
+        objectParser: () => "object",
+      };
       client.setQueryParamsConfig(options);
 
       expect(client.queryParamsConfig).toEqual(options);
+      expect(client.stringifyQueryParams({ date: new Date() })).toBe("?date=date");
+      expect(client.stringifyQueryParams({ object: {} })).toBe("?object=object");
     });
     it("should assign debug value [setDebug]", async () => {
       client.setLogger((b) => new LoggerManager(b, { logger: () => null })).setDebug(true);
@@ -61,6 +67,12 @@ describe("Client [ Methods ]", () => {
     it("should assign new adapter [setAdapter]", async () => {
       const callback = createAdapter();
       client.setAdapter(() => callback);
+
+      expect(client.adapter).toEqual(callback);
+    });
+    it("should assign new adapter and return client [setAdapter]", async () => {
+      const callback = createAdapter();
+      client.setAdapter((instance) => instance.setAdapter(() => callback));
 
       expect(client.adapter).toEqual(callback);
     });
@@ -155,11 +167,17 @@ describe("Client [ Methods ]", () => {
 
       expect(client.headerMapper).toEqual(callback);
     });
-    it("should assign query params handling callback [setPayloadMapper]", async () => {
+    it("should assign payload handling callback [setPayloadMapper]", async () => {
       const callback = () => "";
       client.setPayloadMapper(callback);
 
       expect(client.payloadMapper).toEqual(callback);
+    });
+    it("should assign endpoint handling callback [setEndpointMapper]", async () => {
+      const callback = () => "";
+      client.setEndpointMapper(callback);
+
+      expect(client.endpointMapper).toEqual(callback);
     });
     it("should assign key mappers", async () => {
       const callback = () => "";
