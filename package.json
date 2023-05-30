@@ -138,6 +138,7 @@
     "firebase": "*",
     "firebase-admin": "*",
     "firebase-tools": "*",
+    "graphql": "*",
     "graphql-tag": "^2.12.6",
     "http": "*",
     "stream": "*"

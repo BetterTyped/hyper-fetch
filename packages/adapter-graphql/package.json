@@ -57,7 +57,8 @@
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
   "peerDependencies": {
-    "@hyper-fetch/core": "*"
+    "@hyper-fetch/core": "*",
+    "graphql": "*"
   },
   "dependencies": {
     "events": "^3.3.0"
