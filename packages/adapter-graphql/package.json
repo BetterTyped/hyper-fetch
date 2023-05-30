@@ -56,7 +56,9 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "@hyper-fetch/core": "*"
+  },
   "dependencies": {
     "events": "^3.3.0"
   },
