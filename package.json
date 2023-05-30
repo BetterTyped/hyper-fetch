@@ -14,7 +14,7 @@
     "build": "nx run-many --target=build --all --exclude=next,reactjs --parallel=10",
     "build:docs": "cd documentation && yarn install && yarn build",
     "test": "nx run-many --target=test-pipeline --all --parallel=1",
-    "lint": "nx run-many --target=lint --all --parallel=10",
+    "lint": "nx run-many --target=lint --all --exclude=next,reactjs --parallel=10",
     "typecheck": "nx run-many --target=typecheck --all --parallel=10",
     "release": "nx run-many --target=release --all --parallel=1"
   },
