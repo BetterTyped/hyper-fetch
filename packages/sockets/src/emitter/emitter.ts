@@ -33,6 +33,7 @@ export class Emitter<
     this.data = json?.data;
     this.timeout = json?.timeout ?? timeout;
     this.options = json?.options ?? options;
+    this.params = json?.params;
   }
 
   setOptions(options: ExtractEmitterOptionsType<AdapterType>) {
@@ -92,8 +93,9 @@ export class Emitter<
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
+      params: options?.params || this.params,
       ...options,
-      name: this.paramsMapper(options?.params ? options?.params : this.params),
+      name: this.paramsMapper(options?.params || this.params),
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
@@ -106,6 +108,21 @@ export class Emitter<
     newInstance.connections = this.connections;
     return newInstance;
   }
+
+  getAck = (ack?: EmitterAcknowledgeType<any, AdapterType>) => {
+    if (ack) {
+      return (response: { data: any; extra: any; error: any }) => {
+        this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
+        return ack(response as any);
+      };
+    }
+    if (this.connections.size) {
+      return (response: { data: any; extra: any; error: any }) => {
+        this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
+      };
+    }
+    return undefined;
+  };
 
   emit: EmitType<this> = ({
     data,
@@ -122,12 +139,7 @@ export class Emitter<
 
     const eventMessageId = getUniqueRequestId(instance.name);
 
-    const action = (response: { data: any; extra: any; error: any }) => {
-      instance.connections.forEach((connection) => connection(response, () => instance.connections.delete(connection)));
-      return ack?.(response as any);
-    };
-
-    this.socket.adapter.emit(eventMessageId, instance, action);
+    this.socket.adapter.emit(eventMessageId, instance, instance.getAck(ack));
     return eventMessageId;
   };
 }

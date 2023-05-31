@@ -4,7 +4,7 @@ import { createWsServer } from "../../websocket/websocket.server";
 
 const windowInstance = global.window;
 
-describe("Socket Adapter [ Utils ]", () => {
+describe("Socket Client [ Utils ]", () => {
   let socket = createSocket();
   let windowSpy: jest.SpyInstance<Window & typeof globalThis, []>;
 

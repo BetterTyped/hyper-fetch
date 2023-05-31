@@ -8,7 +8,7 @@ type DataType = {
   test: string;
 };
 
-describe("Socket Adapter [ Base ]", () => {
+describe("Socket Client [ Base ]", () => {
   let server = createWsServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);

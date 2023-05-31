@@ -47,4 +47,10 @@ describe("Emitter [ Base ]", () => {
     const newEmitter = emitter.setDataMapper(dataMapper).setTimeout(20000).setData(data);
     expect(newEmitter.data).toStrictEqual(Object.keys(data));
   });
+
+  it("should allow inherit params", async () => {
+    const newEmitter = socket.createEmitter()({ name: "test/:testId" }).setParams({ testId: 1 });
+    expect(newEmitter.clone().params).toStrictEqual({ testId: 1 });
+    expect(newEmitter.clone({ params: { testId: 3 } }).params).toStrictEqual({ testId: 3 });
+  });
 });

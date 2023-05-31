@@ -141,10 +141,9 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     const enabled = onEmit(emitter);
 
     if (!enabled) return;
-
     if (ack || emitter.connections.size) {
       let timeout;
-      const unmount = onListen({ name: emitter.name }, (response) => {
+      const unmount = onListen(emitter, (response) => {
         if (response.extra.data.id === eventMessageId) {
           ack({ ...response, error: null });
           clearTimeout(timeout);

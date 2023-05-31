@@ -4,7 +4,7 @@ import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
-describe("Socket Adapter [ Callbacks ]", () => {
+describe("Socket Client  [ Callbacks ]", () => {
   let server = createWsServer();
 
   beforeEach(() => {

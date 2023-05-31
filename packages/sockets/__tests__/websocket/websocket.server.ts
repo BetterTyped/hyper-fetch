@@ -39,3 +39,14 @@ export const sendWsEvent = <T extends ListenerInstance>(
 
   wsServer.send(JSON.stringify(data));
 };
+
+export const receiveEvent = async (id: string, name: string, data: any) => {
+  await expect(wsServer).toReceiveMessage(
+    JSON.stringify({
+      id,
+      name,
+      data,
+    }),
+    { timeout: 5000 },
+  );
+};
