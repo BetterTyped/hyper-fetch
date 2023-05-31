@@ -21,7 +21,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       onClose,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket);
+    } = getSocketAdapterBindings(socket, { open: true });
 
     const connect = () => {
       const enabled = onConnect();

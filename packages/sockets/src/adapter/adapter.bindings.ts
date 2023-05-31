@@ -3,14 +3,17 @@ import { ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
 import { ExtractSocketExtraType, ListenerCallbackType, SocketAdapterInstance } from "adapter";
 
-export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(socket: SocketInstance) => {
+export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
+  socket: SocketInstance,
+  defaults?: { open?: boolean; connecting?: boolean; forceClosed?: boolean; reconnectionAttempts?: number },
+) => {
   const logger = socket.loggerManager.init("Socket Adapter");
   const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
-  let open = false;
-  let connecting = false;
-  let forceClosed = false;
-  let reconnectionAttempts = 0;
+  let open = defaults?.open ?? false;
+  let connecting = defaults?.connecting ?? false;
+  let forceClosed = defaults?.forceClosed ?? false;
+  let reconnectionAttempts = defaults?.reconnectionAttempts ?? 0;
 
   // Methods
 

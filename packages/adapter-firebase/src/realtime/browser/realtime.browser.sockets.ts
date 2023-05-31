@@ -21,7 +21,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       onClose,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket);
+    } = getSocketAdapterBindings(socket, { open: true });
 
     const connect = () => {
       const enabled = onConnect();
