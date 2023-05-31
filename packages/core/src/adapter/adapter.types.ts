@@ -48,14 +48,29 @@ export type ExtractUnionAdapter<
     status?: any;
     extra?: any;
     queryParams?: any;
+    endpointType?: any;
   },
 > = Extract<
   Adapter,
-  AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+  AdapterType<
+    Values["options"],
+    Values["method"],
+    Values["status"],
+    Values["extra"],
+    Values["queryParams"],
+    Values["endpointType"]
+  >
 > extends AdapterInstance
   ? Extract<
       Adapter,
-      AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+      AdapterType<
+        Values["options"],
+        Values["method"],
+        Values["status"],
+        Values["extra"],
+        Values["queryParams"],
+        Values["endpointType"]
+      >
     >
   : never;
 

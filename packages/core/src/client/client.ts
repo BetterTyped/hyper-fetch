@@ -383,7 +383,7 @@ export class Client<
   createRequest = <
     Response,
     Payload = undefined,
-    LocalError extends ClientErrorType | undefined = undefined,
+    LocalError = undefined,
     QueryParams = ExtractAdapterQueryParamsType<Adapter>,
   >() => {
     return <
@@ -395,30 +395,31 @@ export class Client<
     ) => {
       const endpoint = this.endpointMapper(params.endpoint);
 
-      type GenericEndpoint = EndpointType extends string ? EndpointType : typeof endpoint;
       type ExtractedAdapterType = ExtractUnionAdapter<
         Adapter,
         {
           method: MethodType;
           options: AdapterOptions;
           queryParams: QueryParams;
-          endpointType: EndpointType;
         }
       > extends NegativeTypes
-        ? AdapterType
+        ? Adapter
         : ExtractUnionAdapter<
             Adapter,
             {
               method: MethodType;
               options: AdapterOptions;
               queryParams: QueryParams;
-              endpointType: EndpointType;
             }
           >;
 
-      const mappedParams: RequestOptionsType<GenericEndpoint, AdapterOptions, MethodType> = {
+      const mappedParams: RequestOptionsType<
+        EndpointType extends string ? EndpointType : typeof endpoint,
+        AdapterOptions,
+        MethodType
+      > = {
         ...params,
-        endpoint: endpoint as GenericEndpoint,
+        endpoint: endpoint as EndpointType extends string ? EndpointType : typeof endpoint,
       };
 
       return new Request<
@@ -427,7 +428,7 @@ export class Client<
         QueryParams,
         GlobalErrorType,
         LocalError,
-        GenericEndpoint,
+        EndpointType extends string ? EndpointType : typeof endpoint,
         ExtractedAdapterType
       >(this as any, mappedParams as any);
     };
