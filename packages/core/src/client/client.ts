@@ -430,7 +430,7 @@ export class Client<
         LocalError,
         EndpointType extends string ? EndpointType : typeof endpoint,
         ExtractedAdapterType
-      >(this as any, mappedParams as any);
+      >(this, mappedParams);
     };
   };
 }
