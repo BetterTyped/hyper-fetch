@@ -1,8 +1,9 @@
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapConstraint, RealtimeSocketAdapterType } from "realtime";
+import { getOrderedResultRealtime, mapConstraint } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
+import { RealtimeSocketAdapterType } from "adapter";
 
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
@@ -50,8 +51,11 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       const onlyOnce = options?.onlyOnce || false;
       const params = options?.constraints?.map((constraint) => mapConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
+      let unsubscribe = () => {};
+      let unmount = () => {};
+      let clearListeners = () => {};
       try {
-        const unsubscribe = onValue(
+        unsubscribe = onValue(
           queryConstraints,
           (snapshot) => {
             const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
@@ -62,9 +66,8 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
           },
           { onlyOnce },
         );
-        const unmount = onListen(listener, callback, unsubscribe);
-
-        const clearListeners = () => {
+        unmount = onListen(listener, callback, unsubscribe);
+        clearListeners = () => {
           unsubscribe();
           unmount();
         };
@@ -72,7 +75,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
         return clearListeners;
       } catch (error) {
         onError(error);
-        return () => null;
+        return clearListeners;
       }
     };
 

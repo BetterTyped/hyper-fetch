@@ -1,0 +1,106 @@
+import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
+import { onSnapshot, Firestore, doc, query, collection } from "firebase/firestore";
+
+import { mapConstraint } from "./firestore.browser.utils";
+import { getStatus, isDocOrQuery } from "utils";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils/firestore.utils";
+import { FirestoreSocketAdapterType } from "adapter";
+
+export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
+  return (socket) => {
+    const {
+      open,
+      connecting,
+      // forceClosed,
+      reconnectionAttempts,
+      listeners,
+      removeListener,
+      onConnect,
+      onReconnect,
+      onDisconnect,
+      onListen,
+      onOpen,
+      onClose,
+      onEvent,
+      onError,
+    } = getSocketAdapterBindings(socket);
+
+    const connect = () => {
+      const enabled = onConnect();
+
+      if (enabled) {
+        // goOnline(database);
+        onOpen();
+      }
+    };
+
+    const disconnect = () => {
+      // goOffline(database);
+      onDisconnect();
+      onClose();
+    };
+
+    const reconnect = () => {
+      onReconnect(disconnect, connect);
+    };
+
+    const listen: ReturnType<FirestoreSocketAdapterType>["listen"] = (listener, callback) => {
+      const fullUrl = socket.url + listener.name;
+      const { options } = listener;
+
+      let path;
+      const queryType = isDocOrQuery(fullUrl);
+      if (queryType === "doc") {
+        path = doc(database, fullUrl);
+      } else {
+        const queryConstraints = options?.constraints.map((constr) => mapConstraint(constr));
+        path = query(collection(database, fullUrl), ...queryConstraints);
+      }
+
+      try {
+        const unsubscribe = onSnapshot(
+          path,
+          (snapshot) => {
+            const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
+            const status = getStatus(response);
+            const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+            const extra = { ref: path, snapshot, unsubscribe, groupedResult, status };
+            callback({ data: response, extra });
+            onEvent(listener.name, response, extra);
+          },
+          (error) => {
+            onError(error);
+          },
+        );
+        const unmount = onListen(listener, callback, unsubscribe);
+
+        const clearListeners = () => {
+          unsubscribe();
+          unmount();
+        };
+
+        return clearListeners;
+      } catch (error) {
+        onError(error);
+        return () => null;
+      }
+    };
+
+    const emit = async () => {
+      throw new Error("Cannot emit from Firestore database socket.");
+    };
+
+    return {
+      open,
+      reconnectionAttempts,
+      listeners,
+      connecting,
+      listen,
+      removeListener,
+      emit,
+      connect,
+      reconnect,
+      disconnect,
+    };
+  };
+};

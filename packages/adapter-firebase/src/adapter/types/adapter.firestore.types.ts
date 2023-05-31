@@ -6,6 +6,7 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
+import { SocketAdapterType } from "@hyper-fetch/sockets";
 
 import {
   FirestoreConstraintsUnion,
@@ -14,15 +15,13 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-// TODO - separate onSnapshot adapter type when SocketAdapter is ready
+export type FirestoreSocketAdapterType = SocketAdapterType<
+  never,
+  FirestoreOnSnapshotExtra,
+  { groupByChangeType: boolean } & FirestoreQueryParams
+>;
+
 export type FirestoreAdapterType =
-  // | AdapterType<
-  //     { groupByChangeType: boolean },
-  //     "onSnapshot",
-  //     FirestoreStatuses,
-  //     FirestoreOnSnapshotExtra,
-  //     FirestoreQueryParams
-  //   >
   | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
   | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
   | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>

@@ -1,5 +1,6 @@
 import { AdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot } from "firebase/database";
+import { SocketAdapterType } from "@hyper-fetch/sockets";
 
 import {
   PermittedConstraints,
@@ -8,7 +9,12 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-// TODO separate type after SocketAdapter is ready
+export type RealtimeSocketAdapterType = SocketAdapterType<
+  never,
+  RealtimeDbOnValueMethodExtra,
+  { onlyOnce: boolean } & RealtimeDBQueryParams
+>;
+
 export type RealtimeDbAdapterType =
   | AdapterType<
       DefaultRealtimeDBAdapterOptions,

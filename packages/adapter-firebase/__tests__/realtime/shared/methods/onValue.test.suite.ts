@@ -3,11 +3,10 @@ import { waitFor } from "@testing-library/dom";
 import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../utils/seed/seed.data";
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
-import { RealtimeSocketAdapterType } from "realtime";
+import { firebaseAdminAdapter, firebaseAdapter, RealtimeSocketAdapterType } from "adapter";
 
 export const onValueTestSuite = (
-  adapter: RealtimeSocketAdapterType,
+  adapter: () => RealtimeSocketAdapterType,
   coreAdapter: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("when using onValue method", () => {
@@ -15,14 +14,14 @@ export const onValueTestSuite = (
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
     let client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-    let socket = new Socket({ url: "teas/", adapter });
+    let socket = new Socket({ url: "teas/", adapter: adapter() });
     let pushReq = client
       .createRequest<Tea, Tea>()({
         endpoint: "",
         method: "push",
       })
       .setData(newData);
-    let socketBees = new Socket({ url: "bees/", adapter });
+    let socketBees = new Socket({ url: "bees/", adapter: adapter() });
 
     beforeEach(() => {
       jest.resetAllMocks();
@@ -30,14 +29,14 @@ export const onValueTestSuite = (
       spy = jest.fn();
 
       client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-      socket = new Socket({ url: "teas/", adapter });
+      socket = new Socket({ url: "teas/", adapter: adapter() });
       pushReq = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "push",
         })
         .setData(newData);
-      socketBees = new Socket({ url: "bees/", adapter });
+      socketBees = new Socket({ url: "bees/", adapter: adapter() });
     });
 
     it("should return unmount function", async () => {

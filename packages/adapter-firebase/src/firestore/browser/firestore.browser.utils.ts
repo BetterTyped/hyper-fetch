@@ -1,14 +1,9 @@
 import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
+import { OrderByDirection } from "@firebase/firestore";
 
-import { FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
-export const mapConstraint = ({
-  type,
-  values,
-}: {
-  type: FirestoreQueryConstraints | SharedQueryConstraints;
-  values: any[];
-}) => {
+export const mapConstraint = ({ type, values }: FirestorePermittedMethods) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -16,7 +11,7 @@ export const mapConstraint = ({
     }
     case FirestoreQueryConstraints.ORDER_BY: {
       const [field, ord] = values;
-      return orderBy(field, ord);
+      return orderBy(field, ord as OrderByDirection);
     }
     case FirestoreQueryConstraints.LIMIT: {
       const [limitValue] = values;
