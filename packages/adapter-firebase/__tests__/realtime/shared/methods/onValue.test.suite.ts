@@ -14,33 +14,28 @@ export const onValueTestSuite = (
     let spy = jest.fn();
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
-    let client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-    let socket = new Socket({ url: "teas/", adapter: adapter() });
-    let pushReq = client
-      .createRequest<Tea, Tea>()({
-        endpoint: "",
-        method: "push",
-      })
-      .setData(newData);
-    let socketBees = new Socket({ url: "bees/", adapter: adapter() });
-
-    beforeEach(() => {
-      jest.resetAllMocks();
-      jest.clearAllMocks();
-      spy = jest.fn();
-
-      client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-      socket = new Socket({ url: "teas/", adapter: adapter() });
-      pushReq = client
+    const initialize = async () => {
+      const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
+      const socket = new Socket({ url: "teas/", adapter: adapter() });
+      const pushReq = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "push",
         })
         .setData(newData);
-      socketBees = new Socket({ url: "bees/", adapter: adapter() });
+      const socketBees = new Socket({ url: "bees/", adapter: adapter() });
+
+      return { client, socket, pushReq, socketBees };
+    };
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+      jest.clearAllMocks();
+      spy = jest.fn();
     });
 
     it("should return unmount function", async () => {
+      const { socket } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
         name: "",
       });
@@ -49,6 +44,7 @@ export const onValueTestSuite = (
     });
 
     it("should unmount listeners", async () => {
+      const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
         name: "",
       });
@@ -64,6 +60,7 @@ export const onValueTestSuite = (
     });
 
     it("should return emptyResource status", async () => {
+      const { socketBees } = await initialize();
       const onValueReq = socketBees.createListener<Tea[]>()({
         name: "",
         options: { onlyOnce: false },
@@ -90,6 +87,7 @@ export const onValueTestSuite = (
     });
 
     it("should be called once with onlyOnce option", async () => {
+      const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
         name: "",
         options: { onlyOnce: true },
@@ -109,6 +107,8 @@ export const onValueTestSuite = (
     });
 
     it("should receive updates", async () => {
+      const { socket, pushReq } = await initialize();
+
       const onValueReq = socket.createListener<Tea[]>()({
         name: "",
         options: { onlyOnce: false },
