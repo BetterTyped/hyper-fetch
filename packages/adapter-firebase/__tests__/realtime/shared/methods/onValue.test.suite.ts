@@ -127,6 +127,7 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitFor(async () => {
+        expect(spy).toBeCalledTimes(1);
         expect(receivedData).toIncludeAllMembers([newData]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");

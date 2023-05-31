@@ -3,6 +3,7 @@ import { waitFor } from "@testing-library/dom";
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { sendWsEvent, createWsServer } from "../../websocket/websocket.server";
+import { sleep } from "../../utils/helpers.utils";
 
 type DataType = { name: string; age: number };
 
@@ -32,6 +33,9 @@ describe("Listener [ Listen ]", () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnceWith({ data: message, extra: receivedExtra });
     });
+
+    await sleep(10);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should allow to remove given listener", async () => {

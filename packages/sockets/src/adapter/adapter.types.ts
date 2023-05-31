@@ -1,4 +1,4 @@
-import { EmitterInstance } from "emitter";
+import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
 import { Listener } from "listener";
 import { Socket } from "socket";
 
@@ -34,7 +34,11 @@ export type SocketAdapterType<
     >,
   ) => RemoveListenerCallbackType;
   removeListener: (name: string, callback: (...args: any) => void) => void;
-  emit: (eventMessageId: string, emitter: EmitterInstance, ack?: (error: Error | null, response: any) => void) => void;
+  emit: (
+    eventMessageId: string,
+    emitter: EmitterInstance,
+    ack?: EmitterAcknowledgeType<any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
+  ) => void;
   connecting: boolean;
   connect: () => void;
   reconnect: () => void;

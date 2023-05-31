@@ -76,11 +76,20 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     };
 
     adapter.onmessage = (event: MessageEvent<SocketData>) => {
-      const parsed: MessageEvent<SocketData> = parseResponse(event);
-      const response: MessageEvent<SocketData>["data"] = parseResponse(parsed.data);
-      const data: MessageEvent<SocketData>["data"]["data"] = parseResponse(response.data);
+      const extra: MessageEvent<SocketData> = parseResponse(event);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      extra.data = parseResponse(extra.data);
+      extra.data.data = parseResponse(extra.data.data);
 
-      onEvent(response.name, data, parsed);
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(extra.data.name) ||
+      new Map();
+
+      eventListeners.forEach((_, action) => {
+        action({ data: extra.data.data, extra });
+      });
+
+      onEvent(extra.data.name, extra.data.data, extra);
       onHeartbeat();
     };
   };
@@ -136,17 +145,18 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
 
     if (!enabled) return;
 
-    if (ack) {
+    if (ack || emitter.connections.size) {
       let timeout;
       const unmount = onListen({ name: emitter.name }, (response) => {
-        if (response.data.id === eventMessageId) {
-          ack(null, response);
+        if (response.extra.data.id === eventMessageId) {
+          ack({ ...response, error: null });
           clearTimeout(timeout);
+          unmount();
         }
       });
       timeout = setTimeout(() => {
         unmount();
-        ack(new Error("Server did not acknowledge the event"), null);
+        ack({ error: new Error("Server did not acknowledge the event"), data: null, extra: null });
       }, emitter.timeout);
     }
 

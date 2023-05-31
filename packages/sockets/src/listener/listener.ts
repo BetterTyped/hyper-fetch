@@ -14,7 +14,7 @@ export class Listener<
   readonly name: Name;
   params?: ParamsType;
   options?: ExtractListenerOptionsType<AdapterType>;
-  connections: ConnectMethodType<AdapterType, Response>[] = [];
+  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
 
   constructor(readonly socket: Socket<AdapterType>, readonly listenerOptions?: ListenerOptionsType<Name, AdapterType>) {
     const { name, options } = listenerOptions;
@@ -46,25 +46,28 @@ export class Listener<
    * @param callback
    */
   onData(callback: ConnectMethodType<AdapterType, Response>) {
-    this.connections.push(callback);
+    this.connections.add(callback);
     return this;
   }
 
   clone<Params extends boolean = HasParams>(
     options?: Partial<ListenerOptionsType<Name, AdapterType>>,
   ): Listener<Response, Name, AdapterType> {
-    return new Listener<Response, Name, AdapterType, Params>(this.socket, {
+    const newInstance = new Listener<Response, Name, AdapterType, Params>(this.socket, {
       ...this.listenerOptions,
       ...options,
       name: this.paramsMapper(options?.params || this.params),
     });
+
+    newInstance.connections = this.connections;
+    return newInstance;
   }
 
   listen: ListenType<this> = ({ callback, ...options }) => {
     const instance = this.clone(options);
 
     const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {
-      this.connections.forEach((connection) => connection(response));
+      this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
       return callback(response as any);
     };
 

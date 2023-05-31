@@ -19,8 +19,9 @@ export type EmitterOptionsType<Name extends string, AdapterType extends SocketAd
 };
 
 export type EmitterAcknowledgeType<Response, AdapterType extends SocketAdapterInstance> = (
-  error: Error | null,
-  response: { data: Response; extra: ExtractSocketExtraType<AdapterType> },
+  response:
+    | { error: Error; data: null; extra: null }
+    | { error: null; data: Response; extra: ExtractSocketExtraType<AdapterType> },
 ) => void;
 
 // Emit

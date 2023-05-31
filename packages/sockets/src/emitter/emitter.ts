@@ -3,6 +3,7 @@ import { DateInterval, ExtractRouteParams, ParamsType, getUniqueRequestId } from
 import { Socket } from "socket";
 import { EmitterAcknowledgeType, EmitterOptionsType, EmitType } from "emitter";
 import { SocketAdapterType, ExtractEmitterOptionsType } from "adapter";
+import { ConnectMethodType } from "types";
 
 export class Emitter<
   Payload,
@@ -18,6 +19,7 @@ export class Emitter<
   timeout: number;
   data: Payload | null = null;
   options: ExtractEmitterOptionsType<AdapterType>;
+  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
 
   constructor(
     readonly socket: Socket<AdapterType>,
@@ -26,6 +28,7 @@ export class Emitter<
     readonly dataMapper?: (data: Payload) => MappedData,
   ) {
     const { name, timeout = DateInterval.second * 2, options } = emitterOptions;
+
     this.name = json?.name ?? name;
     this.data = json?.data;
     this.timeout = json?.timeout ?? timeout;
@@ -55,6 +58,16 @@ export class Emitter<
     return this.clone<Payload, MappedData, true>({ params });
   }
 
+  /**
+   * Attach global logic to the received events
+   * @param callback
+   */
+  onData(callback: ConnectMethodType<AdapterType, Response>) {
+    this.connections.add(callback);
+
+    return this;
+  }
+
   private paramsMapper = (params: ParamsType | null | undefined): Name => {
     let endpoint = this.emitterOptions.name as string;
     if (params) {
@@ -80,31 +93,41 @@ export class Emitter<
       options: this.options,
       data: this.data as unknown as NewPayload,
       ...options,
-      name: this.paramsMapper(options?.params || this.params),
+      name: this.paramsMapper(options?.params ? options?.params : this.params),
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>(
+    const newInstance = new Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>(
       this.socket,
       this.emitterOptions,
       json,
       mapperFn,
     );
+    newInstance.connections = this.connections;
+    return newInstance;
   }
 
   emit: EmitType<this> = ({
     data,
+    params,
     options,
     ack,
   }: {
     data?: Payload;
+    params?: ExtractRouteParams<Name>;
     options?: Partial<EmitterOptionsType<Name, AdapterType>>;
     ack?: EmitterAcknowledgeType<any, AdapterType>;
   } = {}) => {
-    const instance = this.clone({ ...options, data });
-    const eventMessageId = getUniqueRequestId(this.name);
+    const instance = this.clone({ ...options, data, params });
 
-    this.socket.adapter.emit(eventMessageId, instance, ack);
+    const eventMessageId = getUniqueRequestId(instance.name);
+
+    const action = (response: { data: any; extra: any; error: any }) => {
+      instance.connections.forEach((connection) => connection(response, () => instance.connections.delete(connection)));
+      return ack?.(response as any);
+    };
+
+    this.socket.adapter.emit(eventMessageId, instance, action);
     return eventMessageId;
   };
 }

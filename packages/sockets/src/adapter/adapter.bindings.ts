@@ -130,11 +130,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(socket
     logger.info("New event message", { response, resposeExtra });
 
     const { data, extra } = socket.__modifyResponse({ data: response, extra: resposeExtra });
-    const eventListeners: Map<ListenerCallbackType<T, any>, VoidFunction> = listeners.get(name) || new Map();
 
-    eventListeners.forEach((_, callback) => {
-      callback({ data, extra });
-    });
     socket.events.emitListenerEvent(name, { data, extra });
   };
 
