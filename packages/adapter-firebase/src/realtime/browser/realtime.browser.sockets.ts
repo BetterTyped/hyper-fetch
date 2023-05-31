@@ -54,29 +54,27 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       let unsubscribe = () => {};
       let unmount = () => {};
       let clearListeners = () => {};
-      try {
-        unsubscribe = onValue(
-          queryConstraints,
-          (snapshot) => {
-            const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
-            const status = getStatus(response);
-            const extra = { ref: path, snapshot, status };
-            callback({ data: response, extra });
-            onEvent(listener.name, response, extra);
-          },
-          { onlyOnce },
-        );
-        unmount = onListen(listener, callback, unsubscribe);
-        clearListeners = () => {
-          unsubscribe();
-          unmount();
-        };
+      unsubscribe = onValue(
+        queryConstraints,
+        (snapshot) => {
+          const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+          const status = getStatus(response);
+          const extra = { ref: path, snapshot, status };
+          callback({ data: response, extra });
+          onEvent(listener.name, response, extra);
+        },
+        (error) => {
+          onError(error);
+        },
+        { onlyOnce },
+      );
+      unmount = onListen(listener, callback, unsubscribe);
+      clearListeners = () => {
+        unsubscribe();
+        unmount();
+      };
 
-        return clearListeners;
-      } catch (error) {
-        onError(error);
-        return clearListeners;
-      }
+      return clearListeners;
     };
 
     const emit = async () => {

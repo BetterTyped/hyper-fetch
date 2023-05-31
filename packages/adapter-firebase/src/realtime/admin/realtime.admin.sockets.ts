@@ -51,21 +51,21 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
       const onlyOnce = options?.onlyOnce || false;
       const q = applyConstraints(path, options?.constraints || []);
       const method = onlyOnce === true ? "once" : "on";
-      let unsubscribe;
-      try {
-        q[method]("value", (snapshot) => {
+      q[method](
+        "value",
+        (snapshot) => {
           const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
           const status = getStatus(response);
           // TODO fix types
           const extra = { ref: path, snapshot, status } as any;
           callback({ data: response, extra });
           onEvent(listener.name, response, extra);
-          unsubscribe = () => q.off("value");
-        });
-      } catch (error) {
-        onError(error);
-        return () => null;
-      }
+        },
+        (error) => {
+          onError(error);
+        },
+      );
+      const unsubscribe = () => q.off("value");
       const unmount = onListen(listener, callback, unsubscribe);
 
       const clearListeners = () => {

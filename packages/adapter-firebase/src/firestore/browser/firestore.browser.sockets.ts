@@ -57,33 +57,28 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
         path = query(collection(database, fullUrl), ...queryConstraints);
       }
 
-      try {
-        const unsubscribe = onSnapshot(
-          path,
-          (snapshot) => {
-            const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
-            const status = getStatus(response);
-            const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-            const extra = { ref: path, snapshot, unsubscribe, groupedResult, status };
-            callback({ data: response, extra });
-            onEvent(listener.name, response, extra);
-          },
-          (error) => {
-            onError(error);
-          },
-        );
-        const unmount = onListen(listener, callback, unsubscribe);
+      const unsubscribe = onSnapshot(
+        path,
+        (snapshot) => {
+          const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
+          const status = getStatus(response);
+          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const extra = { ref: path, snapshot, unsubscribe, groupedResult, status };
+          callback({ data: response, extra });
+          onEvent(listener.name, response, extra);
+        },
+        (error) => {
+          onError(error);
+        },
+      );
+      const unmount = onListen(listener, callback, unsubscribe);
 
-        const clearListeners = () => {
-          unsubscribe();
-          unmount();
-        };
+      const clearListeners = () => {
+        unsubscribe();
+        unmount();
+      };
 
-        return clearListeners;
-      } catch (error) {
-        onError(error);
-        return () => null;
-      }
+      return clearListeners;
     };
 
     const emit = async () => {
