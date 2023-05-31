@@ -109,6 +109,12 @@ const config = {
             dir: path.join(__dirname, "../packages/adapter-firebase"),
             entryPath: "src/index.ts",
           },
+          {
+            logo: "/img/features/graphql.png",
+            title: "GraphQL",
+            dir: path.join(__dirname, "../packages/adapter-graphql"),
+            entryPath: "src/index.ts",
+          },
         ],
       },
     ],
