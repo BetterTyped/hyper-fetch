@@ -33,7 +33,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
-import { NegativeTypes } from "types";
+import { ExtractAdapterType, NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -214,7 +214,11 @@ export class Client<
     callback: (
       client: this,
     ) => Returns extends AdapterInstance ? NewAdapter : Client<GlobalErrorType, NewAdapter, EndpointMapper>,
-  ): NewAdapter extends AdapterInstance ? Client<GlobalErrorType, NewAdapter, EndpointMapper> : NewAdapter => {
+  ): Client<
+    GlobalErrorType,
+    Returns extends AdapterInstance ? NewAdapter : ExtractAdapterType<NewAdapter>,
+    EndpointMapper
+  > => {
     const value = callback(this) as unknown as Adapter;
 
     if (value instanceof Client) {
@@ -430,7 +434,7 @@ export class Client<
         LocalError,
         EndpointType extends string ? EndpointType : typeof endpoint,
         ExtractedAdapterType
-      >(this, mappedParams);
+      >(this as any, mappedParams);
     };
   };
 }
