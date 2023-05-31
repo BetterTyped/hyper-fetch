@@ -1,7 +1,8 @@
 import { realtimeDBAdmin, seedRealtimeDatabaseAdmin } from "../../utils";
 import { socketsMethodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseAdminAdapter, RealtimeSocketAdapterType } from "adapter";
+import { firebaseAdminAdapter } from "adapter";
 import { firebaseSocketsAdminAdapter } from "../../../src/adapter/admin/adapter.admin.sockets";
+import { RealtimeAdminSocketAdapterType } from "realtime";
 
 describe("Realtime Database Admin [Sockets]", () => {
   let db;
@@ -19,7 +20,7 @@ describe("Realtime Database Admin [Sockets]", () => {
   });
 
   socketsMethodsSharedTestCases(
-    () => firebaseSocketsAdminAdapter(db) as RealtimeSocketAdapterType,
+    () => firebaseSocketsAdminAdapter(db) as RealtimeAdminSocketAdapterType,
     () => firebaseAdminAdapter(db),
   );
 });

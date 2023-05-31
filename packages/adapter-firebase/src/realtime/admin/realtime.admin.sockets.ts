@@ -2,16 +2,14 @@ import { Database } from "firebase-admin/lib/database";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
 import { applyConstraints } from "./realtime.admin.utils";
-import { getOrderedResultRealtime } from "realtime";
+import { getOrderedResultRealtime, RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "adapter";
 
-export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterType => {
+export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAdapterType => {
   return (socket) => {
     const {
       open,
       connecting,
-      // forceClosed,
       reconnectionAttempts,
       listeners,
       removeListener,
@@ -29,13 +27,13 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
       const enabled = onConnect();
 
       if (enabled) {
-        // goOnline(database);
+        database.goOnline();
         onOpen();
       }
     };
 
     const disconnect = () => {
-      // goOffline(database);
+      database.goOffline();
       onDisconnect();
       onClose();
     };
@@ -44,7 +42,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
       onReconnect(disconnect, connect);
     };
 
-    const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
+    const listen: ReturnType<RealtimeAdminSocketAdapterType>["listen"] = (listener, callback) => {
       const fullUrl = socket.url + listener.name;
       const path = database.ref(fullUrl);
       const { options } = listener;
@@ -56,8 +54,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
         (snapshot) => {
           const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
           const status = getStatus(response);
-          // TODO fix types
-          const extra = { ref: path, snapshot, status } as any;
+          const extra: RealtimeAdminOnValueMethodExtra = { ref: path, snapshot, status };
           callback({ data: response, extra });
           onEvent(listener.name, response, extra);
         },
@@ -79,6 +76,16 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeSocketAdapterT
     const emit = async () => {
       throw new Error("Cannot emit from Realtime database socket.");
     };
+
+    // Lifecycle
+
+    database?.ref?.(".info/connected").on("value", (snap) => {
+      if (snap.val() === false) {
+        if (socket.options.autoConnect === true) {
+          reconnect();
+        }
+      }
+    });
 
     return {
       open,

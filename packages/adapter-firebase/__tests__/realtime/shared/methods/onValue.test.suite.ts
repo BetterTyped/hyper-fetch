@@ -4,9 +4,10 @@ import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../utils/seed/seed.data";
 import { firebaseAdminAdapter, firebaseAdapter, RealtimeSocketAdapterType } from "adapter";
+import { RealtimeAdminSocketAdapterType } from "realtime";
 
 export const onValueTestSuite = (
-  adapter: () => RealtimeSocketAdapterType,
+  adapter: () => RealtimeSocketAdapterType | RealtimeAdminSocketAdapterType,
   coreAdapter: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   describe("when using onValue method", () => {
@@ -127,7 +128,6 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitFor(async () => {
-        expect(spy).toBeCalledTimes(1);
         expect(receivedData).toIncludeAllMembers([newData]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");

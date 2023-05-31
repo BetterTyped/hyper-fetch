@@ -76,11 +76,8 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     };
 
     adapter.onmessage = (event: MessageEvent<SocketData>) => {
-      const extra: MessageEvent<SocketData> = parseResponse(event);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      const extra = parseResponse(event);
       extra.data = parseResponse(extra.data);
-      extra.data.data = parseResponse(extra.data.data);
 
       const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(extra.data.name) ||
       new Map();

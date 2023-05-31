@@ -5,6 +5,7 @@ import { pushTestSuite } from "./methods/push.test.suite";
 import { updateTestSuite } from "./methods/update.test.suite";
 import { removeTestSuite } from "./methods/remove.test.suite";
 import { onValueTestSuite } from "./methods/onValue.test.suite";
+import { RealtimeAdminSocketAdapterType } from "realtime";
 
 export const methodsSharedTestCases = (
   adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
@@ -17,7 +18,7 @@ export const methodsSharedTestCases = (
 };
 
 export const socketsMethodsSharedTestCases = (
-  adapter: () => RealtimeSocketAdapterType,
+  adapter: () => RealtimeSocketAdapterType | RealtimeAdminSocketAdapterType,
   coreAdapter: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
 ) => {
   onValueTestSuite(adapter, coreAdapter);

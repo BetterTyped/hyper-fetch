@@ -17,6 +17,7 @@
     "coverage": "firebase emulators:exec 'jest --watchAll=false --coverage --detectOpenHandles --forceExit --runInBand'",
     "test-pipeline": "./test.sh",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",

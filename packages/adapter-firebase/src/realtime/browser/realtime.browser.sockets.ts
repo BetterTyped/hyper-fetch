@@ -10,7 +10,6 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     const {
       open,
       connecting,
-      forceClosed,
       reconnectionAttempts,
       listeners,
       removeListener,
@@ -85,10 +84,8 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
 
     onValue(ref(database, ".info/connected"), (snap) => {
       if (snap.val() === false) {
-        if (forceClosed) {
+        if (socket.options.autoConnect === true) {
           reconnect();
-        } else {
-          connect();
         }
       }
     });
