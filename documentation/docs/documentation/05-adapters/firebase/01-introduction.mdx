@@ -4,7 +4,7 @@ title: Firebase introduction
 sidebar_label: Introduction
 ---
 
-Hyper Fetch `Firebase` package is a complete integration of `realtime database` and `firestore`, both for frontend and
+Hyper Fetch `adapter-firebase` package is a complete integration of `realtime database` and `firestore`, both for frontend and
 backend. It offers single, unified approach for all of them.
 
 ## Getting Started
@@ -14,11 +14,11 @@ adapter on the `client`.
 
 There are two adapters to chose from:
 
-1. `firebaseWebAdapter` - for working with web realtime and firestore databases.
+1. `firebaseAdapter` - for working with web realtime and firestore databases.
 2. `firebaseAdminAdapter` - for admin versions of the packages.
 
 ```tsx
-import { firebaseWebAdapter } from "adapter";
+import { firebaseAdapter } from "adapter";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
@@ -29,7 +29,7 @@ const app = initializeApp({
 const db = getFirestore(app);
 
 // Setting up the HyperFetch with a firebase adapter
-const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(db));
+const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
 const getReq = client.createRequest<Tea[]>()({
   endpoint: "",
   method: "getDocs",
@@ -49,11 +49,11 @@ Resulting `response` is an object that contains the following properties:
 5. `extra` - contains additional properties, depending on a method used. For instance, for `getDocs` method - it allows
    to access `ref` and `snapshot` from firestore firebase.
 
-## Differences
+## Differences from 'raw' firebase
 
-1. If we stored an array in a firebase, for instance `[a, b, c]`, the query would return the same array. However, if the
+1. If we store an array in firebase, for instance `[a, b, c]`, the query would return the same array. However, if the
    array stops being sequential - for instance, if `a` and `b` were deleted, firebase would return and object: {2: 'c',
-   4: 'e'} Hyper Fetch always returns and array.
+   4: 'e'}. Hyper Fetch always returns and array.
 
 ## Filtering queries
 

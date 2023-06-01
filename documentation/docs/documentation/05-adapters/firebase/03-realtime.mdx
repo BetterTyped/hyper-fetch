@@ -1,18 +1,20 @@
 ---
 sidebar_position: 3
 title: Working with Realtime database
-sidebar_label: Realtime
+sidebar_label: Realtime Database
 ---
 
 ## Available methods
 
-Our Realtime Database adapter provides all the methods the original offers.
+Our Realtime Database adapter provides all the methods the original offers. Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in standard adapter.
+For the `onValue`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
 
 ### get
 
 ```tsx
+import {firebaseAdapter} from "@hyper-fetch/firebase";
 
-const client = new Client({ url: "teas/" }).setAdapter(() => firebaseWebAdapter(realtimeDbWeb));
+const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(realtimeDbWeb));
  const req = client.createRequest<Tea[]>()({
     endpoint: "",
     method: "get",

@@ -9,6 +9,9 @@ sidebar_label: Firestore
 After setting the firestore adapter, we can start performing requests! We should select the appropriate method, corresponding with
 firebase methods. If you want to learn more about available methods - please refer to the firebase documentation.
 
+Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a standard adapter.
+For the `onSnapshot`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+
 ```tsx
 const getReq = client.createRequest<Tea[]>()({
   endpoint: "",
