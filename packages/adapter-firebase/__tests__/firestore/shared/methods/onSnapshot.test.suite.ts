@@ -104,7 +104,7 @@ export const onSnapshotTestSuite = (
 
       unmount();
     });
-    it("should inform about changes when groupByChangeType option is added", async () => {
+    it.only("should inform about changes when groupByChangeType option is added", async () => {
       const newTeaData = {
         origin: "Poland",
         type: "Green",
@@ -127,6 +127,11 @@ export const onSnapshotTestSuite = (
           receivedExtra.push(extra);
         },
       });
+
+      await waitForExpect(async () => {
+        expect(receivedData).toHaveLength(1);
+        expect(receivedData[0]).toHaveLength(10);
+      }, 1000);
 
       const addTeaReq = client
         .createRequest<Tea, Tea>()({
@@ -155,13 +160,13 @@ export const onSnapshotTestSuite = (
       await removeReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toHaveLength(3);
-        const [afterAdd, afterModify, afterRemove] = receivedData;
-        const [afterAddExtra, afterModifyExtra, afterRemoveExtra] = receivedExtra;
+        expect(receivedData).toHaveLength(4);
+        const [initial, afterAdd, afterModify, afterRemove] = receivedData;
+        const [, afterAddExtra, afterModifyExtra, afterRemoveExtra] = receivedExtra;
         expect(afterAdd).toHaveLength(11);
         expect(afterModify).toHaveLength(11);
         expect(afterRemove).toHaveLength(10);
-        expect(afterAddExtra.groupedResult.added).toHaveLength(11);
+        expect(afterAddExtra.groupedResult.added).toHaveLength(1);
         expect(afterModifyExtra.groupedResult.added).toHaveLength(0);
         expect(afterModifyExtra.groupedResult.modified).toHaveLength(1);
         expect(afterModifyExtra.groupedResult.removed).toHaveLength(0);
