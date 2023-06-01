@@ -53,11 +53,14 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       if (queryType === "doc") {
         path = doc(database, fullUrl);
       } else {
-        const queryConstraints = options?.constraints.map((constr) => mapConstraint(constr));
+        const queryConstraints = options?.constraints.map((constr) => mapConstraint(constr)) || [];
         path = query(collection(database, fullUrl), ...queryConstraints);
       }
+      let unsubscribe = () => {};
+      let unmount = () => {};
+      let clearListeners = () => {};
 
-      const unsubscribe = onSnapshot(
+      unsubscribe = onSnapshot(
         path,
         (snapshot) => {
           const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
@@ -71,9 +74,8 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
           onError(error);
         },
       );
-      const unmount = onListen(listener, callback, unsubscribe);
-
-      const clearListeners = () => {
+      unmount = onListen(listener, callback, unsubscribe);
+      clearListeners = () => {
         unsubscribe();
         unmount();
       };

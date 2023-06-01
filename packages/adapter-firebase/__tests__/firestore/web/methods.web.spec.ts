@@ -2,11 +2,11 @@
  * @jest-environment node
  */
 
-import { firestoreDbBrowser } from "./initialize.web";
 import { seedFirestoreDatabaseBrowser } from "../../utils/browser/seed.browser";
 import { deleteCollectionForBrowser } from "../../utils/browser/clean.browser";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseAdapter } from "../../../src";
+import { firebaseAdapter } from "adapter";
+import { firestoreDbBrowser } from "../../utils/browser/initialize.firestore.browser";
 
 describe("Firestore Browser [ Methods ]", () => {
   beforeEach(async () => {

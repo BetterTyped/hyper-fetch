@@ -1,6 +1,7 @@
 import { CollectionReference, DocumentReference, Firestore } from "firebase-admin/lib/firestore";
+import { OrderByDirection } from "firebase/firestore";
 
-import { FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
 
 export const getRef = (db: Firestore, fullUrl: string) => {
   const withoutSurroundingSlashes = fullUrl.replace(/^\/|\/$/g, "");
@@ -20,10 +21,7 @@ export const getRef = (db: Firestore, fullUrl: string) => {
   }, db as unknown as Firestore | CollectionReference | DocumentReference) as CollectionReference | DocumentReference;
 };
 
-export const applyConstraint = (
-  collectionRef: CollectionReference,
-  { type, values }: { type: FirestoreQueryConstraints | SharedQueryConstraints; values: any[] },
-) => {
+export const applyConstraint = (collectionRef: CollectionReference, { type, values }: FirestorePermittedMethods) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -31,7 +29,7 @@ export const applyConstraint = (
     }
     case FirestoreQueryConstraints.ORDER_BY: {
       const [field, ord] = values;
-      return collectionRef.orderBy(field, ord);
+      return collectionRef.orderBy(field, ord as OrderByDirection);
     }
     case FirestoreQueryConstraints.LIMIT: {
       const [limitValue] = values;
@@ -58,10 +56,7 @@ export const applyConstraint = (
   }
 };
 
-export const applyConstraints = (
-  collectionRef: CollectionReference,
-  constraints: { type: FirestoreQueryConstraints; values: any[] }[],
-) => {
+export const applyConstraints = (collectionRef: CollectionReference, constraints: FirestorePermittedMethods[]) => {
   return constraints.reduce((collection, constraint) => {
     return applyConstraint(collection, constraint);
   }, collectionRef);

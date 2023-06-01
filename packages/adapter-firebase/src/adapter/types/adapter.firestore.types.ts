@@ -18,7 +18,7 @@ import {
 export type FirestoreSocketAdapterType = SocketAdapterType<
   never,
   FirestoreOnSnapshotExtra,
-  { groupByChangeType: boolean } & FirestoreQueryParams
+  { groupByChangeType?: boolean } & FirestoreQueryParams
 >;
 
 export type FirestoreAdapterType =

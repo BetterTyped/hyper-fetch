@@ -2,12 +2,10 @@
  * @jest-environment node
  */
 
-import { seedFirestoreDatabaseAdmin } from "../../utils/admin/seed.admin";
+import { seedFirestoreDatabaseAdmin } from "../../utils";
 import { firestoreDbAdmin } from "../../utils/admin/initialize.firestore.admin";
 import { socketsMethodsSharedTestCases } from "../shared/methods.shared.tests";
-import { firebaseAdminAdapter } from "../../../src";
-import { firebaseSocketsAdminAdapter } from "../../../src/adapter/admin/adapter.admin.sockets";
-import { FirestoreAdminSocketAdapterType } from "../../../src/adapter/types/firestore.admin.types";
+import { FirestoreAdminSocketAdapterType, firebaseSocketsAdminAdapter, firebaseAdminAdapter } from "adapter";
 
 describe("Firestore Admin [ Sockets ]", () => {
   beforeEach(async () => {
