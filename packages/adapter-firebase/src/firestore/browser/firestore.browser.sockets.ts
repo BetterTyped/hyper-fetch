@@ -66,7 +66,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
           const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(response);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
-          const extra = { ref: path, snapshot, unsubscribe, groupedResult, status };
+          const extra = { ref: path, snapshot, groupedResult, status };
           callback({ data: response, extra });
           onEvent(listener.name, response, extra);
         },

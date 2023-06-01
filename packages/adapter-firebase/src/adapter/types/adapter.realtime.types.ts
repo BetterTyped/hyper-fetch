@@ -12,7 +12,7 @@ import {
 export type RealtimeSocketAdapterType = SocketAdapterType<
   never,
   RealtimeDbOnValueMethodExtra,
-  { onlyOnce: boolean } & RealtimeDBQueryParams
+  { onlyOnce?: boolean } & RealtimeDBQueryParams
 >;
 
 export type RealtimeDbAdapterType =

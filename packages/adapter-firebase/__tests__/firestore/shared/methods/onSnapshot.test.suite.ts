@@ -161,7 +161,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(4);
-        const [initial, afterAdd, afterModify, afterRemove] = receivedData;
+        const [, afterAdd, afterModify, afterRemove] = receivedData;
         const [, afterAddExtra, afterModifyExtra, afterRemoveExtra] = receivedExtra;
         expect(afterAdd).toHaveLength(11);
         expect(afterModify).toHaveLength(11);

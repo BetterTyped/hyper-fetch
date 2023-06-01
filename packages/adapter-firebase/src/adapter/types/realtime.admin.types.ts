@@ -6,7 +6,7 @@ import { RealtimeDBQueryParams, RealtimeDBStatuses } from "adapter/index";
 export type RealtimeAdminSocketAdapterType = SocketAdapterType<
   never,
   RealtimeAdminOnValueMethodExtra,
-  { onlyOnce: boolean } & RealtimeDBQueryParams,
+  { onlyOnce?: boolean } & RealtimeDBQueryParams,
   never
 >;
 
