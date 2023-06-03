@@ -2,15 +2,14 @@ import { Database, get, push, query, ref, remove, set, update } from "firebase/d
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethodsUnion } from "adapter/types";
-import { getOrderedResultRealtime } from "realtime";
+import { mapRealtimeConstraint, getOrderedResultRealtime } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { mapConstraint } from "./realtime.browser.utils";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
-} from "../../constraints";
+} from "constraints";
 
 export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
   request: R,
@@ -36,7 +35,7 @@ export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
     }: {
       constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
     }) => {
-      const params = constraints.map((constraint) => mapConstraint(constraint));
+      const params = constraints.map((constraint) => mapRealtimeConstraint(constraint));
       const q = query(path, ...params);
       const snapshot = await get(q);
       const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);

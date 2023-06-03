@@ -3,8 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
-import { getOrderedResultFirestore } from "../utils/firestore.utils";
-import { applyConstraints, getRef } from "./firestore.admin.utils";
+import { applyFireStoreAdminConstraints, getRef, getOrderedResultFirestore } from "firestore";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
@@ -39,7 +38,7 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
     },
     getDocs: async ({ constraints = [] }) => {
       const path = getRef(database, cleanUrl) as CollectionReference;
-      const query = applyConstraints(path, constraints);
+      const query = applyFireStoreAdminConstraints(path, constraints);
       const querySnapshot = await query.get();
       const result = getOrderedResultFirestore(querySnapshot);
       const status = getStatus(result);

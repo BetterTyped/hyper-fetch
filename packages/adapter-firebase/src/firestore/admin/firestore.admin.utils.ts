@@ -21,7 +21,10 @@ export const getRef = (db: Firestore, fullUrl: string) => {
   }, db as unknown as Firestore | CollectionReference | DocumentReference) as CollectionReference | DocumentReference;
 };
 
-export const applyConstraint = (collectionRef: CollectionReference, { type, values }: FirestorePermittedMethods) => {
+export const applyFireStoreAdminConstraint = (
+  collectionRef: CollectionReference,
+  { type, values }: FirestorePermittedMethods,
+) => {
   switch (type) {
     case FirestoreQueryConstraints.WHERE: {
       const [fieldPath, strOp, value] = values;
@@ -56,8 +59,11 @@ export const applyConstraint = (collectionRef: CollectionReference, { type, valu
   }
 };
 
-export const applyConstraints = (collectionRef: CollectionReference, constraints: FirestorePermittedMethods[]) => {
+export const applyFireStoreAdminConstraints = (
+  collectionRef: CollectionReference,
+  constraints: FirestorePermittedMethods[],
+) => {
   return constraints.reduce((collection, constraint) => {
-    return applyConstraint(collection, constraint);
+    return applyFireStoreAdminConstraint(collection, constraint);
   }, collectionRef);
 };

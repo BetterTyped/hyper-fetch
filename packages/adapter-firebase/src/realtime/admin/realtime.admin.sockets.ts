@@ -1,8 +1,7 @@
 import { Database } from "firebase-admin/lib/database";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
-import { applyConstraints } from "./realtime.admin.utils";
-import { getOrderedResultRealtime } from "realtime";
+import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
 import { RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from "adapter";
 
@@ -48,7 +47,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       const path = database.ref(fullUrl);
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
-      const q = applyConstraints(path, options?.constraints || []);
+      const q = applyRealtimeAdminConstraints(path, options?.constraints || []);
       const method = onlyOnce === true ? "once" : "on";
       q[method](
         "value",

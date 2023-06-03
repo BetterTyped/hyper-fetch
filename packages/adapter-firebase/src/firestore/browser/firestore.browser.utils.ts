@@ -1,7 +1,7 @@
 import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
 import { OrderByDirection } from "@firebase/firestore";
 
-import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "constraints";
 
 export const mapConstraint = ({ type, values }: FirestorePermittedMethods) => {
   switch (type) {

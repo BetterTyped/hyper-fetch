@@ -3,14 +3,13 @@ import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethodsUnion } from "adapter/types";
 import { getStatus, isDocOrQuery } from "utils";
-import { getOrderedResultRealtime } from "realtime";
-import { applyConstraints } from "./realtime.admin.utils";
+import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
-} from "../../constraints";
+} from "constraints";
 
 export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
   request: R,
@@ -33,7 +32,7 @@ export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
   const methods = {
     get: async ({ constraints }) => {
       const docOrQuery = isDocOrQuery(fullUrl);
-      const q = applyConstraints(path, constraints);
+      const q = applyRealtimeAdminConstraints(path, constraints);
       const snapshot = await q.get();
       const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
       const status = getStatus(res);

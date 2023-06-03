@@ -1,7 +1,7 @@
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapConstraint } from "realtime";
+import { getOrderedResultRealtime, mapRealtimeConstraint } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
 import { RealtimeSocketAdapterType } from "adapter";
 
@@ -48,7 +48,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
 
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
-      const params = options?.constraints?.map((constraint) => mapConstraint(constraint)) || [];
+      const params = options?.constraints?.map((constraint) => mapRealtimeConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
       let unsubscribe = () => {};
       let unmount = () => {};

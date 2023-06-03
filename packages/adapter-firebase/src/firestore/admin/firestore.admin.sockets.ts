@@ -1,7 +1,7 @@
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore, Query } from "firebase-admin/firestore";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
-import { applyConstraints, getRef } from "./firestore.admin.utils";
+import { applyFireStoreAdminConstraints, getRef } from "./firestore.admin.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils/firestore.utils";
 import { getStatus } from "utils";
 import { FirestoreAdminSocketAdapterType } from "../../adapter/types/firestore.admin.types";
@@ -49,7 +49,7 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
       const { options } = listener;
       let pathRef: DocumentReference | Query = getRef(database, fullUrl);
       if (pathRef instanceof CollectionReference) {
-        pathRef = applyConstraints(pathRef, options?.constraints || []);
+        pathRef = applyFireStoreAdminConstraints(pathRef, options?.constraints || []);
       }
       let unsubscribe = () => {};
       let unmount = () => {};

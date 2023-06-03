@@ -1,8 +1,8 @@
 import { Reference } from "firebase-admin/lib/database";
 
-import { RealtimePermittedMethods, RealtimeQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import { RealtimePermittedMethods, RealtimeQueryConstraints, SharedQueryConstraints } from "constraints";
 
-export const applyConstraint = (ref: Reference, { type, values }: RealtimePermittedMethods) => {
+export const applyRealtimeAdminConstraint = (ref: Reference, { type, values }: RealtimePermittedMethods) => {
   switch (type) {
     case RealtimeQueryConstraints.ORDER_BY_CHILD: {
       const [value] = values;
@@ -47,8 +47,8 @@ export const applyConstraint = (ref: Reference, { type, values }: RealtimePermit
   }
 };
 
-export const applyConstraints = (ref: Reference, constraints: RealtimePermittedMethods[]) => {
+export const applyRealtimeAdminConstraints = (ref: Reference, constraints: RealtimePermittedMethods[]) => {
   return constraints.reduce((collection, constraint) => {
-    return applyConstraint(collection, constraint);
+    return applyRealtimeAdminConstraint(collection, constraint);
   }, ref);
 };

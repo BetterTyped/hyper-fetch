@@ -11,9 +11,9 @@ import {
   startAt,
 } from "firebase/database";
 
-import { RealtimePermittedMethods, RealtimeQueryConstraints, SharedQueryConstraints } from "../../constraints";
+import { RealtimePermittedMethods, RealtimeQueryConstraints, SharedQueryConstraints } from "constraints";
 
-export const mapConstraint = ({ type, values }: RealtimePermittedMethods) => {
+export const mapRealtimeConstraint = ({ type, values }: RealtimePermittedMethods) => {
   switch (type) {
     case RealtimeQueryConstraints.ORDER_BY_CHILD: {
       const [value] = values;
