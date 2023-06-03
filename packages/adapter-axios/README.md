@@ -20,24 +20,17 @@
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
+    <img src="https://custom-icon-badges.demolab.com/badge/-Axios-E10098?logo=axios&logoColor=white" />
   </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
-  </a>
-  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
-  </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/graphql?color=64BC4B&logo=package" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/axios?color=64BC4B&logo=package" />
   </a>
 </p>
 
 ## About
 
-**`Hyper Fetch GraphQL`** is adapter for Hyper Fetch. It enables seamless communication with GraphQL APIs in Node.js and
-browser environments, simplifying the retrieval and manipulation of data. Benefit from the convenience and efficiency of
-Hyper Fetch for your GraphQL-powered projects.
+**`Hyper Fetch Axios`** is adapter for Hyper Fetch. It enables seamless communication with Axios, simplifying the
+retrieval and manipulation of data. Benefit from the convenience and efficiency of Hyper Fetch.
 
 ## Features
 

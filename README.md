@@ -52,7 +52,7 @@ effortlessly with Hyper Fetch.
 
 🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
 
 🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
@@ -170,17 +170,33 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase" >GraphQL</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >GraphQL</a>
       </td>
       <td>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/firebase?logoColor=fff&logo=trending-up" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/graphql?logoColor=fff&logo=trending-up" />
         </a>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm"/>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/graphql.svg?logo=npm"/>
         </a>
-        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=E10098&logo=package" />
+        <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/graphql?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-axios" >Axios</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/axios?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/axios?color=E10098&logo=package" />
         </a>
       </td>
     </tr>
