@@ -50,7 +50,7 @@ describe("useEventMessages [ Base ]", () => {
     });
     it("should allow to filter onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: [listener.name] });
+      const view = renderUseEventMessages(socket, { filter: [listener.endpoint] });
 
       act(() => {
         view.result.current.onEvent(spy);
@@ -63,7 +63,9 @@ describe("useEventMessages [ Base ]", () => {
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: (name) => [listener.name].includes(name as any) });
+      const view = renderUseEventMessages(socket, {
+        filter: (endpoint) => [listener.endpoint].includes(endpoint as any),
+      });
 
       act(() => {
         view.result.current.onEvent(spy);

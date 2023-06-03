@@ -5,5 +5,5 @@ import { socket } from "./socket.utils";
 export const createListener = <ResponseType = { name: string; age: number }>(
   options?: Partial<ListenerOptionsType<any, SocketAdapterType>>,
 ) => {
-  return socket.createListener<ResponseType>()({ ...options, name: "some-event" });
+  return socket.createListener<ResponseType>()({ ...options, endpoint: "some-event" });
 };
