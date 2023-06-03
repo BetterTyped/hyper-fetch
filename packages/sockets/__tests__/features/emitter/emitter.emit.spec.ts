@@ -5,12 +5,12 @@ import { createSocket } from "../../utils/socket.utils";
 import { createWsServer, receiveEvent } from "../../websocket/websocket.server";
 
 type DataType = {
-  name: string;
+  endpoint: string;
   age: number;
 };
 
 describe("Emitter [ Emit ]", () => {
-  const message = { name: "Maciej", age: 99 };
+  const message = { endpoint: "Maciej", age: 99 };
   const response = { data: "test" };
 
   let server = createWsServer();
@@ -31,7 +31,7 @@ describe("Emitter [ Emit ]", () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
         id,
-        name: emitter.name,
+        endpoint: emitter.endpoint,
         data: message,
       }),
     );
@@ -48,9 +48,9 @@ describe("Emitter [ Emit ]", () => {
       },
     });
 
-    await receiveEvent(id, emitter.name, message);
+    await receiveEvent(id, emitter.endpoint, message);
 
-    server.send(JSON.stringify({ id, name: emitter.name, data: response }));
+    server.send(JSON.stringify({ id, endpoint: emitter.endpoint, data: response }));
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -60,9 +60,9 @@ describe("Emitter [ Emit ]", () => {
 
   it("should not acknowledge event message", async () => {
     const spy = jest.fn();
-    const id = emitter.emit({ data: message, ack: spy, options: { timeout: 1 } });
+    const id = emitter.emit({ data: message, ack: spy, options: { timeout: 0 } });
 
-    await receiveEvent(id, emitter.name, message);
+    await receiveEvent(id, emitter.endpoint, message);
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -74,19 +74,19 @@ describe("Emitter [ Emit ]", () => {
     const spy = jest.fn();
     const id = emitter.onData(() => spy).emit({ data: message, options: { timeout: 0 } });
 
-    await receiveEvent(id, emitter.name, message);
+    await receiveEvent(id, emitter.endpoint, message);
 
     expect(spy).toBeCalledTimes(0);
   });
 
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const emitterWithParams = socket.createEmitter<DataType, ResponseType>()({ name: "test/:testId" });
+    const emitterWithParams = socket.createEmitter<DataType, ResponseType>()({ endpoint: "test/:testId" });
     const id = emitterWithParams.emit({ data: message, params: { testId: 1 }, ack: (data) => spy(data) });
 
-    await receiveEvent(id, emitterWithParams.setParams({ testId: 1 }).name, message);
+    await receiveEvent(id, emitterWithParams.setParams({ testId: 1 }).endpoint, message);
 
-    server.send(JSON.stringify({ id, name: emitterWithParams.setParams({ testId: 1 }).name, data: response }));
+    server.send(JSON.stringify({ id, endpoint: emitterWithParams.setParams({ testId: 1 }).endpoint, data: response }));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnce();
@@ -98,7 +98,7 @@ describe("Emitter [ Emit ]", () => {
     let receivedData;
 
     const emitterWithParams = socket
-      .createEmitter<DataType, ResponseType>()({ name: "test/:testId", timeout: 8000 })
+      .createEmitter<DataType, ResponseType>()({ endpoint: "test/:testId", timeout: 8000 })
       .onData(({ data }, unmount) => {
         receivedData = data;
         spy();
@@ -109,7 +109,7 @@ describe("Emitter [ Emit ]", () => {
       params: { testId: 1 },
     });
 
-    server.send(JSON.stringify({ id, name: emitterWithParams.setParams({ testId: 1 }).name, data: response }));
+    server.send(JSON.stringify({ id, endpoint: emitterWithParams.setParams({ testId: 1 }).endpoint, data: response }));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnce();

@@ -8,13 +8,13 @@ import { ConnectMethodType } from "types";
 export class Emitter<
   Payload,
   Response,
-  Name extends string,
+  Endpoint extends string,
   AdapterType extends SocketAdapterType,
   MappedData = void,
   HasParams extends boolean = false,
   HasData extends boolean = false,
 > {
-  readonly name: Name;
+  readonly endpoint: Endpoint;
   params?: ParamsType;
   timeout: number;
   data: Payload | null = null;
@@ -23,13 +23,13 @@ export class Emitter<
 
   constructor(
     readonly socket: Socket<AdapterType>,
-    readonly emitterOptions: EmitterOptionsType<Name, AdapterType>,
-    json?: Partial<Emitter<Payload, Response, Name, AdapterType, MappedData>>,
+    readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
+    json?: Partial<Emitter<Payload, Response, Endpoint, AdapterType, MappedData>>,
     readonly dataMapper?: (data: Payload) => MappedData,
   ) {
-    const { name, timeout = DateInterval.second * 2, options } = emitterOptions;
+    const { endpoint, timeout = DateInterval.second * 2, options } = emitterOptions;
 
-    this.name = json?.name ?? name;
+    this.endpoint = json?.endpoint ?? endpoint;
     this.data = json?.data;
     this.timeout = json?.timeout ?? timeout;
     this.options = json?.options ?? options;
@@ -55,7 +55,7 @@ export class Emitter<
     return this.clone<Payload, MapperData>(undefined, mapper);
   };
 
-  setParams(params: ExtractRouteParams<Name>) {
+  setParams(params: ExtractRouteParams<Endpoint>) {
     return this.clone<Payload, MappedData, true>({ params });
   }
 
@@ -69,15 +69,15 @@ export class Emitter<
     return this;
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Name => {
-    let endpoint = this.emitterOptions.name as string;
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+    let endpoint = this.emitterOptions.endpoint as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 
-    return endpoint as Name;
+    return endpoint as Endpoint;
   };
 
   clone<
@@ -86,20 +86,20 @@ export class Emitter<
     Params extends boolean = HasParams,
     Data extends boolean = HasData,
   >(
-    options?: Partial<EmitterOptionsType<Name, AdapterType>> & { params?: ParamsType; data?: NewPayload },
+    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload },
     mapper?: (data: NewPayload) => MapperData,
   ) {
-    const json: Partial<Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>> = {
+    const json: Partial<Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
       params: options?.params || this.params,
       ...options,
-      name: this.paramsMapper(options?.params || this.params),
+      endpoint: this.paramsMapper(options?.params || this.params),
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    const newInstance = new Emitter<NewPayload, Response, Name, AdapterType, MapperData, Params, Data>(
+    const newInstance = new Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>(
       this.socket,
       this.emitterOptions,
       json,
@@ -131,13 +131,13 @@ export class Emitter<
     ack,
   }: {
     data?: Payload;
-    params?: ExtractRouteParams<Name>;
-    options?: Partial<EmitterOptionsType<Name, AdapterType>>;
+    params?: ExtractRouteParams<Endpoint>;
+    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>>;
     ack?: EmitterAcknowledgeType<any, AdapterType>;
   } = {}) => {
     const instance = this.clone({ ...options, data, params });
 
-    const eventMessageId = getUniqueRequestId(instance.name);
+    const eventMessageId = getUniqueRequestId(instance.endpoint);
 
     this.socket.adapter.emit(eventMessageId, instance, instance.getAck(ack));
     return eventMessageId;

@@ -60,7 +60,7 @@ screen and hook it into revalidation.
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
-export function useFocusRevalidation(revalidate: () => void) {
+export function useFocusRevalidation(refetch: () => void) {
   const initialized = React.useRef(true);
 
   useFocusEffect(
@@ -68,15 +68,15 @@ export function useFocusRevalidation(revalidate: () => void) {
       if (initialized.current) {
         initialized.current = false;
       } else {
-        revalidate();
+        refetch();
       }
-    }, [revalidate]),
+    }, [refetch]),
   );
 }
 ```
 
 ```tsx
-const { data, error, loading, revalidate } = useFetch(getUsers);
+const { data, error, loading, refetch } = useFetch(getUsers);
 
-useFocusRevalidation(revalidate);
+useFocusRevalidation(refetch);
 ```

@@ -27,7 +27,7 @@ const getRepositoryDetails = client.createRequest()({
   url: "/repos/BetterTyped/hyper-fetch",
 });
 
-const { data, error, status, extra } = await getRepositoryDetails();
+const { data, error, status, extra } = await getRepositoryDetails.send();
 ```
 
 ---
@@ -60,3 +60,5 @@ export function RepositoryComponent() {
   );
 }
 ```
+
+## Congratulations! You're ready to use **Hyper Fetch**! 🎊

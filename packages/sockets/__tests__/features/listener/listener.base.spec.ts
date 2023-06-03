@@ -13,10 +13,10 @@ describe("Listener [ Base ]", () => {
     jest.resetAllMocks();
   });
 
-  it("should initialize Listener with correct name", async () => {
-    const name = "my-custom-name";
-    listener = createListener(socket, { name });
-    expect(listener.name).toBe(name);
+  it("should initialize Listener with correct endpoint", async () => {
+    const endpoint = "my-custom-endpoint";
+    listener = createListener(socket, { endpoint });
+    expect(listener.endpoint).toBe(endpoint);
   });
 
   it("should allow to set additional adapter options", async () => {
@@ -26,8 +26,8 @@ describe("Listener [ Base ]", () => {
   });
 
   it("should allow to set params", async () => {
-    const newListener = socket.createListener()({ name: "test/:testId" }).setParams({ testId: 1 });
-    expect(newListener.name).toBe("test/1");
-    expect(newListener.clone().name).toBe("test/1");
+    const newListener = socket.createListener()({ endpoint: "test/:testId" }).setParams({ testId: 1 });
+    expect(newListener.endpoint).toBe("test/1");
+    expect(newListener.clone().endpoint).toBe("test/1");
   });
 });

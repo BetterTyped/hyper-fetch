@@ -236,8 +236,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @returns
    */
   createListener = <Response>() => {
-    return <Name extends string>(options: ListenerOptionsType<Name, AdapterType>) => {
-      return new Listener<Response, Name, AdapterType>(this, options);
+    return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, AdapterType>) => {
+      return new Listener<Response, Endpoint, AdapterType>(this, options);
     };
   };
 
@@ -247,8 +247,8 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @returns
    */
   createEmitter = <Payload, Response = never>() => {
-    return <Name extends string>(options: EmitterOptionsType<Name, AdapterType>) => {
-      return new Emitter<Payload, Response, Name, AdapterType>(this, options);
+    return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, AdapterType>) => {
+      return new Emitter<Payload, Response, Endpoint, AdapterType>(this, options);
     };
   };
 }

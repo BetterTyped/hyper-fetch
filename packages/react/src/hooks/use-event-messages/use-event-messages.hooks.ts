@@ -12,7 +12,7 @@ import { useConfigProvider } from "config-provider";
  * @param options
  * @returns
  */
-export const useEventMessages = <ResponsesType extends { name: string }>(
+export const useEventMessages = <ResponsesType extends { endpoint: string }>(
   socket: SocketInstance,
   options: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
@@ -24,8 +24,8 @@ export const useEventMessages = <ResponsesType extends { name: string }>(
 
   useDidUpdate(
     () => {
-      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ name, data, extra }) => {
-        const filterFn = typeof filter === "function" ? () => filter(name, data) : () => filter.includes(name);
+      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ endpoint, data, extra }) => {
+        const filterFn = typeof filter === "function" ? () => filter(endpoint, data) : () => filter.includes(endpoint);
         const isFiltered = filter ? filterFn() : false;
         if (!isFiltered) {
           onEventCallback.current?.(data, extra);

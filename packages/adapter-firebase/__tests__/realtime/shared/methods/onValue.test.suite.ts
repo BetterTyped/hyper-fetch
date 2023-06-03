@@ -41,7 +41,7 @@ export const onValueTestSuite = (
     it("should return unmount function", async () => {
       const { socket } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        name: "",
+        endpoint: "",
       });
       const unmount = await onValueReq.listen({ callback: spy });
       expect(unmount).toBeFunction();
@@ -50,7 +50,7 @@ export const onValueTestSuite = (
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        name: "",
+        endpoint: "",
       });
       const unmount = await onValueReq.listen({ callback: spy });
 
@@ -60,13 +60,13 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       expect(spy).toBeCalledTimes(1);
-      expect(socket.adapter.listeners.get(onValueReq.name).size).toBe(0);
+      expect(socket.adapter.listeners.get(onValueReq.endpoint).size).toBe(0);
     });
 
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
       const onValueReq = socketBees.createListener<Tea[]>()({
-        name: "",
+        endpoint: "",
         options: { onlyOnce: false },
       });
 
@@ -93,7 +93,7 @@ export const onValueTestSuite = (
     it("should be called once with onlyOnce option", async () => {
       const { socket, pushReq } = await initialize();
       const onValueReq = socket.createListener<Tea[]>()({
-        name: "",
+        endpoint: "",
         options: { onlyOnce: true },
       });
 
@@ -114,7 +114,7 @@ export const onValueTestSuite = (
       const { socket, pushReq } = await initialize();
 
       const onValueReq = socket.createListener<Tea[]>()({
-        name: "",
+        endpoint: "",
         options: { onlyOnce: false },
       });
 
@@ -146,14 +146,13 @@ export const onValueTestSuite = (
       const { socket } = await initialize();
       const onValueReq = socket
         .createListener<Tea[]>()({
-          name: ":teaId",
+          endpoint: ":teaId",
         })
         .setParams({ teaId: 1 });
 
       let receivedData;
       let receivedExtra;
       const unmount = onValueReq.listen({
-        params: { teaId: 1 },
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;

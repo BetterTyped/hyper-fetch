@@ -79,14 +79,14 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
       const extra = parseResponse(event);
       extra.data = parseResponse(extra.data);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(extra.data.name) ||
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(extra.data.endpoint) ||
       new Map();
 
       eventListeners.forEach((_, action) => {
         action({ data: extra.data.data, extra });
       });
 
-      onEvent(extra.data.name, extra.data.data, extra);
+      onEvent(extra.data.endpoint, extra.data.data, extra);
       onHeartbeat();
     };
   };
@@ -107,7 +107,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const sendEventMessage = (payload: WSMessageType) => {
-    adapter.send(JSON.stringify({ id: payload.id, name: payload.name, data: payload.data }));
+    adapter.send(JSON.stringify({ id: payload.id, endpoint: payload.endpoint, data: payload.data }));
   };
 
   const onHeartbeat = () => {
@@ -122,7 +122,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     clearTimers();
     pingTimer = setTimeout(() => {
       const id = "heartbeat";
-      sendEventMessage({ id, data: heartbeatMessage, name: "heartbeat" });
+      sendEventMessage({ id, data: heartbeatMessage, endpoint: "heartbeat" });
       pongTimer = setTimeout(() => {
         adapter.close();
       }, pongTimeout);
@@ -157,7 +157,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     }
 
     const emitterInstance = await socket.__modifySend(emitter);
-    sendEventMessage({ id: eventMessageId, data: emitterInstance.data, name: emitterInstance.name });
+    sendEventMessage({ id: eventMessageId, data: emitterInstance.data, endpoint: emitterInstance.endpoint });
     socket.events.emitEmitterEvent(emitterInstance);
   };
 

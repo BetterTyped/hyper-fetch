@@ -39,14 +39,14 @@ Listener should be initialized from the Socket instance with `createListener` me
 the place that manages communication in the application.
 
 ```tsx
-import { socketInstance } from "./socket";
+import { socket } from "./socket";
 
-export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
-  name: "chat-message", // name of the event
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // endpoint of the event
 });
 
-export const onUserStatusChange = socketInstance.createListener<UserStatusType>()({
-  name: "status", // name of the event
+export const onUserStatusChange = socket.createListener<UserStatusType>()({
+  endpoint: "status", // endpoint of the event
 });
 ```
 
@@ -87,8 +87,8 @@ const removeEvent = onChatMessage.listen({ callback });
 
 ...
 
-socket.adapter.listeners.delete(onChatMessage.name) // We remove ALL listeners from given event
-socket.adapter.listeners.get(onChatMessage.name).delete(callback) // We remove single listener from given event
+socket.adapter.listeners.delete(onChatMessage.endpoint) // We remove ALL listeners from given event
+socket.adapter.listeners.get(onChatMessage.endpoint).delete(callback) // We remove single listener from given event
 ```
 
 Listen to event `once`
@@ -110,9 +110,9 @@ You can use `onData` method to listen to all events of given listener. This meth
 some logic to any occurrence of the event. It's additional way of hooking into the listener groups.
 
 ```ts
-export const onNoteChange = socketInstance
+export const onNoteChange = socket
   .createListener<NoteData>()({
-    name: "notes/:id",
+    endpoint: "notes/:id",
   })
   .onData((event) => {
     // We will receive all events from given listener,
@@ -148,8 +148,8 @@ const getNote = client.createRequest()({
 
 // ==> Our realtime listener
 
-export const onNoteChange = socketInstance.createListener<NoteData>()({
-  name: "notes",
+export const onNoteChange = socket.createListener<NoteData>()({
+  endpoint: "notes",
 }).onData((event) => {
   const { noteId } = event;
 

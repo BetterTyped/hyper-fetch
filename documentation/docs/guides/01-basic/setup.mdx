@@ -42,4 +42,19 @@ type RequestType = { email: string; password: string };
 const postLogin = client.createRequest<ResponseType, RequestType>()({ method: "POST", endpoint: "/auth/login" });
 ```
 
-## You're ready to use Hyper Fetch! 🎊
+## Simple Requests
+
+```ts
+const getRepositoryDetails = client.createRequest()({
+  method: "GET",
+  url: "/repos/BetterTyped/hyper-fetch",
+});
+
+const { data, error, status, extra } = await getRepositoryDetails.send();
+
+const { data, error, status, extra } = await postLogin.send({
+  data: { email: "test@test.com", password: "Password123$" }, // Please, do not use this password ;)
+});
+```
+
+## Congratulations! You're ready to use **Hyper Fetch**! 🎊

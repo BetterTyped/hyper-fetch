@@ -30,7 +30,7 @@ type ChatMessageType = {
 };
 
 export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
-  name: "chat-message", // name of the event
+  endpoint: "chat-message", // endpoint of the event
 });
 ```
 
@@ -52,7 +52,7 @@ type AcknowledgementResponseType = {
 };
 
 export const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  name: "chat-message", // name of the event
+  endpoint: "chat-message", // endpoint of the event
 });
 ```
 

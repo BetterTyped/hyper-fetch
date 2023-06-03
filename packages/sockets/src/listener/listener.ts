@@ -7,18 +7,21 @@ import { ConnectMethodType } from "types";
 
 export class Listener<
   Response,
-  Name extends string,
+  Endpoint extends string,
   AdapterType extends SocketAdapterType,
   HasParams extends boolean = false,
 > {
-  readonly name: Name;
+  readonly endpoint: Endpoint;
   params?: ParamsType;
   options?: ExtractListenerOptionsType<AdapterType>;
   connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
 
-  constructor(readonly socket: Socket<AdapterType>, readonly listenerOptions?: ListenerOptionsType<Name, AdapterType>) {
-    const { name, options } = listenerOptions;
-    this.name = name;
+  constructor(
+    readonly socket: Socket<AdapterType>,
+    readonly listenerOptions?: ListenerOptionsType<Endpoint, AdapterType>,
+  ) {
+    const { endpoint, options } = listenerOptions;
+    this.endpoint = endpoint;
     this.options = options;
   }
 
@@ -26,19 +29,19 @@ export class Listener<
     return this.clone({ options });
   }
 
-  setParams(params: ExtractRouteParams<Name>) {
+  setParams(params: ExtractRouteParams<Endpoint>) {
     return this.clone<true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Name => {
-    let endpoint = this.listenerOptions.name as string;
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+    let endpoint = this.listenerOptions.endpoint as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
       });
     }
 
-    return endpoint as Name;
+    return endpoint as Endpoint;
   };
 
   /**
@@ -50,13 +53,11 @@ export class Listener<
     return this;
   }
 
-  clone<Params extends boolean = HasParams>(
-    options?: Partial<ListenerOptionsType<Name, AdapterType>>,
-  ): Listener<Response, Name, AdapterType> {
-    const newInstance = new Listener<Response, Name, AdapterType, Params>(this.socket, {
+  clone<Params extends boolean = HasParams>(options?: Partial<ListenerOptionsType<Endpoint, AdapterType>>) {
+    const newInstance = new Listener<Response, Endpoint, AdapterType, Params>(this.socket, {
       ...this.listenerOptions,
       ...options,
-      name: this.paramsMapper(options?.params || this.params),
+      endpoint: this.paramsMapper(options?.params || this.params),
     });
 
     newInstance.connections = this.connections;
@@ -74,7 +75,7 @@ export class Listener<
     this.socket.adapter.listen(instance, action);
 
     const removeListener = () => {
-      this.socket.adapter.removeListener(instance.name, action);
+      this.socket.adapter.removeListener(instance.endpoint, action);
     };
 
     return removeListener;

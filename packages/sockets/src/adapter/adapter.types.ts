@@ -33,7 +33,7 @@ export type SocketAdapterType<
       any
     >,
   ) => RemoveListenerCallbackType;
-  removeListener: (name: string, callback: (...args: any) => void) => void;
+  removeListener: (endpoint: string, callback: (...args: any) => void) => void;
   emit: (
     eventMessageId: string,
     emitter: EmitterInstance,
@@ -98,12 +98,12 @@ export type WSAdapterOptionsType = {
 
 export type WSMessageType = {
   id: string;
-  name: string;
+  endpoint: string;
   data: string;
 };
 
 // Adapters
 
-export type SocketData<D = any> = { name: string; data: D };
+export type SocketData<D = any> = { endpoint: string; data: D };
 export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
 export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;

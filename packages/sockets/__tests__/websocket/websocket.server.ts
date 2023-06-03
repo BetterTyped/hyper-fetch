@@ -22,10 +22,10 @@ export const createWsServer = (options?: ConstructorParameters<typeof WS>[1] & {
   return wsServer;
 };
 
-export const constructEventData = <T extends Record<string, any>>({ name }: { name: string }, data: T) => {
+export const constructEventData = <T extends Record<string, any>>({ endpoint }: { endpoint: string }, data: T) => {
   return {
     data,
-    name,
+    endpoint,
   };
 };
 
@@ -40,11 +40,11 @@ export const sendWsEvent = <T extends ListenerInstance>(
   wsServer.send(JSON.stringify(data));
 };
 
-export const receiveEvent = async (id: string, name: string, data: any) => {
+export const receiveEvent = async (id: string, endpoint: string, data: any) => {
   await expect(wsServer).toReceiveMessage(
     JSON.stringify({
       id,
-      name,
+      endpoint,
       data,
     }),
     { timeout: 5000 },

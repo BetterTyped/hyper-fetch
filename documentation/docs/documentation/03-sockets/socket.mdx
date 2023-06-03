@@ -90,7 +90,7 @@ Sockets has a built-in query params encoding function; you can modify its option
 To change the encoding function, use the `queryParamsStringify` method.
 
 ```tsx
-new Sockets({
+export const socket = new Sockets({
   url: "ws://localhost:3000",
   queryParams: { param1: [1, 2, 3], param2: "test" },
   queryParamsStringify: (value: string) => encode(value),

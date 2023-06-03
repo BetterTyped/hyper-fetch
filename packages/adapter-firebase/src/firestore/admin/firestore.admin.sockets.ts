@@ -45,7 +45,7 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     const listen: ReturnType<FirestoreAdminSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.name;
+      const fullUrl = socket.url + listener.endpoint;
       const { options } = listener;
       let pathRef: DocumentReference | Query = getRef(database, fullUrl);
       if (pathRef instanceof CollectionReference) {
@@ -63,7 +63,7 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
           callback({ data: response, extra });
-          onEvent(listener.name, response, extra);
+          onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);

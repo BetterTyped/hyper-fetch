@@ -65,7 +65,7 @@ export const sseAdapter: SSEAdapterType = (socket) => {
       const response: MessageEvent<SocketData>["data"] = parseResponse(parsed.data);
       const data: MessageEvent<SocketData>["data"]["data"] = parseResponse(response.data);
 
-      onEvent(response.name, data, parsed);
+      onEvent(response.endpoint, data, parsed);
     };
   };
 

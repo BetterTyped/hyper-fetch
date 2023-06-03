@@ -44,8 +44,18 @@ returned; these will help handle the request flow and lifecycle. This approach a
 callback logic. It also helps improve code readability, decreases code complication, and promotes more organized code.
 
 ```tsx
+import { socketInstance } from "./socket";
+
+export const emitMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+```
+
+#### Use it in your component.
+
+```tsx
 import { useEmitter } from "@hyper-fetch/react";
-import { sendMessage } from "server";
+import { emitMessage } from "./api";
 
 const MessageComponent: React.FC = () => {
   const { emit, timestamp, connected, onEvent, onError, onReconnecting } = useEmitter(postLogin);
@@ -97,13 +107,13 @@ Data and parameters can be passed in several ways. One option is to use `setData
 [`Emitter`](/documentation/03-sockets/emitter.mdx).
 
 ```tsx
-const { emit } = useEmitter(sendMessage.setData({ message: "New message" }));
+const { emit } = useEmitter(emitMessage.setData({ message: "New message" }));
 ```
 
 However, you may need to pass parameters dynamically, which requires using `emit` function options.
 
 ```tsx
-const { emit } = useEmitter(sendMessage);
+const { emit } = useEmitter(emitMessage);
 
 const handleSubmit = (id: number, name: string) => {
   // ResponseDataType is automatically inherited from Emitter class

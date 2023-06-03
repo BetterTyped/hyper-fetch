@@ -64,12 +64,12 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   // Listeners
 
-  const removeListener = (name: string, callback: ListenerCallbackType<T, any>): boolean => {
-    const listenerGroup = listeners.get(name);
+  const removeListener = (endpoint: string, callback: ListenerCallbackType<T, any>): boolean => {
+    const listenerGroup = listeners.get(endpoint);
     if (listenerGroup) {
       const unmount = listenerGroup.get(callback);
-      logger.debug("Removed event listener", { name });
-      socket.events.emitListenerRemoveEvent(name);
+      logger.debug("Removed event listener", { endpoint });
+      socket.events.emitListenerRemoveEvent(endpoint);
       listenerGroup.delete(callback);
       unmount?.();
       return true;
@@ -78,14 +78,15 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onListen = (
-    listener: Pick<ListenerInstance, "name">,
+    listener: Pick<ListenerInstance, "endpoint">,
     callback: ListenerCallbackType<T, any>,
     unmount: VoidFunction = () => null,
   ): (() => void) => {
-    const listenerGroup = listeners.get(listener.name) || listeners.set(listener.name, new Map()).get(listener.name);
+    const listenerGroup =
+      listeners.get(listener.endpoint) || listeners.set(listener.endpoint, new Map()).get(listener.endpoint);
 
     listenerGroup.set(callback, unmount);
-    return () => removeListener(listener.name, callback);
+    return () => removeListener(listener.endpoint, callback);
   };
 
   // Emitters
@@ -129,12 +130,12 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     socket.events.emitError(event);
   };
 
-  const onEvent = (name: string, response: any, resposeExtra: ExtractSocketExtraType<T>) => {
+  const onEvent = (endpoint: string, response: any, resposeExtra: ExtractSocketExtraType<T>) => {
     logger.info("New event message", { response, resposeExtra });
 
     const { data, extra } = socket.__modifyResponse({ data: response, extra: resposeExtra });
 
-    socket.events.emitListenerEvent(name, { data, extra });
+    socket.events.emitListenerEvent(endpoint, { data, extra });
   };
 
   return {

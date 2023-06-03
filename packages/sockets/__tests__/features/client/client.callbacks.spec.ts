@@ -44,7 +44,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   it("should trigger onMessage callbacks", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
-    server.send({ data: { name: "test", data: "test" } });
+    server.send({ data: { endpoint: "test", data: "test" } });
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);

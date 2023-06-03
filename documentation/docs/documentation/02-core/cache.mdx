@@ -71,6 +71,152 @@ export const client = new Client<ServerErrorType>({
 
 ---
 
+## Read Cache
+
+The cache can be read using the `get` method. It returns the data stored under the given key.
+
+```tsx
+const data = client.cache.get("key");
+
+// OR
+
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users",
+});
+const data = client.cache.get(getUsers.cacheKey);
+
+// OR
+
+const getUsers = client.createRequest()({
+  method: "GET",
+  endpoint: "/users",
+  cacheKey: "CUSTOM_CACHE_KEY",
+});
+const data = client.cache.get("CUSTOM_CACHE_KEY");
+const data = client.cache.get(getUsers.cacheKey);
+
+// OR Dynamic
+
+const getNote = client.createRequest()({
+  method: "GET",
+  endpoint: "/notes/:noteId",
+});
+const data = client.cache.get(getNote.setParams({ noteId: 1 }).cacheKey);
+```
+
+---
+
+## Write Cache
+
+The cache can be written using the `set` method. It stores the data under the given key. We MUST pass the whole request
+to the set method as it stores configuration related to cache time, garbage colletion, etc.
+
+`You can set everything you want, error states, extra data, etc.` The cache will take care of the rest and will emit all
+necessary events. This way our subsystems will receive it and will be able to react to it.
+
+```tsx
+const getNote = client.createRequest()({
+  method: "GET",
+  endpoint: "/notes/:noteId",
+});
+
+client.cache.set(getNote.setParams({ noteId: 1 }), {
+  data: { text: "Hello World" },
+  error: null,
+  status: 200,
+  success: true,
+  extra: xhrExtra,
+});
+
+// You can also use callback to read previous data
+
+client.cache.set(getNote.setParams({ noteId: 1 }), (prevData) => ({
+  ...prevData,
+  data: { text: "Hello World" },
+}));
+```
+
+---
+
+## Update Cache
+
+We can update cache by using the `update` method. It updates the data under the given key. We pass the whole request to
+method in similar way as we did it with `set` method.
+
+:::info
+
+Cache will be **NOT** updated if the initial data is not present in the cache.
+
+:::
+
+```tsx
+const getNote = client.createRequest()({
+  method: "GET",
+  endpoint: "/notes/:noteId",
+});
+
+client.cache.update(getNote.setParams({ noteId: 1 }), {
+  data: { text: "Hello World" },
+  error: null,
+  status: 200,
+  success: true,
+  extra: xhrExtra,
+});
+
+// You can also use callback to read previous data
+
+client.cache.update(getNote.setParams({ noteId: 1 }), (prevData) => ({
+  ...prevData,
+  data: { text: "Hello World" },
+}));
+```
+
+---
+
+## Delete Cache
+
+To delete data from the cache, we can use the `delete` method. It deletes the data under the given key.
+
+```tsx
+const getNote = client.createRequest()({
+  method: "GET",
+  endpoint: "/notes/:noteId",
+});
+
+client.cache.delete(getNote.setParams({ noteId: 1 }).cacheKey);
+
+// OR
+
+client.cache.delete("CUSTOM_CACHE_KEY");
+```
+
+---
+
+## Invalidate Cache
+
+You can also invalidate the cache by using the `invalidate` method. It deletes the data under the given key and emits
+event, so **in case of using it with for example React, it will refetch the data**.
+
+```tsx
+const getNote = client.createRequest()({
+  method: "GET",
+  endpoint: "/notes/:noteId",
+});
+
+client.cache.invalidate(getNote.setParams({ noteId: 1 }).cacheKey);
+
+// OR
+
+client.cache.invalidate("CUSTOM_CACHE_KEY");
+
+// OR via RegExp
+
+client.cache.invalidate(new RegExp("CUSTOM_CACHE_KEY"));
+```
+
+---
+
 ## Persistence
 
 We can achieve the persistence of stored data by changing the cache storage to persistent. It must match the provided

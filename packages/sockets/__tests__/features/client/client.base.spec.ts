@@ -30,7 +30,7 @@ describe("Socket Client [ Base ]", () => {
     expect(server).toReceiveMessage(
       JSON.stringify({
         id: emitterId,
-        name: emitter.name,
+        endpoint: emitter.endpoint,
         data: message,
       }),
     );
