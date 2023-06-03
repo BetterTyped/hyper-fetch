@@ -45,7 +45,7 @@ export const onSnapshotTestSuite = (
       const onSnapshotReq = socket.createListener<Tea[]>()({
         name: "",
       });
-      const unmount = await onSnapshotReq.listen({ callback: spy });
+      const unmount = onSnapshotReq.listen({ callback: spy });
       unmount();
       await pushReq.send();
       await pushReq.send();
@@ -104,7 +104,7 @@ export const onSnapshotTestSuite = (
 
       unmount();
     });
-    it.only("should inform about changes when groupByChangeType option is added", async () => {
+    it("should inform about changes when groupByChangeType option is added", async () => {
       const newTeaData = {
         origin: "Poland",
         type: "Green",
