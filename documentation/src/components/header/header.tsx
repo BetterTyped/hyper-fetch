@@ -30,7 +30,7 @@ export function Header(): JSX.Element {
           <img src="/img/brand/HF.svg" alt="" />
         </div>
         <h1 className={clsx(styles.tagline)}>
-          The ultimate JS framework for <b className={clsx(styles.gradientLetters)}>request and realtime connection.</b>{" "}
+          The ultimate framework for <b className={clsx(styles.gradientLetters)}>request and realtime connection.</b>{" "}
         </h1>
         <div className={clsx(styles.addition)}>
           For any <span>JavaScript / TypeScript</span> environment, including <span>Node.js</span>, <span>React</span>,{" "}

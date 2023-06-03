@@ -41,7 +41,7 @@ const getVersions = () => {
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Hyper Fetch",
-  tagline: "Framework for data exchange and state management",
+  tagline: "Framework for requesting and realtime connection",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
@@ -110,9 +110,9 @@ const config = {
             entryPath: "src/index.ts",
           },
           {
-            logo: "/img/features/graphql.png",
-            title: "GraphQL",
-            dir: path.join(__dirname, "../packages/adapter-graphql"),
+            logo: "/img/features/axios.png",
+            title: "Axios",
+            dir: path.join(__dirname, "../packages/adapter-axios"),
             entryPath: "src/index.ts",
           },
         ],

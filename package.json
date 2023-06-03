@@ -134,6 +134,7 @@
     "workerDirectory": "src"
   },
   "peerDependencies": {
+    "axios": "^1.4.0",
     "events": "*",
     "firebase": "*",
     "firebase-admin": "*",

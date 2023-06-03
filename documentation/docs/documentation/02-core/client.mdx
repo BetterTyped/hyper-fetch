@@ -59,9 +59,49 @@ export const client = new Client({ url: "http://localhost:3000" });
 
 Because Hyper Fetch components are created inside Client, you can set global or default system values on it.
 
-#### Request default setup
+### Request default setup
 
 We can use the `setRequestDefaultOptions` method to specify the defaults for every created request.
+
+{@import Hyper-Fetch RequestOptionsType preview}
+
+Add them by:
+
+```ts
+const request = client.setRequestDefaultOptions((options) => {
+  if (options.method === "POST") {
+    return { timeout: 1000, withCredentials: true };
+  } else {
+    return options;
+  }
+});
+```
+
+### Adapter defaults setup
+
+:::info
+
+Adapter options may vary depending on the adapter you use.
+
+:::
+
+We can use the `setAdapterDefaultOptions` method to specify the defaults for every request.
+
+Default HTTP adapter options:
+
+```ts
+{
+  timeout: number;
+  withCredentials: boolean;
+  responseType: "text" | "document" | "arraybuffer" | "blob" | "json";
+}
+```
+
+Add them by:
+
+```ts
+const request = client.setAdapterDefaultOptions({ timeout: 1000, withCredentials: true });
+```
 
 ---
 

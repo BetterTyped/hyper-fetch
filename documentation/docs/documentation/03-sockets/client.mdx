@@ -4,13 +4,26 @@ title: Socket Client
 sidebar_label: Client
 ---
 
+<div class="row-flex">
+
 <div class="api-link">
-  <div class="api-link-title">Adapter</div>
+  <div class="api-link-title">Weboscket Adapter</div>
   <div class="api-link-sub-title">
 
-[Read the API Reference »](/api/Sockets/Class/SocketAdapter.mdx)
+[Read the API Reference »](/api/Sockets/Function/websocketAdapter.mdx)
 
   </div>
+</div>
+
+<div class="api-link">
+  <div class="api-link-title">SSE Adapter</div>
+  <div class="api-link-sub-title">
+
+[Read the API Reference »](/api/Sockets/Function/sseAdapter.mdx)
+
+  </div>
+</div>
+
 </div>
 
 ---
@@ -22,8 +35,10 @@ with the `Websocket` or `SSE` server. However, there is nothing to prevent you f
 adapter you need. Thanks to event communication, you can set your own adapter as you wish by only fulfilling the
 typescript requirements. This way you can create your own adapters for existing libraries like `socket.io`.
 
-## Preview
+## Adapter Imports
 
-{@import Sockets SocketAdapter preview}
+{@import Sockets websocketAdapter import}
+
+{@import Sockets sseAdapter import}
 
 ---

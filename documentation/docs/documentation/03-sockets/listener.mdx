@@ -104,6 +104,68 @@ const removeEvent = onChatMessage.listen({
 
 ---
 
+## Listening with onData hook
+
+You can use `onData` method to listen to all events of given listener. This method is useful when you want to attach
+some logic to any occurrence of the event. It's additional way of hooking into the listener groups.
+
+```ts
+export const onNoteChange = socketInstance
+  .createListener<NoteData>()({
+    name: "notes/:id",
+  })
+  .onData((event) => {
+    // We will receive all events from given listener,
+    // no mater of ID, as it will be filled later on while listening
+    console.log(event);
+  });
+
+onNoteChange.setParams({ noteId: 1 }).listen(() => {
+  // some logic
+});
+
+onNoteChange.setParams({ noteId: 2 }).listen(() => {
+  // some logic
+});
+
+// console.log(event) ===> { noteId: 1, ... }
+// console.log(event) ===> { noteId: 2, ... }
+```
+
+### Integration with Hyper Fetch
+
+We can use this to make simple integration with Hyper Fetch. We can use `onData` hook to update the cache with new data
+from the socket.
+
+```ts
+
+// ==> Our core setup
+const client = new Client({ url: "http://localhost:3000" });
+const getNote = client.createRequest()({
+  endpoint: "/note/:noteId";
+})
+
+
+// ==> Our realtime listener
+
+export const onNoteChange = socketInstance.createListener<NoteData>()({
+  name: "notes",
+}).onData((event) => {
+  const { noteId } = event;
+
+  // Fill the params so our cache can find the request in storage
+  const noteRequest = client.cache.get(getNote.setParams({ noteId }));
+
+  // Update the cache
+  client.cache.update(noteRequest, (prevData) => {
+    return {...prevData, data: event}
+  });
+});
+
+```
+
+---
+
 ## Methods
 
 Using methods on a listener is different from other classes in Hyper Fetch. This is to ensure isolation between

@@ -1,0 +1,79 @@
+---
+sidebar_position: 20
+title: Core Data Flow
+sidebar_label: Data Flow
+---
+
+We try to provide the deepest possible knowledge about the architecture of our library; feel free to write any adapters,
+plugins, or additions. The flow of a request through the Hyper Fetch system is presented below. The steps from the
+moment of adding a request to the dispatcher to passing data to the component are included.
+
+```mermaid
+flowchart TD;
+    subgraph Request_Lifecycle
+      Request_Start
+      Upload
+      Response_Start
+      Download
+      Response
+    end
+
+    App_Manager(App Manager);
+    Request_Manager(Request Manager);
+    Request(Request);
+    Dispatcher((Dispatcher))
+    Adapter{{Http Adapter}}
+    Client{Client}
+
+    Client -- create request --> Request
+    Request -- "use of send() method" --> Dispatcher
+    Dispatcher <-. Check online status .-> App_Manager
+    Dispatcher -- pick request from queue and send to adapter --> Adapter
+    Adapter --> Request_Lifecycle
+    Request_Start --> Upload[[Upload]]
+    Upload --> Response_Start[[Response Start]]
+    Response_Start --> Download[[Download]]
+    Download --> Response[[Response]]
+    Response -- Save Data --> Cache[(Cache)]
+    Cache -- Emit Data --> Component{Component}
+
+    Request_Start -. Emit Event .-> Request_Manager
+    Upload -. Emit Event .-> Request_Manager
+    Response_Start -. Emit Event .-> Request_Manager
+    Download -. Emit Event .-> Request_Manager
+    Response -. Emit Event .-> Request_Manager
+
+    Request_Manager -. Events .-> Component
+    App_Manager -. Events .-> Component
+```
+
+---
+
+## Cache
+
+The cache saves data under `cacheKey` values, which allows us to easily use it.
+
+```mermaid
+graph TD
+  C[(Cache Storage)]
+  C -->|"GET_/users?page=1"| D[Cache Key #1]
+  C -->|"GET_/users/1"| E[Cache Key #2]
+  C -->|"GET_/users"| F[Cache Key #3]
+  C -->|unique key| G[Cache Key ...]
+```
+
+#### Response event flow
+
+The diagram below shows how mutation is propagated in our system.
+
+```mermaid
+graph TD
+    A(new Data #3)
+    C[(Cache Storage)]
+    B[Cache Listeners]
+    C -.-> D[Data#1]
+    C -.-> D2[Data#2]
+    A -->|data mutation| C
+    C -->|mutation| E[Data#3]
+    E -->|emit new data| B
+```
