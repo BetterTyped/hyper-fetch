@@ -65,7 +65,7 @@ describe("Listener [ Listen ]", () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  it("should allow to for using onData", async () => {
+  it("should allow for using onData", async () => {
     const spy = jest.fn();
     let receivedData;
     const removeListener = listener

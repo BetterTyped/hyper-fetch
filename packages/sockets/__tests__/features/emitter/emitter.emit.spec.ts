@@ -72,13 +72,11 @@ describe("Emitter [ Emit ]", () => {
 
   it("should not acknowledge event message without ack", async () => {
     const spy = jest.fn();
-    const id = emitter.onData(() => spy).emit({ data: message, options: { timeout: 1 } });
+    const id = emitter.onData(() => spy).emit({ data: message, options: { timeout: 0 } });
 
     await receiveEvent(id, emitter.name, message);
 
-    await waitFor(() => {
-      expect(spy).toBeCalledTimes(0);
-    });
+    expect(spy).toBeCalledTimes(0);
   });
 
   it("should allow to set params", async () => {
@@ -95,12 +93,12 @@ describe("Emitter [ Emit ]", () => {
     });
   });
 
-  it("should allow to for using onData", async () => {
+  it("should allow for using onData", async () => {
     const spy = jest.fn();
     let receivedData;
 
     const emitterWithParams = socket
-      .createEmitter<DataType, ResponseType>()({ name: "test/:testId" })
+      .createEmitter<DataType, ResponseType>()({ name: "test/:testId", timeout: 8000 })
       .onData(({ data }, unmount) => {
         receivedData = data;
         spy();
