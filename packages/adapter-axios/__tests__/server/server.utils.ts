@@ -17,7 +17,7 @@ export function sleep(timeMs) {
   });
 }
 
-const defaultTimeout = 5;
+const defaultTimeout = 5000;
 export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
   if (errorCase === "timeout") {
     return new Error("Request timeout");

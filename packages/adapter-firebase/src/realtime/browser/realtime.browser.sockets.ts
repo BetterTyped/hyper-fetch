@@ -80,16 +80,6 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       throw new Error("Cannot emit from Realtime database socket.");
     };
 
-    // Lifecycle
-
-    onValue(ref(database, ".info/connected"), (snap) => {
-      if (snap.val() === false) {
-        if (socket.options.autoConnect === true) {
-          reconnect();
-        }
-      }
-    });
-
     return {
       open,
       reconnectionAttempts,

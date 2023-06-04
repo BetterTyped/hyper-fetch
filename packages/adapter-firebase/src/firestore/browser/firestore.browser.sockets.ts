@@ -1,5 +1,5 @@
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
-import { onSnapshot, Firestore, doc, query, collection } from "firebase/firestore";
+import { onSnapshot, Firestore, doc, query, collection, disableNetwork, enableNetwork } from "firebase/firestore";
 
 import { getStatus, isDocOrQuery } from "utils";
 import { mapConstraint, getGroupedResultFirestore, getOrderedResultFirestore } from "firestore";
@@ -10,7 +10,6 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
     const {
       open,
       connecting,
-      // forceClosed,
       reconnectionAttempts,
       listeners,
       removeListener,
@@ -22,19 +21,19 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       onClose,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket);
+    } = getSocketAdapterBindings(socket, { open: true });
 
     const connect = () => {
       const enabled = onConnect();
 
       if (enabled) {
-        // goOnline(database);
+        enableNetwork(database);
         onOpen();
       }
     };
 
     const disconnect = () => {
-      // goOffline(database);
+      disableNetwork(database);
       onDisconnect();
       onClose();
     };
@@ -47,7 +46,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       const fullUrl = socket.url + listener.endpoint;
       const { options } = listener;
 
-      let path;
+      let path; // Todo: type this Kacper
       const queryType = isDocOrQuery(fullUrl);
       if (queryType === "doc") {
         path = doc(database, fullUrl);

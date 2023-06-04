@@ -11,33 +11,21 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     const {
       open,
       connecting,
-      // forceClosed,
       reconnectionAttempts,
       listeners,
       removeListener,
-      onConnect,
       onReconnect,
-      onDisconnect,
       onListen,
-      onOpen,
-      onClose,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket);
+    } = getSocketAdapterBindings(socket, { open: true });
 
     const connect = () => {
-      const enabled = onConnect();
-
-      if (enabled) {
-        // goOnline(database);
-        onOpen();
-      }
+      throw new Error("Connect function is not implemented for Firestore Admin socket.");
     };
 
     const disconnect = () => {
-      // goOffline(database);
-      onDisconnect();
-      onClose();
+      throw new Error("Cannot disconnect from Firestore database socket. Use 'app.delete()' instead.");
     };
 
     const reconnect = () => {

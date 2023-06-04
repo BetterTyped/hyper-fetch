@@ -77,16 +77,6 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       throw new Error("Cannot emit from Realtime database socket.");
     };
 
-    // Lifecycle
-
-    database?.ref?.(".info/connected").on("value", (snap) => {
-      if (snap.val() === false) {
-        if (socket.options.autoConnect === true) {
-          reconnect();
-        }
-      }
-    });
-
     return {
       open,
       reconnectionAttempts,

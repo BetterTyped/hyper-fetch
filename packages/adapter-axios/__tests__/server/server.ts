@@ -37,12 +37,12 @@ export const createRequestInterceptor = <T extends RequestInstance, StatusType e
     const errorResponse = errorResponses[currentStatus] as StatusType extends StatusErrorCodesType
       ? ErrorMockType
       : ExtractResponseType<T>;
-    server.use(createStubMethod(request, url, method, currentStatus, errorResponse, delay) as any);
+    server.use(createStubMethod(request, url, method, currentStatus, errorResponse, delay));
 
     return errorResponse;
   }
 
   const responseData = (fixture || { data: [1, 2, 3] }) as ExtractResponseType<T>;
-  server.use(createStubMethod(request, url, method, currentStatus, responseData, delay) as any);
+  server.use(createStubMethod(request, url, method, currentStatus, responseData, delay));
   return responseData as any;
 };
