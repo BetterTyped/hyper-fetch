@@ -294,4 +294,26 @@ describe("Mocker [ Base ]", () => {
       extra: {},
     });
   });
+
+  it("should allow for setting totalUploaded and totalDownloaded", async () => {
+    const mockedRequest = request.setMock({
+      data: fixture,
+      config: { totalUploaded: 1000, requestTime: 40, totalDownloaded: 1000, responseTime: 60 },
+    });
+
+    const requestSpy = jest.fn();
+    const responseSpy = jest.fn();
+    client.requestManager.events.onUploadProgress(request.queueKey, requestSpy);
+    client.requestManager.events.onDownloadProgress(request.queueKey, responseSpy);
+    const response = await mockedRequest.send();
+    expect(requestSpy).toBeCalledTimes(3);
+    expect(responseSpy).toBeCalledTimes(4);
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
+    });
+  });
 });

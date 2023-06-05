@@ -6,6 +6,7 @@ export type RequestMockType<Response> = {
   success?: boolean;
 
   config?: {
+    timeout?: boolean;
     requestTime?: number;
     responseTime?: number;
     totalUploaded?: number;

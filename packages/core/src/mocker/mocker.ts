@@ -36,35 +36,39 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
     const { data, status = 200, success = true, extra, config } = result;
-    const { requestTime = 20, responseTime = 20, totalDownloaded, totalUploaded } = config || {};
+    const { requestTime = 20, responseTime = 20, totalUploaded = 1, totalDownloaded = 1 } = config || {};
 
     createAbortListener(0 as any, {} as any, () => {}, resolve);
 
     onBeforeRequest();
     onRequestStart();
 
-    const progress = (total, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
+    const progress = (totalTime, totalSize, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
       new Promise((resolveProgress) => {
+        const interval = 20;
         const dataStart = +new Date();
-
-        setInterval(() => {
-          const currentTime = +new Date();
-          const currentLoaded = Math.min(total, currentTime - dataStart);
-          if (currentLoaded >= total) {
+        const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
+        let currentlyLoaded = 0;
+        const timer = setInterval(function handleProgressInterval() {
+          const currentTime = Math.min(totalTime, +new Date() - dataStart);
+          currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
+          if (currentTime >= totalTime) {
             resolveProgress(true);
+            clearInterval(timer);
+          } else {
+            progressFunction({
+              total: totalSize,
+              loaded: currentlyLoaded,
+            });
           }
-          progressFunction({
-            total,
-            loaded: currentLoaded,
-          });
-        }, 20);
+        }, interval);
       });
 
     const getResponse = async () => {
-      await progress(requestTime, onRequestProgress);
+      await progress(requestTime, totalUploaded, onRequestProgress);
       onRequestEnd();
       onResponseStart();
-      await progress(responseTime, onResponseProgress);
+      await progress(responseTime, totalDownloaded, onResponseProgress);
       if (success) {
         onSuccess(data, status as any, extra || {}, resolve);
       } else {
@@ -72,10 +76,10 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       }
     };
 
-    if (timeout && requestTime + responseTime > timeout) {
-      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), timeout + 1);
+    if (timeout) {
+      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), 1);
     } else {
-      setTimeout(getResponse, 1);
+      setTimeout(getResponse, requestTime + responseTime + 1);
     }
 
     onResponseEnd();
