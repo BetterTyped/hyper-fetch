@@ -35,21 +35,8 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
-    const { data, config = {}, extra } = result;
-    const {
-      status = 200,
-      success = true,
-      responseDelay = 5,
-      requestSentDuration = 0,
-      responseReceivedDuration = 0,
-    } = config;
-    const calculateDurations = () => {
-      if (timeout && requestSentDuration + responseReceivedDuration > timeout) {
-        return [Math.floor(timeout / 2) - 1, Math.floor(timeout / 2) - 1];
-      }
-      return [requestSentDuration, responseReceivedDuration];
-    };
-    const [adjustedRequestSentDuration, adjustedResponseReceivedDuration] = calculateDurations();
+    const { data, status = 200, success = true, extra, config } = result;
+    const { requestTime = 20, responseTime = 20, totalDownloaded, totalUploaded } = config || {};
 
     createAbortListener(0 as any, {} as any, () => {}, resolve);
 
@@ -74,10 +61,10 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       });
 
     const getResponse = async () => {
-      await progress(adjustedRequestSentDuration, onRequestProgress);
+      await progress(requestTime, onRequestProgress);
       onRequestEnd();
       onResponseStart();
-      await progress(adjustedResponseReceivedDuration, onResponseProgress);
+      await progress(responseTime, onResponseProgress);
       if (success) {
         onSuccess(data, status as any, extra || {}, resolve);
       } else {
@@ -85,10 +72,10 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       }
     };
 
-    if (timeout && responseDelay > timeout) {
+    if (timeout && requestTime + responseTime > timeout) {
       setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), timeout + 1);
     } else {
-      setTimeout(getResponse, responseDelay);
+      setTimeout(getResponse, 1);
     }
 
     onResponseEnd();
