@@ -20,32 +20,43 @@ const mockedRequest = request.setMock({ data: { test: 1, array: [200, 300, 404] 
 ```
 
 This way, the `mockedRequest` will always return the `data` with value `{ test: 1, array: [200, 300, 404] } }`.
-
+The `setMock` method accepts an object with the following keys:
+- `data` - data to be returned from request
+- `status` -  Sets the response status. This can be a number or a string; the default is `**200**`.
+- `success` - Informs if the request should be successful or not; the default is `**true**`.
+- `config` - Sets additional parameters that tweak the mock even further.
 ---
 
 
 ## Config
 
-The `setMock` method also accepts the `config` object, which allows for tweaking our response.
+The `setMock` method accepts the `config` object, which allows for tweaking our response.
 
 ```tsx
     const request = client
       .createRequest()({ endpoint: "shared-base-endpoint" })
       .setMock({
         data: {mocking: 'is fun'},
+        status: 200,
         config: {
-          responseDelay: 1500,
-          status: 200
+          requestTime: 40,
+          responseTime: 60,
+          totalUploaded: 1000,
+          totalDownloaded: 1000,
         },
       });
 
-
 ```
- - `status` -  Sets the response status. This can be a number or a string; the default is `**200**`.
- - `success` - Informs if the request should be successful or not; the default is `**true**`.
- - `responseDelay` -The number of milliseconds to delay the response.
- - `requestSentDuration` and `responseReceivedDuration` - Indicate how long the request/response phase should take in milliseconds.
+- `timeout` - **boolean** - informs whether it should return a timeout error.
+ - `requestTime` - Simulates how long the request to the server should take (in milliseconds).
+ - `responseTime` - Indicates how long the response from the server should take (in milliseconds).
 If their combined total takes longer than provided timeout, each value will be automatically adjusted to last half of the timeout time.
+- `totalUploaded` - total number of 'kilobytes' to be uploaded.
+- `totalDownloaded` - total number of 'kilobytes' to be downloaded.
+
+In the example above - the request phase will take 40 milliseconds and during this phase 1000 'kilobytes' will be uploaded (and `onUploadProgress` events will be emitted).
+The response phase will take 60 millisecond and during this phase 1000 'kilobytes' will be downloaded (and `onDownloadProgress` events will be emitted).
+The word `kilobytes` is written in quotation marks as no real data exchange occurs - it is simply to mock events and allow for data stream mocking.
 
 
 ## Usage and use cases
