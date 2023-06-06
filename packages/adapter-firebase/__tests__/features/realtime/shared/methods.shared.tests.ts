@@ -24,8 +24,10 @@ export const methodsSharedTestCases = (
 };
 
 export const socketsMethodsSharedTestCases = (
-  adapter: FirebaseBrowserSocketAdapterTypes<any> | FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
+  db,
+  seedDbMethod: (db) => Promise<void>,
+  socketsAdapter: (database) => FirebaseBrowserSocketAdapterTypes<any> | FirebaseAdminSocketAdapterTypes<any>,
+  coreAdapter: (database) => () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
 ) => {
-  onValueTestSuite(adapter, coreAdapter);
+  onValueTestSuite(db, seedDbMethod, socketsAdapter, coreAdapter);
 };

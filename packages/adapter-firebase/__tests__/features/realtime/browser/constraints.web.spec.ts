@@ -1,8 +1,7 @@
 import { ref, set } from "firebase/database";
 
 import { firebaseAdapter } from "adapter";
-import { realtimeDBBrowser } from "../../../utils";
-import { seedRealtimeDatabaseBrowser } from "../../../utils/browser/seed.browser";
+import { realtimeDBBrowser, seedRealtimeDatabaseBrowser } from "../../../utils";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Realtime Database Browser [Constraints]", () => {

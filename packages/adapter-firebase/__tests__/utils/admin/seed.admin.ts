@@ -13,6 +13,7 @@ export const seedFirestoreDatabaseAdmin = async (db: Firestore) => {
 };
 
 export const seedRealtimeDatabaseAdmin = async (db: Database) => {
+  await db.ref("teas").set(null);
   // eslint-disable-next-line no-restricted-syntax
   for (const tea of teas) {
     const { id, ...data } = tea;
