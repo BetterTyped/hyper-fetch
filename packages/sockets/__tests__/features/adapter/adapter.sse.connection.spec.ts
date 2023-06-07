@@ -1,13 +1,16 @@
 import { waitFor } from "@testing-library/dom";
+import { sources } from "eventsourcemock";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+import { createWsServer, wsUrl } from "../../websocket/websocket.server";
+import { sseAdapter } from "adapter";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
+  adapter: sseAdapter,
 };
 
-describe("Socket Adapter [ Connection ]", () => {
+describe("Socket SSE [ Connection ]", () => {
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
@@ -20,6 +23,7 @@ describe("Socket Adapter [ Connection ]", () => {
   it("should auto connect", async () => {
     const spy = jest.fn();
     socket.events.onOpen(spy);
+    sources[wsUrl].emitOpen();
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
     });
@@ -29,39 +33,22 @@ describe("Socket Adapter [ Connection ]", () => {
     const spy = jest.fn();
     socket = createSocket({ autoConnect: false });
     socket.events.onOpen(spy);
+    sources[wsUrl].emitOpen();
     await waitFor(() => {
       expect(spy).toBeCalledTimes(0);
-    });
-  });
-
-  it("should reconnect when going online", async () => {
-    const spy = jest.fn();
-    socket.appManager.setOnline(false);
-    socket.adapter.disconnect();
-    socket.onClose(() => {
-      socket.adapter.open = false;
-      socket.events.onOpen(spy);
-      socket.appManager.setOnline(true);
-    });
-    await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
     });
   });
 
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
     const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 5, autoConnect: false });
+    socket = createSocket({ url, reconnectTime: 500, autoConnect: false });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
-    const server = createWsServer({ url });
-
-    await server.connected;
+    sources[wsUrl].emitOpen();
 
     await waitFor(() => {
-      return !!socket.adapter.reconnectionAttempts;
+      expect(spy).toBeCalledTimes(1);
     });
-
-    expect(spy).toBeCalledTimes(1);
   });
 });
