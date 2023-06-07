@@ -58,7 +58,7 @@ export const onValueTestSuite = (
       const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
       });
-      const unmount = await onValueReq.listen({ callback: spy });
+      const unmount = onValueReq.listen({ callback: spy });
       expect(unmount).toBeFunction();
     });
 
@@ -67,7 +67,7 @@ export const onValueTestSuite = (
       const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
       });
-      const unmount = await onValueReq.listen({ callback: spy });
+      const unmount = onValueReq.listen({ callback: spy });
 
       await waitForExpect(async () => {
         expect(spy).toBeCalledTimes(1);
@@ -95,7 +95,7 @@ export const onValueTestSuite = (
       let receivedData;
       let receivedExtra;
 
-      const unmount = await onValueReq.listen({
+      const unmount = onValueReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;
@@ -119,7 +119,7 @@ export const onValueTestSuite = (
         options: { onlyOnce: true },
       });
 
-      const unmount = await onValueReq.listen({
+      const unmount = onValueReq.listen({
         callback: spy,
       });
 
@@ -143,7 +143,7 @@ export const onValueTestSuite = (
       let receivedData;
       let receivedExtra;
 
-      const unmount = await onValueReq.listen({
+      const unmount = onValueReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;
