@@ -64,7 +64,7 @@ describe("Mocker [ Base ]", () => {
       .createRequest()({ endpoint: "shared-base-endpoint", options: { timeout: 10 } })
       .setMock({
         data: fixture,
-        config: { responseDelay: 1500 },
+        config: { responseTime: 1500 },
       });
 
     const response = await mockedRequest.send();
@@ -81,7 +81,7 @@ describe("Mocker [ Base ]", () => {
       .setMock({
         data: fixture,
         config: {
-          responseDelay: 1500,
+          responseTime: 1500,
         },
       });
     const secondRequest = client
@@ -89,7 +89,7 @@ describe("Mocker [ Base ]", () => {
       .setMock({
         data: fixture,
         config: {
-          responseDelay: 1500,
+          responseTime: 1500,
         },
       });
 
@@ -113,8 +113,8 @@ describe("Mocker [ Base ]", () => {
       .setRetry(1)
       .setRetryTime(50)
       .setMock([
-        { data: { data: [1, 2, 3] }, config: { status: 400, success: false } },
-        { data: { data: [1, 2, 3] }, config: { status: 200 } },
+        { data: { data: [1, 2, 3] }, status: 400, success: false },
+        { data: { data: [1, 2, 3] }, status: 200 },
       ]);
 
     client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
@@ -147,8 +147,8 @@ describe("Mocker [ Base ]", () => {
 
   it("should cycle through sequence if provided array of responses", async () => {
     const requestWithRetry = request.setMock([
-      { data: { data: [1, 2, 3] }, config: { status: 200 } },
-      { data: { data: [4, 5, 6] }, config: { status: 200 } },
+      { data: { data: [1, 2, 3] }, status: 200 },
+      { data: { data: [4, 5, 6] } },
     ]);
 
     const response1 = await requestWithRetry.send();
@@ -158,6 +158,7 @@ describe("Mocker [ Base ]", () => {
 
     expect(response1.data).toStrictEqual({ data: [1, 2, 3] });
     expect(response2.data).toStrictEqual({ data: [4, 5, 6] });
+    expect(response2.status).toStrictEqual(200);
     expect(response3.data).toStrictEqual({ data: [1, 2, 3] });
     expect(response4.data).toStrictEqual({ data: [4, 5, 6] });
   });
@@ -168,7 +169,7 @@ describe("Mocker [ Base ]", () => {
       .setMock((r) => {
         const { params } = r;
         if (params.id === 11) {
-          return { data: [1, 2, 3], config: { status: 222 } };
+          return { data: [1, 2, 3], status: 222 };
         }
         return { data: [4, 5, 6] };
       });
@@ -186,7 +187,7 @@ describe("Mocker [ Base ]", () => {
       .createRequest<Record<string, any>>()({ endpoint: "users/:id" })
       .setMock(async (r) => {
         if (r?.params?.id === 1) {
-          return { data: [1, 2, 3], config: { status: 222 } };
+          return { data: [1, 2, 3], status: 222 };
         }
         return { data: [4, 5, 6] };
       });
@@ -263,7 +264,7 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = request.setMock({
       data: fixture,
       extra: { someExtra: true },
-      config: { status: "success" },
+      status: "success",
     });
     const response = await mockedRequest.send();
 
@@ -275,13 +276,38 @@ describe("Mocker [ Base ]", () => {
       extra: { someExtra: true },
     });
   });
-  it("should adjust requestSentDuration and responseReceivedDuration if timeout is set", async () => {
-    const timedOutRequest = request.setOptions({ timeout: 1000 });
-    const mockedRequest = timedOutRequest.setMock({
+
+  it("should adjust responseTime and requestTime", async () => {
+    const mockedRequest = request.setMock({
       data: fixture,
-      config: { requestSentDuration: 5000, responseReceivedDuration: 5000 },
+      config: { requestTime: 1000, responseTime: 1000 },
     });
+    const startDate = +new Date();
     const response = await mockedRequest.send();
+    const endDate = +new Date();
+    expect(endDate - startDate).toBeGreaterThanOrEqual(2000);
+    expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
+    });
+  });
+
+  it("should allow for setting totalUploaded and totalDownloaded", async () => {
+    const mockedRequest = request.setMock({
+      data: fixture,
+      config: { totalUploaded: 1000, requestTime: 40, totalDownloaded: 1000, responseTime: 60 },
+    });
+
+    const requestSpy = jest.fn();
+    const responseSpy = jest.fn();
+    client.requestManager.events.onUploadProgress(request.queueKey, requestSpy);
+    client.requestManager.events.onDownloadProgress(request.queueKey, responseSpy);
+    const response = await mockedRequest.send();
+    expect(requestSpy).toBeCalledTimes(3);
+    expect(responseSpy).toBeCalledTimes(4);
     expect(response).toStrictEqual({
       data: fixture,
       error: null,

@@ -4,6 +4,7 @@ import { Firestore, doc, setDoc } from "firebase/firestore";
 import { teas } from "../seed/seed.data";
 
 export const seedRealtimeDatabaseBrowser = async (db: Database) => {
+  await set(ref(db, "teas/"), null);
   // eslint-disable-next-line no-restricted-syntax
   for (const tea of teas) {
     const { id, ...data } = tea;

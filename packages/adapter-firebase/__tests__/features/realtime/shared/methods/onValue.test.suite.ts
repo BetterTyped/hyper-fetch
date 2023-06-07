@@ -11,23 +11,38 @@ import {
 import { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (
-  adapter: FirebaseBrowserSocketAdapterTypes<any> | FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
+  db: Promise<any>,
+  seedDb: (initializedDb) => Promise<void>,
+  socketsAdapter: (database) => FirebaseBrowserSocketAdapterTypes<any> | FirebaseAdminSocketAdapterTypes<any>,
+  coreAdapter: (database) => () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
 ) => {
   describe("when using onValue method", () => {
+    let initializedSocketsAdapter;
+    let initializedCoreAdapter;
+    let initializedDb;
     let spy = jest.fn();
     const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
 
+    beforeAll(async () => {
+      initializedDb = await db;
+      initializedSocketsAdapter = socketsAdapter(initializedDb);
+      initializedCoreAdapter = coreAdapter(initializedDb);
+    });
+
+    beforeEach(async () => {
+      await seedDb(initializedDb);
+    });
+
     const initialize = async () => {
-      const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
-      const socket = new Socket({ url: "teas/", adapter });
+      const client = new Client({ url: "teas/" }).setAdapter(initializedCoreAdapter);
+      const socket = new Socket({ url: "teas/", adapter: initializedSocketsAdapter });
       const pushReq = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "push",
         })
         .setData(newData);
-      const socketBees = new Socket({ url: "bees/", adapter });
+      const socketBees = new Socket({ url: "bees/", adapter: initializedSocketsAdapter });
 
       return { client, socket, pushReq, socketBees };
     };
@@ -54,12 +69,19 @@ export const onValueTestSuite = (
       });
       const unmount = await onValueReq.listen({ callback: spy });
 
+      await waitForExpect(async () => {
+        expect(spy).toBeCalledTimes(1);
+      });
+
       unmount();
 
       await pushReq.send();
       await pushReq.send();
 
-      expect(spy).toBeCalledTimes(1);
+      await waitForExpect(async () => {
+        expect(spy).toBeCalledTimes(1);
+      }, 1000);
+
       expect(socket.adapter.listeners.get(onValueReq.endpoint).size).toBe(0);
     });
 

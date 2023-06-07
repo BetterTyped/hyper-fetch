@@ -16,4 +16,4 @@ const initializeRealtimeDB = async () => {
   return db;
 };
 
-export const realtimeDBAdmin = initializeRealtimeDB();
+export const realtimeDbAdmin = initializeRealtimeDB();

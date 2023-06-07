@@ -50,11 +50,19 @@ export const onSnapshotTestSuite = (
         endpoint: "",
       });
       const unmount = onSnapshotReq.listen({ callback: spy });
+
+      await waitForExpect(async () => {
+        expect(spy).toBeCalledTimes(1);
+      });
+
       unmount();
       await pushReq.send();
       await pushReq.send();
 
-      expect(spy).toBeCalledTimes(1);
+      await waitForExpect(async () => {
+        expect(spy).toBeCalledTimes(1);
+      }, 1000);
+
       expect(socket.adapter.listeners.get(onSnapshotReq.endpoint).size).toBe(0);
     });
     it("should return emptyResource status", async () => {

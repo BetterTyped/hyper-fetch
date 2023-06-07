@@ -2,9 +2,9 @@ import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore, Qu
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
 import { applyFireStoreAdminConstraints, getRef } from "./firestore.admin.utils";
-import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils/firestore.utils";
+import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils";
 import { getStatus } from "utils";
-import { FirestoreAdminSocketAdapterType } from "../../adapter/types/firestore.admin.types";
+import { FirestoreAdminSocketAdapterType } from "adapter";
 
 export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
   return (socket) => {

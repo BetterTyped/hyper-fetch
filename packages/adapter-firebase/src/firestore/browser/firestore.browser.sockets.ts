@@ -46,12 +46,13 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       const fullUrl = socket.url + listener.endpoint;
       const { options } = listener;
 
-      let path; // Todo: type this Kacper
+      let path;
       const queryType = isDocOrQuery(fullUrl);
       if (queryType === "doc") {
         path = doc(database, fullUrl);
       } else {
-        const queryConstraints = options?.constraints.map((constr) => mapConstraint(constr)) || [];
+        const constraints = options?.constraints || [];
+        const queryConstraints = constraints.map((constr) => mapConstraint(constr)) || [];
         path = query(collection(database, fullUrl), ...queryConstraints);
       }
       let unsubscribe = () => {};
