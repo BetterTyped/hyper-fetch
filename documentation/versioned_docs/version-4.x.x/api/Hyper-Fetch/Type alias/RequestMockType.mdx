@@ -1,0 +1,61 @@
+
+
+# RequestMockType
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { RequestMockType } from "@hyper-fetch/core"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [mocker/mocker.types.ts:3](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/core/src/mocker/mocker.types.ts#L3)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview type">
+
+```ts
+type RequestMockType<Response> = {
+  config: { requestSentDuration?: number; responseDelay?: number; responseReceivedDuration?: number; status?: number | string; success?: boolean }; 
+  data: Response | Response[] | () => Response; 
+  extra: any; 
+}
+```
+
+</div><div class="api-docs__section">
+
+## Structure
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  config: {
+    requestSentDuration: number;
+    responseDelay: number;
+    responseReceivedDuration: number;
+    status: number | string;
+    success: boolean;
+  };
+  data: Response | Response[] | () => Response;
+  extra: any;
+}
+```
+
+</div>

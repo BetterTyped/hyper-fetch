@@ -1,0 +1,153 @@
+---
+title: Guide - Custom Adapter
+sidebar_label: Custom Adapter
+---
+
+# Custom Adapter
+
+You can create your own adapter based on your preferences or requirements. You can use the bindings to achieve it. They
+will let you to easily connect into the library logic flow, so this way you will make your custom adapter without
+handling the internals on the library. We propose to use the `getAdapterBindings` util so you skip the sensitive and
+highly advanced part of connecting into hyper fetch flow.
+
+**`makeRequest`** is the wrapper for resolving your request. It will handle all pre and post validators with all the
+async operations that happens inside HF. This is simple way of making custom adapters.
+
+---
+
+### Example
+
+```tsx
+const customHttpAdapter = async () => {
+  const {
+    makeRequest,
+    fullUrl,
+    method,
+    headers,
+    payload,
+    config,
+    getAbortController,
+    getRequestStartTimestamp,
+    getResponseStartTimestamp,
+    createAbortListener,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onResponseEnd,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onUnexpectedError,
+    onError,
+  } = await getAdapterBindings(request, requestId);
+
+  // Wrap your function with make request to provide all lifecycle and async methods
+  makeRequest((resolve) => {
+    // ... any custom adapter logic, you can see axios implementation bellow
+    resolve(
+      axios({
+        method,
+        url: fullUrl,
+        data: payload,
+        headers,
+        timeout: config.timeout,
+      }),
+    );
+  });
+};
+```
+
+---
+
+### Setup
+
+Connect any adapter to communicate with the server and handle it as you want, the only thing that has to match is the
+interface of the output.
+
+```tsx
+import { BaseAdapterType } from "@hyper-fetch/core";
+
+const customHttpAdapter: BaseAdapterType = (request: RequestInstance) =>
+  Promise.resolve({ data: null, error: null, status: 0 });
+
+const client = new Client({ url }).setAdapter(customHttpAdapter);
+```
+
+---
+
+### Typescript
+
+You can pass custom options to your adapter from global setup and while request initialization. With our
+**`BaseAdapterType`** you can specify correct specification for your adapter. You can decide what custom options it
+consume, how statuses look in your adapter, what methods are allowed, what query params are default, what additional
+data it returns from requests.
+
+```tsx
+import { BaseAdapterType, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
+
+type MyCustomAdapterOptions = {
+  timeout?: number;
+  someOtherOption?: boolean;
+};
+
+type MyCustomExtra = {
+  headers: string;
+  raw: string;
+  json: string;
+};
+
+const customHttpAdapter: BaseAdapterType<
+  MyCustomAdapterOptions,
+  HttpMethodsType,
+  HttpStatusType,
+  MyCustomExtra,
+  QueryParamsType
+> = (request: RequestInstance) => Promise.resolve({ data: null, error: null, status: 0 });
+
+const client = new Client<Error>({ url }).setAdapter(customHttpAdapter);
+```
+
+#### Adapter Unions
+
+You can provide adapter unions, this means - you can specify exact data for the given option sets in your adapters. With
+this you can create custom rules of using your adapter. For example, you can create rule that only for GET method, we
+return raw data in `extra`, so user will not be able to use it with other methods. We used this pattern a lot in
+Firebase adapter.
+
+```ts
+type MyAdapter =
+  | BaseAdapterType<{ timeout?: number }, HttpMethodsType.GET, HttpStatusType, { raw: string }, QueryParamsType>
+  | BaseAdapterType<{ headers?: string }, HttpMethodsType.POST, HttpStatusType, { json: string }, QueryParamsType>;
+
+const customHttpAdapter: MyAdapter = (request: RequestInstance) =>
+  Promise.resolve({ data: null, error: null, status: 0 });
+
+const client = new Client<Error>({ url }).setAdapter(customHttpAdapter);
+
+// We decide which type to used based on passed config
+
+const request1 = client.createRequest()({
+  endpoint: "/product",
+  method: HttpMethodsType.GET,
+  options: { timeout: 1000 },
+});
+
+const {
+  extra: { raw },
+} = await request1.send();
+
+// We decide which type to used based on passed config
+
+const request2 = client.createRequest()({
+  endpoint: "/user",
+  method: HttpMethodsType.POST,
+  options: { headers: "" },
+});
+
+const {
+  extra: { json },
+} = await request2.send();
+```

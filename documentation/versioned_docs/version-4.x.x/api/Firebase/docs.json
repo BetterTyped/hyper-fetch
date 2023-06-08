@@ -1,0 +1,6558 @@
+{
+	"id": 3917,
+	"name": "@hyper-fetch/firebase",
+	"kind": 1,
+	"kindString": "Project",
+	"flags": {},
+	"originalName": "",
+	"children": [
+		{
+			"id": 4002,
+			"name": "FirebaseQueryConstraints",
+			"kind": 8,
+			"kindString": "Enumeration",
+			"flags": {},
+			"children": [
+				{
+					"id": 4008,
+					"name": "END_AT",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 9,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L9"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "endAt"
+					}
+				},
+				{
+					"id": 4009,
+					"name": "END_BEFORE",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 10,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L10"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "endBefore"
+					}
+				},
+				{
+					"id": 4015,
+					"name": "EQUAL_TO",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 16,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L16"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "equalTo"
+					}
+				},
+				{
+					"id": 4005,
+					"name": "LIMIT",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 6,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L6"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "limit"
+					}
+				},
+				{
+					"id": 4013,
+					"name": "LIMIT_TO_FIRST",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 14,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L14"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "limitToFirst"
+					}
+				},
+				{
+					"id": 4014,
+					"name": "LIMIT_TO_LAST",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 15,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L15"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "limitToLast"
+					}
+				},
+				{
+					"id": 4004,
+					"name": "ORDER_BY",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 5,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L5"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "orderBy"
+					}
+				},
+				{
+					"id": 4010,
+					"name": "ORDER_BY_CHILD",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 11,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L11"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "orderByChild"
+					}
+				},
+				{
+					"id": 4011,
+					"name": "ORDER_BY_KEY",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 12,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L12"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "orderByKey"
+					}
+				},
+				{
+					"id": 4012,
+					"name": "ORDER_BY_VALUE",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 13,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L13"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "orderByValue"
+					}
+				},
+				{
+					"id": 4007,
+					"name": "START_AFTER",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 8,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L8"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "startAfter"
+					}
+				},
+				{
+					"id": 4006,
+					"name": "START_AT",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 7,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L7"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "startAt"
+					}
+				},
+				{
+					"id": 4003,
+					"name": "WHERE",
+					"kind": 16,
+					"kindString": "Enumeration Member",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "constraints/constraints.firebase.ts",
+							"line": 4,
+							"character": 2,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L4"
+						}
+					],
+					"type": {
+						"type": "literal",
+						"value": "where"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Enumeration Members",
+					"children": [
+						4008,
+						4009,
+						4015,
+						4005,
+						4013,
+						4014,
+						4004,
+						4010,
+						4011,
+						4012,
+						4007,
+						4006,
+						4003
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 3,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L3"
+				}
+			]
+		},
+		{
+			"id": 3964,
+			"name": "DefaultRealtimeDBAdapterOptions",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 36,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L36"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3965,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3966,
+							"name": "priority",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 37,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L37"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3966
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 36,
+							"character": 46,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L36"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3919,
+			"name": "FirebaseAdminAdapterTypes",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.base.types.admin.ts",
+					"line": 8,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.base.types.admin.ts#L8"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 3920,
+					"name": "T",
+					"kind": 131072,
+					"kindString": "Type parameter",
+					"flags": {}
+				}
+			],
+			"type": {
+				"type": "conditional",
+				"checkType": {
+					"type": "reference",
+					"id": 3920,
+					"name": "T"
+				},
+				"extendsType": {
+					"type": "reference",
+					"name": "Database",
+					"qualifiedName": "Database",
+					"package": "firebase-admin"
+				},
+				"trueType": {
+					"type": "reference",
+					"id": 3961,
+					"name": "RealtimeDbAdapterType"
+				},
+				"falseType": {
+					"type": "reference",
+					"id": 3924,
+					"name": "FirestoreAdapterType"
+				}
+			}
+		},
+		{
+			"id": 3918,
+			"name": "FirebaseAdminDBTypes",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.base.types.admin.ts",
+					"line": 7,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.base.types.admin.ts#L7"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"name": "Database",
+						"qualifiedName": "Database",
+						"package": "firebase-admin"
+					},
+					{
+						"type": "reference",
+						"name": "Firestore",
+						"qualifiedName": "FirebaseFirestore.Firestore",
+						"package": "@google-cloud/firestore"
+					}
+				]
+			}
+		},
+		{
+			"id": 3922,
+			"name": "FirebaseWebAdapterTypes",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.base.types.web.ts",
+					"line": 8,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.base.types.web.ts#L8"
+				}
+			],
+			"typeParameters": [
+				{
+					"id": 3923,
+					"name": "T",
+					"kind": 131072,
+					"kindString": "Type parameter",
+					"flags": {}
+				}
+			],
+			"type": {
+				"type": "conditional",
+				"checkType": {
+					"type": "reference",
+					"id": 3923,
+					"name": "T"
+				},
+				"extendsType": {
+					"type": "reference",
+					"name": "Database",
+					"qualifiedName": "Database",
+					"package": "@firebase/database"
+				},
+				"trueType": {
+					"type": "reference",
+					"id": 3961,
+					"name": "RealtimeDbAdapterType"
+				},
+				"falseType": {
+					"type": "reference",
+					"id": 3924,
+					"name": "FirestoreAdapterType"
+				}
+			}
+		},
+		{
+			"id": 3921,
+			"name": "FirebaseWebDBTypes",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.base.types.web.ts",
+					"line": 7,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.base.types.web.ts#L7"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"name": "Database",
+						"qualifiedName": "Database",
+						"package": "@firebase/database"
+					},
+					{
+						"type": "reference",
+						"name": "Firestore",
+						"qualifiedName": "Firestore",
+						"package": "@firebase/firestore"
+					}
+				]
+			}
+		},
+		{
+			"id": 3924,
+			"name": "FirestoreAdapterType",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 12,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L12"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 3925,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 3926,
+											"name": "groupByChangeType",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.firestore.types.ts",
+													"line": 14,
+													"character": 8,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L14"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												3926
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/types/adapter.firestore.types.ts",
+											"line": 14,
+											"character": 6,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L14"
+										}
+									]
+								}
+							},
+							{
+								"type": "literal",
+								"value": "onSnapshot"
+							},
+							{
+								"type": "reference",
+								"id": 3960,
+								"name": "FirestoreStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3943,
+								"name": "FirestoreOnSnapshotExtra"
+							},
+							{
+								"type": "reference",
+								"id": 3929,
+								"name": "FirestoreQueryParams"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							},
+							{
+								"type": "literal",
+								"value": "getDoc"
+							},
+							{
+								"type": "reference",
+								"id": 3960,
+								"name": "FirestoreStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3939,
+								"name": "FirestoreExtra"
+							},
+							{
+								"type": "reference",
+								"id": 3929,
+								"name": "FirestoreQueryParams"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							},
+							{
+								"type": "literal",
+								"value": "getDocs"
+							},
+							{
+								"type": "reference",
+								"id": 3960,
+								"name": "FirestoreStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3953,
+								"name": "FirestoreGetDocsExtra"
+							},
+							{
+								"type": "reference",
+								"id": 3929,
+								"name": "FirestoreQueryParams"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 3927,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 3928,
+											"name": "merge",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.firestore.types.ts",
+													"line": 22,
+													"character": 18,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L22"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												3928
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/types/adapter.firestore.types.ts",
+											"line": 22,
+											"character": 16,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L22"
+										}
+									]
+								}
+							},
+							{
+								"type": "literal",
+								"value": "setDoc"
+							},
+							{
+								"type": "reference",
+								"id": 3960,
+								"name": "FirestoreStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3953,
+								"name": "FirestoreGetDocsExtra"
+							},
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							},
+							{
+								"type": "union",
+								"types": [
+									{
+										"type": "literal",
+										"value": "updateDoc"
+									},
+									{
+										"type": "literal",
+										"value": "addDoc"
+									},
+									{
+										"type": "literal",
+										"value": "deleteDoc"
+									}
+								]
+							},
+							{
+								"type": "reference",
+								"id": 3960,
+								"name": "FirestoreStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3957,
+								"name": "FirestoreRefOnlyExtra"
+							},
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							}
+						],
+						"name": "AdapterType"
+					}
+				]
+			}
+		},
+		{
+			"id": 3938,
+			"name": "FirestoreDBMethods",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 35,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L35"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "addDoc"
+					},
+					{
+						"type": "literal",
+						"value": "getDoc"
+					},
+					{
+						"type": "literal",
+						"value": "getDocs"
+					},
+					{
+						"type": "literal",
+						"value": "setDoc"
+					},
+					{
+						"type": "literal",
+						"value": "updateDoc"
+					},
+					{
+						"type": "literal",
+						"value": "deleteDoc"
+					},
+					{
+						"type": "literal",
+						"value": "onSnapshot"
+					}
+				]
+			}
+		},
+		{
+			"id": 3939,
+			"name": "FirestoreExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 37,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L37"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3940,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3941,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 38,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L38"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DocumentReference",
+								"qualifiedName": "DocumentReference",
+								"package": "@firebase/firestore"
+							}
+						},
+						{
+							"id": 3942,
+							"name": "snapshot",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 39,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L39"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DocumentSnapshot",
+								"qualifiedName": "DocumentSnapshot",
+								"package": "@firebase/firestore"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3941,
+								3942
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.firestore.types.ts",
+							"line": 37,
+							"character": 29,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L37"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3953,
+			"name": "FirestoreGetDocsExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 49,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L49"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3954,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3955,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 50,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L50"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "CollectionReference",
+								"qualifiedName": "CollectionReference",
+								"package": "@firebase/firestore"
+							}
+						},
+						{
+							"id": 3956,
+							"name": "snapshot",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 51,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L51"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "QuerySnapshot",
+								"qualifiedName": "QuerySnapshot",
+								"package": "@firebase/firestore"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3955,
+								3956
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.firestore.types.ts",
+							"line": 49,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L49"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3943,
+			"name": "FirestoreOnSnapshotExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 42,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L42"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3944,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3948,
+							"name": "groupedResult",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 46,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L46"
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 3949,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 3950,
+											"name": "added",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.firestore.types.ts",
+													"line": 46,
+													"character": 20,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L46"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"name": "DocumentSnapshot",
+													"qualifiedName": "DocumentSnapshot",
+													"package": "@firebase/firestore"
+												}
+											}
+										},
+										{
+											"id": 3951,
+											"name": "modified",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.firestore.types.ts",
+													"line": 46,
+													"character": 47,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L46"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"name": "DocumentSnapshot",
+													"qualifiedName": "DocumentSnapshot",
+													"package": "@firebase/firestore"
+												}
+											}
+										},
+										{
+											"id": 3952,
+											"name": "removed",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.firestore.types.ts",
+													"line": 46,
+													"character": 77,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L46"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "reference",
+													"name": "DocumentSnapshot",
+													"qualifiedName": "DocumentSnapshot",
+													"package": "@firebase/firestore"
+												}
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												3950,
+												3951,
+												3952
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/types/adapter.firestore.types.ts",
+											"line": 46,
+											"character": 18,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L46"
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 3945,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 43,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L43"
+								}
+							],
+							"type": {
+								"type": "union",
+								"types": [
+									{
+										"type": "reference",
+										"name": "DocumentReference",
+										"qualifiedName": "DocumentReference",
+										"package": "@firebase/firestore"
+									},
+									{
+										"type": "reference",
+										"name": "CollectionReference",
+										"qualifiedName": "CollectionReference",
+										"package": "@firebase/firestore"
+									}
+								]
+							}
+						},
+						{
+							"id": 3946,
+							"name": "snapshot",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 44,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L44"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DocumentSnapshot",
+								"qualifiedName": "DocumentSnapshot",
+								"package": "@firebase/firestore"
+							}
+						},
+						{
+							"id": 3947,
+							"name": "unsubscribe",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 45,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L45"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "FirestoreUnsubscribe",
+								"qualifiedName": "Unsubscribe",
+								"package": "@firebase/firestore"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3948,
+								3945,
+								3946,
+								3947
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.firestore.types.ts",
+							"line": 42,
+							"character": 39,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L42"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3929,
+			"name": "FirestoreQueryParams",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 31,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L31"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3930,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3931,
+							"name": "constraints",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 32,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+								}
+							],
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reflection",
+									"declaration": {
+										"id": 3932,
+										"name": "__type",
+										"kind": 65536,
+										"kindString": "Type literal",
+										"flags": {},
+										"children": [
+											{
+												"id": 3933,
+												"name": "toString",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.firestore.types.ts",
+														"line": 32,
+														"character": 18,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+													}
+												],
+												"type": {
+													"type": "reflection",
+													"declaration": {
+														"id": 3934,
+														"name": "__type",
+														"kind": 65536,
+														"kindString": "Type literal",
+														"flags": {},
+														"sources": [
+															{
+																"fileName": "adapter/types/adapter.firestore.types.ts",
+																"line": 32,
+																"character": 28,
+																"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+															}
+														],
+														"signatures": [
+															{
+																"id": 3935,
+																"name": "__type",
+																"kind": 4096,
+																"kindString": "Call signature",
+																"flags": {},
+																"type": {
+																	"type": "intrinsic",
+																	"name": "string"
+																}
+															}
+														]
+													}
+												}
+											},
+											{
+												"id": 3936,
+												"name": "type",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.firestore.types.ts",
+														"line": 32,
+														"character": 42,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+													}
+												],
+												"type": {
+													"type": "reference",
+													"id": 4002,
+													"name": "FirebaseQueryConstraints"
+												}
+											},
+											{
+												"id": 3937,
+												"name": "values",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.firestore.types.ts",
+														"line": 32,
+														"character": 74,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+													}
+												],
+												"type": {
+													"type": "array",
+													"elementType": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											}
+										],
+										"groups": [
+											{
+												"title": "Properties",
+												"children": [
+													3933,
+													3936,
+													3937
+												]
+											}
+										],
+										"sources": [
+											{
+												"fileName": "adapter/types/adapter.firestore.types.ts",
+												"line": 32,
+												"character": 16,
+												"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L32"
+											}
+										]
+									}
+								}
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3931
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.firestore.types.ts",
+							"line": 31,
+							"character": 35,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L31"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3957,
+			"name": "FirestoreRefOnlyExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 54,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L54"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3958,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3959,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.firestore.types.ts",
+									"line": 55,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L55"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DocumentReference",
+								"qualifiedName": "DocumentReference",
+								"package": "@firebase/firestore"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3959
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.firestore.types.ts",
+							"line": 54,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L54"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3960,
+			"name": "FirestoreStatuses",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.firestore.types.ts",
+					"line": 58,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.firestore.types.ts#L58"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "success"
+					},
+					{
+						"type": "literal",
+						"value": "error"
+					}
+				]
+			}
+		},
+		{
+			"id": 3967,
+			"name": "RealtimeDBMethods",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 40,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L40"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "set"
+					},
+					{
+						"type": "literal",
+						"value": "push"
+					},
+					{
+						"type": "literal",
+						"value": "update"
+					},
+					{
+						"type": "literal",
+						"value": "get"
+					},
+					{
+						"type": "literal",
+						"value": "remove"
+					},
+					{
+						"type": "literal",
+						"value": "onValue"
+					}
+				]
+			}
+		},
+		{
+			"id": 3985,
+			"name": "RealtimeDBQueryParams",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 63,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L63"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3986,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3987,
+							"name": "constraints",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 64,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+								}
+							],
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "reflection",
+									"declaration": {
+										"id": 3988,
+										"name": "__type",
+										"kind": 65536,
+										"kindString": "Type literal",
+										"flags": {},
+										"children": [
+											{
+												"id": 3989,
+												"name": "toString",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.realtimedb.types.ts",
+														"line": 64,
+														"character": 18,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+													}
+												],
+												"type": {
+													"type": "reflection",
+													"declaration": {
+														"id": 3990,
+														"name": "__type",
+														"kind": 65536,
+														"kindString": "Type literal",
+														"flags": {},
+														"sources": [
+															{
+																"fileName": "adapter/types/adapter.realtimedb.types.ts",
+																"line": 64,
+																"character": 28,
+																"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+															}
+														],
+														"signatures": [
+															{
+																"id": 3991,
+																"name": "__type",
+																"kind": 4096,
+																"kindString": "Call signature",
+																"flags": {},
+																"type": {
+																	"type": "intrinsic",
+																	"name": "string"
+																}
+															}
+														]
+													}
+												}
+											},
+											{
+												"id": 3992,
+												"name": "type",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.realtimedb.types.ts",
+														"line": 64,
+														"character": 42,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+													}
+												],
+												"type": {
+													"type": "reference",
+													"id": 4002,
+													"name": "FirebaseQueryConstraints"
+												}
+											},
+											{
+												"id": 3993,
+												"name": "values",
+												"kind": 1024,
+												"kindString": "Property",
+												"flags": {},
+												"sources": [
+													{
+														"fileName": "adapter/types/adapter.realtimedb.types.ts",
+														"line": 64,
+														"character": 74,
+														"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+													}
+												],
+												"type": {
+													"type": "array",
+													"elementType": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											}
+										],
+										"groups": [
+											{
+												"title": "Properties",
+												"children": [
+													3989,
+													3992,
+													3993
+												]
+											}
+										],
+										"sources": [
+											{
+												"fileName": "adapter/types/adapter.realtimedb.types.ts",
+												"line": 64,
+												"character": 16,
+												"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L64"
+											}
+										]
+									}
+								}
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3987
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 63,
+							"character": 36,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L63"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3968,
+			"name": "RealtimeDBStatuses",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 42,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L42"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "literal",
+						"value": "success"
+					},
+					{
+						"type": "literal",
+						"value": "error"
+					},
+					{
+						"type": "literal",
+						"value": "emptyResource"
+					}
+				]
+			}
+		},
+		{
+			"id": 3961,
+			"name": "RealtimeDbAdapterType",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 6,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L6"
+				}
+			],
+			"type": {
+				"type": "union",
+				"types": [
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 3962,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 3963,
+											"name": "onlyOnce",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "adapter/types/adapter.realtimedb.types.ts",
+													"line": 8,
+													"character": 8,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L8"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												3963
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "adapter/types/adapter.realtimedb.types.ts",
+											"line": 8,
+											"character": 6,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L8"
+										}
+									]
+								}
+							},
+							{
+								"type": "literal",
+								"value": "onValue"
+							},
+							{
+								"type": "reference",
+								"id": 3968,
+								"name": "RealtimeDBStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3969,
+								"name": "RealtimeDbOnValueMethodExtra"
+							},
+							{
+								"type": "reference",
+								"id": 3985,
+								"name": "RealtimeDBQueryParams"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3964,
+								"name": "DefaultRealtimeDBAdapterOptions"
+							},
+							{
+								"type": "literal",
+								"value": "get"
+							},
+							{
+								"type": "reference",
+								"id": 3968,
+								"name": "RealtimeDBStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3974,
+								"name": "RealtimeDbGetMethodExtra"
+							},
+							{
+								"type": "reference",
+								"id": 3985,
+								"name": "RealtimeDBQueryParams"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3964,
+								"name": "DefaultRealtimeDBAdapterOptions"
+							},
+							{
+								"type": "literal",
+								"value": "push"
+							},
+							{
+								"type": "reference",
+								"id": 3968,
+								"name": "RealtimeDBStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3981,
+								"name": "RealtimeDbPushMethodExtra"
+							},
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							}
+						],
+						"name": "AdapterType"
+					},
+					{
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3964,
+								"name": "DefaultRealtimeDBAdapterOptions"
+							},
+							{
+								"type": "union",
+								"types": [
+									{
+										"type": "literal",
+										"value": "set"
+									},
+									{
+										"type": "literal",
+										"value": "update"
+									},
+									{
+										"type": "literal",
+										"value": "remove"
+									}
+								]
+							},
+							{
+								"type": "reference",
+								"id": 3968,
+								"name": "RealtimeDBStatuses"
+							},
+							{
+								"type": "reference",
+								"id": 3978,
+								"name": "RealtimeDbDefaultExtra"
+							},
+							{
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "string"
+									},
+									{
+										"type": "intrinsic",
+										"name": "never"
+									}
+								],
+								"name": "Record",
+								"qualifiedName": "Record",
+								"package": "typescript"
+							}
+						],
+						"name": "AdapterType"
+					}
+				]
+			}
+		},
+		{
+			"id": 3978,
+			"name": "RealtimeDbDefaultExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 54,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L54"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3979,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3980,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 55,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L55"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DatabaseReference",
+								"qualifiedName": "DatabaseReference",
+								"package": "@firebase/database"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3980
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 54,
+							"character": 37,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L54"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3974,
+			"name": "RealtimeDbGetMethodExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 49,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L49"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3975,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3976,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 50,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L50"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DatabaseReference",
+								"qualifiedName": "DatabaseReference",
+								"package": "@firebase/database"
+							}
+						},
+						{
+							"id": 3977,
+							"name": "snapshot",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 51,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L51"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DataSnapshot",
+								"qualifiedName": "DataSnapshot",
+								"package": "@firebase/database"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3976,
+								3977
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 49,
+							"character": 39,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L49"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3969,
+			"name": "RealtimeDbOnValueMethodExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 43,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L43"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3970,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3971,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 44,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L44"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DatabaseReference",
+								"qualifiedName": "DatabaseReference",
+								"package": "@firebase/database"
+							}
+						},
+						{
+							"id": 3972,
+							"name": "snapshot",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 45,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L45"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DataSnapshot",
+								"qualifiedName": "DataSnapshot",
+								"package": "@firebase/database"
+							}
+						},
+						{
+							"id": 3973,
+							"name": "unsubscribe",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 46,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L46"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "Unsubscribe",
+								"qualifiedName": "Unsubscribe",
+								"package": "@firebase/database"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3971,
+								3972,
+								3973
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 43,
+							"character": 43,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L43"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 3981,
+			"name": "RealtimeDbPushMethodExtra",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/types/adapter.realtimedb.types.ts",
+					"line": 58,
+					"character": 12,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L58"
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 3982,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 3984,
+							"name": "key",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 60,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L60"
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 3983,
+							"name": "ref",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "adapter/types/adapter.realtimedb.types.ts",
+									"line": 59,
+									"character": 2,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L59"
+								}
+							],
+							"type": {
+								"type": "reference",
+								"name": "DatabaseReference",
+								"qualifiedName": "DatabaseReference",
+								"package": "@firebase/database"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"children": [
+								3984,
+								3983
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "adapter/types/adapter.realtimedb.types.ts",
+							"line": 58,
+							"character": 40,
+							"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/types/adapter.realtimedb.types.ts#L58"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": 4073,
+			"name": "$endAfter",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 63,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L63"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4074,
+					"name": "$endAfter",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4075,
+							"name": "docOrFields",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {
+								"isRest": true
+							},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4076,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4077,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 46,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4078,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 46,
+													"character": 18,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4079,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4080,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 47,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L47"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "constraintType"
+								},
+								{
+									"id": 4081,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 48,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L48"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "array",
+											"elementType": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4077,
+										4080,
+										4081
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 45,
+									"character": 13,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L45"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4064,
+			"name": "$endAt",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 62,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L62"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4065,
+					"name": "$endAt",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4066,
+							"name": "docOrFields",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {
+								"isRest": true
+							},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4067,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4068,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 46,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4069,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 46,
+													"character": 18,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4070,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4071,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 47,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L47"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "constraintType"
+								},
+								{
+									"id": 4072,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 48,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L48"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "array",
+											"elementType": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4068,
+										4071,
+										4072
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 45,
+									"character": 13,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L45"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4125,
+			"name": "$equalTo",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 105,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L105"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4126,
+					"name": "$equalTo",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4127,
+							"name": "value",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4128,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4129,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 107,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L107"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4130,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 107,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L107"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4131,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4132,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 108,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L108"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.LIMIT_TO_LAST"
+								},
+								{
+									"id": 4133,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 109,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L109"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4129,
+										4132,
+										4133
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 106,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L106"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4037,
+			"name": "$limit",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 34,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L34"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4038,
+					"name": "$limit",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4039,
+							"name": "num",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4040,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4041,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 36,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L36"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4042,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 36,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L36"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4043,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4044,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 37,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L37"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.LIMIT"
+								},
+								{
+									"id": 4045,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 38,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L38"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "number"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4041,
+										4044,
+										4045
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 35,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L35"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4107,
+			"name": "$limitToFirst",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 89,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L89"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4108,
+					"name": "$limitToFirst",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4109,
+							"name": "num",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4110,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4111,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 91,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L91"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4112,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 91,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L91"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4113,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4114,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 92,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L92"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.LIMIT_TO_FIRST"
+								},
+								{
+									"id": 4115,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 93,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L93"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "number"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4111,
+										4114,
+										4115
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 90,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L90"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4116,
+			"name": "$limitToLast",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 97,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L97"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4117,
+					"name": "$limitToLast",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4118,
+							"name": "num",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4119,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4120,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 99,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L99"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4121,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 99,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L99"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4122,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4123,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 100,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L100"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.LIMIT_TO_LAST"
+								},
+								{
+									"id": 4124,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 101,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L101"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "number"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4120,
+										4123,
+										4124
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 98,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L98"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4027,
+			"name": "$orderBy",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 26,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L26"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4028,
+					"name": "$orderBy",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4029,
+							"name": "fieldPath",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4030,
+							"name": "directionStr",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {
+								"isOptional": true
+							},
+							"type": {
+								"type": "reference",
+								"name": "OrderByDirection",
+								"qualifiedName": "OrderByDirection",
+								"package": "@firebase/firestore"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4031,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4032,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 28,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L28"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4033,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 28,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L28"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4034,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4035,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 29,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L29"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.ORDER_BY"
+								},
+								{
+									"id": 4036,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 30,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L30"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4032,
+										4035,
+										4036
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 27,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L27"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4082,
+			"name": "$orderByChild",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 65,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L65"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4083,
+					"name": "$orderByChild",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4084,
+							"name": "path",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4085,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4086,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 67,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L67"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4087,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 67,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L67"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4088,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4089,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 68,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L68"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.ORDER_BY_CHILD"
+								},
+								{
+									"id": 4090,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 69,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L69"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "string"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4086,
+										4089,
+										4090
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 66,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L66"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4091,
+			"name": "$orderByKey",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 73,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L73"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4092,
+					"name": "$orderByKey",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4093,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4094,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 75,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L75"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4095,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 75,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L75"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4096,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4097,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 76,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L76"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.ORDER_BY_KEY"
+								},
+								{
+									"id": 4098,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 77,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L77"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									},
+									"defaultValue": "[]"
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4094,
+										4097,
+										4098
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 74,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L74"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4099,
+			"name": "$orderByValue",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 81,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L81"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4100,
+					"name": "$orderByValue",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4101,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4102,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 83,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L83"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4103,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 83,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L83"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4104,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4105,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 84,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L84"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.ORDER_BY_VALUE"
+								},
+								{
+									"id": 4106,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 85,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L85"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									},
+									"defaultValue": "[]"
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4102,
+										4105,
+										4106
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 82,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L82"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4055,
+			"name": "$startAfter",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 60,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L60"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4056,
+					"name": "$startAfter",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4057,
+							"name": "docOrFields",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {
+								"isRest": true
+							},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4058,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4059,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 46,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4060,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 46,
+													"character": 18,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4061,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4062,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 47,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L47"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "constraintType"
+								},
+								{
+									"id": 4063,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 48,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L48"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "array",
+											"elementType": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4059,
+										4062,
+										4063
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 45,
+									"character": 13,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L45"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4046,
+			"name": "$startAt",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 59,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L59"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4047,
+					"name": "$startAt",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4048,
+							"name": "docOrFields",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {
+								"isRest": true
+							},
+							"type": {
+								"type": "array",
+								"elementType": {
+									"type": "intrinsic",
+									"name": "any"
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4049,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4050,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 46,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4051,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 46,
+													"character": 18,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L46"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4052,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4053,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 47,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L47"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "constraintType"
+								},
+								{
+									"id": 4054,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 48,
+											"character": 8,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L48"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "array",
+											"elementType": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4050,
+										4053,
+										4054
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 45,
+									"character": 13,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L45"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 4016,
+			"name": "$where",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "constraints/constraints.firebase.ts",
+					"line": 18,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L18"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4017,
+					"name": "$where",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 4018,
+							"name": "fieldPath",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4019,
+							"name": "opStr",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"name": "WhereFilterOp",
+								"qualifiedName": "WhereFilterOp",
+								"package": "@firebase/firestore"
+							}
+						},
+						{
+							"id": 4020,
+							"name": "value",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 4021,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4022,
+									"name": "toString",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 20,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L20"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 4023,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "constraints/constraints.firebase.ts",
+													"line": 20,
+													"character": 14,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L20"
+												}
+											],
+											"signatures": [
+												{
+													"id": 4024,
+													"name": "__type",
+													"kind": 4096,
+													"kindString": "Call signature",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 4025,
+									"name": "type",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 21,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L21"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 4002,
+										"name": "FirebaseQueryConstraints"
+									},
+									"defaultValue": "FirebaseQueryConstraints.WHERE"
+								},
+								{
+									"id": 4026,
+									"name": "values",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "constraints/constraints.firebase.ts",
+											"line": 22,
+											"character": 4,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L22"
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										4022,
+										4025,
+										4026
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "constraints/constraints.firebase.ts",
+									"line": 19,
+									"character": 9,
+									"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/constraints/constraints.firebase.ts#L19"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"id": 3994,
+			"name": "firebaseAdminAdapter",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.firebase.admin.ts",
+					"line": 16,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/adapter.firebase.admin.ts#L16"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3995,
+					"name": "firebaseAdminAdapter",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 3996,
+							"name": "T",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 3918,
+								"name": "FirebaseAdminDBTypes"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 3997,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 3996,
+								"name": "T"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"id": 3919,
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3996,
+								"name": "T"
+							}
+						],
+						"name": "FirebaseAdminAdapterTypes"
+					}
+				}
+			]
+		},
+		{
+			"id": 3998,
+			"name": "firebaseWebAdapter",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "adapter/adapter.firebase.web.ts",
+					"line": 17,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/adapter/adapter.firebase.web.ts#L17"
+				}
+			],
+			"signatures": [
+				{
+					"id": 3999,
+					"name": "firebaseWebAdapter",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 4000,
+							"name": "T",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 3921,
+								"name": "FirebaseWebDBTypes"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 4001,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 4000,
+								"name": "T"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"id": 3922,
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 4000,
+								"name": "T"
+							}
+						],
+						"name": "FirebaseWebAdapterTypes"
+					}
+				}
+			]
+		},
+		{
+			"id": 4134,
+			"name": "getFirestoreMethodsAdmin",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "methods/methods.firestore.admin.ts",
+					"line": 74,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L74"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4135,
+					"name": "getFirestoreMethodsAdmin",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 4136,
+							"name": "R",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										],
+										"name": "AdapterType"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"id": 4136,
+										"name": "R"
+									}
+								],
+								"name": "Request"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 4137,
+							"name": "request",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 4136,
+								"name": "R"
+							}
+						},
+						{
+							"id": 4138,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"name": "Firestore",
+								"qualifiedName": "FirebaseFirestore.Firestore",
+								"package": "@google-cloud/firestore"
+							}
+						},
+						{
+							"id": 4139,
+							"name": "url",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4140,
+							"name": "onSuccess",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4141,
+							"name": "onError",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4142,
+							"name": "resolve",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4143,
+							"name": "events",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4144,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 4148,
+											"name": "onRequestEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.admin.ts",
+													"line": 81,
+													"character": 60,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4145,
+											"name": "onRequestStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.admin.ts",
+													"line": 81,
+													"character": 12,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4146,
+											"name": "onResponseEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.admin.ts",
+													"line": 81,
+													"character": 28,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4147,
+											"name": "onResponseStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.admin.ts",
+													"line": 81,
+													"character": 43,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4148,
+												4145,
+												4146,
+												4147
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "methods/methods.firestore.admin.ts",
+											"line": 81,
+											"character": 10,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L81"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3938,
+								"name": "FirestoreDBMethods"
+							},
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 4149,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "methods/methods.firestore.admin.ts",
+											"line": 84,
+											"character": 2,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L84"
+										}
+									],
+									"signatures": [
+										{
+											"id": 4150,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 4151,
+													"name": "data",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4152,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"children": [
+																{
+																	"id": 4153,
+																	"name": "constraints",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {
+																		"isOptional": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.admin.ts",
+																			"line": 86,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L86"
+																		}
+																	],
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																},
+																{
+																	"id": 4154,
+																	"name": "data",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {
+																		"isOptional": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.admin.ts",
+																			"line": 87,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L87"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 4155,
+																	"name": "options",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {
+																		"isOptional": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.admin.ts",
+																			"line": 88,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L88"
+																		}
+																	],
+																	"type": {
+																		"type": "reference",
+																		"typeArguments": [
+																			{
+																				"type": "intrinsic",
+																				"name": "string"
+																			},
+																			{
+																				"type": "intrinsic",
+																				"name": "any"
+																			}
+																		],
+																		"name": "Record",
+																		"qualifiedName": "Record",
+																		"package": "typescript"
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		4153,
+																		4154,
+																		4155
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "methods/methods.firestore.admin.ts",
+																	"line": 84,
+																	"character": 9,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.admin.ts#L84"
+																}
+															]
+														}
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						],
+						"name": "Record",
+						"qualifiedName": "Record",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 4156,
+			"name": "getFirestoreMethodsWeb",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "methods/methods.firestore.web.ts",
+					"line": 63,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L63"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4157,
+					"name": "getFirestoreMethodsWeb",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 4158,
+							"name": "R",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										],
+										"name": "AdapterType"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"id": 4158,
+										"name": "R"
+									}
+								],
+								"name": "Request"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 4159,
+							"name": "request",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 4158,
+								"name": "R"
+							}
+						},
+						{
+							"id": 4160,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"name": "Firestore",
+								"qualifiedName": "Firestore",
+								"package": "@firebase/firestore"
+							}
+						},
+						{
+							"id": 4161,
+							"name": "url",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4162,
+							"name": "onSuccess",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4163,
+							"name": "onError",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4164,
+							"name": "resolve",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4165,
+							"name": "events",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4166,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 4169,
+											"name": "onRequestEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.web.ts",
+													"line": 70,
+													"character": 45,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L70"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4168,
+											"name": "onRequestStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.web.ts",
+													"line": 70,
+													"character": 29,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L70"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4170,
+											"name": "onResponseEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.web.ts",
+													"line": 70,
+													"character": 59,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L70"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4167,
+											"name": "onResponseStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.firestore.web.ts",
+													"line": 70,
+													"character": 12,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L70"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4169,
+												4168,
+												4170,
+												4167
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "methods/methods.firestore.web.ts",
+											"line": 70,
+											"character": 10,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L70"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3938,
+								"name": "FirestoreDBMethods"
+							},
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 4171,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "methods/methods.firestore.web.ts",
+											"line": 73,
+											"character": 2,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L73"
+										}
+									],
+									"signatures": [
+										{
+											"id": 4172,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 4173,
+													"name": "data",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4174,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"children": [
+																{
+																	"id": 4175,
+																	"name": "constraints",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {
+																		"isOptional": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.web.ts",
+																			"line": 74,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L74"
+																		}
+																	],
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "reflection",
+																			"declaration": {
+																				"id": 4176,
+																				"name": "__type",
+																				"kind": 65536,
+																				"kindString": "Type literal",
+																				"flags": {},
+																				"children": [
+																					{
+																						"id": 4177,
+																						"name": "type",
+																						"kind": 1024,
+																						"kindString": "Property",
+																						"flags": {},
+																						"sources": [
+																							{
+																								"fileName": "methods/methods.firestore.web.ts",
+																								"line": 74,
+																								"character": 20,
+																								"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L74"
+																							}
+																						],
+																						"type": {
+																							"type": "reference",
+																							"id": 4002,
+																							"name": "FirebaseQueryConstraints"
+																						}
+																					},
+																					{
+																						"id": 4178,
+																						"name": "values",
+																						"kind": 1024,
+																						"kindString": "Property",
+																						"flags": {},
+																						"sources": [
+																							{
+																								"fileName": "methods/methods.firestore.web.ts",
+																								"line": 74,
+																								"character": 52,
+																								"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L74"
+																							}
+																						],
+																						"type": {
+																							"type": "array",
+																							"elementType": {
+																								"type": "intrinsic",
+																								"name": "any"
+																							}
+																						}
+																					}
+																				],
+																				"groups": [
+																					{
+																						"title": "Properties",
+																						"children": [
+																							4177,
+																							4178
+																						]
+																					}
+																				],
+																				"sources": [
+																					{
+																						"fileName": "methods/methods.firestore.web.ts",
+																						"line": 74,
+																						"character": 18,
+																						"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L74"
+																					}
+																				]
+																			}
+																		}
+																	}
+																},
+																{
+																	"id": 4179,
+																	"name": "data",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {
+																		"isOptional": true
+																	},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.web.ts",
+																			"line": 75,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L75"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 4180,
+																	"name": "options",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.firestore.web.ts",
+																			"line": 76,
+																			"character": 4,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L76"
+																		}
+																	],
+																	"type": {
+																		"type": "reference",
+																		"typeArguments": [
+																			{
+																				"type": "intrinsic",
+																				"name": "string"
+																			},
+																			{
+																				"type": "intrinsic",
+																				"name": "any"
+																			}
+																		],
+																		"name": "Record",
+																		"qualifiedName": "Record",
+																		"package": "typescript"
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		4175,
+																		4179,
+																		4180
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "methods/methods.firestore.web.ts",
+																	"line": 73,
+																	"character": 9,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.firestore.web.ts#L73"
+																}
+															]
+														}
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						],
+						"name": "Record",
+						"qualifiedName": "Record",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 4181,
+			"name": "getRealtimeDBMethodsAdmin",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "methods/methods.realtime.admin.ts",
+					"line": 60,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L60"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4182,
+					"name": "getRealtimeDBMethodsAdmin",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 4183,
+							"name": "R",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										],
+										"name": "AdapterType"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"id": 4183,
+										"name": "R"
+									}
+								],
+								"name": "Request"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 4184,
+							"name": "request",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 4183,
+								"name": "R"
+							}
+						},
+						{
+							"id": 4185,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"name": "Database",
+								"qualifiedName": "Database",
+								"package": "firebase-admin"
+							}
+						},
+						{
+							"id": 4186,
+							"name": "url",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4187,
+							"name": "onSuccess",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4188,
+							"name": "onError",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4189,
+							"name": "resolve",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4190,
+							"name": "events",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4191,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 4195,
+											"name": "onRequestEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.admin.ts",
+													"line": 67,
+													"character": 60,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L67"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4192,
+											"name": "onRequestStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.admin.ts",
+													"line": 67,
+													"character": 12,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L67"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4193,
+											"name": "onResponseEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.admin.ts",
+													"line": 67,
+													"character": 28,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L67"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4194,
+											"name": "onResponseStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.admin.ts",
+													"line": 67,
+													"character": 43,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L67"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4195,
+												4192,
+												4193,
+												4194
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "methods/methods.realtime.admin.ts",
+											"line": 67,
+											"character": 10,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L67"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3967,
+								"name": "RealtimeDBMethods"
+							},
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 4196,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "methods/methods.realtime.admin.ts",
+											"line": 68,
+											"character": 29,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L68"
+										}
+									],
+									"signatures": [
+										{
+											"id": 4197,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 4198,
+													"name": "data",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4199,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"children": [
+																{
+																	"id": 4200,
+																	"name": "constraints",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.admin.ts",
+																			"line": 68,
+																			"character": 38,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L68"
+																		}
+																	],
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																},
+																{
+																	"id": 4201,
+																	"name": "data",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.admin.ts",
+																			"line": 68,
+																			"character": 58,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L68"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 4202,
+																	"name": "options",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.admin.ts",
+																			"line": 68,
+																			"character": 69,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L68"
+																		}
+																	],
+																	"type": {
+																		"type": "reference",
+																		"typeArguments": [
+																			{
+																				"type": "intrinsic",
+																				"name": "string"
+																			},
+																			{
+																				"type": "intrinsic",
+																				"name": "any"
+																			}
+																		],
+																		"name": "Record",
+																		"qualifiedName": "Record",
+																		"package": "typescript"
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		4200,
+																		4201,
+																		4202
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "methods/methods.realtime.admin.ts",
+																	"line": 68,
+																	"character": 36,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.admin.ts#L68"
+																}
+															]
+														}
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						],
+						"name": "Record",
+						"qualifiedName": "Record",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 4203,
+			"name": "getRealtimeDBMethodsWeb",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "methods/methods.realtime.web.ts",
+					"line": 74,
+					"character": 13,
+					"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L74"
+				}
+			],
+			"signatures": [
+				{
+					"id": 4204,
+					"name": "getRealtimeDBMethodsWeb",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"typeParameter": [
+						{
+							"id": 4205,
+							"name": "R",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"typeArguments": [
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"typeArguments": [
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											},
+											{
+												"type": "intrinsic",
+												"name": "any"
+											}
+										],
+										"name": "AdapterType"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "intrinsic",
+										"name": "any"
+									},
+									{
+										"type": "reference",
+										"id": 4205,
+										"name": "R"
+									}
+								],
+								"name": "Request"
+							}
+						}
+					],
+					"parameters": [
+						{
+							"id": 4206,
+							"name": "request",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"id": 4205,
+								"name": "R"
+							}
+						},
+						{
+							"id": 4207,
+							"name": "database",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"name": "Database",
+								"qualifiedName": "Database",
+								"package": "@firebase/database"
+							}
+						},
+						{
+							"id": 4208,
+							"name": "url",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 4209,
+							"name": "onSuccess",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4210,
+							"name": "onError",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4211,
+							"name": "resolve",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						},
+						{
+							"id": 4212,
+							"name": "events",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4213,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 4216,
+											"name": "onRequestEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.web.ts",
+													"line": 81,
+													"character": 45,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4215,
+											"name": "onRequestStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.web.ts",
+													"line": 81,
+													"character": 29,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4217,
+											"name": "onResponseEnd",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.web.ts",
+													"line": 81,
+													"character": 59,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 4214,
+											"name": "onResponseStart",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "methods/methods.realtime.web.ts",
+													"line": 81,
+													"character": 12,
+													"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L81"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												4216,
+												4215,
+												4217,
+												4214
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "methods/methods.realtime.web.ts",
+											"line": 81,
+											"character": 10,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L81"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"typeArguments": [
+							{
+								"type": "reference",
+								"id": 3967,
+								"name": "RealtimeDBMethods"
+							},
+							{
+								"type": "reflection",
+								"declaration": {
+									"id": 4218,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "methods/methods.realtime.web.ts",
+											"line": 82,
+											"character": 29,
+											"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L82"
+										}
+									],
+									"signatures": [
+										{
+											"id": 4219,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 4220,
+													"name": "data",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 4221,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"children": [
+																{
+																	"id": 4222,
+																	"name": "constraints",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.web.ts",
+																			"line": 82,
+																			"character": 38,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L82"
+																		}
+																	],
+																	"type": {
+																		"type": "array",
+																		"elementType": {
+																			"type": "intrinsic",
+																			"name": "any"
+																		}
+																	}
+																},
+																{
+																	"id": 4223,
+																	"name": "data",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.web.ts",
+																			"line": 82,
+																			"character": 58,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L82"
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "any"
+																	}
+																},
+																{
+																	"id": 4224,
+																	"name": "options",
+																	"kind": 1024,
+																	"kindString": "Property",
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "methods/methods.realtime.web.ts",
+																			"line": 82,
+																			"character": 69,
+																			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L82"
+																		}
+																	],
+																	"type": {
+																		"type": "reference",
+																		"typeArguments": [
+																			{
+																				"type": "intrinsic",
+																				"name": "string"
+																			},
+																			{
+																				"type": "intrinsic",
+																				"name": "any"
+																			}
+																		],
+																		"name": "Record",
+																		"qualifiedName": "Record",
+																		"package": "typescript"
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		4222,
+																		4223,
+																		4224
+																	]
+																}
+															],
+															"sources": [
+																{
+																	"fileName": "methods/methods.realtime.web.ts",
+																	"line": 82,
+																	"character": 36,
+																	"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/methods/methods.realtime.web.ts#L82"
+																}
+															]
+														}
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						],
+						"name": "Record",
+						"qualifiedName": "Record",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Enumerations",
+			"children": [
+				4002
+			]
+		},
+		{
+			"title": "Type Aliases",
+			"children": [
+				3964,
+				3919,
+				3918,
+				3922,
+				3921,
+				3924,
+				3938,
+				3939,
+				3953,
+				3943,
+				3929,
+				3957,
+				3960,
+				3967,
+				3985,
+				3968,
+				3961,
+				3978,
+				3974,
+				3969,
+				3981
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				4073,
+				4064,
+				4125,
+				4037,
+				4107,
+				4116,
+				4027,
+				4082,
+				4091,
+				4099,
+				4055,
+				4046,
+				4016,
+				3994,
+				3998,
+				4134,
+				4156,
+				4181,
+				4203
+			]
+		}
+	],
+	"sources": [
+		{
+			"fileName": "index.ts",
+			"line": 1,
+			"character": 0,
+			"url": "https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/adapter-firebase/src/index.ts#L1"
+		}
+	]
+}

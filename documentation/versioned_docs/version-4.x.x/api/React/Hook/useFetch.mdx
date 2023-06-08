@@ -1,0 +1,107 @@
+
+
+# useFetch
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { useFetch } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+useFetch<RequestType>(request, options)
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="request"><td class="api-docs__param-name required">
+
+### request 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+Request instance
+
+`RequestType`
+
+</td></tr><tr param-data="options"><td class="api-docs__param-name required">
+
+### options 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+Hook options
+
+`UseFetchOptionsType<RequestType>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never;
+  extra: T extends AdapterType<any, any, any, infer A, any> ? A : never;
+  loading: boolean;
+  retries: number;
+  status: T extends AdapterType<any, any, infer S, any, any> ? S : never;
+  success: boolean;
+  timestamp: null | Date;
+  setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
+  setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setExtra: (extra: ExtractAdapterExtraType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setSuccess: (success: boolean, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  abort: () => void;
+  onAbort: (callback: OnErrorCallbackType<T>) => void;
+  onDownloadProgress: (callback: OnProgressCallbackType) => void;
+  onError: (callback: OnErrorCallbackType<T>) => void;
+  onFinished: (callback: OnFinishedCallbackType<T>) => void;
+  onOfflineError: (callback: OnErrorCallbackType<T>) => void;
+  onRequestStart: (callback: OnStartCallbackType<T>) => void;
+  onResponseStart: (callback: OnStartCallbackType<T>) => void;
+  onSuccess: (callback: OnSuccessCallbackType<T>) => void;
+  onUploadProgress: (callback: OnProgressCallbackType) => void;
+  bounce: {
+    active: boolean;
+    reset: () => void;
+  };
+  revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+}
+```
+
+</div>

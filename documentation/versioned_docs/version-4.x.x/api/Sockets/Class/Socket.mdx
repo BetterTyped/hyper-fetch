@@ -1,0 +1,1449 @@
+
+
+# Socket
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { Socket } from "@hyper-fetch/sockets"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:30](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L30)
+
+</p><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+
+### options 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SocketAdapterOptionsType<Adapter>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Properties
+
+</div><div class="api-docs__properties"><div class="api-docs__property" property-data="adapter"><h3 class="api-docs__name">
+
+### `adapter`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:52](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L52)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+Adapter
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="appManager"><h3 class="api-docs__name">
+
+### `appManager`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:54](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L54)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+AppManager
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="auth"><h3 class="api-docs__name">
+
+### `auth`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:37](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L37)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+string | QueryParamsType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="autoConnect"><h3 class="api-docs__name">
+
+### `autoConnect`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:40](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L40)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+boolean
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="debug"><h3 class="api-docs__name">
+
+### `debug`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L39)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+boolean
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
+
+### `emitter`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:31](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L31)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+EventEmitter
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
+
+### `events`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:32](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L32)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+{ emitClose: () => void; emitConnecting: () => void; emitEmitterEvent: <EmitterType>(emitter: EmitterType) => void; emitError: <ResponseType>(event: ResponseType) => void; emitListenerEvent: <ResponseType>(name: string, data: ResponseType, event: MessageEvent<ResponseType>) => void; emitListenerRemoveEvent: (name: string) => void; emitOpen: () => void; emitReconnecting: (attempts: number) => void; emitReconnectingStop: (attempts: number) => void; onClose: (callback: () => void) => VoidFunction; onConnecting: (callback: () => void) => VoidFunction; onEmitterEvent: <EmitterType>(callback: (emitter: EmitterType) => void) => VoidFunction; onEmitterEventByName: <EmitterType>(emitter: EmitterType, callback: (emitter: EmitterType) => void) => VoidFunction; onError: (callback: <ResponseType>(event: ResponseType) => void) => VoidFunction; onListenerEvent: <ResponseType>(callback: (data: ResponseType, event: MessageEvent<ResponseType>) => void) => VoidFunction; onListenerEventByName: <ListenerType>(listener: ListenerType, callback: (data: ExtractListenerResponseType<ListenerType>, event: MessageEvent<ExtractListenerResponseType<ListenerType>>) => void) => VoidFunction; onListenerRemove: (callback: (name: string) => void) => VoidFunction; onListenerRemoveByName: <ListenerType>(listener: ListenerType, callback: () => void) => VoidFunction; onOpen: (callback: () => void) => VoidFunction; onReconnecting: (callback: (attempts: number) => void) => VoidFunction; onReconnectingStop: (callback: (attempts: number) => void) => VoidFunction }
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="logger"><h3 class="api-docs__name">
+
+### `logger`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:58](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L58)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+LoggerType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="loggerManager"><h3 class="api-docs__name">
+
+### `loggerManager`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:53](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L53)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+LoggerManager
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="options"><h3 class="api-docs__name">
+
+### `options`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:67](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L67)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+SocketAdapterOptionsType<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="queryParams"><h3 class="api-docs__name">
+
+### `queryParams`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:38](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L38)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+string | QueryParamsType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="queryParamsConfig"><h3 class="api-docs__name">
+
+### `queryParamsConfig`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L55)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+QueryStringifyOptionsType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="queryParamsStringify"><h3 class="api-docs__name">
+
+### `queryParamsStringify`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Method to stringify query params from objects.
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L63)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+StringifyCallbackType
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="reconnect"><h3 class="api-docs__name">
+
+### `reconnect`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:35](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L35)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+number
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="reconnectTime"><h3 class="api-docs__name">
+
+### `reconnectTime`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:36](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L36)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+number
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="url"><h3 class="api-docs__name">
+
+### `url`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:34](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L34)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+string
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onCloseCallbacks"><h3 class="api-docs__name">
+
+### `__onCloseCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L44)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+CloseCallbackType<Socket<Adapter>, any>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onErrorCallbacks"><h3 class="api-docs__name">
+
+### `__onErrorCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:49](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L49)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+ErrorCallbackType<Socket<Adapter>, any>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onMessageCallbacks"><h3 class="api-docs__name">
+
+### `__onMessageCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:47](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L47)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+MessageCallbackType<Socket<Adapter>, any>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onOpenCallbacks"><h3 class="api-docs__name">
+
+### `__onOpenCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:43](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L43)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+OpenCallbackType<Socket<Adapter>, any>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onReconnectCallbacks"><h3 class="api-docs__name">
+
+### `__onReconnectCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:45](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L45)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+ReconnectCallbackType<Socket<Adapter>>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onReconnectStopCallbacks"><h3 class="api-docs__name">
+
+### `__onReconnectStopCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:46](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L46)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+ReconnectStopCallbackType<Socket<Adapter>>[]
+```
+
+</div><hr/></div><div class="api-docs__property" property-data="__onSendCallbacks"><h3 class="api-docs__name">
+
+### `__onSendCallbacks`
+
+</h3><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:48](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L48)
+
+</p><div class="api-docs__section">
+
+#### Type
+
+</div><div class="api-docs__property-type">
+
+```ts
+SendCallbackType<EmitterInstance>[]
+```
+
+</div><hr/></div></div><div class="api-docs__section">
+
+## Methods
+
+</div><div class="api-docs__methods"><div class="api-docs__method" method-data="createEmitter"><h3 class="api-docs__name">
+
+### `createEmitter()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+createEmitter<Payload, Response>(options)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Create event emitter
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:247](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L247)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+
+#### options 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`EmitterOptionsType<Adapter>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Emitter<Payload, Response, Adapter, void>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="createListener"><h3 class="api-docs__name">
+
+### `createListener()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+createListener<Response>(options)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Create event listener
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:238](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L238)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="options"><td class="api-docs__param-name required">
+
+#### options 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ListenerOptionsType<Adapter>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Listener<Response, Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onClose"><h3 class="api-docs__name">
+
+### `onClose()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onClose<Event>(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when connection is closed
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:158](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L158)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`CloseCallbackType<Socket<Adapter>, Event>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onError"><h3 class="api-docs__name">
+
+### `onError()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onError<Event>(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when we receive error
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:208](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L208)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ErrorCallbackType<Socket<Adapter>, Event>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onMessage"><h3 class="api-docs__name">
+
+### `onMessage()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onMessage<Event>(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when any message is received
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:188](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L188)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`MessageCallbackType<Socket<Adapter>, Event>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onOpen"><h3 class="api-docs__name">
+
+### `onOpen()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onOpen<Event>(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when connection is opened
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:149](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L149)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`OpenCallbackType<Socket<Adapter>, Event>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onReconnect"><h3 class="api-docs__name">
+
+### `onReconnect()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onReconnect(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when connection is getting reconnected
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:168](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L168)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ReconnectCallbackType<Socket<Adapter>>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onReconnectStop"><h3 class="api-docs__name">
+
+### `onReconnectStop()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onReconnectStop(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when connection attempts are stopped
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:178](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L178)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ReconnectStopCallbackType<Socket<Adapter>>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="onSend"><h3 class="api-docs__name">
+
+### `onSend()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+onSend<EmitterType>(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Triggered when any event is emitted
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:198](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L198)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SendCallbackType<EmitterType>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Socket<Adapter>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="setAuth"><h3 class="api-docs__name">
+
+### `setAuth()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+setAuth(auth)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Set the new auth data to the socket
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:125](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L125)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="auth"><td class="api-docs__param-name required">
+
+#### auth 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`string | QueryParamsType`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+this
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="setDebug"><h3 class="api-docs__name">
+
+### `setDebug()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+setDebug(debug)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+This method enables the logger usage and display the logs in console
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L101)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="debug"><td class="api-docs__param-name required">
+
+#### debug 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`boolean`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+this
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="setLogger"><h3 class="api-docs__name">
+
+### `setLogger()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+setLogger(callback)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Set the new logger instance to the socket
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:117](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L117)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="callback"><td class="api-docs__param-name required">
+
+#### callback 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`(socket: Socket<Adapter>) => LoggerManager`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+this
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="setLoggerSeverity"><h3 class="api-docs__name">
+
+### `setLoggerSeverity()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+setLoggerSeverity(severity)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Set the logger severity of the messages displayed to the console
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:109](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L109)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="severity"><td class="api-docs__param-name required">
+
+#### severity 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`SeverityType`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+this
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="setQuery"><h3 class="api-docs__name">
+
+### `setQuery()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+setQuery(queryParams)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+Set the new query data to the socket
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:134](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L134)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="queryParams"><td class="api-docs__param-name required">
+
+#### queryParams 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`string | QueryParamsType`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+this
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="__modifyResponse"><h3 class="api-docs__name">
+
+### `__modifyResponse()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+__modifyResponse(response)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:223](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L223)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
+
+#### response 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`MessageEvent<any>`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+MessageEvent<any>
+```
+
+</div><hr/></div><div class="api-docs__method" method-data="__modifySend"><h3 class="api-docs__name">
+
+### `__modifySend()`
+
+</h3><div class="api-docs__section">
+
+#### Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+__modifySend(emitter)
+```
+
+</div><div class="api-docs__section">
+
+#### Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+********************
+Interceptors
+********************
+
+</span></div><p class="api-docs__definition">
+
+Defined in [socket/socket.ts:219](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/sockets/src/socket/socket.ts#L219)
+
+</p><div class="api-docs__section">
+
+#### Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
+
+#### emitter 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`EmitterInstance`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+#### Return
+
+</div><div class="api-docs__returns">
+
+```ts
+Emitter<any, any, any>
+```
+
+</div><hr/></div></div>

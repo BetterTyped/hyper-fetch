@@ -1,0 +1,90 @@
+
+
+# getInitialState
+
+<div class="api-docs__separator" data-reactroot="">
+
+---
+
+</div><div class="api-docs__import" data-reactroot="">
+
+```ts
+import { getInitialState } from "@hyper-fetch/react"
+```
+
+</div><div class="api-docs__section">
+
+## Description
+
+</div><div class="api-docs__description"><span class="api-docs__do-not-parse">
+
+
+
+</span></div><p class="api-docs__definition">
+
+Defined in [react/src/helpers/use-tracked-state/use-tracked-state.utils.ts:63](https://github.com/BetterTyped/hyper-fetch/blob/c3e2c45/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L63)
+
+</p><div class="api-docs__section">
+
+## Preview
+
+</div><div class="api-docs__preview fn">
+
+```ts
+getInitialState<T>(initialData, dispatcher, request)
+```
+
+</div><div class="api-docs__section">
+
+## Parameters
+
+</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="initialData"><td class="api-docs__param-name required">
+
+### initialData 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>`
+
+</td></tr><tr param-data="dispatcher"><td class="api-docs__param-name required">
+
+### dispatcher 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`Dispatcher`
+
+</td></tr><tr param-data="request"><td class="api-docs__param-name required">
+
+### request 
+
+`Required`
+
+</td><td class="api-docs__param-type">
+
+`T`
+
+</td></tr></tbody></table></div><div class="api-docs__section">
+
+## Returns
+
+</div><div class="api-docs__returns">
+
+```ts
+{
+  data: null | T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
+  error: null | T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never;
+  extra: T extends AdapterType<any, any, any, infer A, any> ? A : never;
+  loading: boolean;
+  retries: number;
+  status: T extends AdapterType<any, any, infer S, any, any> ? S : never;
+  success: boolean;
+  timestamp: null | Date;
+}
+```
+
+</div>
