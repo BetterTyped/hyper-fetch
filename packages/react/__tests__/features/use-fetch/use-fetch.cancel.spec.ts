@@ -6,7 +6,7 @@ import { client, createRequest, renderUseFetch, waitForRender } from "../../util
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Cancel ]", () => {
-  let request = createRequest({ cancelable: true });
+  let request = createRequest({ cacheKey: "test", queueKey: "testQueue", cancelable: true });
 
   beforeAll(() => {
     startServer();
@@ -22,7 +22,7 @@ describe("useFetch [ Cancel ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    request = createRequest({ cancelable: true });
+    request = createRequest({ cacheKey: "test", queueKey: "testQueue", cancelable: true });
     client.clear();
   });
 

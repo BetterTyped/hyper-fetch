@@ -36,4 +36,5 @@ export type DispatcherStorageType = {
 export type RunningRequestValueType = {
   requestId: string;
   request: RequestInstance;
+  timestamp: number;
 };

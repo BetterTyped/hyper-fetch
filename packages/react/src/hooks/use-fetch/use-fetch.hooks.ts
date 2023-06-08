@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useDidUpdate, useDidMount } from "@better-hooks/lifecycle";
+import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
@@ -52,6 +52,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   const { cacheKey, queueKey, client } = request;
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
 
+  const ignoreReact18DoubleRender = useRef(true);
   const logger = useRef(loggerManager.init("useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
@@ -143,24 +144,39 @@ export const useFetch = <RequestType extends RequestInstance>(
   // Fetching lifecycle
   // ******************
 
+  // This help us to check for currently running requests
+  const getIsFetchingIdentity = () => {
+    // We need to check if the queueKey have the same cacheKey elements ongoing
+    return dispatcher.getRunningRequests(queueKey).some((running) => running.request.cacheKey === cacheKey);
+  };
+
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
-    const isFetching = dispatcher.getIsActiveQueue(queueKey);
-    if (fetchOnMount || (hasStaleData && !isFetching)) {
+    const isFetching = getIsFetchingIdentity();
+    if ((fetchOnMount || hasStaleData) && !isFetching) {
       handleFetch();
     }
   };
 
   const updateFetchData = () => {
     /**
-     * While debouncing we need to make sure that first request is not debounced when the cache is not available
-     * This way it will not wait for debouncing but fetch data right away
+     * This is a hack to avoid double rendering in React 18
+     * It renders initial mount event and allow us to consume only hook updates
      */
-    if (bounce) {
-      logger.debug(`Bounce request with ${bounceType}`, { queueKey, request });
-      bounceFunction(() => handleFetch());
+
+    if (!ignoreReact18DoubleRender.current) {
+      /**
+       * While debouncing we need to make sure that first request is not debounced when the cache is not available
+       * This way it will not wait for debouncing but fetch data right away
+       */
+      if (bounce) {
+        logger.debug(`Bounce request with ${bounceType}`, { queueKey, request });
+        bounceFunction(() => handleFetch());
+      } else {
+        handleFetch();
+      }
     } else {
-      handleFetch();
+      ignoreReact18DoubleRender.current = false;
     }
   };
 
@@ -222,12 +238,19 @@ export const useFetch = <RequestType extends RequestInstance>(
   /**
    * Fetching logic for updates handling
    */
-  useDidUpdate(updateFetchData, [updateKey, disabled, ...dependencies]);
+  useDidUpdate(updateFetchData, [updateKey, disabled, ...dependencies], true);
 
   /**
    * Refresh lifecycle handler
    */
   useDidUpdate(handleRefresh, [updateKey, ...dependencies, disabled, refresh, refreshTime], true);
+
+  /**
+   * Reset the ignore flag for React 18 strict mode
+   */
+  useWillUnmount(() => {
+    ignoreReact18DoubleRender.current = true;
+  });
 
   return {
     get data() {

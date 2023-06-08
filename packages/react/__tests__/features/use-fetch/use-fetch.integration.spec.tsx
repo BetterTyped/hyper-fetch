@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, StrictMode } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { useFetch } from "hooks/use-fetch";
-import { createRequest, client, waitForRender } from "../../utils";
+import { createRequest, waitForRender } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 
 describe("useFetch [ Integration ]", () => {
   const queryParams = { page: 1 };
+  const btnText = "refresh";
+  const depBtnText = "add dependency";
 
-  let request = createRequest();
+  let request = createRequest({ endpoint: `/users/${Date.now()}` });
 
   beforeAll(() => {
     startServer();
@@ -24,15 +26,13 @@ describe("useFetch [ Integration ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    request = createRequest();
-    client.clear();
+    request = createRequest({ endpoint: `/users/${Date.now()}` });
+    request.client.clear();
   });
 
   describe("given useFetch is initialized in the component", () => {
     describe("when request is about to change", () => {
       it("should use the latest request when its changed", async () => {
-        const btnText = "refresh";
-
         function Page() {
           const [endpoint, setEndpoint] = useState("");
           const [params, setParams] = useState({});
@@ -70,6 +70,99 @@ describe("useFetch [ Integration ]", () => {
         await waitFor(() => {
           const printedDataElement = screen.getByText(request.setQueryParams(queryParams).endpoint);
           expect(printedDataElement).toBeTruthy();
+        });
+      });
+      it("should fetch once in StrictMode", async () => {
+        const spy = jest.fn();
+
+        function Page() {
+          const { data, onFinished } = useFetch(request, {
+            dependencyTracking: false,
+            refresh: false,
+          });
+
+          onFinished(() => {
+            spy();
+          });
+
+          return <div>{JSON.stringify(data)}</div>;
+        }
+
+        createRequestInterceptor(request);
+        createRequestInterceptor(request.setQueryParams(queryParams));
+
+        render(
+          <StrictMode>
+            <Page />
+          </StrictMode>,
+        );
+
+        await waitForRender(100);
+
+        await waitFor(() => {
+          expect(spy).toHaveBeenCalledOnce();
+        });
+      });
+      it("should fetch sequence in StrictMode", async () => {
+        const spy = jest.fn();
+
+        function Page() {
+          const [params, setParams] = useState({});
+          const [dep, setDep] = useState({});
+          const { data, onFinished } = useFetch(request.setQueryParams(params), {
+            dependencies: [dep],
+            dependencyTracking: false,
+            refresh: false,
+          });
+
+          onFinished(() => {
+            spy();
+          });
+
+          const addDependency = () => {
+            setDep({ test: 1 });
+          };
+
+          const addParam = () => {
+            setParams(queryParams);
+          };
+
+          return (
+            <div>
+              {JSON.stringify(data)}
+              <button onClick={addDependency} type="button">
+                {depBtnText}
+              </button>
+              <button onClick={addParam} type="button">
+                {btnText}
+              </button>
+            </div>
+          );
+        }
+
+        createRequestInterceptor(request);
+        createRequestInterceptor(request.setQueryParams(queryParams));
+
+        render(
+          <StrictMode>
+            <Page />
+          </StrictMode>,
+        );
+
+        await waitFor(() => {
+          expect(spy).toHaveBeenCalledTimes(1);
+        });
+
+        fireEvent.click(screen.getByText(depBtnText));
+
+        await waitFor(() => {
+          expect(spy).toHaveBeenCalledTimes(2);
+        });
+
+        fireEvent.click(screen.getByText(btnText));
+
+        await waitFor(() => {
+          expect(spy).toHaveBeenCalledTimes(3);
         });
       });
     });

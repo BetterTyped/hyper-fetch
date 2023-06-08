@@ -296,7 +296,7 @@ export class Dispatcher {
    */
   addRunningRequest = (queueKey: string, requestId: string, request: RequestInstance) => {
     const runningRequests = this.getRunningRequests(queueKey);
-    runningRequests.push({ requestId, request });
+    runningRequests.push({ requestId, request, timestamp: Date.now() });
     this.runningRequests.set(queueKey, runningRequests);
   };
 
