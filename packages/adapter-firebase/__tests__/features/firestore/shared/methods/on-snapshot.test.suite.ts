@@ -41,7 +41,7 @@ export const onSnapshotTestSuite = (
       const onSnapshotReq = socket.createListener<Tea[]>()({
         endpoint: "",
       });
-      const unmount = await onSnapshotReq.listen({ callback: spy });
+      const unmount = onSnapshotReq.listen({ callback: spy });
       expect(unmount).toBeFunction();
     });
     it("should unmount listeners", async () => {
@@ -75,7 +75,7 @@ export const onSnapshotTestSuite = (
       let receivedExtra;
       let ref;
 
-      const unmount = await onSnapshotReq.listen({
+      const unmount = onSnapshotReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;
@@ -102,7 +102,7 @@ export const onSnapshotTestSuite = (
 
       let receivedData;
       let receivedExtra;
-      const unmount = await onSnapshotReq.listen({
+      const unmount = onSnapshotReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;
@@ -135,7 +135,7 @@ export const onSnapshotTestSuite = (
 
       const receivedData = [];
       const receivedExtra = [];
-      const unmount = await onSnapshotReq.listen({
+      const unmount = onSnapshotReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData.push(data);

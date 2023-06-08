@@ -11,7 +11,7 @@ import { setTestSuite } from "./methods/set.test.suite";
 import { pushTestSuite } from "./methods/push.test.suite";
 import { updateTestSuite } from "./methods/update.test.suite";
 import { removeTestSuite } from "./methods/remove.test.suite";
-import { onValueTestSuite } from "./methods/onValue.test.suite";
+import { onValueTestSuite } from "./methods/on-value.test.suite";
 
 export const methodsSharedTestCases = (
   adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
