@@ -1,6 +1,6 @@
 {
   "name": "@hyper-fetch/axios",
-  "version": "0.0.0",
+  "version": "5.0.0",
   "private": false,
   "description": "Simple axios adapter for Hyper Fetch",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
