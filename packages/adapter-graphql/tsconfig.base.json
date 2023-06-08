@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "paths": {
+      "@browser-adapter": ["./adapter/adapter.browser.ts"],
+      "@server-adapter": ["./adapter/adapter.browser.ts"]
+    }
+  },
+  "include": ["./src/index.ts", "__tests__/*"],
+  "exclude": ["dist", "jest.config.ts"]
+}

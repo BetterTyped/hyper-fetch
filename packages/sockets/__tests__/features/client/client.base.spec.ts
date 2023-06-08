@@ -8,7 +8,7 @@ type DataType = {
   test: string;
 };
 
-describe("Socket Adapter [ Base ]", () => {
+describe("Socket Client [ Base ]", () => {
   let server = createWsServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
@@ -30,7 +30,7 @@ describe("Socket Adapter [ Base ]", () => {
     expect(server).toReceiveMessage(
       JSON.stringify({
         id: emitterId,
-        name: emitter.name,
+        endpoint: emitter.endpoint,
         data: message,
       }),
     );

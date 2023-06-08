@@ -4,9 +4,9 @@ import { useRouter } from "next/router";
 import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
 import { useAppManager } from "@hyper-fetch/react";
 
-import { Sidebar } from "components/sidebar";
-import { DASHBOARD_PAGE } from "constants/routing.constants";
-import { client } from "api";
+import { Sidebar } from "./sidebar";
+import { DASHBOARD_PAGE } from "../constants/routing.constants";
+import { client } from "../api";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,

@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./adapter.firebase.admin";
-export * from "./adapter.firebase.web";
+export * from "./admin";
+export * from "./browser";

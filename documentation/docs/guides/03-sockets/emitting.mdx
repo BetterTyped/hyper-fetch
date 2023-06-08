@@ -16,7 +16,7 @@ type ChatMessageType = {
 type AcknowledgementResponseType = boolean;
 
 const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  name: "chat-message", // name of the event
+  endpoint: "chat-message", // endpoint of the event
 });
 
 sendChatMessage.emit({ message: "new message" }, (error, data) => {

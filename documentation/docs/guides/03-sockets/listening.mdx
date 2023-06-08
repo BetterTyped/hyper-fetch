@@ -14,7 +14,7 @@ type ChatMessageType = {
 };
 
 const onChatMessage = socketInstance.createListener<ChatMessageType>()({
-  name: "chat-message", // name of the event
+  endpoint: "chat-message", // endpoint of the event
 });
 
 onChatMessage.listen((message) => {

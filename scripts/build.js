@@ -4,7 +4,7 @@ const { nodeExternalsPlugin } = require("esbuild-node-externals");
 
 const pkg = require(`${process.cwd()}/package.json`);
 
-const isCore = pkg.name === "@hyper-fetch/core";
+const isIsomorphicBuild = ["@hyper-fetch/core", "@hyper-fetch/graphql"].includes(pkg.name);
 
 /**
  * Building
@@ -24,7 +24,7 @@ const buildPackage = async (additionalOptions = {}) => {
     target: "es6",
     entryPoints: [pkg.source],
     bundle: true,
-    minify: true,
+    minify: false,
     sourcemap: true,
     treeShaking: true,
     tsconfig,
@@ -43,7 +43,7 @@ const buildPackage = async (additionalOptions = {}) => {
   });
 };
 
-if (isCore) {
+if (isIsomorphicBuild) {
   buildPackage({ platform: "browser", preDir: "dist/browser", tsconfig: "tsconfig.base.json" });
   buildPackage({ platform: "node", tsconfig: "tsconfig.json" });
 } else {

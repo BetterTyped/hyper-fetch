@@ -1,13 +1,8 @@
 import http, { OutgoingHttpHeaders } from "http";
-import stream from "stream";
 import https from "https";
 
-import { getAdapterBindings } from "./adapter.bindings";
-import { AdapterType } from "./adapter.types";
-import { defaultTimeout } from "./adapter.constants";
-import { getStreamPayload, getUploadSize, parseErrorResponse, parseResponse } from "./adapter.utils";
+import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse, parseResponse } from "adapter";
 import { HttpMethodsEnum } from "../constants/http.constants";
-import { xhrExtra } from "client";
 
 export const adapter: AdapterType = async (request, requestId) => {
   const {
@@ -22,7 +17,6 @@ export const adapter: AdapterType = async (request, requestId) => {
     onRequestEnd,
     createAbortListener,
     onResponseProgress,
-    onRequestProgress,
     onResponseStart,
     onBeforeRequest,
     onRequestStart,
@@ -45,10 +39,9 @@ export const adapter: AdapterType = async (request, requestId) => {
   let unmountListener = () => null;
   onBeforeRequest();
 
-  const totalUploadBytes = payload ? Number(getUploadSize(payload)) : 0;
-  let uploadedBytes = 0;
-
-  const payloadChunks = await getStreamPayload(payload);
+  if (payload) {
+    options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+  }
 
   return makeRequest((resolve) => {
     const httpRequest = httpClient.request(options, (response) => {
@@ -59,8 +52,13 @@ export const adapter: AdapterType = async (request, requestId) => {
       const totalDownloadBytes = Number(response.headers["content-length"]);
       let downloadedBytes = 0;
 
+      onRequestStart();
+
       response.on("data", (chunk) => {
-        if (!chunks) onResponseStart();
+        if (!chunks) {
+          onRequestEnd();
+          onResponseStart();
+        }
         downloadedBytes += chunk.length;
         chunks += chunk;
         onResponseProgress({ total: totalDownloadBytes, loaded: downloadedBytes });
@@ -86,21 +84,9 @@ export const adapter: AdapterType = async (request, requestId) => {
 
     httpRequest.on("timeout", () => onTimeoutError(0, xhrExtra, resolve));
     httpRequest.on("error", (error) => onError(error, 0, xhrExtra, resolve));
-
-    if (payloadChunks) {
-      const readableStream = stream.Readable.from(payloadChunks, { objectMode: false })
-        .on("data", (chunk) => {
-          if (!uploadedBytes) onRequestStart();
-          uploadedBytes += chunk.length;
-          onRequestProgress({ total: totalUploadBytes, loaded: uploadedBytes });
-        })
-        .on("end", () => {
-          onRequestEnd();
-        });
-
-      readableStream.pipe(httpRequest);
-    } else {
-      httpRequest.end();
+    if (payload) {
+      httpRequest.write(payload);
     }
+    httpRequest.end();
   });
 };

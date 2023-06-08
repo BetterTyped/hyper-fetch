@@ -23,10 +23,10 @@ export const createWsServer = (options?: ConstructorParameters<typeof WS>[1] & {
   return wsServer;
 };
 
-export const constructEventData = <T extends Record<string, any>>({ name }: { name: string }, data: T) => {
+export const constructEventData = <T extends Record<string, any>>({ endpoint }: { endpoint: string }, data: T) => {
   return {
     data,
-    name,
+    endpoint,
   };
 };
 

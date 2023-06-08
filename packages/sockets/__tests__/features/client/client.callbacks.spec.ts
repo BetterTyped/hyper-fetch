@@ -4,7 +4,7 @@ import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
-describe("Socket Adapter [ Callbacks ]", () => {
+describe("Socket Client  [ Callbacks ]", () => {
   let server = createWsServer();
 
   beforeEach(() => {
@@ -44,7 +44,7 @@ describe("Socket Adapter [ Callbacks ]", () => {
   it("should trigger onMessage callbacks", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
-    server.send({ data: { name: "test", data: "test" } });
+    server.send({ data: { endpoint: "test", data: "test" } });
 
     await waitFor(() => {
       expect(spy).toBeCalledTimes(1);
@@ -55,6 +55,9 @@ describe("Socket Adapter [ Callbacks ]", () => {
     const spy = jest.fn().mockImplementation((em) => em);
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
+
+    await server.connected;
+
     emitter.setData({ test: "1" }).emit();
 
     await waitFor(() => {

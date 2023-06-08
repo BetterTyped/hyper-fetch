@@ -70,7 +70,21 @@ describe("useFetch [ Base ]", () => {
       };
       const view = renderUseFetch(request, { disabled: true, initialData });
 
+      expect(view.result.current.data).toEqual(initialData.data);
       await testSuccessState(initialData.data, view);
+    });
+    it("should allow to use initial data while requesting", async () => {
+      await testClientIsolation(client);
+      createRequestInterceptor(request);
+      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+        data: { test: [1, 2, 3] },
+        error: null,
+        status: 200,
+        success: true,
+        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      };
+      const view = renderUseFetch(request, { initialData });
+      expect(view.result.current.data).toEqual(initialData.data);
     });
     it("should prefer cache data over initial data", async () => {
       // Todo
@@ -105,7 +119,7 @@ describe("useFetch [ Base ]", () => {
       const mock = createRequestInterceptor(request);
 
       act(() => {
-        view.result.current.revalidate();
+        view.result.current.refetch();
       });
 
       await testSuccessState(mock, view);
@@ -132,7 +146,7 @@ describe("useFetch [ Base ]", () => {
       const errorMock = createRequestInterceptor(request, { status: 400 });
 
       act(() => {
-        view.result.current.revalidate();
+        view.result.current.refetch();
       });
 
       await testErrorState(errorMock, view, mock);

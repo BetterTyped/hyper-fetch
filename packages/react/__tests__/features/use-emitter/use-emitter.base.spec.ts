@@ -32,7 +32,7 @@ describe("useEmitter [ Base ]", () => {
       await expect(server).toReceiveMessage(
         JSON.stringify({
           id,
-          name: emitter.name,
+          endpoint: emitter.endpoint,
           data: message,
         }),
       );

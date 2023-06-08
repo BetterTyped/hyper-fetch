@@ -49,6 +49,8 @@ const postLogin = client.createRequest<ResponseType, RequestType>()({ method: "P
 
 ### 3. Use Requests
 
+When you prepare request instances the next step is to use them. You can do it in two ways:
+
 <Tabs>
   <TabItem value="React" label="React" default>
 
@@ -59,7 +61,9 @@ import { postUser, getUsers } from "server/auth";
 
 // Submitting (mutation)
 const { submit, submitting } = useSubmit(postUser.setData({ name: "John" }));
-submit();
+
+// Trigger submit
+const { data } = await submit();
 
 // Fetching
 const { data, error, loading } = useFetch(getUsers);

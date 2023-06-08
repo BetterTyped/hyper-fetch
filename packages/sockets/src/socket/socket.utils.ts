@@ -10,19 +10,19 @@ export const getReconnectingStopKey = () => "socket_reconnecting_stop";
 export const getListenerEventKey = () => `listener_event`;
 export const getListenerRemoveKey = () => `listener_remove`;
 export const getEmitterEventKey = () => `emitter_event`;
-export const getListenerRemoveByNameKey = (event: string) => `${event}_listener_remove`;
-export const getListenerEventByNameKey = (event: string) => `${event}_listener_event`;
-export const getEmitterEventByNameKey = (event: string) => `${event}_emitter_event`;
+export const getListenerRemoveByEndpointKey = (event: string) => `${event}_listener_remove`;
+export const getListenerEventByEndpointKey = (event: string) => `${event}_listener_event`;
+export const getEmitterEventByEndpointKey = (event: string) => `${event}_emitter_event`;
 
 export const interceptListener = <Socket extends SocketInstance>(
-  interceptors: MessageCallbackType<Socket, MessageEvent>[],
-  response: MessageEvent,
+  interceptors: MessageCallbackType<Socket, any>[],
+  data: { data: any; extra: any },
   socket: Socket,
 ) => {
-  let newResponse = response;
+  let newResponse = data;
   // eslint-disable-next-line no-restricted-syntax
   for (const interceptor of interceptors) {
-    newResponse = interceptor(response, socket);
+    newResponse = interceptor(data, socket);
     if (!newResponse) throw new Error("Listener modifier must return data");
   }
 

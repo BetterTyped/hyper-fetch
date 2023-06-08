@@ -19,15 +19,6 @@
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
-  </a>
-  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
-  </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/sockets">
     <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/sockets?color=64BC4B&logo=package" />
   </a>

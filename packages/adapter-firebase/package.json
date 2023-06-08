@@ -13,16 +13,17 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
-    "test": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --detectOpenHandles --forceExit'",
-    "coverage": "firebase emulators:exec 'jest --watchAll=false --coverage --maxWorkers=1 --detectOpenHandles --forceExit'",
+    "test": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
+    "coverage": "firebase emulators:exec 'jest --watchAll=false --coverage --detectOpenHandles --forceExit --runInBand'",
     "test-pipeline": "./test.sh",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "tests": "firebase emulators:exec 'jest --watchAll=false --maxWorkers=1 --detectOpenHandles --forceExit'",
+    "tests": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
     "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-v${version}'"
   },
   "publishConfig": {
@@ -39,6 +40,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
     "firebase": "*",
     "firebase-admin": "*",
     "firebase-tools": "*"
@@ -57,6 +59,7 @@
   "dependencies": {},
   "devDependencies": {
     "@firebase/rules-unit-testing": "^2.0.7",
+    "wait-for-expect": "^3.0.2",
     "firebase": "^9.21.0",
     "firebase-admin": "^11.5.0",
     "firebase-tools": "^11.23.1"

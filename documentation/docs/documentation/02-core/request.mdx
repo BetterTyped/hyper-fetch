@@ -67,45 +67,45 @@ is resolved.
 
 :::
 
-```tsx
-import { client } from "./client";
+---
 
-export const getUsers = client.createRequest<UserModel[]>()({
-  method: "GET",
-  endpoint: "/users",
+## Options
+
+Request contains all the necessary information to make a request. We can use it later to send them with already prepared
+setup saving time and improving our architecture.
+
+`Options are crucial to the successful data exchange.` We have to provide at least the `endpoint` to fulfill minimum
+requirements.
+
+#### Here you can find some examples of possible configurations.
+
+{@import Hyper-Fetch RequestOptionsType returns}
+
+### You can also provide options to the adapter
+
+:::info
+
+Adapter options may vary depending on the adapter you use.
+
+:::
+
+Default HTTP adapter options:
+
+```ts
+{
+  timeout: number;
+  withCredentials: boolean;
+  responseType: "text" | "document" | "arraybuffer" | "blob" | "json";
+}
+```
+
+Add them by:
+
+```ts
+const request = client.createRequest()({
+  endpoint: "/some-endpoint",
+  adapterOptions: { timeout: 1000, withCredentials: true },
 });
-
-export const getUser = client.createRequest<UserModel>()({
-  method: "GET",
-  endpoint: "/users/:userId",
-});
-
-export const postUser = client.createRequest<UserModel, UserPostDataType>()({
-  method: "POST",
-  endpoint: "/users",
-});
-
-export const patchUser = client.createRequest<UserModel, Partial<UserPostDataType>>()({
-  method: "PATCH",
-  endpoint: "/users/:userId",
-});
-
-export const deleteUser = client.createRequest<null>()({
-  method: "DELETE",
-  endpoint: "/users/:userId",
-});
-
-// Usage
-
-const { data, error } = await getUsers.send({ queryParams: { page: 1 } });
-
-const { data, error } = await getUsers.send({ params: { userId: 23 } });
-
-const { data, error } = await postUser.send({ data: { name: "Maciej" } });
-
-const { data, error } = await patchUser.send({ params: { userId: 12 }, data: { name: "Kacper" } });
-
-const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 ```
 
 ---
@@ -118,8 +118,11 @@ The process begins with request initialization. At this point, you can configure
 of the configurations are optional. You can also prepare a global configuration in the Client and avoid copying the
 setup between requests.
 
-```tsx
-const postUser = client.createRequest<null, {name: string}>()({
+```ts
+type ResponseType = { success: boolean }
+type PayloadDataType = { name: string }
+
+const postUser = client.createRequest<ResponseType, PayloadDataType>()({
   endpoint: "/some-endpoint",
   headers: {},
   auth: true,
@@ -127,14 +130,6 @@ const postUser = client.createRequest<null, {name: string}>()({
   cancelable: false,
   retry: 2,
   retryTime: 1000,
-  cache: false,
-  cacheTime: 50000
-  queued: false,
-  deduplicate: false,
-  offline: false,
-  options: {}, // Adapter options
-  disableRequestInterceptors: false,
-  disableResponseInterceptors: false,
 });
 
 const { data, error } = await postUser.send({ data: { name: "Maciej" } })
@@ -144,7 +139,7 @@ const { data, error } = await postUser.send({ data: { name: "Maciej" } })
 
 Use the `setData` method to instruct any data to be sent to the server.
 
-```tsx
+```ts
 // Regular data
 postUser.setData({ name: "John", age: 18 })
 
@@ -158,7 +153,7 @@ postFile.setData(data)
 
 Parameters must be defined in request endpoint using `:`
 
-```tsx
+```ts
 const getNote = client.createRequest()({
   endpoint: "/note/:noteId";
 })
@@ -292,6 +287,51 @@ const { data, error } = someRequest.send();
 
 data; // Has 'Response' type
 error; // Has 'GlobalError' or 'LocalError' type
+```
+
+---
+
+## Usage
+
+```tsx
+import { client } from "./client";
+
+export const getUsers = client.createRequest<UserModel[]>()({
+  method: "GET",
+  endpoint: "/users",
+});
+
+export const getUser = client.createRequest<UserModel>()({
+  method: "GET",
+  endpoint: "/users/:userId",
+});
+
+export const postUser = client.createRequest<UserModel, UserPostDataType>()({
+  method: "POST",
+  endpoint: "/users",
+});
+
+export const patchUser = client.createRequest<UserModel, Partial<UserPostDataType>>()({
+  method: "PATCH",
+  endpoint: "/users/:userId",
+});
+
+export const deleteUser = client.createRequest<null>()({
+  method: "DELETE",
+  endpoint: "/users/:userId",
+});
+
+// Usage
+
+const { data, error } = await getUsers.send({ queryParams: { page: 1 } });
+
+const { data, error } = await getUsers.send({ params: { userId: 23 } });
+
+const { data, error } = await postUser.send({ data: { name: "Maciej" } });
+
+const { data, error } = await patchUser.send({ params: { userId: 12 }, data: { name: "Kacper" } });
+
+const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 ```
 
 ---

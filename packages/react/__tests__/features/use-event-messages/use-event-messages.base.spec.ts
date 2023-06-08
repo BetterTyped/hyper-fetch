@@ -44,13 +44,13 @@ describe("useEventMessages [ Base ]", () => {
       sendWsEvent(listener, message);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
-        expect(receivedData).toEqual({ data: message, name: listener.name });
+        expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });
     });
     it("should allow to filter onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: [listener.name] });
+      const view = renderUseEventMessages(socket, { filter: [listener.endpoint] });
 
       act(() => {
         view.result.current.onEvent(spy);
@@ -63,7 +63,9 @@ describe("useEventMessages [ Base ]", () => {
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
-      const view = renderUseEventMessages(socket, { filter: (data) => [listener.name].includes(data.name) });
+      const view = renderUseEventMessages(socket, {
+        filter: (endpoint) => [listener.endpoint].includes(endpoint as any),
+      });
 
       act(() => {
         view.result.current.onEvent(spy);

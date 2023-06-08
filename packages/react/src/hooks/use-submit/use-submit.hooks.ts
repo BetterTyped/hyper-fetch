@@ -171,24 +171,24 @@ export const useSubmit = <RequestType extends RequestInstance>(
   };
 
   // ******************
-  // Revalidation
+  // Invalidation
   // ******************
 
-  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
+  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Request) {
-      cache.revalidate(getRequestKey(invalidateKey));
+      cache.invalidate(getRequestKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.revalidate(invalidateKey);
+      cache.invalidate(invalidateKey);
     }
   };
 
-  const revalidate = (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => {
+  const refetch = (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => {
     if (!invalidateKey) return;
 
     if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleRevalidation);
+      invalidateKey.forEach(handleInvalidation);
     } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleRevalidation(invalidateKey);
+      handleInvalidation(invalidateKey);
     }
   };
 
@@ -254,6 +254,6 @@ export const useSubmit = <RequestType extends RequestInstance>(
     ...actions,
     ...handlers,
     bounce: getBounceData(bounceData),
-    revalidate,
+    refetch,
   };
 };

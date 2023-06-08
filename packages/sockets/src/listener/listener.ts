@@ -1,42 +1,83 @@
-import { Socket } from "socket";
-import { ListenerOptionsType } from "listener";
-import { ListenerCallbackType, AdapterType } from "adapter";
-import { ExtractListenerOptionsType } from "types/extract.types";
+import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
-export class Listener<Response, Adapter extends AdapterType> {
-  readonly name: string;
-  options?: ExtractListenerOptionsType<Adapter>;
+import { Socket } from "socket";
+import { ListenType, ListenerOptionsType } from "listener";
+import { ExtractSocketExtraType, SocketAdapterType, ExtractListenerOptionsType } from "adapter";
+import { ConnectMethodType } from "types";
+
+export class Listener<
+  Response,
+  Endpoint extends string,
+  AdapterType extends SocketAdapterType,
+  HasParams extends boolean = false,
+> {
+  readonly endpoint: Endpoint;
+  params?: ParamsType;
+  options?: ExtractListenerOptionsType<AdapterType>;
+  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
 
   constructor(
-    readonly socket: Socket<Adapter>,
-    readonly listenerOptions?: ListenerOptionsType<ExtractListenerOptionsType<Adapter>>,
+    readonly socket: Socket<AdapterType>,
+    readonly listenerOptions?: ListenerOptionsType<Endpoint, AdapterType>,
   ) {
-    const { name, options } = listenerOptions;
-    this.name = name;
+    const { endpoint, options } = listenerOptions;
+    this.endpoint = endpoint;
     this.options = options;
   }
 
-  setOptions(options: ExtractListenerOptionsType<Adapter>) {
+  setOptions(options: ExtractListenerOptionsType<AdapterType>) {
     return this.clone({ options });
   }
 
-  clone(config?: Partial<ListenerOptionsType<ExtractListenerOptionsType<Adapter>>>): Listener<Response, Adapter> {
-    return new Listener<Response, Adapter>(this.socket, {
-      ...this.listenerOptions,
-      ...config,
-      name: this.name,
-    });
+  setParams(params: ExtractRouteParams<Endpoint>) {
+    return this.clone<true>({ params });
   }
 
-  listen(callback: ListenerCallbackType<Response>) {
-    const instance = this.clone();
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+    let endpoint = this.listenerOptions.endpoint as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+      });
+    }
 
-    this.socket.adapter.listen(instance, callback);
+    return endpoint as Endpoint;
+  };
 
-    const removeListener = () => {
-      this.socket.adapter.removeListener(instance.name, callback);
+  /**
+   * Attach global logic to the received events
+   * @param callback
+   */
+  onData(callback: ConnectMethodType<AdapterType, Response>) {
+    this.connections.add(callback);
+    return this;
+  }
+
+  clone<Params extends boolean = HasParams>(options?: Partial<ListenerOptionsType<Endpoint, AdapterType>>) {
+    const newInstance = new Listener<Response, Endpoint, AdapterType, Params>(this.socket, {
+      ...this.listenerOptions,
+      ...options,
+      endpoint: this.paramsMapper(options?.params || this.params),
+    });
+
+    newInstance.connections = this.connections;
+    return newInstance;
+  }
+
+  listen: ListenType<this, AdapterType> = ({ callback, ...options }) => {
+    const instance = this.clone(options);
+
+    const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {
+      this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
+      return callback(response as any);
     };
 
-    return [removeListener, callback] as const;
-  }
+    this.socket.adapter.listen(instance, action);
+
+    const removeListener = () => {
+      this.socket.adapter.removeListener(instance.endpoint, action);
+    };
+
+    return removeListener;
+  };
 }

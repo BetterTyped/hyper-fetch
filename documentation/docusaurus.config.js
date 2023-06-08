@@ -41,7 +41,7 @@ const getVersions = () => {
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Hyper Fetch",
-  tagline: "Framework for data exchange and state management",
+  tagline: "Framework for requesting and realtime connection",
   url: "https://hyperfetch.bettertyped.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
@@ -107,6 +107,12 @@ const config = {
             logo: "/img/features/firebase.png",
             title: "Firebase",
             dir: path.join(__dirname, "../packages/adapter-firebase"),
+            entryPath: "src/index.ts",
+          },
+          {
+            logo: "/img/features/axios.png",
+            title: "Axios",
+            dir: path.join(__dirname, "../packages/adapter-axios"),
             entryPath: "src/index.ts",
           },
         ],

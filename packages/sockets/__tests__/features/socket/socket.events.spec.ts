@@ -65,27 +65,27 @@ describe("Socket [ Events ]", () => {
 
   it("should emit and receive listener event", async () => {
     const value = 1;
-    const event = {} as MessageEvent;
+    const extra = {} as MessageEvent;
     socket.events.onListenerEvent(spy);
-    socket.events.onListenerEventByName(listener, spy);
-    socket.events.emitListenerEvent(listener.name, value, event);
+    socket.events.onListenerEventByEndpoint(listener, spy);
+    socket.events.emitListenerEvent(listener.endpoint, { data: value, extra });
 
     expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith(value, event);
+    expect(spy).toBeCalledWith({ endpoint: listener.endpoint, data: value, extra });
   });
 
   it("should emit and receive listener remove event", async () => {
     socket.events.onListenerRemove(spy);
-    socket.events.onListenerRemoveByName(listener, spy);
-    socket.events.emitListenerRemoveEvent(listener.name);
+    socket.events.onListenerRemoveByEndpoint(listener, spy);
+    socket.events.emitListenerRemoveEvent(listener.endpoint);
 
     expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith(listener.name);
+    expect(spy).toBeCalledWith(listener.endpoint);
   });
 
   it("should emit and receive emitter event", async () => {
     socket.events.onEmitterEvent(spy);
-    socket.events.onEmitterEventByName(emitter, spy);
+    socket.events.onEmitterEventByEndpoint(emitter, spy);
     socket.events.emitEmitterEvent(emitter);
 
     expect(spy).toBeCalledTimes(2);

@@ -20,7 +20,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If `true` it will refetch data in background no matter if we have it from cache.
    */
-  revalidateOnMount?: boolean;
+  fetchOnMount?: boolean;
   /**
    * If cache is empty we can use placeholder data.
    */
@@ -36,19 +36,19 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * Enable/disable data refresh if our tab is not focused(used by user at given time).
    */
-  refreshBlurred?: boolean;
+  refetchBlurred?: boolean;
   /**
    * Enable/disable data refresh if user leaves current tab.
    */
-  refreshOnBlur?: boolean;
+  refetchOnBlur?: boolean;
   /**
    * Enable/disable data refresh if user enters current tab.
    */
-  refreshOnFocus?: boolean;
+  refetchOnFocus?: boolean;
   /**
    * Enable/disable data refresh if network is restored.
    */
-  refreshOnReconnect?: boolean;
+  refetchOnReconnect?: boolean;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
@@ -101,7 +101,7 @@ export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<
       reset: () => void;
     };
     /**
-     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

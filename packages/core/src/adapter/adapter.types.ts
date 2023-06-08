@@ -5,7 +5,7 @@ import { HttpMethodsType, HttpStatusType } from "../types";
  * Base Adapter
  */
 
-export type AdapterInstance = AdapterType<any, any, any, any, any>;
+export type AdapterInstance = AdapterType<any, any, any, any, any, any>;
 
 export type AdapterType<
   AdapterOptions = AdapterOptionsType,
@@ -13,6 +13,7 @@ export type AdapterType<
   StatusType = HttpStatusType,
   Extra extends Record<string, any> = AdapterExtraType,
   QueryParams = QueryParamsType | string,
+  EndpointType = string,
 > = (
   request: RequestInstance,
   requestId: string,
@@ -23,6 +24,7 @@ export type AdapterType<
     status?: StatusType;
     extra?: Extra;
     queryParams?: QueryParams;
+    endpointType?: EndpointType;
   },
   // [any any any] as a way to avoid circular reference that destroyed request type.
 ) => Promise<ResponseReturnType<any, any, any>>;
@@ -36,6 +38,7 @@ export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, an
 export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
 export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
 export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
+export type ExtractAdapterEndpointType<T> = T extends AdapterType<any, any, any, any, any, infer E> ? E : never;
 // Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
   Adapter extends AdapterInstance,
@@ -45,14 +48,29 @@ export type ExtractUnionAdapter<
     status?: any;
     extra?: any;
     queryParams?: any;
+    endpointType?: any;
   },
 > = Extract<
   Adapter,
-  AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+  AdapterType<
+    Values["options"],
+    Values["method"],
+    Values["status"],
+    Values["extra"],
+    Values["queryParams"],
+    Values["endpointType"]
+  >
 > extends AdapterInstance
   ? Extract<
       Adapter,
-      AdapterType<Values["options"], Values["method"], Values["status"], Values["extra"], Values["queryParams"]>
+      AdapterType<
+        Values["options"],
+        Values["method"],
+        Values["status"],
+        Values["extra"],
+        Values["queryParams"],
+        Values["endpointType"]
+      >
     >
   : never;
 

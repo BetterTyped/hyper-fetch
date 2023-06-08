@@ -47,6 +47,16 @@ We used this approach to avoid overloading the base hook with callback logic, wh
 increases complexity.
 
 ```tsx
+import { socketInstance } from "./socket";
+
+export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // endpoint of the event
+});
+```
+
+#### Use it in your component.
+
+```tsx
 import { useListener } from "@hyper-fetch/react";
 import { onChatMessage } from "server";
 

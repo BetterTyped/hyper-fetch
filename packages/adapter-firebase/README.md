@@ -1,4 +1,4 @@
-# 🔥 Firebase Hyper Fetch
+# 🔥 Hyper Fetch Firebase
 
 <p>
   <a href="https://bettertyped.com/">
@@ -20,13 +20,7 @@
     <img src="https://custom-icon-badges.demolab.com/badge/typescript-%23007ACC.svg?logo=typescript&logoColor=white" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-REST-informational?logo=rss&color=11b8cc" />
-  </a>
-  <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/badge/-GraphQL-E10098?logo=graphql&logoColor=white" />
-  </a>
-  <a href="https://gitter.im/hyper-fetch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-    <img src="https://custom-icon-badges.demolab.com/badge/chat%20-on%20gitter-brightgreen.svg?logo=gitter&color=blueviolet" />
+    <img src="https://custom-icon-badges.demolab.com/badge/-Firebase-E10098?logo=firebase&logoColor=white" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
     <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B&logo=package" />
@@ -35,8 +29,9 @@
 
 ## About
 
-**`Firebase Hyper Fetch`** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
-first class Firebase adapter for **browser and server**. With full type-safety we bring requesting to another level.
+**`Hyper Fetch Firebase `** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
+first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
+from the convenience and efficiency of Hyper Fetch for your Firebase-powered projects.
 
 ## Key Features
 

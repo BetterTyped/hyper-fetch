@@ -51,10 +51,12 @@ You can pick between two built-in modes for the data exchange.
 1. Websocket mode (default)
 2. Server Sent Events mode
 
-You can change it with `isSSE` sockets mode.
+You can change it with `SSE` adapter.
 
 ```tsx
-new Sockets({ url: "ws://localhost:3000", isSSE: true });
+import { sseAdapter } from "@hyper-fetch/sockets";
+
+new Sockets({ url: "ws://localhost:3000" }).setAdapter(sseAdapter);
 ```
 
 ### Authentication
@@ -88,7 +90,7 @@ Sockets has a built-in query params encoding function; you can modify its option
 To change the encoding function, use the `queryParamsStringify` method.
 
 ```tsx
-new Sockets({
+export const socket = new Sockets({
   url: "ws://localhost:3000",
   queryParams: { param1: [1, 2, 3], param2: "test" },
   queryParamsStringify: (value: string) => encode(value),
@@ -103,11 +105,11 @@ Sockets has one generic type responsible for the type of the current `Socket Ada
 adapter type.
 
 ```tsx
-class Sockets<AdapterType>
+class Sockets<SocketAdapterType>
 ```
 
-It needs to fulfill the `AdapterType` interface.
+It needs to fulfill the `SocketAdapterType` interface.
 
-{@import Sockets AdapterType returns}
+{@import Sockets SocketAdapterType returns}
 
 ---

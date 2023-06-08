@@ -5,13 +5,13 @@ sidebar_label: Custom Adapter
 
 # Custom Adapter
 
-You can create your own adapter based on your preferences or requirements. You can use the bindings to achieve it. They
-will let you to easily connect into the library logic flow, so this way you will make your custom adapter without
-handling the internals on the library. We propose to use the `getAdapterBindings` util so you skip the sensitive and
-highly advanced part of connecting into hyper fetch flow.
+You can create your own adapter based on your preferences or requirements using bindings.
+They let you easily connect into the library logic flow, which enables you to make your custom adapter without handling the library internals.
 
-**`makeRequest`** is the wrapper for resolving your request. It will handle all pre and post validators with all the
-async operations that happens inside HF. This is simple way of making custom adapters.
+We propose to use the `getAdapterBindings` utility, so you can skip the sensitive and highly advanced part of connecting into the Hyper Fetch flow.
+
+Use `makeRequest` as the wrapper for resolving your request. It will handle all pre and post validators with all the async operations that happen inside Hyper Fetch.
+This is a simple way of making custom adapters.
 
 ---
 
@@ -64,8 +64,8 @@ const customHttpAdapter = async () => {
 
 ### Setup
 
-Connect any adapter to communicate with the server and handle it as you want, the only thing that has to match is the
-interface of the output.
+You can connect any adapter to communicate with the server and handle it as you want.
+The only thing that has to match is the interface of the output.
 
 ```tsx
 import { BaseAdapterType } from "@hyper-fetch/core";
@@ -80,10 +80,10 @@ const client = new Client({ url }).setAdapter(customHttpAdapter);
 
 ### Typescript
 
-You can pass custom options to your adapter from global setup and while request initialization. With our
-**`BaseAdapterType`** you can specify correct specification for your adapter. You can decide what custom options it
-consume, how statuses look in your adapter, what methods are allowed, what query params are default, what additional
-data it returns from requests.
+You can pass custom options to your adapter from global setup and while request initialization.
+**`BaseAdapterType`** lets you state the correct specification for your adapter. You can decide what custom options it
+consumes, how statuses look in your adapter, what methods are allowed, what query params are default,
+and what additional data it returns from requests.
 
 ```tsx
 import { BaseAdapterType, HttpMethodsType, HttpStatusType, QueryParamsType } from "@hyper-fetch/core";
@@ -112,10 +112,9 @@ const client = new Client<Error>({ url }).setAdapter(customHttpAdapter);
 
 #### Adapter Unions
 
-You can provide adapter unions, this means - you can specify exact data for the given option sets in your adapters. With
-this you can create custom rules of using your adapter. For example, you can create rule that only for GET method, we
-return raw data in `extra`, so user will not be able to use it with other methods. We used this pattern a lot in
-Firebase adapter.
+You can provide adapter unions. This means you can specify exact data for the given option sets in your adapters.
+This allows you to create custom rules for using your adapter. For example, you can create a rule for the GET method that states
+it returns raw data in extra (i.e. so users will not be able to use it with other methods). We used this pattern a lot in the Firebase adapter.
 
 ```ts
 type MyAdapter =
@@ -139,7 +138,7 @@ const {
   extra: { raw },
 } = await request1.send();
 
-// We decide which type to used based on passed config
+// We decide which type to use based on passed config
 
 const request2 = client.createRequest()({
   endpoint: "/user",

@@ -2,12 +2,15 @@ import { RequestInstance } from "../request";
 
 export type RequestMockType<Response> = {
   data: Response | Response[] | (() => Response);
+  status?: number | string;
+  success?: boolean;
+
   config?: {
-    status?: number | string;
-    success?: boolean;
-    responseDelay?: number;
-    requestSentDuration?: number;
-    responseReceivedDuration?: number;
+    timeout?: boolean;
+    requestTime?: number;
+    responseTime?: number;
+    totalUploaded?: number;
+    totalDownloaded?: number;
   };
   extra?: any;
 };

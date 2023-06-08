@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+title: Firebase introduction
+sidebar_label: Introduction
+---
+
+Hyper Fetch `firebase` package is a complete integration of `realtime database` and `firestore`, both for frontend and
+backend. It offers single, unified approach for all of them.
+
+## Getting Started
+
+In order to start using the firebase adapter, you have to initialize the firestore/realtime database and set the correct
+adapter on the `client`.
+
+There are two adapters to chose from:
+
+1. `firebaseAdapter` - for working with web realtime and firestore databases.
+2. `firebaseAdminAdapter` - for admin versions of the packages.
+
+```tsx
+import { firebaseAdapter } from "@hyper-fetch/firebase";
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+// Firebase firestore database initialization
+const app = initializeApp({
+  projectId: "demo-test-firestore",
+});
+const db = getFirestore(app);
+
+// Setting up the HyperFetch with a firebase adapter
+const client = new Client({ url: "teas/" }).setAdapter(() => firebaseAdapter(db));
+const getReq = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+});
+
+// Checking the results
+const { data, status, extra, success, error } = await getReq.send();
+```
+
+Resulting `response` is an object that contains the following properties:
+
+1. `data` - data returned from the database
+2. `status` - status indicating whether a request ended with `success`, `error` or `emptyResource`. `emptyResource`
+   occurs when the request to firebase succeeded but no data was returned.
+3. `success` - general information if overall request succeeded (`true`) or failed (`false`)
+4. `error` - contains error object if the request failed.
+5. `extra` - contains additional properties, depending on a method used. For instance, for `getDocs` method - it allows
+   to access `ref` and `snapshot` from firestore firebase.
+
+## Differences from 'raw' firebase
+
+1. If we store an array in firebase, for instance `[a, b, c]`, the query would return the same array. However, if the
+   array stops being sequential - for instance, if `a` and `b` were deleted, firebase would return and object: {2: 'c',
+   4: 'e'}. Hyper Fetch always returns and array.
+
+## Filtering queries
+
+In order to standardize the interface across both admin/web firestore/realtime, the filtering and limiting queries is
+done via setting the `constraints` queryParam:
+
+```tsx
+import { $limit, $orderBy, $where } from "constraints";
+
+const req = client.createRequest<Tea[]>()({
+  endpoint: "",
+  method: "getDocs",
+}); // or via setQueryParams method
+const { data } = await req.send({
+  queryParams: { constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)] },
+});
+```
+
+User can pass the array of constrains and filters. Please pay attention to the fact that you need to filter via method
+wrappers provided via `adapter-firebase` package: `$where`, `$orderBy`, `$limit`, `$startAt`, `$startAfter`, `$endAt`,
+`$endAfter`, `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`. All of these
+methods work exactly the same as their corresponding firebase equivalents.

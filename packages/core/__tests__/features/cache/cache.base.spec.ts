@@ -1,8 +1,8 @@
-import { AdapterType, ResponseReturnSuccessType } from "adapter";
+import { xhrExtra, AdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createCache, sleep } from "../../utils";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
 
 describe("Cache [ Base ]", () => {
   const response: ResponseReturnSuccessType<unknown, AdapterType> = {
@@ -43,9 +43,24 @@ describe("Cache [ Base ]", () => {
     it("should initialize cache", async () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
 
-      cache.set(request.setCache(true), { ...response, ...details });
+      cache.set(request.setCache(true), { ...response, ...details, data: "TEST!" });
 
       expect(cache.get(request.cacheKey)).toBeDefined();
+      expect(cache.get(request.cacheKey).data).toBe("TEST!");
+
+      cache.set(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+
+      expect(cache.get(request.cacheKey).data).toBe("TEST! WOW!");
+    });
+    it("should update cache", async () => {
+      cache.set(request.setCache(true), { ...response, ...details });
+      cache.update(request.setCache(true), { ...response, ...details, data: "SUPER TEST!" });
+
+      expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST!");
+
+      cache.update(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+
+      expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST! WOW!");
     });
   });
   describe("When managing cache data", () => {
@@ -68,12 +83,12 @@ describe("Cache [ Base ]", () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
     });
 
-    it("should revalidate and remove cache", async () => {
+    it("should invalidate and remove cache", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.onRevalidate(request.cacheKey, trigger);
+      const unmount = cache.events.onInvalidate(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
-      await cache.revalidate(request.cacheKey);
+      await cache.invalidate(request.cacheKey);
       await sleep(1);
 
       expect(cache.get(request.cacheKey)).not.toBeDefined();
@@ -106,7 +121,7 @@ describe("Cache [ Base ]", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      cache.events.onRevalidate(request.cacheKey, trigger);
+      cache.events.onInvalidate(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();

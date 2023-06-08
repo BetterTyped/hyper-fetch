@@ -40,13 +40,3 @@ export const parseResponse = (response: string | unknown) => {
 export const parseErrorResponse = <T extends RequestInstance>(response: unknown): ExtractErrorType<T> => {
   return response ? parseResponse(response) : getErrorMessage();
 };
-
-// Request
-
-export const getUploadSize = (payload: string) => {
-  return payload.length;
-};
-
-export const getStreamPayload = (payload: string | null) => {
-  return payload;
-};

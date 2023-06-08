@@ -39,14 +39,14 @@ Listener should be initialized from the Socket instance with `createListener` me
 the place that manages communication in the application.
 
 ```tsx
-import { socketInstance } from "./socket";
+import { socket } from "./socket";
 
-export const onChatMessage = socketInstance.createListener<ChatMessageType>()({
-  name: "chat-message", // name of the event
+export const onChatMessage = socket.createListener<ChatMessageType>()({
+  endpoint: "chat-message", // endpoint of the event
 });
 
-export const onUserStatusChange = socketInstance.createListener<UserStatusType>()({
-  name: "status", // name of the event
+export const onUserStatusChange = socket.createListener<UserStatusType>()({
+  endpoint: "status", // endpoint of the event
 });
 ```
 
@@ -59,9 +59,11 @@ export const onUserStatusChange = socketInstance.createListener<UserStatusType>(
 Use the `listen` method to start the listening for incoming events.
 
 ```tsx
-onChatMessage.listen((message) => {
-  // message have type ChatMessageType
-  console.log(message);
+onChatMessage.listen({
+  callback: (message) => {
+    // message have type ChatMessageType
+    console.log(message);
+  },
 });
 ```
 
@@ -70,7 +72,7 @@ onChatMessage.listen((message) => {
 Use the returned method to stop listening.
 
 ```tsx
-const removeEvent = onChatMessage.listen((message) => console.log(message));
+const removeEvent = onChatMessage.listen({ callback: (message) => console.log(message) });
 
 ...
 
@@ -81,21 +83,85 @@ Remove event listeners directly from the adapter
 
 ```tsx
 const callback = (message) => console.log(message);
-const removeEvent = onChatMessage.listen(callback);
+const removeEvent = onChatMessage.listen({ callback });
 
 ...
 
-socket.adapter.listeners.delete(onChatMessage.name) // We remove ALL listeners from given event
-socket.adapter.listeners.get(onChatMessage.name).delete(callback) // We remove single listener from given event
+socket.adapter.listeners.delete(onChatMessage.endpoint) // We remove ALL listeners from given event
+socket.adapter.listeners.get(onChatMessage.endpoint).delete(callback) // We remove single listener from given event
 ```
 
 Listen to event `once`
 
 ```tsx
-const removeEvent = onChatMessage.listen((message) => {
-  console.log(message);
-  removeEvent(); // We listen only to single event
+const removeEvent = onChatMessage.listen({
+  callback: (message) => {
+    console.log(message);
+    removeEvent(); // We listen only to single event
+  },
 });
+```
+
+---
+
+## Listening with onData hook
+
+You can use `onData` method to listen to all events of given listener. This method is useful when you want to attach
+some logic to any occurrence of the event. It's additional way of hooking into the listener groups.
+
+```ts
+export const onNoteChange = socket
+  .createListener<NoteData>()({
+    endpoint: "notes/:id",
+  })
+  .onData((event) => {
+    // We will receive all events from given listener,
+    // no mater of ID, as it will be filled later on while listening
+    console.log(event);
+  });
+
+onNoteChange.setParams({ noteId: 1 }).listen(() => {
+  // some logic
+});
+
+onNoteChange.setParams({ noteId: 2 }).listen(() => {
+  // some logic
+});
+
+// console.log(event) ===> { noteId: 1, ... }
+// console.log(event) ===> { noteId: 2, ... }
+```
+
+### Integration with Hyper Fetch
+
+We can use this to make simple integration with Hyper Fetch. We can use `onData` hook to update the cache with new data
+from the socket.
+
+```ts
+
+// ==> Our core setup
+const client = new Client({ url: "http://localhost:3000" });
+const getNote = client.createRequest()({
+  endpoint: "/note/:noteId";
+})
+
+
+// ==> Our realtime listener
+
+export const onNoteChange = socket.createListener<NoteData>()({
+  endpoint: "notes",
+}).onData((event) => {
+  const { noteId } = event;
+
+  // Fill the params so our cache can find the request in storage
+  const noteRequest = client.cache.get(getNote.setParams({ noteId }));
+
+  // Update the cache
+  client.cache.update(noteRequest, (prevData) => {
+    return {...prevData, data: event}
+  });
+});
+
 ```
 
 ---

@@ -1,5 +1,11 @@
-import { getAdapterBindings, AdapterType, getResponseHeaders, parseResponse, parseErrorResponse } from "adapter";
-import { xhrExtra } from "client";
+import {
+  xhrExtra,
+  getAdapterBindings,
+  AdapterType,
+  getResponseHeaders,
+  parseResponse,
+  parseErrorResponse,
+} from "adapter";
 import { defaultTimeout } from "./adapter.constants";
 
 export const adapter: AdapterType = async (request, requestId) => {

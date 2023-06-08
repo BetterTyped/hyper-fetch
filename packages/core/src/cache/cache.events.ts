@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { CacheValueType, getRevalidateEventKey, getCacheKey } from "cache";
+import { CacheValueType, getInvalidateEventKey, getCacheKey } from "cache";
 import { AdapterInstance } from "adapter";
 
 export const getCacheEvents = (emitter: EventEmitter) => ({
@@ -16,10 +16,10 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.emit(getCacheKey(cacheKey), data);
   },
   /**
-   * Revalidate cache values event
+   * Invalidate cache values event
    */
-  emitRevalidation: (cacheKey: string): void => {
-    emitter.emit(getRevalidateEventKey(cacheKey));
+  emitInvalidation: (cacheKey: string): void => {
+    emitter.emit(getInvalidateEventKey(cacheKey));
   },
   /** StatusType
    * Cache data listener
@@ -40,8 +40,8 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onRevalidate: (cacheKey: string, callback: () => void): VoidFunction => {
-    emitter.on(getRevalidateEventKey(cacheKey), callback);
-    return () => emitter.removeListener(getRevalidateEventKey(cacheKey), callback);
+  onInvalidate: (cacheKey: string, callback: () => void): VoidFunction => {
+    emitter.on(getInvalidateEventKey(cacheKey), callback);
+    return () => emitter.removeListener(getInvalidateEventKey(cacheKey), callback);
   },
 });

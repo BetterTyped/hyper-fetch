@@ -35,49 +35,40 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
-    const { data, config = {}, extra } = result;
-    const {
-      status = 200,
-      success = true,
-      responseDelay = 5,
-      requestSentDuration = 0,
-      responseReceivedDuration = 0,
-    } = config;
-    const calculateDurations = () => {
-      if (timeout && requestSentDuration + responseReceivedDuration > timeout) {
-        return [Math.floor(timeout / 2) - 1, Math.floor(timeout / 2) - 1];
-      }
-      return [requestSentDuration, responseReceivedDuration];
-    };
-    const [adjustedRequestSentDuration, adjustedResponseReceivedDuration] = calculateDurations();
+    const { data, status = 200, success = true, extra, config } = result;
+    const { requestTime = 20, responseTime = 20, totalUploaded = 1, totalDownloaded = 1 } = config || {};
 
     createAbortListener(0 as any, {} as any, () => {}, resolve);
 
     onBeforeRequest();
     onRequestStart();
 
-    const progress = (total, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
+    const progress = (totalTime, totalSize, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
       new Promise((resolveProgress) => {
+        const interval = 20;
         const dataStart = +new Date();
-
-        setInterval(() => {
-          const currentTime = +new Date();
-          const currentLoaded = Math.min(total, currentTime - dataStart);
-          if (currentLoaded >= total) {
+        const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
+        let currentlyLoaded = 0;
+        const timer = setInterval(function handleProgressInterval() {
+          const currentTime = Math.min(totalTime, +new Date() - dataStart);
+          currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
+          if (currentTime >= totalTime) {
             resolveProgress(true);
+            clearInterval(timer);
+          } else {
+            progressFunction({
+              total: totalSize,
+              loaded: currentlyLoaded,
+            });
           }
-          progressFunction({
-            total,
-            loaded: currentLoaded,
-          });
-        }, 20);
+        }, interval);
       });
 
     const getResponse = async () => {
-      await progress(adjustedRequestSentDuration, onRequestProgress);
+      await progress(requestTime, totalUploaded, onRequestProgress);
       onRequestEnd();
       onResponseStart();
-      await progress(adjustedResponseReceivedDuration, onResponseProgress);
+      await progress(responseTime, totalDownloaded, onResponseProgress);
       if (success) {
         onSuccess(data, status as any, extra || {}, resolve);
       } else {
@@ -85,10 +76,10 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       }
     };
 
-    if (timeout && responseDelay > timeout) {
-      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), timeout + 1);
+    if (timeout) {
+      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), 1);
     } else {
-      setTimeout(getResponse, responseDelay);
+      setTimeout(getResponse, requestTime + responseTime + 1);
     }
 
     onResponseEnd();

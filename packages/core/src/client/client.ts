@@ -11,12 +11,14 @@ import {
   HeaderMappingType,
   QueryStringifyOptionsType,
   ResponseReturnType,
+  xhrExtra,
+  ExtractAdapterEndpointType,
 } from "adapter";
 import {
-  xhrExtra,
   ClientErrorType,
   ClientInstance,
   ClientOptionsType,
+  DefaultEndpointMapper,
   getAdapterHeaders,
   getAdapterPayload,
   RequestInterceptorType,
@@ -31,13 +33,18 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethodsEnum } from "../constants/http.constants";
+import { ExtractAdapterType, NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
  * requests which, when called using the appropriate method, will cause the server to be queried for the endpoint and
  * method specified in the request.
  */
-export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter extends AdapterInstance = AdapterType> {
+export class Client<
+  GlobalErrorType extends ClientErrorType = Error,
+  Adapter extends AdapterInstance = AdapterType,
+  EndpointMapper extends DefaultEndpointMapper = DefaultEndpointMapper,
+> {
   readonly url: string;
   public debug: boolean;
 
@@ -91,11 +98,16 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
    * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
    */
   payloadMapper: AdapterPayloadMappingType = getAdapterPayload;
+  /**
+   * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
+   */
+  // eslint-disable-next-line class-methods-use-this
+  endpointMapper: EndpointMapper = ((endpoint) => endpoint) as any;
 
   // Logger
   logger = this.loggerManager.init("Client");
 
-  constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
+  constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter, EndpointMapper>>) {
     const { url, adapter, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.url = url;
     this.adapter = (adapter || defaultAdapter) as Adapter;
@@ -114,14 +126,14 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
     callback: (
       request: RequestInstance,
     ) => Partial<RequestOptionsType<string, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>>,
-  ): Client<GlobalErrorType, Adapter> => {
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.requestDefaultOptions = callback;
     return this;
   };
 
   setAdapterDefaultOptions = (
     callback: (request: RequestInstance) => ExtractAdapterOptionsType<Adapter>,
-  ): Client<GlobalErrorType, Adapter> => {
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.adapterDefaultOptions = callback;
     return this;
   };
@@ -129,7 +141,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean): Client<GlobalErrorType, Adapter> => {
+  setDebug = (debug: boolean): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.debug = debug;
     return this;
   };
@@ -137,7 +149,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType): Client<GlobalErrorType, Adapter> => {
+  setLoggerSeverity = (severity: SeverityType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.loggerManager.setSeverity(severity);
     return this;
   };
@@ -145,7 +157,9 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Set the new logger instance to the Client
    */
-  setLogger = (callback: (Client: ClientInstance) => LoggerManager): Client<GlobalErrorType, Adapter> => {
+  setLogger = (
+    callback: (Client: ClientInstance) => LoggerManager,
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.loggerManager = callback(this);
     return this;
   };
@@ -153,7 +167,9 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Set config for the query params stringify method, we can set here, among others, arrayFormat, skipNull, encode, skipEmptyString and more
    */
-  setQueryParamsConfig = (queryParamsConfig: QueryStringifyOptionsType): Client<GlobalErrorType, Adapter> => {
+  setQueryParamsConfig = (
+    queryParamsConfig: QueryStringifyOptionsType,
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.queryParamsConfig = queryParamsConfig;
     return this;
   };
@@ -162,7 +178,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
    * Set the custom query params stringify method to the Client
    * @param stringifyFn Custom callback handling query params stringify
    */
-  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): Client<GlobalErrorType, Adapter> => {
+  setStringifyQueryParams = (stringifyFn: StringifyCallbackType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.stringifyQueryParams = stringifyFn;
     return this;
   };
@@ -170,7 +186,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Set the custom header mapping function
    */
-  setHeaderMapper = (headerMapper: HeaderMappingType): Client<GlobalErrorType, Adapter> => {
+  setHeaderMapper = (headerMapper: HeaderMappingType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.headerMapper = headerMapper;
     return this;
   };
@@ -178,19 +194,39 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Set the request payload mapping function which get triggered before request get send
    */
-  setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): Client<GlobalErrorType, Adapter> => {
+  setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.payloadMapper = payloadMapper;
     return this;
   };
 
   /**
+   * Set the request payload mapping function which get triggered before request get send
+   */
+  setEndpointMapper = <NewEndpointMapper extends DefaultEndpointMapper>(endpointMapper: NewEndpointMapper) => {
+    this.endpointMapper = endpointMapper as any;
+    return this as unknown as Client<GlobalErrorType, Adapter, NewEndpointMapper>;
+  };
+
+  /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <NewAdapter extends AdapterInstance>(
-    callback: (Client: ClientInstance) => NewAdapter,
-  ): Client<GlobalErrorType, NewAdapter> => {
-    this.adapter = callback(this) as unknown as Adapter;
-    return this as unknown as Client<GlobalErrorType, NewAdapter>;
+  setAdapter = <NewAdapter extends AdapterInstance, Returns extends AdapterInstance | ClientInstance>(
+    callback: (
+      client: this,
+    ) => Returns extends AdapterInstance ? NewAdapter : Client<GlobalErrorType, NewAdapter, EndpointMapper>,
+  ): Client<
+    GlobalErrorType,
+    Returns extends AdapterInstance ? NewAdapter : ExtractAdapterType<NewAdapter>,
+    EndpointMapper
+  > => {
+    const value = callback(this) as unknown as Adapter;
+
+    if (value instanceof Client) {
+      return value as any;
+    }
+
+    this.adapter = value;
+    return this as any;
   };
 
   /**
@@ -212,7 +248,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Method of manipulating requests before sending the request. We can for example add custom header with token to the request which request had the auth set to true.
    */
-  onAuth = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter> => {
+  onAuth = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onAuthCallbacks.push(callback);
     return this;
   };
@@ -222,7 +258,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
    */
   onError = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
-  ): Client<GlobalErrorType, Adapter> => {
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onErrorCallbacks.push(callback);
     return this;
   };
@@ -232,7 +268,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
    */
   onSuccess = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
-  ): Client<GlobalErrorType, Adapter> => {
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
   };
@@ -240,7 +276,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   /**
    * Method of manipulating requests before sending the request.
    */
-  onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter> => {
+  onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onRequestCallbacks.push(callback);
     return this;
   };
@@ -250,7 +286,7 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
    */
   onResponse = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
-  ): Client<GlobalErrorType, Adapter> => {
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onResponseCallbacks.push(callback);
     return this;
   };
@@ -351,31 +387,54 @@ export class Client<GlobalErrorType extends ClientErrorType = Error, Adapter ext
   createRequest = <
     Response,
     Payload = undefined,
-    LocalError extends ClientErrorType | undefined = undefined,
+    LocalError = undefined,
     QueryParams = ExtractAdapterQueryParamsType<Adapter>,
   >() => {
     return <
-      EndpointType extends string,
+      EndpointType extends ExtractAdapterEndpointType<Adapter>,
       AdapterOptions extends ExtractAdapterOptionsType<Adapter>,
       MethodType extends ExtractAdapterMethodType<Adapter>,
     >(
       params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
-    ) =>
-      new Request<
+    ) => {
+      const endpoint = this.endpointMapper(params.endpoint);
+
+      type ExtractedAdapterType = ExtractUnionAdapter<
+        Adapter,
+        {
+          method: MethodType;
+          options: AdapterOptions;
+          queryParams: QueryParams;
+        }
+      > extends NegativeTypes
+        ? Adapter
+        : ExtractUnionAdapter<
+            Adapter,
+            {
+              method: MethodType;
+              options: AdapterOptions;
+              queryParams: QueryParams;
+            }
+          >;
+
+      const mappedParams: RequestOptionsType<
+        EndpointType extends string ? EndpointType : typeof endpoint,
+        AdapterOptions,
+        MethodType
+      > = {
+        ...params,
+        endpoint: endpoint as EndpointType extends string ? EndpointType : typeof endpoint,
+      };
+
+      return new Request<
         Response,
         Payload,
         QueryParams,
         GlobalErrorType,
         LocalError,
-        EndpointType,
-        ExtractUnionAdapter<
-          Adapter,
-          {
-            method: MethodType;
-            options: AdapterOptions;
-            queryParams: QueryParams;
-          }
-        >
-      >(this as any, params);
+        EndpointType extends string ? EndpointType : typeof endpoint,
+        ExtractedAdapterType
+      >(this as any, mappedParams);
+    };
   };
 }

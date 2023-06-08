@@ -24,7 +24,7 @@ callbacks. It is important to make sure that `cacheKey` is not affected by auto-
 connection between the hook's request and the cache.
 
 ```tsx
-const { data, error, loading, revalidate, onSuccess, onError, onFinished } = useCache(getUsers);
+const { data, error, loading, refetch, onSuccess, onError, onFinished } = useCache(getUsers);
 
 onSuccess((payload) => {
   console.log(payload); // [ User, User, User ]

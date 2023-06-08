@@ -5,7 +5,7 @@
  */
 
 /* You can override the default Infima variables here. */
-@import url("https://fonts.googleapis.com/css2?family=Viga&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 html[data-theme="dark"] {
   --ifm-color-primary: rgb(227, 187, 46); /* Links */
@@ -43,6 +43,26 @@ html[data-theme="dark"] {
 html[data-theme="light"] {
   --ifm-background-color: #fff;
   --section-background: #e9e9e9;
+}
+
+html {
+  font-family: "Barlow", sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+b {
+  font-weight: 700;
+  color: #7e9cff;
+}
+
+strong {
+  font-weight: 800;
+  color: #7e9cff;
+}
+
+code {
+  color: #7e9cff;
 }
 
 .docusaurus-highlight-code-line {
@@ -278,7 +298,6 @@ html[data-theme="light"] body .navbar__logo img {
 
 .navbar__title {
   font-size: 22px;
-  font-family: "Viga", sans-serif;
 }
 
 .navbar__items--right {
@@ -619,4 +638,12 @@ footer #mc_embed_signup .button:hover {
 
 .comparison-table th {
   white-space: nowrap;
+}
+
+/* Docs */
+
+.row-flex {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 15px;
 }

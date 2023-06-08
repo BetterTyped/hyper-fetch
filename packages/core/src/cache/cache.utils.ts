@@ -14,8 +14,8 @@ export const getCacheData = <T extends RequestInstance>(
   return { ...response, data: computedData };
 };
 
-export const getRevalidateEventKey = (key: string): string => {
-  return `${key}_revalidate`;
+export const getInvalidateEventKey = (key: string): string => {
+  return `${key}_invalidate`;
 };
 
 export const getCacheKey = (key: string): string => {

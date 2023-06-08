@@ -53,10 +53,9 @@ describe("useFetch [ Deduplication ]", () => {
         const responseTwo = renderUseFetch(dedupeRequest);
 
         await waitForRender();
+        const successMock = createRequestInterceptor(dedupeRequest);
         await testErrorState(errorMock, responseOne);
         await testErrorState(errorMock, responseTwo);
-
-        const successMock = createRequestInterceptor(dedupeRequest);
         await testSuccessState(successMock, responseOne);
         await testSuccessState(successMock, responseTwo);
 

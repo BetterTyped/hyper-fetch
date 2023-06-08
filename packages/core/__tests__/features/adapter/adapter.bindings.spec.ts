@@ -1,9 +1,16 @@
 import { RequestEffect } from "effect";
-import { getAdapterBindings, AdapterOptionsType, ResponseReturnType, getErrorMessage, AdapterType } from "adapter";
+import {
+  xhrExtra,
+  getAdapterBindings,
+  AdapterOptionsType,
+  ResponseReturnType,
+  getErrorMessage,
+  AdapterType,
+} from "adapter";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
 import { RequestInstance } from "request";
 
 describe("Fetch Adapter [ Bindings ]", () => {

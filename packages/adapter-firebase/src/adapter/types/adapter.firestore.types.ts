@@ -6,33 +6,53 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
 } from "firebase/firestore";
+import { SocketAdapterType } from "@hyper-fetch/sockets";
 
-import { FirebaseQueryConstraints } from "constraints";
+import {
+  FirestoreConstraintsUnion,
+  FirestorePermittedMethods,
+  PermittedConstraints,
+  SharedQueryConstraints,
+} from "constraints";
+
+export type FirestoreSocketAdapterType = SocketAdapterType<
+  never,
+  FirestoreOnSnapshotExtra,
+  { groupByChangeType?: boolean } & FirestoreQueryParams
+>;
 
 export type FirestoreAdapterType =
-  | AdapterType<
-      { groupByChangeType: boolean },
-      "onSnapshot",
-      FirestoreStatuses,
-      FirestoreOnSnapshotExtra,
-      FirestoreQueryParams
-    >
   | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
   | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
-  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreGetDocsExtra, Record<string, never>>
+  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
   | AdapterType<
       Record<string, never>,
-      "updateDoc" | "addDoc" | "deleteDoc",
+      "updateDoc" | "addDoc" | "deleteDoc" | "setDoc",
       FirestoreStatuses,
       FirestoreRefOnlyExtra,
       Record<string, never>
     >;
 
 export type FirestoreQueryParams = {
-  constraints?: { toString: () => string; type: FirebaseQueryConstraints; values: any[] }[];
+  constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
 };
 
-export type FirestoreDBMethods = "addDoc" | "getDoc" | "getDocs" | "setDoc" | "updateDoc" | "deleteDoc" | "onSnapshot";
+export enum FirestoreMethods {
+  addDoc = "addDoc",
+  getDoc = "getDoc",
+  getDocs = "getDocs",
+  setDoc = "setDoc",
+  updateDoc = "updateDoc",
+  deleteDoc = "deleteDoc",
+}
+
+export type FirestoreMethodsUnion =
+  | FirestoreMethods.addDoc
+  | FirestoreMethods.getDoc
+  | FirestoreMethods.getDocs
+  | FirestoreMethods.setDoc
+  | FirestoreMethods.updateDoc
+  | FirestoreMethods.deleteDoc;
 
 export type FirestoreExtra = {
   ref?: DocumentReference;
@@ -55,4 +75,4 @@ export type FirestoreRefOnlyExtra = {
   ref?: DocumentReference;
 };
 
-export type FirestoreStatuses = "success" | "error";
+export type FirestoreStatuses = "success" | "error" | "emptyResource";

@@ -1,30 +1,42 @@
-import { DateInterval, getUniqueRequestId } from "@hyper-fetch/core";
+import { DateInterval, ExtractRouteParams, ParamsType, getUniqueRequestId } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { EmitterOptionsType, EmitterCloneOptionsType } from "emitter";
-import { AdapterType } from "adapter";
-import { ExtractEmitterOptionsType } from "types/extract.types";
+import { EmitterAcknowledgeType, EmitterOptionsType, EmitType } from "emitter";
+import { SocketAdapterType, ExtractEmitterOptionsType } from "adapter";
+import { ConnectMethodType } from "types";
 
-export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData = void> {
-  readonly name: string;
+export class Emitter<
+  Payload,
+  Response,
+  Endpoint extends string,
+  AdapterType extends SocketAdapterType,
+  MappedData = void,
+  HasParams extends boolean = false,
+  HasData extends boolean = false,
+> {
+  readonly endpoint: Endpoint;
+  params?: ParamsType;
   timeout: number;
   data: Payload | null = null;
-  options: ExtractEmitterOptionsType<Adapter>;
+  options: ExtractEmitterOptionsType<AdapterType>;
+  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
 
   constructor(
-    readonly socket: Socket<Adapter>,
-    readonly emitterOptions: EmitterOptionsType<ExtractEmitterOptionsType<Adapter>>,
-    json?: Partial<Emitter<Payload, Response, Adapter, MappedData>>,
+    readonly socket: Socket<AdapterType>,
+    readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
+    json?: Partial<Emitter<Payload, Response, Endpoint, AdapterType, MappedData>>,
     readonly dataMapper?: (data: Payload) => MappedData,
   ) {
-    const { name, timeout = DateInterval.second * 3, options } = emitterOptions;
-    this.name = json?.name ?? name;
+    const { endpoint, timeout = DateInterval.second * 2, options } = emitterOptions;
+
+    this.endpoint = json?.endpoint ?? endpoint;
     this.data = json?.data;
     this.timeout = json?.timeout ?? timeout;
     this.options = json?.options ?? options;
+    this.params = json?.params;
   }
 
-  setOptions(options: ExtractEmitterOptionsType<Adapter>) {
+  setOptions(options: ExtractEmitterOptionsType<AdapterType>) {
     return this.clone({ options });
   }
 
@@ -34,39 +46,100 @@ export class Emitter<Payload, Response, Adapter extends AdapterType, MappedData 
 
   setData(data: Payload) {
     if (this.dataMapper) {
-      return this.clone<MappedData>({ data: this.dataMapper(data) });
+      return this.clone<MappedData, MappedData, HasParams, true>({ data: this.dataMapper(data) });
     }
-    return this.clone({ data });
+    return this.clone<Payload, MappedData, HasParams, true>({ data });
   }
 
   setDataMapper = <MapperData>(mapper: (data: Payload) => MapperData) => {
     return this.clone<Payload, MapperData>(undefined, mapper);
   };
 
-  clone<NewPayload = Payload, MapperData = MappedData>(
-    config?: Partial<EmitterCloneOptionsType<NewPayload, ExtractEmitterOptionsType<Adapter>>>,
+  setParams(params: ExtractRouteParams<Endpoint>) {
+    return this.clone<Payload, MappedData, true>({ params });
+  }
+
+  /**
+   * Attach global logic to the received events
+   * @param callback
+   */
+  onData(callback: ConnectMethodType<AdapterType, Response>) {
+    this.connections.add(callback);
+
+    return this;
+  }
+
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+    let endpoint = this.emitterOptions.endpoint as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+      });
+    }
+
+    return endpoint as Endpoint;
+  };
+
+  clone<
+    NewPayload = Payload,
+    MapperData = MappedData,
+    Params extends boolean = HasParams,
+    Data extends boolean = HasData,
+  >(
+    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload },
     mapper?: (data: NewPayload) => MapperData,
-  ): Emitter<NewPayload, Response, Adapter, MapperData> {
-    const json: Partial<Emitter<NewPayload, Response, Adapter, MapperData>> = {
+  ) {
+    const json: Partial<Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
-      ...config,
-      name: this.name,
+      params: options?.params || this.params,
+      ...options,
+      endpoint: this.paramsMapper(options?.params || this.params),
     };
     const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    return new Emitter<NewPayload, Response, Adapter, MapperData>(this.socket, this.emitterOptions, json, mapperFn);
+    const newInstance = new Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>(
+      this.socket,
+      this.emitterOptions,
+      json,
+      mapperFn,
+    );
+    newInstance.connections = this.connections;
+    return newInstance;
   }
 
-  emit(
-    options?: Partial<EmitterCloneOptionsType<Payload, ExtractEmitterOptionsType<Adapter>>>,
-    ack?: (error: Error | null, response: Response) => void,
-  ) {
-    const instance = this.clone(options);
-    const eventMessageId = getUniqueRequestId(this.name);
+  getAck = (ack?: EmitterAcknowledgeType<any, AdapterType>) => {
+    if (ack) {
+      return (response: { data: any; extra: any; error: any }) => {
+        this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
+        return ack(response as any);
+      };
+    }
+    if (this.connections.size) {
+      return (response: { data: any; extra: any; error: any }) => {
+        this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
+      };
+    }
+    return undefined;
+  };
 
-    this.socket.adapter.emit(eventMessageId, instance, ack);
+  emit: EmitType<this> = ({
+    data,
+    params,
+    options,
+    ack,
+  }: {
+    data?: Payload;
+    params?: ExtractRouteParams<Endpoint>;
+    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>>;
+    ack?: EmitterAcknowledgeType<any, AdapterType>;
+  } = {}) => {
+    const instance = this.clone({ ...options, data, params });
+
+    const eventMessageId = getUniqueRequestId(instance.endpoint);
+
+    this.socket.adapter.emit(eventMessageId, instance, instance.getAck(ack));
     return eventMessageId;
-  }
+  };
 }

@@ -133,7 +133,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
       reset: () => void;
     };
     /**
-     * Revalidate current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
      */
-    revalidate: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

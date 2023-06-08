@@ -38,14 +38,14 @@ Emitter should be initialized from the Socket instance with `createEmitter` meth
 the place that manages communication in the application.
 
 ```tsx
-import { socketInstance } from "./socket";
+import { socket } from "./socket";
 
-export const sendChatMessage = socketInstance.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
-  name: "chat-message", // name of the event
+export const sendChatMessage = socket.createEmitter<ChatMessageType, AcknowledgementResponseType>()({
+  endpoint: "chat-message", // endpoint of the event
 });
 
-export const sendUserStatus = socketInstance.createEmitter<UserStatusType, AcknowledgementResponseType>()({
-  name: "status", // name of the event
+export const sendUserStatus = socket.createEmitter<UserStatusType, AcknowledgementResponseType>()({
+  endpoint: "status", // endpoint of the event
 });
 ```
 
@@ -79,8 +79,8 @@ Use the `acknowledgements` by passing the second parameter to the emitting metho
 
 :::caution
 
-Make sure your server is supporting the acknowledgements! When using default adapter, make sure you pass the id of the
-event in returning event, when using custom adapters, you have to implement according to it's specification.
+**Make sure your server is supporting the acknowledgements!** When using default adapter, make sure you pass the id of
+the event in returning event, when using custom adapters, you have to implement according to it's specification.
 
 :::
 
@@ -91,6 +91,36 @@ sendChatMessage.emit({ data: { messsage: "some message" } }, (error, data) => {
   } else {
     alert("Message received on server.");
   }
+});
+```
+
+#### Implementation on sever
+
+After acknowledging the event, the server should **return the event with message id in the response**.
+
+```ts
+import { WSMessageType } from "@hyper-socket/sockets";
+
+const message = {
+  title: string;
+  description: string;
+}
+
+// On browser
+emitter.emit({
+  data: message,
+  ack: (data) => {
+    console.log(data);
+  },
+});
+
+// On server
+socket.on("chat-message", (message: WSMessageType) => {
+  // Do something with message
+  console.log(message.data);
+
+  // Emitting acknowledgement event
+  socket.emit({ id: message.id, endpoint: message.endpoint, data: { success: true } })
 });
 ```
 

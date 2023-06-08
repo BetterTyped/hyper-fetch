@@ -29,7 +29,7 @@ describe("useCache [ Helpers ]", () => {
         // Todo
       });
     });
-    describe("when revalidate gets triggered", () => {
+    describe("when invalidate gets triggered", () => {
       it("should remove cached data", async () => {
         // Todo
       });

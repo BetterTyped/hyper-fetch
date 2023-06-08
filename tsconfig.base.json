@@ -12,6 +12,12 @@
     },
     {
       "path": "./packages/adapter-firebase"
+    },
+    {
+      "path": "./packages/adapter-graphql"
+    },
+    {
+      "path": "./packages/adapter-axios"
     }
   ]
 }

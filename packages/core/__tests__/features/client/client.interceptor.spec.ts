@@ -1,7 +1,8 @@
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
-import { Client, xhrExtra } from "client";
+import { Client } from "client";
+import { xhrExtra } from "adapter";
 
 describe("Client [ Interceptor ]", () => {
   let client = new Client({ url: "shared-base-url" });

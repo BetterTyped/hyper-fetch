@@ -7,10 +7,10 @@ describe("useFetch [ Refreshing ]", () => {
   const hookOptions = {
     refresh: true,
     refreshTime: 100,
-    refreshBlurred: true,
-    refreshOnReconnect: true,
-    refreshOnBlur: true,
-    refreshOnFocus: true,
+    refetchBlurred: true,
+    refetchOnReconnect: true,
+    refetchOnBlur: true,
+    refetchOnFocus: true,
   };
 
   let request = createRequest();
@@ -51,7 +51,7 @@ describe("useFetch [ Refreshing ]", () => {
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
     createRequestInterceptor(request);
-    const { result } = renderUseFetch(request, { ...hookOptions, refreshOnBlur: false });
+    const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false });
 
     act(() => {
       result.current.onRequestStart(spy);
@@ -65,7 +65,7 @@ describe("useFetch [ Refreshing ]", () => {
   it("should not refresh blurred tab", async () => {
     const spy = jest.fn();
     createRequestInterceptor(request);
-    const { result } = renderUseFetch(request, { ...hookOptions, refreshOnBlur: false, refreshBlurred: false });
+    const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false, refetchBlurred: false });
 
     act(() => {
       result.current.onRequestStart(spy);
@@ -76,7 +76,7 @@ describe("useFetch [ Refreshing ]", () => {
     await waitForRender(hookOptions.refreshTime * 1.5);
     expect(spy).toBeCalledTimes(1);
   });
-  it("should postpone refresh when revalidation is triggered during countdown", async () => {
+  it("should postpone refresh when invalidation is triggered during countdown", async () => {
     // TODO
   });
   it("should postpone refresh when dependencies change during countdown", async () => {

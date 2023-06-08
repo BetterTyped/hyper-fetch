@@ -25,14 +25,14 @@ export const useFetch = <RequestType extends RequestInstance>(
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    revalidateOnMount = useFetchDefaultOptions.revalidateOnMount,
+    fetchOnMount = useFetchDefaultOptions.fetchOnMount,
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
-    refreshBlurred = useFetchDefaultOptions.refreshBlurred,
-    refreshOnBlur = useFetchDefaultOptions.refreshOnBlur,
-    refreshOnFocus = useFetchDefaultOptions.refreshOnFocus,
-    refreshOnReconnect = useFetchDefaultOptions.refreshOnReconnect,
+    refetchBlurred = useFetchDefaultOptions.refetchBlurred,
+    refetchOnBlur = useFetchDefaultOptions.refetchOnBlur,
+    refetchOnFocus = useFetchDefaultOptions.refetchOnFocus,
+    refetchOnReconnect = useFetchDefaultOptions.refetchOnReconnect,
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
@@ -107,7 +107,7 @@ export const useFetch = <RequestType extends RequestInstance>(
       const isFetching = dispatcher.hasRunningRequests(request.queueKey);
       const isQueued = dispatcher.getIsActiveQueue(request.queueKey);
       const isActive = isFetching || isQueued;
-      const canRefreshBlurred = isBlurred && refreshBlurred && !isActive;
+      const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
 
       if (canRefreshBlurred || canRefreshFocused) {
@@ -120,19 +120,19 @@ export const useFetch = <RequestType extends RequestInstance>(
     });
   }
 
-  const handleRevalidation = (invalidateKey: InvalidationKeyType) => {
+  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
     if (invalidateKey && invalidateKey instanceof Request) {
-      cache.revalidate(getRequestKey(invalidateKey));
+      cache.invalidate(getRequestKey(invalidateKey));
     } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.revalidate(invalidateKey);
+      cache.invalidate(invalidateKey);
     }
   };
 
-  const revalidate = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
+  const refetch = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
     if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleRevalidation);
+      invalidateKey.forEach(handleInvalidation);
     } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleRevalidation(invalidateKey);
+      handleInvalidation(invalidateKey);
     } else {
       handleFetch();
       handleRefresh();
@@ -146,7 +146,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
     const isFetching = dispatcher.getIsActiveQueue(queueKey);
-    if (revalidateOnMount || (hasStaleData && !isFetching)) {
+    if (fetchOnMount || (hasStaleData && !isFetching)) {
       handleFetch();
     }
   };
@@ -173,32 +173,32 @@ export const useFetch = <RequestType extends RequestInstance>(
     addLifecycleListeners(request);
 
     const focusUnmount = appManager.events.onFocus(() => {
-      if (refreshOnFocus) {
+      if (refetchOnFocus) {
         handleFetch();
         handleRefresh();
       }
     });
     const blurUnmount = appManager.events.onBlur(() => {
-      if (refreshOnBlur) {
+      if (refetchOnBlur) {
         handleFetch();
         handleRefresh();
       }
     });
     const onlineUnmount = appManager.events.onOnline(() => {
-      if (refreshOnReconnect) {
+      if (refetchOnReconnect) {
         handleFetch();
         handleRefresh();
       }
     });
 
-    const revalidateUnmount = cache.events.onRevalidate(cacheKey, handleFetch);
+    const invalidateUnmount = cache.events.onInvalidate(cacheKey, handleFetch);
 
     const unmount = () => {
       clearDataListener();
       focusUnmount();
       blurUnmount();
       onlineUnmount();
-      revalidateUnmount();
+      invalidateUnmount();
     };
 
     return unmount;
@@ -215,7 +215,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   useDidUpdate(handleMountEvents, [updateKey], true);
 
   /**
-   * Initial fetch triggered once data is stale or we use the revalidate strategy
+   * Initial fetch triggered once data is stale or we use the refetch strategy
    */
   useDidMount(initialFetchData);
 
@@ -265,6 +265,6 @@ export const useFetch = <RequestType extends RequestInstance>(
     bounce: getBounceData(bounceData),
     ...actions,
     ...callbacks,
-    revalidate,
+    refetch,
   };
 };
