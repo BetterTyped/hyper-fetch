@@ -64,7 +64,7 @@ export class Listener<
     return newInstance;
   }
 
-  listen: ListenType<this> = ({ callback, ...options }) => {
+  listen: ListenType<this, AdapterType> = ({ callback, ...options }) => {
     const instance = this.clone(options);
 
     const action = (response: { data: Response; extra: ExtractSocketExtraType<AdapterType> }) => {

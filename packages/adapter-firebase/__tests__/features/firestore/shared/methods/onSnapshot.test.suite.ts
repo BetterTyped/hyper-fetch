@@ -73,17 +73,20 @@ export const onSnapshotTestSuite = (
 
       let receivedData;
       let receivedExtra;
+      let ref;
 
       const unmount = await onSnapshotReq.listen({
         callback: ({ data, extra }) => {
           spy();
           receivedData = data;
           receivedExtra = extra;
+          ref = extra.ref;
         },
       });
 
       await waitForExpect(async () => {
         expect(spy).toBeCalled();
+        expect(ref).toBeDefined();
         expect(receivedData).toBeNull();
         expect(receivedExtra.status).toBe("emptyResource");
       });

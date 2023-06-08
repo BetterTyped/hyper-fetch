@@ -61,17 +61,24 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     };
 
     adapter.onmessage = (event: MessageEvent<SocketData>) => {
-      const parsed: MessageEvent<SocketData> = parseResponse(event);
-      const response: MessageEvent<SocketData>["data"] = parseResponse(parsed.data);
+      const extra: MessageEvent<SocketData> = parseResponse(event);
+      const response: MessageEvent<SocketData>["data"] = parseResponse(event.data);
       const data: MessageEvent<SocketData>["data"]["data"] = parseResponse(response.data);
 
-      onEvent(response.endpoint, data, parsed);
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.endpoint) ||
+      new Map();
+
+      eventListeners.forEach((_, action) => {
+        action({ data, extra: response });
+      });
+
+      onEvent(response.endpoint, data, extra);
     };
   };
 
   const disconnect = () => {
     onDisconnect();
-    adapter?.close();
+    adapter.close();
     onClose();
     clearTimers();
   };
@@ -98,6 +105,7 @@ export const sseAdapter: SSEAdapterType = (socket) => {
   if (socket.autoConnect) {
     connect();
   }
+
   socket.appManager.events.onOnline(() => {
     if (socket.autoConnect && !open) {
       connect();

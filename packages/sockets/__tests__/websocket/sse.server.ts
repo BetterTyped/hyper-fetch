@@ -13,3 +13,15 @@ export const sendSseEvent = <T extends ListenerInstance>(
   const data = constructEventData(listener, event);
   sources[wsUrl].emitMessage(new MessageEvent(listener.endpoint, { data: JSON.stringify(data) }));
 };
+
+export const openSse = () => {
+  sources[wsUrl].emitOpen();
+};
+
+export const closeSse = () => {
+  sources[wsUrl].close();
+};
+
+export const emitError = () => {
+  sources[wsUrl].emitError(new Error("Test error"));
+};

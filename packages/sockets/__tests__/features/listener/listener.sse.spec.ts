@@ -3,7 +3,7 @@ import { sources } from "eventsourcemock";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sendWsEvent, createWsServer, wsUrl } from "../../websocket/websocket.server";
+import { wsUrl } from "../../websocket/websocket.server";
 import { sleep } from "../../utils/helpers.utils";
 import { sseAdapter } from "adapter";
 import { sendSseEvent } from "../../websocket/sse.server";
@@ -19,7 +19,6 @@ describe("Listener [ SSE ]", () => {
   let listener = createListener<DataType>(socket);
 
   beforeEach(() => {
-    createWsServer();
     socket = createSocket(config);
     listener = createListener<DataType>(socket);
     jest.resetAllMocks();
@@ -30,6 +29,7 @@ describe("Listener [ SSE ]", () => {
     const spy = jest.fn();
     const message = { endpoint: "Maciej", age: 99 };
     let receivedExtra;
+
     listener.listen({
       callback: (data) => {
         spy(data);
@@ -51,12 +51,16 @@ describe("Listener [ SSE ]", () => {
     const spy = jest.fn();
     const removeListener = listener.listen({ callback: (data) => spy(data) });
     const message = { endpoint: "Maciej", age: 99 };
-    sendWsEvent(listener, message);
-    expect(spy).toHaveBeenCalledOnce();
+    sendSseEvent(listener, message);
+
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledOnce();
+    });
+
     removeListener();
-    sendWsEvent(listener, message);
-    sendWsEvent(listener, message);
-    sendWsEvent(listener, message);
+    sendSseEvent(listener, message);
+    sendSseEvent(listener, message);
+    sendSseEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
   });
 
@@ -65,12 +69,12 @@ describe("Listener [ SSE ]", () => {
     const listenerWithParams = socket.createListener<ResponseType>()({ endpoint: "test/:testId" });
     const removeListener = listenerWithParams.listen({ params: { testId: 1 }, callback: (data) => spy(data) });
     const message = { endpoint: "Maciej", age: 99 };
-    sendWsEvent(listenerWithParams.setParams({ testId: 1 }), message);
+    sendSseEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
-    sendWsEvent(listenerWithParams, message);
-    sendWsEvent(listenerWithParams, message);
-    sendWsEvent(listenerWithParams, message);
+    sendSseEvent(listenerWithParams, message);
+    sendSseEvent(listenerWithParams, message);
+    sendSseEvent(listenerWithParams, message);
     expect(spy).toHaveBeenCalledOnce();
   });
 
@@ -84,7 +88,7 @@ describe("Listener [ SSE ]", () => {
       })
       .listen({ callback: () => null });
     const message = { endpoint: "Maciej", age: 99 };
-    sendWsEvent(listener, message);
+    sendSseEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
     expect(receivedData).toStrictEqual(message);
     removeListener();
