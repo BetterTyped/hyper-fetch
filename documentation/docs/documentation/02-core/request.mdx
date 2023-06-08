@@ -336,8 +336,40 @@ const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 
 ---
 
+## Lifecycle listeners
+
+We can easily add lifecycle listeners to the **`send()`** method. This allows us to listen to the request events and
+perform callbacks with the received data for each stage of execution.
+
+{@import Hyper-Fetch FetchSendActionsType returns}
+
+#### Example
+
+```tsx
+await request.send({
+  onSettle: (requestId) => {
+    console.log(requestId);
+  },
+});
+```
+
+---
+
 ## Parameters
 
-Configuration options
+Configuration options for the `client.createRequest()` method.
 
 {@import Hyper-Fetch RequestOptionsType returns}
+
+#### Example
+
+```tsx
+const request = client.createRequest()({
+  endpoint: "/some-endpoint",
+  retry: 2,
+  cancelable: true,
+  cacheTime: 20000,
+  cacheKey: "users",
+  deduplication: true,
+});
+```
