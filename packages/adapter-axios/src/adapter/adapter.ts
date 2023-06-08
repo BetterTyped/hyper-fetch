@@ -5,14 +5,17 @@ import { AxiosAdapterType } from "./adapter.types";
 
 export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) => {
   const {
-    fullUrl,
     makeRequest,
     config,
     headers,
+    fullUrl,
+    payload,
     onError,
     onResponseEnd,
     onRequestEnd,
     createAbortListener,
+    onResponseProgress,
+    onRequestProgress,
     onResponseStart,
     onBeforeRequest,
     onRequestStart,
@@ -31,22 +34,31 @@ export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) =
     onRequestStart();
     axios({
       ...config,
+      data: payload,
       method,
       url: fullUrl,
       signal: controller.signal,
       headers: new AxiosHeaders(headers as RawAxiosRequestHeaders),
-    })
-      .then((response) => {
+      onUploadProgress: payload
+        ? (progressEvent) => {
+            onRequestProgress(progressEvent);
+          }
+        : undefined,
+      onDownloadProgress: (progressEvent) => {
         onRequestEnd();
         onResponseStart();
+        onResponseProgress(progressEvent);
+      },
+    })
+      .then((response) => {
         onSuccess(response.data, response.status, { headers: response.headers }, resolve);
-      })
-      .then(() => {
         onResponseEnd();
-        unmountListener();
       })
       .catch((error) => {
-        onError(error, error.response?.status, { headers: error.response?.headers }, resolve);
+        onError(error, error.response?.status || 0, { headers: error.response?.headers }, resolve);
+      })
+      .finally(() => {
+        unmountListener();
       });
   });
 };

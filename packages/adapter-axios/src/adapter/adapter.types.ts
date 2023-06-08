@@ -2,7 +2,7 @@ import { AdapterType } from "@hyper-fetch/core";
 import { AxiosHeaders, AxiosRequestConfig, Method, Method as AxiosMethods, RawAxiosRequestHeaders } from "axios";
 
 export type AxiosAdapterType = AdapterType<
-  Omit<AxiosRequestConfig, "url" | "baseURL" | "method">,
+  Omit<AxiosRequestConfig, "url" | "baseURL" | "method" | "onUploadProgress" | "onDownloadProgress" | "data">,
   AxiosMethods,
   number,
   AxiosExtra

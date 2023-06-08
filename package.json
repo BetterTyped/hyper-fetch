@@ -80,7 +80,7 @@
     "jest-websocket-mock": "^2.4.0",
     "jsdom": "~20.0.3",
     "lint-staged": "^13.0.1",
-    "msw": "^0.49.0",
+    "msw": "^1.2.1",
     "next": "13.1.1",
     "notistack": "^2.0.5",
     "prettier": "^2.6.2",
