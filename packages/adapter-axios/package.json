@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
-    "axios": "^1.4.0"
+    "axios": "*"
   },
   "dependencies": {},
   "devDependencies": {

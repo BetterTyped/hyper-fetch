@@ -1,4 +1,4 @@
-# 🎡 Hyper Fetch Axios
+# 🏛️ Hyper Fetch Axios
 
 <p>
   <a href="https://bettertyped.com/">
