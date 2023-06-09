@@ -177,16 +177,16 @@ const config = {
             activeBaseRegex: `/docs`,
           },
           {
-            to: "/docs/api/",
-            label: "API",
-            position: "left",
-            activeBaseRegex: `/docs/api`,
-          },
-          {
             to: "/docs/guides/basic/setup/",
             label: "Guides",
             position: "left",
             activeBaseRegex: `/docs/guides/`,
+          },
+          {
+            to: "/docs/api/",
+            label: "API",
+            position: "left",
+            activeBaseRegex: `/docs/api`,
           },
           {
             to: "/examples/playground/",
