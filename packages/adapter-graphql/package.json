@@ -31,7 +31,6 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "prepublishOnly": "yarn build",
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
@@ -51,7 +50,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
-    "directory": "packages/core"
+    "directory": "packages/adapter-graphql"
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
