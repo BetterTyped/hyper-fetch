@@ -23,7 +23,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-v${version}'"
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-admin-v${version}'"
   },
   "publishConfig": {
     "access": "public",

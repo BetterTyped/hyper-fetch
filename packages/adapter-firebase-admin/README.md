@@ -1,4 +1,4 @@
-# 🔥 Hyper Fetch Firebase
+# 🔥 Hyper Fetch Firebase Admin
 
 <p>
   <a href="https://bettertyped.com/">
