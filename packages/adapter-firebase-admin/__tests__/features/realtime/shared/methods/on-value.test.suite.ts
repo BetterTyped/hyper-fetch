@@ -146,10 +146,10 @@ export const onValueTestSuite = (
         },
       });
 
-      await pushReq.send();
+      const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([newData]);
+        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data.__key }]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");
@@ -179,6 +179,7 @@ export const onValueTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toStrictEqual({
+          __key: "1",
           amount: 150,
           name: "Taiping Hou Kui",
           origin: "China",

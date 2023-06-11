@@ -21,7 +21,7 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof fire
       });
       await updateReq.send({ params: { teaId: 1 } });
       const { data } = await getReq.send({ params: { teaId: 1 } });
-      expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green" });
+      expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green", __key: "1" });
     });
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

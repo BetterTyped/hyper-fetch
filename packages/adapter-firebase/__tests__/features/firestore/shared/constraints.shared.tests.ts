@@ -2,7 +2,7 @@ import { Client } from "@hyper-fetch/core";
 
 import { FirestoreAdapterType } from "adapter";
 import { $limit, $orderBy, $where } from "constraints";
-import { Tea } from "../../../utils/seed/seed.data";
+import { Tea } from "../../../utils";
 
 export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapterType>) => {
   describe("filtering", () => {
@@ -58,7 +58,9 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
         queryParams: { constraints: [$where("type", "==", "Green"), $orderBy("year"), $limit(1)] },
       });
       expect(data).toHaveLength(1);
-      expect(data[0]).toStrictEqual({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      const { __key, ...rest } = data[0];
+      expect(rest).toStrictEqual({
         name: "Hon.yama Sencha",
         type: "Green",
         origin: "Japan",

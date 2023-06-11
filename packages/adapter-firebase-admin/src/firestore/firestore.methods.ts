@@ -32,7 +32,7 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
     getDoc: async () => {
       const path = getRef(database, cleanUrl);
       const snapshot = (await path.get()) as DocumentSnapshot;
-      const result = snapshot.data() || null;
+      const result = snapshot.data() ? { ...snapshot.data(), __key: snapshot.id } : null;
       const status = result ? "success" : "emptyResource";
       return { result, status, extra: { ref: path, snapshot } };
     },
@@ -54,7 +54,7 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
     addDoc: async ({ data }: { data?: any }) => {
       const ref = getRef(database, cleanUrl) as CollectionReference;
       const docRef = await ref.add(data);
-      return { result: data, status: "success", extra: { ref: docRef } };
+      return { result: { ...data, __key: docRef.id }, status: "success", extra: { ref: docRef } };
     },
     updateDoc: async ({ data }: { data?: any }) => {
       const path = getRef(database, cleanUrl) as DocumentReference;

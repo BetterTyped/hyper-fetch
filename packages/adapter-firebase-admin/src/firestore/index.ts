@@ -1,3 +1,3 @@
-export * from "./firestore.admin.sockets";
-export * from "./firestore.admin.methods";
+export * from "./firestore.sockets";
+export * from "./firestore.methods";
 export * from "./utils";

@@ -20,6 +20,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
       });
       const { data, extra, status, success, error } = await req.send();
       expect(data).toHaveLength(10);
+      expect(data[0]).toHaveProperty("__key");
       expect(extra).toHaveProperty("snapshot");
       expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");

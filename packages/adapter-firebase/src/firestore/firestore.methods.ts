@@ -43,7 +43,7 @@ export const getFirestoreBrowserMethods = <R extends RequestInstance>(
     getDoc: async () => {
       const path = doc(database, cleanUrl);
       const snapshot = await getDoc(path);
-      const result = snapshot.data() || null;
+      const result = snapshot.data() ? { ...snapshot.data(), __key: snapshot.id } : null;
       const status = result ? "success" : "emptyResource";
       return { result, status, extra: { ref: path, snapshot } };
     },
@@ -72,7 +72,7 @@ export const getFirestoreBrowserMethods = <R extends RequestInstance>(
     addDoc: async ({ data }: { data?: any }) => {
       const path = collection(database, cleanUrl);
       const docRef = await addDoc(path, data);
-      return { result: data, status: "success", extra: { ref: docRef } };
+      return { result: { ...data, __key: docRef.id }, status: "success", extra: { ref: docRef } };
     },
     updateDoc: async ({ data }: { data?: any }) => {
       const path = doc(database, cleanUrl);

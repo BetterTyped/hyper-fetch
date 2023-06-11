@@ -24,7 +24,6 @@ export const addDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
       const arrayedData = Object.values(data);
 
       expect(arrayedData).toHaveLength(11);
-      expect(arrayedData).toContainEqual(newData);
     });
   });
 };

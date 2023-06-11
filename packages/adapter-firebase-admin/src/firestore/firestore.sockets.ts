@@ -44,8 +44,9 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
 
       unsubscribe = pathRef.onSnapshot(
         (snapshot) => {
+          const getSnapshotData = (s) => (s.data() ? { ...s.data(), __key: s.id } : null);
           const response =
-            snapshot instanceof DocumentSnapshot ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
+            snapshot instanceof DocumentSnapshot ? getSnapshotData(snapshot) : getOrderedResultFirestore(snapshot);
           const status = getStatus(response);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };

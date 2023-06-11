@@ -62,7 +62,8 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       unsubscribe = onSnapshot(
         path,
         (snapshot) => {
-          const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
+          const getDocData = (s) => (s.data() ? { ...s.data(), __key: s.id } : null);
+          const response = queryType === "doc" ? getDocData(snapshot) : getOrderedResultFirestore(snapshot);
           const status = getStatus(response);
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: path, snapshot, groupedResult, status };

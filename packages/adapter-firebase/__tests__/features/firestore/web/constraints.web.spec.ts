@@ -5,8 +5,7 @@ import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdapter } from "adapter";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
-import { seedFirestoreDatabaseBrowser } from "../../../utils/browser/seed.browser";
-import { deleteCollectionForBrowser } from "../../../utils/browser/clean.browser";
+import { seedFirestoreDatabaseBrowser, deleteCollectionForBrowser } from "../../../utils";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Firestore Browser [ Constraints ]", () => {

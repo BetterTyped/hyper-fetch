@@ -1,8 +1,7 @@
 /**
  * @jest-environment node
  */
-import { realtimeDbAdmin } from "../../../utils";
-import { seedRealtimeDatabaseAdmin } from "../../../utils/seed.admin";
+import { realtimeDbAdmin, seedRealtimeDatabaseAdmin } from "../../../utils";
 import { firebaseAdminAdapter } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 

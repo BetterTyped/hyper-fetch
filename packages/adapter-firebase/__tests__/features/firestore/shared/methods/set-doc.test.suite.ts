@@ -26,8 +26,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
       await setReq.send();
       const { data } = await getReq.send();
 
-      expect(data).toStrictEqual(newData);
-      // expect(extra.snapshot.exists()).toBe(true);
+      expect(data).toStrictEqual({ ...newData, __key: "1" });
     });
     it("should merge data if merge options is passed", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

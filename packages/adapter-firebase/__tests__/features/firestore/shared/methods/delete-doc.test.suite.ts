@@ -26,6 +26,7 @@ export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof fire
       await removeReq.send();
       const { data } = await getReq.send();
       expect(beforeRemoval).toStrictEqual({
+        __key: "1",
         amount: 150,
         year: 2023,
         origin: "China",

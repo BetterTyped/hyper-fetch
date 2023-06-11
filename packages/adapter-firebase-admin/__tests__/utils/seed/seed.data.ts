@@ -4,6 +4,7 @@ export type Tea = {
   origin: string;
   amount: number;
   year: number;
+  __key: number | string;
 };
 
 export const teas = [

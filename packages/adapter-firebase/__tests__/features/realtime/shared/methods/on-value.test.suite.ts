@@ -146,10 +146,10 @@ export const onValueTestSuite = (
         },
       });
 
-      await pushReq.send();
+      const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([newData]);
+        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data.__key }]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");

@@ -1,7 +1,7 @@
 export const getOrderedResultFirestore = (snapshot: any) => {
   const result = [];
   snapshot.docs.forEach((d) => {
-    result.push(d.data());
+    result.push({ ...d.data(), __key: d.id });
   });
   return result.length > 0 ? result : null;
 };
