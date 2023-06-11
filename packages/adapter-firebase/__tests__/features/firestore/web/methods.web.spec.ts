@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { firebaseAdapter } from "adapter/index.browser";
+import { firebaseAdapter } from "adapter";
 import { seedFirestoreDatabaseBrowser, deleteCollectionForBrowser } from "../../../utils";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";

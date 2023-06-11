@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter/index.browser";
+import { firebaseAdapter } from "adapter";
 import { firebaseAdminAdapter } from "adapter/index.server";
 import { Tea } from "../../../../utils";
 

@@ -12,14 +12,14 @@ import {
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter/index.browser";
+import { FirestoreMethodsUnion } from "adapter";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
 } from "constraints";
-import { getOrderedResultFirestore } from "firestore/index.browser";
+import { getOrderedResultFirestore } from "firestore";
 import { mapConstraint } from "./firestore.browser.utils";
 import { getStatus } from "utils";
 

@@ -2,7 +2,7 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter/index.browser";
+import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
 import { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter/index.server";
 import { Tea } from "../../../../utils";
 

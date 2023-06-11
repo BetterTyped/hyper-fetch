@@ -6,7 +6,7 @@ import { getDocsTestSuite } from "./methods/get-docs.test.suite";
 import { setDocTestSuite } from "./methods/set-doc.test.suite";
 import { updateDocTestSuite } from "./methods/update-doc.test.suite";
 import { onSnapshotTestSuite } from "./methods/on-snapshot.test.suite";
-import { firebaseAdapter, FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter/index.browser";
+import { firebaseAdapter, FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
 
 export const methodsSharedTestCases = (
   adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,

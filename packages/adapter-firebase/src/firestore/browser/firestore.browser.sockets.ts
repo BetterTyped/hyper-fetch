@@ -2,8 +2,8 @@ import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onSnapshot, Firestore, doc, query, collection, disableNetwork, enableNetwork } from "firebase/firestore";
 
 import { getStatus, isDocOrQuery } from "utils";
-import { mapConstraint, getGroupedResultFirestore, getOrderedResultFirestore } from "firestore/index.browser";
-import { FirestoreSocketAdapterType } from "adapter/index.browser";
+import { mapConstraint, getGroupedResultFirestore, getOrderedResultFirestore } from "firestore";
+import { FirestoreSocketAdapterType } from "adapter";
 
 export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
   return (socket) => {

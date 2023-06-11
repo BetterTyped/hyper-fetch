@@ -3,7 +3,7 @@
  */
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter/index.browser";
+import { firebaseAdapter } from "adapter";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
 import { seedFirestoreDatabaseBrowser, deleteCollectionForBrowser } from "../../../utils";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";

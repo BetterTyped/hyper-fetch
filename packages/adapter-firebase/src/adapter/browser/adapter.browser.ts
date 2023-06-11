@@ -12,9 +12,9 @@ import {
   FirestoreQueryParams,
   FirestoreMethods,
   RealtimeDBMethods,
-} from "adapter/index.browser";
-import { getRealtimeDbBrowserMethods } from "realtime/index.browser";
-import { getFirestoreBrowserMethods } from "firestore/index.browser";
+} from "adapter";
+import { getRealtimeDbBrowserMethods } from "realtime";
+import { getFirestoreBrowserMethods } from "firestore";
 
 export const firebaseAdapter =
   <T extends FirebaseBrowserDBTypes>(database: T) =>

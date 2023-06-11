@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../../utils";
-import { firebaseAdapter } from "adapter/index.browser";
+import { firebaseAdapter } from "adapter";
 import { firebaseAdminAdapter } from "adapter/index.server";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 

@@ -8,28 +8,8 @@
   "license": "Apache-2.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
-  "client": "dist/browser/index.esm.js",
-  "browser": "dist/browser/index.esm.js",
-  "server": "dist/server/index.esm.js",
-  "node": "dist/server/index.esm.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
-  "exports": {
-    ".": {
-      "types": {
-        "import": "./index.d.ts"
-      },
-      "browser": {
-        "require": "./dist/browser/index.cjs.js",
-        "import": "./dist/browser/index.esm.js"
-      },
-      "default": {
-        "require": "./dist/index.cjs.js",
-        "import": "./dist/index.esm.js"
-      }
-    },
-    "./package.json": "./package.json"
-  },
   "scripts": {
     "clean": "npx rimraf dist",
     "test": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",

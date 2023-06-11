@@ -1,8 +1,8 @@
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/index.browser";
-import { mapRealtimeConstraint, getOrderedResultRealtime } from "realtime/index.browser";
+import { RealtimeDBMethodsUnion } from "adapter";
+import { mapRealtimeConstraint, getOrderedResultRealtime } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
 import {
   PermittedConstraints,

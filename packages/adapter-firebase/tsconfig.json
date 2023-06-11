@@ -2,13 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": ".",
-    "baseUrl": "./src",
-    "paths": {
-      "@adapter": ["./adapter/index.browser.ts"],
-      "@firestore": ["./firestore/index.browser.ts"],
-      "@realtime": ["./realtime/index.browser.ts"]
-    }
+    "baseUrl": "./src"
   },
-  "include": ["./src/index.ts", "__tests__/*"],
-  "exclude": ["dist", "jest.config.ts"]
+  "exclude": ["dist", "jest.config.ts", "__tests__"]
 }
