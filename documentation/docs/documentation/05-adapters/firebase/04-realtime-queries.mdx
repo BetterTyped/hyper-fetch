@@ -14,6 +14,7 @@ In Hyper Fetch, in order to make use of these two methods, we have to use our `h
 
 ```tsx
 import {Socket} from "@hyper-fetch/sockets";
+import {firebaseSocketsAdapter} from "@hyper-fetch/firebase";
 
 const firestoreWebDatabase = <initializedFirestoreDatabase>
 const socket = new Socket({ url: "teas/", adapter: firebaseSocketsAdapter(firestoreWebDatabase) });
@@ -28,8 +29,8 @@ const unmount = await onValueReq.listen({ callback: ({data, extra} => {
 
 As you can see in the presented example:
 1. First we need to initialize the socket itself. Here we need to pass an adapter:
-    - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore
-    - `firebaseAdminSocketsAdapter` - for admin version of both databases.
+    - `firebaseSocketsAdapter` - for web version of Realtime Database and Firestore - from the `@hyper-fetch/firebase` package.
+    - `firebaseSocketsAdminAdapter` - for admin version of both databases - from the `@hyper-fetch/-firebase-admin` package.
 
 The adapter accepts initialized database.
 

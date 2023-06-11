@@ -12,10 +12,16 @@ backend, with a single, unified approach for all of them.
 In order to start using the firebase adapter, you have to initialize the firestore/realtime database and set the correct
 adapter on the `client`.
 
-There are two packages to chose from:
+There are two packages to chose from with two adapters each:
 
-1. `@hyper-fetch/firebase` - for working with web realtime and firestore databases.
-2. `@hyper-fetch/firebase-admin` - for admin versions of the packages.
+1. `@hyper-fetch/firebase` - for working with web realtime and firestore databases:
+    1. `firebaseAdapter` - for standard REST requests.
+    2. `firebaseSocketsAdapter` - for realtime listening.
+2. `@hyper-fetch/firebase-admin` - for admin versions of the packages:
+    1. `firebaseAdminAdapter` - for standard REST requests.
+    2. `firebaseSocketsAdminAdapter` - for realtime listening.
+
+Both packages have the same unified interface.
 
 ```tsx
 import { firebaseAdapter } from "@hyper-fetch/firebase";
