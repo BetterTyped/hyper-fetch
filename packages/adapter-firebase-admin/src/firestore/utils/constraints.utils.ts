@@ -1,4 +1,4 @@
-import { CollectionReference, DocumentReference, Firestore } from "firebase-admin/lib/firestore";
+import { CollectionReference } from "firebase-admin/lib/firestore";
 import { OrderByDirection } from "firebase/firestore";
 
 import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "../../constraints";

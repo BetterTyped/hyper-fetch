@@ -4,18 +4,18 @@ title: Firebase introduction
 sidebar_label: Introduction
 ---
 
-Hyper Fetch `firebase` package is a complete integration of `realtime database` and `firestore`, both for frontend and
-backend. It offers single, unified approach for all of them.
+Hyper Fetch `firebase` packages offer complete integration of `realtime database` and `firestore`, both for frontend and
+backend, with a single, unified approach for all of them.
 
 ## Getting Started
 
 In order to start using the firebase adapter, you have to initialize the firestore/realtime database and set the correct
 adapter on the `client`.
 
-There are two adapters to chose from:
+There are two subpackage to chose from:
 
-1. `firebaseAdapter` - for working with web realtime and firestore databases.
-2. `firebaseAdminAdapter` - for admin versions of the packages.
+1. `@hyper-fetch/firebase` - for admin versions of the packages.
+2. `@hyper-fetch/firebase-admin` - for working with web realtime and firestore databases.
 
 ```tsx
 import { firebaseAdapter } from "@hyper-fetch/firebase";
@@ -37,6 +37,13 @@ const getReq = client.createRequest<Tea[]>()({
 
 // Checking the results
 const { data, status, extra, success, error } = await getReq.send();
+```
+
+In case of firebase admin, the only difference is in the import:
+
+```tsx
+import { firebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
+...
 ```
 
 Resulting `response` is an object that contains the following properties:

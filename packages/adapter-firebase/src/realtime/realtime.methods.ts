@@ -1,9 +1,9 @@
-import { Database } from "firebase-admin/database";
+import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
 import { RealtimeDBMethodsUnion } from "adapter/types";
+import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
-import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,
@@ -11,14 +11,14 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
+export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
   request: R,
   database: Database,
   url: string,
   onSuccess,
   onError,
   resolve,
-  events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
+  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
 ): ((
   methodName: RealtimeDBMethodsUnion,
   data: {
@@ -28,30 +28,34 @@ export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
   },
 ) => Promise<void>) => {
   const [fullUrl] = url.split("?");
-  const path = database.ref(fullUrl);
+  const path = ref(database, fullUrl);
   const methods = {
-    get: async ({ constraints }) => {
-      const docOrQuery = isDocOrQuery(fullUrl);
-      const q = applyRealtimeAdminConstraints(path, constraints);
-      const snapshot = await q.get();
-      const res = docOrQuery === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+    get: async ({
+      constraints = [],
+    }: {
+      constraints?: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
+    }) => {
+      const params = constraints.map((constraint) => mapRealtimeConstraint(constraint));
+      const q = query(path, ...params);
+      const snapshot = await get(q);
+      const res = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
       const status = getStatus(res);
       return { result: res, status, extra: { ref: path, snapshot } };
     },
-    set: async ({ data }) => {
-      await path.set(data);
+    set: async ({ data }: { data?: any }) => {
+      await set(path, data);
       return { result: data, status: "success", extra: { ref: path } };
     },
-    push: async ({ data }) => {
-      const resRef = await path.push(data);
+    push: async ({ data }: { data?: any }) => {
+      const resRef = await push(path, data);
       return { result: data, status: "success", extra: { ref: resRef, key: resRef.key } };
     },
-    update: async ({ data }) => {
-      await path.update(data);
+    update: async ({ data }: { data?: any }) => {
+      await update(path, data);
       return { result: data, status: "success", extra: { ref: path } };
     },
     remove: async () => {
-      await path.remove();
+      await remove(path);
       return { result: null, status: "success", extra: { ref: path } };
     },
   };

@@ -1,11 +1,11 @@
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
-import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
+import { onSnapshot, Firestore, doc, query, collection, disableNetwork, enableNetwork } from "firebase/firestore";
 
-import { getOrderedResultRealtime, mapRealtimeConstraint } from "realtime";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "adapter";
+import { mapConstraint, getGroupedResultFirestore, getOrderedResultFirestore } from "./utils";
+import { FirestoreSocketAdapterType } from "adapter";
 
-export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
+export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
   return (socket) => {
     const {
       open,
@@ -27,13 +27,13 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       const enabled = onConnect();
 
       if (enabled) {
-        goOnline(database);
+        enableNetwork(database);
         onOpen();
       }
     };
 
     const disconnect = () => {
-      goOffline(database);
+      disableNetwork(database);
       onDisconnect();
       onClose();
     };
@@ -42,30 +42,36 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       onReconnect(disconnect, connect);
     };
 
-    const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
+    const listen: ReturnType<FirestoreSocketAdapterType>["listen"] = (listener, callback) => {
       const fullUrl = socket.url + listener.endpoint;
-      const path = ref(database, fullUrl);
-
       const { options } = listener;
-      const onlyOnce = options?.onlyOnce || false;
-      const params = options?.constraints?.map((constraint) => mapRealtimeConstraint(constraint)) || [];
-      const queryConstraints = query(path, ...params);
+
+      let path;
+      const queryType = isDocOrQuery(fullUrl);
+      if (queryType === "doc") {
+        path = doc(database, fullUrl);
+      } else {
+        const constraints = options?.constraints || [];
+        const queryConstraints = constraints.map((constr) => mapConstraint(constr)) || [];
+        path = query(collection(database, fullUrl), ...queryConstraints);
+      }
       let unsubscribe = () => {};
       let unmount = () => {};
       let clearListeners = () => {};
-      unsubscribe = onValue(
-        queryConstraints,
+
+      unsubscribe = onSnapshot(
+        path,
         (snapshot) => {
-          const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
+          const response = queryType === "doc" ? snapshot.data() || null : getOrderedResultFirestore(snapshot);
           const status = getStatus(response);
-          const extra = { ref: path, snapshot, status };
+          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const extra = { ref: path, snapshot, groupedResult, status };
           callback({ data: response, extra });
           onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);
         },
-        { onlyOnce },
       );
       unmount = onListen(listener, callback, unsubscribe);
       clearListeners = () => {
@@ -77,7 +83,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     };
 
     const emit = async () => {
-      throw new Error("Cannot emit from Realtime database socket.");
+      throw new Error("Cannot emit from Firestore database socket.");
     };
 
     return {

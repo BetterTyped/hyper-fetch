@@ -1,11 +1,11 @@
-import { Database } from "firebase-admin/lib/database";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
+import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
+import { getOrderedResultRealtime, mapRealtimeConstraint } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from "adapter";
+import { RealtimeSocketAdapterType } from "adapter";
 
-export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAdapterType => {
+export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
     const {
       open,
@@ -27,13 +27,13 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       const enabled = onConnect();
 
       if (enabled) {
-        database.goOnline();
+        goOnline(database);
         onOpen();
       }
     };
 
     const disconnect = () => {
-      database.goOffline();
+      goOffline(database);
       onDisconnect();
       onClose();
     };
@@ -42,30 +42,33 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       onReconnect(disconnect, connect);
     };
 
-    const listen: ReturnType<RealtimeAdminSocketAdapterType>["listen"] = (listener, callback) => {
+    const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
       const fullUrl = socket.url + listener.endpoint;
-      const path = database.ref(fullUrl);
+      const path = ref(database, fullUrl);
+
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
-      const q = applyRealtimeAdminConstraints(path, options?.constraints || []);
-      const method = onlyOnce === true ? "once" : "on";
-      q[method](
-        "value",
+      const params = options?.constraints?.map((constraint) => mapRealtimeConstraint(constraint)) || [];
+      const queryConstraints = query(path, ...params);
+      let unsubscribe = () => {};
+      let unmount = () => {};
+      let clearListeners = () => {};
+      unsubscribe = onValue(
+        queryConstraints,
         (snapshot) => {
           const response = isDocOrQuery(fullUrl) === "doc" ? snapshot.val() : getOrderedResultRealtime(snapshot);
           const status = getStatus(response);
-          const extra: RealtimeAdminOnValueMethodExtra = { ref: path, snapshot, status };
+          const extra = { ref: path, snapshot, status };
           callback({ data: response, extra });
           onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);
         },
+        { onlyOnce },
       );
-      const unsubscribe = () => q.off("value");
-      const unmount = onListen(listener, callback, unsubscribe);
-
-      const clearListeners = () => {
+      unmount = onListen(listener, callback, unsubscribe);
+      clearListeners = () => {
         unsubscribe();
         unmount();
       };

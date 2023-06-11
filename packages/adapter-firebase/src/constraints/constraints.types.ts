@@ -45,27 +45,3 @@ type ExtractConstraintType<T> = T extends { toString: () => string; type: infer 
   : never;
 
 export type PermittedConstraints<T, U> = ExtractConstraintType<T> extends U ? T : never;
-//
-// // TODO - why second and third elements compare to LIMIT and all others to FirestorePermittedMethods (that is correct)
-// type firestoreConstraints = PermittedConstraints<
-//   FirestorePermittedMethods,
-//   FirestoreConstraintsUnion | SharedQueryConstraints
-// >;
-// type realtimeConstraints = PermittedConstraints<
-//   RealtimePermittedMethods,
-//   RealtimeConstraintsUnion | SharedQueryConstraints
-// >;
-// // const firestoreCheck: firestoreConstraints[] = [
-// //   $where("type", "==", "Green"),
-// //   $orderByChild("sdfs"),
-// //   $equalTo("sdfs"),
-// //   $equalTo("ds"),
-// // ];
-// // TODO - same here - why compares incorrect one to 'EQUAL_TO'
-// const realtimeCheck: realtimeConstraints[] = [
-//   $orderByChild("sdfs"),
-//   $startAt(100),
-//   $where("type", "==", "Green"),
-//   $where("type", "==", "Green"),
-//   $where("type", "==", "Green"),
-// ];

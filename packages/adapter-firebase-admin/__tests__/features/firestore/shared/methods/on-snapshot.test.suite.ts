@@ -8,7 +8,7 @@ import { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
   adapter: FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: FirebaseAdminAdapterTypes<any>,
+  coreAdapter: () => FirebaseAdminAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
   let spy = jest.fn();

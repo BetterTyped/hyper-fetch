@@ -20,8 +20,7 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 import { getStatus } from "utils";
-import { getOrderedResultFirestore } from "../utils/firestore.utils";
-import { mapConstraint } from "./firestore.browser.utils";
+import { getOrderedResultFirestore, mapConstraint } from "./utils";
 
 export const getFirestoreBrowserMethods = <R extends RequestInstance>(
   request: R,

@@ -1,12 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
-import { Tea } from "../../../../utils/seed/seed.data";
+import { firebaseAdapter } from "adapter";
+import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const deleteDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
-) => {
+export const deleteDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
   describe("deleteDoc", () => {
     it("should allow for removing data", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

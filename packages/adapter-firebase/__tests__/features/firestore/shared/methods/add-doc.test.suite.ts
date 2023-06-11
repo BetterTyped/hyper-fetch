@@ -1,11 +1,9 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
-import { Tea } from "../../../../utils/seed/seed.data";
+import { firebaseAdapter } from "adapter";
+import { Tea } from "../../../../utils";
 
-export const addDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
-) => {
+export const addDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
   describe("addDoc", () => {
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;
