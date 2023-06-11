@@ -1,11 +1,5 @@
-import {
-  firebaseAdminAdapter,
-  firebaseAdapter,
-  FirebaseAdminAdapterTypes,
-  FirebaseBrowserAdapterTypes,
-  FirebaseBrowserSocketAdapterTypes,
-  FirebaseAdminSocketAdapterTypes,
-} from "adapter/index.browser";
+import { firebaseAdapter, FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter/index.browser";
+import { firebaseAdminAdapter, FirebaseAdminSocketAdapterTypes, FirebaseAdminAdapterTypes } from "adapter/index.server";
 import { getTestSuite } from "./methods/get.test.suite";
 import { setTestSuite } from "./methods/set.test.suite";
 import { pushTestSuite } from "./methods/push.test.suite";

@@ -1,8 +1,8 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirestoreAdapterType } from "@adapter";
 import { $limit, $orderBy, $where } from "constraints";
-import { Tea } from "../../../utils/seed/seed.data";
+import { Tea } from "../../../utils";
+import { FirestoreAdapterType } from "adapter/index.browser";
 
 export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapterType>) => {
   describe("filtering", () => {

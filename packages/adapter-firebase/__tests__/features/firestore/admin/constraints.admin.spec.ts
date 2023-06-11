@@ -4,7 +4,7 @@
 import { Client } from "@hyper-fetch/core";
 
 import { firebaseAdminAdapter } from "adapter/index.server";
-import { seedFirestoreDatabaseAdmin } from "../../../utils/admin/seed.admin";
+import { seedFirestoreDatabaseAdmin } from "../../../utils";
 import { firestoreDbAdmin } from "../../../utils/admin/initialize.firestore.admin";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 

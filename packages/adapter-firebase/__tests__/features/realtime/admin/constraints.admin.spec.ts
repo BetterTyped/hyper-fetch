@@ -1,6 +1,5 @@
 import { firebaseAdminAdapter } from "adapter/index.server";
-import { seedRealtimeDatabaseAdmin } from "../../../utils/admin/seed.admin";
-import { realtimeDbAdmin } from "../../../utils";
+import { seedRealtimeDatabaseAdmin, realtimeDbAdmin } from "../../../utils";
 import { constraintsSharedTestCases } from "../shared/constraints.shared.tests";
 
 describe("Realtime Database Admin [Constraints]", () => {

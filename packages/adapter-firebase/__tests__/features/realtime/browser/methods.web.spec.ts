@@ -1,8 +1,7 @@
 import { set, ref } from "firebase/database";
 
 import { firebaseAdapter } from "adapter/index.browser";
-import { realtimeDBBrowser } from "../../../utils";
-import { seedRealtimeDatabaseBrowser } from "../../../utils/browser/seed.browser";
+import { realtimeDBBrowser, seedRealtimeDatabaseBrowser } from "../../../utils";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Browser [ Methods ]", () => {

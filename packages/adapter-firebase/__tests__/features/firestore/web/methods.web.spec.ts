@@ -3,8 +3,7 @@
  */
 
 import { firebaseAdapter } from "adapter/index.browser";
-import { seedFirestoreDatabaseBrowser } from "../../../utils/browser/seed.browser";
-import { deleteCollectionForBrowser } from "../../../utils/browser/clean.browser";
+import { seedFirestoreDatabaseBrowser, deleteCollectionForBrowser } from "../../../utils";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 import { firestoreDbBrowser } from "../../../utils/browser/initialize.firestore.browser";
 

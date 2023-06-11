@@ -1,7 +1,9 @@
 import { Client } from "@hyper-fetch/core";
 
-import { $endAt, $limitToFirst, $orderByChild, $startAt, firebaseAdminAdapter, firebaseAdapter } from "../../../../src";
-import { Tea } from "../../../utils/seed/seed.data";
+import { $endAt, $limitToFirst, $orderByChild, $startAt } from "constraints";
+import { firebaseAdapter } from "adapter/index.browser";
+import { firebaseAdminAdapter } from "adapter/index.server";
+import { Tea } from "../../../utils";
 
 export const constraintsSharedTestCases = (
   adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
