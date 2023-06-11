@@ -1,15 +1,16 @@
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter/index.server";
-import { getStatus } from "utils";
-import { applyFireStoreAdminConstraints, getRef, getOrderedResultFirestore } from "firestore/index.server";
+import { FirestoreMethodsUnion } from "../../adapter/admin/types";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
   PermittedConstraints,
   SharedQueryConstraints,
-} from "constraints";
+} from "../../constraints";
+import { applyFireStoreAdminConstraints, getRef } from "./firestore.admin.utils";
+import { getOrderedResultFirestore } from "../utils";
+import { getStatus } from "../../utils";
 
 export const getFirestoreAdminMethods = <R extends RequestInstance>(
   request: R,

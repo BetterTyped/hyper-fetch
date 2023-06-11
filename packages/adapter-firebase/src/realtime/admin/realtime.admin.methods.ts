@@ -1,15 +1,16 @@
 import { Database } from "firebase-admin/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/index.server";
-import { getStatus, isDocOrQuery } from "utils";
-import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index.server";
+import { RealtimeDBMethodsUnion } from "../../adapter/admin/types";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,
   RealtimePermittedMethods,
   SharedQueryConstraints,
-} from "constraints";
+} from "../../constraints";
+import { getStatus, isDocOrQuery } from "../../utils";
+import { applyRealtimeAdminConstraints } from "./realtime.admin.utils";
+import { getOrderedResultRealtime } from "../utils";
 
 export const getRealtimeDbAdminMethods = <R extends RequestInstance>(
   request: R,

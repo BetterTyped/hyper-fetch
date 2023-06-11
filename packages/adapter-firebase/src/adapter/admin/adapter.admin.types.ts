@@ -2,11 +2,11 @@ import { Database } from "firebase-admin/database";
 import { Firestore } from "firebase-admin/firestore";
 
 import {
-  RealtimeDbAdapterType,
   FirestoreAdapterType,
   FirestoreAdminSocketAdapterType,
   RealtimeAdminSocketAdapterType,
-} from "@adapter";
+  RealtimeDbAdapterType,
+} from "./types";
 
 export type FirebaseAdminDBTypes = Database | Firestore;
 export type FirebaseAdminAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;

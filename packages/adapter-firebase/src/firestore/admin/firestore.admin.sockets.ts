@@ -3,11 +3,12 @@ import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
 import { applyFireStoreAdminConstraints, getRef } from "./firestore.admin.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils";
-import { getStatus } from "utils";
-import { FirestoreAdminSocketAdapterType } from "adapter/index.server";
+import { FirestoreAdminSocketAdapterType } from "../../adapter/admin/types";
+import { getStatus } from "../../utils";
 
-export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
-  return (socket) => {
+export const firestoreAdminSockets =
+  (database: Firestore): FirestoreAdminSocketAdapterType =>
+  (socket) => {
     const {
       open,
       connecting,
@@ -83,4 +84,3 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
       disconnect,
     };
   };
-};

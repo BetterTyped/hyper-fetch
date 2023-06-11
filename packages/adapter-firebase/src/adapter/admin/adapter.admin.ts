@@ -1,20 +1,19 @@
 import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
 import { Firestore } from "firebase-admin/firestore";
 
+import { FirebaseAdminAdapterTypes, FirebaseAdminDBTypes } from "./adapter.admin.types";
 import {
   FirestoreAdapterType,
+  FirestoreMethods,
   FirestoreMethodsUnion,
   FirestoreQueryParams,
-  FirebaseAdminAdapterTypes,
-  FirebaseAdminDBTypes,
   RealtimeDbAdapterType,
+  RealtimeDBMethods,
   RealtimeDBMethodsUnion,
   RealtimeDBQueryParams,
-  FirestoreMethods,
-  RealtimeDBMethods,
-} from "adapter/index.server";
-import { getFirestoreAdminMethods } from "firestore/index.server";
-import { getRealtimeDbAdminMethods } from "realtime/index.server";
+} from "./types";
+import { getFirestoreAdminMethods } from "../../firestore/admin";
+import { getRealtimeDbAdminMethods } from "../../realtime/admin";
 
 export const firebaseAdminAdapter =
   <T extends FirebaseAdminDBTypes>(database: T) =>

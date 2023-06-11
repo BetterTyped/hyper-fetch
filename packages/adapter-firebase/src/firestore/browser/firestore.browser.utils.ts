@@ -1,5 +1,4 @@
-import { endAt, endBefore, limit, orderBy, startAfter, startAt, where } from "firebase/firestore";
-import { OrderByDirection } from "@firebase/firestore";
+import { endAt, endBefore, limit, orderBy, startAfter, startAt, where, OrderByDirection } from "firebase/firestore";
 
 import { FirestorePermittedMethods, FirestoreQueryConstraints, SharedQueryConstraints } from "constraints";
 
