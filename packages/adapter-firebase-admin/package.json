@@ -1,0 +1,74 @@
+{
+  "name": "@hyper-fetch/firebase-admin",
+  "version": "0.0.0",
+  "private": false,
+  "description": "First class Firebase Admin adapter for Hyper Fetch",
+  "author": "Kacper Skawina <kacper.skawina@gmail.com>",
+  "homepage": "https://hyperfetch.bettertyped.com/",
+  "license": "Apache-2.0",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "clean": "npx rimraf dist",
+    "test": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
+    "coverage": "firebase emulators:exec 'jest --watchAll=false --coverage --detectOpenHandles --forceExit --runInBand'",
+    "test-pipeline": "./test.sh",
+    "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
+    "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
+    "build": "yarn clean && node ../../scripts/build.js",
+    "postbuild": "rollup -c '../../rollup.config.js'",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "tests": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-firebase-v${version}'"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
+    "directory": "packages/adapter-firebase-admin"
+  },
+  "bugs": {
+    "url": "https://github.com/BetterTyped/hyper-fetch/issues"
+  },
+  "peerDependencies": {
+    "@hyper-fetch/core": "*",
+    "@hyper-fetch/sockets": "*",
+    "firebase": "*",
+    "firebase-admin": "*",
+    "firebase-tools": "*"
+  },
+  "peerDependenciesMeta": {
+    "firebase": {
+      "optional": true
+    },
+    "firebase-admin": {
+      "optional": true
+    },
+    "firebase-tools": {
+      "optional": true
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^2.0.7",
+    "wait-for-expect": "^3.0.2",
+    "firebase": "^9.21.0",
+    "firebase-admin": "^11.5.0",
+    "firebase-tools": "^11.23.1"
+  },
+  "keywords": [
+    "firebase",
+    "firestore",
+    "realtime",
+    "storage",
+    "database",
+    "authentication"
+  ]
+}
