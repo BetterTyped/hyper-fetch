@@ -1,4 +1,15 @@
-import { OrderByDirection, WhereFilterOp } from "firebase/firestore";
+export type OrderByDirection = "desc" | "asc";
+export type WhereFilterOp =
+  | "<"
+  | "<="
+  | "=="
+  | "!="
+  | ">="
+  | ">"
+  | "array-contains"
+  | "in"
+  | "array-contains-any"
+  | "not-in";
 
 export enum SharedQueryConstraints {
   START_AT = "startAt",

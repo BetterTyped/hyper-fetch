@@ -4,7 +4,7 @@ import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { applyFireStoreAdminConstraints, getRef } from "./firestore.admin.utils";
 import { getGroupedResultFirestore, getOrderedResultFirestore } from "../utils";
 import { getStatus } from "utils";
-import { FirestoreAdminSocketAdapterType } from "adapter";
+import { FirestoreAdminSocketAdapterType } from "adapter/index.server";
 
 export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
   return (socket) => {

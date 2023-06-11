@@ -3,7 +3,7 @@
  */
 import { realtimeDbAdmin } from "../../../utils";
 import { seedRealtimeDatabaseAdmin } from "../../../utils/admin/seed.admin";
-import { firebaseAdminAdapter } from "adapter";
+import { firebaseAdminAdapter } from "adapter/index.server";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {

@@ -1,9 +1,9 @@
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter";
+import { FirestoreMethodsUnion } from "adapter/index.server";
 import { getStatus } from "utils";
-import { applyFireStoreAdminConstraints, getRef, getOrderedResultFirestore } from "firestore";
+import { applyFireStoreAdminConstraints, getRef, getOrderedResultFirestore } from "firestore/index.server";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,

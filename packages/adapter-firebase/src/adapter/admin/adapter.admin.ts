@@ -12,9 +12,9 @@ import {
   RealtimeDBQueryParams,
   FirestoreMethods,
   RealtimeDBMethods,
-} from "adapter";
-import { getFirestoreAdminMethods } from "firestore";
-import { getRealtimeDbAdminMethods } from "realtime";
+} from "adapter/index.server";
+import { getFirestoreAdminMethods } from "firestore/index.server";
+import { getRealtimeDbAdminMethods } from "realtime/index.server";
 
 export const firebaseAdminAdapter =
   <T extends FirebaseAdminDBTypes>(database: T) =>

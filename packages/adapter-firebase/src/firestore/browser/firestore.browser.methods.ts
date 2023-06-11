@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter/types";
+import { FirestoreMethodsUnion } from "adapter/index.browser";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,

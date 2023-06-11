@@ -6,7 +6,7 @@ import {
   FirestoreAdapterType,
   RealtimeSocketAdapterType,
   FirestoreSocketAdapterType,
-} from "adapter";
+} from "adapter/index.browser";
 
 export type FirebaseBrowserDBTypes = Database | Firestore;
 export type FirebaseBrowserAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;

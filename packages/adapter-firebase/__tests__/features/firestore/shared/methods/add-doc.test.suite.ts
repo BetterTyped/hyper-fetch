@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
+import { firebaseAdminAdapter, firebaseAdapter } from "adapter/index.browser";
 import { Tea } from "../../../../utils/seed/seed.data";
 
 export const addDocTestSuite = (

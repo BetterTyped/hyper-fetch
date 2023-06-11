@@ -5,7 +5,7 @@ import {
   FirebaseBrowserAdapterTypes,
   FirebaseBrowserSocketAdapterTypes,
   FirebaseAdminSocketAdapterTypes,
-} from "adapter";
+} from "adapter/index.browser";
 import { getTestSuite } from "./methods/get.test.suite";
 import { setTestSuite } from "./methods/set.test.suite";
 import { pushTestSuite } from "./methods/push.test.suite";

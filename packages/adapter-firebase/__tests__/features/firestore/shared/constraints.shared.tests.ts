@@ -1,6 +1,6 @@
 import { Client } from "@hyper-fetch/core";
 
-import { FirestoreAdapterType } from "adapter";
+import { FirestoreAdapterType } from "@adapter";
 import { $limit, $orderBy, $where } from "constraints";
 import { Tea } from "../../../utils/seed/seed.data";
 

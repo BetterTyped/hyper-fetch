@@ -6,7 +6,7 @@ import {
   FirestoreAdapterType,
   FirestoreAdminSocketAdapterType,
   RealtimeAdminSocketAdapterType,
-} from "adapter";
+} from "@adapter";
 
 export type FirebaseAdminDBTypes = Database | Firestore;
 export type FirebaseAdminAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;

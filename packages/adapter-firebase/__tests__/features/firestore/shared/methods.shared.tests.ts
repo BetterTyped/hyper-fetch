@@ -5,7 +5,7 @@ import {
   FirebaseAdminAdapterTypes,
   FirebaseAdminSocketAdapterTypes,
   FirebaseBrowserSocketAdapterTypes,
-} from "adapter";
+} from "@adapter";
 import { addDocTestSuite } from "./methods/add-doc.test.suite";
 import { deleteDocTestSuite } from "./methods/delete-doc.test.suite";
 import { getDocTestSuite } from "./methods/get-doc.test.suite";

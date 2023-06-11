@@ -1,9 +1,9 @@
 import { Database } from "firebase-admin/database";
 import { RequestInstance } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/types";
+import { RealtimeDBMethodsUnion } from "adapter/index.server";
 import { getStatus, isDocOrQuery } from "utils";
-import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
+import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index.server";
 import {
   PermittedConstraints,
   RealtimeConstraintsUnion,

@@ -1,5 +1,6 @@
-export * from "adapter";
+export * from "@adapter";
+export * from "@firestore";
+export * from "@realtime";
+
 export * from "constraints";
-export * from "methods";
-export * from "firestore";
-export * from "realtime";
+export * from "utils";

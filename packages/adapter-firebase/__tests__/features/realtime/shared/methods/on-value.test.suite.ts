@@ -2,12 +2,8 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import {
-  FirebaseAdminAdapterTypes,
-  FirebaseAdminSocketAdapterTypes,
-  FirebaseBrowserAdapterTypes,
-  FirebaseBrowserSocketAdapterTypes,
-} from "adapter";
+import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter/index.browser";
+import { FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter/index.server";
 import { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (

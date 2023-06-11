@@ -7,7 +7,7 @@ import {
   FirebaseBrowserAdapterTypes,
   FirebaseBrowserSocketAdapterTypes,
   FirebaseAdminSocketAdapterTypes,
-} from "adapter";
+} from "adapter/index.browser";
 import { $where } from "constraints";
 import { Tea } from "../../../../utils";
 

@@ -1,9 +1,9 @@
 import { Database } from "firebase/database";
 import { Firestore } from "firebase/firestore";
 
-import { FirebaseBrowserDBTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
-import { realtimeSockets } from "realtime";
-import { firestoreSockets } from "firestore";
+import { FirebaseBrowserDBTypes, FirebaseBrowserSocketAdapterTypes } from "adapter/index.browser";
+import { realtimeSockets } from "realtime/index.browser";
+import { firestoreSockets } from "firestore/index.browser";
 
 export const firebaseSocketsAdapter = <T extends FirebaseBrowserDBTypes>(
   database: T,

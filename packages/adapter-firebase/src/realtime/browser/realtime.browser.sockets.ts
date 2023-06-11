@@ -1,9 +1,9 @@
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/database";
 
-import { getOrderedResultRealtime, mapRealtimeConstraint } from "realtime";
+import { getOrderedResultRealtime, mapRealtimeConstraint } from "realtime/index.browser";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeSocketAdapterType } from "adapter";
+import { RealtimeSocketAdapterType } from "adapter/index.browser";
 
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {

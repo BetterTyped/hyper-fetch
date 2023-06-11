@@ -1,9 +1,9 @@
 import { Database } from "firebase-admin/lib/database";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
-import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime";
+import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "realtime/index.server";
 import { getStatus, isDocOrQuery } from "utils";
-import { RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from "adapter";
+import { RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from "adapter/index.server";
 
 export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAdapterType => {
   return (socket) => {

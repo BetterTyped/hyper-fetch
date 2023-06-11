@@ -1,7 +1,7 @@
 import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../../utils/seed/seed.data";
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
+import { firebaseAdminAdapter, firebaseAdapter } from "adapter/index.browser";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
 export const setDocTestSuite = (
