@@ -10,8 +10,8 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase.svg?logo=npm&color=e76f51" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase-admin.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -22,15 +22,15 @@
   <a href="https://github.com/BetterTyped/hyper-fetch">
     <img src="https://custom-icon-badges.demolab.com/badge/-Firebase-E10098?logo=firebase&logoColor=white" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase">
-    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase?color=64BC4B&logo=package" />
+  <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+    <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase-admin?color=64BC4B&logo=package" />
   </a>
 </p>
 
 ## About
 
-**`Hyper Fetch Firebase `** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of the
-first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
+**`Hyper Fetch Firebase Admin`** is adapter for Hyper Fetch. Take advantage of the powerful features and simplicity of
+the first class Firebase adapter for **browser and server**, simplifying the retrieval and manipulation of data. Benefit
 from the convenience and efficiency of Hyper Fetch for your Firebase-powered projects.
 
 ## Key Features
