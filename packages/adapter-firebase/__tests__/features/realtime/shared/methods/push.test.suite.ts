@@ -1,12 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "../../../../../src";
+import { firebaseAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
-import { Tea } from "../../../../utils/seed/seed.data";
+import { Tea } from "../../../../utils";
 
-export const pushTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
-) => {
+export const pushTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
   describe("push", () => {
     let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
     beforeEach(() => {
@@ -26,11 +24,11 @@ export const pushTestSuite = (
           options: {},
         })
         .setData(newData);
-      const { extra } = await pushReq.send();
+      const { data: pushedData, extra } = await pushReq.send();
       const { data } = await getReq.send();
 
       expect(data).toHaveLength(11);
-      expect(data).toContainEqual(newData);
+      expect(data).toContainEqual({ ...newData, __key: pushedData.__key });
       expect(extra).toHaveProperty("key");
     });
     it("should emit lifecycle events", async () => {

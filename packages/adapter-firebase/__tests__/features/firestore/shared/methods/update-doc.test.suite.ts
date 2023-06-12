@@ -1,12 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
-import { Tea } from "../../../../utils/seed/seed.data";
+import { firebaseAdapter } from "adapter";
+import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const updateDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
-) => {
+export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
   describe("updateDoc", () => {
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
@@ -23,7 +21,7 @@ export const updateDocTestSuite = (
       });
       await updateReq.send({ params: { teaId: 1 } });
       const { data } = await getReq.send({ params: { teaId: 1 } });
-      expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green" });
+      expect(data).toStrictEqual({ ...newData, origin: "China", type: "Green", __key: "1" });
     });
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

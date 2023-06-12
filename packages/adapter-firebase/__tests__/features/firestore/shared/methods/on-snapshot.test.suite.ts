@@ -2,18 +2,13 @@ import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import waitForExpect from "wait-for-expect";
 
-import {
-  FirebaseAdminAdapterTypes,
-  FirebaseBrowserAdapterTypes,
-  FirebaseBrowserSocketAdapterTypes,
-  FirebaseAdminSocketAdapterTypes,
-} from "adapter";
+import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
 import { $where } from "constraints";
 import { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
-  adapter: FirebaseAdminSocketAdapterTypes<any> | FirebaseBrowserSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
+  adapter: FirebaseBrowserSocketAdapterTypes<any>,
+  coreAdapter: () => FirebaseBrowserAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
   let spy = jest.fn();
@@ -210,6 +205,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toStrictEqual({
+          __key: "1",
           amount: 150,
           name: "Taiping Hou Kui",
           origin: "China",
@@ -224,6 +220,7 @@ export const onSnapshotTestSuite = (
       const { socket, client } = await initialize();
       const initialCache = [
         {
+          __key: "0",
           amount: 50,
           year: 2022,
           origin: "China",
@@ -231,6 +228,7 @@ export const onSnapshotTestSuite = (
           type: "Green",
         },
         {
+          __key: "1",
           amount: 150,
           year: 2023,
           origin: "China",
@@ -238,6 +236,7 @@ export const onSnapshotTestSuite = (
           type: "Green",
         },
         {
+          __key: "2",
           amount: 25,
           year: 2021,
           origin: "Japan",
@@ -284,7 +283,7 @@ export const onSnapshotTestSuite = (
         })
         .setData(shouldNotCacheData);
 
-      await shouldCacheAddDocRequest.send();
+      const { data } = await shouldCacheAddDocRequest.send();
 
       await shouldNotCacheAddDocRequest.send();
 
@@ -294,7 +293,7 @@ export const onSnapshotTestSuite = (
 
       await waitForExpect(async () => {
         expect(receivedData).toHaveLength(2);
-        expect(receivedData[1]).toIncludeSameMembers([...initialCache, newData]);
+        expect(receivedData[1]).toIncludeSameMembers([...initialCache, data]);
       });
     });
   });

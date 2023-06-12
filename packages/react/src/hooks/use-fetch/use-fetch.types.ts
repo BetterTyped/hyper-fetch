@@ -1,4 +1,4 @@
-import { RequestInstance, ExtractResponseType, ExtractErrorType, CacheValueType } from "@hyper-fetch/core";
+import { RequestInstance, NullableType, ExtractAdapterReturnType } from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { InvalidationKeyType } from "types";
@@ -24,7 +24,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
+  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
   /**
    * Enable/disable refresh data
    */
