@@ -61,10 +61,10 @@ describe("Mocker [ Base ]", () => {
 
   it("should return timeout error when request takes too long", async () => {
     const mockedRequest = client
-      .createRequest()({ endpoint: "shared-base-endpoint", options: { timeout: 10 } })
+      .createRequest()({ endpoint: "shared-base-endpoint" })
       .setMock({
         data: fixture,
-        config: { responseTime: 1500 },
+        config: { responseTime: 1500, timeout: true },
       });
 
     const response = await mockedRequest.send();
@@ -309,6 +309,38 @@ describe("Mocker [ Base ]", () => {
     expect(requestSpy).toBeCalledTimes(3);
     expect(responseSpy).toBeCalledTimes(4);
     expect(response).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
+    });
+  });
+
+  it("should allow for toggling the mocker off and then turning it on again without removal", async () => {
+    const mockedRequest = request.setMock({ data: fixture });
+    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [42, 42, 42] } });
+    expect(mockedRequest.isMockEnabled).toBe(true);
+    mockedRequest.setEnableMocking(false);
+    expect(mockedRequest.isMockEnabled).toBe(false);
+    const notMockedData = await mockedRequest.send();
+    mockedRequest.setEnableMocking(true);
+    const mockedData = await mockedRequest.send();
+
+    expect(notMockedData).toStrictEqual({
+      data,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {
+        headers: {
+          "content-type": "application/json",
+          "x-powered-by": "msw",
+        },
+      },
+    });
+
+    expect(mockedData).toStrictEqual({
       data: fixture,
       error: null,
       status: 200,

@@ -30,13 +30,18 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     | "onSuccess"
   >,
 ) => {
-  const timeout = request.requestOptions.options?.timeout || request.options?.timeout;
   const mock = request.mock.next();
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
   return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
     const { data, status = 200, success = true, extra, config } = result;
-    const { requestTime = 20, responseTime = 20, totalUploaded = 1, totalDownloaded = 1 } = config || {};
+    const {
+      requestTime = 20,
+      responseTime = 20,
+      totalUploaded = 1,
+      totalDownloaded = 1,
+      timeout = false,
+    } = config || {};
 
     createAbortListener(0 as any, {} as any, () => {}, resolve);
 

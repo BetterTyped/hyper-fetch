@@ -337,7 +337,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }
-    if (req.mock) {
+    if (req.mock && req.isMockEnabled) {
       return mocker(request, {
         onError,
         onResponseEnd,
