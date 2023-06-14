@@ -79,6 +79,7 @@ export class Request<
     GeneratorReturnMockTypes<Response, this>
   >;
   mockData?: RequestDataMockTypes<Response, this>;
+  isMockEnabled = false;
   requestMapper?: RequestMapper<this, any>;
   responseMapper?: ResponseMapper<this, any, any>;
 
@@ -285,12 +286,19 @@ export class Request<
     };
     this.mockData = mockData;
     this.mock = mockGenerator(mockData);
+    this.isMockEnabled = true;
     return this;
   };
 
   public removeMock = () => {
     this.mockData = null;
     this.mock = null;
+    this.isMockEnabled = false;
+    return this;
+  };
+
+  public setEnableMocking = (isMockEnabled: boolean) => {
+    this.isMockEnabled = isMockEnabled;
     return this;
   };
 
@@ -439,6 +447,7 @@ export class Request<
 
     cloned.mockData = this.mockData;
     cloned.mock = this.mock;
+    cloned.isMockEnabled = this.isMockEnabled;
 
     return cloned;
   }

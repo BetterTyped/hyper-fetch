@@ -105,8 +105,21 @@ You can also pass a list of functions; the mocker will cycle over them and execu
 
 ## Removal
 
-If you need to remove the mocker from a request, use the `removeMock` method:
+If you need to remove the mocker from a request, use the `removeMock` method. This way mocker is disabled and mock data is removed.
 ```tsx
 mockedRequest.removeMock();
 ```
 
+
+## Disabling mocker
+
+Instead of removing mocker, you can also disable mocker and enable mocker at will with the `setEnableMocking` method.
+This way if you set mocking data, it will be kept and not removed as in the `removeMock` case.
+
+```tsx
+const mockedRequest = request.setMock({ data: fixture }); // mock is set
+... // Here mocker works as usual
+mockedRequest.setEnableMocking(false); // Mocker is disabled
+... // Request works as usual
+mockedRequest.setEnableMocking(true); // Mocker is enabled once more
+```
