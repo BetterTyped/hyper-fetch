@@ -17,6 +17,12 @@ export const useListener = <ListenerType extends ListenerInstance>(
 ) => {
   const [globalConfig] = useConfigProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
+  const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
+  const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
+
+  /**
+   * Callbacks
+   */
 
   const onEventCallback = useRef<
     | null
@@ -25,8 +31,10 @@ export const useListener = <ListenerType extends ListenerInstance>(
         extra: ExtractSocketExtraType<ExtractListenerAdapterType<ListenerType>>;
       }) => void)
   >(null);
-  const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);
-  const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
+
+  /**
+   * Actions
+   */
 
   const stopListener = () => {
     removeListenerRef.current?.();
@@ -43,23 +51,27 @@ export const useListener = <ListenerType extends ListenerInstance>(
     });
   };
 
+  const additionalCallbacks = {
+    onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
+      onEventCallback.current = callback;
+    },
+  };
+
+  /**
+   * Lifecycle
+   */
+
   useDidUpdate(
     () => {
       listen();
     },
-    [listener],
+    [JSON.stringify(listener)],
     true,
   );
 
   useWillUnmount(() => {
     stopListener();
   });
-
-  const additionalCallbacks = {
-    onEvent: (callback: NonNullable<typeof onEventCallback.current>) => {
-      onEventCallback.current = callback;
-    },
-  };
 
   return {
     get data() {
