@@ -65,7 +65,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
     () => {
       listen();
     },
-    [JSON.stringify(listener)],
+    [listener.params, JSON.stringify(listener.options)],
     true,
   );
 
