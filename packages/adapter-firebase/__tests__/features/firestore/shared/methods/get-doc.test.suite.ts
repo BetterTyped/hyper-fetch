@@ -1,12 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter, firebaseAdapter } from "adapter";
-import { Tea } from "../../../../utils/seed/seed.data";
+import { firebaseAdapter } from "adapter";
+import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const getDocTestSuite = (
-  adapterFunction: () => ReturnType<typeof firebaseAdapter> | ReturnType<typeof firebaseAdminAdapter>,
-) => {
+export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
   describe("getDoc", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
@@ -17,7 +15,14 @@ export const getDocTestSuite = (
         })
         .setParams({ teaId: 1 });
       const { data, extra, status, success, error } = await req.send();
-      expect(data).toStrictEqual({ amount: 150, name: "Taiping Hou Kui", origin: "China", type: "Green", year: 2023 });
+      expect(data).toStrictEqual({
+        amount: 150,
+        name: "Taiping Hou Kui",
+        origin: "China",
+        type: "Green",
+        year: 2023,
+        __key: "1",
+      });
       expect(extra).toHaveProperty("snapshot");
       expect(extra).toHaveProperty("ref");
       expect(status).toBe("success");

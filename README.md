@@ -170,6 +170,22 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-firebase-admin" >Firebase Admin</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/firebase-admin?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/firebase-admin.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/firebase-admin">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/firebase-admin?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/adapter-graphql" >GraphQL</a>
       </td>
       <td>

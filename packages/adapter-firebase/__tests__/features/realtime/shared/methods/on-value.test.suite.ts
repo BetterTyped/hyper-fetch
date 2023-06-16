@@ -2,19 +2,14 @@ import { Socket } from "@hyper-fetch/sockets";
 import { Client } from "@hyper-fetch/core";
 import waitForExpect from "wait-for-expect";
 
-import {
-  FirebaseAdminAdapterTypes,
-  FirebaseAdminSocketAdapterTypes,
-  FirebaseBrowserAdapterTypes,
-  FirebaseBrowserSocketAdapterTypes,
-} from "adapter";
+import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
 import { Tea } from "../../../../utils";
 
 export const onValueTestSuite = (
   db: Promise<any>,
   seedDb: (initializedDb) => Promise<void>,
-  socketsAdapter: (database) => FirebaseBrowserSocketAdapterTypes<any> | FirebaseAdminSocketAdapterTypes<any>,
-  coreAdapter: (database) => () => FirebaseBrowserAdapterTypes<any> | FirebaseAdminAdapterTypes<any>,
+  socketsAdapter: (database) => FirebaseBrowserSocketAdapterTypes<any>,
+  coreAdapter: (database) => () => FirebaseBrowserAdapterTypes<any>,
 ) => {
   describe("when using onValue method", () => {
     let initializedSocketsAdapter;
@@ -151,10 +146,10 @@ export const onValueTestSuite = (
         },
       });
 
-      await pushReq.send();
+      const { data } = await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(receivedData).toIncludeAllMembers([newData]);
+        expect(receivedData).toIncludeAllMembers([{ ...newData, __key: data.__key }]);
         expect(receivedExtra).toHaveProperty("snapshot");
         expect(receivedExtra).toHaveProperty("status");
         expect(receivedExtra).toHaveProperty("ref");

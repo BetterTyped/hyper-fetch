@@ -68,7 +68,7 @@ const pushReq = client
   .setData(newData);
 ```
 
-In case of `push` - data returned is the same data as passed for setting.
+In case of `push` - data returned is the same data as passed for setting + the `__key` param that equals id of a newly created document.
 
 `extra`:
 1. ref - database reference to the path

@@ -17,48 +17,55 @@ export const isEmpty = (value: unknown): boolean => {
  * @returns true when elements are equal
  */
 export const isEqual = (firstValue: unknown, secondValue: unknown): boolean => {
-  const firstValueType = Object.prototype.toString.call(firstValue);
-  const secondValueType = Object.prototype.toString.call(secondValue);
+  if (firstValue === secondValue) return true;
 
-  const firstType = typeof firstValue;
-  const secondType = typeof secondValue;
+  try {
+    const firstValueType = Object.prototype.toString.call(firstValue);
+    const secondValueType = Object.prototype.toString.call(secondValue);
 
-  const isType = (type: unknown) => firstType === type && secondType === type;
-  const isTypeValue = (type: unknown) => firstValueType === type && secondValueType === type;
+    const firstType = typeof firstValue;
+    const secondType = typeof secondValue;
 
-  // Compared types are different
-  if (firstValueType !== secondValueType) return false;
+    const isType = (type: unknown) => firstType === type && secondType === type;
+    const isTypeValue = (type: unknown) => firstValueType === type && secondValueType === type;
 
-  // Null
-  if (firstValue === null && secondValue === null) return true;
+    // Compared types are different
+    if (firstValueType !== secondValueType) return false;
 
-  // NaN
-  if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
+    // Null
+    if (firstValue === null && secondValue === null) return true;
 
-  // Empty Array or Object
-  if (isEmpty(firstValue) && isEmpty(secondValue)) return true;
+    // NaN
+    if (isType("number") && Number.isNaN(firstValue) && Number.isNaN(secondValue)) return true;
 
-  // Array
-  if (Array.isArray(firstValue) && Array.isArray(secondValue)) {
-    if (firstValue.length !== secondValue.length) return false;
+    // Empty Array or Object
+    if (isEmpty(firstValue) && isEmpty(secondValue)) return true;
 
-    return !firstValue.some((element, i) => !isEqual(element, secondValue[i]));
+    // Array
+    if (Array.isArray(firstValue) && Array.isArray(secondValue)) {
+      if (firstValue.length !== secondValue.length) return false;
+
+      return !firstValue.some((element, i) => !isEqual(element, secondValue[i]));
+    }
+
+    // Object
+    if (isType("object") && isTypeValue("[object Object]")) {
+      if (Object.keys(firstValue as object).length !== Object.keys(secondValue as object).length) return false;
+
+      return !Object.entries(firstValue as object).some(
+        ([key, value]) => !isEqual(value, (secondValue as Record<string, unknown>)[key]),
+      );
+    }
+
+    // Date
+    if (firstValue instanceof Date && secondValue instanceof Date) {
+      return +firstValue === +secondValue;
+    }
+
+    // undefined, string, number, bool
+    return firstValue === secondValue;
+  } catch (err) {
+    console.error(err);
+    return false;
   }
-
-  // Object
-  if (isType("object") && isTypeValue("[object Object]")) {
-    if (Object.keys(firstValue as object).length !== Object.keys(secondValue as object).length) return false;
-
-    return !Object.entries(firstValue as object).some(
-      ([key, value]) => !isEqual(value, (secondValue as Record<string, unknown>)[key]),
-    );
-  }
-
-  // Date
-  if (firstValue instanceof Date && secondValue instanceof Date) {
-    return +firstValue === +secondValue;
-  }
-
-  // undefined, string, number, bool
-  return firstValue === secondValue;
 };

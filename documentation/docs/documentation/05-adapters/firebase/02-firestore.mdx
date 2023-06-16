@@ -29,6 +29,7 @@ const getReq = client.createRequest<Tea[]>()({
 });
 
 const { data, status, extra, success, error } = await req.send();
+// Data is an array of objects, each object also contains the __key param.
 ```
 
 `extra`:
@@ -86,7 +87,7 @@ const addDocReq = client
 await addDocReq.send()
 ```
 
-In case of `addDoc` - data returned is the same as passed data for setting.
+In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly created document.
 
 ### deleteDoc
 

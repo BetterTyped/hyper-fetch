@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/firebase",
   "version": "0.0.0",
   "private": false,
-  "description": "First class Firebase adapter for Hyper Fetch",
+  "description": "First class Firebase Web adapter for Hyper Fetch",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
@@ -41,14 +41,10 @@
     "@hyper-fetch/core": "*",
     "@hyper-fetch/sockets": "*",
     "firebase": "*",
-    "firebase-admin": "*",
     "firebase-tools": "*"
   },
   "peerDependenciesMeta": {
     "firebase": {
-      "optional": true
-    },
-    "firebase-admin": {
       "optional": true
     },
     "firebase-tools": {
@@ -57,10 +53,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@firebase/rules-unit-testing": "^2.0.7",
     "wait-for-expect": "^3.0.2",
     "firebase": "^9.21.0",
-    "firebase-admin": "^11.5.0",
     "firebase-tools": "^11.23.1"
   },
   "keywords": [

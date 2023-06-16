@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./admin";
-export * from "./browser";
+export * from "./adapter";
+export * from "./adapter.sockets";

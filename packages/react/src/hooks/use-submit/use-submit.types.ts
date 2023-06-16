@@ -1,10 +1,4 @@
-import {
-  CacheValueType,
-  ExtractErrorType,
-  ExtractResponseType,
-  RequestInstance,
-  RequestSendType,
-} from "@hyper-fetch/core";
+import { ExtractAdapterReturnType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -20,13 +14,13 @@ import { InvalidationKeyType } from "types";
 
 export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
-   * Disable fetching
+   * Disable submitting
    */
   disabled?: boolean;
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
+  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */
