@@ -10,12 +10,10 @@ export function getAvailableOperations(openApiJson: OpenAPIV3.Document | OpenAPI
       .map((method) => ({ path, method, operation: pathObject[method] }))
       .filter(({ operation }) => operation)
       .map(({ operation, method }) => {
-        const params = operation?.parameters || [];
         const op: Partial<Operation> = {
-          ...(typeof operation === "object" ? operation : {}),
+          ...operation,
           path,
           method,
-          ...(pathObject.parameters && { parameters: [...params, ...pathObject.parameters] }),
         };
         return op;
       });

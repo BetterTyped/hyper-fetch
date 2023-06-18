@@ -5,6 +5,7 @@ const { nodeExternalsPlugin } = require("esbuild-node-externals");
 const pkg = require(`${process.cwd()}/package.json`);
 
 const isIsomorphicBuild = ["@hyper-fetch/core", "@hyper-fetch/graphql"].includes(pkg.name);
+const isNodeOnly = ["@hyper-fetch/generator-openapi"].includes(pkg.name);
 
 /**
  * Building
@@ -41,10 +42,21 @@ const buildPackage = async (additionalOptions = {}) => {
     outfile: preDir ? outputModule.replace("dist", preDir) : outputModule,
     format: "esm",
   });
+
+  if (pkg.cli) {
+    build({
+      ...options,
+      entryPoints: [pkg.cli],
+      outfile: pkg.climain,
+      format: "cjs",
+    });
+  }
 };
 
 if (isIsomorphicBuild) {
   buildPackage({ platform: "browser", preDir: "dist/browser", tsconfig: "tsconfig.base.json" });
+  buildPackage({ platform: "node", tsconfig: "tsconfig.json" });
+} else if (isNodeOnly) {
   buildPackage({ platform: "node", tsconfig: "tsconfig.json" });
 } else {
   buildPackage();
