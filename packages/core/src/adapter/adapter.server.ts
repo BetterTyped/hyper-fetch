@@ -42,8 +42,10 @@ export const adapter: AdapterType = async (request, requestId) => {
     options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
   }
 
+  const requestUrl = !fullUrl.startsWith("http") ? `http://${fullUrl}` : fullUrl;
+
   return makeRequest((resolve) => {
-    const httpRequest = httpClient.request(fullUrl, options, (response) => {
+    const httpRequest = httpClient.request(requestUrl, options, (response) => {
       response.setEncoding("utf8");
       unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
 

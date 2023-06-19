@@ -56,10 +56,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   // Request Setup
   const { client, abortKey, queueKey, endpoint, data } = request;
 
-  let fullUrl = url + endpoint;
-  if (!fullUrl.startsWith("http")) {
-    fullUrl = `http://${fullUrl}`;
-  }
+  const fullUrl = url + endpoint;
+
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
   let payload = data;
