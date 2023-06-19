@@ -26,7 +26,6 @@ export const adapter: AdapterType = async (request, requestId) => {
   const { method = HttpMethodsEnum.get, client } = request;
   const httpClient = client.url.includes("https://") ? https : http;
   const options = {
-    path: fullUrl,
     method,
     headers: headers as OutgoingHttpHeaders,
     timeout: defaultTimeout,
@@ -44,7 +43,7 @@ export const adapter: AdapterType = async (request, requestId) => {
   }
 
   return makeRequest((resolve) => {
-    const httpRequest = httpClient.request(options, (response) => {
+    const httpRequest = httpClient.request(fullUrl, options, (response) => {
       response.setEncoding("utf8");
       unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
 

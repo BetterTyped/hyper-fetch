@@ -562,4 +562,17 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
     });
   });
+
+  describe("When client and request is initialized without neither http nor https", () => {
+    it("should set fullUrl with http:// as default", async () => {
+      const newClient = new Client({ url: "shared-endpoint" });
+      const newRequest = newClient
+        .createRequest<unknown, { value: number }>()({ endpoint: "endpoint", options: requestConfig })
+        .setData(data)
+        .setEffectKey("test")
+        .setQueryParams(queryParams);
+      const { fullUrl } = await getAdapterBindings(newRequest, requestId, 0, xhrExtra);
+      expect(fullUrl).toStartWith("http://");
+    });
+  });
 });
