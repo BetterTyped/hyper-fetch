@@ -69,6 +69,8 @@ export class Client<
   defaultMethod: ExtractAdapterMethodType<Adapter> = HttpMethodsEnum.get as ExtractAdapterMethodType<Adapter>;
   defaultExtra: ExtractAdapterExtraType<Adapter> = xhrExtra as ExtractAdapterExtraType<Adapter>;
 
+  isMockEnabled = true;
+
   // Registered requests effect
   effects: RequestEffectInstance[] = [];
 
@@ -196,6 +198,15 @@ export class Client<
    */
   setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.payloadMapper = payloadMapper;
+    return this;
+  };
+
+  /**
+   * Set globally if mocking should be enabled or disabled for all client requests.
+   * @param isMockEnabled
+   */
+  setEnableGlobalMocking = (isMockEnabled: boolean) => {
+    this.isMockEnabled = isMockEnabled;
     return this;
   };
 

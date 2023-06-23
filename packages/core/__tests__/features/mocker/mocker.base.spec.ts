@@ -348,4 +348,48 @@ describe("Mocker [ Base ]", () => {
       extra: {},
     });
   });
+
+  it("Should allow for globally turning on and off for all requests related to a client", async () => {
+    const newClient = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    const mockedRequest = newClient.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
+    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [42, 42, 42] } });
+
+    expect(mockedRequest.isMockEnabled).toBe(true);
+    expect(newClient.isMockEnabled).toBe(true);
+
+    const mockedDataDefault = await mockedRequest.send();
+    newClient.setEnableGlobalMocking(false);
+    const notMockedData = await mockedRequest.send();
+    newClient.setEnableGlobalMocking(true);
+    const mockedDataAfter = await mockedRequest.send();
+
+    expect(mockedDataDefault).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
+    });
+
+    expect(mockedDataAfter).toStrictEqual({
+      data: fixture,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {},
+    });
+
+    expect(notMockedData).toStrictEqual({
+      data,
+      error: null,
+      status: 200,
+      success: true,
+      extra: {
+        headers: {
+          "content-type": "application/json",
+          "x-powered-by": "msw",
+        },
+      },
+    });
+  });
 });
