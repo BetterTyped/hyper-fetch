@@ -82,7 +82,7 @@ export class Client<
   ) => Partial<RequestOptionsType<string, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>>;
   abortKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
   cacheKeyMapper?: (request: RequestInstance) => string = getRequestKey;
-  queueKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
+  queueKeyMapper?: (request: RequestInstance) => string = getRequestKey;
   effectKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
 
   // Utils

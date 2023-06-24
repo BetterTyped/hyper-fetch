@@ -1,8 +1,13 @@
-import { Client, stringifyQueryParams } from "client";
+import { Client, stringifyDefaultOptions, stringifyQueryParams } from "client";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 
+const options = {
+  ...stringifyDefaultOptions,
+  encode: true,
+};
+
 describe("Client [ Utils ]", () => {
-  let client = new Client({ url: "shared-base-url" });
+  let client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
   let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
@@ -10,7 +15,7 @@ describe("Client [ Utils ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
+    client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
     request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
   });
@@ -21,84 +26,119 @@ describe("Client [ Utils ]", () => {
 
   describe("When using stringifyQueryParams util", () => {
     it("should encode falsy values", async () => {
-      expect(stringifyQueryParams({ value: 0 })).toBe("?value=0");
-      expect(stringifyQueryParams({ value: "" }, { skipEmptyString: false })).toBe("?value=");
-      expect(stringifyQueryParams({ value: null }, { skipNull: false })).toBe("?value=null");
-      expect(stringifyQueryParams({ value: "" }, { skipEmptyString: true })).toBe("");
-      expect(stringifyQueryParams({ value: undefined }, { skipEmptyString: true })).toBe("");
-      expect(stringifyQueryParams({ value: null }, { skipNull: true })).toBe("");
+      const newClient = new Client({ url: "shared-base-url" }).setQueryParamsConfig({
+        encode: false,
+        arrayFormat: "bracket",
+      });
+      expect(newClient.stringifyQueryParams({ value: { test: new Date("9,9,2020").toISOString() } })).toBe(
+        `?value={"test":"${new Date("9,9,2020").toISOString()}"}`,
+      );
+      expect(
+        newClient.stringifyQueryParams({
+          page: 0,
+          status: ["status1", "status2"],
+          lastFreeDay: '{"from":"2023-06-20T10:37:27.508Z","to":"2023-06-24T10:37:27.508Z"}',
+          account: "test-account/123+323-123|111:;",
+        }),
+      ).toBe(
+        '?page=0&status[]=status1&status[]=status2&lastFreeDay={"from":"2023-06-20T10:37:27.508Z","to":"2023-06-24T10:37:27.508Z"}&account=test-account/123+323-123|111:;',
+      );
+    });
+    it("should encode falsy values", async () => {
+      expect(stringifyQueryParams({ value: 0 }, options)).toBe("?value=0");
+      expect(stringifyQueryParams({ value: "" }, { ...options, skipEmptyString: false })).toBe("?value=");
+      expect(stringifyQueryParams({ value: null }, { ...options, skipNull: false })).toBe("?value=null");
+      expect(stringifyQueryParams({ value: "" }, { ...options, skipEmptyString: true })).toBe("");
+      expect(stringifyQueryParams({ value: undefined }, { ...options, skipEmptyString: true })).toBe("");
+      expect(stringifyQueryParams({ value: null }, { ...options, skipNull: true })).toBe("");
     });
     it("should encode date value to isoString by default", async () => {
-      expect(stringifyQueryParams({ value: new Date("2023-05-12T22:32:32") })).toInclude(`?value=2023-05-12`);
+      expect(stringifyQueryParams({ value: new Date("2023-05-12T22:32:32") }, options)).toInclude(`?value=2023-05-12`);
     });
     it("should encode truthy values", async () => {
-      expect(stringifyQueryParams({ value: 10 })).toBe("?value=10");
-      expect(stringifyQueryParams({ value: "test" })).toBe("?value=test");
-      expect(stringifyQueryParams({ value: [1, 2, 3] })).toBe("?value[]=1&value[]=2&value[]=3");
-      expect(stringifyQueryParams({ value: { data: "test" } })).toBe("?value=%7B%22data%22%3A%22test%22%7D");
+      expect(stringifyQueryParams({ value: 10 }, options)).toBe("?value=10");
+      expect(stringifyQueryParams({ value: "test" }, options)).toBe("?value=test");
+      expect(stringifyQueryParams({ value: [1, 2, 3] }, options)).toBe("?value[]=1&value[]=2&value[]=3");
+      expect(stringifyQueryParams({ value: { data: "test" } }, options)).toBe("?value=%7B%22data%22%3A%22test%22%7D");
       expect(
-        stringifyQueryParams({
-          value: {
-            filter: {
-              firstName: "john",
-              other: {
-                hobbies: ["dancing", "singing"],
+        stringifyQueryParams(
+          {
+            value: {
+              filter: {
+                firstName: "john",
+                other: {
+                  hobbies: ["dancing", "singing"],
+                },
               },
             },
           },
-        }),
+          options,
+        ),
       ).toBe(
         "?value=%7B%22filter%22%3A%7B%22firstName%22%3A%22john%22%2C%22other%22%3A%7B%22hobbies%22%3A%5B%22dancing%22%2C%22singing%22%5D%7D%7D%7D",
       );
     });
     it("should encode not allowed characters values", async () => {
-      expect(stringifyQueryParams({ value: "[]" })).toBe("?value=%5B%5D");
-      expect(stringifyQueryParams({ value: "/" })).toBe("?value=%2F");
-      expect(stringifyQueryParams({ value: "," })).toBe("?value=%2C");
-      expect(stringifyQueryParams({ value: "|" })).toBe("?value=%7C");
-      expect(stringifyQueryParams({ value: ":" })).toBe("?value=%3A");
-      expect(stringifyQueryParams({ value: ";" })).toBe("?value=%3B");
-      expect(stringifyQueryParams({ value: "+" })).toBe("?value=%2B");
-      expect(stringifyQueryParams({ value: "(" })).toBe("?value=%28");
-      expect(stringifyQueryParams({ value: ")" })).toBe("?value=%29");
-      expect(stringifyQueryParams({ value: "*" })).toBe("?value=%2A");
-      expect(stringifyQueryParams({ value: "&" })).toBe("?value=%26");
-      expect(stringifyQueryParams({ value: "^" })).toBe("?value=%5E");
-      expect(stringifyQueryParams({ value: "%" })).toBe("?value=%25");
-      expect(stringifyQueryParams({ value: "$" })).toBe("?value=%24");
-      expect(stringifyQueryParams({ value: "#" })).toBe("?value=%23");
-      expect(stringifyQueryParams({ value: "@" })).toBe("?value=%40");
-      expect(stringifyQueryParams({ value: "!" })).toBe("?value=%21");
+      expect(stringifyQueryParams({ value: "[]" }, options)).toBe("?value=%5B%5D");
+      expect(stringifyQueryParams({ value: "/" }, options)).toBe("?value=%2F");
+      expect(stringifyQueryParams({ value: "," }, options)).toBe("?value=%2C");
+      expect(stringifyQueryParams({ value: "|" }, options)).toBe("?value=%7C");
+      expect(stringifyQueryParams({ value: ":" }, options)).toBe("?value=%3A");
+      expect(stringifyQueryParams({ value: ";" }, options)).toBe("?value=%3B");
+      expect(stringifyQueryParams({ value: "+" }, options)).toBe("?value=%2B");
+      expect(stringifyQueryParams({ value: "(" }, options)).toBe("?value=%28");
+      expect(stringifyQueryParams({ value: ")" }, options)).toBe("?value=%29");
+      expect(stringifyQueryParams({ value: "*" }, options)).toBe("?value=%2A");
+      expect(stringifyQueryParams({ value: "&" }, options)).toBe("?value=%26");
+      expect(stringifyQueryParams({ value: "^" }, options)).toBe("?value=%5E");
+      expect(stringifyQueryParams({ value: "%" }, options)).toBe("?value=%25");
+      expect(stringifyQueryParams({ value: "$" }, options)).toBe("?value=%24");
+      expect(stringifyQueryParams({ value: "#" }, options)).toBe("?value=%23");
+      expect(stringifyQueryParams({ value: "@" }, options)).toBe("?value=%40");
+      expect(stringifyQueryParams({ value: "!" }, options)).toBe("?value=%21");
     });
     it("should encode array values with different formats", async () => {
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "bracket" })).toBe(
-        "?value[]=1&value[]=2&value[]=3",
+      expect(
+        stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arraySeparator: "", arrayFormat: "bracket" }),
+      ).toBe("?value[]=1&value[]=2&value[]=3");
+      expect(
+        stringifyQueryParams(
+          { value: [1, 2, 3] },
+          { ...options, arraySeparator: "", arrayFormat: "bracket-separator" },
+        ),
+      ).toBe("?value[]=1|2|3");
+      expect(stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arraySeparator: "", arrayFormat: "comma" })).toBe(
+        "?value=1,2,3",
       );
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "bracket-separator" })).toBe("?value[]=1|2|3");
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "comma" })).toBe("?value=1,2,3");
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "index" })).toBe(
+      expect(stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arraySeparator: "", arrayFormat: "index" })).toBe(
         "?value[0]=1&value[1]=2&value[2]=3",
       );
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "none" })).toBe("?value=1&value=2&value=3");
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "separator" })).toBe("?value=1|2|3");
-      expect(stringifyQueryParams({ value: [1, 2, 3] }, { arrayFormat: "separator", arraySeparator: "#" })).toBe(
-        "?value=1#2#3",
+      expect(stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arraySeparator: "", arrayFormat: "none" })).toBe(
+        "?value=1&value=2&value=3",
       );
+      expect(
+        stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arraySeparator: "", arrayFormat: "separator" }),
+      ).toBe("?value=1|2|3");
+      expect(
+        stringifyQueryParams({ value: [1, 2, 3] }, { ...options, arrayFormat: "separator", arraySeparator: "#" }),
+      ).toBe("?value=1#2#3");
     });
     it("should encode values without strict option", async () => {
-      expect(stringifyQueryParams({ value: "![]" }, { encode: true, strict: false })).toBe("?value=!%5B%5D");
-      expect(stringifyQueryParams({ value: "![]" }, { encode: false, strict: false })).toBe("?value=![]");
-      expect(stringifyQueryParams({ value: "![]" }, { encode: false, strict: true })).toBe("?value=![]");
+      expect(stringifyQueryParams({ value: "![]" }, { ...options, encode: true, strict: false })).toBe(
+        "?value=!%5B%5D",
+      );
+      expect(stringifyQueryParams({ value: "![]" }, { ...options, encode: false, strict: false })).toBe("?value=![]");
+      expect(stringifyQueryParams({ value: "![]" }, { ...options, encode: false, strict: true })).toBe("?value=![]");
     });
     it("should add the question mark", async () => {
-      expect(stringifyQueryParams("something")).toBe("?something");
-      expect(stringifyQueryParams("?something")).toBe("?something");
+      expect(stringifyQueryParams("something", options)).toBe("?something");
+      expect(stringifyQueryParams("?something", options)).toBe("?something");
     });
     it("should return empty string when no query params are passed", async () => {
-      expect(stringifyQueryParams("")).toBe("");
-      expect(stringifyQueryParams({})).toBe("");
-      expect(stringifyQueryParams(null)).toBe("");
-      expect(stringifyQueryParams(undefined)).toBe("");
+      expect(stringifyQueryParams("", options)).toBe("");
+      expect(stringifyQueryParams({}, options)).toBe("");
+      expect(stringifyQueryParams(null, options)).toBe("");
+      expect(stringifyQueryParams(undefined, options)).toBe("");
     });
   });
 
