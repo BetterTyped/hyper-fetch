@@ -31,7 +31,7 @@ describe("Client [ Utils ]", () => {
         arrayFormat: "bracket",
       });
       expect(newClient.stringifyQueryParams({ value: { test: new Date("9,9,2020").toISOString() } })).toBe(
-        '?value={"test":"2020-09-08T22:00:00.000Z"}',
+        `?value={"test":"${new Date("9,9,2020").toISOString()}"}`,
       );
       expect(
         newClient.stringifyQueryParams({
