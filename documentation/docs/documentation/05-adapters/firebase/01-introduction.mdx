@@ -5,12 +5,11 @@ sidebar_label: Introduction
 ---
 
 Hyper Fetch `firebase` packages offer complete integration of `realtime database` and `firestore`, both for frontend and
-backend, with a single, unified approach for all of them.
+backend. We offer a single, unified approach for all of them.
 
 ## Getting Started
 
-In order to start using the firebase adapter, you have to initialize the firestore/realtime database and set the correct
-adapter on the `client`.
+To start using the Firebase adapter, you have to initialize the Firestore/Realtime database and set the correct adapter on the `client`.
 
 There are two packages to chose from with two adapters each:
 
@@ -52,26 +51,24 @@ import { firebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
 ...
 ```
 
-Resulting `response` is an object that contains the following properties:
+The resulting `response` is an object that contains the following properties:
 
-1. `data` - data returned from the database. Each object returned from the database is enhanced also by the `__key` param that equals id of a given document.
-2. `status` - status indicating whether a request ended with `success`, `error` or `emptyResource`. `emptyResource`
-   occurs when the request to firebase succeeded but no data was returned.
-3. `success` - general information if overall request succeeded (`true`) or failed (`false`)
-4. `error` - contains error object if the request failed.
-5. `extra` - contains additional properties, depending on a method used. For instance, for `getDocs` method - it allows
-   to access `ref` and `snapshot` from firestore firebase.
+1. `data` - The data returned from the database. Each object returned from the database is also enhanced by the `__key` param that equals the id of a given document.
+2. `status` - Indicates whether a request ended with `success`, `error`, or `emptyResource`. An `emptyResource`  occurs when the request to the Firebase succeeded but no data was returned.
+3. `success` - Indicates if the overall request succeeded (`true`) or failed (`false`).
+4. `error` - Contains an error object if the request failed.
+5. `extra` - Contains additional properties, depending on the method used. E.g. for the `getDocs` method, this allows access to `ref` and `snapshot` from the Firestore Firebase.
 
 ## Differences from 'raw' firebase
 
-1. If we store an array in firebase, for instance `[a, b, c]`, the query would return the same array. However, if the
-   array stops being sequential - for instance, if `a` and `b` were deleted, firebase would return and object: {2: 'c',
-   4: 'e'}. Hyper Fetch always returns and array. Each object in an array has an additional `__key` property, that indicates the id of a given object.
+1. If we store an array in Firebase (e.g.`[a, b, c]`), the query will return the same array.
+However, if the array stops being sequential – if `a` and `b` were deleted from our example – Firebase would return an object.
+In this example, it would be `{2: 'c', 4: 'e'}`. Hyper Fetch always returns an array.
+Each object in an array has an additional `__key` property, that indicates the id of a given object.
 
 ## Filtering queries
 
-In order to standardize the interface across both admin/web firestore/realtime, the filtering and limiting queries is
-done via setting the `constraints` queryParam:
+In order to standardize the interface across admin, web Firestore, and Realtime database, queries are filtered and limited by setting the `constraints` queryParam:
 
 ```tsx
 import { $limit, $orderBy, $where } from "constraints";
@@ -85,7 +82,19 @@ const { data } = await req.send({
 });
 ```
 
-User can pass the array of constrains and filters. Please pay attention to the fact that you need to filter via method
-wrappers provided via `adapter-firebase` package: `$where`, `$orderBy`, `$limit`, `$startAt`, `$startAfter`, `$endAt`,
-`$endAfter`, `$orderByChild`, `$orderByKey`, `$orderByValue`, `$limitToFirst`, `$limitToLast`, `$equalTo`. All of these
-methods work exactly the same as their corresponding firebase equivalents.
+Users can pass the array of constraints and filters. Please pay attention to the fact that you need to filter using the method wrappers provided via the `adapter-firebase` package:
+- `$where`
+- `$orderBy`
+- `$limit`
+- `$startAt`
+- `$startAfter`
+- `$endAt`
+- `$endAfter`
+- `$orderByChild`
+- `$orderByKey`
+- `$orderByValue`
+- `$limitToFirst`
+- `$limitToLast`
+- `$equalTo`
+All of these methods work exactly the same as their Firebase equivalents.
+

@@ -4,13 +4,13 @@ title: Working with Firestore
 sidebar_label: Firestore
 ---
 
-## Available methods
+## Available Firestore methods
 
-After setting the firestore adapter, we can start performing requests! We should select the appropriate method, corresponding with
-firebase methods. If you want to learn more about available methods - please refer to the firebase documentation.
+After setting the Firestore adapter, we can start performing requests. We should select the appropriate method that corresponds with the Firebase method.
+If you want to learn more about available methods, please refer to the Firebase documentation.
 
-Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in a standard adapter.
-For the `onSnapshot`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+Due to its nature, we've solved the realtime listening a bit differently. Thus, this method is not allowed in a standard adapter.
+For `onSnapshot`-like usage, please see how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
 
 ```tsx
 const getReq = client.createRequest<Tea[]>()({
@@ -33,8 +33,8 @@ const { data, status, extra, success, error } = await req.send();
 ```
 
 `extra`:
-1. `ref` - collection reference endpoint
-2. `snapshot` - 'raw' `getDocs` firestore collection/query reference snapshot
+1. `ref` - Collection reference endpoint.
+2. `snapshot` - Raw `getDocs` Firestore collection/query reference snapshot.
 
 ### getDoc
 
@@ -51,8 +51,8 @@ const { data, status, extra, success, error } = await req.send();
 ```
 
 `extra`:
-1. `ref` - document reference endpoint
-2. `snapshot` - 'raw' firestore document reference snapshot
+1. `ref` - Document reference endpoint.
+2. `snapshot` - Raw Firestore document reference snapshot.
 
 ### setDoc
 
@@ -71,7 +71,7 @@ await setReq.send();
 const { data } = await getReq.send();
 ```
 
-In case of `setDoc` - data returned is the same data as passed for setting.
+In `setDoc`, the returned data is the same as the data passed for setting.
 
 ### addDoc
 
@@ -87,7 +87,7 @@ const addDocReq = client
 await addDocReq.send()
 ```
 
-In case of `addDoc` - data returned is the same as passed data for setting + the `__key` param that is id of a newly created document.
+In `addDoc`, the returned data is the same as the data passed for setting plus the `__key` param that is id of a newly created document.
 
 ### deleteDoc
 
@@ -102,4 +102,4 @@ const deleteDocReq = client
 await deleteDocReq
 ```
 
-In case of `deleteDoc` - returned data equals `null`
+In `deleteDoc`, the returned data equals `null`.
