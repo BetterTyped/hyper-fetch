@@ -22,7 +22,7 @@ describe("Utils", () => {
     const schema = JSON.parse(file);
     const baseUrl = getBaseUrl(schema);
     const emptyString = getBaseUrl({} as unknown as Document);
-    expect(baseUrl).toEqual("https://petstore.swagger.io/v2");
+    expect(baseUrl).toEqual("/api/v3");
     expect(emptyString).toEqual("");
   });
 });

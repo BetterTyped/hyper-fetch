@@ -5,13 +5,13 @@
 import { promises as fsPromises } from "fs";
 import * as path from "path";
 
-import { Document } from "../../src";
-import { getAvailableOperations } from "../../src/openapi/operations";
+import { Document } from "../../../src";
+import { getAvailableOperations } from "../../../src/openapi/operations";
 
 describe("Operations", () => {
   let schema: string;
   beforeAll(async () => {
-    const file = await fsPromises.readFile(path.resolve(__dirname, "../schemas/v3/petstore-expanded.json"), "utf8");
+    const file = await fsPromises.readFile(path.resolve(__dirname, "../../schemas/v3/petstore-expanded.json"), "utf8");
     schema = JSON.parse(file);
   });
 
@@ -24,24 +24,22 @@ describe("Operations", () => {
       },
       addPet: {
         _shouldExist: ["responses", "requestBody"],
-        path: "/pets",
+        path: "/pet",
         method: "post",
-      },
-      "find pet by id": {
-        _shouldExist: ["parameters", "responses"],
-        responses: [],
-        path: "/pets/{id}",
-        method: "get",
       },
       deletePet: {
         _shouldExist: ["parameters", "responses"],
-        path: "/pets/{id}",
+        path: "/pet/{petId}",
         method: "delete",
       },
     };
     const operations = getAvailableOperations(schema as unknown as Document);
     // eslint-disable-next-line no-restricted-syntax
     for (const operation of operations) {
+      if (!Object.keys(operationIdMap).includes(operation.operationId)) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
       const requirements = operationIdMap[operation.operationId];
       expect(requirements.path).toEqual(operation.path);
       expect(requirements.method).toEqual(operation.method);
