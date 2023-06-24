@@ -1,0 +1,19 @@
+---
+sidebar_position: 1
+title: Openapi generator introduction
+sidebar_label: Introduction
+---
+
+Note: Openapi Hyper Fetch code generator is still in beta. Please let us know in case of any problems.
+
+Note: Right now this code generator accepts only V3 version of the openapi schema.
+
+## Getting Started
+
+In order to start using the request generator, you need only one thing: OpenApi V3 JSON schema file or link to it. Then,
+you can simply call the package via `npx`:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
+```
+
