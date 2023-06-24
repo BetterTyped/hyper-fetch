@@ -1,4 +1,4 @@
-# 🏛️ Hyper Fetch Axios
+# 🏛️ Hyper Fetch Openapi Request Generator 
 
 <p>
   <a href="https://bettertyped.com/">
@@ -29,35 +29,13 @@
 
 ## About
 
-**`Hyper Fetch Axios`** is adapter for Hyper Fetch. It enables seamless communication with Axios, simplifying the
-retrieval and manipulation of data. Benefit from the convenience and efficiency of Hyper Fetch.
+**`Hyper Fetch Generator-Openapi`** is our request generator from openapi (V3) json schema. Just provide a file path or link and generate all the requests. 
 
 ## Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
-
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
-
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
-
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
-
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
-
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
-
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
-
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
-
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
-
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
-
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
-
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+- Generate code from OpenApi V3 schema - both types and actual requests!
+- Flexible - after generation you can edit Hyper Fetch client and all related requests!
+- No additional boilerplate - if you know Hyper Fetch, you don't need anything else.
 
 ## Help us keep working on this project ❤️
 
@@ -68,5 +46,10 @@ retrieval and manipulation of data. Benefit from the convenience and efficiency 
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/graphql)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/codegen-openapi)
 - #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)
+
+## Disclaimer
+
+This package is heavily inspired by [Openapi Client Axios](https://www.npmjs.com/package/openapi-client-axios). 
+Thanks `anttiviljami` for all his hard work!

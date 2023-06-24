@@ -5,7 +5,7 @@ const { nodeExternalsPlugin } = require("esbuild-node-externals");
 const pkg = require(`${process.cwd()}/package.json`);
 
 const isIsomorphicBuild = ["@hyper-fetch/core", "@hyper-fetch/graphql"].includes(pkg.name);
-const isNodeOnly = ["@hyper-fetch/generator-openapi"].includes(pkg.name);
+const isNodeOnly = ["@hyper-fetch/codegen-openapi"].includes(pkg.name);
 
 /**
  * Building

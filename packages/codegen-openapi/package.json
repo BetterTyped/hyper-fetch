@@ -1,8 +1,8 @@
 {
-  "name": "@hyper-fetch/generator-openapi",
+  "name": "@hyper-fetch/codegen-openapi",
   "version": "0.0.0",
   "private": false,
-  "description": "Hyper Fetch request generator from OpenApi schema",
+  "description": "Hyper Fetch request code generator from OpenApi schema",
   "author": "Kacper Skawina <kacper.skawina@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
@@ -26,7 +26,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-axios-v${version}'"
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-codegen-openapi-v${version}'"
   },
   "publishConfig": {
     "access": "public",
@@ -35,7 +35,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/BetterTyped/hyper-fetch.git",
-    "directory": "packages/adapter-axios"
+    "directory": "packages/codegen-openapi"
   },
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
@@ -60,8 +60,11 @@
     ]
   },
   "keywords": [
-    "axios",
-    "adapter",
-    "hyper fetch"
+    "codegen",
+    "openapi",
+    "hyper fetch",
+    "swagger",
+    "openapi schema",
+    "code generator"
   ]
 }
