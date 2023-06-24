@@ -16,16 +16,17 @@ program
   .description("Generates HF Requests from the provided openapi schema (V3)")
   .version("0.1.0");
 
-program.requiredOption("-s, --path [path]", "path or url to the openapi schema");
+program.requiredOption("-s, --schema [path]", "path or url to the openapi schema");
+program.option("-n, --name [path]", "path to the resulting file");
 
 program.parse(process.argv);
 
-const options = program.opts() as { path: string };
+const options = program.opts() as { schema: string; name?: string };
 
-const main = async (opts: { path: string }) => {
+const main = async (opts: { schema: string; name?: string }) => {
   let openapiSchema;
-  if (isUrl(opts.path)) {
-    const client = new Client({ url: opts.path });
+  if (isUrl(opts.schema)) {
+    const client = new Client({ url: opts.schema });
     const getSchema = client.createRequest<Document>()({ endpoint: "" });
     const { data, error } = await getSchema.send();
     if (error) {
@@ -34,12 +35,22 @@ const main = async (opts: { path: string }) => {
       openapiSchema = data;
     }
   } else {
-    const f = fs.readFileSync(path.join(process.cwd(), opts.path), "utf-8");
+    const f = fs.readFileSync(path.join(process.cwd(), opts.schema), "utf-8");
     openapiSchema = JSON.parse(f);
   }
 
   const generator = new OpenapiRequestGenerator(openapiSchema);
-  await generator.generateFile();
+  await generator.generateFile(opts?.name);
 };
 
-main(options).catch((e) => console.log(e));
+main(options)
+  .catch((e) => {
+    // eslint-disable-next-line no-console
+    console.log(e);
+    process.exit(1);
+  })
+  .then(() => {
+    // eslint-disable-next-line no-console
+    console.log("Generation finished");
+    process.exit(1);
+  });

@@ -46,7 +46,8 @@ export class OpenapiRequestGenerator {
       parser: "typescript" as const,
     };
 
-    const generatedPath = _path.join(process.cwd(), `${fileName || defaultFileName}.ts`);
+    const fName = fileName || defaultFileName;
+    const generatedPath = _path.join(process.cwd(), `${fName}${fName.endsWith(".ts") ? "" : ".ts"}`);
 
     await fsPromises.writeFile(generatedPath, `${prettier.format(contents, prettierOpts)}`);
 

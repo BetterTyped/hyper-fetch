@@ -103,4 +103,11 @@ describe("Generator", () => {
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
+
+  it("Should generate file with provided name without duplication for .ts ending if provided", async () => {
+    const generator = new OpenapiRequestGenerator(schema);
+    const generatedFileNamePath = await generator.generateFile("schemaApiRequests.ts");
+    expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
+    await fsPromises.rm(generatedFileNamePath);
+  });
 });
