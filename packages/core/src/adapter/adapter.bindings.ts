@@ -57,6 +57,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const { client, abortKey, queueKey, endpoint, data } = request;
 
   const fullUrl = url + endpoint;
+
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
   let payload = data;
@@ -337,7 +338,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }
-    if (req.mock) {
+
+    if (req.mock && req.isMockEnabled && req.client.isMockEnabled) {
       return mocker(request, {
         onError,
         onResponseEnd,
@@ -354,6 +356,14 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     }
     return new Promise(apiCall);
   };
+
+  logger.debug(`Finishing request bindings creation`, {
+    fullUrl,
+    data,
+    headers,
+    payload,
+    config,
+  });
 
   return {
     fullUrl,

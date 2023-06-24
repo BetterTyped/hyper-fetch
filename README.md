@@ -28,11 +28,11 @@
   </a>
 </p>
 
-**`Hyper Fetch`** is the unique fetching framework `designed for simplicity and efficiency`. With its **`typesafe`**
-design and user-friendly interface, it offers seamless integration both in the browser and on the server. Experience the
-power of next gen framework as it simplifies architecture, grants access to request lifecycle, and enables rapid
-development of new components and functionalities together with `realtime data exchange`. Embrace good practices
-effortlessly with Hyper Fetch.
+**`Hyper Fetch`** is unique fetching framework meticulously crafted to **prioritize simplicity and efficiency**. Its
+**typesafe design** and **user-friendly interface** ensure a seamless integration experience, whether you're working on
+the browser or the server. Next-generation features streamlines architecture creation, grants access to the request
+lifecycle, and empowers rapid development of new components and functionalities, all while facilitating **real-time data
+exchange**.
 
 **[Documentation](https://hyperfetch.bettertyped.com/) •
 [Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) •

@@ -117,7 +117,7 @@ describe("Fetch Adapter [ Server ]", () => {
     let receivedOptions: any;
     const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
 
-    jest.spyOn(http, "request").mockImplementation((options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
@@ -137,7 +137,7 @@ describe("Fetch Adapter [ Server ]", () => {
     let receivedOptions: any;
     const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
 
-    jest.spyOn(http, "request").mockImplementation((options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });

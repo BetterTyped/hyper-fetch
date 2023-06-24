@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
@@ -14,6 +15,7 @@ export const useCache = <T extends RequestInstance>(
   const { cache, loggerManager } = client;
   const logger = useRef(loggerManager.init("useCache")).current;
   const [dispatcher] = getRequestDispatcher(request);
+  const updateKey = JSON.stringify(request.toJSON());
 
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
@@ -38,13 +40,22 @@ export const useCache = <T extends RequestInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks] = useRequestEvents({
+  const [callbacks, listeners] = useRequestEvents({
     logger,
     actions,
     request,
     dispatcher,
     setCacheData,
   });
+
+  const { addDataListener, addLifecycleListeners } = listeners;
+
+  const handleMountEvents = () => {
+    addDataListener(request);
+    addLifecycleListeners(request);
+  };
+
+  useDidUpdate(handleMountEvents, [updateKey], true);
 
   const refetch = (invalidateKey?: string | RequestInstance | RegExp) => {
     if (invalidateKey instanceof Request) {
