@@ -17,3 +17,45 @@ you can simply call the package via `npx`:
 npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
 ```
 
+This command will generate the `openapi.client.ts` that contains generated Hyper Fetch client, requests, and types:
+
+```tsx
+...
+export const client = new Client({ url: "/api/v3" });
+
+...
+export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody;
+export type UpdatePetResponseType = Paths.UpdatePet.Responses.$200;
+
+export type AddPetRequestBody = Paths.AddPet.RequestBody;
+export type AddPetResponseType = Paths.AddPet.Responses.$200;
+
+...
+
+export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, undefined, undefined>()({
+  method: "PUT",
+  endpoint: "/pet",
+});
+
+export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, undefined, undefined>()({
+  method: "POST",
+  endpoint: "/pet",
+});
+
+```
+
+Declared variables with a created request always take their name from camel-cased `operationId`.
+The types naming always follows the convention - pascalCased `operationId` + {ResponseType/RequestBody/QueryParams}, e.g.:
+
+operationId: `addPet`
+declared variable: `addPet`
+response type: `AddPetResponseType`
+request body: `AddPetRequestBody`
+
+## Renaming the file
+
+The command also accepts a second, optional argument: `--name`, that allows to indicate the name of a file:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts
+```
