@@ -1,4 +1,4 @@
-# 🏛️ Hyper Fetch Openapi Request Generator 
+# 🪄 Hyper Fetch Openapi Request Generator 
 
 <p>
   <a href="https://bettertyped.com/">
@@ -33,9 +33,16 @@
 
 ## Features
 
-- Generate code from OpenApi V3 schema - both types and actual requests!
-- Flexible - after generation you can edit Hyper Fetch client and all related requests!
-- No additional boilerplate - if you know Hyper Fetch, you don't need anything else.
+✨ Generate code from OpenApi V3 schema - both types and actual requests.
+✨ Flexible - after generation you can edit Hyper Fetch client and all related requests.
+✨ No additional boilerplate - if you know Hyper Fetch, you don't need anything else.
+✨ Simplicity:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json 
+```
+
+...and it works! All code generated and ready to use.
 
 ## Help us keep working on this project ❤️
 

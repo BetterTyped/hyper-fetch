@@ -4,9 +4,18 @@ title: Openapi generator introduction
 sidebar_label: Introduction
 ---
 
-Note: Openapi Hyper Fetch code generator is still in beta. Please let us know in case of any problems.
+:::info
+
+Openapi Hyper Fetch code generator is in beta. Please let us know in case of any problems.
+
+:::
+
+:::info
 
 Note: Right now this code generator accepts only V3 version of the openapi schema.
+
+:::
+
 
 ## Getting Started
 
@@ -45,16 +54,16 @@ export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody
 ```
 
 Declared variables with a created request always take their name from camel-cased `operationId`.
-The types naming always follows the convention - pascalCased `operationId` + {ResponseType/RequestBody/QueryParams}, e.g.:
+The types naming always follows the convention - pascalCased `operationId` + {`ResponseType`/`RequestBody`/`QueryParams`}, e.g.:
 
-operationId: `addPet`
-declared variable: `addPet`
-response type: `AddPetResponseType`
-request body: `AddPetRequestBody`
+- operationId: `addPet`
+- declared variable: `addPet`
+- response type: `AddPetResponseType`
+- request body: `AddPetRequestBody`
 
 ## Renaming the file
 
-The command also accepts a second, optional argument: `--name`, that allows to indicate the name of a file:
+The command also accepts a second, optional argument: `--name`, that allows to indicate the name of a resulting file:
 
 ```tsx
 npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts
