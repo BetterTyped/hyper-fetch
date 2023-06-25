@@ -56,14 +56,12 @@ export class OpenapiRequestGenerator {
 
   generateRequestsFromSchema = async () => {
     const { schemaTypes, exportedTypes } = await OpenapiRequestGenerator.prepareSchema(this.openapiDocument);
-    const availableOperations = getAvailableOperations(this.openapiDocument);
 
     const generatedTypes = [];
     const generatedRequests = [];
     const metadata = [];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const operation of availableOperations) {
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+
+    getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
       const operationTypes = OpenapiRequestGenerator.generateTypes(meta);
       const generatedRequest = OpenapiRequestGenerator.generateHyperFetchRequest(meta, operationTypes);
@@ -71,7 +69,7 @@ export class OpenapiRequestGenerator {
       metadata.push(meta);
       generatedTypes.push(Object.values(operationTypes).join("\n"));
       generatedRequests.push(generatedRequest);
-    }
+    });
 
     return { metadata, schemaTypes, generatedTypes, generatedRequests };
   };

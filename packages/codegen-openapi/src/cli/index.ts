@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name("Hyper Fetch openapi-generator")
   .description("Generates HF Requests from the provided openapi schema (V3)")
-  .version("0.1.0");
+  .version("1.0.0");
 
 program.requiredOption("-s, --schema [path]", "path or url to the openapi schema");
 program.option("-n, --name [path]", "path to the resulting file");
@@ -46,7 +46,7 @@ const main = async (opts: { schema: string; name?: string }) => {
 main(options)
   .catch((e) => {
     // eslint-disable-next-line no-console
-    console.log(e);
+    console.log("Generation failed", e);
     process.exit(1);
   })
   .then(() => {

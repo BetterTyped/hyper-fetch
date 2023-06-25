@@ -33,21 +33,17 @@ describe("Operations", () => {
         method: "delete",
       },
     };
-    const operations = getAvailableOperations(schema as unknown as Document);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const operation of operations) {
-      if (!Object.keys(operationIdMap).includes(operation.operationId)) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
+    getAvailableOperations(schema as unknown as Document).forEach((operation) => {
       const requirements = operationIdMap[operation.operationId];
-      expect(requirements.path).toEqual(operation.path);
-      expect(requirements.method).toEqual(operation.method);
-      // eslint-disable-next-line @typescript-eslint/no-loop-func
-      requirements._shouldExist?.forEach((req) => {
-        expect(operation).toHaveProperty(req);
-      });
-    }
+      if (requirements) {
+        expect(requirements.path).toEqual(operation.path);
+        expect(requirements.method).toEqual(operation.method);
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
+        requirements._shouldExist?.forEach((req) => {
+          expect(operation).toHaveProperty(req);
+        });
+      }
+    });
   });
   it("should return empty object if no correct json was passed", () => {
     const operations = getAvailableOperations({} as unknown as Document);

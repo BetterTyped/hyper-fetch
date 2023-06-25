@@ -82,27 +82,21 @@ describe("Generator", () => {
   });
 
   it("should generate hyper fetch requests", async () => {
-    const operations = getAvailableOperations(schema as unknown as Document);
     const { exportedTypes } = await OpenapiRequestGenerator.prepareSchema(schema as unknown as Document);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const operation of operations) {
-      if (!Object.keys(expectedMetadata).includes(operation.operationId)) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    getAvailableOperations(schema as unknown as Document).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
       const operationTypes = OpenapiRequestGenerator.generateTypes(meta);
       const generatedRequest = OpenapiRequestGenerator.generateHyperFetchRequest(meta, operationTypes);
 
-      expect(meta).toMatchObject(expectedMetadata[meta.id]);
-      // eslint-disable-next-line no-restricted-syntax
-      for (const [name, value] of Object.entries(operationTypes)) {
-        expect(value).toStrictEqual(expectedOperationTypes[name]);
-      }
+      if (expectedMetadata[meta.id]) {
+        expect(meta).toMatchObject(expectedMetadata[meta.id]);
 
-      expect(expectedRequests).toContain(generatedRequest);
-    }
+        Object.entries(operationTypes).forEach(([name, value]) => {
+          expect(value).toStrictEqual(expectedOperationTypes[name]);
+        });
+        expect(expectedRequests).toContain(generatedRequest);
+      }
+    });
   });
 
   it("Should generate file with default name", async () => {
