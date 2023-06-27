@@ -19,22 +19,19 @@ Framework for fetching and realtime data exchange.
     <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch">
-    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star" />
+    <img src="https://custom-icon-badges.demolab.com/github/stars/BetterTyped/hyper-fetch?logo=star&color=brightgreen" />
   </a>
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
-    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
+    <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=blue" />
   </a>
   <a href="https://github.com/semantic-release/semantic-release">
-    <img src="https://custom-icon-badges.demolab.com/badge/semver-commitzen-e10079?logo=semantic-release&color=e76f51" />
+    <img src="https://custom-icon-badges.demolab.com/badge/semver-commitzen-e10079?logo=semantic-release&color=9146ff" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
   </a>
   <a href="https://bestofjs.org/projects/hyper-fetch" rel="nofollow">
     <img alt="Best of JS" src="https://img.shields.io/endpoint?url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=BetterTyped%2Fhyper-fetch%26since=daily" style="max-width: 100%;">
-  </a>
-  <a href="https://twitter.com/hyper_fetch">
-    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/hyper_fetch?label=Follow%20HyperFetch&style=social">
   </a>
 </div>
 
