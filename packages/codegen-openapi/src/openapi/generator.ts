@@ -17,9 +17,9 @@ export class OpenapiRequestGenerator {
     this.openapiDocument = openapiDocument as Document;
   }
 
-  async generateFile(fileName?: string) {
+  async generateFile({ fileName, url }: { fileName?: string; url?: string }) {
     const defaultFileName = "openapi.client";
-    const baseUrl = getBaseUrl(this.openapiDocument);
+    const baseUrl = url || getBaseUrl(this.openapiDocument);
     const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
     const contents = [
       `import { Client } from "@hyper-fetch/core";`,

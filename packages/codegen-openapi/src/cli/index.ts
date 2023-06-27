@@ -18,12 +18,13 @@ program
 
 program.requiredOption("-s, --schema [path]", "path or url to the openapi schema");
 program.option("-n, --name [path]", "path to the resulting file");
+program.option("u, --url [url]", "base url for requests");
 
 program.parse(process.argv);
 
-const options = program.opts() as { schema: string; name?: string };
+const options = program.opts() as { schema: string; name?: string; url?: string };
 
-const main = async (opts: { schema: string; name?: string }) => {
+const main = async (opts: { schema: string; name?: string; url?: string }) => {
   let openapiSchema;
   if (isUrl(opts.schema)) {
     const client = new Client({ url: opts.schema });
@@ -40,7 +41,7 @@ const main = async (opts: { schema: string; name?: string }) => {
   }
 
   const generator = new OpenapiRequestGenerator(openapiSchema);
-  await generator.generateFile(opts?.name);
+  await generator.generateFile({ fileName: opts?.name, url: opts?.url });
 };
 
 main(options)

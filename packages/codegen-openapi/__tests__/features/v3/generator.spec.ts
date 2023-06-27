@@ -101,22 +101,31 @@ describe("Generator", () => {
 
   it("Should generate file with default name", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile();
+    const generatedFileNamePath = await generator.generateFile({});
     expect(generatedFileNamePath).toEndWith("openapi.client.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile("schemaApiRequests");
+    const generatedFileNamePath = await generator.generateFile({ fileName: "schemaApiRequests" });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
     await fsPromises.rm(generatedFileNamePath);
   });
 
   it("Should generate file with provided name without duplication for .ts ending if provided", async () => {
     const generator = new OpenapiRequestGenerator(schema);
-    const generatedFileNamePath = await generator.generateFile("schemaApiRequests.ts");
+    const generatedFileNamePath = await generator.generateFile({ fileName: "schemaApiRequests.ts" });
     expect(generatedFileNamePath).toEndWith("schemaApiRequests.ts");
+    await fsPromises.rm(generatedFileNamePath);
+  });
+
+  it("Should generate file with provided baseUrl", async () => {
+    const baseUrl = "http://baseurl.com";
+    const generator = new OpenapiRequestGenerator(schema);
+    const generatedFileNamePath = await generator.generateFile({ url: "http://baseurl.com" });
+    const imported = await import(generatedFileNamePath);
+    expect(imported.client.url).toEqual(baseUrl);
     await fsPromises.rm(generatedFileNamePath);
   });
 });
