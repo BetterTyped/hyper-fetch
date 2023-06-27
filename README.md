@@ -4,7 +4,17 @@
 
 </h1>
 
-<p align="center">
+<div align="center">
+
+Framework for fetching and realtime data exchange.
+
+**[Documentation](https://hyperfetch.bettertyped.com/) |
+[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) |
+[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup)**
+
+</div>
+
+<div align="center">
   <a href="https://bettertyped.com/">
     <img src="https://custom-icon-badges.demolab.com/static/v1?label=&message=BetterTyped&color=333&logo=BT" />
   </a>
@@ -26,18 +36,15 @@
   <a href="https://twitter.com/hyper_fetch">
     <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/hyper_fetch?label=Follow%20HyperFetch&style=social">
   </a>
-</p>
+</div>
 
-**`Hyper Fetch`** is unique fetching framework meticulously crafted to **prioritize simplicity and efficiency**. Its
-**typesafe design** and **user-friendly interface** ensure a seamless integration experience, whether you're working on
-the browser or the server. Next-generation features streamlines architecture creation, grants access to the request
-lifecycle, and empowers rapid development of new components and functionalities, all while facilitating **real-time data
-exchange**.
+<br />
 
-**[Documentation](https://hyperfetch.bettertyped.com/) •
-[Quick Start](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/quick-start) •
-[Guides](https://hyperfetch.bettertyped.com/docs/guides/Basic/Setup) •
-[API](https://hyperfetch.bettertyped.com/docs/api/)**
+**`Hyper Fetch`** is unique fetching and realtime data-exchange framework meticulously crafted to **prioritize
+simplicity and efficiency**. Its **typesafe design** and **user-friendly interface** ensure a seamless integration
+experience, whether you're working on the browser or the server. Next-generation features streamlines architecture
+creation, grants access to the request lifecycle, and empowers rapid development of new components and functionalities,
+all while facilitating **real-time data exchange**.
 
 ---
 
