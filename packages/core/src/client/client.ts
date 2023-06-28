@@ -265,12 +265,32 @@ export class Client<
   };
 
   /**
+   * Method for removing listeners on auth.
+   * */
+  removeOnAuthInterceptors = (
+    callbacks: RequestInterceptorType[],
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.__onAuthCallbacks = this.__onAuthCallbacks.filter((callback) => !callbacks.includes(callback));
+    return this;
+  };
+
+  /**
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
   onError = <ErrorType = null>(
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onErrorCallbacks.push(callback);
+    return this;
+  };
+
+  /**
+   * Method for removing listeners on error.
+   * */
+  removeOnErrorInterceptors = (
+    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.__onErrorCallbacks = this.__onErrorCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
@@ -285,10 +305,30 @@ export class Client<
   };
 
   /**
+   * Method for removing listeners on success.
+   * */
+  removeOnSuccessInterceptors = (
+    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.__onSuccessCallbacks = this.__onSuccessCallbacks.filter((callback) => !callbacks.includes(callback));
+    return this;
+  };
+
+  /**
    * Method of manipulating requests before sending the request.
    */
   onRequest = (callback: RequestInterceptorType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onRequestCallbacks.push(callback);
+    return this;
+  };
+
+  /**
+   * Method for removing listeners on request.
+   * */
+  removeOnRequestInterceptors = (
+    callbacks: RequestInterceptorType[],
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.__onRequestCallbacks = this.__onRequestCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
@@ -299,6 +339,16 @@ export class Client<
     callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onResponseCallbacks.push(callback);
+    return this;
+  };
+
+  /**
+   * Method for removing listeners on request.
+   * */
+  removeOnResponseInterceptors = (
+    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+  ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.__onResponseCallbacks = this.__onResponseCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
