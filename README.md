@@ -220,6 +220,23 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
       </td>
     </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/codegen-openapi?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/codegen-openapi.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+
   </tbody>
 </table>
 
