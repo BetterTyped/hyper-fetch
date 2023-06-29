@@ -11,7 +11,7 @@
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
   <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
-    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/graphql.svg?logo=npm&color=e76f51" />
+    <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">
     <img src="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage" />
@@ -68,5 +68,5 @@ retrieval and manipulation of data. Benefit from the convenience and efficiency 
 - #### [Installation](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/installation)
 - #### [Docs](https://hyperfetch.bettertyped.com/)
 - #### [API](https://hyperfetch.bettertyped.com/api/)
-- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/graphql)
+- #### [NPM](https://www.npmjs.com/package/@hyper-fetch/axios)
 - #### [Guides](https://hyperfetch.bettertyped.com/guides/Basic/Setup)

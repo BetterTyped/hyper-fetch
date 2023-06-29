@@ -357,6 +357,14 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     return new Promise(apiCall);
   };
 
+  logger.debug(`Finishing request bindings creation`, {
+    fullUrl,
+    data,
+    headers,
+    payload,
+    config,
+  });
+
   return {
     fullUrl,
     data,

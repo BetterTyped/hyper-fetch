@@ -2,7 +2,7 @@ export const stringifyDefaultOptions = {
   strict: true,
   encode: true,
   arrayFormat: "bracket",
-  arraySeparator: "",
+  arraySeparator: "bracket",
   sort: false,
   skipNull: true,
   skipEmptyString: true,
