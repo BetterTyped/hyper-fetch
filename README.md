@@ -47,28 +47,23 @@ all while facilitating **real-time data exchange**.
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+🔮 [Simple setup](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
-🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
+🎯 [Easy cancellation](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
-✨ **Deduplicate similar requests** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
+✨ [Request deduplication](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+🚀 [Queueing](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 [Response Caching](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+🔋 [Offline First](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 [Built-in fetcher](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+🎟 [Authentication](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
-🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
-
-## Help me keep working on this project ❤️
-
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+🔁 [Smart Retries](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
 
 ## Installation
 
@@ -413,3 +408,7 @@ return <Form onSubmit={handleSubmit}>...</Form>;
 </details>
 
 # [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+
+## Help me keep working on this project ❤️
+
+- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
