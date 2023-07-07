@@ -80,4 +80,34 @@ describe("Client [ Middleware ]", () => {
       expect(client.__modifyAuth(request)).rejects.toThrow();
     });
   });
+
+  describe("When user wants to remove listeners", () => {
+    it("should allow for removing middleware on request", async () => {
+      const firstCallback = middlewareCallback({ callback: spy1 });
+      const secondCallback = middlewareCallback({ callback: spy2 });
+      client.onRequest(firstCallback).onRequest(secondCallback);
+
+      await request.send();
+      client.removeOnRequestInterceptors([secondCallback]);
+
+      await request.send();
+
+      expect(spy1).toBeCalledTimes(2);
+      expect(spy2).toBeCalledTimes(1);
+    });
+    it("should allow for removing interceptors on auth", async () => {
+      const authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
+      const firstCallback = middlewareCallback({ callback: spy1 });
+      const secondCallback = middlewareCallback({ callback: spy2 });
+      client.onAuth(firstCallback).onAuth(secondCallback);
+
+      await authRequest.send();
+      client.removeOnAuthInterceptors([secondCallback]);
+
+      await authRequest.send();
+
+      expect(spy1).toBeCalledTimes(2);
+      expect(spy2).toBeCalledTimes(1);
+    });
+  });
 });
