@@ -73,7 +73,7 @@ describe("useFetch [ Concurrency ]", () => {
         const responseOne = renderUseFetch(request);
         await testSuccessState(mock, responseOne);
 
-        const responseTwo = renderUseFetch(request, { fetchOnMount: false });
+        const responseTwo = renderUseFetch(request, { revalidate: false });
         await testSuccessState(mock, responseTwo);
       });
       it("should share data with disabled hook", async () => {

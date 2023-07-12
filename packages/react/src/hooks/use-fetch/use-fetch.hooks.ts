@@ -25,7 +25,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    fetchOnMount = useFetchDefaultOptions.fetchOnMount,
+    revalidate = useFetchDefaultOptions.revalidate,
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
@@ -153,7 +153,7 @@ export const useFetch = <RequestType extends RequestInstance>(
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
     const isFetching = getIsFetchingIdentity();
-    if ((fetchOnMount || hasStaleData) && !isFetching) {
+    if ((revalidate || hasStaleData) && !isFetching) {
       handleFetch();
     }
   };

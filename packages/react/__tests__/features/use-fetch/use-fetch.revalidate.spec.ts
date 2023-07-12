@@ -43,7 +43,7 @@ describe("useFetch [ refetch ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { fetchOnMount: false });
+    const response = renderUseFetch(request, { revalidate: false });
     act(() => {
       response.result.current.onFinished(spy);
     });
@@ -54,7 +54,7 @@ describe("useFetch [ refetch ]", () => {
   });
   it("should allow to prevent invalidation on mount", async () => {
     const spy = jest.fn();
-    const response = renderUseFetch(request, { fetchOnMount: false });
+    const response = renderUseFetch(request, { revalidate: false });
 
     act(() => {
       response.result.current.onFinished(() => {
@@ -62,7 +62,7 @@ describe("useFetch [ refetch ]", () => {
         response.unmount();
       });
     });
-    renderUseFetch(request, { fetchOnMount: false });
+    renderUseFetch(request, { revalidate: false });
 
     await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
@@ -81,7 +81,7 @@ describe("useFetch [ refetch ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { fetchOnMount: true });
+    const response = renderUseFetch(request, { revalidate: true });
 
     await waitFor(async () => {
       await testSuccessState(mock, response);

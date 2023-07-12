@@ -20,7 +20,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If `true` it will refetch data in background no matter if we have it from cache.
    */
-  fetchOnMount?: boolean;
+  revalidate?: boolean;
   /**
    * If cache is empty we can use placeholder data.
    */
