@@ -180,4 +180,44 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(mock, responseTwo);
     });
   });
+  it("should not refetch while toggling query", async () => {
+    const spy = jest.fn();
+
+    const revalidateRequest = createRequest({ endpoint: "123-revalidate" });
+    const revalidateMock = createRequestInterceptor(revalidateRequest, { fixture: { something: 123 } });
+
+    // First request
+    const response = renderUseFetch(request, { revalidate: false });
+
+    response.result.current.onFinished(() => {
+      spy();
+    });
+
+    await testSuccessState(mock, response);
+    expect(spy).toBeCalledTimes(1);
+
+    act(() => {
+      // Second request
+      response.rerender({ request: revalidateRequest, revalidate: false });
+    });
+
+    await testSuccessState(revalidateMock, response);
+    expect(spy).toBeCalledTimes(2);
+
+    // Check revalidation
+
+    act(() => {
+      // Third request
+      response.rerender({ request, revalidate: false });
+    });
+    await testSuccessState(mock, response);
+
+    act(() => {
+      // Fourth request
+      response.rerender({ request: revalidateRequest, revalidate: false });
+    });
+
+    await testSuccessState(revalidateMock, response);
+    expect(spy).toBeCalledTimes(2);
+  });
 });

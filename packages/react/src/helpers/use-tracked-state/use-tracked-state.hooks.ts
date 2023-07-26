@@ -47,8 +47,7 @@ export const useTrackedState = <T extends RequestInstance>({
 
   const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
-
-    return isStaleCacheData(cacheTime, cacheData?.timestamp || state.current.timestamp);
+    return !cacheData || isStaleCacheData(cacheTime, cacheData?.timestamp);
   };
 
   // ******************
@@ -83,10 +82,14 @@ export const useTrackedState = <T extends RequestInstance>({
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
-      if (shouldLoadInitialCache || shouldRemovePreviousData) {
+      if (newState.data || shouldLoadInitialCache || shouldRemovePreviousData) {
         // Don't update the state when we are fetching data for new cacheKey
         // So on paginated page we will have previous page access until the new one will be fetched
+        // However: When we have some cached data, we can use it right away
         state.current = newState;
+        if (state.current) {
+          renderKeyTrigger(["data"]);
+        }
       }
     },
     [cacheKey, queueKey],
