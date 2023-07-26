@@ -82,4 +82,27 @@ describe("useFetch [ Refreshing ]", () => {
   it("should postpone refresh when dependencies change during countdown", async () => {
     // TODO
   });
+  it("should stop refreshing when value is changing from true to false", async () => {
+    const spy = jest.fn();
+    createRequestInterceptor(request);
+    const { result, rerender } = renderUseFetch(request, hookOptions);
+
+    act(() => {
+      result.current.onRequestStart(spy);
+    });
+
+    await waitForRender();
+    expect(spy).toBeCalledTimes(1);
+    await waitForRender(hookOptions.refreshTime * 1.5);
+
+    expect(spy).toBeCalledTimes(2);
+
+    act(() => {
+      rerender({ refresh: false });
+    });
+
+    await waitForRender(hookOptions.refreshTime * 1.5);
+
+    expect(spy).toBeCalledTimes(2);
+  });
 });
