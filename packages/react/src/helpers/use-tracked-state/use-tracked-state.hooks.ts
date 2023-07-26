@@ -125,26 +125,6 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const mapResponseData = (
-    data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-  ):
-    | Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>
-    | CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
-    if (responseMapper) {
-      const response = responseMapper(data);
-      if (response instanceof Promise) {
-        return new Promise((resolve) => {
-          (async () => {
-            const newResponse = await response;
-            resolve({ ...data, ...newResponse });
-          })();
-        });
-      }
-      return { ...data, ...response };
-    }
-    return data;
-  };
-
   const handleCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
@@ -178,15 +158,15 @@ export const useTrackedState = <T extends RequestInstance>({
   const setCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
-    const data = mapResponseData(cacheData);
+    const data = responseMapper ? responseMapper(cacheData) : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
         const promiseData = await data;
-        handleCacheData(promiseData);
+        handleCacheData({ ...cacheData, ...promiseData });
       })();
     }
-    return handleCacheData(data);
+    return handleCacheData({ ...cacheData, ...data });
   };
 
   // ******************
