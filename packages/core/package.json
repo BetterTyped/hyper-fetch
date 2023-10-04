@@ -17,7 +17,7 @@
   "exports": {
     ".": {
       "types": {
-        "import": "./index.d.ts"
+        "import": "./dist/index.d.ts"
       },
       "browser": {
         "require": "./dist/browser/index.cjs.js",
