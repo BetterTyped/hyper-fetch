@@ -110,6 +110,34 @@ describe("useFetch [ Base ]", () => {
 
       await testSuccessState(mock, view);
     });
+    it("should map the data on deps change", async () => {
+      createRequestInterceptor(request);
+      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
+      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
+
+      const { result, rerender } = renderUseFetch(request1);
+
+      act(() => {
+        rerender({ request: request2 });
+        rerender({ request: request1 });
+        result.current.refetch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.data).toBe(1);
+        expect(result.current.error).toBe(null);
+      });
+
+      act(() => {
+        rerender({ request: request2 });
+        result.current.refetch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.data).toBe(2);
+        expect(result.current.error).toBe(null);
+      });
+    });
     it("should clear previous error state once success response is returned", async () => {
       await testClientIsolation(client);
       const errorMock = createRequestInterceptor(request, { status: 400 });
