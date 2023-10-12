@@ -6,6 +6,7 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
+  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -15,7 +16,7 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getDetailsState, getInitialState, isStaleCacheData } from "./use-tracked-state.utils";
+import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
 
 /**
  *
@@ -75,21 +76,24 @@ export const useTrackedState = <T extends RequestInstance>({
       state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
       // Get cache state
-      const newState = getInitialState(initialData, dispatcher, request);
+      const cacheData = cache.get<
+        ExtractResponseType<T>,
+        ExtractErrorType<T>,
+        ExtractAdapterExtraType<ExtractAdapterType<T>>
+      >(cacheKey);
+      const cacheState = getValidCacheData<T>(request, initialData, cacheData);
 
       const hasInitialState = isEqual(initialData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
-      if (newState.data || shouldLoadInitialCache || shouldRemovePreviousData) {
+      if (cacheState || shouldLoadInitialCache || shouldRemovePreviousData) {
         // Don't update the state when we are fetching data for new cacheKey
         // So on paginated page we will have previous page access until the new one will be fetched
         // However: When we have some cached data, we can use it right away
-        state.current = newState;
-        if (state.current) {
-          renderKeyTrigger(["data"]);
-        }
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        setCacheData(cacheState);
       }
     },
     [cacheKey, queueKey],
