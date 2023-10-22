@@ -47,17 +47,17 @@ The `setMock` method accepts the `config` object, which allows for tweaking our 
       });
 
 ```
-- `timeout` - **boolean** - informs whether it should return a timeout error.
- - `requestTime` - Simulates how long the request to the server should take (in milliseconds).
- - `responseTime` - Indicates how long the response from the server should take (in milliseconds).
-If their combined total takes longer than provided timeout, each value will be automatically adjusted to last half of the timeout time.
-- `totalUploaded` - total number of 'kilobytes' to be uploaded.
-- `totalDownloaded` - total number of 'kilobytes' to be downloaded.
+- `timeout` - **boolean** - Indicates whether it should return a timeout error.
+`requestTime` - Indicates how long the request to the server should take (in milliseconds).
+`responseTime` - Indicates how long the response from the server should take (in milliseconds).
+- `totalUploaded` - The total number of kilobytes to be uploaded.
+- `totalDownloaded` - The total number of kilobytes to be downloaded.
 
-In the example above - the request phase will take 40 milliseconds and during this phase 1000 'kilobytes' will be uploaded (and `onUploadProgress` events will be emitted).
-The response phase will take 60 millisecond and during this phase 1000 'kilobytes' will be downloaded (and `onDownloadProgress` events will be emitted).
-The word `kilobytes` is written in quotation marks as no real data exchange occurs - it is simply to mock events and allow for data stream mocking.
+In the example above, the request phase will take 40 milliseconds. During this phase, 1,000 'kilobytes' will be uploaded and `onUploadProgress` events will be emitted.
 
+The response phase will take 60 milliseconds During this phase, 1,000 'kilobytes' will be downloaded and `onDownloadProgress` events will be emitted.
+
+Note: The word 'kilobytes' is written in quotation marks as no real data exchange occurs – it simply simulates events and allows for data stream mocking.
 
 ## Usage and use cases
 

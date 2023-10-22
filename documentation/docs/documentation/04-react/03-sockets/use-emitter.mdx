@@ -37,7 +37,7 @@ const { emit, timestamp, connected, onEvent, onError, onReconnecting } = useEmit
 
 ## How it works?
 
-**`useEmitter`** executes a Emitter when a `emit()` function returned from it gets triggered. It uses dependency
+**`useEmitter`** executes an `Emitter` when a `emit()` function returned from it gets triggered. It uses dependency
 tracking to limit re-rendering and improve performance. Under the hood, communication with the core systems is
 established by event emitters. Many `"helper hooks"` (such as `onEvent`, `onError`, `onReconnecting`, etc.) are
 returned; these will help handle the request flow and lifecycle. This approach avoids overloading the base hook with
