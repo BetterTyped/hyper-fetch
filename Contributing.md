@@ -27,7 +27,7 @@ community looks forward to your contributions. 🎉
 - [Suggesting Enhancements](#suggesting-enhancements)
 - [Your First Code Contribution](#your-first-code-contribution)
 - [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
+- [Style guides](#styleguides)
 - [Commit Messages](#commit-messages)
 - [Join The Project Team](#join-the-project-team)
 
@@ -170,7 +170,7 @@ Checkout [this tutorial](https://github.com/firstcontributions/first-contributio
 Anyone can help improve the documentation - it is in this repository and is available to everyone - if you have an idea
 how to improve it - send us a pull request and we will try to consider it as soon as possible!
 
-## Styleguides
+## Style guides
 
 Each contribution must meet the conditions of our linter and formatter. When these criteria are not met, the creator
 will get the appropriate status from github actions, if issues are not corrected within two weeks, the pull request will
