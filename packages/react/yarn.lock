@@ -2,7 +2,12 @@
 # yarn lockfile v1
 
 
-"@better-typed/react-lifecycle-hooks@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@better-typed/react-lifecycle-hooks/-/react-lifecycle-hooks-1.0.5.tgz#c171ad2582337e5c82521bce4b2951d82b5d6ccf"
-  integrity sha512-5wuDiE8u5jUAaadyRBqTcWQMEFU06I/tJb/fK6FHCBLcrQR2RO+hkgqJmucSfrXYj1nZtO3qTz4CjJyEjSfHWA==
+"@better-hooks/lifecycle@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@better-hooks/lifecycle/-/lifecycle-1.1.2.tgz#474ba9ea72c74acc1d522819733aa44e35e1db7c"
+  integrity sha512-dyFNHMtLJzJ0eY9u6iprPEMeWsgveIE8U3CtqaV3EG6DwsEyb1ICnooBap7mAG+Curr26OzO9/n6+gCUQ85gWg==
+
+"@better-hooks/performance@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@better-hooks/performance/-/performance-1.1.1.tgz#fde0f8a26ecacc5b48f06a6b090a78d023949e4a"
+  integrity sha512-32IPpMaVgE8aVT/6liXxfETIOO5zTL5VySxiK8qA8F140s89UuV6BUknLPQEPsniJoxZdXYSkVx79hLrk8GPug==

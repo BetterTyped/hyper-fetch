@@ -34,7 +34,7 @@
     }
   },
   "dependencies": {
-    "@better-hooks/lifecycle": "^1.1.1",
+    "@better-hooks/lifecycle": "^1.1.2",
     "@better-hooks/performance": "^1.1.1"
   },
   "lint-staged": {
