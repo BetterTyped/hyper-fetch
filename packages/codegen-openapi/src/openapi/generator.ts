@@ -83,9 +83,7 @@ export class OpenapiRequestGenerator {
     const Payload = types[`${createTypeBaseName(id)}RequestBody`]
       ? `${createTypeBaseName(id)}RequestBody`
       : "undefined";
-    const LocalError = types[`${createTypeBaseName(id)}ErrorType`]
-      ? `${createTypeBaseName(id)}ErrorType`
-      : "undefined";
+    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : "undefined";
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
       ? `${createTypeBaseName(id)}QueryParams`
       : "undefined";
@@ -122,7 +120,7 @@ export class OpenapiRequestGenerator {
       types[`${typeName}RequestBody`] = `export type ${typeName}RequestBody = ${requestBodyType}`;
     }
     if (errorType) {
-      types[`${typeName}ErrorType`] = `export type ${typeName}ErrorType = ${responseType}`;
+      types[`${typeName}ErrorType`] = `export type ${typeName}ErrorType = ${errorType}`;
     }
     if (responseType) {
       types[`${typeName}ResponseType`] = `export type ${typeName}ResponseType = ${responseType}`;
@@ -145,7 +143,11 @@ export class OpenapiRequestGenerator {
       .map(({ path }) => path)
       .value();
     const errorTypePaths = chain(exportTypes)
-      .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) || schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/5`))
+      .filter(
+        ({ schemaRef }) =>
+          schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) ||
+          schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/5`),
+      )
       .map(({ path }) => path)
       .value();
 
