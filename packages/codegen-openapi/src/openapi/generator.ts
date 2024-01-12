@@ -150,7 +150,7 @@ export class OpenapiRequestGenerator {
       .value();
 
     const responseType = !isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
-    const errorType = !isEmpty(errorTypePaths) ? responseTypePaths.join(" | ") : "undefined";
+    const errorType = !isEmpty(errorTypePaths) ? errorTypePaths.join(" | ") : "undefined";
 
     return {
       id: normalizedOperationId,
