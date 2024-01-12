@@ -59,18 +59,22 @@ const expectedOperationTypes = {
   FindPetsResponseType: "export type FindPetsResponseType = Paths.FindPets.Responses.$200",
   AddPetRequestBody: "export type AddPetRequestBody = Paths.AddPet.RequestBody",
   AddPetResponseType: "export type AddPetResponseType = Paths.AddPet.Responses.$200",
+  AddPetErrorType: "export type AddPetErrorType = Paths.AddPet.Responses.$405",
   FindPetByIdPathParams: "export type FindPetByIdPathParams = Paths.FindPetById.PathParameters",
   FindPetByIdResponseType: "export type FindPetByIdResponseType = Paths.FindPetById.Responses.$200",
   DeletePetPathParams: "export type DeletePetPathParams = Paths.DeletePet.PathParameters",
   DeletePetResponseType: "export type DeletePetResponseType = any",
+  DeletePetErrorType: "export type DeletePetErrorType = Paths.DeletePet.Responses.$400",
   UpdatePetRequestBody: "export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody",
   UpdatePetResponseType: "export type UpdatePetResponseType = Paths.UpdatePet.Responses.$200",
+  UpdatePetErrorType:
+    "export type UpdatePetErrorType = Paths.UpdatePet.Responses.$400 | Paths.UpdatePet.Responses.$404 | Paths.UpdatePet.Responses.$405",
 };
 const expectedRequests = [
   `export const findPets = client.createRequest<FindPetsResponseType, undefined, undefined, FindPetsQueryParams>()({method: "GET", endpoint: "/pets"})`,
-  `export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, undefined, undefined>()({method: "POST", endpoint: "/pet"})`,
-  `export const deletePet = client.createRequest<DeletePetResponseType, undefined, undefined, undefined>()({method: "DELETE", endpoint: "/pet/:petId"})`,
-  `export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, undefined, undefined>()({method: "PUT", endpoint: "/pet"})`,
+  `export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, AddPetErrorType, undefined>()({method: "POST", endpoint: "/pet"})`,
+  `export const deletePet = client.createRequest<DeletePetResponseType, undefined, DeletePetErrorType, undefined>()({method: "DELETE", endpoint: "/pet/:petId"})`,
+  `export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, UpdatePetErrorType, undefined>()({method: "PUT", endpoint: "/pet"})`,
 ];
 
 describe("Generator", () => {
