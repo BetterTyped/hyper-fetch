@@ -1,4 +1,4 @@
-import { resetInterceptors, startServer, stopServer } from "../../server";
+import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { middlewareCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
@@ -86,6 +86,7 @@ describe("Client [ Middleware ]", () => {
       const firstCallback = middlewareCallback({ callback: spy1 });
       const secondCallback = middlewareCallback({ callback: spy2 });
       client.onRequest(firstCallback).onRequest(secondCallback);
+      createRequestInterceptor(request);
 
       await request.send();
       client.removeOnRequestInterceptors([secondCallback]);
@@ -100,6 +101,7 @@ describe("Client [ Middleware ]", () => {
       const firstCallback = middlewareCallback({ callback: spy1 });
       const secondCallback = middlewareCallback({ callback: spy2 });
       client.onAuth(firstCallback).onAuth(secondCallback);
+      createRequestInterceptor(authRequest);
 
       await authRequest.send();
       client.removeOnAuthInterceptors([secondCallback]);

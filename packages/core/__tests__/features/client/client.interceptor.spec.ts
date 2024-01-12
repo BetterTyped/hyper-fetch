@@ -127,10 +127,10 @@ describe("Client [ Interceptor ]", () => {
       const firstCallback = interceptorCallback({ callback: spy1 });
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onError(firstCallback).onError(secondCallback);
+      createRequestInterceptor(request, { status: 400 });
 
       await request.send();
       client.removeOnErrorInterceptors([secondCallback]);
-
       await request.send();
 
       expect(spy1).toBeCalledTimes(2);
@@ -154,6 +154,7 @@ describe("Client [ Interceptor ]", () => {
       const firstCallback = interceptorCallback({ callback: spy1 });
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onResponse(firstCallback).onResponse(secondCallback);
+      createRequestInterceptor(request);
 
       await request.send();
       client.removeOnResponseInterceptors([secondCallback]);
