@@ -16,14 +16,6 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Wait on tests
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          running-workflow-name: "Run tests"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -38,6 +30,14 @@ jobs:
 
       - name: Build
         run: yarn build
+
+      - name: Wait on tests
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          running-workflow-name: "Release"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
 
       - name: Publish
         run: yarn release
