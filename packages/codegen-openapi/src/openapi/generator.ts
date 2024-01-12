@@ -83,7 +83,9 @@ export class OpenapiRequestGenerator {
     const Payload = types[`${createTypeBaseName(id)}RequestBody`]
       ? `${createTypeBaseName(id)}RequestBody`
       : "undefined";
-    const LocalError = "undefined";
+    const LocalError = types[`${createTypeBaseName(id)}ErrorType`]
+      ? `${createTypeBaseName(id)}ErrorType`
+      : "undefined";
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
       ? `${createTypeBaseName(id)}QueryParams`
       : "undefined";
@@ -98,12 +100,14 @@ export class OpenapiRequestGenerator {
     pathParametersType,
     queryParametersType,
     requestBodyType,
+    errorType,
     responseType,
   }: {
     id: string;
     pathParametersType: string | undefined;
     queryParametersType: string | undefined;
     requestBodyType: string | undefined;
+    errorType: string;
     responseType: string;
   }) {
     const typeName = createTypeBaseName(id);
@@ -117,10 +121,12 @@ export class OpenapiRequestGenerator {
     if (requestBodyType) {
       types[`${typeName}RequestBody`] = `export type ${typeName}RequestBody = ${requestBodyType}`;
     }
+    if (errorType) {
+      types[`${typeName}ErrorType`] = `export type ${typeName}ErrorType = ${responseType}`;
+    }
     if (responseType) {
       types[`${typeName}ResponseType`] = `export type ${typeName}ResponseType = ${responseType}`;
     }
-
     return types;
   }
 
@@ -138,14 +144,20 @@ export class OpenapiRequestGenerator {
       .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/2`))
       .map(({ path }) => path)
       .value();
+    const errorTypePaths = chain(exportTypes)
+      .filter(({ schemaRef }) => schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/4`) || schemaRef.startsWith(`#/paths/${normalizedOperationId}/responses/5`))
+      .map(({ path }) => path)
+      .value();
 
     const responseType = !isEmpty(responseTypePaths) ? responseTypePaths.join(" | ") : "any";
+    const errorType = !isEmpty(errorTypePaths) ? responseTypePaths.join(" | ") : "undefined";
 
     return {
       id: normalizedOperationId,
       pathParametersType,
       queryParametersType,
       requestBodyType,
+      errorType,
       responseType,
       path: adjustPathParamsFormat(relPath),
       method: method.toUpperCase(),
