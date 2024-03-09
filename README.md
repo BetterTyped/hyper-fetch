@@ -254,7 +254,7 @@ yarn add @hyper-fetch/core @hyper-fetch/react
     </tr>
     <tr>
       <td>
-        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Axios</a>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
       </td>
       <td>
         <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
