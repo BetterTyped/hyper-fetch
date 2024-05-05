@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { AdapterType, ResponseReturnType, xhrExtra } from "@hyper-fetch/core";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
@@ -110,6 +110,34 @@ describe("useFetch [ Base ]", () => {
 
       await testSuccessState(mock, view);
     });
+    it("should map the data on deps change", async () => {
+      createRequestInterceptor(request);
+      const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
+      const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
+
+      const { result, rerender } = renderUseFetch(request1);
+
+      act(() => {
+        rerender({ request: request2 });
+        rerender({ request: request1 });
+        result.current.refetch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.data).toBe(1);
+        expect(result.current.error).toBe(null);
+      });
+
+      act(() => {
+        rerender({ request: request2 });
+        result.current.refetch();
+      });
+
+      await waitFor(() => {
+        expect(result.current.data).toBe(2);
+        expect(result.current.error).toBe(null);
+      });
+    });
     it("should clear previous error state once success response is returned", async () => {
       await testClientIsolation(client);
       const errorMock = createRequestInterceptor(request, { status: 400 });
@@ -126,6 +154,40 @@ describe("useFetch [ Base ]", () => {
     });
     it("should change loading to false on success", async () => {
       // Todo
+    });
+    it("should map response data", async () => {
+      const mappedData = { test: 1, test2: 2, test3: 3 };
+      const mappedRequest = request.setResponseMapper((response) => ({
+        ...response,
+        data: mappedData,
+      }));
+      createRequestInterceptor(mappedRequest);
+      const view = renderUseFetch(mappedRequest);
+
+      await testSuccessState(mappedData, view);
+    });
+    it("should map async response data", async () => {
+      const spy = jest.fn();
+      const mappedData = { test: 1, test2: 2, test3: 3 };
+      const mappedRequest = request.setResponseMapper(async (response) => ({
+        ...response,
+        data: mappedData,
+      }));
+      createRequestInterceptor(mappedRequest);
+      const view = renderUseFetch(mappedRequest, { disabled: true });
+
+      act(() => {
+        view.result.current.onSuccess(() => {
+          expect(view.result.current.data).toEqual(null);
+          spy();
+        });
+        view.rerender({ disabled: false });
+      });
+
+      await waitFor(() => {
+        expect(spy).toBeCalledTimes(1);
+      });
+      await testSuccessState(mappedData, view);
     });
   });
   describe("when hook get error response", () => {

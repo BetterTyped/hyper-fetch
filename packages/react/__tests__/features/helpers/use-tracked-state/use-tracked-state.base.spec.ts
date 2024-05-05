@@ -2,7 +2,7 @@ import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 
 import { initialState } from "helpers";
-import { startServer, resetInterceptors, stopServer } from "../../../server";
+import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../../server";
 import { createRequest, renderUseTrackedState } from "../../../utils";
 
 describe("useTrackingState [ Events ]", () => {
@@ -90,6 +90,28 @@ describe("useTrackingState [ Events ]", () => {
         expect(result.current[0].data).toBe("new-data");
         expect(result.current[0].error).toBe(null);
       });
+
+      it("should map the cache data", async () => {
+        createRequestInterceptor(request);
+
+        await act(async () => {
+          await request.send({});
+        });
+
+        const { result, rerender } = renderUseTrackedState(
+          request.setResponseMapper((response) => {
+            return { ...response, data: "new-data" };
+          }),
+        );
+
+        act(() => {
+          rerender();
+        });
+
+        expect(result.current[0].data).toBe("new-data");
+        expect(result.current[0].error).toBe(null);
+      });
+
       it("should map the async data", async () => {
         const { result } = renderUseTrackedState(
           request.setResponseMapper(async (response) => {
@@ -114,6 +136,8 @@ describe("useTrackingState [ Events ]", () => {
             garbageCollection: Infinity,
           });
         });
+
+        expect(result.current).toPartiallyContain(initialState);
 
         await waitFor(() => {
           expect(result.current[0].data).toBe("new-data");

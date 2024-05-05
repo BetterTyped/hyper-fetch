@@ -37,6 +37,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   actions,
   setCacheData,
 }: UseRequestEventsPropsType<T>): UseRequestEventsReturnType<T> => {
+  const { responseMapper } = request;
   const { cache, requestManager } = request.client;
 
   // ******************
@@ -136,10 +137,18 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const handleResponse = (req: T) => {
     return (
-      data: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+      response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
       details: ResponseDetailsType,
     ) => {
-      handleResponseCallbacks(req, data, details);
+      const data = responseMapper ? responseMapper(response) : response;
+
+      if (data instanceof Promise) {
+        return (async () => {
+          const promiseData = await data;
+          handleResponseCallbacks(req, promiseData, details);
+        })();
+      }
+      return handleResponseCallbacks(req, data, details);
     };
   };
 

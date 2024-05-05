@@ -45,6 +45,22 @@ all while facilitating **real-time data exchange**.
 
 ---
 
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=platinum">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Platinum.png" alt="Premium sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Platinum">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/platinum/sponsorkit/sponsors.svg" alt="Premium sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
 ## Key Features
 
 🔮 [Simple setup](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
@@ -92,6 +108,22 @@ npm install --save @hyper-fetch/core @hyper-fetch/react
 or
 yarn add @hyper-fetch/core @hyper-fetch/react
 ```
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Gold">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Gold.png" alt="Premium sponsor banner"/>
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=gold">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/gold/sponsorkit/sponsors.svg" alt="Premium sponsor banner"/>
+		</picture>
+	</a>
+</p>
 
 ## Packages
 
@@ -231,6 +263,22 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
       </td>
     </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/codegen-openapi?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/codegen-openapi.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
 
   </tbody>
 </table>
@@ -290,6 +338,22 @@ const { data, error, status } = await postData.send({
   queryParams: { paramOne: "test", paramTwo: "test2" },
 });
 ```
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/assets/Silver.png" alt="Premium sponsor banner" />
+		</picture>
+	</a>
+</p>
+
+<p align="center">
+	<a href="https://github.com/sponsors/prc5?tier=Silver">
+		<picture>
+			<img width="830" src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/silver/sponsorkit/sponsors.svg" alt="Premium sponsor banner" />
+		</picture>
+	</a>
+</p>
 
 ### React
 
@@ -409,6 +473,10 @@ return <Form onSubmit={handleSubmit}>...</Form>;
 
 # [Find out more examples](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
-## Help me keep working on this project ❤️
+## 💖 Our sponsors
 
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+<p align="center">
+	<a href="https://github.com/sponsors/prc5">
+		<img src="https://raw.githubusercontent.com/prc5/sponsors/main/packages/other/sponsorkit/sponsors.svg?raw=true" alt="My Sponsors" />
+	</a>
+</p>

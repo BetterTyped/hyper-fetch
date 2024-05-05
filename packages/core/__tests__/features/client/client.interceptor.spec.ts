@@ -1,11 +1,11 @@
-import { resetInterceptors, startServer, stopServer } from "../../server";
+import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
 import { xhrExtra } from "adapter";
 
 describe("Client [ Interceptor ]", () => {
-  let client = new Client({ url: "shared-base-url" });
+  let client = new Client({ url: "shared-base-url/" });
   let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
   const spy1 = jest.fn();
@@ -17,7 +17,7 @@ describe("Client [ Interceptor ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
+    client = new Client({ url: "shared-base-url/" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     resetInterceptors();
     jest.clearAllMocks();
@@ -120,6 +120,49 @@ describe("Client [ Interceptor ]", () => {
       await expect(
         client.__modifyResponse({ data: null, error: null, status: 400, success: false, extra: xhrExtra }, request),
       ).rejects.toThrow();
+    });
+  });
+  describe("When user wants to remove listeners", () => {
+    it("should allow for removing interceptors on error", async () => {
+      const firstCallback = interceptorCallback({ callback: spy1 });
+      const secondCallback = interceptorCallback({ callback: spy2 });
+      client.onError(firstCallback).onError(secondCallback);
+      createRequestInterceptor(request, { status: 400 });
+
+      await request.send();
+      client.removeOnErrorInterceptors([secondCallback]);
+      await request.send();
+
+      expect(spy1).toBeCalledTimes(2);
+      expect(spy2).toBeCalledTimes(1);
+    });
+    it("should allow for removing interceptors on success", async () => {
+      createRequestInterceptor(request, { fixture: { data: [1, 2, 3] } });
+      const firstCallback = interceptorCallback({ callback: spy1 });
+      const secondCallback = interceptorCallback({ callback: spy2 });
+      client.onSuccess(firstCallback).onSuccess(secondCallback);
+
+      await request.send();
+      client.removeOnSuccessInterceptors([secondCallback]);
+
+      await request.send();
+
+      expect(spy1).toBeCalledTimes(2);
+      expect(spy2).toBeCalledTimes(1);
+    });
+    it("should allow for removing interceptors on response", async () => {
+      const firstCallback = interceptorCallback({ callback: spy1 });
+      const secondCallback = interceptorCallback({ callback: spy2 });
+      client.onResponse(firstCallback).onResponse(secondCallback);
+      createRequestInterceptor(request);
+
+      await request.send();
+      client.removeOnResponseInterceptors([secondCallback]);
+
+      await request.send();
+
+      expect(spy1).toBeCalledTimes(2);
+      expect(spy2).toBeCalledTimes(1);
     });
   });
 });

@@ -6,6 +6,7 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
+  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -15,7 +16,7 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getDetailsState, getInitialState, isStaleCacheData } from "./use-tracked-state.utils";
+import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
 
 /**
  *
@@ -47,8 +48,7 @@ export const useTrackedState = <T extends RequestInstance>({
 
   const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
-
-    return isStaleCacheData(cacheTime, cacheData?.timestamp || state.current.timestamp);
+    return !cacheData || isStaleCacheData(cacheTime, cacheData?.timestamp);
   };
 
   // ******************
@@ -76,17 +76,24 @@ export const useTrackedState = <T extends RequestInstance>({
       state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
       // Get cache state
-      const newState = getInitialState(initialData, dispatcher, request);
+      const cacheData = cache.get<
+        ExtractResponseType<T>,
+        ExtractErrorType<T>,
+        ExtractAdapterExtraType<ExtractAdapterType<T>>
+      >(cacheKey);
+      const cacheState = getValidCacheData<T>(request, initialData, cacheData);
 
       const hasInitialState = isEqual(initialData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
-      if (shouldLoadInitialCache || shouldRemovePreviousData) {
+      if (cacheState || shouldLoadInitialCache || shouldRemovePreviousData) {
         // Don't update the state when we are fetching data for new cacheKey
         // So on paginated page we will have previous page access until the new one will be fetched
-        state.current = newState;
+        // However: When we have some cached data, we can use it right away
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        setCacheData(cacheState);
       }
     },
     [cacheKey, queueKey],
@@ -125,26 +132,6 @@ export const useTrackedState = <T extends RequestInstance>({
     return false;
   };
 
-  const mapResponseData = (
-    data: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-  ):
-    | Promise<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>
-    | CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> => {
-    if (responseMapper) {
-      const response = responseMapper(data);
-      if (response instanceof Promise) {
-        return new Promise((resolve) => {
-          (async () => {
-            const newResponse = await response;
-            resolve({ ...data, ...newResponse });
-          })();
-        });
-      }
-      return { ...data, ...response };
-    }
-    return data;
-  };
-
   const handleCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ) => {
@@ -178,15 +165,15 @@ export const useTrackedState = <T extends RequestInstance>({
   const setCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
-    const data = mapResponseData(cacheData);
+    const data = responseMapper ? responseMapper(cacheData) : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
         const promiseData = await data;
-        handleCacheData(promiseData);
+        handleCacheData({ ...cacheData, ...promiseData });
       })();
     }
-    return handleCacheData(data);
+    return handleCacheData({ ...cacheData, ...data });
   };
 
   // ******************

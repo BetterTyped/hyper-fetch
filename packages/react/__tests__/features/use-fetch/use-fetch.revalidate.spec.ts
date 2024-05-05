@@ -43,7 +43,7 @@ describe("useFetch [ refetch ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { fetchOnMount: false });
+    const response = renderUseFetch(request, { revalidate: false });
     act(() => {
       response.result.current.onFinished(spy);
     });
@@ -54,7 +54,7 @@ describe("useFetch [ refetch ]", () => {
   });
   it("should allow to prevent invalidation on mount", async () => {
     const spy = jest.fn();
-    const response = renderUseFetch(request, { fetchOnMount: false });
+    const response = renderUseFetch(request, { revalidate: false });
 
     act(() => {
       response.result.current.onFinished(() => {
@@ -62,7 +62,7 @@ describe("useFetch [ refetch ]", () => {
         response.unmount();
       });
     });
-    renderUseFetch(request, { fetchOnMount: false });
+    renderUseFetch(request, { revalidate: false });
 
     await waitForRender(50);
     expect(spy).toBeCalledTimes(1);
@@ -81,7 +81,7 @@ describe("useFetch [ refetch ]", () => {
       isOffline: false,
     });
 
-    const response = renderUseFetch(request, { fetchOnMount: true });
+    const response = renderUseFetch(request, { revalidate: true });
 
     await waitFor(async () => {
       await testSuccessState(mock, response);
@@ -179,5 +179,45 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(customMock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
+  });
+  it("should not refetch while toggling query", async () => {
+    const spy = jest.fn();
+
+    const revalidateRequest = createRequest({ endpoint: "123-revalidate" });
+    const revalidateMock = createRequestInterceptor(revalidateRequest, { fixture: { something: 123 } });
+
+    // First request
+    const response = renderUseFetch(request, { revalidate: false });
+
+    response.result.current.onFinished(() => {
+      spy();
+    });
+
+    await testSuccessState(mock, response);
+    expect(spy).toBeCalledTimes(1);
+
+    act(() => {
+      // Second request
+      response.rerender({ request: revalidateRequest, revalidate: false });
+    });
+
+    await testSuccessState(revalidateMock, response);
+    expect(spy).toBeCalledTimes(2);
+
+    // Check revalidation
+
+    act(() => {
+      // Third request
+      response.rerender({ request, revalidate: false });
+    });
+    await testSuccessState(mock, response);
+
+    act(() => {
+      // Fourth request
+      response.rerender({ request: revalidateRequest, revalidate: false });
+    });
+
+    await testSuccessState(revalidateMock, response);
+    expect(spy).toBeCalledTimes(2);
   });
 });

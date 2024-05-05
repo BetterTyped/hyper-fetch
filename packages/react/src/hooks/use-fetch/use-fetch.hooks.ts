@@ -25,7 +25,7 @@ export const useFetch = <RequestType extends RequestInstance>(
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
-    fetchOnMount = useFetchDefaultOptions.fetchOnMount,
+    revalidate = useFetchDefaultOptions.revalidate,
     initialData = useFetchDefaultOptions.initialData,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
@@ -99,7 +99,10 @@ export const useFetch = <RequestType extends RequestInstance>(
   // ******************
 
   function handleRefresh() {
-    if (!refresh) return;
+    if (!refresh) {
+      refreshDebounce.reset();
+      return;
+    }
 
     refreshDebounce.debounce(() => {
       const isBlurred = !appManager.isFocused;
@@ -153,18 +156,19 @@ export const useFetch = <RequestType extends RequestInstance>(
   const initialFetchData = () => {
     const hasStaleData = getStaleStatus();
     const isFetching = getIsFetchingIdentity();
-    if ((fetchOnMount || hasStaleData) && !isFetching) {
+    if ((revalidate || hasStaleData) && !isFetching) {
       handleFetch();
     }
   };
 
   const updateFetchData = () => {
+    const hasStaleData = getStaleStatus();
+    const shouldUpdate = !revalidate ? hasStaleData : true;
     /**
      * This is a hack to avoid double rendering in React 18
      * It renders initial mount event and allow us to consume only hook updates
      */
-
-    if (!ignoreReact18DoubleRender.current) {
+    if (!ignoreReact18DoubleRender.current && shouldUpdate) {
       /**
        * While debouncing we need to make sure that first request is not debounced when the cache is not available
        * This way it will not wait for debouncing but fetch data right away

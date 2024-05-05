@@ -40,7 +40,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       ...options,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(globalConfig.useSubmitConfig), JSON.stringify(options)],
+    [globalConfig.useSubmitConfig, JSON.stringify(options), options.deepCompare],
   );
   const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 

@@ -69,7 +69,7 @@ export const getInitialState = <T extends RequestInstance>(
   dispatcher: Dispatcher,
   request: T,
 ): UseTrackedStateType<T> => {
-  const { client, cacheKey } = request;
+  const { client, cacheKey, responseMapper } = request;
   const { cache } = client;
 
   const cacheData = cache.get<
@@ -81,12 +81,18 @@ export const getInitialState = <T extends RequestInstance>(
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
   if (cacheState) {
+    const mappedData = responseMapper ? responseMapper(cacheState) : cacheState;
+    if (mappedData instanceof Promise) {
+      // For the async mapper we cannot return async values
+      // So we have return the initial state instead
+      return initialState;
+    }
     return {
-      data: cacheState.data,
-      error: cacheState.error,
-      status: cacheState.status,
-      success: cacheState.success,
-      extra: cacheState.extra,
+      data: mappedData.data,
+      error: mappedData.error,
+      status: mappedData.status,
+      success: mappedData.success,
+      extra: mappedData.extra,
       retries: cacheState.retries,
       timestamp: getTimestamp(cacheState.timestamp),
       loading: initialLoading,
