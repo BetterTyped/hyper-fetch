@@ -21,8 +21,8 @@
   "private": true,
   "dependencies": {
     "@nrwl/cli": "15.8.5",
-    "@nrwl/js": "15.8.5",
-    "@nrwl/workspace": "15.8.5",
+    "@nrwl/js": "16.0.0",
+    "@nrwl/workspace": "16.0.0",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.7"
   },
