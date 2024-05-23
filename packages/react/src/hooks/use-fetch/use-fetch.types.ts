@@ -1,8 +1,24 @@
-import { RequestInstance, NullableType, ExtractAdapterReturnType } from "@hyper-fetch/core";
+import {
+  RequestInstance,
+  NullableType,
+  ExtractAdapterReturnType,
+  RequestExtend,
+  ExtractPayloadType,
+  ExtractParamsType,
+  NegativeTypes,
+} from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
 import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
+
+export type UseFetchRequest<R extends RequestInstance> = RequestExtend<
+  R,
+  {
+    hasData: ExtractPayloadType<R> extends NegativeTypes ? false : true;
+    hasParams: ExtractParamsType<R> extends NegativeTypes ? false : true;
+  }
+>;
 
 export type UseFetchOptionsType<T extends RequestInstance> = {
   /**

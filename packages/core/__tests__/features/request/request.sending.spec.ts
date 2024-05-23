@@ -7,7 +7,9 @@ describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<{
+    response: any;
+  }>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -165,10 +167,12 @@ describe("Request [ Sending ]", () => {
       expect(spy).toBeCalledTimes(1);
     });
     it("should return cancel error", async () => {
-      request = client.createRequest()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
-      const mock = createRequestInterceptor(request);
+      const newRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setCancelable(true);
+      const mock = createRequestInterceptor(newRequest);
 
-      const [res1, res2, res3] = await Promise.all([request.send(), request.send(), request.send()]);
+      const [res1, res2, res3] = await Promise.all([newRequest.send(), newRequest.send(), newRequest.send()]);
 
       expect(res1).toStrictEqual({
         data: null,

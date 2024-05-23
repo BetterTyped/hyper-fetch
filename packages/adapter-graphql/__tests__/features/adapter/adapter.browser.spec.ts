@@ -10,8 +10,8 @@ import { LoginMutationVariables, loginMutation } from "../../constants/mutations
 
 describe("Graphql Adapter [ Browser ]", () => {
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
   });
 
@@ -21,8 +21,8 @@ describe("Graphql Adapter [ Browser ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-    request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,
     });
 

@@ -194,7 +194,7 @@ export const sendRequest = <Request extends RequestInstance>(
           status: null,
           success: null,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
-          extra: request.client.defaultExtra,
+          extra: request.client.defaultExtra as any,
         });
 
         // Unmount Listeners

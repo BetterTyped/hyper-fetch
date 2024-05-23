@@ -45,26 +45,39 @@ export type EmitRestType<Emitter extends EmitterInstance> = {
   ack?: EmitterAcknowledgeType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterAdapterType<Emitter>>;
 };
 
-export type EmitType<Emitter extends EmitterInstance> = ExtractEmitterHasDataType<Emitter> extends false
-  ? (
-      options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitParamsType<ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitRestType<Emitter>,
-    ) => string
-  : ExtractRouteParams<ExtractEmitterEndpointType<Emitter>> extends NegativeTypes
-  ? (
-      options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitParamsType<ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitRestType<Emitter>,
-    ) => string
-  : ExtractEmitterHasParamsType<Emitter> extends false
-  ? (
-      options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitParamsType<ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitRestType<Emitter>,
-    ) => string
-  : (
-      options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitParamsType<ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
-        EmitRestType<Emitter>,
-    ) => string;
+export type EmitType<Emitter extends EmitterInstance> =
+  ExtractEmitterHasDataType<Emitter> extends false
+    ? (
+        options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
+          EmitParamsType<
+            ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>,
+            ExtractEmitterHasParamsType<Emitter>
+          > &
+          EmitRestType<Emitter>,
+      ) => string
+    : ExtractRouteParams<ExtractEmitterEndpointType<Emitter>> extends NegativeTypes
+      ? (
+          options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
+            EmitParamsType<
+              ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>,
+              ExtractEmitterHasParamsType<Emitter>
+            > &
+            EmitRestType<Emitter>,
+        ) => string
+      : ExtractEmitterHasParamsType<Emitter> extends false
+        ? (
+            options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
+              EmitParamsType<
+                ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>,
+                ExtractEmitterHasParamsType<Emitter>
+              > &
+              EmitRestType<Emitter>,
+          ) => string
+        : (
+            options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
+              EmitParamsType<
+                ExtractRouteParams<ExtractEmitterEndpointType<Emitter>>,
+                ExtractEmitterHasParamsType<Emitter>
+              > &
+              EmitRestType<Emitter>,
+          ) => string;

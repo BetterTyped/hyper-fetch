@@ -10,7 +10,7 @@ describe("Mocker [ Base ]", () => {
   let adapter = createAdapter({ callback: adapterSpy });
   let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
   let dispatcher = createDispatcher(client);
-  let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -61,7 +61,7 @@ describe("Mocker [ Base ]", () => {
 
   it("should return timeout error when request takes too long", async () => {
     const mockedRequest = client
-      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock({
         data: fixture,
         config: { responseTime: 1500, timeout: true },
@@ -77,7 +77,7 @@ describe("Mocker [ Base ]", () => {
     const firstSpy = jest.fn();
     const secondSpy = jest.fn();
     const firstRequest = client
-      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock({
         data: fixture,
         config: {
@@ -85,7 +85,7 @@ describe("Mocker [ Base ]", () => {
         },
       });
     const secondRequest = client
-      .createRequest()({ endpoint: "shared-base-endpoint" })
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock({
         data: fixture,
         config: {
@@ -165,7 +165,7 @@ describe("Mocker [ Base ]", () => {
 
   it("should allow for passing method to mock and return data conditionally", async () => {
     const mockedRequest = client
-      .createRequest()({ endpoint: "/users/:id" })
+      .createRequest<{ response: any }>()({ endpoint: "/users/:id" })
       .setMock((r) => {
         const { params } = r;
         if (params.id === 11) {
@@ -214,7 +214,9 @@ describe("Mocker [ Base ]", () => {
       }
       return { data: [19, 19, 19] };
     };
-    const mockedRequest = client.createRequest()({ endpoint: "users/:id" }).setMock([firstFunction, secondFunction]);
+    const mockedRequest = client
+      .createRequest<{ response: any }>()({ endpoint: "users/:id" })
+      .setMock([firstFunction, secondFunction]);
 
     const response1 = await mockedRequest.send({ params: { id: 1 } } as any);
     const response2 = await mockedRequest.send({ params: { id: 1 } } as any);
@@ -230,7 +232,9 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("should allow for removing mocker and expecting normal behavior when executing request", async () => {
-    const mockedRequest = client.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
+    const mockedRequest = client
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+      .setMock({ data: fixture });
     const response = await mockedRequest.send();
 
     mockedRequest.removeMock();
@@ -351,7 +355,9 @@ describe("Mocker [ Base ]", () => {
 
   it("Should allow for globally turning on and off for all requests related to a client", async () => {
     const newClient = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
-    const mockedRequest = newClient.createRequest()({ endpoint: "shared-base-endpoint" }).setMock({ data: fixture });
+    const mockedRequest = newClient
+      .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+      .setMock({ data: fixture });
     const data = createRequestInterceptor(mockedRequest, { fixture: { data: [42, 42, 42] } });
 
     expect(mockedRequest.isMockEnabled).toBe(true);

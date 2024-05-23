@@ -62,25 +62,26 @@ export type ExtractUnionSocket<
     listenerOptions?: any;
     emitterOptions?: any;
   },
-> = Extract<
-  Adapter,
-  SocketAdapterType<
-    Values["adapterOptions"],
-    Values["adapterExtra"],
-    Values["listenerOptions"],
-    Values["emitterOptions"]
-  >
-> extends SocketAdapterInstance
-  ? Extract<
-      Adapter,
-      SocketAdapterType<
-        Values["adapterOptions"],
-        Values["adapterExtra"],
-        Values["listenerOptions"],
-        Values["emitterOptions"]
-      >
+> =
+  Extract<
+    Adapter,
+    SocketAdapterType<
+      Values["adapterOptions"],
+      Values["adapterExtra"],
+      Values["listenerOptions"],
+      Values["emitterOptions"]
     >
-  : never;
+  > extends SocketAdapterInstance
+    ? Extract<
+        Adapter,
+        SocketAdapterType<
+          Values["adapterOptions"],
+          Values["adapterExtra"],
+          Values["listenerOptions"],
+          Values["emitterOptions"]
+        >
+      >
+    : never;
 
 // Options
 

@@ -16,27 +16,27 @@ export type RealtimeSocketAdapterType = SocketAdapterType<
 >;
 
 export type RealtimeDbAdapterType =
-  | AdapterType<
-      DefaultRealtimeDBAdapterOptions,
-      "get",
-      RealtimeDBStatuses,
-      RealtimeDbGetMethodExtra,
-      RealtimeDBQueryParams
-    >
-  | AdapterType<
-      DefaultRealtimeDBAdapterOptions,
-      "push",
-      RealtimeDBStatuses,
-      RealtimeDbPushMethodExtra,
-      Record<string, never>
-    >
-  | AdapterType<
-      DefaultRealtimeDBAdapterOptions,
-      "set" | "update" | "remove",
-      RealtimeDBStatuses,
-      RealtimeDbDefaultExtra,
-      Record<string, never>
-    >;
+  | AdapterType<{
+      options: DefaultRealtimeDBAdapterOptions;
+      method: "get";
+      status: RealtimeDBStatuses;
+      extra: RealtimeDbGetMethodExtra;
+      queryParams: RealtimeDBQueryParams;
+    }>
+  | AdapterType<{
+      options: DefaultRealtimeDBAdapterOptions;
+      method: "push";
+      status: RealtimeDBStatuses;
+      extra: RealtimeDbPushMethodExtra;
+      queryParams: Record<string, never>;
+    }>
+  | AdapterType<{
+      options: DefaultRealtimeDBAdapterOptions;
+      method: "set" | "update" | "remove";
+      status: RealtimeDBStatuses;
+      extra: RealtimeDbDefaultExtra;
+      queryParams: Record<string, never>;
+    }>;
 
 export type DefaultRealtimeDBAdapterOptions = {
   priority?: number;

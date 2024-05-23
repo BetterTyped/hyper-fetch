@@ -19,7 +19,7 @@
     "start:emulator": "firebase emulators:start --project demo-test --only firestore,database",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",
-    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
+    "lint": "eslint . --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "firebase emulators:exec 'jest --watchAll=false --detectOpenHandles --forceExit --runInBand'",

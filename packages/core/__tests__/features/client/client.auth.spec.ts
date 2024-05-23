@@ -8,9 +8,9 @@ describe("Client [ Auth ]", () => {
   const refreshEndpoint = "/refresh-token";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
-  let authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
-  let refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" }).setAuth(false);
+  let authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
+  let refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
 
   beforeEach(() => {
     createRequestInterceptor(refreshRequest, { fixture: refreshFixture });

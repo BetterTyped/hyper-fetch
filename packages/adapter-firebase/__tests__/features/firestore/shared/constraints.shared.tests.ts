@@ -1,13 +1,12 @@
-import { Client } from "@hyper-fetch/core";
+import { ClientInstance } from "@hyper-fetch/core";
 
-import { FirestoreAdapterType } from "adapter";
 import { $limit, $orderBy, $where } from "constraints";
 import { Tea } from "../../../utils";
 
-export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapterType>) => {
+export const constraintsSharedTestCases = (client: ClientInstance) => {
   describe("filtering", () => {
     it("should return filtered data based on single filter", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -16,7 +15,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
       expect(data.map((tea) => tea.type)).toStrictEqual(["Green", "Green", "Green"]);
     });
     it("should return filtered data based on compound AND filter", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -29,7 +28,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
   });
   describe("ordering", () => {
     it("should allow for returning ordered data", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -39,7 +38,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
   });
   describe("limiting", () => {
     it("should allow for limiting returned data", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });
@@ -50,7 +49,7 @@ export const constraintsSharedTestCases = (client: Client<Error, FirestoreAdapte
   });
   describe("complex contraint", () => {
     it("should allow for filtering, ordering and limiting in the same query", async () => {
-      const req = client.createRequest<Tea[]>()({
+      const req = client.createRequest<{ response: Tea[] }>()({
         endpoint: "",
         method: "getDocs",
       });

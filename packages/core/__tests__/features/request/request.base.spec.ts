@@ -53,7 +53,7 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("should allow for setting custom params", async () => {
     // The queue should receive request with the appropriate header
-    const comm = client.createRequest<unknown, undefined, any, QueryParamsType>()({
+    const comm = client.createRequest<{ queryParams: QueryParamsType }>()({
       endpoint: "/some-endpoint/:shopId/:productId",
     });
     const spy = jest.fn(client.fetchDispatcher.add);
@@ -77,7 +77,7 @@ describe("Fetch Adapter [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
-    const req = client.createRequest<unknown, { userId: number; role: string }>()({ endpoint: "/shared-endpoint" });
+    const req = client.createRequest<{ payload: { userId: number; role: string } }>()({ endpoint: "/shared-endpoint" });
 
     const c = req.setData(data);
     createRequestInterceptor(c);
@@ -91,7 +91,7 @@ describe("Fetch Adapter [ Base ]", () => {
 
   it("Should allow for setting queryParams", async () => {
     const queryParams = { userId: 11 };
-    const comm = client.createRequest<unknown, undefined, any, QueryParamsType>()({
+    const comm = client.createRequest<{ queryParams: QueryParamsType }>()({
       endpoint: "/some-endpoint/",
     });
     createRequestInterceptor(comm);

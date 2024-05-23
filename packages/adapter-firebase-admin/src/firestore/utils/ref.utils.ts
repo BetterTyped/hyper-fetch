@@ -6,14 +6,17 @@ export const getRef = (db: Firestore, fullUrl: string) => {
     return index % 2 === 0 ? ["collection", element] : ["doc", element];
   });
 
-  return urlParts.reduce((_db, value) => {
-    const [method, pathPart] = value;
-    if (method === "doc" && "doc" in _db) {
-      return _db.doc(pathPart);
-    }
-    if (method === "collection" && "collection" in _db) {
-      return _db.collection(pathPart);
-    }
-    return _db;
-  }, db as unknown as Firestore | CollectionReference | DocumentReference) as CollectionReference | DocumentReference;
+  return urlParts.reduce(
+    (_db, value) => {
+      const [method, pathPart] = value;
+      if (method === "doc" && "doc" in _db) {
+        return _db.doc(pathPart);
+      }
+      if (method === "collection" && "collection" in _db) {
+        return _db.collection(pathPart);
+      }
+      return _db;
+    },
+    db as unknown as Firestore | CollectionReference | DocumentReference,
+  ) as CollectionReference | DocumentReference;
 };

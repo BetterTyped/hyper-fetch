@@ -1,0 +1,45 @@
+[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
+__tests__/features/realtime/shared/constraints.shared.tests.ts(11,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(18,14): error TS18048: 'data' is possibly 'undefined'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(35,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(42,14): error TS18048: 'data' is possibly 'undefined'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(46,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(54,14): error TS18048: 'data' is possibly 'undefined'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(32,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(43,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(55,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(35,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(39,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(152,72): error TS18048: 'data' is possibly 'undefined'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(16,43): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(21,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(26,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(31,56): error TS18048: 'pushedData' is possibly 'undefined'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(38,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(42,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(15,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(22,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(31,20): error TS2339: Property 'snapshot' does not exist on type 'FirestoreExtra | FirestoreGetDocsExtra | FirestoreRefOnlyExtra | RealtimeDbGetMethodExtra | RealtimeDbPushMethodExtra | RealtimeDbDefaultExtra'.
+  Property 'snapshot' does not exist on type 'FirestoreRefOnlyExtra'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(35,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(17,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(23,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(28,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(30,20): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(33,20): error TS2339: Property 'snapshot' does not exist on type 'FirestoreExtra | FirestoreGetDocsExtra | FirestoreRefOnlyExtra | RealtimeDbGetMethodExtra | RealtimeDbPushMethodExtra | RealtimeDbDefaultExtra'.
+  Property 'snapshot' does not exist on type 'FirestoreRefOnlyExtra'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(37,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(44,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(49,18): error TS2345: Argument of type '{ data: null; }' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(51,20): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(54,20): error TS2339: Property 'snapshot' does not exist on type 'FirestoreExtra | FirestoreGetDocsExtra | FirestoreRefOnlyExtra | RealtimeDbGetMethodExtra | RealtimeDbPushMethodExtra | RealtimeDbDefaultExtra'.
+  Property 'snapshot' does not exist on type 'FirestoreRefOnlyExtra'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(58,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(63,18): error TS2345: Argument of type '{ data: null; }' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(17,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(21,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(22,43): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(34,24): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(38,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'undefined'.
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

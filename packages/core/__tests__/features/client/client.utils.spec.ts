@@ -8,7 +8,7 @@ const options = {
 
 describe("Client [ Utils ]", () => {
   let client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-  let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+  let request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -16,7 +16,7 @@ describe("Client [ Utils ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-    request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
   });
 

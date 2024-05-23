@@ -47,7 +47,7 @@ describe("Socket Client [ Utils ]", () => {
 
   describe("getAdapter utils no instances", () => {
     beforeEach(() => {
-      windowSpy.mockImplementation(() => ({} as any));
+      windowSpy.mockImplementation(() => ({}) as any);
     });
     it("should not throw when there is no window", () => {
       const adapter = getWebsocketAdapter(socket);

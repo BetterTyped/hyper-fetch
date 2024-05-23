@@ -16,12 +16,12 @@ export type ListenType<Listener extends ListenerInstance, Adapter extends Socket
   options: ExtractRouteParams<ExtractListenerEndpointType<Listener>> extends NegativeTypes
     ? { callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>> }
     : ExtractListenerHasParams<Listener> extends false
-    ? {
-        params: ExtractRouteParams<ExtractListenerEndpointType<Listener>>;
-        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-      }
-    : {
-        params?: never;
-        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-      },
+      ? {
+          params: ExtractRouteParams<ExtractListenerEndpointType<Listener>>;
+          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
+        }
+      : {
+          params?: never;
+          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
+        },
 ) => () => void;

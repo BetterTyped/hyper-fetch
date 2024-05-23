@@ -6,7 +6,6 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
-  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -76,11 +75,7 @@ export const useTrackedState = <T extends RequestInstance>({
       state.current.loading = dispatcher.hasRunningRequests(queueKey);
 
       // Get cache state
-      const cacheData = cache.get<
-        ExtractResponseType<T>,
-        ExtractErrorType<T>,
-        ExtractAdapterExtraType<ExtractAdapterType<T>>
-      >(cacheKey);
+      const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialData, cacheData);
 
       const hasInitialState = isEqual(initialData?.data, state.current.data);

@@ -14,8 +14,8 @@ describe("Graphql Adapter [ Server ]", () => {
   const requestCopy = https.request;
   let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(graphqlAdapter);
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
   });
 
@@ -26,8 +26,8 @@ describe("Graphql Adapter [ Server ]", () => {
   beforeEach(() => {
     clientHttp = new Client({ url: "shared-base-url" }).setAdapter(graphqlAdapter);
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-    request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,
     });
     client.requestManager.addAbortController(request.abortKey, requestId);
@@ -52,7 +52,7 @@ describe("Graphql Adapter [ Server ]", () => {
     createRequestInterceptor(request);
     await expect(() =>
       graphqlAdapter(clientHttp).adapter(
-        clientHttp.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery }),
+        clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery }),
         requestId,
       ),
     ).not.toThrow();

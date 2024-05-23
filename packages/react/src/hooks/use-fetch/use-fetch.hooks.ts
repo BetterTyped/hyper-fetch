@@ -4,7 +4,7 @@ import { useDebounce, useThrottle } from "@better-hooks/performance";
 import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
 import { useRequestEvents, useTrackedState } from "helpers";
-import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType } from "hooks/use-fetch";
+import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
 import { useConfigProvider } from "config-provider";
 import { getBounceData } from "utils";
 import { InvalidationKeyType } from "types";
@@ -15,10 +15,12 @@ import { InvalidationKeyType } from "types";
  * @param options Hook options
  * @returns
  */
-export const useFetch = <RequestType extends RequestInstance>(
-  request: RequestType,
-  options: UseFetchOptionsType<RequestType> = useFetchDefaultOptions,
-): UseFetchReturnType<RequestType> => {
+export const useFetch = <R extends RequestInstance>(
+  request: UseFetchRequest<R>,
+  options: UseFetchOptionsType<UseFetchRequest<R>> = useFetchDefaultOptions,
+): UseFetchReturnType<UseFetchRequest<R>> => {
+  type RequestType = UseFetchRequest<R>;
+
   // Build the configuration options
   const [globalConfig] = useConfigProvider();
   const {

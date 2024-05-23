@@ -52,7 +52,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
     const client = new Client({ url }).addEffect([effect]);
     const request = client
-      .createRequest<unknown, { value: number }>()({ endpoint, options: requestConfig })
+      .createRequest<{ payload: { value: number } }>()({ endpoint, options: requestConfig })
       .setData(data)
       .setEffectKey("test")
       .setQueryParams(queryParams);
@@ -166,7 +166,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
   // Request
   describe("given bindings request methods being used", () => {
     it("should allow for setting data mapper", async () => {
-      const req = client.createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>()({
+      const req = client.createRequest<{
+        payload: Record<string, unknown>;
+        queryParams: { userId: number; role: string };
+      }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();
@@ -189,7 +192,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
       expect(payload).toBe(`${newData.userId}_${newData.role}`);
     });
     it("should allow for setting request mapper", async () => {
-      const req = client.createRequest<typeof client, Record<string, unknown>, { userId: number; role: string }>()({
+      const req = client.createRequest<{
+        payload: Record<string, unknown>;
+        queryParams: { userId: number; role: string };
+      }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();

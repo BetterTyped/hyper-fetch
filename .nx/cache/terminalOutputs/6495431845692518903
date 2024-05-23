@@ -1,0 +1,6 @@
+[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
+__tests__/features/adapter/adapter.spec.ts(28,58): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.spec.ts(41,58): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.spec.ts(80,46): error TS2558: Expected 1 type arguments, but got 2.
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

@@ -14,7 +14,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   let client = new Client({ url: "shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
   let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -100,7 +100,7 @@ describe("Fetch Adapter [ Server ]", () => {
       testData: "123",
     };
     const postRequest = client
-      .createRequest<unknown, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
+      .createRequest<{ payload: { testData: string } }>()({ endpoint: "shared-endpoint", method: "POST" })
       .setData(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
@@ -115,7 +115,10 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate payload size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
 
     jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
       receivedOptions = options;
@@ -135,7 +138,10 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate Buffer size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
 
     jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
       receivedOptions = options;

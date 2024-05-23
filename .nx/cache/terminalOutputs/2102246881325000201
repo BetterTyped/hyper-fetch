@@ -1,0 +1,51 @@
+[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
+__tests__/features/adapter/adapter.browser.spec.ts(13,38): error TS2559: Type 'GetUserQueryResponse' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: string | QueryParamsType; }'.
+__tests__/features/adapter/adapter.browser.spec.ts(13,64): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.browser.spec.ts(14,39): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.browser.spec.ts(15,5): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.browser.spec.ts(24,36): error TS2559: Type 'GetUserQueryResponse' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: string | QueryParamsType; }'.
+__tests__/features/adapter/adapter.browser.spec.ts(24,62): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.browser.spec.ts(25,37): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.browser.spec.ts(26,7): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.browser.spec.ts(38,54): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'void'.
+__tests__/features/adapter/adapter.browser.spec.ts(40,68): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.browser.spec.ts(49,54): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'void'.
+__tests__/features/adapter/adapter.browser.spec.ts(56,72): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.browser.spec.ts(67,68): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.browser.spec.ts(77,24): error TS2345: Argument of type '{ username: string; password: string; }' is not assignable to parameter of type 'void'.
+__tests__/features/adapter/adapter.browser.spec.ts(81,9): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'never'.
+__tests__/features/adapter/adapter.browser.spec.ts(90,16): error TS2345: Argument of type '{ username: string; password: string; }' is not assignable to parameter of type 'void'.
+__tests__/features/adapter/adapter.browser.spec.ts(109,53): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.browser.spec.ts(120,68): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.server.spec.ts(17,38): error TS2559: Type 'GetUserQueryResponse' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: string | QueryParamsType; }'.
+__tests__/features/adapter/adapter.server.spec.ts(17,64): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.server.spec.ts(18,39): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.server.spec.ts(19,5): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.server.spec.ts(29,36): error TS2559: Type 'GetUserQueryResponse' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: string | QueryParamsType; }'.
+__tests__/features/adapter/adapter.server.spec.ts(29,62): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.server.spec.ts(30,37): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.server.spec.ts(31,7): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.server.spec.ts(55,34): error TS2559: Type 'GetUserQueryResponse' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: string | QueryParamsType; }'.
+__tests__/features/adapter/adapter.server.spec.ts(55,60): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.server.spec.ts(67,54): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'void'.
+__tests__/features/adapter/adapter.server.spec.ts(69,68): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.server.spec.ts(78,54): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'void'.
+__tests__/features/adapter/adapter.server.spec.ts(85,72): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.server.spec.ts(96,68): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/adapter/adapter.server.spec.ts(106,24): error TS2345: Argument of type '{ username: string; password: string; }' is not assignable to parameter of type 'void'.
+__tests__/features/adapter/adapter.server.spec.ts(110,9): error TS2322: Type '{ username: string; firstName: string; }' is not assignable to type 'never'.
+__tests__/features/adapter/adapter.server.spec.ts(119,16): error TS2345: Argument of type '{ username: string; password: string; }' is not assignable to parameter of type 'void'.
+__tests__/features/adapter/adapter.server.spec.ts(157,7): error TS2322: Type '{ username: string; password: string; }' is not assignable to type 'NonNullable<void>'.
+  Type '{ username: string; password: string; }' is not assignable to type 'void'.
+__tests__/features/adapter/adapter.utils.spec.ts(9,38): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.utils.spec.ts(9,52): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.utils.spec.ts(10,41): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.utils.spec.ts(18,36): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/adapter/adapter.utils.spec.ts(18,50): error TS2322: Type 'DocumentNode' is not assignable to type 'string'.
+__tests__/features/adapter/adapter.utils.spec.ts(19,39): error TS2558: Expected 1 type arguments, but got 2.
+src/adapter/adapter.types.ts(13,46): error TS2344: Type '{ options: Partial<XMLHttpRequest>; method: GraphQlMethod; status: number; extra: GraphQlExtraType; queryParams: string | QueryParamsType; endpoint: GraphQlEndpointType; }' does not satisfy the constraint '{ options?: any; method?: any; status?: any; extra?: Record<string, any>; queryParams?: string | QueryParamsType; endpoint?: string; }'.
+  Types of property 'endpoint' are incompatible.
+    Type 'GraphQlEndpointType' is not assignable to type 'string'.
+      Type 'DocumentNode' is not assignable to type 'string'.
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

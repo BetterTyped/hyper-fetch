@@ -1,0 +1,79 @@
+[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
+__tests__/features/adapter/adapter.browser.spec.ts(32,54): error TS2322: Type '{ data: undefined[]; }' is not assignable to type 'undefined'.
+__tests__/features/adapter/adapter.server.spec.ts(54,54): error TS2322: Type '{ data: undefined[]; }' is not assignable to type 'undefined'.
+__tests__/features/adapter/adapter.server.spec.ts(103,22): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/adapter/adapter.server.spec.ts(104,16): error TS2345: Argument of type '{ testData: string; }' is not assignable to parameter of type 'undefined'.
+__tests__/features/adapter/adapter.server.spec.ts(118,43): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/adapter/adapter.server.spec.ts(138,43): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/cache/cache.garbage-collector.spec.ts(113,9): error TS2322: Type 'Map<string, CacheValueType>' is not assignable to type 'CacheStorageType'.
+  The types of 'get(...).extra' are incompatible between these types.
+    Type 'Record<string, any>' is not assignable to type 'ExtractAdapterExtraType<Adapter>'.
+__tests__/features/client/client.auth.spec.ts(16,48): error TS2322: Type '{ token: string; }' is not assignable to type 'undefined'.
+__tests__/features/client/client.auth.spec.ts(38,47): error TS2322: Type '{ data: string; }' is not assignable to type 'undefined'.
+__tests__/features/client/client.auth.spec.ts(55,43): error TS2322: Type '{ data: string; }' is not assignable to type 'undefined'.
+__tests__/features/client/client.auth.spec.ts(92,70): error TS2322: Type '{ data: string; }' is not assignable to type 'undefined'.
+__tests__/features/client/client.interceptor.spec.ts(140,43): error TS2322: Type '{ data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/client/client.ssr.spec.ts(9,38): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/client/client.ssr.spec.ts(17,36): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/client/client.utils.spec.ts(11,38): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/client/client.utils.spec.ts(19,36): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/mocker/mocker.base.spec.ts(35,47): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(49,47): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(66,9): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(82,9): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(90,9): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(116,11): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>) => Promise<...>'.
+__tests__/features/mocker/mocker.base.spec.ts(117,11): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>) => Promise<...>'.
+__tests__/features/mocker/mocker.base.spec.ts(150,9): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>) => Promise<...>'.
+__tests__/features/mocker/mocker.base.spec.ts(151,9): error TS2353: Object literal may only specify known properties, and 'data' does not exist in type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>) => Promise<...>'.
+__tests__/features/mocker/mocker.base.spec.ts(169,16): error TS2345: Argument of type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "/users/:id"; adapter: AdapterType; }>) => { ...; } | { ...; }' is not assignable to parameter of type 'RequestDataMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "/users/:id"; adapter: AdapterType; }>>'.
+  Type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "/users/:id"; adapter: AdapterType; }>) => { ...; } | { ...; }' is not assignable to type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "/users/:id"; adapter: AdapterType; }>) => RequestMockType<...>'.
+    Type '{ data: number[]; status: number; } | { data: number[]; status?: undefined; }' is not assignable to type 'RequestMockType<undefined>'.
+      Type '{ data: number[]; status: number; }' is not assignable to type 'RequestMockType<undefined>'.
+        Types of property 'data' are incompatible.
+          Type 'number[]' is not assignable to type 'undefined[] | (() => undefined)'.
+            Type 'number[]' is not assignable to type 'undefined[]'.
+              Type 'number' is not assignable to type 'undefined'.
+__tests__/features/mocker/mocker.base.spec.ts(217,86): error TS2322: Type '(r: any) => { data: number[]; }' is not assignable to type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "users/:id"; adapter: AdapterType; }>) => Promise<...>'.
+  Type '{ data: number[]; }' is missing the following properties from type 'Promise<RequestMockType<undefined>>': then, catch, finally, [Symbol.toStringTag]
+__tests__/features/mocker/mocker.base.spec.ts(217,101): error TS2322: Type '(r: any) => { data: number[]; }' is not assignable to type '(r: Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "users/:id"; adapter: AdapterType; }>) => Promise<...>'.
+  Type '{ data: number[]; }' is missing the following properties from type 'Promise<RequestMockType<undefined>>': then, catch, finally, [Symbol.toStringTag]
+__tests__/features/mocker/mocker.base.spec.ts(233,98): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(237,60): error TS2322: Type '{ data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/mocker/mocker.base.spec.ts(251,45): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(265,7): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(282,7): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(300,7): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(321,45): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(322,60): error TS2322: Type '{ data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/mocker/mocker.base.spec.ts(354,101): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined[] | (() => undefined)'.
+__tests__/features/mocker/mocker.base.spec.ts(355,60): error TS2322: Type '{ data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/request/request.base.spec.ts(56,39): error TS2558: Expected 0-1 type arguments, but got 4.
+__tests__/features/request/request.base.spec.ts(80,38): error TS2558: Expected 0-1 type arguments, but got 2.
+__tests__/features/request/request.base.spec.ts(82,27): error TS2345: Argument of type '{ userId: number; role: string; }' is not assignable to parameter of type 'undefined'.
+__tests__/features/request/request.base.spec.ts(94,39): error TS2558: Expected 0-1 type arguments, but got 4.
+__tests__/features/request/request.base.spec.ts(129,30): error TS2345: Argument of type 'RequestExtend<Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "/some-endpoint/"; adapter: AdapterType; }>, { ...; }>' is not assignable to parameter of type 'RequestInstance'.
+  The types of 'mock.next' are incompatible between these types.
+    Type '(...args: [] | [GeneratorReturnMockTypes<never, Request<never>>]) => IteratorResult<GeneratorReturnMockTypes<never, Request<never>>, GeneratorReturnMockTypes<...>>' is not assignable to type '(...args: [] | [GeneratorReturnMockTypes<any, Request<any>>]) => IteratorResult<GeneratorReturnMockTypes<any, Request<any>>, GeneratorReturnMockTypes<...>>'.
+      Types of parameters 'args' and 'args' are incompatible.
+        Type '[] | [GeneratorReturnMockTypes<any, Request<any>>]' is not assignable to type '[] | [GeneratorReturnMockTypes<never, Request<never>>]'.
+          Type '[GeneratorReturnMockTypes<any, Request<any>>]' is not assignable to type '[] | [GeneratorReturnMockTypes<never, Request<never>>]'.
+            Type '[GeneratorReturnMockTypes<any, Request<any>>]' is not assignable to type '[GeneratorReturnMockTypes<never, Request<never>>]'.
+              Type 'GeneratorReturnMockTypes<any, Request<any>>' is not assignable to type 'GeneratorReturnMockTypes<never, Request<never>>'.
+                Type 'RequestMockType<any>' is not assignable to type 'GeneratorReturnMockTypes<never, Request<never>>'.
+                  Type 'RequestMockType<any>' is not assignable to type 'RequestMockType<never>'.
+                    Type 'any' is not assignable to type 'never'.
+__tests__/features/request/request.base.spec.ts(133,18): error TS2339: Property 'message' does not exist on type 'never'.
+__tests__/features/request/request.sending.spec.ts(21,41): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/request/request.sending.spec.ts(101,45): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/request/request.sending.spec.ts(124,45): error TS2322: Type '{ test: number; data: number[]; }' is not assignable to type 'undefined'.
+__tests__/features/request/request.sending.spec.ts(168,7): error TS2322: Type 'Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>' is not assignable to type 'Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>'.
+  The types of 'mock.next' are incompatible between these types.
+    Type '(...args: [] | [GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>>]) => IteratorResult<...>' is not assignable to type '(...args: [] | [GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>>]) => IteratorResult<...>'.
+      Types of parameters 'args' and 'args' are incompatible.
+        Type '[] | [GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>>]' is not assignable to type '[] | [GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>>]'.
+          Type '[GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>>]' is not assignable to type '[] | [GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>>]'.
+            Type '[GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>>]' is not assignable to type '[GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>>]'.
+              Type 'GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; }>>' is not assignable to type 'GeneratorReturnMockTypes<undefined, Request<{ response: undefined; payload: undefined; queryParams: string | QueryParamsType; globalError: Error; localError: Error; endpoint: "shared-base-endpoint"; adapter: AdapterType; hasData: false; hasParams: false; hasQuery: false; }>>'.
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

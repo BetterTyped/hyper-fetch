@@ -231,8 +231,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       status,
       extra,
     };
-    response = await request.client.__modifyResponse(response, request);
-    response = await request.client.__modifySuccessResponse(response, request);
+    response = (await request.client.__modifyResponse(response, request)) as typeof responseData;
+    response = (await request.client.__modifySuccessResponse(response, request)) as typeof responseData;
 
     effects.forEach((effect) => effect.onSuccess(response, request));
     effects.forEach((effect) => effect.onFinished(response, request));
@@ -258,8 +258,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       extra,
     } as ResponseReturnErrorType<any, T>;
 
-    responseData = await request.client.__modifyResponse(responseData, request);
-    responseData = await request.client.__modifyErrorResponse(responseData, request);
+    responseData = (await request.client.__modifyResponse(responseData, request)) as typeof responseData;
+    responseData = (await request.client.__modifyErrorResponse(responseData, request)) as typeof responseData;
 
     effects.forEach((effect) => effect.onError(responseData, request));
     effects.forEach((effect) => effect.onFinished(responseData, request));

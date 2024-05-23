@@ -13,3 +13,9 @@ export type NonNullableKeys<T> = {
 export type RequiredKeys<T> = {
   [P in keyof T]-?: Exclude<T[P], NegativeTypes>;
 };
+
+export type TypeWithDefaults<
+  Types extends Record<string, any>,
+  Key extends keyof Types,
+  Value,
+> = Key extends keyof Types ? Types[Key] : Value;

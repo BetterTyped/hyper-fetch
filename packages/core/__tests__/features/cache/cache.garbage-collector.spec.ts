@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
-import { CacheValueType } from "cache";
+import { CacheStorageType, CacheValueType } from "cache";
 import { Client, DateInterval, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
@@ -110,7 +110,8 @@ describe("Cache [ Garbage Collector ]", () => {
       const data = { ...cacheData, garbageCollection: DateInterval.minute };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
-        storage: lazyStorage,
+        // Todo: check
+        storage: lazyStorage as CacheStorageType,
         clearKey: "new-clear-key",
       });
       const spy = jest.spyOn(lazyStorage, "delete");

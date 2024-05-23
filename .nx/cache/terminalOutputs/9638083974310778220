@@ -1,0 +1,10 @@
+[2K[1G[2m$ eslint . --fix[22m
+
+Oops! Something went wrong! :(
+
+ESLint: 8.57.0
+
+TypeError: prettier.resolveConfig is not a function
+    at /Users/maciejpyrc/Praca/better-typed/open-source/hyper-fetch/node_modules/eslint-plugin-prettier/worker.js:40:24
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

@@ -31,7 +31,10 @@ export class Dispatcher {
 
   private logger: LoggerType;
 
-  constructor(public client: ClientInstance, public options?: DispatcherOptionsType) {
+  constructor(
+    public client: ClientInstance,
+    public options?: DispatcherOptionsType,
+  ) {
     this.logger = client.loggerManager.init("Dispatcher");
 
     if (this.options?.storage) {

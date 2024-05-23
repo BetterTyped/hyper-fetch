@@ -39,7 +39,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.endpoint).toBe("/users/1");
   });
   it("should allow for setting ", async () => {
-    const req = client.createRequest<unknown, { test: number }>()({ endpoint: "/users/:userId" });
+    const req = client.createRequest<{ payload: { test: number } }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
     expect(request.data).not.toBeDefined();
     const updatedRequest = req.setData(data);
@@ -138,21 +138,21 @@ describe("Request [ Setters ]", () => {
       formData.append("email", data.email);
       return formData;
     };
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
     expect(mapperRequest.dataMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setDataMapper(mapper);
     expect(updatedRequest.dataMapper).toBe(mapper);
   });
   it("should allow for setting response mapper", async () => {
     const mapper = (res) => ({ ...res });
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
     expect(mapperRequest.responseMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setResponseMapper(mapper);
     expect(updatedRequest.responseMapper).toBe(mapper);
   });
   it("should allow for setting request mapper", async () => {
     const mapper = (req) => req;
-    const mapperRequest = client.createRequest<null, { name: string; email: string }>()({ endpoint: "test" });
+    const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
     expect(mapperRequest.requestMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setRequestMapper(mapper);
     expect(updatedRequest.requestMapper).toBe(mapper);

@@ -162,7 +162,7 @@ describe("Client [ Methods ]", () => {
       expect(client.effects).toHaveLength(1);
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {
-      const callback = () => ({} as HeadersInit);
+      const callback = () => ({}) as HeadersInit;
       client.setHeaderMapper(callback);
 
       expect(client.headerMapper).toEqual(callback);

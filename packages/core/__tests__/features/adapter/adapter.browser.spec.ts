@@ -9,7 +9,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   const requestId = "test";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();

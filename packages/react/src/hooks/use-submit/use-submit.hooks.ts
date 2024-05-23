@@ -100,7 +100,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // ******************
 
   const handleSubmit: RequestSendType<RequestType> = (submitOptions?: RequestSendOptionsType<RequestType>) => {
-    const requestClone = request.clone(submitOptions as any) as RequestType;
+    const requestClone = request.clone(submitOptions as any) as unknown as RequestType;
 
     if (disabled) {
       logger.warning(`Cannot submit request`, { disabled, submitOptions });

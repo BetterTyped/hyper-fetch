@@ -6,7 +6,7 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Client [ SSR ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+  let request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -14,7 +14,7 @@ describe("Client [ SSR ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
     resetInterceptors();
   });
 

@@ -77,7 +77,10 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should allow to add upload progress", async () => {
-    const postRequest = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const postRequest = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
     createRequestInterceptor(postRequest);
 
     const spy1 = jest.fn();

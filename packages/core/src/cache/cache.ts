@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { AdapterInstance, ResponseReturnType } from "adapter";
-import { ClientInstance, ExtractAdapterTypeFromClient } from "client";
+import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
   CacheOptionsType,
@@ -32,8 +32,11 @@ export class Cache<C extends ClientInstance> {
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
 
-  constructor(public client: C, public options?: CacheOptionsType) {
-    this.storage = this.options?.storage || new Map<string, CacheValueType>();
+  constructor(
+    public client: C,
+    public options?: CacheOptionsType,
+  ) {
+    this.storage = this.options?.storage || (new Map<string, CacheValueType>() as typeof this.storage);
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
@@ -79,7 +82,12 @@ export class Cache<C extends ClientInstance> {
     const processedResponse = typeof response === "function" ? response(cachedData) : response;
     const data = getCacheData(cachedData, processedResponse);
 
-    const newCacheData: CacheValueType = { ...data, cacheTime, clearKey: this.clearKey, garbageCollection };
+    const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
+      ...data,
+      cacheTime,
+      clearKey: this.clearKey,
+      garbageCollection,
+    };
 
     this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
       cacheKey,
@@ -95,8 +103,8 @@ export class Cache<C extends ClientInstance> {
     // Only success data is valid for the cache store
     if (processedResponse.success) {
       this.logger.debug("Saving response to cache storage", { request, data });
-      this.storage.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
-      this.lazyStorage?.set<Response, Error, ExtractAdapterTypeFromClient<typeof this.client>>(cacheKey, newCacheData);
+      this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
+      this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
     }

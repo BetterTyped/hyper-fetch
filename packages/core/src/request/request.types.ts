@@ -12,15 +12,15 @@ import {
   ExtractErrorType,
   ExtractResponseType,
   HttpMethodsType,
+  ExtractPropertiesType,
 } from "types";
 import { Request } from "request";
 import {
   ResponseReturnType,
-  QueryParamsType,
   ProgressType,
   ExtractAdapterOptionsType,
-  AdapterType,
   ExtractAdapterMethodType,
+  AdapterInstance,
 } from "adapter";
 import { RequestEventType, ResponseDetailsType } from "managers";
 
@@ -37,16 +37,10 @@ export type AdapterProgressType = {
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestJSON<
-  Request extends RequestInstance,
-  // Bellow generics provided only to overcome the typescript bugs
-  AdapterOptions = unknown,
-  QueryParams = QueryParamsType,
-  Params = ExtractParamsType<Request>,
-> = {
+export type RequestJSON<Request extends RequestInstance> = {
   requestOptions: RequestOptionsType<
     string,
-    AdapterOptions | ExtractAdapterType<Request>,
+    ExtractAdapterType<Request>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
   endpoint: string;
@@ -63,10 +57,10 @@ export type RequestJSON<
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
+  options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
   data: PayloadType<ExtractPayloadType<Request>>;
-  params: Params | NegativeTypes;
-  queryParams: QueryParams | NegativeTypes;
+  params: ExtractParamsType<Request>;
+  queryParams: ExtractRequestQueryParamsType<Request>;
   abortKey: string;
   cacheKey: string;
   queueKey: string;
@@ -204,10 +198,10 @@ export type ParamsType = Record<string, ParamType>;
 export type ExtractRouteParams<T extends string> = string extends T
   ? NegativeTypes
   : T extends `${string}:${infer Param}/${infer Rest}`
-  ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
-  : T extends `${string}:${infer Param}`
-  ? { [k in Param]: ParamType }
-  : NegativeTypes;
+    ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
+    : T extends `${string}:${infer Param}`
+      ? { [k in Param]: ParamType }
+      : NegativeTypes;
 
 export type FetchOptionsType<AdapterOptions> = Omit<
   Partial<RequestOptionsType<string, AdapterOptions>>,
@@ -226,23 +220,21 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
 /**
  * If the request endpoint parameters are not filled it will throw an error
  */
-export type FetchParamsType<
-  Endpoint extends string,
-  HasParams extends true | false,
-> = ExtractRouteParams<Endpoint> extends NegativeTypes
-  ? { params?: NegativeTypes }
-  : HasParams extends true
-  ? { params?: NegativeTypes }
-  : { params: NonNullable<ExtractRouteParams<Endpoint>> };
+export type FetchParamsType<Endpoint extends string, HasParams extends true | false> =
+  ExtractRouteParams<Endpoint> extends NegativeTypes | never | void
+    ? { params?: NegativeTypes }
+    : HasParams extends true
+      ? { params?: NegativeTypes }
+      : { params: NonNullable<ExtractRouteParams<Endpoint>> };
 
 /**
  * If the request data is not filled it will throw an error
  */
-export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes
+export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes | never | void
   ? { data?: NegativeTypes }
   : HasData extends true
-  ? { data?: NegativeTypes }
-  : { data: NonNullable<Payload> };
+    ? { data?: NegativeTypes }
+    : { data: NonNullable<Payload> };
 
 export type RequestQueueOptions = {
   dispatcherType?: "auto" | "fetch" | "submit";
@@ -295,18 +287,22 @@ export type RequestSendType<Request extends RequestInstance> =
 
 // Instance
 
-export type RequestInstance = Request<
-  any,
-  any,
-  any,
-  any,
-  any,
-  any,
-  AdapterType<any, any, any, any, any>,
-  any,
-  any,
-  any
->;
+export type RequestInstance = Request<any>;
+export type RequestExtend<
+  Req extends RequestInstance,
+  Properties extends {
+    response?: any;
+    payload?: any;
+    queryParams?: any;
+    globalError?: any;
+    localError?: any;
+    endpoint?: string;
+    adapter?: AdapterInstance;
+    hasData?: true | false;
+    hasParams?: true | false;
+    hasQuery?: true | false;
+  },
+> = Request<Properties & Exclude<ExtractPropertiesType<Req>, keyof Properties>>;
 
 // Mappers
 

@@ -34,8 +34,8 @@ export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType
 export const getValidCacheData = <T extends RequestInstance>(
   request: T,
   initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>,
-  cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>>,
-): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>> | null => {
+  cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
+): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
   const isStale = isStaleCacheData(request.cacheTime, cacheData?.timestamp);
 
   if (!isStale && cacheData) {
@@ -72,11 +72,7 @@ export const getInitialState = <T extends RequestInstance>(
   const { client, cacheKey, responseMapper } = request;
   const { cache } = client;
 
-  const cacheData = cache.get<
-    ExtractResponseType<T>,
-    ExtractErrorType<T>,
-    ExtractAdapterExtraType<ExtractAdapterType<T>>
-  >(cacheKey);
+  const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialData, cacheData);
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
@@ -104,7 +100,7 @@ export const getInitialState = <T extends RequestInstance>(
     error: initialState.error,
     status: initialState.status,
     success: initialState.success,
-    extra: request.client.defaultExtra,
+    extra: request.client.defaultExtra as unknown as ExtractAdapterExtraType<ExtractAdapterType<T>>,
     retries: initialState.retries,
     timestamp: getTimestamp(initialState.timestamp),
     loading: initialLoading,

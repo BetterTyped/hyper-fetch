@@ -21,7 +21,7 @@ export const onSnapshotTestSuite = (
     const client = new Client({ url: "teas/" }).setAdapter(coreAdapter);
     const socket = new Socket({ url: "teas/", adapter });
     const pushReq = client
-      .createRequest<Tea, Tea>()({
+      .createRequest<{ response: Tea; payload: Tea }>()({
         endpoint: "",
         method: "addDoc",
       })
@@ -144,7 +144,7 @@ export const onSnapshotTestSuite = (
       }, 1000);
 
       const addTeaReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })
@@ -153,7 +153,7 @@ export const onSnapshotTestSuite = (
       await addTeaReq.send();
 
       const updateTeaReq = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: ":teaId",
           method: "updateDoc",
         })
@@ -162,7 +162,7 @@ export const onSnapshotTestSuite = (
       await updateTeaReq.send({ params: { teaId: 1 } });
 
       const removeReq = client
-        .createRequest<Tea>()({
+        .createRequest<{ response: Tea }>()({
           endpoint: ":teaId",
           method: "deleteDoc",
         })
@@ -271,13 +271,13 @@ export const onSnapshotTestSuite = (
       } as Tea;
 
       const shouldCacheAddDocRequest = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })
         .setData(shouldCacheData);
       const shouldNotCacheAddDocRequest = client
-        .createRequest<Tea, Tea>()({
+        .createRequest<{ response: Tea; payload: Tea }>()({
           endpoint: "",
           method: "addDoc",
         })

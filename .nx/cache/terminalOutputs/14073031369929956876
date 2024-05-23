@@ -1,0 +1,102 @@
+[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
+__tests__/features/firestore/shared/constraints.shared.tests.ts(7,52): error TS2707: Generic type 'Client<Types>' requires between 0 and 1 type arguments.
+__tests__/features/firestore/shared/methods/add-doc.test.suite.ts(11,43): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/add-doc.test.suite.ts(16,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/add-doc.test.suite.ts(21,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/add-doc.test.suite.ts(23,37): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/firestore/shared/methods/add-doc.test.suite.ts(24,41): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(o: { [s: string]: unknown; } | ArrayLike<unknown>): unknown[]', gave the following error.
+    Argument of type 'void' is not assignable to parameter of type '{ [s: string]: unknown; } | ArrayLike<unknown>'.
+  Overload 2 of 2, '(o: {}): any[]', gave the following error.
+    Argument of type 'void' is not assignable to parameter of type '{}'.
+__tests__/features/firestore/shared/methods/delete-doc.test.suite.ts(12,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/delete-doc.test.suite.ts(19,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/delete-doc.test.suite.ts(43,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-doc.test.suite.ts(12,24): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-doc.test.suite.ts(35,24): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-doc.test.suite.ts(51,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-docs.test.suite.ts(11,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-docs.test.suite.ts(15,65): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/firestore/shared/methods/get-docs.test.suite.ts(25,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/get-docs.test.suite.ts(29,58): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/firestore/shared/methods/get-docs.test.suite.ts(37,44): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(24,22): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(28,16): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(147,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(151,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(156,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(160,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(162,31): error TS2345: Argument of type '{ params: { teaId: number; }; }' is not assignable to parameter of type 'never'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(165,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(274,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(278,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(280,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/on-snapshot.test.suite.ts(284,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(13,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(19,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(24,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(34,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(41,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(47,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(52,36): error TS2698: Spread types may only be created from object types.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(59,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/set-doc.test.suite.ts(65,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(13,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(17,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(18,43): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(22,28): error TS2345: Argument of type '{ params: { teaId: number; }; }' is not assignable to parameter of type 'never'.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(23,42): error TS2345: Argument of type '{ params: { teaId: number; }; }' is not assignable to parameter of type 'RequestSendOptionsType<Request<{ response: void; payload: void; queryParams: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; globalError: Error; localError: Error; endpoint: ":teaId"; adapter: FirestoreAdapterType | RealtimeDbAdapterType; }>>'.
+  Property 'data' is missing in type '{ params: { teaId: number; }; }' but required in type '{ data: NonNullable<void>; }'.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(31,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/firestore/shared/methods/update-doc.test.suite.ts(35,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(11,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(15,39): error TS2345: Argument of type '{ queryParams: { constraints: { toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; }[]; }; }' is not assignable to parameter of type 'RequestSendOptionsType<Request<{ response: void; payload: void; queryParams: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; globalError: Error; localError: Error; endpoint: ""; adapter: FirestoreAdapterType | RealtimeDbAdapterType; }>>'.
+  Property 'data' is missing in type '{ queryParams: { constraints: { toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; }[]; }; }' but required in type '{ data: NonNullable<void>; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(18,19): error TS2339: Property 'map' does not exist on type 'void'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(35,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(39,39): error TS2345: Argument of type '{ queryParams: { constraints: ({ toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; } | { toString: () => string; type: RealtimeQueryConstraints.LIMIT_TO_FIRST; values: number[]; })[]; }; }' is not assignable to parameter of type 'RequestSendOptionsType<Request<{ response: void; payload: void; queryParams: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; globalError: Error; localError: Error; endpoint: ""; adapter: FirestoreAdapterType | RealtimeDbAdapterType; }>>'.
+  Property 'data' is missing in type '{ queryParams: { constraints: ({ toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; } | { toString: () => string; type: RealtimeQueryConstraints.LIMIT_TO_FIRST; values: number[]; })[]; }; }' but required in type '{ data: NonNullable<void>; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(42,19): error TS2339: Property 'map' does not exist on type 'void'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(46,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(50,39): error TS2345: Argument of type '{ queryParams: { constraints: ({ toString: () => string; type: SharedQueryConstraints; values: any[][]; } | { toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; })[]; }; }' is not assignable to parameter of type 'RequestSendOptionsType<Request<{ response: void; payload: void; queryParams: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; globalError: Error; localError: Error; endpoint: ""; adapter: FirestoreAdapterType | RealtimeDbAdapterType; }>>'.
+  Property 'data' is missing in type '{ queryParams: { constraints: ({ toString: () => string; type: SharedQueryConstraints; values: any[][]; } | { toString: () => string; type: RealtimeQueryConstraints.ORDER_BY_CHILD; values: string[]; })[]; }; }' but required in type '{ data: NonNullable<void>; }'.
+__tests__/features/realtime/shared/constraints.shared.tests.ts(54,19): error TS2339: Property 'map' does not exist on type 'void'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(17,40): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(21,65): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(32,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(43,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/get.test.suite.ts(55,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(35,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(39,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/on-value.test.suite.ts(152,77): error TS2339: Property '__key' does not exist on type 'never'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(16,43): error TS2559: Type 'Tea[]' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(21,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(26,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(28,37): error TS2554: Expected 1 arguments, but got 0.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(31,67): error TS2339: Property '__key' does not exist on type 'never'.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(38,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/push.test.suite.ts(42,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(15,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(22,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(31,20): error TS2339: Property 'snapshot' does not exist on type 'never'.
+__tests__/features/realtime/shared/methods/remove.test.suite.ts(35,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(17,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(23,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(28,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(33,20): error TS2339: Property 'snapshot' does not exist on type 'never'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(37,24): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(44,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(49,18): error TS2345: Argument of type '{ data: null; }' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(54,20): error TS2339: Property 'snapshot' does not exist on type 'never'.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(58,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/set.test.suite.ts(63,18): error TS2345: Argument of type '{ data: null; }' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(17,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(21,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(22,43): error TS2559: Type 'Tea' has no properties in common with type '{ response?: any; payload?: any; error?: any; queryParams?: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; }'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(26,28): error TS2345: Argument of type '{ params: { teaId: number; }; }' is not assignable to parameter of type 'never'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(27,42): error TS2345: Argument of type '{ params: { teaId: number; }; }' is not assignable to parameter of type 'RequestSendOptionsType<Request<{ response: void; payload: void; queryParams: FirestoreQueryParams | Record<string, never> | RealtimeDBQueryParams; globalError: Error; localError: Error; endpoint: ":teaId"; adapter: FirestoreAdapterType | RealtimeDbAdapterType; }>>'.
+  Property 'data' is missing in type '{ params: { teaId: number; }; }' but required in type '{ data: NonNullable<void>; }'.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(34,24): error TS2558: Expected 1 type arguments, but got 2.
+__tests__/features/realtime/shared/methods/update.test.suite.ts(38,18): error TS2345: Argument of type 'Tea' is not assignable to parameter of type 'void'.
+[2K[1G[31merror[39m Command failed with exit code 2.
+[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.
