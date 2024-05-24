@@ -15,11 +15,11 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export type FirestoreSocketAdapterType = SocketAdapterType<
-  never,
-  FirestoreOnSnapshotExtra,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
->;
+export type FirestoreSocketAdapterType = SocketAdapterType<{
+  options: never;
+  extra: FirestoreOnSnapshotExtra;
+  listenerOptions: { groupByChangeType?: boolean } & FirestoreQueryParams;
+}>;
 
 export type FirestoreAdapterType =
   | AdapterType<{

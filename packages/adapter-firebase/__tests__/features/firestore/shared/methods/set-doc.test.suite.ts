@@ -23,11 +23,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
         .setParams({ teaId: 1 })
         .setData(newData);
 
-      await setReq.send({
-        params: {
-          teaId: 1,
-        },
-      });
+      await setReq.send();
       const { data } = await getReq.send();
 
       expect(data).toStrictEqual({ ...newData, __key: "1" });
@@ -50,11 +46,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
         .setParams({ teaId: 1 })
         .setData({ name: "Pou Ran Do Cha" } as Tea);
 
-      await setReq.send({
-        params: {
-          teaId: 1,
-        },
-      });
+      await setReq.send();
       const { data } = await getReq.send();
 
       expect(data).toStrictEqual({ ...existingData, name: "Pou Ran Do Cha" });

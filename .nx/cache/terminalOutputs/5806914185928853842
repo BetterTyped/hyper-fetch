@@ -1,4 +1,0 @@
-[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
-src/cli/index.ts(7,24): error TS2307: Cannot find module '@hyper-fetch/core' or its corresponding type declarations.
-[2K[1G[31merror[39m Command failed with exit code 2.
-[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

@@ -33,7 +33,7 @@ export const onSnapshotTestSuite = (
   describe("onSnapshot", () => {
     it("should return unmount function", async () => {
       const { socket } = await initialize();
-      const onSnapshotReq = socket.createListener<Tea[]>()({
+      const onSnapshotReq = socket.createListener<{ response: Tea[] }>()({
         endpoint: "",
       });
       const unmount = onSnapshotReq.listen({ callback: spy });
@@ -41,7 +41,7 @@ export const onSnapshotTestSuite = (
     });
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
-      const onSnapshotReq = socket.createListener<Tea[]>()({
+      const onSnapshotReq = socket.createListener<{ response: Tea[] }>()({
         endpoint: "",
       });
       const unmount = onSnapshotReq.listen({ callback: spy });
@@ -62,7 +62,7 @@ export const onSnapshotTestSuite = (
     });
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
-      const onSnapshotReq = socketBees.createListener<Tea[]>()({
+      const onSnapshotReq = socketBees.createListener<{ response: Tea[] }>()({
         endpoint: "",
       });
 
@@ -91,7 +91,7 @@ export const onSnapshotTestSuite = (
 
     it("should return data available for collection", async () => {
       const { socket } = await initialize();
-      const onSnapshotReq = socket.createListener<Tea[]>()({
+      const onSnapshotReq = socket.createListener<{ response: Tea[] }>()({
         endpoint: "",
       });
 
@@ -123,7 +123,7 @@ export const onSnapshotTestSuite = (
         amount: 100,
       } as Tea;
       const { socket, client } = await initialize();
-      const onSnapshotReq = socket.createListener<Tea[]>()({
+      const onSnapshotReq = socket.createListener<{ response: Tea[] }>()({
         endpoint: "",
         options: { groupByChangeType: true },
       });
@@ -190,7 +190,7 @@ export const onSnapshotTestSuite = (
     it("should return data available for doc", async () => {
       const { socket } = await initialize();
       const onSnapshotReq = socket
-        .createListener<Tea[]>()({
+        .createListener<{ response: Tea[] }>()({
           endpoint: ":teaId",
         })
         .setParams({ teaId: 1 });
@@ -246,7 +246,7 @@ export const onSnapshotTestSuite = (
       ];
 
       // Should listen for changes only for Green teas
-      const onSnapshotReq = socket.createListener<Tea[]>()({
+      const onSnapshotReq = socket.createListener<{ response: Tea[] }>()({
         endpoint: "",
         options: { constraints: [$where("type", "==", "Green")] },
       });

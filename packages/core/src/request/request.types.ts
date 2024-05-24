@@ -221,7 +221,7 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
  * If the request endpoint parameters are not filled it will throw an error
  */
 export type FetchParamsType<Endpoint extends string, HasParams extends true | false> =
-  ExtractRouteParams<Endpoint> extends NegativeTypes | never | void
+  ExtractRouteParams<Endpoint> extends NegativeTypes
     ? { params?: NegativeTypes }
     : HasParams extends true
       ? { params?: NegativeTypes }
@@ -230,7 +230,7 @@ export type FetchParamsType<Endpoint extends string, HasParams extends true | fa
 /**
  * If the request data is not filled it will throw an error
  */
-export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes | never | void
+export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes
   ? { data?: NegativeTypes }
   : HasData extends true
     ? { data?: NegativeTypes }

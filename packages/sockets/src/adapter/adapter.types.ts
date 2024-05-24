@@ -1,35 +1,46 @@
+import { TypeWithDefaults } from "@hyper-fetch/core";
+
 import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
-import { Listener } from "listener";
+import { ListenerCallbackType, ListenerInstance } from "listener";
 import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
 
-export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
-  data: D;
-  extra: ExtractSocketExtraType<AdapterType>;
-}) => void;
+export type SocketAdapterInstance = SocketAdapterType<any>;
 
 export type SocketAdapterType<
-  AdapterOptions extends Record<string, any> = never,
-  AdapterExtra extends Record<string, any> = Record<never, never>,
-  ListenerOptions extends Record<string, any> = never,
-  EmitterOptions extends Record<string, any> = never,
+  Properties extends {
+    options?: Record<string, any>;
+    extra?: Record<string, any>;
+    listenerOptions?: Record<string, any>;
+    emitterOptions?: Record<string, any>;
+  } = {
+    options?: never;
+    extra?: undefined;
+    listenerOptions?: undefined;
+    emitterOptions?: undefined;
+  },
 > = (
-  socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
+  socket: Socket<SocketAdapterType<Properties>>,
   DO_NOT_USE?: {
-    adapterOptions?: AdapterOptions;
-    adapterExtra?: AdapterExtra;
-    listenerOptions?: ListenerOptions;
-    emitterOptions?: EmitterOptions;
+    options?: TypeWithDefaults<Properties, "options", never>;
+    extra?: TypeWithDefaults<Properties, "extra", undefined>;
+    listenerOptions?: TypeWithDefaults<Properties, "listenerOptions", undefined>;
+    emitterOptions?: TypeWithDefaults<Properties, "emitterOptions", undefined>;
   },
 ) => {
   open: boolean;
   reconnectionAttempts: number;
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
-    listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
+    listener: ListenerInstance,
     callback: ListenerCallbackType<
-      SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>,
+      SocketAdapterType<{
+        options: TypeWithDefaults<Properties, "options", never>;
+        extra: TypeWithDefaults<Properties, "extra", undefined>;
+        listenerOptions: TypeWithDefaults<Properties, "listenerOptions", undefined>;
+        emitterOptions: TypeWithDefaults<Properties, "emitterOptions", undefined>;
+      }>,
       any
     >,
   ) => RemoveListenerCallbackType;
@@ -37,7 +48,15 @@ export type SocketAdapterType<
   emit: (
     eventMessageId: string,
     emitter: EmitterInstance,
-    ack?: EmitterAcknowledgeType<any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
+    ack?: EmitterAcknowledgeType<
+      any,
+      SocketAdapterType<{
+        options: TypeWithDefaults<Properties, "options", never>;
+        extra: TypeWithDefaults<Properties, "extra", undefined>;
+        listenerOptions: TypeWithDefaults<Properties, "listenerOptions", undefined>;
+        emitterOptions: TypeWithDefaults<Properties, "emitterOptions", undefined>;
+      }>
+    >,
   ) => void;
   connecting: boolean;
   connect: () => void;
@@ -45,42 +64,19 @@ export type SocketAdapterType<
   disconnect: () => void;
 };
 
-export type SocketAdapterInstance = SocketAdapterType<any, any, any, any>;
-
 // Extractors
-
-export type ExtractSocketOptionsType<T> = T extends SocketAdapterType<infer O, any, any, any> ? O : never;
-export type ExtractSocketExtraType<T> = T extends SocketAdapterType<any, infer E, any, any> ? E : never;
-export type ExtractListenerOptionsType<T> = T extends SocketAdapterType<any, any, infer O, any> ? O : never;
-export type ExtractEmitterOptionsType<T> = T extends SocketAdapterType<any, any, any, infer E> ? E : never;
 
 export type ExtractUnionSocket<
   Adapter extends SocketAdapterInstance,
   Values extends {
-    adapterOptions?: any;
-    adapterExtra?: any;
+    options?: any;
+    extra?: any;
     listenerOptions?: any;
     emitterOptions?: any;
   },
 > =
-  Extract<
-    Adapter,
-    SocketAdapterType<
-      Values["adapterOptions"],
-      Values["adapterExtra"],
-      Values["listenerOptions"],
-      Values["emitterOptions"]
-    >
-  > extends SocketAdapterInstance
-    ? Extract<
-        Adapter,
-        SocketAdapterType<
-          Values["adapterOptions"],
-          Values["adapterExtra"],
-          Values["listenerOptions"],
-          Values["emitterOptions"]
-        >
-      >
+  Extract<Adapter, SocketAdapterType<Values>> extends SocketAdapterInstance
+    ? Extract<Adapter, SocketAdapterType<Values>>
     : never;
 
 // Options
@@ -106,5 +102,8 @@ export type WSMessageType = {
 // Adapters
 
 export type SocketData<D = any> = { endpoint: string; data: D };
-export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
-export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;
+export type WebsocketAdapterType = SocketAdapterType<{
+  options: WSAdapterOptionsType;
+  extra: MessageEvent<SocketData>;
+}>;
+export type SSEAdapterType = SocketAdapterType<{ options: SSEAdapterOptionsType; extra: MessageEvent<SocketData> }>;

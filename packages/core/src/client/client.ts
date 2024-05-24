@@ -525,6 +525,8 @@ export class Client<
 
   /**
    * Create requests based on the Client setup
+   *
+   * @template {response: any, payload:any} Properties
    */
   createRequest = <
     Properties extends {

@@ -447,18 +447,19 @@ export class Request<
       ExtractAdapterOptionsType<TypeWithDefaults<Properties, "adapter", AdapterType>>,
       ExtractAdapterMethodType<TypeWithDefaults<Properties, "adapter", AdapterType>>
     >,
-  ): Request<{
-    response: TypeWithDefaults<Properties, "response", undefined>;
-    payload: TypeWithDefaults<Properties, "payload", undefined>;
-    queryParams: TypeWithDefaults<Properties, "queryParams", string | QueryParamsType>;
-    globalError: TypeWithDefaults<Properties, "globalError", Error>;
-    localError: TypeWithDefaults<Properties, "localError", Error>;
-    endpoint: TypeWithDefaults<Properties, "endpoint", string>;
-    adapter: TypeWithDefaults<Properties, "adapter", AdapterType>;
-    hasData: TypeWithDefaults<ExtendedProperties, "hasData", false>;
-    hasParams: TypeWithDefaults<ExtendedProperties, "hasParams", false>;
-    hasQuery: TypeWithDefaults<ExtendedProperties, "hasQuery", false>;
-  }> {
+  ) {
+    type NewHasData = TypeWithDefaults<ExtendedProperties, "hasData", TypeWithDefaults<Properties, "hasData", false>>;
+    type NewHasParams = TypeWithDefaults<
+      ExtendedProperties,
+      "hasParams",
+      TypeWithDefaults<Properties, "hasParams", false>
+    >;
+    type NewHasQuery = TypeWithDefaults<
+      ExtendedProperties,
+      "hasQuery",
+      TypeWithDefaults<Properties, "hasQuery", false>
+    >;
+
     const json = this.toJSON();
     const requestJSON: RequestCurrentType<
       TypeWithDefaults<Properties, "payload", undefined>,
@@ -490,9 +491,9 @@ export class Request<
       localError: TypeWithDefaults<Properties, "localError", Error>;
       endpoint: TypeWithDefaults<Properties, "endpoint", string>;
       adapter: TypeWithDefaults<Properties, "adapter", AdapterType>;
-      hasData: TypeWithDefaults<ExtendedProperties, "hasData", false>;
-      hasParams: TypeWithDefaults<ExtendedProperties, "hasParams", false>;
-      hasQuery: TypeWithDefaults<ExtendedProperties, "hasQuery", false>;
+      hasData: NewHasData;
+      hasParams: NewHasParams;
+      hasQuery: NewHasQuery;
     }>(this.client, this.requestOptions, requestJSON);
 
     // Inherit methods

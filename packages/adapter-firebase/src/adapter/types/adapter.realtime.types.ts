@@ -9,11 +9,11 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export type RealtimeSocketAdapterType = SocketAdapterType<
-  never,
-  RealtimeDbOnValueMethodExtra,
-  { onlyOnce?: boolean } & RealtimeDBQueryParams
->;
+export type RealtimeSocketAdapterType = SocketAdapterType<{
+  options: never;
+  extra: RealtimeDbOnValueMethodExtra;
+  listenerOptions: { onlyOnce?: boolean } & RealtimeDBQueryParams;
+}>;
 
 export type RealtimeDbAdapterType =
   | AdapterType<{

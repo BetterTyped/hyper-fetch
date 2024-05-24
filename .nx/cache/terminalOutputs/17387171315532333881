@@ -1,4 +1,0 @@
-[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
-src/cli/index.ts(32,45): error TS2554: Expected 1 arguments, but got 0.
-[2K[1G[31merror[39m Command failed with exit code 2.
-[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

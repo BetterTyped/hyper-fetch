@@ -1,6 +1,6 @@
 import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
 
-import { SocketAdapterInstance, ExtractEmitterOptionsType, ExtractSocketExtraType } from "adapter";
+import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
 import {
   ExtractEmitterAdapterType,
@@ -8,9 +8,11 @@ import {
   ExtractEmitterHasParamsType,
   ExtractEmitterEndpointType,
   ExtractEmitterPayloadType,
+  ExtractEmitterOptionsType,
+  ExtractSocketExtraType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, any, SocketAdapterInstance, any, any, any>;
+export type EmitterInstance = Emitter<any>;
 
 export type EmitterOptionsType<Endpoint extends string, AdapterType extends SocketAdapterInstance> = {
   endpoint: Endpoint;
@@ -33,7 +35,7 @@ export type EmitDataType<Payload, HasData extends boolean> = HasData extends fal
   : { data?: never };
 
 export type EmitParamsType<Params, HasData extends boolean> = HasData extends false
-  ? Params extends NegativeTypes
+  ? Params extends NegativeTypes | never | void
     ? { params?: never }
     : {
         params: Params;

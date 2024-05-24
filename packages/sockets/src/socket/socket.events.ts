@@ -16,7 +16,8 @@ import {
 } from "socket";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
-import { ExtractSocketExtraType, SocketAdapterInstance } from "adapter";
+import { SocketAdapterInstance } from "adapter";
+import { ExtractSocketExtraType } from "types";
 
 export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: EventEmitter) => ({
   emitError: <ResponseType>(event: ResponseType): void => {

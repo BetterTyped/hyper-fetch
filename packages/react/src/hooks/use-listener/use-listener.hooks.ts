@@ -1,11 +1,6 @@
 import { useRef } from "react";
 import { useDidUpdate, useWillUnmount } from "@better-hooks/lifecycle";
-import {
-  ListenerInstance,
-  ExtractListenerAdapterType,
-  ExtractSocketExtraType,
-  ExtractListenerResponseType,
-} from "@hyper-fetch/sockets";
+import { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
@@ -25,11 +20,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
    */
 
   const onEventCallback = useRef<
-    | null
-    | ((response: {
-        data: ExtractListenerResponseType<ListenerType>;
-        extra: ExtractSocketExtraType<ExtractListenerAdapterType<ListenerType>>;
-      }) => void)
+    null | ((response: { data: ExtractListenerResponseType<ListenerType>; extra: Record<string, any> }) => void)
   >(null);
 
   /**
@@ -48,7 +39,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
         actions.setData(data);
         actions.setTimestamp(+new Date());
       },
-    });
+    } as Parameters<typeof listener.listen>[0]);
   };
 
   const additionalCallbacks = {

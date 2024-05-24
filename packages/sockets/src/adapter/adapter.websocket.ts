@@ -2,9 +2,8 @@
 import { DateInterval, parseResponse } from "@hyper-fetch/core";
 
 import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
-import { ListenerInstance } from "listener";
+import { ListenerCallbackType, ListenerInstance } from "listener";
 import {
-  ListenerCallbackType,
   WSMessageType,
   getSocketAdapterBindings,
   getWebsocketAdapter,

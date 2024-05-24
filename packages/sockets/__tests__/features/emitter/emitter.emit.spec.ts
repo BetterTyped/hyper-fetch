@@ -75,7 +75,7 @@ describe("Emitter [ Emit ]", () => {
 
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const emitterWithParams = socket.createEmitter<DataType, ResponseType>()({ endpoint: "test/:testId" });
+    const emitterWithParams = socket.createEmitter<{ payload: DataType }>()({ endpoint: "test/:testId" });
     const id = emitterWithParams.emit({ data: message, params: { testId: 1 }, ack: (data) => spy(data) });
 
     server.send(JSON.stringify({ id, endpoint: emitterWithParams.setParams({ testId: 1 }).endpoint, data: response }));
@@ -90,7 +90,7 @@ describe("Emitter [ Emit ]", () => {
     let receivedData;
 
     const emitterWithParams = socket
-      .createEmitter<DataType, ResponseType>()({ endpoint: "test/:testId", timeout: 8000 })
+      .createEmitter<{ payload: DataType }>()({ endpoint: "test/:testId", timeout: 8000 })
       .onData(({ data }, unmount) => {
         receivedData = data;
         spy();

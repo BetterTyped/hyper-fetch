@@ -35,12 +35,12 @@ export type AdapterType<
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
   DO_NOT_USE?: {
-    options: ExtractAdapterOptionsType<AdapterType<Properties>>;
-    method: ExtractAdapterMethodType<AdapterType<Properties>>;
-    status: ExtractAdapterStatusType<AdapterType<Properties>>;
-    extra: ExtractAdapterExtraType<AdapterType<Properties>>;
-    queryParams: ExtractAdapterQueryParamsType<AdapterType<Properties>>;
-    endpoint: ExtractAdapterEndpointType<AdapterType<Properties>>;
+    options: TypeWithDefaults<Properties, "options", AdapterOptionsType>;
+    method: TypeWithDefaults<Properties, "method", HttpMethodsType>;
+    status: TypeWithDefaults<Properties, "status", HttpStatusType>;
+    extra: TypeWithDefaults<Properties, "extra", AdapterExtraType>;
+    queryParams: TypeWithDefaults<Properties, "queryParams", QueryParamsType | string>;
+    endpoint: TypeWithDefaults<Properties, "endpoint", string>;
   },
   // [any any any] as a way to avoid circular reference that destroyed request type.
 ) => Promise<ResponseReturnType<any, any, any>>;

@@ -1,7 +1,0 @@
-[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
-__tests__/features/emitter/emitter.emit.spec.ts(79,56): error TS2322: Type '{ testId: number; }' is not assignable to type 'never'.
-__tests__/features/emitter/emitter.emit.spec.ts(101,7): error TS2322: Type '{ testId: number; }' is not assignable to type 'never'.
-__tests__/features/listener/listener.listen.spec.ts(57,56): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type '{ callback: ListenerCallbackType<WebsocketAdapterType, ResponseType>; }'.
-__tests__/features/listener/listener.sse.spec.ts(70,56): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type '{ callback: ListenerCallbackType<SSEAdapterType, ResponseType>; }'.
-[2K[1G[31merror[39m Command failed with exit code 2.
-[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

@@ -1,31 +1,63 @@
-import { DateInterval, ExtractRouteParams, ParamsType, getUniqueRequestId } from "@hyper-fetch/core";
+import { DateInterval, ExtractRouteParams, ParamsType, TypeWithDefaults, getUniqueRequestId } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
 import { EmitterAcknowledgeType, EmitterOptionsType, EmitType } from "emitter";
-import { SocketAdapterType, ExtractEmitterOptionsType } from "adapter";
-import { ConnectMethodType } from "types";
+import { SocketAdapterInstance, SocketAdapterType } from "adapter";
+import { ConnectMethodType, ExtractEmitterOptionsType } from "types";
 
 export class Emitter<
-  Payload,
-  Response,
-  Endpoint extends string,
-  AdapterType extends SocketAdapterType,
-  MappedData = void,
-  HasParams extends boolean = false,
-  HasData extends boolean = false,
+  Properties extends {
+    payload: any;
+    response: any;
+    endpoint: string;
+    adapter: SocketAdapterInstance;
+    mappedData: any;
+    hasParams?: boolean;
+    hasData?: boolean;
+  } = {
+    payload: undefined;
+    response: undefined;
+    endpoint: string;
+    adapter: SocketAdapterType;
+    mappedData: void;
+    hasParams: false;
+    hasData: false;
+  },
 > {
-  readonly endpoint: Endpoint;
+  readonly endpoint: TypeWithDefaults<Properties, "endpoint", string>;
   params?: ParamsType;
   timeout: number;
-  data: Payload | null = null;
-  options: ExtractEmitterOptionsType<AdapterType>;
-  connections: Set<ConnectMethodType<AdapterType, Response>> = new Set();
+  data: TypeWithDefaults<Properties, "payload", undefined> | null = null;
+  options: ExtractEmitterOptionsType<Properties["adapter"]>;
+  connections: Set<
+    ConnectMethodType<
+      TypeWithDefaults<Properties, "adapter", SocketAdapterType>,
+      TypeWithDefaults<Properties, "response", undefined>
+    >
+  > = new Set();
+
+  dataMapper?: (
+    data: TypeWithDefaults<Properties, "payload", undefined>,
+  ) => TypeWithDefaults<Properties, "mappedData", undefined>;
 
   constructor(
-    readonly socket: Socket<AdapterType>,
-    readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
-    json?: Partial<Emitter<Payload, Response, Endpoint, AdapterType, MappedData>>,
-    readonly dataMapper?: (data: Payload) => MappedData,
+    readonly socket: Socket<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>,
+    readonly emitterOptions: EmitterOptionsType<
+      TypeWithDefaults<Properties, "endpoint", string>,
+      TypeWithDefaults<Properties, "adapter", SocketAdapterType>
+    >,
+    json?: Pick<
+      Emitter<{
+        payload: TypeWithDefaults<Properties, "payload", undefined>;
+        response: TypeWithDefaults<Properties, "response", undefined>;
+        endpoint: TypeWithDefaults<Properties, "endpoint", string>;
+        adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
+        mappedData: TypeWithDefaults<Properties, "mappedData", undefined>;
+        hasParams: TypeWithDefaults<Properties, "hasData", false>;
+        hasData: TypeWithDefaults<Properties, "hasParams", false>;
+      }>,
+      "endpoint" | "params" | "timeout" | "data" | "options" | "connections"
+    >,
   ) {
     const { endpoint, timeout = DateInterval.second * 2, options } = emitterOptions;
 
@@ -36,7 +68,7 @@ export class Emitter<
     this.params = json?.params;
   }
 
-  setOptions(options: ExtractEmitterOptionsType<AdapterType>) {
+  setOptions(options: ExtractEmitterOptionsType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>) {
     return this.clone({ options });
   }
 
@@ -44,32 +76,42 @@ export class Emitter<
     return this.clone({ timeout });
   }
 
-  setData(data: Payload) {
+  setData(data: TypeWithDefaults<Properties, "payload", undefined>) {
     if (this.dataMapper) {
-      return this.clone<MappedData, MappedData, HasParams, true>({ data: this.dataMapper(data) });
+      return this.clone<{
+        payload: TypeWithDefaults<Properties, "mappedData", TypeWithDefaults<Properties, "payload", undefined>>;
+        hasData: true;
+      }>({ data: this.dataMapper(data) });
     }
-    return this.clone<Payload, MappedData, HasParams, true>({ data });
+    return this.clone<{ hasData: true }>({ data });
   }
 
-  setDataMapper = <MapperData>(mapper: (data: Payload) => MapperData) => {
-    return this.clone<Payload, MapperData>(undefined, mapper);
+  setDataMapper = <MapperData>(mapper: (data: TypeWithDefaults<Properties, "payload", undefined>) => MapperData) => {
+    const newInstance = this.clone<{ mappedData: MapperData }>(undefined);
+    newInstance.dataMapper = mapper;
+    return newInstance;
   };
 
-  setParams(params: ExtractRouteParams<Endpoint>) {
-    return this.clone<Payload, MappedData, true>({ params });
+  setParams(params: ExtractRouteParams<TypeWithDefaults<Properties, "endpoint", string>>) {
+    return this.clone<{ hasParams: true }>({ params });
   }
 
   /**
    * Attach global logic to the received events
    * @param callback
    */
-  onData(callback: ConnectMethodType<AdapterType, Response>) {
+  onData(
+    callback: ConnectMethodType<
+      TypeWithDefaults<Properties, "adapter", SocketAdapterType>,
+      TypeWithDefaults<Properties, "response", undefined>
+    >,
+  ) {
     this.connections.add(callback);
 
     return this;
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
+  private paramsMapper = (params: ParamsType | null | undefined): TypeWithDefaults<Properties, "endpoint", string> => {
     let endpoint = this.emitterOptions.endpoint as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -77,39 +119,80 @@ export class Emitter<
       });
     }
 
-    return endpoint as Endpoint;
+    return endpoint as TypeWithDefaults<Properties, "endpoint", string>;
   };
 
   clone<
-    NewPayload = Payload,
-    MapperData = MappedData,
-    Params extends boolean = HasParams,
-    Data extends boolean = HasData,
+    Extensions extends {
+      payload?: any;
+      mappedData?: any;
+      hasParams?: true | false;
+      hasData?: true | false;
+    } = {
+      payload: TypeWithDefaults<Properties, "payload", undefined>;
+      mappedData: TypeWithDefaults<Properties, "mappedData", void>;
+      hasParams: TypeWithDefaults<Properties, "hasParams", false>;
+      hasData: TypeWithDefaults<Properties, "hasData", false>;
+    },
   >(
-    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload },
-    mapper?: (data: NewPayload) => MapperData,
+    options?: Partial<
+      EmitterOptionsType<
+        TypeWithDefaults<Properties, "endpoint", string>,
+        TypeWithDefaults<Properties, "adapter", SocketAdapterType>
+      >
+    > & {
+      params?: ParamsType;
+      data?: TypeWithDefaults<Extensions, "payload", undefined>;
+    },
+    mapper?: (
+      data: TypeWithDefaults<Extensions, "payload", undefined>,
+    ) => TypeWithDefaults<Extensions, "mappedData", void>,
   ) {
-    const json: Partial<Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>> = {
+    type NewPayload = TypeWithDefaults<Extensions, "payload", TypeWithDefaults<Properties, "payload", undefined>>;
+    type NewMappedData = TypeWithDefaults<
+      Extensions,
+      "mappedData",
+      TypeWithDefaults<Properties, "mappedData", undefined>
+    >;
+    type NewHasParams = TypeWithDefaults<Extensions, "hasParams", TypeWithDefaults<Properties, "hasParams", false>>;
+    type NewHasData = TypeWithDefaults<Extensions, "hasData", TypeWithDefaults<Properties, "hasData", false>>;
+
+    const json: Pick<
+      Emitter<{
+        payload: NewPayload;
+        response: TypeWithDefaults<Properties, "response", undefined>;
+        endpoint: TypeWithDefaults<Properties, "endpoint", string>;
+        adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
+        mappedData: NewMappedData;
+        hasParams: NewHasParams;
+        hasData: NewHasData;
+      }>,
+      "endpoint" | "params" | "timeout" | "data" | "options" | "connections"
+    > = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as unknown as NewPayload,
       params: options?.params || this.params,
       ...options,
       endpoint: this.paramsMapper(options?.params || this.params),
+      connections: this.connections,
     };
-    const mapperFn = (mapper || this.dataMapper) as typeof mapper;
 
-    const newInstance = new Emitter<NewPayload, Response, Endpoint, AdapterType, MapperData, Params, Data>(
-      this.socket,
-      this.emitterOptions,
-      json,
-      mapperFn,
-    );
+    const newInstance = new Emitter<{
+      payload: NewPayload;
+      response: TypeWithDefaults<Properties, "response", undefined>;
+      endpoint: TypeWithDefaults<Properties, "endpoint", string>;
+      adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
+      mappedData: NewMappedData;
+      hasParams: NewHasParams;
+      hasData: NewHasData;
+    }>(this.socket, this.emitterOptions, json);
+    newInstance.dataMapper = (mapper || this.dataMapper) as unknown as typeof newInstance.dataMapper;
     newInstance.connections = this.connections;
     return newInstance;
   }
 
-  getAck = (ack?: EmitterAcknowledgeType<any, AdapterType>) => {
+  getAck = (ack?: EmitterAcknowledgeType<any, TypeWithDefaults<Properties, "adapter", SocketAdapterType>>) => {
     if (ack) {
       return (response: { data: any; extra: any; error: any }) => {
         this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
@@ -124,16 +207,31 @@ export class Emitter<
     return undefined;
   };
 
-  emit: EmitType<this> = ({
+  emit: EmitType<
+    Emitter<{
+      payload: TypeWithDefaults<Properties, "payload", undefined>;
+      response: TypeWithDefaults<Properties, "response", undefined>;
+      endpoint: TypeWithDefaults<Properties, "endpoint", string>;
+      adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
+      mappedData: TypeWithDefaults<Properties, "mappedData", void>;
+      hasParams: TypeWithDefaults<Properties, "hasParams", false>;
+      hasData: TypeWithDefaults<Properties, "hasData", false>;
+    }>
+  > = ({
     data,
     params,
     options,
     ack,
   }: {
-    data?: Payload;
-    params?: ExtractRouteParams<Endpoint>;
-    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>>;
-    ack?: EmitterAcknowledgeType<any, AdapterType>;
+    data?: TypeWithDefaults<Properties, "payload", undefined>;
+    params?: ParamsType;
+    options?: Partial<
+      EmitterOptionsType<
+        TypeWithDefaults<Properties, "endpoint", string>,
+        TypeWithDefaults<Properties, "adapter", SocketAdapterType>
+      >
+    >;
+    ack?: EmitterAcknowledgeType<any, TypeWithDefaults<Properties, "adapter", SocketAdapterType>>;
   } = {}) => {
     const instance = this.clone({ ...options, data, params });
 

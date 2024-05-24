@@ -8,6 +8,7 @@ import {
   AppManager,
   DateInterval,
   QueryParamsType,
+  TypeWithDefaults,
 } from "@hyper-fetch/core";
 
 import {
@@ -25,7 +26,8 @@ import {
 } from "socket";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
-import { ExtractSocketExtraType, SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
+import { SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
+import { ExtractSocketExtraType } from "types";
 
 export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
@@ -92,7 +94,9 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
     }
 
     // Adapter must be initialized at the end
-    this.adapter = (adapter ? adapter(this) : websocketAdapter(this)) as unknown as ReturnType<AdapterType>;
+    this.adapter = (adapter
+      ? adapter(this as unknown as Socket<SocketAdapterInstance>)
+      : websocketAdapter(this as unknown as Socket<SocketAdapterInstance>)) as unknown as ReturnType<AdapterType>;
   }
 
   /**
@@ -235,9 +239,13 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param options
    * @returns
    */
-  createListener = <Response>() => {
+  createListener = <Properties extends { response?: any } = { response: undefined }>() => {
     return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, AdapterType>) => {
-      return new Listener<Response, Endpoint, AdapterType>(this, options);
+      return new Listener<{
+        response: TypeWithDefaults<Properties, "response", undefined>;
+        endpoint: Endpoint;
+        adapter: AdapterType;
+      }>(this, options);
     };
   };
 
@@ -246,9 +254,20 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param options
    * @returns
    */
-  createEmitter = <Payload, Response = never>() => {
+  createEmitter = <
+    Properties extends { payload?: any; response?: any } = {
+      payload: undefined;
+      response: undefined;
+    },
+  >() => {
     return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, AdapterType>) => {
-      return new Emitter<Payload, Response, Endpoint, AdapterType>(this, options);
+      return new Emitter<{
+        payload: TypeWithDefaults<Properties, "payload", undefined>;
+        response: TypeWithDefaults<Properties, "response", undefined>;
+        endpoint: Endpoint;
+        adapter: AdapterType;
+        mappedData: void;
+      }>(this, options);
     };
   };
 }

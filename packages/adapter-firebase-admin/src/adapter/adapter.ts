@@ -18,7 +18,7 @@ import { getRealtimeDbAdminMethods } from "../realtime";
 
 export const firebaseAdminAdapter =
   <T extends FirebaseAdminDBTypes>(database: T) =>
-  () => {
+  (): FirebaseAdminAdapterTypes<T> => {
     const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
         await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});

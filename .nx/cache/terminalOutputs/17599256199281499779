@@ -1,4 +1,0 @@
-[2K[1G[2m$ tsc --noEmit --emitDeclarationOnly false[22m
-src/emitter/emitter.ts(127,3): error TS2322: Type '({ data, params, options, ack, }?: {    data?: Payload;    params?: ExtractRouteParams<Endpoint>;    options?: Partial<EmitterOptionsType<Endpoint, AdapterType>>;    ack?: EmitterAcknowledgeType<any, AdapterType>;}) => string' is not assignable to type 'EmitType<this>'.
-[2K[1G[31merror[39m Command failed with exit code 2.
-[2K[1G[34minfo[39m Visit [1mhttps://yarnpkg.com/en/docs/cli/run[22m for documentation about this command.

@@ -1,17 +1,18 @@
 import { expectNotType, expectType } from "tsd";
 
 import { Socket } from "socket";
-import { ListenerCallbackType, SocketAdapterInstance } from "adapter";
+import { ListenerCallbackType } from "listener";
+import { SocketAdapterInstance } from "adapter";
 
 const client = new Socket({
   url: "http://localhost:3000",
 });
 
-const getUsers = client.createListener<{ data: string }[]>()({
+const getUsers = client.createListener<{ response: { data: string }[] }>()({
   endpoint: "/users",
 });
 
-const getUser = client.createListener<{ data: string }>()({
+const getUser = client.createListener<{ response: { data: string } }>()({
   endpoint: "/users/:id",
 });
 

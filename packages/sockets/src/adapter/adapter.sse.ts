@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { parseResponse } from "@hyper-fetch/core";
 
-import { ListenerInstance } from "listener";
-import { ListenerCallbackType, getSocketAdapterBindings, getSSEAdapter, SSEAdapterType, SocketData } from "adapter";
+import { ListenerCallbackType, ListenerInstance } from "listener";
+import { getSocketAdapterBindings, getSSEAdapter, SSEAdapterType, SocketData } from "adapter";
 
 /**
  * -------------------------------------------

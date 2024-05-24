@@ -27,11 +27,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
         .setParams({ teaId: 1 })
         .setData(newData);
 
-      await setReq.send({
-        params: {
-          teaId: 1,
-        },
-      });
+      await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toStrictEqual(newData);
       expect(extra && "snapshot" in extra && "exists" in extra.snapshot && extra.snapshot.exists()).toBe(true);
@@ -52,11 +48,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
         .setParams({ teaId: 1 })
         .setData({ data: null });
 
-      await setReq.send({
-        params: {
-          teaId: 1,
-        },
-      });
+      await setReq.send();
       const { data, extra } = await getReq.send();
       expect(data).toBe(null);
       expect(extra && "snapshot" in extra && "exists" in extra.snapshot && extra.snapshot.exists()).toBe(false);
