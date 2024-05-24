@@ -93,10 +93,10 @@ export type WSAdapterOptionsType = {
   heartbeat?: boolean;
 };
 
-export type WSMessageType = {
+export type WSMessageType<T = any> = {
   id: string;
   endpoint: string;
-  data: any;
+  data: T;
 };
 
 // Adapters
