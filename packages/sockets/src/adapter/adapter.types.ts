@@ -96,7 +96,7 @@ export type WSAdapterOptionsType = {
 export type WSMessageType = {
   id: string;
   endpoint: string;
-  data: string;
+  data: any;
 };
 
 // Adapters
