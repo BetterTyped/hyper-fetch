@@ -78,6 +78,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
       queryParamsConfig,
       queryParamsStringify,
     } = this.options;
+    this.emitter.setMaxListeners(Infinity);
     this.url = url;
     this.auth = auth;
     this.queryParams = queryParams;

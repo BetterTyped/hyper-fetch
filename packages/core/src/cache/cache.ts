@@ -15,6 +15,8 @@ import {
 import { RequestJSON, RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
+EventEmitter.setMaxListeners(Infinity);
+
 /**
  * Cache class handles the data exchange with the dispatchers.
  *
@@ -36,6 +38,7 @@ export class Cache<C extends ClientInstance> {
     public client: C,
     public options?: CacheOptionsType,
   ) {
+    this.emitter.setMaxListeners(Infinity);
     this.storage = this.options?.storage || (new Map<string, CacheValueType>() as typeof this.storage);
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);

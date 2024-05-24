@@ -10,6 +10,10 @@ export class RequestManager {
   emitter = new EventEmitter();
   events = getRequestManagerEvents(this.emitter);
 
+  constructor() {
+    this.emitter.setMaxListeners(Infinity);
+  }
+
   abortControllers = new Map<string, Map<string, AbortController>>();
 
   addAbortController = (abortKey: string, requestId: string) => {

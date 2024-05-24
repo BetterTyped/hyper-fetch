@@ -35,6 +35,7 @@ export class Dispatcher {
     public client: ClientInstance,
     public options?: DispatcherOptionsType,
   ) {
+    this.emitter.setMaxListeners(Infinity);
     this.logger = client.loggerManager.init("Dispatcher");
 
     if (this.options?.storage) {
