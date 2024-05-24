@@ -63,28 +63,23 @@ all while facilitating **real-time data exchange**.
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+🔮 [Simple setup](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
 
-🎯 **Easy cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
+🎯 [Easy cancellation](https://hyperfetch.bettertyped.com/docs/guides/Advanced/Cancellation)
 
-✨ **Deduplicate similar requests** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
+✨ [Request deduplication](https://hyperfetch.bettertyped.com/docs/guides/advanced/deduplication/)
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+🚀 [Queueing](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
 
-💎 **Response Caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+💎 [Response Caching](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
+🔋 [Offline First](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
 
-📡 **Built-in fetcher** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
+📡 [Built-in fetcher](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
 
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
+🎟 [Authentication](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
 
-🔁 **Smart Retries** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
-
-## Help me keep working on this project ❤️
-
-- [Become a Sponsor on GitHub](https://github.com/sponsors/prc5)
+🔁 [Smart Retries](https://hyperfetch.bettertyped.com/docs/guides/basic/retries/)
 
 ## Installation
 
@@ -268,6 +263,23 @@ yarn add @hyper-fetch/core @hyper-fetch/react
         </a>
       </td>
     </tr>
+    <tr>
+      <td>
+        <a href="https://github.com/BetterTyped/hyper-fetch/tree/main/packages/codegen-openapi" >Codegen Openapi</a>
+      </td>
+      <td>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/dm/@hyper-fetch/codegen-openapi?logoColor=fff&logo=trending-up" />
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/codegen-openapi.svg?logo=npm"/>
+        </a>
+        <a href="https://www.npmjs.com/package/@hyper-fetch/codegen-openapi">
+          <img src="https://custom-icon-badges.demolab.com/bundlephobia/minzip/@hyper-fetch/codegen-openapi?color=E10098&logo=package" />
+        </a>
+      </td>
+    </tr>
+
   </tbody>
 </table>
 

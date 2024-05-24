@@ -26,36 +26,21 @@
 
 ## About
 
-**`React Hyper Fetch`** is a set of hooks for Hyper Fetch. Combined with React's lifecycle it allow to `create modern`,
-`optimized`, `maintainable` and `high quality solutions`. We offer many hooks for your use, thanks to which you can
-fetch or mutate data, observe sent requests and interact with data in the cache.
+**`React Hyper Fetch`** is a set of hooks for Hyper Fetch. Combined with React's lifecycle it allows to `create modern`,
+`optimized`, `maintainable` and `high quality solutions`. We offer many hooks, allowing you to
+fetch or mutate data, observe sent requests, and interact with data in the cache. 
 
 ## Key Features
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+🔮 Builds up on **all** Hyper Fetch core features - whatever feature you need, it is here!
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
+🎯 [Helper hooks](https://hyperfetch.bettertyped.com/docs/documentation/react/overview/#helper-hooks) that allow you to hook on every step of request-response lifecycle
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
+✨ Works with **React Native**!
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+🚀 Easy control of [request queues](https://hyperfetch.bettertyped.com/docs/documentation/react/core/use-queue/) with `useQueue`
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
-
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
-
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
-
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
-
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
-
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
-
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
-
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+💎 [Sockets](https://hyperfetch.bettertyped.com/docs/documentation/react/sockets/use-listener/) seamless integration! 
 
 ## Help me keep working on this project ❤️
 

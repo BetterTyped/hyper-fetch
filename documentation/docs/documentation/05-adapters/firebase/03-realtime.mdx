@@ -4,10 +4,11 @@ title: Working with Realtime database
 sidebar_label: Realtime Database
 ---
 
-## Available methods
+## Available Realtime Database Methods
 
-Our Realtime Database adapter provides all the methods the original offers. Due to its nature, we've solved the realtime listening a bit differently, and thus - this method is not allowed in standard adapter.
-For the `onValue`-like usage, please check how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
+Our Realtime Database adapter provides all the methods available for Realtime Database.
+However, due to its nature, we've solved the realtime listening a bit differently. Thus, this method is not allowed in a standard adapter.
+For `onValue`-like usage, please see how to **[listen to queries](/docs/documentation/adapters/firebase/realtime-queries)**.
 
 ### get
 
@@ -24,8 +25,8 @@ const { data, status, extra, success, error } = await req.send();
 ```
 
 `extra`:
-1. `ref` - reference to the endpoint
-2. `snapshot` - 'raw' snapshot from the result
+1. `ref` - A reference to the endpoint.
+2. `snapshot` - A 'raw' snapshot from the result.
 
 ### set
 
@@ -41,10 +42,10 @@ const setReq = client
 const { data, status, extra, success, error } = await req.send();
 ```
 
-In case of `set` - data returned is the same data as passed for setting.
+In `set`, the returned data is the same as the data passed for setting.
 
 `extra`:
-1. ref - database reference to the path
+1. ref - The database reference to the path.
 
 You can also **remove data** via set by sending the `{data: null}` object:
 ```tsx
@@ -68,11 +69,11 @@ const pushReq = client
   .setData(newData);
 ```
 
-In case of `push` - data returned is the same data as passed for setting + the `__key` param that equals id of a newly created document.
+In `push`, the returned data is the same as the data passed for setting plus the `__key` param that equals id of a newly created document.
 
 `extra`:
-1. ref - database reference to the path
-2. key - key of the newly created resource
+1. ref - The database reference to the path.
+2. key - The key of the newly created resource.
 
 ### update
 
@@ -85,10 +86,10 @@ const updateReq = client
   .setData(newData);
 ```
 
-In case of `update` - data returned is the same data as passed for setting.
+In `update`, the returned data is the same as the data passed for setting.
 
 `extra`:
-1. ref - database reference to the path
+1. ref - The database reference to the path.
 
 ### remove
 
