@@ -19,7 +19,7 @@ type QueryParamsType = {
   role?: "Admin" | "User";
 };
 
-const getUsers = client.createRequest<ResponseType, null, null, QueryParamsType>()({
+const getUsers = client.createRequest<{response: ResponseType, queryParams: QueryParamsType}>()({
   endpoint: "/users",
 });
 ```

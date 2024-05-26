@@ -25,7 +25,7 @@ online state are based on the window event listeners, when we are talking about 
 NetInfo as the source of the connection state.
 
 ```ts
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: environment.serverUrl,
   appManager: (instance) =>
     new AppManager(instance, {

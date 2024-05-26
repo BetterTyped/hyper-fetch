@@ -20,7 +20,7 @@ type RequestPayloadType = {
   age: number;
 };
 
-const postUser = client.createRequest<ResponseType, RequestPayloadType>()({
+const postUser = client.createRequest<{response: ResponseType, payload: RequestPayloadType}>()({
   method: "POST",
   endpoint: "/users",
 });

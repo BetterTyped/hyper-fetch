@@ -60,7 +60,7 @@ the system – i.e. local storage or IndexedDB – regardless if the source work
 allows you to set up persistent storage across sessions.
 
 ```tsx
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {

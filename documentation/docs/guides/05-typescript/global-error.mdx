@@ -22,5 +22,5 @@ Remember to add the Error type, which is returned from internal errors like Canc
 ```ts
 type GlobalErrors = Error | { message: string };
 
-export const client = new Client<GlobalErrors>({ url });
+export const client = new Client<{error: GlobalErrors}>({ url });
 ```

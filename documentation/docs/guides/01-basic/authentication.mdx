@@ -61,7 +61,7 @@ export const client = new Client({ url }).onError(async (response, request) => {
   // not go into infinite loop and trigger this operation only once
   if (!request.used && refreshToken && status === 401) {
     // Prepare the refresh token request
-    const postRefreshToken = client.createRequest<LoginResponse, LoginData>()({
+    const postRefreshToken = client.createRequest<{response: LoginResponse, payload: LoginData}>()({
       endpoint: "/refresh-token",
       method: "POST",
     });

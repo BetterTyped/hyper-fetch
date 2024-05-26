@@ -14,7 +14,7 @@ the required parameters to execute the query itself.
 ### Example
 
 ```ts
-const getUser = client.createRequest<ResponseType>()({
+const getUser = client.createRequest<{response: ResponseType}>()({
   endpoint: "/users/:userId",
 });
 

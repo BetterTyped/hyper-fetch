@@ -157,18 +157,21 @@ supported out of the box.
 
 ## Typescript
 
-Client has two generic types.
+Client has three generic types that can be passed when initializing a client.
 
 ```tsx
-class Client<GlobalErrorType, AdapterOptions>
+import { ClientErrorType, Client, AdapterType, DefaultEndpointMapper } from "@hyper-fetch/core";
+
+const client = new Client<{error: ClientErrorType, adapter: AdapterType, mapper: DefaultEndpointMapper}>
 ```
 
-- `GlobalErrorType` defines the error type used in all the requests. It should consist of an `Error` type and your
-  default `ServerErrorType`. For some request’s individual error types, you can set up a `LocalErrorType` for each
-  request.
+- `error` defines the global/default error type used in all the requests. It should consist of an `Error` type and your
+  default `ServerErrorType`. It is propagated down to the `createRequest` method, serving as a default for the `globalError` type.
 
-- `AdapterOptions` is the generic responsible for shaping options passed to the adapter. Most likely you will change it
-  only when you provide your custom adapter.
+- `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it
+  only when you provide [your custom adapter](/guides/02-advanced/custom-adapter.mdx).
+
+- `mapper` -
 
 ---
 

@@ -23,7 +23,7 @@ the new one and cancel previous at the same time to prevent `race-conditioning` 
 we need to set the `cancelable: true` field to request options.
 
 ```ts
-const getUsers = client.createRequest<UsersList>()({  endpoint: "/users", cancelable: true });
+const getUsers = client.createRequest<{response: UsersList}>()({  endpoint: "/users", cancelable: true });
 
 // Make a request to server
 getUsers.send()

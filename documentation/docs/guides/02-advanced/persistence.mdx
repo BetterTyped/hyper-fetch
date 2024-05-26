@@ -37,7 +37,7 @@ const persistenceStorage: CacheStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -64,7 +64,7 @@ const asyncStorage: CacheAsyncStorageType = {
   delete: (key) => del(key),
 };
 
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -107,7 +107,7 @@ const persistenceStorage: DispatcherStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: "localhost:3000",
   fetchDispatcher: (instance) =>
     new Dispatcher(instance, {
@@ -134,7 +134,7 @@ const persistenceStorage: DispatcherStorageType = {
   clear: () => storage.clearAll(),
 };
 
-export const client = new Client<ServerErrorType>({
+export const client = new Client<{error: ServerErrorType}>({
   url: "localhost:3000",
   submitDispatcher: (instance) =>
     new Dispatcher(instance, {

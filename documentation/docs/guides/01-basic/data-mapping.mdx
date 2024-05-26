@@ -27,7 +27,7 @@ The following example shows the implementation for `FormData`:
 
 ```ts
 export const postUserProfile = client
-  .createRequest<boolean, UserProfile>()({
+  .createRequest<{response: boolean, payload: UserProfile}>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
   })
@@ -53,7 +53,7 @@ just as we’d get from the "real" query.
 
 ```ts
 export const postUserProfile = client
-  .createRequest<boolean, UserProfile>()({
+  .createRequest<{response: boolean, payload: UserProfile}>()({
     method: "PATCH",
     endpoint: "/users/profile/:userId",
   })

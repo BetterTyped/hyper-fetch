@@ -53,7 +53,7 @@ const User = z.object({
 });
 
 export const postUser = client
-  .createRequest<UserModel, UserData>()({
+  .createRequest<{response: UserModel, payload: UserData}>()({
     method: "POST",
     endpoint: "/users/:userId",
   })
