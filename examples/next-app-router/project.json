@@ -6,19 +6,19 @@
   "tags": [],
   "targets": {
     "serve": {
-      "executor": "@nx/next:server",
+      "executor": "@nrwl/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "next-app-router:build",
+        "buildTarget": "next:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "next-app-router:build:development",
+          "buildTarget": "next:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "next-app-router:build:production",
+          "buildTarget": "next:build:production",
           "dev": false
         }
       }

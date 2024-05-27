@@ -44,8 +44,8 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-old",
-      "react-old/jest"
+      "react",
+      "react/jest"
     ]
   },
   "publishConfig": {

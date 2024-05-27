@@ -6324,9 +6324,9 @@ babel-preset-jest@^29.6.3:
     babel-plugin-jest-hoist "^29.6.3"
     babel-preset-current-node-syntax "^1.0.0"
 
-babel-preset-react-old@^10.0.1:
+babel-preset-react@^10.0.1:
   version "10.0.1"
-  resolved "https://registry.yarnpkg.com/babel-preset-react-old/-/babel-preset-react-old-10.0.1.tgz#ed6005a20a24f2c88521809fa9aea99903751584"
+  resolved "https://registry.yarnpkg.com/babel-preset-react/-/babel-preset-react-10.0.1.tgz#ed6005a20a24f2c88521809fa9aea99903751584"
   integrity sha512-b0D9IZ1WhhCWkrTXyFuIIgqGzSkRIH5D5AmB0bXbzYAB1OBAwHcUeyWW2LorutLWF5btNo/N7r/cIdmvvKJlYg==
   dependencies:
     "@babel/core" "^7.16.0"
@@ -8951,9 +8951,9 @@ eslint-config-prettier@^9.1.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-9.1.0.tgz#31af3d94578645966c082fcb71a5846d3c94867f"
   integrity sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==
 
-eslint-config-react-old@^7.0.1:
+eslint-config-react@^7.0.1:
   version "7.0.1"
-  resolved "https://registry.yarnpkg.com/eslint-config-react-old/-/eslint-config-react-old-7.0.1.tgz#73ba3929978001c5c86274c017ea57eb5fa644b4"
+  resolved "https://registry.yarnpkg.com/eslint-config-react/-/eslint-config-react-7.0.1.tgz#73ba3929978001c5c86274c017ea57eb5fa644b4"
   integrity sha512-K6rNzvkIeHaTd8m/QEh1Zko0KI7BACWkkneSs6s9cKZC/J27X3eZR6Upt1jkmZ/4FK+XUOPPxMEN7+lbUXfSlA==
   dependencies:
     "@babel/core" "^7.16.0"
@@ -8961,7 +8961,7 @@ eslint-config-react-old@^7.0.1:
     "@rushstack/eslint-patch" "^1.1.0"
     "@typescript-eslint/eslint-plugin" "^5.5.0"
     "@typescript-eslint/parser" "^5.5.0"
-    babel-preset-react-old "^10.0.1"
+    babel-preset-react "^10.0.1"
     confusing-browser-globals "^1.0.11"
     eslint-plugin-flowtype "^8.0.3"
     eslint-plugin-import "^2.25.3"

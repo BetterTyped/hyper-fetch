@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "serve": {
-      "executor": "@nx/next:server",
+      "executor": "@nrwl/next:server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "next-app:build",
