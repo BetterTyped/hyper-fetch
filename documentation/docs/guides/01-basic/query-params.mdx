@@ -25,7 +25,7 @@ type QueryParamsType = {
   sort: string;
 };
 
-const getUsers = client.createRequest<Response, void, void, QueryParamsType>()({ endpoint: "/users" });
+const getUsers = client.createRequest<{response: Response, queryParams: QueryParamsType}>()({ endpoint: "/users" });
 
 // Setting the query params
 
@@ -34,7 +34,7 @@ console.log(request.endpoint); // Output: "/users?search=John&sort=age"
 ```
 
 ```ts
-const getUsers = client.createRequest<Response, void, void, string>()({ endpoint: "/users" });
+const getUsers = client.createRequest<{response: Response, queryParams: string}>()({ endpoint: "/users" });
 
 const request = getUsers.setQueryParams("search=John&sort=age");
 console.log(request.endpoint); // Output: "/users?search=John&sort=age"

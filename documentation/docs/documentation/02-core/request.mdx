@@ -122,11 +122,11 @@ setup between requests.
 type ResponseType = { success: boolean }
 type PayloadDataType = { name: string }
 
-const postUser = client.createRequest<ResponseType, PayloadDataType>()({
+const postUser = client.createRequest<{response: ResponseType, payload: PayloadDataType}>()({
   endpoint: "/some-endpoint",
   headers: {},
   auth: true,
-  method: "POST"
+  method: "POST",
   cancelable: false,
   retry: 2,
   retryTime: 1000,
@@ -155,13 +155,13 @@ Parameters must be defined in request endpoint using `:`
 
 ```ts
 const getNote = client.createRequest()({
-  endpoint: "/note/:noteId";
+  endpoint: "/note/:noteId",
 })
 const getCategory = client.createRequest()({
-  endpoint: "/category/:categoryId";
+  endpoint: "/category/:categoryId",
 })
 const getCategoryNote = client.createRequest()({
-  endpoint: "/category/:noteId";
+  endpoint: "/category/:noteId",
 })
 ```
 
@@ -275,7 +275,7 @@ type Payload = { email: string }; // What's send with request
 type LocalError = { nameMessage: string }; // Additional "local" errors like errors for particular form
 type QueryParams = { sort: string; search: string }; // Query params interface
 
-const someRequest = client.createRequest<Response, Payload, LocalError, QueryParams>()({
+const someRequest = client.createRequest<{response: Response, payload: Payload, error: LocalError, queryParams: QueryParams}>()({
   endpoint: "category/:categoryId",
 });
 
@@ -296,27 +296,27 @@ error; // Has 'GlobalError' or 'LocalError' type
 ```tsx
 import { client } from "./client";
 
-export const getUsers = client.createRequest<UserModel[]>()({
+export const getUsers = client.createRequest<{response: UserModel[]}>()({
   method: "GET",
   endpoint: "/users",
 });
 
-export const getUser = client.createRequest<UserModel>()({
+export const getUser = client.createRequest<{response: UserModel}>()({
   method: "GET",
   endpoint: "/users/:userId",
 });
 
-export const postUser = client.createRequest<UserModel, UserPostDataType>()({
+export const postUser = client.createRequest<{response: UserModel, payload: UserPostDataType}>()({
   method: "POST",
   endpoint: "/users",
 });
 
-export const patchUser = client.createRequest<UserModel, Partial<UserPostDataType>>()({
+export const patchUser = client.createRequest<{response: UserModel, payload: Partial<UserPostDataType>}>()({
   method: "PATCH",
   endpoint: "/users/:userId",
 });
 
-export const deleteUser = client.createRequest<null>()({
+export const deleteUser = client.createRequest<{response: null}>()({
   method: "DELETE",
   endpoint: "/users/:userId",
 });

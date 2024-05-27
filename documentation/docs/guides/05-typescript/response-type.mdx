@@ -19,7 +19,7 @@ type ResponseType = Array<{
   age: number;
 }>;
 
-const getUsers = client.createRequest<ResponseType>()({
+const getUsers = client.createRequest<{response: ResponseType}>()({
   endpoint: "/users",
 });
 ```

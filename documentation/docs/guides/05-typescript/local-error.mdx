@@ -25,7 +25,7 @@ type LocalErrorType = {
   };
 };
 
-const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>()({
+const postUser = client.createRequest<{response: ResponseType, payload: RequestType, localError: LocalErrorType}>()({
   method: "POST",
   endpoint: "/users",
 });

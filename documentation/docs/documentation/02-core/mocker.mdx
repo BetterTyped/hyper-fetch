@@ -93,7 +93,7 @@ await request.send() // returns  { data: { data: [1, 2, 3] }, config: { status: 
 4. The passed method may be asynchronous:
 ```tsx
     const mockedRequest = client
-      .createRequest<Record<string, any>>()({ endpoint: "users/:id" })
+      .createRequest<{response: Record<string, any>}>()({ endpoint: "users/:id" })
       .setMock(async (r) => {
         if (r?.params?.id === 1) {
           return { data: [1, 2, 3], config: { status: 222 } };

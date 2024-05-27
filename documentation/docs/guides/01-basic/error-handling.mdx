@@ -31,7 +31,7 @@ type GlobalErrorType = {
   status: 400 | 404 | 500;
 };
 
-export const client = new Client<GlobalErrorType>({ url });
+export const client = new Client<{error: GlobalErrorType} >({ url });
 ```
 
 Now the error type of our request will reflect `GlobalErrorType`.
@@ -60,7 +60,7 @@ type LocalErrorType = {
   };
 };
 
-const postUser = client.createRequest<ResponseType, RequestType, LocalErrorType>()({
+const postUser = client.createRequest<{response: ResponseType, payload: RequestType, localError: LocalErrorType}>()({
   method: "POST",
   endpoint: "/users",
 });

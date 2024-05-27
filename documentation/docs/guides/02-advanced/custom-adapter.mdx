@@ -107,7 +107,7 @@ const customHttpAdapter: BaseAdapterType<
   QueryParamsType
 > = (request: RequestInstance) => Promise.resolve({ data: null, error: null, status: 0 });
 
-const client = new Client<Error>({ url }).setAdapter(customHttpAdapter);
+const client = new Client<{error: Error}>({ url }).setAdapter(customHttpAdapter);
 ```
 
 #### Adapter Unions
@@ -124,7 +124,7 @@ type MyAdapter =
 const customHttpAdapter: MyAdapter = (request: RequestInstance) =>
   Promise.resolve({ data: null, error: null, status: 0 });
 
-const client = new Client<Error>({ url }).setAdapter(customHttpAdapter);
+const client = new Client<{error: Error}>({ url }).setAdapter(customHttpAdapter);
 
 // We decide which type to used based on passed config
 
