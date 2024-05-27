@@ -1,0 +1,27 @@
+{
+  "name": "react-app",
+  "sourceRoot": "examples/react-app",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {},
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "react-app:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "react-app:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "react-app:build:production",
+          "dev": false
+        }
+      }
+    }
+  }
+}

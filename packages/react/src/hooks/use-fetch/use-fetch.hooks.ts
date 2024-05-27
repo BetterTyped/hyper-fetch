@@ -22,7 +22,7 @@ export const useFetch = <R extends RequestInstance>(
   type RequestType = UseFetchRequest<R>;
 
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,

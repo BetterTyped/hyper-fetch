@@ -222,9 +222,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     responseData: any,
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<any, T>) => void,
+    resolve: (value: ResponseReturnSuccessType<any, T>) => void,
   ): Promise<ResponseReturnSuccessType<ExtractResponseType<T>, T>> => {
-    let response = {
+    let response: ResponseReturnSuccessType<ExtractResponseType<T>, T> = {
       data: responseData,
       error: null,
       success: true,
@@ -250,13 +250,13 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseReturnErrorType<any, T>) => void,
   ): Promise<ResponseReturnErrorType<any, T>> => {
-    let responseData = {
+    let responseData: ResponseReturnErrorType<any, T> = {
       data: null,
       status,
       error,
       success: false,
       extra,
-    } as ResponseReturnErrorType<any, T>;
+    };
 
     responseData = (await request.client.__modifyResponse(responseData, request)) as typeof responseData;
     responseData = (await request.client.__modifyErrorResponse(responseData, request)) as typeof responseData;

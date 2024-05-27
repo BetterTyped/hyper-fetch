@@ -22,10 +22,12 @@ import {
   QueryParamsType,
   AdapterInstance,
   AdapterType,
+  ResponseReturnType,
 } from "adapter";
-import { NegativeTypes, TypeWithDefaults } from "types";
-import { DateInterval } from "constants/time.constants";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, NegativeTypes, TypeWithDefaults } from "types";
+import { Time } from "constants/time.constants";
 import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
+import { ResponseDetailsType } from "managers";
 
 /**
  * Fetch request it is designed to prepare the necessary setup to execute the request to the server.
@@ -122,9 +124,9 @@ export class Request<
       cancelable = false,
       retry = 0,
       retryTime = 500,
-      garbageCollection = DateInterval.minute * 5,
+      garbageCollection = Time.MIN * 5,
       cache = true,
-      cacheTime = DateInterval.minute * 5,
+      cacheTime = Time.MIN * 5,
       queued = false,
       offline = true,
       abortKey,
@@ -393,6 +395,19 @@ export class Request<
     return endpoint;
   };
 
+  public hydrate = (
+    data: ResponseReturnType<
+      ExtractResponseType<Request<Properties>>,
+      ExtractErrorType<Request<Properties>>,
+      ExtractAdapterType<Request<Properties>>
+    > &
+      ResponseDetailsType,
+  ) => {
+    this.client.cache.set(this, data);
+
+    return this;
+  };
+
   public toJSON(): RequestJSON<Request<Properties>> {
     return {
       requestOptions: this.requestOptions as any,
@@ -470,7 +485,7 @@ export class Request<
     > = {
       ...json,
       ...options,
-      params: options.params as typeof this.params,
+      params: options?.params as typeof this.params,
       abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
       queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
@@ -516,13 +531,11 @@ export class Request<
   };
 
   /**
-   * Method to use the request WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
+   * Make a request without any side effects for cache or queues.
+   *
+   * Best way for making simple requests or using HF with the SSR.
+   * Method to use the request WITHOUT adding it to cache and queues.
    * @param options
-   * @disableReturns
-   * @returns
-   * ```tsx
-   * Promise<[Data | null, Error | null, HttpStatus]>
-   * ```
    */
   public exec: RequestSendType<Request<Properties>> = async (options?: RequestSendOptionsType<Request<Properties>>) => {
     const { adapter, requestManager } = this.client;
@@ -546,14 +559,8 @@ export class Request<
   };
 
   /**
-   * Method used to perform requests with usage of cache and queues
+   * Method used to perform requests with usage of cache and queues.
    * @param options
-   * @param requestCallback
-   * @disableReturns
-   * @returns
-   * ```tsx
-   * Promise<[Data | null, Error | null, HttpStatus]>
-   * ```
    */
   public send: RequestSendType<Request<Properties>> = async (options?: RequestSendOptionsType<Request<Properties>>) => {
     const { dispatcherType, ...rest } = options || {};

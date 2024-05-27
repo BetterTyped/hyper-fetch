@@ -2,6 +2,7 @@ import { Cache } from "cache";
 import { AdapterInstance, ResponseReturnType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { ClientInstance } from "../client";
+import { RequestInstance } from "request";
 
 export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
   /**
@@ -74,3 +75,8 @@ export type CacheStorageType = {
 export type CacheInitialData = Record<string, CacheValueType>;
 
 export type CacheMethodType<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);
+
+export type RequestCacheType<R extends RequestInstance> = Pick<
+  R,
+  "cacheKey" | "cache" | "cacheTime" | "garbageCollection"
+>;

@@ -6,7 +6,7 @@ import {
   LoggerManager,
   SeverityType,
   AppManager,
-  DateInterval,
+  Time,
   QueryParamsType,
   TypeWithDefaults,
 } from "@hyper-fetch/core";
@@ -78,14 +78,14 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
       queryParamsConfig,
       queryParamsStringify,
     } = this.options;
-    this.emitter.setMaxListeners(Infinity);
+    this.emitter?.setMaxListeners(Infinity);
     this.url = url;
     this.auth = auth;
     this.queryParams = queryParams;
     this.debug = false;
     this.autoConnect = autoConnect ?? true;
     this.reconnect = reconnect ?? Infinity;
-    this.reconnectTime = reconnectTime ?? DateInterval.second * 2;
+    this.reconnectTime = reconnectTime ?? Time.SEC * 2;
 
     if (queryParamsConfig) {
       this.queryParamsConfig = queryParamsConfig;

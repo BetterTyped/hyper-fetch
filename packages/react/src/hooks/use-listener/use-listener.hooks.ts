@@ -10,7 +10,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
   options: UseListenerOptionsType,
 ) => {
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);

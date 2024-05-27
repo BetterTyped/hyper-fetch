@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { DateInterval, parseResponse } from "@hyper-fetch/core";
+import { Time, parseResponse } from "@hyper-fetch/core";
 
 import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
 import { ListenerCallbackType, ListenerInstance } from "listener";
@@ -113,8 +113,8 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     const options = socket.options.adapterOptions || {};
     const {
       heartbeat = false,
-      pingTimeout = DateInterval.second * 5,
-      pongTimeout = DateInterval.second * 5,
+      pingTimeout = Time.SEC * 5,
+      pongTimeout = Time.SEC * 5,
       heartbeatMessage = "heartbeat",
     } = options;
     if (connecting || !heartbeat) return;

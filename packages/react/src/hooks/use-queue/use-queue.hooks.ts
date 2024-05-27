@@ -16,7 +16,7 @@ export const useQueue = <Request extends RequestInstance>(
   options: UseQueueOptionsType = useQueueDefaultOptions,
 ): UseQueueReturnType<Request> => {
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const { queueType = "auto" } = {
     ...useQueueDefaultOptions,
     ...globalConfig.useQueueConfig,

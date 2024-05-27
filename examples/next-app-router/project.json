@@ -1,0 +1,27 @@
+{
+  "name": "next-app-router",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/next-app-router",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "next-app-router:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "next-app-router:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "next-app-router:build:production",
+          "dev": false
+        }
+      }
+    }
+  }
+}

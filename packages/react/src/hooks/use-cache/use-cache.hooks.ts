@@ -18,7 +18,7 @@ export const useCache = <T extends RequestInstance>(
   const updateKey = JSON.stringify(request.toJSON());
 
   // Build the configuration options
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking, initialData, deepCompare } = {
     ...useCacheDefaultOptions,
     ...globalConfig.useCacheConfig,
@@ -51,11 +51,21 @@ export const useCache = <T extends RequestInstance>(
   const { addDataListener, addLifecycleListeners } = listeners;
 
   const handleMountEvents = () => {
-    addDataListener(request);
-    addLifecycleListeners(request);
+    const unmountDataListener = addDataListener(request);
+    const unmountLifecycleListener = addLifecycleListeners(request);
+    return () => {
+      unmountDataListener();
+      unmountLifecycleListener();
+    };
   };
 
-  useDidUpdate(handleMountEvents, [updateKey], true);
+  useDidUpdate(
+    () => {
+      return handleMountEvents();
+    },
+    [updateKey],
+    true,
+  );
 
   const refetch = (invalidateKey?: string | RequestInstance | RegExp) => {
     if (invalidateKey instanceof Request) {

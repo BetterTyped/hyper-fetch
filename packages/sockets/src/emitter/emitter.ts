@@ -1,4 +1,4 @@
-import { DateInterval, ExtractRouteParams, ParamsType, TypeWithDefaults, getUniqueRequestId } from "@hyper-fetch/core";
+import { Time, ExtractRouteParams, ParamsType, TypeWithDefaults, getUniqueRequestId } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
 import { EmitterAcknowledgeType, EmitterOptionsType, EmitType } from "emitter";
@@ -59,7 +59,7 @@ export class Emitter<
       "endpoint" | "params" | "timeout" | "data" | "options" | "connections"
     >,
   ) {
-    const { endpoint, timeout = DateInterval.second * 2, options } = emitterOptions;
+    const { endpoint, timeout = Time.SEC * 2, options } = emitterOptions;
 
     this.endpoint = json?.endpoint ?? endpoint;
     this.data = json?.data;

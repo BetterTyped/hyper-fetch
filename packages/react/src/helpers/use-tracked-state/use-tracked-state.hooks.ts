@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 import {
   ExtractErrorType,
@@ -6,6 +6,7 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
+  parseResponse,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -16,6 +17,7 @@ import {
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
 import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
+import { useConfigProvider } from "config-provider";
 
 /**
  *
@@ -37,8 +39,16 @@ export const useTrackedState = <T extends RequestInstance>({
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
+  const { fallbacks } = useConfigProvider();
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData, dispatcher, request));
+  const { fallbackData } = useMemo(() => {
+    const fallbackRawData = fallbacks?.find((item) => item.cacheKey === cacheKey)?.data;
+    const data = fallbackRawData ? parseResponse(fallbackRawData) : undefined;
+
+    return { fallbackData: data };
+  }, [cacheKey, fallbacks]);
+
+  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData || fallbackData, dispatcher, request));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
 
   // ******************
@@ -76,9 +86,9 @@ export const useTrackedState = <T extends RequestInstance>({
 
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
-      const cacheState = getValidCacheData<T>(request, initialData, cacheData);
+      const cacheState = getValidCacheData<T>(request, initialData || fallbackData, cacheData);
 
-      const hasInitialState = isEqual(initialData?.data, state.current.data);
+      const hasInitialState = isEqual(initialData?.data || fallbackData?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;

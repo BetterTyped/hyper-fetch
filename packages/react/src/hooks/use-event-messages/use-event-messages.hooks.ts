@@ -16,7 +16,7 @@ export const useEventMessages = <ResponsesType extends { endpoint: string }>(
   socket: SocketInstance,
   options: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
 
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);

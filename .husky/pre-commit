@@ -2,7 +2,7 @@
 . "$(dirname "$0")/_/husky.sh"
 
 yarn commitlint --edit "$1"
-yarn nx run-many --target=build --all --exclude=next,reactjs
-yarn nx run-many --target=lint --all --exclude=next,reactjs --parallel=10
+yarn nx run-many --target=build --all --exclude=next,react-old
+yarn nx run-many --target=lint --all --exclude=next,react-old --parallel=10
 yarn nx run-many --target=typecheck --all --parallel=10
 yarn nx run-many --target=tests --all --exclude=adapter-firebase,adapter-firebase-admin

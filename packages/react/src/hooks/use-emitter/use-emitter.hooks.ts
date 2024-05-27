@@ -9,7 +9,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
   options: UseEmitterOptionsType,
 ) => {
-  const [globalConfig] = useConfigProvider();
+  const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking } = { ...globalConfig.useEmitter, ...options };
 
   const onEventCallback = useRef<null | ((emitter: EmitterType) => void)>(null);

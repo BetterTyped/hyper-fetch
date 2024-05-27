@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
 
 import { CacheStorageType, CacheValueType } from "cache";
-import { Client, DateInterval, xhrExtra } from "index";
+import { Client, Time, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
 describe("Cache [ Garbage Collector ]", () => {
@@ -93,7 +93,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching lazy clearKey", async () => {
-      const data = { ...cacheData, garbageCollection: DateInterval.minute };
+      const data = { ...cacheData, garbageCollection: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
@@ -107,7 +107,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching sync clearKey", async () => {
-      const data = { ...cacheData, garbageCollection: DateInterval.minute };
+      const data = { ...cacheData, garbageCollection: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         // Todo: check

@@ -1,4 +1,4 @@
-import { DateInterval, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
+import { Time, RequestInstance, RequiredKeys } from "@hyper-fetch/core";
 
 import { UseFetchOptionsType } from "hooks/use-fetch";
 
@@ -13,7 +13,7 @@ export const useFetchDefaultOptions: DefaultOptionsType = {
   revalidate: true,
   initialData: null,
   refresh: false,
-  refreshTime: DateInterval.hour,
+  refreshTime: Time.HOUR,
   refetchBlurred: true,
   refetchOnBlur: false,
   refetchOnFocus: false,

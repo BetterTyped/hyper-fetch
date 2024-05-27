@@ -1,5 +1,5 @@
 import { resetInterceptors, startServer, stopServer } from "../../server";
-import { Client, DateInterval } from "../../../src";
+import { Client, Time } from "../../../src";
 
 describe("Request [ Setters ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -77,7 +77,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.cache).toBeFalse();
   });
   it("should allow for setting cache time", async () => {
-    expect(request.cacheTime).toBe(DateInterval.minute * 5);
+    expect(request.cacheTime).toBe(Time.MIN * 5);
     const updatedRequest = request.setCacheTime(1000);
     expect(updatedRequest.cacheTime).toBe(1000);
   });
@@ -127,9 +127,9 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.offline).toBeFalse();
   });
   it("should allow for setting garbageCollection", async () => {
-    expect(request.garbageCollection).toBe(DateInterval.minute * 5);
-    const updatedRequest = request.setGarbageCollection(DateInterval.minute);
-    expect(updatedRequest.garbageCollection).toBe(DateInterval.minute);
+    expect(request.garbageCollection).toBe(Time.MIN * 5);
+    const updatedRequest = request.setGarbageCollection(Time.MIN);
+    expect(updatedRequest.garbageCollection).toBe(Time.MIN);
   });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {
