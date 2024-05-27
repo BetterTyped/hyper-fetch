@@ -46,6 +46,8 @@ if (yarnBin && process.env[envLabel] !== "1") {
   let peerDependencies = {};
   fs.readdirSync("./packages", { encoding: "utf-8" }).forEach((dir) => {
     try {
+      if (dir.includes("DS_Store")) return;
+
       const contents = fs.readFileSync(`./packages/${dir}/package.json`);
 
       if (contents === undefined) {
