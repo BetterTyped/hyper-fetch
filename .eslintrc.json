@@ -19,83 +19,140 @@
       "version": "detect"
     }
   },
-  "plugins": ["react", "react-hooks"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:react-hooks/recommended",
-    "prettier",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/typescript",
-    "airbnb",
-    "airbnb-typescript",
-    "plugin:prettier/recommended"
-  ],
-  "ignorePatterns": [
-    "dist",
-    "node_modules",
-    "jest.config.ts",
-    "babel.config.js",
-    "rollup.config.js",
-    "jest.config.js",
-    "tsconfig.json",
-    "coverage",
-    "temp",
-    "release.config.js"
-  ],
-  "rules": {
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "react/prop-types": "off",
-    "react/jsx-uses-react": "error",
-    "react/jsx-uses-vars": "error",
-    "no-console": ["error", { "allow": ["warn", "error"] }],
-    "react/react-in-jsx-scope": "off",
-    "react/display-name": 0,
-    "import/no-extraneous-dependencies": 0,
-    "import/prefer-default-export": 0,
-    "import/no-cycle": 0,
-    "@typescript-eslint/no-explicit-any": 0,
-    "@typescript-eslint/lines-between-class-members": "off",
-    "prettier/prettier": ["error"],
-    "consistent-return": 0,
-    "@typescript-eslint/no-throw-literal": 0,
-    "no-underscore-dangle": 0,
-    "react/function-component-definition": 0,
-    "testing-library/render-result-naming-convention": "off",
-    "import/order": [
-      "error",
-      {
-        "groups": [
-          ["builtin", "external"],
-          ["internal", "parent", "sibling", "index"]
-        ],
-        "pathGroups": [
-          { "pattern": "assets/**", "group": "sibling", "position": "after" },
-          {
-            "pattern": "@external/**/*.{css,scss}",
-            "group": "sibling",
-            "position": "after"
-          },
-          {
-            "pattern": "*.{css,scss}",
-            "group": "index",
-            "patternOptions": { "matchBase": true },
-            "position": "after"
-          }
-        ],
-        "warnOnUnassignedImports": true,
-        "pathGroupsExcludedImportTypes": ["css"],
-        "newlines-between": "always"
-      }
-    ]
-  },
+
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "plugins": ["react", "react-hooks", "eslint-plugin-prettier"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:react-hooks/recommended",
+        "prettier",
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/typescript",
+        "airbnb",
+        "airbnb-typescript",
+        "plugin:prettier/recommended"
+      ],
       "rules": {
-        "testing-library/render-result-naming-convention": "off"
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "react/prop-types": "off",
+        "react/jsx-uses-react": "error",
+        "react/jsx-uses-vars": "error",
+        "no-console": ["error", { "allow": ["warn", "error"] }],
+        "react/react-in-jsx-scope": "off",
+        "no-continue": "off",
+        "react/display-name": 0,
+        "import/no-extraneous-dependencies": 0,
+        "import/prefer-default-export": 0,
+        "import/no-cycle": 0,
+        "import/no-default-export": ["error"],
+        "max-lines": ["error", 800],
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/lines-between-class-members": "off",
+        "prettier/prettier": ["error"],
+        "consistent-return": 0,
+        "@typescript-eslint/no-throw-literal": 0,
+        "no-underscore-dangle": 0,
+        "react/jsx-props-no-spreading": 0,
+        "react/function-component-definition": 0,
+        "react/require-default-props": 0,
+        "@typescript-eslint/ban-types": [
+          "error",
+          {
+            "extendDefaults": true,
+            "types": {
+              "{}": false
+            }
+          }
+        ],
+        "testing-library/render-result-naming-convention": "off",
+        "max-params": ["error", 3],
+        "no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": ["draft", "acc"]
+          }
+        ],
+        "import/order": [
+          "error",
+          {
+            "groups": [
+              ["builtin", "external"],
+              ["internal", "parent", "sibling", "index"]
+            ],
+            "pathGroups": [
+              { "pattern": "assets/**", "group": "sibling", "position": "after" },
+              {
+                "pattern": "*.style{s,x}",
+                "group": "sibling",
+                "patternOptions": { "matchBase": true },
+                "position": "after"
+              }
+            ],
+            "warnOnUnassignedImports": true,
+            "pathGroupsExcludedImportTypes": ["css"],
+            "newlines-between": "always"
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          // destructured variables come from other places so no format is enforced
+          {
+            "selector": "variable",
+            "modifiers": ["destructured"],
+            "format": null
+          },
+          // functions defined as constants must be constants (not var/let)
+          {
+            "selector": "variable",
+            "types": ["function"],
+            "modifiers": ["const"],
+            "format": ["camelCase", "PascalCase"]
+          },
+          // Constants can also be camelCase apart from UPPER_CASE
+          // - functional components (PascalCase)
+          {
+            "selector": "variable",
+            "modifiers": ["const"],
+            "format": ["UPPER_CASE", "camelCase", "PascalCase"]
+          },
+          // functions can be:
+          // - regular functions (camelCase)
+          {
+            "selector": "function",
+            "format": ["camelCase"]
+          },
+          // forbid lower case
+          {
+            "selector": "typeLike",
+            "format": ["PascalCase"]
+          },
+          // forbid lower case
+          {
+            "selector": "typeParameter",
+            "format": ["PascalCase"]
+          },
+          // Uppercase enums
+          {
+            "selector": "enumMember",
+            "format": ["UPPER_CASE"]
+          }
+        ]
       }
+    },
+    {
+      "files": ["*.mdx"],
+      "rules": {
+        "react/jsx-filename-extension": "off"
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "extends": "plugin:mdx/recommended"
     }
   ]
 }

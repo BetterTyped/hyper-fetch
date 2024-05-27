@@ -7,6 +7,5 @@
       "@browser-adapter": ["./adapter/adapter.browser.ts"],
       "@server-adapter": ["./adapter/adapter.server.ts"]
     }
-  },
-  "exclude": ["dist", "jest.config.ts"]
+  }
 }

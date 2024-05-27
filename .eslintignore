@@ -1,0 +1,17 @@
+dist
+coverage
+
+dist/**/*
+coverage/**/*
+
+node_modules
+jest.config.js
+jest.config.ts
+jest.setup.ts
+**/jest.setup.ts
+babel.config.js
+rollup.config.js
+tsconfig.json
+coverage
+temp
+release.config.js

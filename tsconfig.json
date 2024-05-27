@@ -28,5 +28,13 @@
     "paths": {},
     "plugins": []
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules/**/*",
+    "**/node_modules/**/*",
+    "dist/**/*",
+    "**/dist/**/*",
+    "coverage/**/*",
+    "**/coverage/**/*",
+    "**/*.js"
+  ]
 }

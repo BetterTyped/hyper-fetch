@@ -1,27 +1,72 @@
 {
   "name": "react-app",
-  "sourceRoot": "examples/react-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/react-app/src",
   "projectType": "application",
-  "tags": [],
   "targets": {
-    "build": {},
+    "app-build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/react-app"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
     "serve": {
       "executor": "@nx/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "react-app:build",
-        "dev": true
+        "buildTarget": "react-app:build"
       },
       "configurations": {
         "development": {
           "buildTarget": "react-app:build:development",
-          "dev": true
+          "hmr": true
         },
         "production": {
           "buildTarget": "react-app:build:production",
-          "dev": false
+          "hmr": false
         }
       }
+    },
+    "app-preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "react-app:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "react-app:build:development"
+        },
+        "production": {
+          "buildTarget": "react-app:build:production"
+        }
+      }
+    },
+    "app-test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["coverage/examples/react-app"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/examples/react-app"
+      }
+    },
+    "app-lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/react-app/**/*.{ts,tsx,js,jsx}"]
+      }
     }
-  }
+  },
+  "tags": []
 }

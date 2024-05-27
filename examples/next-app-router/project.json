@@ -3,10 +3,24 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/next-app-router",
   "projectType": "application",
-  "tags": [],
   "targets": {
-    "serve": {
-      "executor": "@nrwl/next:server",
+    "app-build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "root": "examples/next-app-router",
+        "outputPath": "dist/examples/next-app-router"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "examples/next-app-router"
+        },
+        "production": {}
+      }
+    },
+    "app-serve": {
+      "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "next:build",
@@ -22,6 +36,28 @@
           "dev": false
         }
       }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "next:build:production"
+      }
+    },
+    "app-test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "examples/next/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "app-lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/next/**/*.{ts,tsx,js,jsx}"]
+      }
     }
-  }
+  },
+  "tags": []
 }
