@@ -43,7 +43,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     };
 
     const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.endpoint;
+      const fullUrl = socket.url + listener.topic;
       const path = ref(database, fullUrl);
 
       const { options } = listener;
@@ -60,7 +60,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
           const status = getStatus(response);
           const extra = { ref: path, snapshot, status };
           callback({ data: response, extra });
-          onEvent(listener.endpoint, response, extra);
+          onEvent(listener.topic, response, extra);
         },
         (error) => {
           onError(error);

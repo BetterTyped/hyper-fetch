@@ -1,14 +1,12 @@
 import { socket } from "../client";
 
-export const getMessage = socket.createListener<{
-  response: { message: string; username: string; timestamp: string };
-}>()({
+export const getMessage = socket.createListener<{ message: string; username: string; timestamp: string }>()({
   topic: "messages",
 });
 
-export const sendMessage = socket.createEmitter<{
-  response: { message: string; username: string; timestamp: string };
-  payload: { message: string };
-}>()({
+export const sendMessage = socket.createEmitter<
+  { message: string; username: string; timestamp: string },
+  { message: string }
+>()({
   topic: "chat-message",
 });

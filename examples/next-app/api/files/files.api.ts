@@ -1,7 +1,7 @@
 import { client } from "../client";
 
 export const postFile = client
-  .createRequest<{ response: { response: string }; payload: { file: File } }>()({
+  .createRequest<{ response: string }, { file: File }>()({
     endpoint: "/api/files",
     method: "POST",
     queued: true,

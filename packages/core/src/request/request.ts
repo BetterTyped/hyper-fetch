@@ -89,7 +89,7 @@ export class Request<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly client: Client<GlobalError, Adapter>,
+    readonly client: Client<GlobalError, Adapter, any>,
     readonly requestOptions: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<Adapter>,

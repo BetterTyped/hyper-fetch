@@ -1,8 +1,6 @@
-import { TypeWithDefaults } from "@hyper-fetch/core";
-
 import { SocketAdapterInstance, SocketAdapterType } from "adapter";
-import { Emitter, EmitterInstance } from "emitter";
-import { Listener, ListenerInstance } from "listener";
+import { Emitter } from "emitter";
+import { Listener } from "listener";
 import { Socket, SocketInstance } from "socket";
 
 export type EventReturnType<GenericDataType, Adapter extends SocketAdapterInstance> = {

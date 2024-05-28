@@ -1,4 +1,5 @@
 import { parseResponse } from "@hyper-fetch/core";
+
 import { SocketInstance } from "socket";
 import { WebsocketEvent } from "./adapter.types";
 

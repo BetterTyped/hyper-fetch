@@ -1,10 +1,10 @@
 import { useRef } from "react";
 import { EmitterCallbackResponseType, EmitterInstance, EmitterCallbackErrorType } from "@hyper-fetch/sockets";
+import { useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
 import { useConfigProvider } from "config-provider";
-import { useDidUpdate } from "@better-hooks/lifecycle";
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,

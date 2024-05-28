@@ -1,4 +1,4 @@
-import { ExtractResponseType, ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
 
 import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
@@ -10,6 +10,7 @@ import {
   ExtractEmitterPayloadType,
   EventReturnType,
   ExtractAdapterEmitterOptionsType,
+  ExtractEmitterResponseType,
 } from "types";
 
 export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
@@ -28,7 +29,7 @@ export type EmitterEmitOptionsType<Emitter extends EmitterInstance> = EmitDataTy
   EmitRestType<Emitter>;
 
 export type EmitterCallbackResponseType<EmitterType extends EmitterInstance> = (
-  response: EventReturnType<ExtractResponseType<EmitterType>, ExtractEmitterAdapterType<EmitterType>>,
+  response: EventReturnType<ExtractEmitterResponseType<EmitterType>, ExtractEmitterAdapterType<EmitterType>>,
   emitter: EmitterType,
 ) => void;
 

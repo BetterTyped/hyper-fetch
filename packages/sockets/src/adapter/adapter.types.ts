@@ -83,8 +83,5 @@ export type ServerSentEvent<T = any> = {
 // Adapters
 
 export type SocketData<D = any> = { topic: string; data: D };
-export type WebsocketAdapterType = SocketAdapterType<{
-  options: WSAdapterOptionsType;
-  extra: MessageEvent<SocketData>;
-}>;
-export type SSEAdapterType = SocketAdapterType<{ options: SSEAdapterOptionsType; extra: MessageEvent<SocketData> }>;
+export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
+export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;

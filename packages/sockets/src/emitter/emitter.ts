@@ -10,7 +10,7 @@ export class Emitter<
   Payload,
   Response,
   Topic extends string,
-  Adapter extends SocketAdapterType,
+  Adapter extends SocketAdapterInstance,
   MappedData = void,
   HasParams extends boolean = false,
   HasData extends boolean = false,

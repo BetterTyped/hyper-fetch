@@ -43,7 +43,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
     };
 
     const listen: ReturnType<FirestoreSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.endpoint;
+      const fullUrl = socket.url + listener.topic;
       const { options } = listener;
 
       let path;
@@ -68,7 +68,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: path, snapshot, groupedResult, status };
           callback({ data: response, extra });
-          onEvent(listener.endpoint, response, extra);
+          onEvent(listener.topic, response, extra);
         },
         (error) => {
           onError(error);

@@ -42,10 +42,7 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
   emitReconnectingStop: (attempts: number): void => {
     eventEmitter.emit(getReconnectingStopKey(), attempts);
   },
-  emitListenerEvent: <ResponseType>(
-    topic: string,
-    { data, extra }: EventReturnType<ResponseType, ExtractAdapterExtraType<T>>,
-  ): void => {
+  emitListenerEvent: <ResponseType>(topic: string, { data, extra }: EventReturnType<ResponseType, T>): void => {
     eventEmitter.emit(getListenerEventKey(), { topic, data, extra });
     eventEmitter.emit(getListenerEventByTopicKey(topic), { topic, data, extra });
   },

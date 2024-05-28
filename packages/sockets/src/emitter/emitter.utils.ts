@@ -1,5 +1,6 @@
-import { EmitterEmitOptionsType, EmitterInstance } from "./emitter.types";
 import { getUniqueRequestId } from "@hyper-fetch/core";
+
+import { EmitterEmitOptionsType, EmitterInstance } from "./emitter.types";
 
 export const emitEvent = <Emitter extends EmitterInstance>(
   emitter: Emitter,

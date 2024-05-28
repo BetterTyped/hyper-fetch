@@ -112,13 +112,13 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const onHeartbeat = () => {
-    const options = socket.options.adapterOptions || {};
     const {
       heartbeat = false,
       pingTimeout = Time.SEC * 5,
       pongTimeout = Time.SEC * 5,
       heartbeatMessage = "heartbeat",
-    } = options;
+    } = socket.options.adapterOptions || {};
+
     if (connecting || !heartbeat) return;
     clearTimers();
     pingTimer = setTimeout(() => {

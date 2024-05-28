@@ -14,6 +14,7 @@ import {
   ExtractGlobalErrorType,
   ExtractQueryParamsType,
   ExtractLocalErrorType,
+  TypeWithDefaults,
 } from "types";
 import { Request } from "request";
 import {
@@ -323,19 +324,16 @@ export type RequestExtend<
     hasParams?: true | false;
     hasQuery?: true | false;
   },
-  // Type is correct, TS is not able to handle it
-  // @ts-ignore
 > = Request<
-  Properties["response"] extends never ? ExtractResponseType<Req> : Properties["response"],
-  Properties["payload"] extends never ? ExtractPayloadType<Req> : Properties["payload"],
-  Properties["queryParams"] extends never ? ExtractQueryParamsType<Req> : Properties["queryParams"],
-  Properties["globalError"] extends never ? ExtractGlobalErrorType<Req> : Properties["globalError"],
-  Properties["localError"] extends never ? ExtractLocalErrorType<Req> : Properties["localError"],
-  Properties["endpoint"] extends never ? ExtractEndpointType<Req> : Properties["endpoint"],
-  Properties["adapter"] extends never ? ExtractAdapterType<Req> : Properties["adapter"],
-  Properties["hasData"] extends never ? ExtractHasDataType<Req> : Properties["hasData"],
-  Properties["hasParams"] extends never ? ExtractHasParamsType<Req> : Properties["hasParams"],
-  Properties["hasQuery"] extends never ? ExtractHasQueryParamsType<Req> : Properties["hasQuery"]
+  TypeWithDefaults<Properties, "response", ExtractResponseType<Req>>,
+  TypeWithDefaults<Properties, "payload", ExtractPayloadType<Req>>,
+  TypeWithDefaults<Properties, "queryParams", ExtractQueryParamsType<Req>>,
+  TypeWithDefaults<Properties, "globalError", ExtractGlobalErrorType<Req>>,
+  TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
+  TypeWithDefaults<Properties, "endpoint", ExtractEndpointType<Req>>,
+  TypeWithDefaults<Properties, "adapter", ExtractAdapterType<Req>>,
+  TypeWithDefaults<Properties, "hasData", ExtractHasDataType<Req>>,
+  TypeWithDefaults<Properties, "hasParams", ExtractHasParamsType<Req>>
 >;
 
 // Mappers
