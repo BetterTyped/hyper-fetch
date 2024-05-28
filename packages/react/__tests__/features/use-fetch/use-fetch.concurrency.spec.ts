@@ -43,8 +43,8 @@ describe("useFetch [ Concurrency ]", () => {
         await testSuccessState(mock, responseOne);
         await testSuccessState(mock, responseTwo);
 
-        expect(spyOne).toHaveBeenCalledTimes(1);
-        expect(spyTwo).toHaveBeenCalledTimes(1);
+        expect(spyOne).toBeCalledTimes(1);
+        expect(spyTwo).toBeCalledTimes(1);
       });
       it("should start in loading mode when request is already handled by the queue", async () => {
         createRequestInterceptor(request);

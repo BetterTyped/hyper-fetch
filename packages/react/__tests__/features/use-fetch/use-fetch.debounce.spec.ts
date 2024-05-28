@@ -38,7 +38,7 @@ describe("useFetch [ Bounce ]", () => {
         });
 
         await waitForRender(0);
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
       it("should debounce multiple request triggers by 100ms", async () => {
         const spy = jest.fn();
@@ -55,7 +55,7 @@ describe("useFetch [ Bounce ]", () => {
 
         await waitForRender();
 
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
 
         act(() => {
           rerender();
@@ -68,7 +68,7 @@ describe("useFetch [ Bounce ]", () => {
         await waitForRender();
 
         await waitFor(() => {
-          expect(spy).toHaveBeenCalledTimes(2);
+          expect(spy).toBeCalledTimes(2);
         });
 
         act(() => {
@@ -82,7 +82,7 @@ describe("useFetch [ Bounce ]", () => {
         await waitForRender();
 
         await waitFor(() => {
-          expect(spy).toHaveBeenCalledTimes(3);
+          expect(spy).toBeCalledTimes(3);
         });
       });
     });
@@ -99,7 +99,7 @@ describe("useFetch [ Bounce ]", () => {
           });
 
           await waitForRender(0);
-          expect(spy).toHaveBeenCalledTimes(1);
+          expect(spy).toBeCalledTimes(1);
         });
         it("should throttle multiple request triggers by 100ms", async () => {
           const spy = jest.fn();
@@ -116,7 +116,7 @@ describe("useFetch [ Bounce ]", () => {
 
           await waitForRender();
 
-          expect(spy).toHaveBeenCalledTimes(1);
+          expect(spy).toBeCalledTimes(1);
 
           act(() => {
             rerender();
@@ -129,7 +129,7 @@ describe("useFetch [ Bounce ]", () => {
           await waitForRender();
 
           await waitFor(() => {
-            expect(spy).toHaveBeenCalledTimes(2);
+            expect(spy).toBeCalledTimes(2);
           });
 
           act(() => {
@@ -143,7 +143,7 @@ describe("useFetch [ Bounce ]", () => {
           await waitForRender();
 
           await waitFor(() => {
-            expect(spy).toHaveBeenCalledTimes(3);
+            expect(spy).toBeCalledTimes(3);
           });
         });
       });

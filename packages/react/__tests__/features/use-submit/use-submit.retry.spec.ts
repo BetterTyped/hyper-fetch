@@ -37,7 +37,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toBeCalledTimes(1);
     });
   });
   describe("when request retry attribute is set to true", () => {
@@ -53,7 +53,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toBeCalledTimes(2);
     });
     it("should retry request twice", async () => {
       const spy = jest.fn();
@@ -67,7 +67,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toHaveBeenCalledTimes(3);
+      expect(spy).toBeCalledTimes(3);
     });
     it("should trigger retries with the config interval", async () => {
       const time: number[] = [];

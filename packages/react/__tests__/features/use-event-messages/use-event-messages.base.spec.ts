@@ -43,7 +43,7 @@ describe("useEventMessages [ Base ]", () => {
       });
       sendWsEvent(listener, message);
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
         expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });
@@ -59,7 +59,7 @@ describe("useEventMessages [ Base ]", () => {
         sendWsEvent(listener, message);
         await sleep(10);
       });
-      expect(spy).toHaveBeenCalledTimes(0);
+      expect(spy).toBeCalledTimes(0);
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
@@ -74,7 +74,7 @@ describe("useEventMessages [ Base ]", () => {
         sendWsEvent(listener, message);
         await sleep(10);
       });
-      expect(spy).toHaveBeenCalledTimes(0);
+      expect(spy).toBeCalledTimes(0);
     });
   });
 });

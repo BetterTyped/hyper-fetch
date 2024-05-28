@@ -83,8 +83,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(request);
         });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(request.cacheKey);
+        expect(spy).toBeCalledTimes(1);
+        expect(spy).toBeCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by RegExp", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -95,8 +95,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(new RegExp(request.cacheKey));
         });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(new RegExp(request.cacheKey));
+        expect(spy).toBeCalledTimes(1);
+        expect(spy).toBeCalledWith(new RegExp(request.cacheKey));
       });
       it("should allow to invalidate by cacheKey", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -107,8 +107,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(request.cacheKey);
         });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(request.cacheKey);
+        expect(spy).toBeCalledTimes(1);
+        expect(spy).toBeCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by default key", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -119,8 +119,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch();
         });
 
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith(request.cacheKey);
+        expect(spy).toBeCalledTimes(1);
+        expect(spy).toBeCalledWith(request.cacheKey);
       });
     });
   });

@@ -52,7 +52,7 @@ describe("useSubmit [ Base ]", () => {
         await response.result.current.submit({ data: { value: "string" }, onSettle: spy });
       });
 
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toBeCalledTimes(1);
     });
     it("should return data from submit method on retries", async () => {
       let data: unknown = null;

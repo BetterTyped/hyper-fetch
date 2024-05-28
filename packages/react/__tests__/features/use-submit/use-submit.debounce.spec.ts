@@ -77,7 +77,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
         createRequestInterceptor(request);
@@ -137,7 +137,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
     });
   });
@@ -168,7 +168,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(spy).toHaveBeenCalledTimes(4);
+        expect(spy).toBeCalledTimes(4);
       });
     });
   });
@@ -220,7 +220,7 @@ describe("useSubmit [ Bounce ]", () => {
         await waitFor(() => {
           expect(startTime).not.toBeNull();
           expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
-          expect(spy).toHaveBeenCalledTimes(2);
+          expect(spy).toBeCalledTimes(2);
         });
       });
       it("should resolve throttled methods", async () => {
@@ -279,7 +279,7 @@ describe("useSubmit [ Bounce ]", () => {
         await waitFor(() => {
           expect(startTime).not.toBeNull();
           expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
-          expect(spy).toHaveBeenCalledTimes(2);
+          expect(spy).toBeCalledTimes(2);
         });
       });
     });
@@ -311,7 +311,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(spy).toHaveBeenCalledTimes(4);
+        expect(spy).toBeCalledTimes(4);
       });
     });
   });

@@ -40,7 +40,7 @@ describe("useFetch [ Offline ]", () => {
         response.result.current.refetch();
       });
 
-      expect(spy).toHaveBeenCalledTimes(0);
+      expect(spy).toBeCalledTimes(0);
     });
     it("should finish request when coming back online", async () => {
       client.appManager.setOnline(false);
@@ -65,7 +65,7 @@ describe("useFetch [ Offline ]", () => {
         client.appManager.setOnline(true);
       });
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
     });
   });

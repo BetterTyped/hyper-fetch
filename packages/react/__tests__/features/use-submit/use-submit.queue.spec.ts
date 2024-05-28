@@ -50,7 +50,7 @@ describe("useSubmit [ Queue ]", () => {
         await testData(3, response);
         await testData(4, response);
 
-        expect(spy).toHaveBeenCalledTimes(4);
+        expect(spy).toBeCalledTimes(4);
       });
       it("should start in loading mode when request in queue is ongoing", async () => {
         createRequestInterceptor(request);
