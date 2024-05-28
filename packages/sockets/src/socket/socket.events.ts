@@ -9,15 +9,19 @@ import {
   getOpenKey,
   getReconnectingKey,
   getReconnectingStopKey,
-  getListenerEventByEndpointKey,
-  getEmitterEventByEndpointKey,
+  getListenerEventByTopicKey,
+  getEmitterEventByTopicKey,
   getListenerRemoveKey,
-  getListenerRemoveByEndpointKey,
+  getListenerRemoveByTopicKey,
+  getEmitterStartEventKey,
+  getEmitterStartEventByTopicKey,
+  getEmitterErrorKey,
+  getEmitterErrorByTopicKey,
 } from "socket";
 import { EmitterInstance } from "emitter";
 import { ListenerInstance } from "listener";
 import { SocketAdapterInstance } from "adapter";
-import { ExtractSocketExtraType } from "types";
+import { EventReturnType, ExtractAdapterExtraType, ExtractEmitterAdapterType, ExtractEmitterResponseType } from "types";
 
 export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: EventEmitter) => ({
   emitError: <ResponseType>(event: ResponseType): void => {
@@ -39,21 +43,34 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
     eventEmitter.emit(getReconnectingStopKey(), attempts);
   },
   emitListenerEvent: <ResponseType>(
-    endpoint: string,
-    { data, extra }: { data: ResponseType; extra: ExtractSocketExtraType<T> },
+    topic: string,
+    { data, extra }: EventReturnType<ResponseType, ExtractAdapterExtraType<T>>,
   ): void => {
-    eventEmitter.emit(getListenerEventKey(), { endpoint, data, extra });
-    eventEmitter.emit(getListenerEventByEndpointKey(endpoint), { endpoint, data, extra });
+    eventEmitter.emit(getListenerEventKey(), { topic, data, extra });
+    eventEmitter.emit(getListenerEventByTopicKey(topic), { topic, data, extra });
   },
-  emitListenerRemoveEvent: (endpoint: string): void => {
-    eventEmitter.emit(getListenerRemoveKey(), endpoint);
-    eventEmitter.emit(getListenerRemoveByEndpointKey(endpoint));
+  emitListenerRemoveEvent: (topic: string): void => {
+    eventEmitter.emit(getListenerRemoveKey(), topic);
+    eventEmitter.emit(getListenerRemoveByTopicKey(topic));
   },
-  emitEmitterEvent: <EmitterType extends EmitterInstance>(emitter: EmitterType): void => {
-    eventEmitter.emit(getEmitterEventKey(), emitter);
-    eventEmitter.emit(getEmitterEventByEndpointKey(emitter.endpoint), emitter);
+  emitEmitterStartEvent: <EmitterType extends EmitterInstance>(emitter: EmitterType): void => {
+    eventEmitter.emit(getEmitterStartEventKey(), emitter);
+    eventEmitter.emit(getEmitterStartEventByTopicKey(emitter.topic), emitter);
   },
-
+  emitEmitterEvent: <EmitterType extends EmitterInstance>(
+    emitter: EmitterType,
+    response: {
+      data: ExtractEmitterResponseType<EmitterType>;
+      extra: ExtractAdapterExtraType<ExtractEmitterAdapterType<EmitterType>>;
+    },
+  ): void => {
+    eventEmitter.emit(getEmitterEventKey(), response, emitter);
+    eventEmitter.emit(getEmitterEventByTopicKey(emitter.topic), response, emitter);
+  },
+  emitEmitterError: <EmitterType extends EmitterInstance>(error: Error, emitter: EmitterType): void => {
+    eventEmitter.emit(getEmitterErrorKey(), error, emitter);
+    eventEmitter.emit(getEmitterErrorByTopicKey(emitter.topic), error, emitter);
+  },
   onError: (callback: <ResponseType>(event: ResponseType) => void): VoidFunction => {
     eventEmitter.on(getErrorKey(), callback);
     return () => eventEmitter.removeListener(getErrorKey(), callback);
@@ -78,55 +95,91 @@ export const getSocketEvents = <T extends SocketAdapterInstance>(eventEmitter: E
     eventEmitter.on(getReconnectingStopKey(), callback);
     return () => eventEmitter.removeListener(getReconnectingStopKey(), callback);
   },
+  // Emitters
+  onEmitterEvent: <EmitterType extends EmitterInstance>(
+    callback: (
+      response: EventReturnType<ExtractEmitterResponseType<EmitterType>, ExtractEmitterAdapterType<EmitterType>>,
+      emitter: EmitterType,
+    ) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterEventKey(), callback);
+    return () => eventEmitter.removeListener(getEmitterEventKey(), callback);
+  },
+  onEmitterEventByTopic: <EmitterType extends EmitterInstance>(
+    emitter: EmitterType,
+    callback: (
+      response: EventReturnType<ExtractEmitterResponseType<EmitterType>, ExtractEmitterAdapterType<EmitterType>>,
+      emitter: EmitterType,
+    ) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterEventByTopicKey(emitter.topic), callback);
+    return () => eventEmitter.removeListener(getEmitterEventByTopicKey(emitter.topic), callback);
+  },
+  onEmitterStartEvent: <EmitterType extends EmitterInstance>(
+    callback: (emitter: EmitterType) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterStartEventKey(), callback);
+    return () => eventEmitter.removeListener(getEmitterStartEventKey(), callback);
+  },
+  onEmitterStartEventByTopic: <EmitterType extends EmitterInstance>(
+    emitter: EmitterType,
+    callback: (emitter: EmitterType) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterStartEventByTopicKey(emitter.topic), callback);
+    return () => eventEmitter.removeListener(getEmitterStartEventByTopicKey(emitter.topic), callback);
+  },
+  onEmitterError: <EmitterType extends EmitterInstance>(
+    callback: (error: Error, emitter: EmitterType) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterErrorKey(), callback);
+    return () => eventEmitter.removeListener(getEmitterErrorKey(), callback);
+  },
+  onEmitterErrorByTopic: <EmitterType extends EmitterInstance>(
+    emitter: EmitterType,
+    callback: (error: Error, emitter: EmitterType) => void,
+  ): VoidFunction => {
+    eventEmitter.on(getEmitterErrorByTopicKey(emitter.topic), callback);
+    return () => eventEmitter.removeListener(getEmitterErrorByTopicKey(emitter.topic), callback);
+  },
+  // Listeners
   onListenerEvent: <ResponseType = Event>(
     callback: ({
-      endpoint,
+      topic,
       data,
       extra,
     }: {
-      endpoint: string;
+      topic: string;
       data: ResponseType;
-      extra: ExtractSocketExtraType<T>;
+      extra: ExtractAdapterExtraType<T>;
     }) => void,
   ): VoidFunction => {
     eventEmitter.on(getListenerEventKey(), callback);
     return () => eventEmitter.removeListener(getListenerEventKey(), callback);
   },
-  onEmitterEvent: <EmitterType extends EmitterInstance>(callback: (emitter: EmitterType) => void): VoidFunction => {
-    eventEmitter.on(getEmitterEventKey(), callback);
-    return () => eventEmitter.removeListener(getEmitterEventKey(), callback);
-  },
-  onListenerEventByEndpoint: <ListenerType extends ListenerInstance>(
+  onListenerEventByTopic: <ListenerType extends ListenerInstance>(
     listener: ListenerType,
     callback: ({
-      endpoint,
+      topic,
       data,
       extra,
     }: {
-      endpoint: string;
+      topic: string;
       data: ResponseType;
-      extra: ExtractSocketExtraType<T>;
+      extra: ExtractAdapterExtraType<T>;
     }) => void,
   ): VoidFunction => {
-    eventEmitter.on(getListenerEventByEndpointKey(listener.endpoint), callback);
-    return () => eventEmitter.removeListener(getListenerEventByEndpointKey(listener.endpoint), callback);
+    eventEmitter.on(getListenerEventByTopicKey(listener.topic), callback);
+    return () => eventEmitter.removeListener(getListenerEventByTopicKey(listener.topic), callback);
   },
-  onListenerRemove: (callback: (endpoint: string) => void): VoidFunction => {
+  onListenerRemove: (callback: (topic: string) => void): VoidFunction => {
     eventEmitter.on(getListenerRemoveKey(), callback);
     return () => eventEmitter.removeListener(getListenerRemoveKey(), callback);
   },
-  onListenerRemoveByEndpoint: <ListenerType extends ListenerInstance>(
+  onListenerRemoveByTopic: <ListenerType extends ListenerInstance>(
     listener: ListenerType,
     callback: () => void,
   ): VoidFunction => {
-    eventEmitter.on(getListenerRemoveByEndpointKey(listener.endpoint), callback);
-    return () => eventEmitter.removeListener(getListenerRemoveByEndpointKey(listener.endpoint), callback);
-  },
-  onEmitterEventByEndpoint: <EmitterType extends EmitterInstance>(
-    emitter: EmitterType,
-    callback: (emitter: EmitterType) => void,
-  ): VoidFunction => {
-    eventEmitter.on(getEmitterEventByEndpointKey(emitter.endpoint), callback);
-    return () => eventEmitter.removeListener(getEmitterEventByEndpointKey(emitter.endpoint), callback);
+    eventEmitter.on(getListenerRemoveByTopicKey(listener.topic), callback);
+    return () => eventEmitter.removeListener(getListenerRemoveByTopicKey(listener.topic), callback);
   },
 });

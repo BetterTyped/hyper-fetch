@@ -89,7 +89,7 @@ describe("Cache [ Garbage Collector ]", () => {
       const spy = jest.spyOn(cache, "scheduleGarbageCollector");
       cache.set(request, cacheData);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should remove resource with not matching lazy clearKey", async () => {
@@ -102,8 +102,8 @@ describe("Cache [ Garbage Collector ]", () => {
       const spy = jest.spyOn(lazyStorage, "delete");
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(cacheKey);
       });
     });
     it("should remove resource with not matching sync clearKey", async () => {
@@ -117,8 +117,8 @@ describe("Cache [ Garbage Collector ]", () => {
       const spy = jest.spyOn(lazyStorage, "delete");
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(cacheKey);
       });
     });
     it("should not schedule garbage collection for Infinity", async () => {

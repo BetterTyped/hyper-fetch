@@ -17,6 +17,7 @@ const config: Config.InitialOptions = {
       {
         tsconfig: "./tsconfig.json",
         isolatedModules: true,
+        useESM: true,
       },
     ],
   },

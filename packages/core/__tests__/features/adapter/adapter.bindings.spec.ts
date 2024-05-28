@@ -112,12 +112,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
         const unmount = createAbortListener(0, xhrExtra, spy, resolveSpy);
-        expect(spy).toBeCalledTimes(0);
-        expect(resolveSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(0);
+        expect(resolveSpy).toHaveBeenCalledTimes(0);
         controller?.abort();
         await sleep(1);
-        expect(spy).toBeCalledTimes(1);
-        expect(resolveSpy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(resolveSpy).toHaveBeenCalledTimes(1);
         unmount();
       });
 
@@ -130,12 +130,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const resolveSpy = jest.fn();
         const controller = getAbortController();
         const unmount = createAbortListener(0, xhrExtra, spy, resolveSpy);
-        expect(spy).toBeCalledTimes(0);
-        expect(resolveSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(0);
+        expect(resolveSpy).toHaveBeenCalledTimes(0);
         unmount();
         controller?.abort();
-        expect(spy).toBeCalledTimes(0);
-        expect(resolveSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(0);
+        expect(resolveSpy).toHaveBeenCalledTimes(0);
       });
 
       it("should throw createAbortListener when there is no controller", async () => {
@@ -158,7 +158,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should use effect lifecycle method ", async () => {
         const { onBeforeRequest } = await getAdapterBindings(request, requestId, 0, xhrExtra);
         onBeforeRequest();
-        expect(onTriggerSpy).toBeCalledTimes(1);
+        expect(onTriggerSpy).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -220,7 +220,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should use effect lifecycle method", async () => {
         const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
         onRequestStart();
-        expect(onStartSpy).toBeCalledTimes(1);
+        expect(onStartSpy).toHaveBeenCalledTimes(1);
       });
       it("should emit request start event", async () => {
         const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
@@ -228,7 +228,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const unmount = client.requestManager.events.onRequestStart(request.queueKey, spy);
         onRequestStart();
         unmount();
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should emit upload progress event", async () => {
         const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
@@ -337,7 +337,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const unmount = client.requestManager.events.onResponseStart(request.queueKey, spy);
         onResponseStart();
         unmount();
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should emit download progress event", async () => {
         const { onResponseStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
@@ -447,10 +447,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should use effect lifecycle methods", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
         await onSuccess(data, 200, xhrExtra, () => null);
-        expect(onSuccessSpy).toBeCalledTimes(1);
-        expect(onFinishedSpy).toBeCalledTimes(1);
-        expect(onSuccessSpy).toBeCalledWith(successResponse, request);
-        expect(onFinishedSpy).toBeCalledWith(successResponse, request);
+        expect(onSuccessSpy).toHaveBeenCalledTimes(1);
+        expect(onFinishedSpy).toHaveBeenCalledTimes(1);
+        expect(onSuccessSpy).toHaveBeenCalledWith(successResponse, request);
+        expect(onFinishedSpy).toHaveBeenCalledWith(successResponse, request);
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
@@ -481,8 +481,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         client.__onResponseCallbacks = [];
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(newData);
-        expect(onSuccessSpy).toBeCalledWith(newData, request);
-        expect(onFinishedSpy).toBeCalledWith(newData, request);
+        expect(onSuccessSpy).toHaveBeenCalledWith(newData, request);
+        expect(onFinishedSpy).toHaveBeenCalledWith(newData, request);
       });
     });
     describe("when onError got executed", () => {
@@ -494,10 +494,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
       it("should use effect lifecycle methods", async () => {
         const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
         await onError(data, 400, xhrExtra, () => null);
-        expect(onErrorSpy).toBeCalledTimes(1);
-        expect(onFinishedSpy).toBeCalledTimes(1);
-        expect(onErrorSpy).toBeCalledWith(errorResponse, request);
-        expect(onFinishedSpy).toBeCalledWith(errorResponse, request);
+        expect(onErrorSpy).toHaveBeenCalledTimes(1);
+        expect(onFinishedSpy).toHaveBeenCalledTimes(1);
+        expect(onErrorSpy).toHaveBeenCalledWith(errorResponse, request);
+        expect(onFinishedSpy).toHaveBeenCalledWith(errorResponse, request);
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
@@ -528,8 +528,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
         expect(response).toEqual(newData);
-        expect(onErrorSpy).toBeCalledWith(newData, request);
-        expect(onFinishedSpy).toBeCalledWith(newData, request);
+        expect(onErrorSpy).toHaveBeenCalledWith(newData, request);
+        expect(onFinishedSpy).toHaveBeenCalledWith(newData, request);
       });
     });
     describe("when errors methods got executed", () => {

@@ -20,35 +20,46 @@
         }
       }
     },
-    "serve": {
+    "run": {
       "executor": "@nx/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "react-app:build"
+        "buildTarget": "react-app:app-build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "react-app:build:development",
+          "buildTarget": "react-app:app-build:development",
           "hmr": true
         },
         "production": {
-          "buildTarget": "react-app:build:production",
+          "buildTarget": "react-app:app-build:production",
           "hmr": false
         }
+      }
+    },
+    "run-server": {
+      "command": "node examples/react-app/server/server.js"
+    },
+
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["nx run react-app:run", "nx run react-app:run-server"],
+        "parallel": true
       }
     },
     "app-preview": {
       "executor": "@nx/vite:preview-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "react-app:build"
+        "buildTarget": "react-app:app-build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "react-app:build:development"
+          "buildTarget": "react-app:app-build:development"
         },
         "production": {
-          "buildTarget": "react-app:build:production"
+          "buildTarget": "react-app:app-build:production"
         }
       }
     },

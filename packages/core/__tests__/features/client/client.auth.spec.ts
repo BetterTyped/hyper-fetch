@@ -46,7 +46,7 @@ describe("Client [ Auth ]", () => {
 
       await authRequest.send();
 
-      expect(trigger).toBeCalledTimes(1);
+      expect(trigger).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -63,7 +63,7 @@ describe("Client [ Auth ]", () => {
 
       await request.send();
 
-      expect(trigger).toBeCalledTimes(0);
+      expect(trigger).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -93,7 +93,7 @@ describe("Client [ Auth ]", () => {
 
       const response = await request.send();
       expect(response.data).toEqual(requestFixture);
-      expect(interceptor).toBeCalledTimes(1);
+      expect(interceptor).toHaveBeenCalledTimes(1);
     });
     it("should intercept error response and return error after another failure", async () => {
       const errorResponse = createRequestInterceptor(request, { status: 401 });
@@ -103,7 +103,7 @@ describe("Client [ Auth ]", () => {
 
       expect(data).toBe(null);
       expect(error).toEqual(errorResponse);
-      expect(interceptor).toBeCalledTimes(2);
+      expect(interceptor).toHaveBeenCalledTimes(2);
     });
 
     it("should try to repeat request only once", async () => {
@@ -115,7 +115,7 @@ describe("Client [ Auth ]", () => {
 
       await request.send();
 
-      expect(retry).toBeCalledTimes(1);
+      expect(retry).toHaveBeenCalledTimes(1);
     });
   });
 });

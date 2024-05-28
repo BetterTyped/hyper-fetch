@@ -37,24 +37,24 @@ describe("Cache [ Events ]", () => {
     it("should trigger onInitialization callback", async () => {
       const newCache = createCache(client, { onInitialization: spy });
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(newCache);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(newCache);
     });
     it("should trigger onChange event when data is set", async () => {
       const newCache = createCache(client, { onChange: spy });
 
       newCache.set(request, cacheData);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(request.cacheKey, cacheData);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(request.cacheKey, cacheData);
     });
     it("should trigger onDelete event when data is deleted", async () => {
       const newCache = createCache(client, { onDelete: spy });
 
       newCache.delete(request.cacheKey);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(request.cacheKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(request.cacheKey);
     });
   });
   describe("when invalidate event is triggered", () => {
@@ -73,7 +73,7 @@ describe("Cache [ Events ]", () => {
       cache.events.onInvalidate(cacheKey, spy);
       await cache.invalidate(cacheKey);
       await sleep(1);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should invalidate cache using regex", async () => {
       cache.set(request, {
@@ -90,7 +90,7 @@ describe("Cache [ Events ]", () => {
       cache.events.onInvalidate(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should invalidate cache using lazyStorage regex", async () => {
       const lazyStorage = new Map();
@@ -101,7 +101,7 @@ describe("Cache [ Events ]", () => {
       cache.events.onInvalidate(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

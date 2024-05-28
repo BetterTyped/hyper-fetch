@@ -44,11 +44,11 @@ describe("Effect [ Base ]", () => {
       request.send();
 
       await waitFor(() => {
-        expect(spy1).toBeCalledTimes(0);
-        expect(spy2).toBeCalledTimes(1);
-        expect(spy3).toBeCalledTimes(1);
-        expect(spy4).toBeCalledTimes(1);
-        expect(spy5).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(0);
+        expect(spy2).toHaveBeenCalledTimes(1);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(spy5).toHaveBeenCalledTimes(1);
       });
     });
     it("should trigger error effects", async () => {
@@ -71,11 +71,11 @@ describe("Effect [ Base ]", () => {
       request.send();
 
       await waitFor(() => {
-        expect(spy1).toBeCalledTimes(1);
-        expect(spy2).toBeCalledTimes(0);
-        expect(spy3).toBeCalledTimes(1);
-        expect(spy4).toBeCalledTimes(1);
-        expect(spy5).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(0);
+        expect(spy3).toHaveBeenCalledTimes(1);
+        expect(spy4).toHaveBeenCalledTimes(1);
+        expect(spy5).toHaveBeenCalledTimes(1);
       });
     });
     it("should not throw when effects are empty", async () => {

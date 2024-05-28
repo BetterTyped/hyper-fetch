@@ -3,27 +3,27 @@ import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
 import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
 import {
-  ExtractListenerOptionsType,
-  ExtractSocketExtraType,
   ExtractListenerHasParams,
-  ExtractListenerEndpointType,
+  ExtractListenerTopicType,
   ExtractListenerResponseType,
+  ExtractAdapterListenerOptionsType,
+  ExtractAdapterExtraType,
 } from "types";
 
 export type ListenerInstance = Listener<any>;
 
-export type ListenerOptionsType<Endpoint extends string, AdapterType extends SocketAdapterInstance> = {
-  endpoint: Endpoint;
-  params?: ExtractRouteParams<Endpoint>;
-  options?: ExtractListenerOptionsType<AdapterType>;
+export type ListenerOptionsType<topic extends string, AdapterType extends SocketAdapterInstance> = {
+  topic: topic;
+  params?: ExtractRouteParams<topic>;
+  options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
 
 export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterInstance> = (
-  options: ExtractRouteParams<ExtractListenerEndpointType<Listener>> extends NegativeTypes
+  options: ExtractRouteParams<ExtractListenerTopicType<Listener>> extends NegativeTypes
     ? { callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>> }
     : ExtractListenerHasParams<Listener> extends false
       ? {
-          params: ExtractRouteParams<ExtractListenerEndpointType<Listener>>;
+          params: ExtractRouteParams<ExtractListenerTopicType<Listener>>;
           callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
         }
       : {
@@ -34,5 +34,5 @@ export type ListenType<Listener extends ListenerInstance, Adapter extends Socket
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
   data: D;
-  extra: ExtractSocketExtraType<AdapterType>;
+  extra: ExtractAdapterExtraType<AdapterType>;
 }) => void;

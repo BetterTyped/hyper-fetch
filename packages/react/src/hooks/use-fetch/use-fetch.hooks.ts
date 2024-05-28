@@ -17,7 +17,7 @@ import { InvalidationKeyType } from "types";
  */
 export const useFetch = <R extends RequestInstance>(
   request: UseFetchRequest<R>,
-  options: UseFetchOptionsType<UseFetchRequest<R>> = useFetchDefaultOptions,
+  options?: UseFetchOptionsType<UseFetchRequest<R>>,
 ): UseFetchReturnType<UseFetchRequest<R>> => {
   type RequestType = UseFetchRequest<R>;
 

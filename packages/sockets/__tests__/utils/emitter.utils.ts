@@ -9,7 +9,7 @@ export const createEmitter = <PayloadType = any, ResponseDataType = any>(
 ) => {
   const randomKey = getUniqueRequestId("some-event-emitter");
   return socket.createEmitter<{ payload: PayloadType; response: ResponseDataType }>()({
-    endpoint: randomKey,
+    topic: randomKey,
     ...options,
   });
 };

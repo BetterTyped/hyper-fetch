@@ -11,7 +11,7 @@ export const sendSseEvent = <T extends ListenerInstance>(
     : Record<string, any>,
 ) => {
   const data = constructEventData(listener, event);
-  sources[wsUrl].emitMessage(new MessageEvent(listener.endpoint, { data: JSON.stringify(data) }));
+  sources[wsUrl].emitMessage(new MessageEvent(listener.topic, { data: JSON.stringify(data) }));
 };
 
 export const openSse = () => {

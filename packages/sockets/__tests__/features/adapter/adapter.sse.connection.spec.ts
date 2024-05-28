@@ -25,7 +25,7 @@ describe("Socket SSE [ Connection ]", () => {
     socket.events.onOpen(spy);
     sources[wsUrl].emitOpen();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -35,7 +35,7 @@ describe("Socket SSE [ Connection ]", () => {
     socket.events.onOpen(spy);
     sources[wsUrl].emitOpen();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -48,7 +48,7 @@ describe("Socket SSE [ Connection ]", () => {
     sources[wsUrl].emitOpen();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

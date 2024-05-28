@@ -18,9 +18,9 @@ describe("Emitter [ Base ]", () => {
   });
 
   it("should initialize emitter with correct name", async () => {
-    const endpoint = "my-custom-name";
-    emitter = createEmitter(socket, { endpoint });
-    expect(emitter.endpoint).toBe(endpoint);
+    const topic = "my-custom-name";
+    emitter = createEmitter(socket, { topic });
+    expect(emitter.topic).toBe(topic);
   });
 
   it("should allow to set additional adapter options", async () => {
@@ -49,7 +49,7 @@ describe("Emitter [ Base ]", () => {
   });
 
   it("should allow inherit params", async () => {
-    const newEmitter = socket.createEmitter()({ endpoint: "test/:testId" }).setParams({ testId: 1 });
+    const newEmitter = socket.createEmitter()({ topic: "test/:testId" }).setParams({ testId: 1 });
     expect(newEmitter.clone().params).toStrictEqual({ testId: 1 });
     expect(newEmitter.clone({ params: { testId: 3 } }).params).toStrictEqual({ testId: 3 });
   });

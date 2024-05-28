@@ -20,10 +20,13 @@ export default defineConfig({
 
   plugins: [
     react(),
-    nxViteTsPaths(),
-    viteTsConfigPaths({
-      root: "../../",
+    nxViteTsPaths({
+      debug: true,
     }),
+    // viteTsConfigPaths({
+    //   root: "../../",
+    //   ignoreConfigErrors: true,
+    // }),
   ],
 
   // Uncomment this if you are using workers.

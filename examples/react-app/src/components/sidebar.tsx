@@ -6,13 +6,13 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import { useNavigate } from "react-router-dom";
 
-import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";
+import { routing } from "../constants/routing.constants";
 
-const links = [DETAILS_PAGE, LIST_PAGE, FORM_PAGE];
 const drawerWidth = 240;
 
 export const Sidebar = ({ children }: { children: React.ReactNode | undefined | null }) => {
-  const push = useNavigate();
+  const { navigate } = routing.useLocation();
+  const links = Object.entries(routing.routing.routes);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -24,10 +24,10 @@ export const Sidebar = ({ children }: { children: React.ReactNode | undefined | 
         }}
       >
         <List>
-          {links.map((link) => (
-            <ListItem disablePadding key={link.path}>
-              <ListItemButton onClick={() => push(link.path)}>
-                <ListItemText primary={link.name} />
+          {links.map(([name, route]) => (
+            <ListItem disablePadding key={route.path}>
+              <ListItemButton onClick={() => navigate({ href: route.path })}>
+                <ListItemText primary={name} />
               </ListItemButton>
             </ListItem>
           ))}

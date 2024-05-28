@@ -37,7 +37,7 @@ describe("useFetch [ Basic ]", () => {
       client.appManager.setFocused(true);
     });
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   it("should refresh on tab blur", async () => {
@@ -51,7 +51,7 @@ describe("useFetch [ Basic ]", () => {
       window.dispatchEvent(new Event("blur"));
     });
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -58,7 +58,7 @@ describe("RequestManager [ Base ]", () => {
       await sleep(1);
       const queue = client.fetchDispatcher.getQueue(request.queueKey);
       expect(queue.requests).toHaveLength(0);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -79,8 +79,8 @@ describe("RequestManager [ Base ]", () => {
 
       events.emitLoading(queueKey, requestId, values);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spyById).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the request start events", async () => {
       const spy = jest.fn();
@@ -96,8 +96,8 @@ describe("RequestManager [ Base ]", () => {
 
       events.emitRequestStart(queueKey, requestId, values);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spyById).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the response start events", async () => {
       const spy = jest.fn();
@@ -113,8 +113,8 @@ describe("RequestManager [ Base ]", () => {
 
       events.emitResponseStart(queueKey, requestId, values);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spyById).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the upload events", async () => {
       const spy = jest.fn();
@@ -139,8 +139,8 @@ describe("RequestManager [ Base ]", () => {
 
       events.emitUploadProgress(queueKey, requestId, values, details);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spyById).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyById).toHaveBeenCalledTimes(1);
     });
     it("should propagate the download events", async () => {
       const spy = jest.fn();
@@ -165,8 +165,8 @@ describe("RequestManager [ Base ]", () => {
 
       events.emitDownloadProgress(queueKey, requestId, values, details);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spyById).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyById).toHaveBeenCalledTimes(1);
     });
   });
   it("should propagate the response events", async () => {
@@ -190,8 +190,8 @@ describe("RequestManager [ Base ]", () => {
       details,
     );
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spyById).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spyById).toHaveBeenCalledTimes(1);
   });
   it("should propagate the remove events", async () => {
     const spy = jest.fn();
@@ -207,8 +207,8 @@ describe("RequestManager [ Base ]", () => {
 
     events.emitRemove(queueKey, requestId, values);
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spyById).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spyById).toHaveBeenCalledTimes(1);
   });
   it("should not throw on not existing controller", async () => {
     client.requestManager.addAbortController("test2", "test2");

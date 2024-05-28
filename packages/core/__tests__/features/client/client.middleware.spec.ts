@@ -93,8 +93,8 @@ describe("Client [ Middleware ]", () => {
 
       await request.send();
 
-      expect(spy1).toBeCalledTimes(2);
-      expect(spy2).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenCalledTimes(1);
     });
     it("should allow for removing interceptors on auth", async () => {
       const authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
@@ -108,8 +108,8 @@ describe("Client [ Middleware ]", () => {
 
       await authRequest.send();
 
-      expect(spy1).toBeCalledTimes(2);
-      expect(spy2).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { TypeWithDefaults } from "@hyper-fetch/core";
 
-import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
+import { EmitterInstance } from "emitter";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import { Socket } from "socket";
 
@@ -44,20 +44,8 @@ export type SocketAdapterType<
       any
     >,
   ) => RemoveListenerCallbackType;
-  removeListener: (endpoint: string, callback: (...args: any) => void) => void;
-  emit: (
-    eventMessageId: string,
-    emitter: EmitterInstance,
-    ack?: EmitterAcknowledgeType<
-      any,
-      SocketAdapterType<{
-        options: TypeWithDefaults<Properties, "options", never>;
-        extra: TypeWithDefaults<Properties, "extra", undefined>;
-        listenerOptions: TypeWithDefaults<Properties, "listenerOptions", undefined>;
-        emitterOptions: TypeWithDefaults<Properties, "emitterOptions", undefined>;
-      }>
-    >,
-  ) => void;
+  removeListener: (topic: string, callback: (...args: any) => void) => void;
+  emit: (eventMessageId: string, emitter: EmitterInstance) => void;
   connecting: boolean;
   connect: () => void;
   reconnect: () => void;
@@ -93,15 +81,20 @@ export type WSAdapterOptionsType = {
   heartbeat?: boolean;
 };
 
-export type WSMessageType<T = any> = {
-  id: string;
-  endpoint: string;
+export type WebsocketEvent<T = any> = {
+  id?: string;
+  topic: string;
+  data: T;
+};
+
+export type ServerSentEvent<T = any> = {
+  topic: string;
   data: T;
 };
 
 // Adapters
 
-export type SocketData<D = any> = { endpoint: string; data: D };
+export type SocketData<D = any> = { topic: string; data: D };
 export type WebsocketAdapterType = SocketAdapterType<{
   options: WSAdapterOptionsType;
   extra: MessageEvent<SocketData>;

@@ -1,10 +1,13 @@
 import { useRef } from "react";
-import { SocketInstance } from "@hyper-fetch/sockets";
+import { SocketInstance, ExtractSocketExtraType } from "@hyper-fetch/sockets";
 import { useDidMount, useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 
 import { UseSocketStateType, initialSocketState, UseSocketStateProps } from "helpers";
 
-export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTracking }: UseSocketStateProps) => {
+export const useSocketState = <DataType, Socket extends SocketInstance>(
+  socket: Socket,
+  { dependencyTracking }: UseSocketStateProps,
+) => {
   const forceUpdate = useForceUpdate();
 
   const onOpenCallback = useRef<null | VoidFunction>(null);
@@ -14,19 +17,19 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
   const onReconnectingCallback = useRef<null | ((attempts: number) => void)>(null);
   const onReconnectingStopCallback = useRef<null | ((attempts: number) => void)>(null);
 
-  const state = useRef<UseSocketStateType<DataType>>(initialSocketState);
-  const renderKeys = useRef<Array<keyof UseSocketStateType<DataType>>>([]);
+  const state = useRef<UseSocketStateType<Socket, DataType>>(initialSocketState);
+  const renderKeys = useRef<Array<keyof UseSocketStateType<Socket, DataType>>>([]);
 
   // ******************
   // Dependency Tracking
   // ******************
 
-  const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<DataType>>) => {
+  const renderKeyTrigger = (keys: Array<keyof UseSocketStateType<Socket, DataType>>) => {
     const shouldRerender = renderKeys.current.some((renderKey) => keys.includes(renderKey));
     if (shouldRerender) forceUpdate();
   };
 
-  const setRenderKey = (renderKey: keyof UseSocketStateType<DataType>) => {
+  const setRenderKey = (renderKey: keyof UseSocketStateType<Socket, DataType>) => {
     if (!renderKeys.current.includes(renderKey)) {
       renderKeys.current.push(renderKey);
     }
@@ -58,6 +61,10 @@ export const useSocketState = <DataType>(socket: SocketInstance, { dependencyTra
     setData: (data: DataType | null) => {
       state.current.data = data;
       renderKeyTrigger(["data"]);
+    },
+    setExtra: (extra: ExtractSocketExtraType<Socket> | null) => {
+      state.current.extra = extra;
+      renderKeyTrigger(["extra"]);
     },
     setConnected: (connected: boolean) => {
       state.current.connected = connected;

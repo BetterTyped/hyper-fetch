@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Time, parseResponse } from "@hyper-fetch/core";
+import { Time } from "@hyper-fetch/core";
 
-import { EmitterAcknowledgeType, EmitterInstance } from "emitter";
+import { EmitterInstance } from "emitter";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import {
-  WSMessageType,
+  WebsocketEvent,
   getSocketAdapterBindings,
   getWebsocketAdapter,
   WebsocketAdapterType,
   SocketData,
+  parseMessageEvent,
 } from "adapter";
 
 /**
@@ -29,6 +30,8 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     onDisconnect,
     onListen,
     onEmit,
+    onEmitResponse,
+    onEmitError,
     onOpen,
     onClose,
     onError,
@@ -74,18 +77,17 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
       onError(new Error(event.type));
     };
 
-    adapter.onmessage = (event: MessageEvent<SocketData>) => {
-      const extra = parseResponse(event);
-      extra.data = parseResponse(extra.data);
+    adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
+      const { event, response } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(extra.data.endpoint) ||
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic) ||
       new Map();
 
       eventListeners.forEach((_, action) => {
-        action({ data: extra.data.data, extra });
+        action({ data: response.data, extra: event });
       });
 
-      onEvent(extra.data.endpoint, extra.data.data, extra);
+      onEvent(response.topic, response.data, event);
       onHeartbeat();
     };
   };
@@ -105,8 +107,8 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     clearTimeout(pongTimer);
   };
 
-  const sendEventMessage = (payload: WSMessageType) => {
-    adapter.send(JSON.stringify({ id: payload.id, endpoint: payload.endpoint, data: payload.data }));
+  const sendEventMessage = (payload: WebsocketEvent) => {
+    adapter.send(JSON.stringify({ id: payload.id, topic: payload.topic, data: payload.data }));
   };
 
   const onHeartbeat = () => {
@@ -121,7 +123,7 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     clearTimers();
     pingTimer = setTimeout(() => {
       const id = "heartbeat";
-      sendEventMessage({ id, data: heartbeatMessage, endpoint: "heartbeat" });
+      sendEventMessage({ id, data: heartbeatMessage, topic: "heartbeat" });
       pongTimer = setTimeout(() => {
         adapter.close();
       }, pongTimeout);
@@ -132,32 +134,25 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     return onListen(listener, callback);
   };
 
-  const emit = async (
-    eventMessageId: string,
-    emitter: EmitterInstance,
-    ack?: EmitterAcknowledgeType<any, WebsocketAdapterType>,
-  ) => {
-    const enabled = onEmit(emitter);
+  const emit = async (eventMessageId: string, emitter: EmitterInstance) => {
+    const instance = await onEmit(emitter);
 
-    if (!enabled) return;
-    if (ack || emitter.connections.size) {
-      let timeout;
-      const unmount = onListen(emitter, (response) => {
-        if (response.extra.data.id === eventMessageId) {
-          ack({ ...response, error: null });
-          clearTimeout(timeout);
-          unmount();
-        }
-      });
-      timeout = setTimeout(() => {
+    if (!instance) return;
+    let timeout;
+    const unmount = onListen(instance, (newEvent) => {
+      const { response, event } = parseMessageEvent(newEvent.extra);
+      if (response.id === eventMessageId) {
+        onEmitResponse(instance, { data: response.data, extra: event });
+        clearTimeout(timeout);
         unmount();
-        ack({ error: new Error("Server did not acknowledge the event"), data: null, extra: null });
-      }, emitter.timeout);
-    }
+      }
+    });
+    timeout = setTimeout(() => {
+      unmount();
+      onEmitError(instance, new Error("Server did not acknowledge the event"));
+    }, instance.timeout);
 
-    const emitterInstance = await socket.__modifySend(emitter);
-    sendEventMessage({ id: eventMessageId, data: emitterInstance.data, endpoint: emitterInstance.endpoint });
-    socket.events.emitEmitterEvent(emitterInstance);
+    sendEventMessage({ id: eventMessageId, data: instance.data, topic: instance.topic });
   };
 
   // Initialize

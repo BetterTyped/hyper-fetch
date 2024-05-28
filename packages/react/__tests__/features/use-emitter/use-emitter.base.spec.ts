@@ -57,7 +57,7 @@ describe("useEmitter [ Base ]", () => {
         view.result.current.emit({ data: message });
       });
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
         expect(receivedEmitter).toBeInstanceOf(Emitter);
       });
     });

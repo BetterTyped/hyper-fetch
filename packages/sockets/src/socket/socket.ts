@@ -27,14 +27,14 @@ import {
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
 import { SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
-import { ExtractSocketExtraType } from "types";
+import { ExtractAdapterExtraType } from "types";
 
 export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapterType> {
   public emitter = new EventEmitter();
   public events = getSocketEvents(this.emitter);
 
   url: string;
-  reconnect: number;
+  reconnectAttempts: number;
   reconnectTime: number;
   auth?: QueryParamsType | string;
   queryParams?: QueryParamsType | string;
@@ -84,7 +84,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
     this.queryParams = queryParams;
     this.debug = false;
     this.autoConnect = autoConnect ?? true;
-    this.reconnect = reconnect ?? Infinity;
+    this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 2;
 
     if (queryParamsConfig) {
@@ -99,6 +99,27 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
       ? adapter(this as unknown as Socket<SocketAdapterInstance>)
       : websocketAdapter(this as unknown as Socket<SocketAdapterInstance>)) as unknown as ReturnType<AdapterType>;
   }
+
+  /**
+   * This method connects the socket to the server
+   */
+  connect = () => {
+    this.adapter.connect();
+  };
+
+  /**
+   * This method disconnects the socket from the server
+   */
+  disconnect = () => {
+    this.adapter.disconnect();
+  };
+
+  /**
+   * This method reconnect the socket to the server
+   */
+  reconnect = () => {
+    this.adapter.reconnect();
+  };
 
   /**
    * This method enables the logger usage and display the logs in console
@@ -190,7 +211,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onMessage<Event = ExtractSocketExtraType<AdapterType>>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
+  onMessage<Event = ExtractAdapterExtraType<AdapterType>>(callback: MessageCallbackType<Socket<AdapterType>, Event>) {
     this.__onMessageCallbacks.push(callback);
     return this;
   }
@@ -210,7 +231,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @param callback
    * @returns
    */
-  onError<Event = ExtractSocketExtraType<AdapterType>>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
+  onError<Event = ExtractAdapterExtraType<AdapterType>>(callback: ErrorCallbackType<Socket<AdapterType>, Event>) {
     this.__onErrorCallbacks.push(callback);
     return this;
   }
@@ -225,7 +246,7 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
     return interceptEmitter(this.__onSendCallbacks, emitter);
   };
 
-  __modifyResponse = (data: { data: any; extra: ExtractSocketExtraType<AdapterType> }) => {
+  __modifyResponse = (data: { data: any; extra: ExtractAdapterExtraType<AdapterType> }) => {
     return interceptListener(this.__onMessageCallbacks, data, this);
   };
 
@@ -241,10 +262,10 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
    * @returns
    */
   createListener = <Properties extends { response?: any } = { response: undefined }>() => {
-    return <Endpoint extends string>(options: ListenerOptionsType<Endpoint, AdapterType>) => {
+    return <topic extends string>(options: ListenerOptionsType<topic, AdapterType>) => {
       return new Listener<{
         response: TypeWithDefaults<Properties, "response", undefined>;
-        endpoint: Endpoint;
+        topic: topic;
         adapter: AdapterType;
       }>(this, options);
     };
@@ -261,11 +282,11 @@ export class Socket<AdapterType extends SocketAdapterInstance = WebsocketAdapter
       response: undefined;
     },
   >() => {
-    return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, AdapterType>) => {
+    return <topic extends string>(options: EmitterOptionsType<topic, AdapterType>) => {
       return new Emitter<{
         payload: TypeWithDefaults<Properties, "payload", undefined>;
         response: TypeWithDefaults<Properties, "response", undefined>;
-        endpoint: Endpoint;
+        topic: topic;
         adapter: AdapterType;
         mappedData: void;
       }>(this, options);

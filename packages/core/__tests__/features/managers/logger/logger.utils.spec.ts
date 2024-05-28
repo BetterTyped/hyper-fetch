@@ -25,7 +25,7 @@ describe("Logger [ Utils ]", () => {
           enabled: true,
           severity: 3,
         });
-        expect(logSpy).toBeCalledTimes(1);
+        expect(logSpy).toHaveBeenCalledTimes(1);
       });
       it("should allow to log additional data", async () => {
         const extra = [{ test: 1 }];
@@ -38,9 +38,9 @@ describe("Logger [ Utils ]", () => {
           severity: 3,
           extra,
         });
-        expect(logSpy).toBeCalledTimes(1);
-        expect(groupCollapsedSpy).toBeCalledTimes(1);
-        expect(groupEndSpy).toBeCalledTimes(1);
+        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(groupCollapsedSpy).toHaveBeenCalledTimes(1);
+        expect(groupEndSpy).toHaveBeenCalledTimes(1);
       });
       it("should not allow to log not-matching severity", async () => {
         logger({
@@ -50,7 +50,7 @@ describe("Logger [ Utils ]", () => {
           enabled: true,
           severity: 2,
         });
-        expect(logSpy).toBeCalledTimes(0);
+        expect(logSpy).toHaveBeenCalledTimes(0);
       });
     });
   });

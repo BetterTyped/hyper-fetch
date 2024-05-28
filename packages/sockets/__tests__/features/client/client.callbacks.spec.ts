@@ -17,7 +17,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     createSocket().onOpen(spy);
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -27,7 +27,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     socket.adapter.disconnect();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -37,17 +37,17 @@ describe("Socket Client  [ Callbacks ]", () => {
     server.error();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
   it("should trigger onMessage callbacks", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
-    server.send({ data: { endpoint: "test", data: "test" } });
+    server.send({ data: { topic: "test", data: "test" } });
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -61,7 +61,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     emitter.setData({ test: "1" }).emit();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -71,7 +71,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     socket.adapter.reconnect();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -81,7 +81,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     socket.adapter.reconnect();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

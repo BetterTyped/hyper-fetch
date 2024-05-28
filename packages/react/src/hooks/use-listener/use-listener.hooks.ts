@@ -8,7 +8,7 @@ import { useConfigProvider } from "config-provider";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
-  options: UseListenerOptionsType,
+  options?: UseListenerOptionsType,
 ) => {
   const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
@@ -37,6 +37,7 @@ export const useListener = <ListenerType extends ListenerInstance>(
       callback: ({ data, extra }) => {
         onEventCallback.current?.({ data, extra });
         actions.setData(data);
+        actions.setExtra(extra);
         actions.setTimestamp(+new Date());
       },
     } as Parameters<typeof listener.listen>[0]);
@@ -68,6 +69,10 @@ export const useListener = <ListenerType extends ListenerInstance>(
     get data() {
       setRenderKey("data");
       return state.data;
+    },
+    get extra() {
+      setRenderKey("extra");
+      return state.extra;
     },
     get connected() {
       setRenderKey("connected");

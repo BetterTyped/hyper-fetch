@@ -133,8 +133,8 @@ describe("Client [ Interceptor ]", () => {
       client.removeOnErrorInterceptors([secondCallback]);
       await request.send();
 
-      expect(spy1).toBeCalledTimes(2);
-      expect(spy2).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenCalledTimes(1);
     });
     it("should allow for removing interceptors on success", async () => {
       createRequestInterceptor(request, { fixture: { data: [1, 2, 3] } });
@@ -147,8 +147,8 @@ describe("Client [ Interceptor ]", () => {
 
       await request.send();
 
-      expect(spy1).toBeCalledTimes(2);
-      expect(spy2).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenCalledTimes(1);
     });
     it("should allow for removing interceptors on response", async () => {
       const firstCallback = interceptorCallback({ callback: spy1 });
@@ -161,8 +161,8 @@ describe("Client [ Interceptor ]", () => {
 
       await request.send();
 
-      expect(spy1).toBeCalledTimes(2);
-      expect(spy2).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenCalledTimes(1);
     });
   });
 });

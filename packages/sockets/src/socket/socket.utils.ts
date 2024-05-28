@@ -9,10 +9,14 @@ export const getReconnectingKey = () => "socket_reconnecting";
 export const getReconnectingStopKey = () => "socket_reconnecting_stop";
 export const getListenerEventKey = () => `listener_event`;
 export const getListenerRemoveKey = () => `listener_remove`;
+export const getEmitterStartEventKey = () => `emitter_start_event`;
 export const getEmitterEventKey = () => `emitter_event`;
-export const getListenerRemoveByEndpointKey = (event: string) => `${event}_listener_remove`;
-export const getListenerEventByEndpointKey = (event: string) => `${event}_listener_event`;
-export const getEmitterEventByEndpointKey = (event: string) => `${event}_emitter_event`;
+export const getEmitterErrorKey = () => `emitter_error`;
+export const getListenerRemoveByTopicKey = (event: string) => `${event}_listener_remove`;
+export const getListenerEventByTopicKey = (event: string) => `${event}_listener_event`;
+export const getEmitterStartEventByTopicKey = (event: string) => `${event}_emitter_start_event`;
+export const getEmitterEventByTopicKey = (event: string) => `${event}_emitter_event`;
+export const getEmitterErrorByTopicKey = (event: string) => `${event}_emitter_error`;
 
 export const interceptListener = <Socket extends SocketInstance>(
   interceptors: MessageCallbackType<Socket, any>[],

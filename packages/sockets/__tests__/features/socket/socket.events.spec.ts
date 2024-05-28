@@ -20,29 +20,29 @@ describe("Socket [ Events ]", () => {
     socket.events.onError(spy);
     socket.events.emitError(value);
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(value);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(value);
   });
 
   it("should emit and receive open event", async () => {
     socket.events.onOpen(spy);
     socket.events.emitOpen();
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should emit and receive close event", async () => {
     socket.events.onClose(spy);
     socket.events.emitClose();
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should emit and receive connecting event", async () => {
     socket.events.onConnecting(spy);
     socket.events.emitConnecting();
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should emit and receive reconnecting event", async () => {
@@ -50,8 +50,8 @@ describe("Socket [ Events ]", () => {
     socket.events.onReconnecting(spy);
     socket.events.emitReconnecting(value);
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(value);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(value);
   });
 
   it("should emit and receive reconnecting stop event", async () => {
@@ -59,36 +59,46 @@ describe("Socket [ Events ]", () => {
     socket.events.onReconnectingStop(spy);
     socket.events.emitReconnectingStop(value);
 
-    expect(spy).toBeCalledTimes(1);
-    expect(spy).toBeCalledWith(value);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith(value);
   });
 
   it("should emit and receive listener event", async () => {
     const value = 1;
     const extra = {} as MessageEvent;
     socket.events.onListenerEvent(spy);
-    socket.events.onListenerEventByEndpoint(listener, spy);
-    socket.events.emitListenerEvent(listener.endpoint, { data: value, extra });
+    socket.events.onListenerEventByTopic(listener, spy);
+    socket.events.emitListenerEvent(listener.topic, { data: value, extra });
 
-    expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith({ endpoint: listener.endpoint, data: value, extra });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith({ topic: listener.topic, data: value, extra });
   });
 
   it("should emit and receive listener remove event", async () => {
     socket.events.onListenerRemove(spy);
-    socket.events.onListenerRemoveByEndpoint(listener, spy);
-    socket.events.emitListenerRemoveEvent(listener.endpoint);
+    socket.events.onListenerRemoveByTopic(listener, spy);
+    socket.events.emitListenerRemoveEvent(listener.topic);
 
-    expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith(listener.endpoint);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(listener.topic);
   });
 
   it("should emit and receive emitter event", async () => {
+    const data = { data: 1, extra: {} };
     socket.events.onEmitterEvent(spy);
-    socket.events.onEmitterEventByEndpoint(emitter, spy);
-    socket.events.emitEmitterEvent(emitter);
+    socket.events.onEmitterEventByTopic(emitter, spy);
+    socket.events.emitEmitterEvent(data, emitter);
 
-    expect(spy).toBeCalledTimes(2);
-    expect(spy).toBeCalledWith(emitter);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(emitter, data);
+  });
+
+  it("should emit and receive emitter start event", async () => {
+    socket.events.onEmitterStartEvent(spy);
+    socket.events.onEmitterStartEventByTopic(emitter, spy);
+    socket.events.emitEmitterStartEvent(emitter);
+
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(emitter);
   });
 });

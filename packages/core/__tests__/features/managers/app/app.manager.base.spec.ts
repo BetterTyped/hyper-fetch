@@ -62,8 +62,8 @@ describe("AppManager [ Base ]", () => {
       client.appManager.setFocused(true);
       expect(client.appManager.isFocused).toBeTrue();
 
-      expect(focusSpy).toBeCalledTimes(1);
-      expect(blurSpy).toBeCalledTimes(1);
+      expect(focusSpy).toHaveBeenCalledTimes(1);
+      expect(blurSpy).toHaveBeenCalledTimes(1);
     });
     it("should allow to change app online state", async () => {
       const onlineSpy = jest.fn();
@@ -75,8 +75,8 @@ describe("AppManager [ Base ]", () => {
       client.appManager.setOnline(true);
       expect(client.appManager.isOnline).toBeTrue();
 
-      expect(onlineSpy).toBeCalledTimes(1);
-      expect(offlineSpy).toBeCalledTimes(1);
+      expect(onlineSpy).toHaveBeenCalledTimes(1);
+      expect(offlineSpy).toHaveBeenCalledTimes(1);
     });
   });
   describe("When using app manager utils", () => {

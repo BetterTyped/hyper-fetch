@@ -37,41 +37,41 @@ describe("Dispatcher [ Events ]", () => {
       const spy = jest.fn();
       const unmount = client.requestManager.events.onLoading(request.queueKey, spy);
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit drained event", async () => {
       const spy = jest.fn();
       const unmount = dispatcher.events.onDrained(request.queueKey, spy);
       dispatcher.add(request.setQueued(true));
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       unmount();
       dispatcher.add(request.setQueued(true));
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
       const unmount = dispatcher.events.onQueueStatus(request.queueKey, spy);
       dispatcher.stop(request.queueKey);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
       dispatcher.stop(request.queueKey);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit queue change event", async () => {
       const spy = jest.fn();
       const unmount = dispatcher.events.onQueueChange(request.queueKey, spy);
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       unmount();
       dispatcher.add(request);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit proper data response", async () => {
       let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];

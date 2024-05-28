@@ -2,19 +2,24 @@ import { SocketInstance } from "socket";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
 import { SocketAdapterInstance } from "adapter";
-import { ExtractSocketExtraType } from "types";
+import { EventReturnType, ExtractAdapterExtraType } from "types";
 
 export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   socket: SocketInstance,
-  defaults?: { open?: boolean; connecting?: boolean; forceClosed?: boolean; reconnectionAttempts?: number },
+  options?: {
+    open?: boolean;
+    connecting?: boolean;
+    forceClosed?: boolean;
+    reconnectionAttempts?: number;
+  },
 ) => {
   const logger = socket.loggerManager.init("Socket Adapter");
   const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
-  let open = defaults?.open ?? false;
-  let connecting = defaults?.connecting ?? false;
-  let forceClosed = defaults?.forceClosed ?? false;
-  let reconnectionAttempts = defaults?.reconnectionAttempts ?? 0;
+  let open = options?.open ?? false;
+  let connecting = options?.connecting ?? false;
+  let forceClosed = options?.forceClosed ?? false;
+  let reconnectionAttempts = options?.reconnectionAttempts ?? 0;
 
   // Methods
 
@@ -45,7 +50,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onReconnect = (disconnect: () => void, connect: () => void): boolean => {
     disconnect();
-    if (reconnectionAttempts < socket.reconnect) {
+    if (reconnectionAttempts < socket.reconnectAttempts) {
       reconnectionAttempts += 1;
       logger.debug("Reconnecting", { reconnectionAttempts });
       connect();
@@ -65,12 +70,12 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   // Listeners
 
-  const removeListener = (endpoint: string, callback: ListenerCallbackType<T, any>): boolean => {
-    const listenerGroup = listeners.get(endpoint);
+  const removeListener = (topic: string, callback: ListenerCallbackType<T, any>): boolean => {
+    const listenerGroup = listeners.get(topic);
     if (listenerGroup) {
       const unmount = listenerGroup.get(callback);
-      logger.debug("Removed event listener", { endpoint });
-      socket.events.emitListenerRemoveEvent(endpoint);
+      logger.debug("Removed event listener", { topic });
+      socket.events.emitListenerRemoveEvent(topic);
       listenerGroup.delete(callback);
       unmount?.();
       return true;
@@ -79,26 +84,36 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onListen = (
-    listener: Pick<ListenerInstance, "endpoint">,
+    listener: Pick<ListenerInstance, "topic">,
     callback: ListenerCallbackType<T, any>,
     unmount: VoidFunction = () => null,
   ): (() => void) => {
-    const listenerGroup =
-      listeners.get(listener.endpoint) || listeners.set(listener.endpoint, new Map()).get(listener.endpoint);
+    const listenerGroup = listeners.get(listener.topic) || listeners.set(listener.topic, new Map()).get(listener.topic);
 
     listenerGroup.set(callback, unmount);
-    return () => removeListener(listener.endpoint, callback);
+    return () => removeListener(listener.topic, callback);
   };
 
   // Emitters
 
-  const onEmit = (emitter: EmitterInstance): boolean => {
+  const onEmit = async (emitter: EmitterInstance): Promise<EmitterInstance | null> => {
     if (connecting || !open) {
       logger.error("Cannot emit event when connection is not open");
-      return false;
+      return null;
     }
-    socket.events.emitEmitterEvent(emitter);
-    return true;
+
+    const emitterInstance = await socket.__modifySend(emitter);
+    socket.events.emitEmitterStartEvent(emitterInstance);
+
+    return emitterInstance;
+  };
+
+  const onEmitResponse = (emitter: EmitterInstance, response: EventReturnType<any, ExtractAdapterExtraType<T>>) => {
+    socket.events.emitEmitterEvent(emitter, response);
+  };
+
+  const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error?: ErrorType) => {
+    socket.events.emitEmitterError(error, emitter);
   };
 
   // Lifecycle
@@ -131,12 +146,12 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     socket.events.emitError(event);
   };
 
-  const onEvent = (endpoint: string, response: any, resposeExtra: ExtractSocketExtraType<T>) => {
-    logger.info("New event message", { response, resposeExtra });
+  const onEvent = (topic: string, response: any, responseExtra: ExtractAdapterExtraType<T>) => {
+    logger.info("New event message", { response, responseExtra });
 
-    const { data, extra } = socket.__modifyResponse({ data: response, extra: resposeExtra });
+    const { data, extra } = socket.__modifyResponse({ data: response, extra: responseExtra });
 
-    socket.events.emitListenerEvent(endpoint, { data, extra });
+    socket.events.emitListenerEvent(topic, { data, extra });
   };
 
   return {
@@ -149,6 +164,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     onDisconnect,
     onListen,
     onEmit,
+    onEmitResponse,
+    onEmitError,
     onOpen,
     onClose,
     onError,

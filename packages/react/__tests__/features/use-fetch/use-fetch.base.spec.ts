@@ -99,7 +99,7 @@ describe("useFetch [ Base ]", () => {
       await act(async () => {
         await sleep(50);
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe("when hook get success response", () => {
@@ -185,7 +185,7 @@ describe("useFetch [ Base ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       await testSuccessState(mappedData, view);
     });
@@ -230,12 +230,12 @@ describe("useFetch [ Base ]", () => {
       });
 
       await sleep(20);
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
 
       view.rerender({ disabled: false });
 
       await testSuccessState(mock, view);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should fetch when dependencies change", async () => {
       // Todo

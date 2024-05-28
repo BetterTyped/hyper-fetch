@@ -36,8 +36,8 @@ describe("Dispatcher [ Basic ]", () => {
       const spy = jest.fn();
       const newDispatcher = createDispatcher(client, { onInitialization: spy });
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(newDispatcher);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(newDispatcher);
     });
     it("should trigger onUpdateStorage callback", async () => {
       const spy = jest.fn();
@@ -45,8 +45,8 @@ describe("Dispatcher [ Basic ]", () => {
 
       newDispatcher.stop(request.queueKey);
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(request.queueKey, { requests: [], stopped: true });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(request.queueKey, { requests: [], stopped: true });
     });
     it("should trigger onDeleteFromStorage callback", async () => {
       const spy = jest.fn();
@@ -58,8 +58,8 @@ describe("Dispatcher [ Basic ]", () => {
       newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
       newDispatcher.clearQueue(request.queueKey);
 
-      expect(spy).toBeCalledTimes(2);
-      expect(spy).toBeCalledWith(request.queueKey, { requests: [], stopped: false });
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy).toHaveBeenCalledWith(request.queueKey, { requests: [], stopped: false });
     });
     it("should trigger onClearStorage callback", async () => {
       const spy = jest.fn();
@@ -67,8 +67,8 @@ describe("Dispatcher [ Basic ]", () => {
 
       newDispatcher.clear();
 
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(newDispatcher);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(newDispatcher);
     });
   });
 });

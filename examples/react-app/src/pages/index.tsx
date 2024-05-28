@@ -2,15 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardActionArea, CardContent, Typography } from "@mui/material";
 
 import { Viewer } from "../components/viewer";
-import { DETAILS_PAGE, FORM_PAGE, LIST_PAGE } from "../constants/routing.constants";
+import { routing } from "../constants/routing.constants";
 
 export function Index() {
-  const push = useNavigate();
+  const { navigate } = routing.useLocation();
 
   return (
     <Viewer name="Dashboard" noButtons>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => push(DETAILS_PAGE.path)}>
+        <CardActionArea onClick={() => navigate({ to: "Details" })}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Details
@@ -22,7 +22,7 @@ export function Index() {
         </CardActionArea>
       </Card>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => push(LIST_PAGE.path)}>
+        <CardActionArea onClick={() => navigate({ to: "List" })}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               List
@@ -34,7 +34,7 @@ export function Index() {
         </CardActionArea>
       </Card>
       <Card sx={{ maxWidth: 345, mb: 2 }}>
-        <CardActionArea onClick={() => push(FORM_PAGE.path)}>
+        <CardActionArea onClick={() => navigate({ to: "Form" })}>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Form

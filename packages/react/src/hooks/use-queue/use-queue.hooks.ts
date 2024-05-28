@@ -13,7 +13,7 @@ import { useConfigProvider } from "config-provider";
  */
 export const useQueue = <Request extends RequestInstance>(
   request: Request,
-  options: UseQueueOptionsType = useQueueDefaultOptions,
+  options?: UseQueueOptionsType,
 ): UseQueueReturnType<Request> => {
   // Build the configuration options
   const { config: globalConfig } = useConfigProvider();

@@ -46,7 +46,7 @@ describe("Socket [ Methods ]", () => {
     socket.adapter.reconnect = spy;
     socket.setAuth(value);
     expect(socket.auth).toBe(value);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should allow to set query and reconnect", async () => {
@@ -56,6 +56,6 @@ describe("Socket [ Methods ]", () => {
     socket.adapter.reconnect = spy;
     socket.setQuery(value);
     expect(socket.queryParams).toBe(value);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

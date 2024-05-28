@@ -50,7 +50,7 @@ describe("useFetch [ refetch ]", () => {
 
     await testSuccessState(customMock, response);
     await sleep(50);
-    expect(spy).toBeCalledTimes(0);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
   it("should allow to prevent invalidation on mount", async () => {
     const spy = jest.fn();
@@ -65,7 +65,7 @@ describe("useFetch [ refetch ]", () => {
     renderUseFetch(request, { revalidate: false });
 
     await waitForRender(50);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
   it("should allow to refetch on mount", async () => {
     const customMock = { something: "123" };
@@ -194,7 +194,7 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(mock, response);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     act(() => {
       // Second request
@@ -202,7 +202,7 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     // Check revalidation
 
@@ -218,6 +218,6 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

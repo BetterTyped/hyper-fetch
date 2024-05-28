@@ -106,9 +106,9 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.cancelRunningRequests(firstRequest.queueKey);
 
       expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(0);
-      expect(firstSpy).toBeCalledTimes(1);
-      expect(secondSpy).toBeCalledTimes(1);
-      expect(thirdSpy).toBeCalledTimes(2);
+      expect(firstSpy).toHaveBeenCalledTimes(1);
+      expect(secondSpy).toHaveBeenCalledTimes(1);
+      expect(thirdSpy).toHaveBeenCalledTimes(2);
     });
     it("should allow to cancel single running requests", async () => {
       const firstSpy = jest.fn();
@@ -128,8 +128,8 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.cancelRunningRequest(firstRequest.queueKey, requestId);
 
       expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
-      expect(firstSpy).toBeCalledTimes(1);
-      expect(secondSpy).toBeCalledTimes(1);
+      expect(firstSpy).toHaveBeenCalledTimes(1);
+      expect(secondSpy).toHaveBeenCalledTimes(1);
     });
     it("should allow to delete running requests", async () => {
       const firstSpy = jest.fn();
@@ -152,9 +152,9 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.deleteRunningRequests(firstRequest.queueKey);
 
       expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(0);
-      expect(firstSpy).toBeCalledTimes(0);
-      expect(secondSpy).toBeCalledTimes(0);
-      expect(thirdSpy).toBeCalledTimes(0);
+      expect(firstSpy).toHaveBeenCalledTimes(0);
+      expect(secondSpy).toHaveBeenCalledTimes(0);
+      expect(thirdSpy).toHaveBeenCalledTimes(0);
     });
     it("should allow to delete running request", async () => {
       const firstSpy = jest.fn();
@@ -177,9 +177,9 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.deleteRunningRequest(firstRequest.queueKey, firstRequestId);
 
       expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
-      expect(firstSpy).toBeCalledTimes(0);
-      expect(secondSpy).toBeCalledTimes(0);
-      expect(thirdSpy).toBeCalledTimes(0);
+      expect(firstSpy).toHaveBeenCalledTimes(0);
+      expect(secondSpy).toHaveBeenCalledTimes(0);
+      expect(thirdSpy).toHaveBeenCalledTimes(0);
     });
     describe("When using running request helper methods", () => {
       it("should return false when there is no running requests", async () => {
@@ -222,7 +222,7 @@ describe("Dispatcher [ Requests ]", () => {
         await waitFor(() => {
           const cacheValue = client.cache.get(request.cacheKey);
           expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
-          expect(spy).toBeCalledTimes(2);
+          expect(spy).toHaveBeenCalledTimes(2);
           expect(cacheValue).toBeDefined();
           expect(cacheValue?.isCanceled).toBeFalse();
         });

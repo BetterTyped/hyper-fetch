@@ -40,8 +40,8 @@ describe("Dispatcher [ Queue ]", () => {
       const requestId = dispatcher.add(request);
 
       expect(requestId).toBeString();
-      expect(adapterSpy).toBeCalledTimes(1);
-      expect(loadingSpy).toBeCalledTimes(1);
+      expect(adapterSpy).toHaveBeenCalledTimes(1);
+      expect(loadingSpy).toHaveBeenCalledTimes(1);
       expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeTrue();
       expect(dispatcher.getQueueRequestCount(request.queueKey)).toBe(1);
     });
@@ -67,7 +67,7 @@ describe("Dispatcher [ Queue ]", () => {
       const deduplicatedId = dispatcher.add(request);
 
       expect(requestId).toBe(deduplicatedId);
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
     });
     it("should queue the queued request", async () => {
@@ -79,7 +79,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
       dispatcher.add(request);
 
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
     });
     it("should send all concurrent request", async () => {
@@ -91,7 +91,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
       dispatcher.add(request);
 
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
     });
   });
@@ -104,7 +104,7 @@ describe("Dispatcher [ Queue ]", () => {
       const storageElement = dispatcher.createStorageElement(request);
       dispatcher.performRequest(storageElement);
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should not trigger fetch adapter when app is offline", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -115,7 +115,7 @@ describe("Dispatcher [ Queue ]", () => {
       const storageElement = dispatcher.createStorageElement(request);
       await dispatcher.performRequest(storageElement);
 
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should trigger all requests when going back from offline", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -129,12 +129,12 @@ describe("Dispatcher [ Queue ]", () => {
 
       await sleep(5);
 
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
       client.appManager.setOnline(true);
 
       await sleep(5);
 
-      expect(spy).toBeCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(3);
     });
     it("should not trigger one storage element two times at the same time", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -145,7 +145,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.performRequest(storageElement);
       dispatcher.performRequest(storageElement);
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe("When retrying requests", () => {
@@ -166,8 +166,8 @@ describe("Dispatcher [ Queue ]", () => {
       customClient.fetchDispatcher.add(request);
 
       await waitFor(() => {
-        expect(spyDelete).toBeCalledTimes(1);
-        expect(spy).toBeCalledTimes(2);
+        expect(spyDelete).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
     });
     it("should retry multiple times", async () => {
@@ -178,7 +178,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(3);
+        expect(spy).toHaveBeenCalledTimes(3);
       });
     });
     it("should not retry failed request when request 'retry' option is disabled", async () => {
@@ -189,7 +189,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should not retry failed request in offline mode", async () => {
@@ -201,7 +201,7 @@ describe("Dispatcher [ Queue ]", () => {
       await sleep(5);
       client.appManager.setOnline(false);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -221,11 +221,11 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(secondRequest);
 
       await sleep(5);
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
       client.appManager.setOnline(true);
       dispatcher.flush();
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(4);
+        expect(spy).toHaveBeenCalledTimes(4);
       });
     });
     it("should not trigger flush methods when queue is empty", async () => {
@@ -245,10 +245,10 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.flushQueue(request.queueKey);
       dispatcher.flushQueue(request.queueKey);
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(2);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
     });
     it("should not trigger flushQueue when having ongoing request", async () => {
@@ -262,7 +262,7 @@ describe("Dispatcher [ Queue ]", () => {
 
       dispatcher.flushQueue(request.queueKey);
 
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
 
     it("should not trigger flushQueue on stopped requests", async () => {
@@ -276,7 +276,7 @@ describe("Dispatcher [ Queue ]", () => {
 
       dispatcher.flushQueue(request.queueKey);
 
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should not duplicate ongoing requests using flushQueue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -292,7 +292,7 @@ describe("Dispatcher [ Queue ]", () => {
 
       await sleep(5);
 
-      expect(spy).toBeCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(3);
     });
   });
   describe("When starting and stopping queue", () => {
@@ -306,7 +306,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(0);
         expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
       });
     });
@@ -328,9 +328,9 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.stop(request.queueKey);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(2);
-        expect(firstSpy).toBeCalledTimes(1);
-        expect(secondSpy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(firstSpy).toHaveBeenCalledTimes(1);
+        expect(secondSpy).toHaveBeenCalledTimes(1);
         expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
       });
     });
@@ -346,7 +346,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeTrue();
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(2);
+        expect(spy).toHaveBeenCalledTimes(2);
       });
     });
     it("should pause queue and finish ongoing requests", async () => {
@@ -367,9 +367,9 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.pause(request.queueKey);
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(2);
-        expect(firstSpy).toBeCalledTimes(0);
-        expect(secondSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(firstSpy).toHaveBeenCalledTimes(0);
+        expect(secondSpy).toHaveBeenCalledTimes(0);
         expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
       });
     });

@@ -12,9 +12,9 @@ import { useConfigProvider } from "config-provider";
  * @param options
  * @returns
  */
-export const useEventMessages = <ResponsesType extends { endpoint: string }>(
+export const useEventMessages = <ResponsesType extends { topic: string }>(
   socket: SocketInstance,
-  options: UseEventMessagesOptionsType<ResponsesType>,
+  options?: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
   const { config: globalConfig } = useConfigProvider();
   const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
@@ -24,8 +24,8 @@ export const useEventMessages = <ResponsesType extends { endpoint: string }>(
 
   useDidUpdate(
     () => {
-      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ endpoint, data, extra }) => {
-        const filterFn = typeof filter === "function" ? () => filter(endpoint, data) : () => filter.includes(endpoint);
+      const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ topic, data, extra }) => {
+        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => filter.includes(topic);
         const isFiltered = filter ? filterFn() : false;
         if (!isFiltered) {
           onEventCallback.current?.(data, extra);

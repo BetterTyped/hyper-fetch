@@ -5,7 +5,7 @@ import { createSocket } from "../../utils/socket.utils";
 import { sendWsEvent, createWsServer } from "../../websocket/websocket.server";
 import { sleep } from "../../utils/helpers.utils";
 
-type DataType = { endpoint: string; age: number };
+type DataType = { topic: string; age: number };
 
 describe("Listener [ Listen ]", () => {
   let socket = createSocket();
@@ -18,9 +18,9 @@ describe("Listener [ Listen ]", () => {
     jest.resetAllMocks();
   });
 
-  it("should listen to given event endpoint", async () => {
+  it("should listen to given event topic", async () => {
     const spy = jest.fn();
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     let receivedExtra;
     listener.listen({
       callback: (data) => {
@@ -41,7 +41,7 @@ describe("Listener [ Listen ]", () => {
   it("should allow to remove given listener", async () => {
     const spy = jest.fn();
     const removeListener = listener.listen({ callback: (data) => spy(data) });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendWsEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
@@ -53,9 +53,9 @@ describe("Listener [ Listen ]", () => {
 
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ endpoint: "test/:testId" });
+    const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ topic: "test/:testId" });
     const removeListener = listenerWithParams.listen({ params: { testId: 1 }, callback: (data) => spy(data) });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendWsEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
@@ -74,7 +74,7 @@ describe("Listener [ Listen ]", () => {
         spy();
       })
       .listen({ callback: () => null });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendWsEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
     expect(receivedData).toStrictEqual(message);

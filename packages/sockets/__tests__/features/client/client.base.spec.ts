@@ -30,7 +30,7 @@ describe("Socket Client [ Base ]", () => {
     expect(server).toReceiveMessage(
       JSON.stringify({
         id: emitterId,
-        endpoint: emitter.endpoint,
+        topic: emitter.topic,
         data: message,
       }),
     );
@@ -48,15 +48,15 @@ describe("Socket Client [ Base ]", () => {
     socket.onMessage(spy);
     socket.adapter.listeners.get = jest.fn();
     server.send(undefined);
-    expect(spy).toBeCalledTimes(1);
-    expect(socket.adapter.listeners.get).toBeCalledWith(undefined);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(socket.adapter.listeners.get).toHaveBeenCalledWith(undefined);
   });
   it("should allow to connect", async () => {
     const spy = jest.fn();
     socket.events.onOpen(spy);
     socket.adapter.connect();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   it("should allow to disconnect", async () => {
@@ -64,7 +64,7 @@ describe("Socket Client [ Base ]", () => {
     socket.events.onClose(spy);
     socket.adapter.disconnect();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

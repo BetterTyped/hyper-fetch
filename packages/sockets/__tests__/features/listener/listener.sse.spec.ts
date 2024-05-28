@@ -12,7 +12,7 @@ const config = {
   adapter: sseAdapter,
 };
 
-type DataType = { endpoint: string; age: number };
+type DataType = { topic: string; age: number };
 
 describe("Listener [ SSE ]", () => {
   let socket = createSocket(config);
@@ -25,9 +25,9 @@ describe("Listener [ SSE ]", () => {
     sources[wsUrl].emitOpen();
   });
 
-  it("should listen to given event endpoint", async () => {
+  it("should listen to given event topic", async () => {
     const spy = jest.fn();
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     let receivedExtra;
 
     listener.listen({
@@ -50,7 +50,7 @@ describe("Listener [ SSE ]", () => {
   it("should allow to remove given listener", async () => {
     const spy = jest.fn();
     const removeListener = listener.listen({ callback: (data) => spy(data) });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendSseEvent(listener, message);
 
     await waitFor(() => {
@@ -66,9 +66,9 @@ describe("Listener [ SSE ]", () => {
 
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ endpoint: "test/:testId" });
+    const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ topic: "test/:testId" });
     const removeListener = listenerWithParams.listen({ params: { testId: 1 }, callback: (data) => spy(data) });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendSseEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
@@ -87,7 +87,7 @@ describe("Listener [ SSE ]", () => {
         spy();
       })
       .listen({ callback: () => null });
-    const message = { endpoint: "Maciej", age: 99 };
+    const message = { topic: "Maciej", age: 99 };
     sendSseEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
     expect(receivedData).toStrictEqual(message);

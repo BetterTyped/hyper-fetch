@@ -51,7 +51,7 @@ describe("Cache [ Lazy Storage ]", () => {
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).toBeDefined();
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should lazy load data", async () => {
       await cache.options.lazyStorage.set(cacheKey, cacheData);
@@ -59,7 +59,7 @@ describe("Cache [ Lazy Storage ]", () => {
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should not emit stale data", async () => {
       await cache.options.lazyStorage.set(cacheKey, { ...cacheData, timestamp: +new Date() - cacheTime });
@@ -67,7 +67,7 @@ describe("Cache [ Lazy Storage ]", () => {
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should remove data when clearKey change", async () => {
       await cache.options.lazyStorage.set(cacheKey, {
@@ -79,8 +79,8 @@ describe("Cache [ Lazy Storage ]", () => {
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();
-      expect(spy).toBeCalledTimes(0);
-      expect(deleteSpy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(0);
+      expect(deleteSpy).toHaveBeenCalledTimes(1);
     });
     it("should delete lazy storage data", async () => {
       await cache.options.lazyStorage.set(cacheKey, cacheData);

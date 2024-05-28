@@ -9,11 +9,11 @@ const client = new Socket({
 });
 
 const getUsers = client.createListener<{ response: { data: string }[] }>()({
-  endpoint: "/users",
+  topic: "/users",
 });
 
 const getUser = client.createListener<{ response: { data: string } }>()({
-  endpoint: "/users/:id",
+  topic: "/users/:id",
 });
 
 type TestCallbackType = ListenerCallbackType<

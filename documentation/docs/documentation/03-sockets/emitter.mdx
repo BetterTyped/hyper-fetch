@@ -99,7 +99,7 @@ sendChatMessage.emit({ data: { messsage: "some message" } }, (error, data) => {
 After acknowledging the event, the server should **return the event with message id in the response**.
 
 ```ts
-import { WSMessageType } from "@hyper-socket/sockets";
+import { WebsocketEvent } from "@hyper-socket/sockets";
 
 const message = {
   title: string;
@@ -115,7 +115,7 @@ emitter.emit({
 });
 
 // On server
-socket.on("chat-message", (message: WSMessageType) => {
+socket.on("chat-message", (message: WebsocketEvent) => {
   // Do something with message
   console.log(message.data);
 

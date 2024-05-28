@@ -28,7 +28,7 @@ describe("Socket Adapter [ SSE ]", () => {
     });
     socket.adapter.disconnect();
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -44,7 +44,7 @@ describe("Socket Adapter [ SSE ]", () => {
     openSse();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     socket.appManager.setOnline(false);
@@ -56,7 +56,7 @@ describe("Socket Adapter [ SSE ]", () => {
     openSse();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -68,14 +68,14 @@ describe("Socket Adapter [ SSE ]", () => {
     openSse();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     socket.appManager.setOnline(true);
     openSse();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -87,7 +87,7 @@ describe("Socket Adapter [ SSE ]", () => {
     openSse();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     socket.adapter.connect();
@@ -95,7 +95,7 @@ describe("Socket Adapter [ SSE ]", () => {
     await sleep(10);
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -105,8 +105,8 @@ describe("Socket Adapter [ SSE ]", () => {
     emitError();
 
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(new Error());
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(new Error());
     });
   });
 });

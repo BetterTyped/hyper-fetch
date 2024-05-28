@@ -8,9 +8,4 @@ export * from "./client";
 export * from "./files/files.api";
 export * from "./users/users.api";
 
-// Start MSW
-if (typeof window === "undefined") {
-  setupServer(...handlers).listen();
-} else {
-  setupWorker(...handlers).start();
-}
+setupWorker(...handlers).start();

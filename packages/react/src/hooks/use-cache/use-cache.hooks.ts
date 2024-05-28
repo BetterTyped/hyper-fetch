@@ -8,7 +8,7 @@ import { useConfigProvider } from "config-provider";
 
 export const useCache = <T extends RequestInstance>(
   request: T,
-  options: UseCacheOptionsType<T> = useCacheDefaultOptions,
+  options?: UseCacheOptionsType<T>,
 ): UseCacheReturnType<T> => {
   const { cacheKey, client } = request;
 

@@ -3,7 +3,7 @@ import { QueryParamsType, QueryStringifyOptionsType, StringifyCallbackType } fro
 import { Socket } from "socket";
 import { SocketAdapterInstance } from "adapter";
 import { EmitterInstance } from "emitter";
-import { ExtractSocketOptionsType } from "types";
+import { ExtractAdapterOptionsType } from "types";
 
 export type SocketInstance = Socket<any>;
 
@@ -17,7 +17,7 @@ export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptionsType;
   queryParamsStringify?: StringifyCallbackType;
-  adapterOptions?: ExtractSocketOptionsType<AdapterType>;
+  adapterOptions?: ExtractAdapterOptionsType<AdapterType>;
 };
 
 export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;

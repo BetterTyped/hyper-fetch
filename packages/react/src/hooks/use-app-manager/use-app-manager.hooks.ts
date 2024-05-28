@@ -4,7 +4,7 @@ import { ClientInstance } from "@hyper-fetch/core";
 
 import { UseAppManagerReturnType } from "hooks/use-app-manager";
 
-export const useAppManager = <B extends ClientInstance>(client: B): UseAppManagerReturnType => {
+export const useAppManager = <Client extends ClientInstance>(client: Client): UseAppManagerReturnType => {
   const [online, setIsOnline] = useState(client.appManager.isOnline);
   const [focused, setIsFocused] = useState(client.appManager.isFocused);
 

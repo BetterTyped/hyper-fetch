@@ -70,9 +70,9 @@ describe("Client [ Base ]", () => {
           return appManager;
         },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new cache", async () => {
       const spy = jest.fn();
@@ -85,9 +85,9 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new fetchDispatcher", async () => {
       const spy = jest.fn();
@@ -100,9 +100,9 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new submitDispatcher", async () => {
       const spy = jest.fn();
@@ -115,9 +115,9 @@ describe("Client [ Base ]", () => {
         },
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
       client.clear();
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should assign new defaultExtra", async () => {
       const defaultExtra = { headers: { test: "1" } };

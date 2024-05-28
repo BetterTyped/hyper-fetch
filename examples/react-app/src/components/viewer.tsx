@@ -1,12 +1,11 @@
 /* eslint-disable react/require-default-props */
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
 import { useAppManager } from "@hyper-fetch/react";
 
 import { Sidebar } from "../components/sidebar";
-import { DASHBOARD_PAGE } from "../constants/routing.constants";
 import { client } from "../api";
+import { routing } from "../constants/routing.constants";
 
 export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButtons?: boolean }> = ({
   name,
@@ -16,7 +15,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
   const [mount, setMount] = useState(true);
   const { isOnline, isFocused } = useAppManager(client);
 
-  const push = useNavigate();
+  const { navigate } = routing.useLocation();
 
   const handleToggle = () => {
     setMount((prev) => !prev);
@@ -33,7 +32,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
         {!noButtons && (
           <Stack direction="row" spacing={2}>
             <Box>
-              <Button size="small" variant="contained" type="button" onClick={() => push(DASHBOARD_PAGE.path)}>
+              <Button size="small" variant="contained" type="button" onClick={() => navigate({ to: "Dashboard" })}>
                 Go To dashboard
               </Button>
             </Box>

@@ -103,8 +103,8 @@ describe("Mocker [ Base ]", () => {
     dispatcher.cancelRunningRequest(firstRequest.queueKey, requestId);
 
     expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
-    expect(firstSpy).toBeCalledTimes(1);
-    expect(secondSpy).toBeCalledTimes(1);
+    expect(firstSpy).toHaveBeenCalledTimes(1);
+    expect(secondSpy).toHaveBeenCalledTimes(1);
   });
 
   it("Should allow for retrying request", async () => {
@@ -310,8 +310,8 @@ describe("Mocker [ Base ]", () => {
     client.requestManager.events.onUploadProgress(request.queueKey, requestSpy);
     client.requestManager.events.onDownloadProgress(request.queueKey, responseSpy);
     const response = await mockedRequest.send();
-    expect(requestSpy).toBeCalledTimes(3);
-    expect(responseSpy).toBeCalledTimes(4);
+    expect(requestSpy).toHaveBeenCalledTimes(3);
+    expect(responseSpy).toHaveBeenCalledTimes(4);
     expect(response).toStrictEqual({
       data: fixture,
       error: null,

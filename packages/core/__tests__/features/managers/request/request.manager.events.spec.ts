@@ -45,12 +45,12 @@ describe("RequestManager [ Events ]", () => {
       client.requestManager.events.onResponseById(requestId, spy6);
 
       await waitFor(() => {
-        expect(spy1).toBeCalledTimes(1);
-        expect(spy2).toBeCalledTimes(1);
-        expect(spy3).toBeCalledTimes(2);
-        expect(spy4).toBeCalledTimes(3);
-        expect(spy5).toBeCalledTimes(1);
-        expect(spy6).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
+        expect(spy3).toHaveBeenCalledTimes(2);
+        expect(spy4).toHaveBeenCalledTimes(3);
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -68,8 +68,8 @@ describe("RequestManager [ Events ]", () => {
 
       client.requestManager.abortByKey(request.abortKey);
       await waitFor(() => {
-        expect(spy1).toBeCalledTimes(1);
-        expect(spy2).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
       });
 
       expect(client.appManager.isFocused).toBeTrue();
@@ -87,8 +87,8 @@ describe("RequestManager [ Events ]", () => {
 
       client.requestManager.abortAll();
       await waitFor(() => {
-        expect(spy1).toBeCalledTimes(1);
-        expect(spy2).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(1);
+        expect(spy2).toHaveBeenCalledTimes(1);
       });
 
       expect(client.appManager.isFocused).toBeTrue();
@@ -108,7 +108,7 @@ describe("RequestManager [ Events ]", () => {
       client.requestManager.abortAll();
 
       await sleep(50);
-      expect(spy1).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(1);
 
       expect(client.appManager.isFocused).toBeTrue();
     });

@@ -29,7 +29,7 @@ import { InvalidationKeyType } from "types";
  */
 export const useSubmit = <RequestType extends RequestInstance>(
   request: RequestType,
-  options: UseSubmitOptionsType<RequestType> = useSubmitDefaultOptions,
+  options?: UseSubmitOptionsType<RequestType>,
 ): UseSubmitReturnType<RequestType> => {
   // Build the configuration options
   const { config: globalConfig } = useConfigProvider();
@@ -40,7 +40,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       ...options,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [globalConfig.useSubmitConfig, JSON.stringify(options), options.deepCompare],
+    [globalConfig.useSubmitConfig, JSON.stringify(options), options?.deepCompare],
   );
   const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
 

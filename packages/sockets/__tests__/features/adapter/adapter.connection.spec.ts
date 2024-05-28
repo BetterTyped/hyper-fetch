@@ -21,7 +21,7 @@ describe("Socket Adapter [ Connection ]", () => {
     const spy = jest.fn();
     socket.events.onOpen(spy);
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -30,7 +30,7 @@ describe("Socket Adapter [ Connection ]", () => {
     socket = createSocket({ autoConnect: false });
     socket.events.onOpen(spy);
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -44,7 +44,7 @@ describe("Socket Adapter [ Connection ]", () => {
       socket.appManager.setOnline(true);
     });
     await waitFor(() => {
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -62,6 +62,6 @@ describe("Socket Adapter [ Connection ]", () => {
       return !!socket.adapter.reconnectionAttempts;
     });
 
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

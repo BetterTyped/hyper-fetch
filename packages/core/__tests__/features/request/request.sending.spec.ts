@@ -113,7 +113,7 @@ describe("Request [ Sending ]", () => {
         success: true,
         extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should wait to resolve request retries", async () => {
       const spy = jest.fn();
@@ -135,7 +135,7 @@ describe("Request [ Sending ]", () => {
         success: true,
         extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return error once request got removed", async () => {
       createRequestInterceptor(request, { delay: 10, status: 400 });
@@ -164,7 +164,7 @@ describe("Request [ Sending ]", () => {
       client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
 
       await requestExecution;
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return cancel error", async () => {
       const newRequest = client
@@ -250,12 +250,12 @@ describe("Request [ Sending ]", () => {
         onResponse: spy6,
       });
 
-      expect(spy1).toBeCalledTimes(1);
-      expect(spy2).toBeCalledTimes(1);
-      expect(spy3).toBeCalledTimes(1);
-      expect(spy4).toBeCalledTimes(2);
-      expect(spy5).toBeCalledTimes(3);
-      expect(spy6).toBeCalledTimes(1);
+      expect(spy1).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledTimes(1);
+      expect(spy3).toHaveBeenCalledTimes(1);
+      expect(spy4).toHaveBeenCalledTimes(2);
+      expect(spy5).toHaveBeenCalledTimes(3);
+      expect(spy6).toHaveBeenCalledTimes(1);
     });
   });
 });

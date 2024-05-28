@@ -71,7 +71,7 @@ describe("Cache [ Base ]", () => {
       cache.set(request.setCache(true), { ...response, ...details });
       unmount();
 
-      expect(trigger).toBeCalledTimes(1);
+      expect(trigger).toHaveBeenCalledTimes(1);
       expect(cache.get(request.cacheKey)).toBeDefined();
     });
 
@@ -92,7 +92,7 @@ describe("Cache [ Base ]", () => {
       await sleep(1);
 
       expect(cache.get(request.cacheKey)).not.toBeDefined();
-      expect(trigger).toBeCalledTimes(1);
+      expect(trigger).toHaveBeenCalledTimes(1);
       unmount();
     });
 
@@ -103,7 +103,7 @@ describe("Cache [ Base ]", () => {
       cache.set(request.setCache(false), { ...response, ...details });
       unmount();
 
-      expect(trigger).toBeCalledTimes(1);
+      expect(trigger).toHaveBeenCalledTimes(1);
       expect(cache.get(request.cacheKey)).not.toBeDefined();
     });
 
@@ -126,7 +126,7 @@ describe("Cache [ Base ]", () => {
       cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();
 
-      expect(trigger).toBeCalledTimes(0);
+      expect(trigger).toHaveBeenCalledTimes(0);
       expect(cache.get(request.cacheKey)).not.toBeDefined();
     });
   });
