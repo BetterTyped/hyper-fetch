@@ -3,7 +3,6 @@ import {
   NegativeTypes,
   ExtractParamsType,
   ExtractPayloadType,
-  ExtractRequestQueryParamsType,
   ExtractAdapterType,
   ExtractEndpointType,
   ExtractHasDataType,
@@ -12,13 +11,17 @@ import {
   ExtractErrorType,
   ExtractResponseType,
   HttpMethodsType,
-  ExtractPropertiesType,
+  ExtractGlobalErrorType,
+  ExtractQueryParamsType,
+  ExtractLocalErrorType,
 } from "types";
 import { Request } from "request";
 import {
   ResponseReturnType,
+  QueryParamsType,
   ProgressType,
   ExtractAdapterOptionsType,
+  AdapterType,
   ExtractAdapterMethodType,
   AdapterInstance,
 } from "adapter";
@@ -37,10 +40,16 @@ export type AdapterProgressType = {
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestJSON<Request extends RequestInstance> = {
+export type RequestJSON<
+  Request extends RequestInstance,
+  // Bellow generics provided only to overcome the typescript bugs
+  AdapterOptions = unknown,
+  QueryParams = QueryParamsType,
+  Params = ExtractParamsType<Request>,
+> = {
   requestOptions: RequestOptionsType<
     string,
-    ExtractAdapterType<Request>,
+    AdapterOptions | ExtractAdapterType<Request>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
   endpoint: string;
@@ -57,10 +66,10 @@ export type RequestJSON<Request extends RequestInstance> = {
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
+  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
   data: PayloadType<ExtractPayloadType<Request>>;
-  params: ExtractParamsType<Request>;
-  queryParams: ExtractRequestQueryParamsType<Request>;
+  params: Params | NegativeTypes;
+  queryParams: QueryParams | NegativeTypes;
   abortKey: string;
   cacheKey: string;
   queueKey: string;
@@ -243,7 +252,7 @@ export type RequestQueueOptions = {
 // Request making
 
 export type RequestSendOptionsType<Request extends RequestInstance> = FetchQueryParamsType<
-  ExtractRequestQueryParamsType<Request>,
+  ExtractQueryParamsType<Request>,
   ExtractHasQueryParamsType<Request>
 > &
   FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
@@ -287,7 +296,19 @@ export type RequestSendType<Request extends RequestInstance> =
 
 // Instance
 
-export type RequestInstance = Request<any>;
+export type RequestInstance = Request<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  AdapterType<any, any, any, any, any>,
+  any,
+  any,
+  any
+>;
+
 export type RequestExtend<
   Req extends RequestInstance,
   Properties extends {
@@ -302,7 +323,20 @@ export type RequestExtend<
     hasParams?: true | false;
     hasQuery?: true | false;
   },
-> = Request<Properties & Exclude<ExtractPropertiesType<Req>, keyof Properties>>;
+  // Type is correct, TS is not able to handle it
+  // @ts-ignore
+> = Request<
+  Properties["response"] extends never ? ExtractResponseType<Req> : Properties["response"],
+  Properties["payload"] extends never ? ExtractPayloadType<Req> : Properties["payload"],
+  Properties["queryParams"] extends never ? ExtractQueryParamsType<Req> : Properties["queryParams"],
+  Properties["globalError"] extends never ? ExtractGlobalErrorType<Req> : Properties["globalError"],
+  Properties["localError"] extends never ? ExtractLocalErrorType<Req> : Properties["localError"],
+  Properties["endpoint"] extends never ? ExtractEndpointType<Req> : Properties["endpoint"],
+  Properties["adapter"] extends never ? ExtractAdapterType<Req> : Properties["adapter"],
+  Properties["hasData"] extends never ? ExtractHasDataType<Req> : Properties["hasData"],
+  Properties["hasParams"] extends never ? ExtractHasParamsType<Req> : Properties["hasParams"],
+  Properties["hasQuery"] extends never ? ExtractHasQueryParamsType<Req> : Properties["hasQuery"]
+>;
 
 // Mappers
 

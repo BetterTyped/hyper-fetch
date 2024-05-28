@@ -1,50 +1,38 @@
 import { TypeWithDefaults } from "@hyper-fetch/core";
 
 import { EmitterInstance } from "emitter";
-import { ListenerCallbackType, ListenerInstance } from "listener";
+import { Listener, ListenerCallbackType, ListenerInstance } from "listener";
 import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
 
-export type SocketAdapterInstance = SocketAdapterType<any>;
+export type SocketAdapterInstance = SocketAdapterType<any, any, any, any>;
 
 export type SocketAdapterType<
-  Properties extends {
-    options?: Record<string, any>;
-    extra?: Record<string, any>;
-    listenerOptions?: Record<string, any>;
-    emitterOptions?: Record<string, any>;
-  } = {
-    options?: never;
-    extra?: undefined;
-    listenerOptions?: undefined;
-    emitterOptions?: undefined;
-  },
+  AdapterOptions extends Record<string, any> = never,
+  AdapterExtra extends Record<string, any> = Record<never, never>,
+  ListenerOptions extends Record<string, any> = never,
+  EmitterOptions extends Record<string, any> = never,
 > = (
-  socket: Socket<SocketAdapterType<Properties>>,
+  socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
   DO_NOT_USE?: {
-    options?: TypeWithDefaults<Properties, "options", never>;
-    extra?: TypeWithDefaults<Properties, "extra", undefined>;
-    listenerOptions?: TypeWithDefaults<Properties, "listenerOptions", undefined>;
-    emitterOptions?: TypeWithDefaults<Properties, "emitterOptions", undefined>;
+    adapterOptions?: AdapterOptions;
+    adapterExtra?: AdapterExtra;
+    listenerOptions?: ListenerOptions;
+    emitterOptions?: EmitterOptions;
   },
 ) => {
   open: boolean;
   reconnectionAttempts: number;
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
-    listener: ListenerInstance,
+    listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
     callback: ListenerCallbackType<
-      SocketAdapterType<{
-        options: TypeWithDefaults<Properties, "options", never>;
-        extra: TypeWithDefaults<Properties, "extra", undefined>;
-        listenerOptions: TypeWithDefaults<Properties, "listenerOptions", undefined>;
-        emitterOptions: TypeWithDefaults<Properties, "emitterOptions", undefined>;
-      }>,
+      SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>,
       any
     >,
   ) => RemoveListenerCallbackType;
-  removeListener: (topic: string, callback: (...args: any) => void) => void;
+  removeListener: (endpoint: string, callback: (...args: any) => void) => void;
   emit: (eventMessageId: string, emitter: EmitterInstance) => void;
   connecting: boolean;
   connect: () => void;

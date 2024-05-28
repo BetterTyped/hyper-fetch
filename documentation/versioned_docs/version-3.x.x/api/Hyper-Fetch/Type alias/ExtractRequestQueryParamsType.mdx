@@ -1,6 +1,4 @@
-
-
-# ExtractRequestQueryParamsType
+# ExtractQueryParamsType
 
 <div class="api-docs__separator" data-reactroot="">
 
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { ExtractRequestQueryParamsType } from "@hyper-fetch/core"
+import { ExtractQueryParamsType } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { ExtractRequestQueryParamsType } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [types/fetch.types.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/types/fetch.types.ts#L16)
+Defined in
+[types/fetch.types.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/types/fetch.types.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -31,7 +28,7 @@ Defined in [types/fetch.types.ts:16](https://github.com/BetterTyped/hyper-fetch/
 </div><div class="api-docs__preview type single">
 
 ```ts
-type ExtractRequestQueryParamsType<T> = T extends Request<any, any, infer  Q, any, any, any, any, any, any, any> ? Q : never;
+type ExtractQueryParamsType<T> = T extends Request<any, any, infer Q, any, any, any, any, any, any, any> ? Q : never;
 ```
 
 </div><div class="api-docs__section">

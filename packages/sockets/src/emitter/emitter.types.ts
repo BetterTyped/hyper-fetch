@@ -12,10 +12,10 @@ import {
   ExtractAdapterEmitterOptionsType,
 } from "types";
 
-export type EmitterInstance = Emitter<any>;
+export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
 
-export type EmitterOptionsType<topic extends string, AdapterType extends SocketAdapterInstance> = {
-  topic: topic;
+export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
+  topic: Topic;
   timeout?: number;
   options?: ExtractAdapterEmitterOptionsType<AdapterType>;
 };

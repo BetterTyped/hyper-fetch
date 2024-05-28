@@ -7,9 +7,9 @@ import { ExtractAdapterOptionsType } from "types";
 
 export type SocketInstance = Socket<any>;
 
-export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
+export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   url: string;
-  adapter?: AdapterType;
+  adapter?: Adapter;
   auth?: QueryParamsType;
   reconnect?: number;
   reconnectTime?: number;
@@ -17,7 +17,7 @@ export type SocketOptionsType<AdapterType extends SocketAdapterInstance> = {
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptionsType;
   queryParamsStringify?: StringifyCallbackType;
-  adapterOptions?: ExtractAdapterOptionsType<AdapterType>;
+  adapterOptions?: ExtractAdapterOptionsType<Adapter>;
 };
 
 export type ReconnectCallbackType<SocketType extends SocketInstance> = (socket: SocketType) => void;

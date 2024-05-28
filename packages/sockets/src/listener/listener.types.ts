@@ -10,11 +10,11 @@ import {
   ExtractAdapterExtraType,
 } from "types";
 
-export type ListenerInstance = Listener<any>;
+export type ListenerInstance = Listener<any, any, any, any>;
 
-export type ListenerOptionsType<topic extends string, AdapterType extends SocketAdapterInstance> = {
-  topic: topic;
-  params?: ExtractRouteParams<topic>;
+export type ListenerOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
+  topic: Topic;
+  params?: ExtractRouteParams<Topic>;
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
 

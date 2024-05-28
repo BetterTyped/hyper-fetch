@@ -26512,7 +26512,7 @@
     },
     {
       "id": 2399,
-      "name": "ExtractRequestQueryParamsType",
+      "name": "ExtractQueryParamsType",
       "kind": 4194304,
       "kindString": "Type alias",
       "flags": {},
@@ -34389,7 +34389,7 @@
                     "name": "Request"
                   }
                 ],
-                "name": "ExtractRequestQueryParamsType"
+                "name": "ExtractQueryParamsType"
               },
               {
                 "type": "reference",

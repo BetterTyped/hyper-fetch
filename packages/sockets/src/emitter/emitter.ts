@@ -7,50 +7,27 @@ import { ExtractAdapterEmitterOptionsType } from "types";
 import { emitEvent } from "./emitter.utils";
 
 export class Emitter<
-  Properties extends {
-    payload: any;
-    response: any;
-    topic: string;
-    adapter: SocketAdapterInstance;
-    mappedData: any;
-    hasParams?: boolean;
-    hasData?: boolean;
-  } = {
-    payload: undefined;
-    response: undefined;
-    topic: string;
-    adapter: SocketAdapterType;
-    mappedData: void;
-    hasParams: false;
-    hasData: false;
-  },
+  Payload,
+  Response,
+  Topic extends string,
+  Adapter extends SocketAdapterType,
+  MappedData = void,
+  HasParams extends boolean = false,
+  HasData extends boolean = false,
 > {
-  readonly topic: TypeWithDefaults<Properties, "topic", string>;
+  readonly topic: Topic;
   params?: ParamsType;
   timeout: number;
-  data: TypeWithDefaults<Properties, "payload", undefined> | null = null;
-  options: ExtractAdapterEmitterOptionsType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>;
+  data: Payload | null = null;
+  options: ExtractAdapterEmitterOptionsType<Adapter>;
 
-  dataMapper?: (
-    data: TypeWithDefaults<Properties, "payload", undefined>,
-  ) => TypeWithDefaults<Properties, "mappedData", undefined>;
+  dataMapper?: (data: Payload) => MappedData;
 
   constructor(
-    readonly socket: Socket<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>,
-    readonly emitterOptions: EmitterOptionsType<
-      TypeWithDefaults<Properties, "topic", string>,
-      TypeWithDefaults<Properties, "adapter", SocketAdapterType>
-    >,
+    readonly socket: Socket<Adapter>,
+    readonly emitterOptions: EmitterOptionsType<Topic, Adapter>,
     json?: Pick<
-      Emitter<{
-        payload: TypeWithDefaults<Properties, "payload", undefined>;
-        response: TypeWithDefaults<Properties, "response", undefined>;
-        topic: TypeWithDefaults<Properties, "topic", string>;
-        adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
-        mappedData: TypeWithDefaults<Properties, "mappedData", undefined>;
-        hasParams: TypeWithDefaults<Properties, "hasData", false>;
-        hasData: TypeWithDefaults<Properties, "hasParams", false>;
-      }>,
+      Emitter<Payload, Response, Topic, Adapter, MappedData, HasData, HasParams>,
       "topic" | "params" | "timeout" | "data" | "options"
     >,
   ) {
@@ -63,7 +40,7 @@ export class Emitter<
     this.params = json?.params;
   }
 
-  setOptions(options: ExtractAdapterEmitterOptionsType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>) {
+  setOptions(options: ExtractAdapterEmitterOptionsType<Adapter>) {
     return this.clone({ options });
   }
 
@@ -71,27 +48,27 @@ export class Emitter<
     return this.clone({ timeout });
   }
 
-  setData(data: TypeWithDefaults<Properties, "payload", undefined>) {
+  setData(data: Payload) {
     if (this.dataMapper) {
       return this.clone<{
-        payload: TypeWithDefaults<Properties, "mappedData", TypeWithDefaults<Properties, "payload", undefined>>;
+        payload: MappedData extends void ? Payload : MappedData;
         hasData: true;
-      }>({ data: this.dataMapper(data) });
+      }>({ data: this.dataMapper(data) as MappedData extends void ? Payload : MappedData });
     }
-    return this.clone<{ hasData: true }>({ data });
+    return this.clone<{ hasData: true }>({ data: data as any });
   }
 
-  setDataMapper = <MapperData>(mapper: (data: TypeWithDefaults<Properties, "payload", undefined>) => MapperData) => {
+  setDataMapper = <MapperData>(mapper: (data: Payload) => MapperData) => {
     const newInstance = this.clone<{ mappedData: MapperData }>(undefined);
     newInstance.dataMapper = mapper;
     return newInstance;
   };
 
-  setParams(params: ExtractRouteParams<TypeWithDefaults<Properties, "topic", string>>) {
+  setParams(params: ExtractRouteParams<Topic>) {
     return this.clone<{ hasParams: true }>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): TypeWithDefaults<Properties, "topic", string> => {
+  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
     let topic = this.emitterOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -99,7 +76,7 @@ export class Emitter<
       });
     }
 
-    return topic as TypeWithDefaults<Properties, "topic", string>;
+    return topic as Topic;
   };
 
   clone<
@@ -109,18 +86,13 @@ export class Emitter<
       hasParams?: true | false;
       hasData?: true | false;
     } = {
-      payload: TypeWithDefaults<Properties, "payload", undefined>;
-      mappedData: TypeWithDefaults<Properties, "mappedData", void>;
-      hasParams: TypeWithDefaults<Properties, "hasParams", false>;
-      hasData: TypeWithDefaults<Properties, "hasData", false>;
+      payload: Payload;
+      mappedData: MappedData;
+      hasParams: HasParams;
+      hasData: HasData;
     },
   >(
-    options?: Partial<
-      EmitterOptionsType<
-        TypeWithDefaults<Properties, "topic", string>,
-        TypeWithDefaults<Properties, "adapter", SocketAdapterType>
-      >
-    > & {
+    options?: Partial<EmitterOptionsType<Topic, Adapter>> & {
       params?: ParamsType;
       data?: TypeWithDefaults<Extensions, "payload", undefined>;
     },
@@ -128,25 +100,13 @@ export class Emitter<
       data: TypeWithDefaults<Extensions, "payload", undefined>,
     ) => TypeWithDefaults<Extensions, "mappedData", void>,
   ) {
-    type NewPayload = TypeWithDefaults<Extensions, "payload", TypeWithDefaults<Properties, "payload", undefined>>;
-    type NewMappedData = TypeWithDefaults<
-      Extensions,
-      "mappedData",
-      TypeWithDefaults<Properties, "mappedData", undefined>
-    >;
-    type NewHasParams = TypeWithDefaults<Extensions, "hasParams", TypeWithDefaults<Properties, "hasParams", false>>;
-    type NewHasData = TypeWithDefaults<Extensions, "hasData", TypeWithDefaults<Properties, "hasData", false>>;
+    type NewPayload = TypeWithDefaults<Extensions, "payload", Payload>;
+    type NewMappedData = TypeWithDefaults<Extensions, "mappedData", MappedData>;
+    type NewHasParams = TypeWithDefaults<Extensions, "hasParams", HasParams>;
+    type NewHasData = TypeWithDefaults<Extensions, "hasData", HasData>;
 
     const json: Pick<
-      Emitter<{
-        payload: NewPayload;
-        response: TypeWithDefaults<Properties, "response", undefined>;
-        topic: TypeWithDefaults<Properties, "topic", string>;
-        adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
-        mappedData: NewMappedData;
-        hasParams: NewHasParams;
-        hasData: NewHasData;
-      }>,
+      Emitter<NewPayload, Response, Topic, Adapter, NewMappedData, NewHasParams, NewHasData>,
       "topic" | "params" | "timeout" | "data" | "options"
     > = {
       timeout: this.timeout,
@@ -157,23 +117,19 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<{
-      payload: NewPayload;
-      response: TypeWithDefaults<Properties, "response", undefined>;
-      topic: TypeWithDefaults<Properties, "topic", string>;
-      adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
-      mappedData: NewMappedData;
-      hasParams: NewHasParams;
-      hasData: NewHasData;
-    }>(this.socket, this.emitterOptions, json);
+    const newInstance = new Emitter<NewPayload, Response, Topic, Adapter, NewMappedData, NewHasParams, NewHasData>(
+      this.socket,
+      this.emitterOptions,
+      json,
+    );
     newInstance.dataMapper = (mapper || this.dataMapper) as unknown as typeof newInstance.dataMapper;
     return newInstance;
   }
 
-  emit: EmitType<Emitter<Properties>> = (options = {}) => {
-    const typedOptions = options as EmitterEmitOptionsType<Emitter<Properties>>;
+  emit: EmitType<this> = (options = {}) => {
+    const typedOptions = options as EmitterEmitOptionsType<this>;
 
-    const instance = this.clone(typedOptions as any) as unknown as Emitter<Properties>;
+    const instance = this.clone(typedOptions as any) as unknown as this;
 
     return emitEvent(instance, typedOptions);
   };

@@ -1,46 +1,30 @@
 import { RequestInstance } from "request";
-import { HttpMethodsType, HttpStatusType, TypeWithDefaults } from "../types";
+import { HttpMethodsType, HttpStatusType } from "../types";
 
 /**
  * Base Adapter
  */
 
-export type AdapterInstance = AdapterType<{
-  options: any;
-  method: any;
-  status: any;
-  extra: any;
-  queryParams: any;
-  endpoint: any;
-}>;
+export type AdapterInstance = AdapterType<any, any, any, any, any, any>;
 
 export type AdapterType<
-  Properties extends {
-    options?: any;
-    method?: any;
-    status?: any;
-    extra?: Record<string, any>;
-    queryParams?: QueryParamsType | string;
-    endpoint?: any;
-  } = {
-    options: AdapterOptionsType;
-    method: HttpMethodsType;
-    status: HttpStatusType;
-    extra: AdapterExtraType;
-    queryParams: QueryParamsType | string;
-    endpoint: string;
-  },
+  AdapterOptions = AdapterOptionsType,
+  MethodType = HttpMethodsType,
+  StatusType = HttpStatusType,
+  Extra extends Record<string, any> = AdapterExtraType,
+  QueryParams = QueryParamsType | string,
+  EndpointType = string,
 > = (
   request: RequestInstance,
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
   DO_NOT_USE?: {
-    options: TypeWithDefaults<Properties, "options", AdapterOptionsType>;
-    method: TypeWithDefaults<Properties, "method", HttpMethodsType>;
-    status: TypeWithDefaults<Properties, "status", HttpStatusType>;
-    extra: TypeWithDefaults<Properties, "extra", AdapterExtraType>;
-    queryParams: TypeWithDefaults<Properties, "queryParams", QueryParamsType | string>;
-    endpoint: TypeWithDefaults<Properties, "endpoint", string>;
+    method?: MethodType;
+    options?: AdapterOptions;
+    status?: StatusType;
+    extra?: Extra;
+    queryParams?: QueryParams;
+    endpointType?: EndpointType;
   },
   // [any any any] as a way to avoid circular reference that destroyed request type.
 ) => Promise<ResponseReturnType<any, any, any>>;
@@ -49,33 +33,47 @@ export type AdapterType<
  * Extractors
  */
 
-export type ExtractAdapterOptionsType<T extends AdapterInstance> =
-  T extends AdapterType<infer P> ? TypeWithDefaults<P, "options", AdapterOptionsType> : AdapterOptionsType;
-export type ExtractAdapterMethodType<T extends AdapterInstance> =
-  T extends AdapterType<infer P> ? TypeWithDefaults<P, "method", HttpMethodsType> : HttpMethodsType;
-export type ExtractAdapterStatusType<T extends AdapterInstance> =
-  T extends AdapterType<infer P> ? TypeWithDefaults<P, "status", HttpStatusType> : HttpStatusType;
-export type ExtractAdapterExtraType<T extends AdapterInstance> =
-  T extends AdapterType<infer P> ? TypeWithDefaults<P, "extra", Record<string, any>> : Record<string, any>;
-export type ExtractAdapterQueryParamsType<T extends AdapterInstance> =
-  T extends AdapterType<infer P>
-    ? TypeWithDefaults<P, "queryParams", QueryParamsType | string>
-    : QueryParamsType | string;
-export type ExtractAdapterEndpointType<T extends AdapterInstance> =
-  T extends AdapterType<infer P> ? TypeWithDefaults<P, "endpoint", string> : string;
-
+export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
+export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
+export type ExtractAdapterEndpointType<T> = T extends AdapterType<any, any, any, any, any, infer E> ? E : never;
 // Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
   Adapter extends AdapterInstance,
   Values extends {
-    options?: any;
     method?: any;
+    options?: any;
     status?: any;
     extra?: any;
     queryParams?: any;
-    endpoint?: any;
+    endpointType?: any;
   },
-> = Extract<Adapter, AdapterType<Values>> extends AdapterInstance ? Extract<Adapter, AdapterType<Values>> : never;
+> =
+  Extract<
+    Adapter,
+    AdapterType<
+      Values["options"],
+      Values["method"],
+      Values["status"],
+      Values["extra"],
+      Values["queryParams"],
+      Values["endpointType"]
+    >
+  > extends AdapterInstance
+    ? Extract<
+        Adapter,
+        AdapterType<
+          Values["options"],
+          Values["method"],
+          Values["status"],
+          Values["extra"],
+          Values["queryParams"],
+          Values["endpointType"]
+        >
+      >
+    : never;
 
 /**
  * Options

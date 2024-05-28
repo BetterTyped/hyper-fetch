@@ -1,48 +1,38 @@
-import { ExtractRouteParams, ParamsType, TypeWithDefaults } from "@hyper-fetch/core";
+import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
 import { ListenType, ListenerOptionsType } from "listener";
-import { SocketAdapterType, SocketAdapterInstance } from "adapter";
+import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterExtraType, ExtractAdapterListenerOptionsType } from "types";
 
 export class Listener<
-  Properties extends {
-    response: any;
-    topic: any;
-    adapter: SocketAdapterInstance;
-    hasParams?: boolean;
-  } = {
-    response: undefined;
-    topic: string;
-    adapter: SocketAdapterType;
-    hasParams: false;
-  },
+  Response,
+  Topic extends string,
+  AdapterType extends SocketAdapterInstance,
+  HasParams extends boolean = false,
 > {
-  readonly topic: TypeWithDefaults<Properties, "topic", string>;
+  readonly topic: Topic;
   params?: ParamsType;
-  options?: ExtractAdapterListenerOptionsType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>;
+  options?: ExtractAdapterListenerOptionsType<AdapterType>;
 
   constructor(
-    readonly socket: Socket<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>,
-    readonly listenerOptions?: ListenerOptionsType<
-      TypeWithDefaults<Properties, "topic", string>,
-      TypeWithDefaults<Properties, "adapter", SocketAdapterType>
-    >,
+    readonly socket: Socket<AdapterType>,
+    readonly listenerOptions?: ListenerOptionsType<Topic, AdapterType>,
   ) {
     const { topic, options } = listenerOptions;
     this.topic = topic;
     this.options = options;
   }
 
-  setOptions(options: ExtractAdapterListenerOptionsType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>) {
+  setOptions(options: ExtractAdapterListenerOptionsType<AdapterType>) {
     return this.clone({ options });
   }
 
-  setParams(params: ExtractRouteParams<TypeWithDefaults<Properties, "topic", string>>) {
+  setParams(params: ExtractRouteParams<Topic>) {
     return this.clone<true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): TypeWithDefaults<Properties, "topic", string> => {
+  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
     let topic = this.listenerOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -50,23 +40,11 @@ export class Listener<
       });
     }
 
-    return topic as TypeWithDefaults<Properties, "topic", string>;
+    return topic as Topic;
   };
 
-  clone<Params extends true | false = TypeWithDefaults<Properties, "hasParams", false>>(
-    options?: Partial<
-      ListenerOptionsType<
-        TypeWithDefaults<Properties, "topic", string>,
-        TypeWithDefaults<Properties, "adapter", SocketAdapterType>
-      >
-    >,
-  ) {
-    const newInstance = new Listener<{
-      response: TypeWithDefaults<Properties, "response", undefined>;
-      topic: TypeWithDefaults<Properties, "topic", string>;
-      adapter: TypeWithDefaults<Properties, "adapter", SocketAdapterType>;
-      hasParams: Params;
-    }>(this.socket, {
+  clone<Params extends true | false = HasParams>(options?: Partial<ListenerOptionsType<Topic, AdapterType>>) {
+    const newInstance = new Listener<Response, Topic, AdapterType, Params>(this.socket, {
       ...this.listenerOptions,
       ...options,
       topic: this.paramsMapper(options?.params || this.params),
@@ -75,22 +53,13 @@ export class Listener<
     return newInstance;
   }
 
-  listen: ListenType<this, TypeWithDefaults<Properties, "adapter", SocketAdapterType>> = ({ callback, ...options }) => {
+  listen: ListenType<this, AdapterType> = ({ callback, ...options }) => {
     const instance = this.clone(options);
 
-    const action = (response: {
-      data: TypeWithDefaults<Properties, "response", undefined>;
-      extra: ExtractAdapterExtraType<TypeWithDefaults<Properties, "adapter", SocketAdapterType>>;
-    }) => {
-      // TODO: Implement this
-      // this.connections.forEach((connection) => connection(response, () => this.connections.delete(connection)));
-      return callback(response as any);
-    };
-
-    this.socket.adapter.listen(instance, action);
+    this.socket.adapter.listen(instance, callback);
 
     const removeListener = () => {
-      this.socket.adapter.removeListener(instance.topic, action);
+      this.socket.adapter.removeListener(instance.topic, callback);
     };
 
     return removeListener;

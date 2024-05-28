@@ -1,34 +1,41 @@
 import { ResponseReturnType } from "adapter";
-import { ExtractRouteParams, Request } from "request";
+import { ExtractRouteParams, Request, RequestInstance } from "request";
 
-export type ExtractAdapterReturnType<T> = ResponseReturnType<
+export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseReturnType<
   ExtractResponseType<T>,
   ExtractErrorType<T>,
   ExtractAdapterType<T>
 >;
 
-export type ExtractPropertiesType<T> = T extends Request<infer P> ? P : never;
+export type ExtractResponseType<T> =
+  T extends Request<infer D, any, any, any, any, any, any, any, any, any> ? D : never;
 
-export type ExtractResponseType<T> = T extends Request<infer P> ? P["response"] : void;
+export type ExtractPayloadType<T> = T extends Request<any, infer D, any, any, any, any, any, any, any, any> ? D : never;
 
-export type ExtractPayloadType<T> = T extends Request<infer P> ? P["payload"] : void;
+export type ExtractQueryParamsType<T> =
+  T extends Request<any, any, infer Q, any, any, any, any, any, any, any> ? Q : never;
 
-export type ExtractRequestQueryParamsType<T> = T extends Request<infer P> ? P["queryParams"] : never;
+export type ExtractErrorType<T> =
+  T extends Request<any, any, any, infer G, infer L, any, any, any, any, any> ? G | L : never;
 
-export type ExtractErrorType<T> = T extends Request<infer P> ? P["globalError"] | P["localError"] : never;
+export type ExtractGlobalErrorType<T> =
+  T extends Request<any, any, any, infer E, any, any, any, any, any, any> ? E : never;
 
-export type ExtractGlobalErrorType<T> = T extends Request<infer P> ? P["globalError"] : never;
+export type ExtractLocalErrorType<T> =
+  T extends Request<any, any, any, any, infer E, any, any, any, any, any> ? E : never;
 
-export type ExtractLocalErrorType<T> = T extends Request<infer P> ? P["localError"] : never;
+export type ExtractParamsType<T> =
+  T extends Request<any, any, any, any, any, infer P, any, any, any, any> ? ExtractRouteParams<P> : never;
 
-export type ExtractParamsType<T> = T extends Request<infer P> ? ExtractRouteParams<P["endpoint"]> : never;
+export type ExtractEndpointType<T> =
+  T extends Request<any, any, any, any, any, infer E, any, any, any, any> ? E : never;
 
-export type ExtractEndpointType<T> = T extends Request<infer P> ? P["endpoint"] : never;
+export type ExtractAdapterType<T> = T extends Request<any, any, any, any, any, any, infer A, any, any, any> ? A : never;
 
-export type ExtractAdapterType<T> = T extends Request<infer P> ? P["adapter"] : never;
+export type ExtractHasDataType<T> = T extends Request<any, any, any, any, any, any, any, infer D, any, any> ? D : never;
 
-export type ExtractHasDataType<T> = T extends Request<infer P> ? P["hasData"] : never;
+export type ExtractHasParamsType<T> =
+  T extends Request<any, any, any, any, any, any, any, any, infer P, any> ? P : never;
 
-export type ExtractHasParamsType<T> = T extends Request<infer P> ? P["hasParams"] : never;
-
-export type ExtractHasQueryParamsType<T> = T extends Request<infer P> ? P["hasQuery"] : never;
+export type ExtractHasQueryParamsType<T> =
+  T extends Request<any, any, any, any, any, any, any, any, any, infer Q> ? Q : never;
