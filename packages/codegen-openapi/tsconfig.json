@@ -3,10 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": "./src",
-    "lib": ["es2021"],
-    "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"]
-    }
+    "jsx": "react-jsx"
   }
 }

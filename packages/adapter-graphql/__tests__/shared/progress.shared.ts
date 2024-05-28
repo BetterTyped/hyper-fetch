@@ -21,8 +21,8 @@ export const testProgressSpy = (props: {
   }).timeLeft;
   const timeToSend = loadedValue ? estimatedTime : null;
 
-  expect(spy).toHaveBeenCalledTimes(1);
-  expect(spy).toHaveBeenCalledWith(
+  expect(spy).toBeCalledTimes(1);
+  expect(spy).toBeCalledWith(
     {
       loaded: loadedValue,
       progress: getProgressValue({ total: totalValue, loaded: loadedValue }),

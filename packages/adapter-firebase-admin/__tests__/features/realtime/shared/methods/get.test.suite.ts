@@ -14,7 +14,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
 
     it("should return data available for endpoint", async () => {
-      const req = client.createRequest<{ response: Tea[] }>()({
+      const req = client.createRequest<Tea[]>()({
         endpoint: "",
         method: "get",
       });
@@ -29,7 +29,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should return data for dynamic endpoint", async () => {
       const req = client
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "get",
         })
@@ -40,7 +40,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should return emptyResource status for non existing resource", async () => {
       const req = clientBees
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "get",
         })
@@ -52,7 +52,7 @@ export const getTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAd
     });
     it("should emit lifecycle events", async () => {
       const req = clientBees
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "get",
         })

@@ -32,7 +32,7 @@ export const onValueTestSuite = (
       const client = new Client({ url: "teas/" }).setAdapter(initializedCoreAdapter);
       const socket = new Socket({ url: "teas/", adapter: initializedSocketsAdapter });
       const pushReq = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "push",
         })
@@ -50,7 +50,7 @@ export const onValueTestSuite = (
 
     it("should return unmount function", async () => {
       const { socket } = await initialize();
-      const onValueReq = socket.createListener<{ response: Tea[] }>()({
+      const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
       });
       const unmount = onValueReq.listen({ callback: spy });
@@ -59,13 +59,13 @@ export const onValueTestSuite = (
 
     it("should unmount listeners", async () => {
       const { socket, pushReq } = await initialize();
-      const onValueReq = socket.createListener<{ response: Tea[] }>()({
+      const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
       });
       const unmount = onValueReq.listen({ callback: spy });
 
       await waitForExpect(async () => {
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
 
       unmount();
@@ -74,7 +74,7 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       }, 1000);
 
       expect(socket.adapter.listeners.get(onValueReq.endpoint).size).toBe(0);
@@ -82,7 +82,7 @@ export const onValueTestSuite = (
 
     it("should return emptyResource status", async () => {
       const { socketBees } = await initialize();
-      const onValueReq = socketBees.createListener<{ response: Tea[] }>()({
+      const onValueReq = socketBees.createListener<Tea[]>()({
         endpoint: "",
         options: { onlyOnce: false },
       });
@@ -109,7 +109,7 @@ export const onValueTestSuite = (
 
     it("should be called once with onlyOnce option", async () => {
       const { socket, pushReq } = await initialize();
-      const onValueReq = socket.createListener<{ response: Tea[] }>()({
+      const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
         options: { onlyOnce: true },
       });
@@ -121,7 +121,7 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toBeCalledTimes(1);
       });
 
       unmount();
@@ -130,7 +130,7 @@ export const onValueTestSuite = (
     it("should receive updates", async () => {
       const { socket, pushReq } = await initialize();
 
-      const onValueReq = socket.createListener<{ response: Tea[] }>()({
+      const onValueReq = socket.createListener<Tea[]>()({
         endpoint: "",
         options: { onlyOnce: false },
       });
@@ -162,7 +162,7 @@ export const onValueTestSuite = (
     it("should return data available for doc", async () => {
       const { socket } = await initialize();
       const onValueReq = socket
-        .createListener<{ response: Tea[] }>()({
+        .createListener<Tea[]>()({
           endpoint: ":teaId",
         })
         .setParams({ teaId: 1 });

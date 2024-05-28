@@ -20,7 +20,7 @@
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
     "build": "yarn clean && node ../../scripts/build.js",
     "postbuild": "rollup -c '../../rollup.config.js'",
-    "lint": "eslint . --fix",
+    "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",

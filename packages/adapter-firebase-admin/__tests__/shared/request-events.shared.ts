@@ -23,10 +23,10 @@ export const testLifecycleEvents = async <R extends RequestInstance>(request: R)
   // eslint-disable-next-line no-promise-executor-return
   await new Promise((resolve) => setTimeout(resolve, 50));
 
-  expect(spy1).toHaveBeenCalledTimes(1);
-  expect(spy2).toHaveBeenCalledTimes(1);
-  expect(spy5).toHaveBeenCalledTimes(1);
-  expect(spy6).toHaveBeenCalledTimes(1);
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(1);
+  expect(spy5).toBeCalledTimes(1);
+  expect(spy6).toBeCalledTimes(1);
 
   return response;
 };

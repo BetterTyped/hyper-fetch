@@ -9,7 +9,7 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const req = client
-        .createRequest<{ response: Tea[] }>()({
+        .createRequest<Tea[]>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
@@ -32,7 +32,7 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should return emptyResource status for non existing resource", async () => {
       const client = new Client({ url: "bees/" }).setAdapter(adapterFunction());
       const req = client
-        .createRequest<{ response: Tea[] }>()({
+        .createRequest<Tea[]>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
@@ -48,7 +48,7 @@ export const getDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should emit lifecycle events", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const request = client
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "getDoc",
         })

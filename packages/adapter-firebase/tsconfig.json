@@ -3,5 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": "./src"
-  }
+  },
+  "exclude": ["dist", "jest.config.ts"]
 }

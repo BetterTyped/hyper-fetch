@@ -15,41 +15,23 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export type FirestoreSocketAdapterType = SocketAdapterType<{
-  options: never;
-  extra: FirestoreOnSnapshotExtra;
-  listenerOptions: { groupByChangeType?: boolean } & FirestoreQueryParams;
-}>;
+export type FirestoreSocketAdapterType = SocketAdapterType<
+  never,
+  FirestoreOnSnapshotExtra,
+  { groupByChangeType?: boolean } & FirestoreQueryParams
+>;
 
 export type FirestoreAdapterType =
-  | AdapterType<{
-      options: Record<string, never>;
-      method: "getDoc";
-      status: FirestoreStatuses;
-      extra: FirestoreExtra;
-      queryParams: FirestoreQueryParams;
-    }>
-  | AdapterType<{
-      options: Record<string, never>;
-      method: "getDocs";
-      status: FirestoreStatuses;
-      extra: FirestoreGetDocsExtra;
-      queryParams: FirestoreQueryParams;
-    }>
-  | AdapterType<{
-      options: { merge: boolean };
-      method: "setDoc";
-      status: FirestoreStatuses;
-      extra: FirestoreRefOnlyExtra;
-      queryParams: Record<string, never>;
-    }>
-  | AdapterType<{
-      options: Record<string, never>;
-      method: "updateDoc" | "addDoc" | "deleteDoc" | "setDoc";
-      status: FirestoreStatuses;
-      extra: FirestoreRefOnlyExtra;
-      queryParams: Record<string, never>;
-    }>;
+  | AdapterType<Record<string, never>, "getDoc", FirestoreStatuses, FirestoreExtra, FirestoreQueryParams>
+  | AdapterType<Record<string, never>, "getDocs", FirestoreStatuses, FirestoreGetDocsExtra, FirestoreQueryParams>
+  | AdapterType<{ merge: boolean }, "setDoc", FirestoreStatuses, FirestoreRefOnlyExtra, Record<string, never>>
+  | AdapterType<
+      Record<string, never>,
+      "updateDoc" | "addDoc" | "deleteDoc" | "setDoc",
+      FirestoreStatuses,
+      FirestoreRefOnlyExtra,
+      Record<string, never>
+    >;
 
 export type FirestoreQueryParams = {
   constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];

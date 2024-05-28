@@ -14,12 +14,12 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should allow for updating data", async () => {
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
       const updateReq = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
           method: "update",
         })
         .setData(newData);
-      const getReq = client.createRequest<{ response: Tea }>()({
+      const getReq = client.createRequest<Tea>()({
         endpoint: ":teaId",
         method: "get",
       });
@@ -31,7 +31,7 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof firebas
       const newData = { name: "Pou Ran Do Cha", amount: 100, year: 966 } as Tea;
 
       const updateReq = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
           method: "update",
         })

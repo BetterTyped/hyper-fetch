@@ -43,7 +43,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     };
 
     const listen: ReturnType<RealtimeSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.topic;
+      const fullUrl = socket.url + listener.endpoint;
       const path = ref(database, fullUrl);
 
       const { options } = listener;
@@ -60,7 +60,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
           const status = getStatus(response);
           const extra = { ref: path, snapshot, status };
           callback({ data: response, extra });
-          onEvent(listener.topic, response, extra);
+          onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);
@@ -77,7 +77,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     };
 
     const emit = async () => {
-      throw new Error("Cannot emit from Realtime database socket. It is not supported.");
+      throw new Error("Cannot emit from Realtime database socket.");
     };
 
     return {

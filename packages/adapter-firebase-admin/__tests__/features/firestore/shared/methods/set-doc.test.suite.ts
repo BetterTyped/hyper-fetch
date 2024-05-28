@@ -10,13 +10,13 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const getReq = client
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
         .setParams({ teaId: 1 });
       const setReq = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
           method: "setDoc",
         })
@@ -31,14 +31,14 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
     it("should merge data if merge options is passed", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
       const getReq = client
-        .createRequest<{ response: Tea }>()({
+        .createRequest<Tea>()({
           endpoint: ":teaId",
           method: "getDoc",
         })
         .setParams({ teaId: 1 });
       const { data: existingData } = await getReq.send();
       const setReq = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
           method: "setDoc",
           options: { merge: true },
@@ -56,7 +56,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebas
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
 
       const request = client
-        .createRequest<{ response: Tea; payload: Tea }>()({
+        .createRequest<Tea, Tea>()({
           endpoint: ":teaId",
           method: "setDoc",
           options: { merge: true },

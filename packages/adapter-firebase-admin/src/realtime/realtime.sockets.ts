@@ -43,7 +43,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
     };
 
     const listen: ReturnType<RealtimeAdminSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.topic;
+      const fullUrl = socket.url + listener.endpoint;
       const path = database.ref(fullUrl);
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
@@ -58,7 +58,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
           const status = getStatus(response);
           const extra: RealtimeAdminOnValueMethodExtra = { ref: path, snapshot, status };
           callback({ data: response, extra });
-          onEvent(listener.topic, response, extra);
+          onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);
@@ -76,7 +76,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
     };
 
     const emit = async () => {
-      throw new Error("Cannot emit from Realtime database socket. It is not supported.");
+      throw new Error("Cannot emit from Realtime database socket.");
     };
 
     return {

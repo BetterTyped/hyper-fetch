@@ -43,7 +43,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
     };
 
     const listen: ReturnType<FirestoreSocketAdapterType>["listen"] = (listener, callback) => {
-      const fullUrl = socket.url + listener.topic;
+      const fullUrl = socket.url + listener.endpoint;
       const { options } = listener;
 
       let path;
@@ -68,7 +68,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
           const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
           const extra = { ref: path, snapshot, groupedResult, status };
           callback({ data: response, extra });
-          onEvent(listener.topic, response, extra);
+          onEvent(listener.endpoint, response, extra);
         },
         (error) => {
           onError(error);
@@ -84,7 +84,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
     };
 
     const emit = async () => {
-      throw new Error("Cannot emit from Firestore database socket. It is not supported.");
+      throw new Error("Cannot emit from Firestore database socket.");
     };
 
     return {

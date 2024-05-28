@@ -6,14 +6,8 @@ import { resetInterceptors, startServer, stopServer } from "../../server";
 
 describe("Graphql Adapter [ Utils ]", () => {
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-  let request = client.createRequest<{ response: any; payload: any }>()({
-    endpoint: getUserQuery,
-    method: GraphQlMethod.POST,
-  });
-  let requestGet = client.createRequest<{ response: any; payload: any }>()({
-    endpoint: getUserQueryString,
-    method: GraphQlMethod.GET,
-  });
+  let request = client.createRequest<any, any>()({ endpoint: getUserQuery, method: GraphQlMethod.POST });
+  let requestGet = client.createRequest<any, any>()({ endpoint: getUserQueryString, method: GraphQlMethod.GET });
 
   beforeAll(() => {
     startServer();
@@ -21,14 +15,8 @@ describe("Graphql Adapter [ Utils ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
-    request = client.createRequest<{ response: any; payload: any }>()({
-      endpoint: getUserQuery,
-      method: GraphQlMethod.POST,
-    });
-    requestGet = client.createRequest<{ response: any; payload: any }>()({
-      endpoint: getUserQueryString,
-      method: GraphQlMethod.GET,
-    });
+    request = client.createRequest<any, any>()({ endpoint: getUserQuery, method: GraphQlMethod.POST });
+    requestGet = client.createRequest<any, any>()({ endpoint: getUserQueryString, method: GraphQlMethod.GET });
 
     resetInterceptors();
     jest.resetAllMocks();

@@ -10,14 +10,14 @@ export type GraphQlExtraType = { headers: HeadersInit };
 
 export type GraphQlEndpointType = string | DocumentNode;
 
-export type GraphQLAdapterType = AdapterType<{
-  options: Partial<XMLHttpRequest>;
-  method: GraphQlMethod;
-  status: number;
-  extra: GraphQlExtraType;
-  queryParams: QueryParamsType | string;
-  endpoint: GraphQlEndpointType;
-}>;
+export type GraphQLAdapterType = AdapterType<
+  Partial<XMLHttpRequest>,
+  GraphQlMethod,
+  number,
+  GraphQlExtraType,
+  QueryParamsType | string,
+  GraphQlEndpointType
+>;
 
 // Extract
 
@@ -26,20 +26,20 @@ type GqlParamType = boolean | string | number | Record<string, any> | NegativeTy
 export type ExtractGqlRouteParams<T extends string> = string extends T
   ? NegativeTypes
   : T extends `${string}query ${infer Parameters} {${infer QueryRest}`
-    ? Parameters extends `${string}$${infer Param},${infer Rest}`
-      ? GqlParameter<Param, Rest> &
-          // eslint-disable-next-line @typescript-eslint/ban-types
-          (ExtractGqlRouteParams<QueryRest> extends NegativeTypes ? {} : ExtractGqlRouteParams<QueryRest>)
-      : Parameters extends `${string}$${infer Param})${infer Rest}`
-        ? GqlParameter<Param, Rest> &
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            (ExtractGqlRouteParams<QueryRest> extends NegativeTypes ? {} : ExtractGqlRouteParams<QueryRest>)
-        : NegativeTypes
-    : T extends `${string}$${infer Parameters},${infer Rest}`
-      ? GqlParameter<Parameters, Rest>
-      : T extends `${string}$${infer Parameters})${infer Rest}`
-        ? GqlParameter<Parameters, Rest>
-        : NegativeTypes;
+  ? Parameters extends `${string}$${infer Param},${infer Rest}`
+    ? GqlParameter<Param, Rest> &
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        (ExtractGqlRouteParams<QueryRest> extends NegativeTypes ? {} : ExtractGqlRouteParams<QueryRest>)
+    : Parameters extends `${string}$${infer Param})${infer Rest}`
+    ? GqlParameter<Param, Rest> &
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        (ExtractGqlRouteParams<QueryRest> extends NegativeTypes ? {} : ExtractGqlRouteParams<QueryRest>)
+    : NegativeTypes
+  : T extends `${string}$${infer Parameters},${infer Rest}`
+  ? GqlParameter<Parameters, Rest>
+  : T extends `${string}$${infer Parameters})${infer Rest}`
+  ? GqlParameter<Parameters, Rest>
+  : NegativeTypes;
 
 export type GqlParameter<T extends string, Rest extends string> = T extends `${infer Param}:${string}!`
   ? { [k in Param]: GqlParamType } & (ExtractGqlRouteParams<Rest> extends NegativeTypes
@@ -47,8 +47,8 @@ export type GqlParameter<T extends string, Rest extends string> = T extends `${i
         {}
       : ExtractGqlRouteParams<Rest>)
   : T extends `${infer Param}:${string}`
-    ? { [k in Param]?: GqlParamType } & (ExtractGqlRouteParams<Rest> extends NegativeTypes
-        ? // eslint-disable-next-line @typescript-eslint/ban-types
-          {}
-        : ExtractGqlRouteParams<Rest>)
-    : NegativeTypes;
+  ? { [k in Param]?: GqlParamType } & (ExtractGqlRouteParams<Rest> extends NegativeTypes
+      ? // eslint-disable-next-line @typescript-eslint/ban-types
+        {}
+      : ExtractGqlRouteParams<Rest>)
+  : NegativeTypes;
