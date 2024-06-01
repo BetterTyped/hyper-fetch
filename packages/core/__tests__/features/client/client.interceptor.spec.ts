@@ -6,7 +6,7 @@ import { xhrExtra } from "adapter";
 
 describe("Client [ Interceptor ]", () => {
   let client = new Client({ url: "shared-base-url/" });
-  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<any>()({ endpoint: "shared-base-endpoint" });
 
   const spy1 = jest.fn();
   const spy2 = jest.fn();

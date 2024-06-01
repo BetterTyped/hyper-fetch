@@ -9,7 +9,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   const requestId = "test";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -29,7 +29,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { data: [] } });
+    const data = createRequestInterceptor(request, { fixture: { response: [] } });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 

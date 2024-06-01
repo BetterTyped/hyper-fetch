@@ -5,7 +5,7 @@ import {
   ExtractAdapterReturnType,
   RequestInstance,
   sendRequest,
-  ResponseReturnType,
+  ResponseType,
   ExtractResponseType,
   ExtractErrorType,
   RequestSendOptionsType,
@@ -17,7 +17,7 @@ import { useDebounce, useThrottle } from "@better-hooks/performance";
 
 import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } from "hooks/use-submit";
 import { useTrackedState, useRequestEvents } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 import { getBounceData } from "utils";
 import { InvalidationKeyType } from "types";
 
@@ -32,7 +32,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   options?: UseSubmitOptionsType<RequestType>,
 ): UseSubmitReturnType<RequestType> => {
   // Build the configuration options
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const mergedOptions: UseSubmitOptionsType<RequestType> = useMemo(
     () => ({
       ...useSubmitDefaultOptions,
@@ -59,7 +59,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   });
   const bounceResolver = useRef<
     (
-      value: ResponseReturnType<
+      value: ResponseType<
         ExtractResponseType<RequestType>,
         ExtractErrorType<RequestType>,
         ExtractAdapterType<RequestType>
@@ -110,11 +110,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
         status: null,
         extra: request.client.defaultExtra,
       }) as Promise<
-        ResponseReturnType<
-          ExtractResponseType<RequestType>,
-          ExtractErrorType<RequestType>,
-          ExtractAdapterType<RequestType>
-        >
+        ResponseType<ExtractResponseType<RequestType>, ExtractErrorType<RequestType>, ExtractAdapterType<RequestType>>
       >;
     }
 
@@ -139,7 +135,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
           // By default bounce method will prevent function to be triggered, but returned promise will still await to be resolved.
           // This way we can close previous promise, making sure our logic will not stuck in memory.
           bounceResolver.current = (
-            value: ResponseReturnType<
+            value: ResponseType<
               ExtractResponseType<RequestType>,
               ExtractErrorType<RequestType>,
               ExtractAdapterType<RequestType>

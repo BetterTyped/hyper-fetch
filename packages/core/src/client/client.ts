@@ -10,7 +10,7 @@ import {
   ExtractUnionAdapter,
   HeaderMappingType,
   QueryStringifyOptionsType,
-  ResponseReturnType,
+  ResponseType,
   xhrExtra,
   ExtractAdapterEndpointType,
 } from "adapter";
@@ -401,23 +401,19 @@ export class Client<
   /**
    * Private helper to run async on-error response processing
    */
-  __modifyErrorResponse = async (
-    response: ResponseReturnType<any, GlobalErrorType, Adapter>,
-    request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, Adapter>(this.__onErrorCallbacks, response, request);
+  __modifyErrorResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
+    interceptResponse<GlobalErrorType, Adapter>(this.__onErrorCallbacks, response, request);
 
   /**
    * Private helper to run async on-success response processing
    */
-  __modifySuccessResponse = async (
-    response: ResponseReturnType<any, GlobalErrorType, Adapter>,
-    request: RequestInstance,
-  ) => interceptResponse<GlobalErrorType, Adapter>(this.__onSuccessCallbacks, response, request);
+  __modifySuccessResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
+    interceptResponse<GlobalErrorType, Adapter>(this.__onSuccessCallbacks, response, request);
 
   /**
    * Private helper to run async response processing
    */
-  __modifyResponse = async (response: ResponseReturnType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
+  __modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
     interceptResponse<GlobalErrorType, Adapter>(this.__onResponseCallbacks, response, request);
 
   /**

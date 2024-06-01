@@ -5,7 +5,7 @@ import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
 
 import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 import { getBounceData } from "utils";
 import { InvalidationKeyType } from "types";
 
@@ -22,7 +22,7 @@ export const useFetch = <R extends RequestInstance>(
   type RequestType = UseFetchRequest<R>;
 
   // Build the configuration options
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const {
     dependencies = useFetchDefaultOptions.dependencies,
     disabled = useFetchDefaultOptions.disabled,

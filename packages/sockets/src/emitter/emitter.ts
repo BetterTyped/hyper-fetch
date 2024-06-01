@@ -1,8 +1,8 @@
-import { Time, ExtractRouteParams, ParamsType, TypeWithDefaults, getUniqueRequestId } from "@hyper-fetch/core";
+import { Time, ExtractRouteParams, ParamsType, TypeWithDefaults } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { EmitterOptionsType, EmitType, EmitterCallbackResponseType, EmitterEmitOptionsType } from "emitter";
-import { SocketAdapterInstance, SocketAdapterType } from "adapter";
+import { EmitterOptionsType, EmitType, EmitterEmitOptionsType } from "emitter";
+import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterEmitterOptionsType } from "types";
 import { emitEvent } from "./emitter.utils";
 

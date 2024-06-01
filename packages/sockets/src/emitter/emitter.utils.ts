@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { getUniqueRequestId } from "@hyper-fetch/core";
 
 import { EmitterEmitOptionsType, EmitterInstance } from "./emitter.types";
@@ -19,21 +20,21 @@ export const emitEvent = <Emitter extends EmitterInstance>(
       onEventStart(emitter);
     });
 
-  const unmountResponse = emitter.socket.events.onEmitterEventByTopic(emitter, (response, emitter) => {
+  const unmountResponse = emitter.socket.events.onEmitterEventByTopic(emitter, (response, emitterInstance) => {
     if (isResolved) return;
 
     isResolved = true;
-    onEvent(response, emitter);
+    onEvent(response, emitterInstance);
     umountAll();
   });
 
   const unmountError =
     onEventError &&
-    emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitter) => {
+    emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitterInstance) => {
       if (isResolved) return;
 
       isResolved = true;
-      onEventError(error, emitter);
+      onEventError(error, emitterInstance);
       umountAll();
     });
 

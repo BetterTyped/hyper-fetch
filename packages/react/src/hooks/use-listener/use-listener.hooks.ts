@@ -4,13 +4,13 @@ import { ListenerInstance, ExtractListenerResponseType } from "@hyper-fetch/sock
 
 import { useSocketState } from "helpers";
 import { UseListenerOptionsType } from "hooks/use-listener";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useListener = <ListenerType extends ListenerInstance>(
   listener: ListenerType,
   options?: UseListenerOptionsType,
 ) => {
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking } = { ...globalConfig.useListener, ...options };
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(listener.socket, { dependencyTracking });
   const removeListenerRef = useRef<ReturnType<typeof listener.listen> | null>(null);

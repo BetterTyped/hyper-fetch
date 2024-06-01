@@ -1,10 +1,10 @@
 import { RequestInstance } from "request";
-import { ResponseReturnType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
+import { ResponseType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
 import { Client } from "client";
 import { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any>;
+export type ClientInstance = Client<any, any, any>;
 
 /**
  * Configuration setup for the client
@@ -40,9 +40,9 @@ export type ClientOptionsType<C extends ClientInstance> = {
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
 export type ResponseInterceptorType<Response = any, Error = any, Adapter extends AdapterInstance = AdapterType> = (
-  response: ResponseReturnType<Response, Error, Adapter>,
+  response: ResponseType<Response, Error, Adapter>,
   request: RequestInstance,
-) => Promise<ResponseReturnType<any, any, Adapter>> | ResponseReturnType<any, any, Adapter>;
+) => Promise<ResponseType<any, any, Adapter>> | ResponseType<any, any, Adapter>;
 
 // Stringify
 

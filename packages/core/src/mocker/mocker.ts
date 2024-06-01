@@ -1,5 +1,5 @@
 import { RequestInstance } from "../request";
-import { getAdapterBindings, AdapterInstance, AdapterType, ResponseReturnType } from "adapter";
+import { getAdapterBindings, AdapterInstance, AdapterType, ResponseType } from "adapter";
 
 export const mocker = async <T extends AdapterInstance = AdapterType>(
   request: RequestInstance,
@@ -33,7 +33,7 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
   const mock = request.mock.next();
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
-  return new Promise<ResponseReturnType<any, any, any>>((resolve) => {
+  return new Promise<ResponseType<any, any, any>>((resolve) => {
     const { data, status = 200, success = true, extra, config } = result;
     const {
       requestTime = 20,

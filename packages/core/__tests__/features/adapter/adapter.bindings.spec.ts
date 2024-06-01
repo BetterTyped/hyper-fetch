@@ -1,12 +1,5 @@
 import { RequestEffect } from "effect";
-import {
-  xhrExtra,
-  getAdapterBindings,
-  AdapterOptionsType,
-  ResponseReturnType,
-  getErrorMessage,
-  AdapterType,
-} from "adapter";
+import { xhrExtra, getAdapterBindings, AdapterOptionsType, ResponseType, getErrorMessage, AdapterType } from "adapter";
 import { resetInterceptors, startServer, stopServer } from "../../server";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
@@ -19,14 +12,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const requestId = "test";
   const queryParams = "?query=params";
   const data = { value: 1 };
-  const successResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+  const successResponse: ResponseType<unknown, unknown, AdapterType> = {
     data,
     error: null,
     success: true,
     status: 200,
     extra: xhrExtra,
   };
-  const errorResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+  const errorResponse: ResponseType<unknown, unknown, AdapterType> = {
     data: null,
     error: data,
     success: false,
@@ -52,7 +45,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
     const client = new Client({ url }).addEffect([effect]);
     const request = client
-      .createRequest<{ payload: { value: number } }>()({ endpoint, options: requestConfig })
+      .createRequest<any, { value: number }>()({ endpoint, options: requestConfig })
       .setData(data)
       .setEffectKey("test")
       .setQueryParams(queryParams);
@@ -166,10 +159,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
   // Request
   describe("given bindings request methods being used", () => {
     it("should allow for setting data mapper", async () => {
-      const req = client.createRequest<{
-        payload: Record<string, unknown>;
-        queryParams: { userId: number; role: string };
-      }>()({
+      const req = client.createRequest<any, Record<string, unknown>, void, { userId: number; role: string }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();
@@ -192,10 +182,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       expect(payload).toBe(`${newData.userId}_${newData.role}`);
     });
     it("should allow for setting request mapper", async () => {
-      const req = client.createRequest<{
-        payload: Record<string, unknown>;
-        queryParams: { userId: number; role: string };
-      }>()({
+      const req = client.createRequest<any, Record<string, unknown>, any, { userId: number; role: string }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();
@@ -468,7 +455,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
         const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
-        const newData: ResponseReturnType<unknown, unknown, AdapterType> = {
+        const newData: ResponseType<unknown, unknown, AdapterType> = {
           data: "modified",
           error: null,
           success: true,
@@ -515,7 +502,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
       it("should execute __modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
-        const newData: ResponseReturnType<unknown, unknown, AdapterType> = {
+        const newData: ResponseType<unknown, unknown, AdapterType> = {
           data: "modified",
           error: 444,
           success: false,

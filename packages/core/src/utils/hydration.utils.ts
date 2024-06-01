@@ -1,4 +1,4 @@
-import { ResponseReturnType, parseResponse } from "adapter";
+import { AdapterInstance, ResponseType, parseResponse } from "adapter";
 import { RequestCacheType } from "cache";
 import { ClientInstance } from "client";
 import { RequestInstance } from "request";
@@ -8,10 +8,10 @@ export type HydrationOptions = Partial<RequestCacheType<RequestInstance>> & {
   override?: boolean;
 };
 
-export type HydrateDataType<Data> = HydrationOptions & {
+export type HydrateDataType<Data = any, Error = any, Adapter extends AdapterInstance = any> = HydrationOptions & {
   cacheKey: string;
   timestamp: number;
-  data: Data;
+  response: ResponseType<Data, Error, Adapter>;
 };
 
 export const serialize = <R extends RequestInstance>(
@@ -19,11 +19,10 @@ export const serialize = <R extends RequestInstance>(
   /**
    * If response is not provided, it will try to get the data from the cache. For ssr make sure to provide response.
    */
-  response?: ResponseReturnType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
+  response?: ResponseType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
   options?: HydrationOptions,
-): HydrateDataType<string> => {
+): HydrateDataType => {
   const { cacheKey } = request;
-  const data = response ?? request.client.cache.get(cacheKey);
   return {
     // Cache settings
     ...options,
@@ -31,17 +30,17 @@ export const serialize = <R extends RequestInstance>(
     cacheKey,
     // Data to be stored
     timestamp: Date.now(),
-    data: JSON.stringify(data),
+    response: response ?? request.client.cache.get(cacheKey),
   };
 };
 
 export const hydrate = (
   client: ClientInstance,
-  fallbacks: HydrateDataType<string>[] | NegativeTypes,
-  options?: Partial<HydrationOptions> | ((fallback: HydrateDataType<string>) => Partial<HydrationOptions>),
+  hydrationData: HydrateDataType[] | NegativeTypes,
+  options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
 ) => {
-  fallbacks?.forEach((fallback) => {
-    const { cacheKey, data, ...fallbackOptions } = fallback;
+  hydrationData?.forEach((item) => {
+    const { cacheKey, response, ...fallbackOptions } = item;
     const defaults = {
       cache: true,
       cacheTime: null,
@@ -50,7 +49,7 @@ export const hydrate = (
     } satisfies HydrationOptions;
     const config =
       typeof options === "function"
-        ? { ...defaults, ...fallbackOptions, ...options(fallback) }
+        ? { ...defaults, ...fallbackOptions, ...options(item) }
         : { ...defaults, ...fallbackOptions, ...options };
 
     if (!config.override) {
@@ -60,7 +59,7 @@ export const hydrate = (
       }
     }
 
-    const parsedData = parseResponse(data);
+    const parsedData = parseResponse(response);
     client.cache.set({ ...config, cacheKey }, parsedData);
   });
 };

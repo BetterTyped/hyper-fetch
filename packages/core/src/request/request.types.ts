@@ -18,7 +18,7 @@ import {
 } from "types";
 import { Request } from "request";
 import {
-  ResponseReturnType,
+  ResponseType,
   QueryParamsType,
   ProgressType,
   ExtractAdapterOptionsType,
@@ -269,7 +269,7 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
   onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
   onResponse?: (
-    response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+    response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
     details: ResponseDetailsType,
   ) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
@@ -281,19 +281,13 @@ export type RequestSendType<Request extends RequestInstance> =
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
       ? (
           options?: RequestSendOptionsType<Request>,
-        ) => Promise<
-          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-        >
+        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>
       : (
           options: RequestSendOptionsType<Request>,
-        ) => Promise<
-          ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-        >
+        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>
     : (
         options: RequestSendOptionsType<Request>,
-      ) => Promise<
-        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
-      >;
+      ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>;
 
 // Instance
 
@@ -344,7 +338,7 @@ export type RequestMapper<Request extends RequestInstance, NewRequest extends Re
 ) => NewRequest | Promise<NewRequest>;
 
 export type ResponseMapper<Request extends RequestInstance, NewResponse, NewError> = (
-  response: ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+  response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
 ) =>
-  | ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>
-  | Promise<ResponseReturnType<NewResponse, NewError, ExtractAdapterType<Request>>>;
+  | ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>
+  | Promise<ResponseType<NewResponse, NewError, ExtractAdapterType<Request>>>;

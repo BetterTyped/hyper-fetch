@@ -1,7 +1,7 @@
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 import { RequestEffectOptionsType } from "effect";
 import { RequestInstance } from "request";
-import { ResponseReturnErrorType, ResponseReturnType, ResponseReturnSuccessType } from "adapter";
+import { ResponseReturnErrorType, ResponseType, ResponseReturnSuccessType } from "adapter";
 
 export class RequestEffect<T extends RequestInstance> {
   constructor(public config: RequestEffectOptionsType<T>) {}
@@ -23,7 +23,7 @@ export class RequestEffect<T extends RequestInstance> {
     this.config.onError?.(response, request);
   };
   onFinished = (
-    response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+    response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     request: T,
   ) => {
     this.config.onFinished?.(response, request);

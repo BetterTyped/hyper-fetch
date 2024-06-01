@@ -24,6 +24,7 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "allowJs": true,
     "baseUrl": ".",
     "paths": {},
     "plugins": []

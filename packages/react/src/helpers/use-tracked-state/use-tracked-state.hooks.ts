@@ -6,7 +6,7 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
-  parseResponse,
+  HydrateDataType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -17,7 +17,7 @@ import {
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
 import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 /**
  *
@@ -39,16 +39,21 @@ export const useTrackedState = <T extends RequestInstance>({
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
-  const { fallbacks } = useConfigProvider();
+  const { hydrationData } = useProvider();
 
-  const { fallbackData } = useMemo(() => {
-    const fallbackRawData = fallbacks?.find((item) => item.cacheKey === cacheKey)?.data;
-    const data = fallbackRawData ? parseResponse(fallbackRawData) : undefined;
+  const { hydrationResponse } = useMemo(() => {
+    const hydrationItem = hydrationData?.find((item) => item.cacheKey === cacheKey) as HydrateDataType<
+      ExtractResponseType<T>,
+      ExtractErrorType<T>,
+      ExtractAdapterType<T>
+    >;
 
-    return { fallbackData: data };
-  }, [cacheKey, fallbacks]);
+    return {
+      hydrationResponse: hydrationItem?.response,
+    };
+  }, [cacheKey, hydrationData]);
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData || fallbackData, dispatcher, request));
+  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData || hydrationResponse, dispatcher, request));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
 
   // ******************
@@ -86,9 +91,9 @@ export const useTrackedState = <T extends RequestInstance>({
 
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
-      const cacheState = getValidCacheData<T>(request, initialData || fallbackData, cacheData);
+      const cacheState = getValidCacheData<T>(request, initialData || hydrationResponse, cacheData);
 
-      const hasInitialState = isEqual(initialData?.data || fallbackData?.data, state.current.data);
+      const hasInitialState = isEqual(initialData?.data || hydrationResponse?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;

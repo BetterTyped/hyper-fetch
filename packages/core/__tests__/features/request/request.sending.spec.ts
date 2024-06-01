@@ -167,9 +167,7 @@ describe("Request [ Sending ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return cancel error", async () => {
-      const newRequest = client
-        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
-        .setCancelable(true);
+      const newRequest = client.createRequest<any>()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
       const mock = createRequestInterceptor(newRequest);
 
       const [res1, res2, res3] = await Promise.all([newRequest.send(), newRequest.send(), newRequest.send()]);

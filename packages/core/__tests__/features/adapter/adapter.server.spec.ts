@@ -14,7 +14,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   let client = new Client({ url: "shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
   let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -24,7 +24,7 @@ describe("Fetch Adapter [ Server ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     clientHttps = new Client({ url: "https://shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
     requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
     client.requestManager.addAbortController(request.abortKey, requestId);
@@ -51,7 +51,7 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { data: [] } });
+    const data = createRequestInterceptor(request, { fixture: { response: [] } });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 
@@ -100,7 +100,7 @@ describe("Fetch Adapter [ Server ]", () => {
       testData: "123",
     };
     const postRequest = client
-      .createRequest<{ payload: { testData: string } }>()({ endpoint: "shared-endpoint", method: "POST" })
+      .createRequest<null, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
       .setData(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = createRequestInterceptor(postRequest);
@@ -115,7 +115,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate payload size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<{ response: any; payload: any }>()({
+    const mutation = client.createRequest<any, any>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
@@ -138,7 +138,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate Buffer size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<{ response: any; payload: any }>()({
+    const mutation = client.createRequest<any, any>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });

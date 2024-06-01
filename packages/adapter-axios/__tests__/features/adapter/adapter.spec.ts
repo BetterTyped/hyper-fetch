@@ -3,7 +3,7 @@ import { Client } from "@hyper-fetch/core";
 import { axiosAdapter } from "../../../src/adapter/adapter";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 
-describe("Fetch Adapter [ Browser ]", () => {
+describe("Axios Adapter [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" }).setAdapter(axiosAdapter);
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 

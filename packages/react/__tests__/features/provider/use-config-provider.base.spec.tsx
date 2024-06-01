@@ -1,28 +1,32 @@
+import { Client } from "@hyper-fetch/core";
 import { act, render, screen, waitFor } from "@testing-library/react";
 
-import { ConfigProvider, ConfigProviderValueType, useConfigProvider } from "config-provider";
+import { Provider, ProviderValueType, useProvider } from "provider";
 
-describe("useConfigProvider [ Base ]", () => {
+describe("useProvider [ Base ]", () => {
   const text = "test";
-  let values: ConfigProviderValueType | undefined;
+  let values: ProviderValueType | undefined;
+  const client = new Client({
+    url: "http://localhost:3000",
+  });
 
-  function Page() {
-    values = useConfigProvider();
+  const Page = () => {
+    values = useProvider();
     return <div>{text}</div>;
-  }
-  function App() {
+  };
+  const App = () => {
     return (
-      <ConfigProvider>
+      <Provider client={client}>
         <Page />
-      </ConfigProvider>
+      </Provider>
     );
-  }
+  };
 
   beforeEach(() => {
     values = undefined;
   });
 
-  describe("given app is wrapped with ConfigProvider", () => {
+  describe("given app is wrapped with Provider", () => {
     describe("when configuration values are passed to the provider", () => {
       it("should receive configuration with hook", async () => {
         render(<App />);
@@ -35,11 +39,11 @@ describe("useConfigProvider [ Base ]", () => {
         render(<App />);
 
         act(() => {
-          values?.[1](customConfig);
+          values?.setConfig(customConfig);
         });
 
         await waitFor(() => {
-          expect(values?.[0]).toStrictEqual(customConfig);
+          expect(values?.config).toStrictEqual(customConfig);
         });
       });
     });

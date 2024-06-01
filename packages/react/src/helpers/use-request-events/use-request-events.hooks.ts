@@ -4,7 +4,7 @@ import {
   ExtractResponseType,
   RequestInstance,
   ProgressType,
-  ResponseReturnType,
+  ResponseType,
   RequestEventType,
   ResponseDetailsType,
   RequestLoadingEventType,
@@ -82,7 +82,7 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const handleResponseCallbacks = (
     cmd: T,
-    response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+    response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     details: ResponseDetailsType,
   ) => {
     const { data, error, success } = response;
@@ -137,7 +137,7 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const handleResponse = (req: T) => {
     return (
-      response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+      response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
       details: ResponseDetailsType,
     ) => {
       const data = responseMapper ? responseMapper(response) : response;

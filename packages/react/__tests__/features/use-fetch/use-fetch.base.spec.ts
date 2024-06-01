@@ -1,5 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
-import { AdapterType, ResponseReturnType, xhrExtra } from "@hyper-fetch/core";
+import { AdapterType, ResponseType, xhrExtra } from "@hyper-fetch/core";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
@@ -61,7 +61,7 @@ describe("useFetch [ Base ]", () => {
     });
     it("should allow to use initial data", async () => {
       await testClientIsolation(client);
-      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+      const initialData: ResponseType<unknown, Error, AdapterType> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,
@@ -76,7 +76,7 @@ describe("useFetch [ Base ]", () => {
     it("should allow to use initial data while requesting", async () => {
       await testClientIsolation(client);
       createRequestInterceptor(request);
-      const initialData: ResponseReturnType<unknown, Error, AdapterType> = {
+      const initialData: ResponseType<unknown, Error, AdapterType> = {
         data: { test: [1, 2, 3] },
         error: null,
         status: 200,

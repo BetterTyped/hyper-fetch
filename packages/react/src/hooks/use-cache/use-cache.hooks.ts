@@ -4,7 +4,7 @@ import { getRequestDispatcher, RequestInstance, Request, getRequestKey } from "@
 
 import { UseCacheOptionsType, useCacheDefaultOptions, UseCacheReturnType } from "hooks/use-cache";
 import { useRequestEvents, useTrackedState } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useCache = <T extends RequestInstance>(
   request: T,
@@ -18,7 +18,7 @@ export const useCache = <T extends RequestInstance>(
   const updateKey = JSON.stringify(request.toJSON());
 
   // Build the configuration options
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking, initialData, deepCompare } = {
     ...useCacheDefaultOptions,
     ...globalConfig.useCacheConfig,

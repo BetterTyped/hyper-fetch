@@ -1,4 +1,4 @@
-import { ProgressType, ResponseReturnType, getErrorMessage } from "adapter";
+import { ProgressType, ResponseType, getErrorMessage } from "adapter";
 import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
 import { HttpMethodsEnum } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
@@ -118,7 +118,7 @@ export const sendRequest = <Request extends RequestInstance>(
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
   return new Promise<
-    ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
   >((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);

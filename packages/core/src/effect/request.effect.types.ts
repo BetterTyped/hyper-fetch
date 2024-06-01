@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseReturnErrorType, ResponseReturnType, ResponseReturnSuccessType } from "adapter";
+import { ResponseReturnErrorType, ResponseType, ResponseReturnSuccessType } from "adapter";
 import { RequestEffect } from "effect";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
@@ -38,7 +38,7 @@ export type RequestEffectOptionsType<T extends RequestInstance> = {
    * Callback that will be executed when response is finished
    */
   onFinished?: (
-    response: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
+    response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
     request: RequestInstance,
   ) => void;
 };

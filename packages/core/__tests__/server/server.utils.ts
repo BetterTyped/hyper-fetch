@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable max-params */
 import {
   DefaultBodyType,
   MockedResponse,

@@ -4,7 +4,7 @@ import { SocketInstance } from "@hyper-fetch/sockets";
 
 import { useSocketState } from "helpers";
 import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 /**
  * Allow to listen to all event messages received with sockets
@@ -16,7 +16,7 @@ export const useEventMessages = <ResponsesType extends { topic: string }>(
   socket: SocketInstance,
   options?: UseEventMessagesOptionsType<ResponsesType>,
 ) => {
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking = false, filter } = { ...globalConfig.useEventMessages, ...options };
 
   const onEventCallback = useRef<null | ((data: ResponsesType, event: MessageEvent<ResponsesType>) => void)>(null);

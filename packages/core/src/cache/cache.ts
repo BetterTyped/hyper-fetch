@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { AdapterInstance, ResponseReturnType } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -67,7 +67,7 @@ export class Cache<C extends ClientInstance> {
   set = <Request extends RequestInstance>(
     request: RequestCacheType<Request>,
     response: CacheMethodType<
-      ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+      ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     >,
   ): void => {
@@ -122,7 +122,7 @@ export class Cache<C extends ClientInstance> {
     request: RequestInstance | RequestJSON<RequestInstance>,
     partialResponse: CacheMethodType<
       Partial<
-        ResponseReturnType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+        ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
           ResponseDetailsType
       >
     >,

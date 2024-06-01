@@ -1,4 +1,4 @@
-import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
+import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 import { Firestore } from "firebase-admin/firestore";
 
 import {
@@ -22,7 +22,7 @@ export const firebaseAdminAdapter =
     const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
         await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
-      return new Promise<ResponseReturnType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
+      return new Promise<ResponseType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
         if (database instanceof Firestore) {
           const {
             method = FirestoreMethods.getDocs,

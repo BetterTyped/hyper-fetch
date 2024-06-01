@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
     "baseUrl": "./src",
     "paths": {
       "@browser-adapter": ["./adapter/adapter.browser.ts"],

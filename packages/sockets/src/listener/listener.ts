@@ -3,7 +3,7 @@ import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 import { Socket } from "socket";
 import { ListenType, ListenerOptionsType } from "listener";
 import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterExtraType, ExtractAdapterListenerOptionsType } from "types";
+import { ExtractAdapterListenerOptionsType } from "types";
 
 export class Listener<
   Response,

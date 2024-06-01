@@ -8,7 +8,7 @@ import {
   ExtractAdapterExtraType,
   AdapterType,
   AdapterInstance,
-  ResponseReturnType,
+  ResponseType,
 } from "adapter";
 import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
 import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
@@ -331,10 +331,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   };
 
   const makeRequest = (
-    apiCall: (
-      resolve: (value: ResponseReturnType<any, any, T> | PromiseLike<ResponseReturnType<any, any, T>>) => void,
-    ) => void,
-  ): Promise<ResponseReturnType<any, any, T>> => {
+    apiCall: (resolve: (value: ResponseType<any, any, T> | PromiseLike<ResponseType<any, any, T>>) => void) => void,
+  ): Promise<ResponseType<any, any, T>> => {
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }

@@ -9,7 +9,7 @@ import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { UseEventMessagesOptionsType } from "hooks/use-event-messages";
 import { UseFetchOptionsType } from "hooks/use-fetch";
 
-export type ConfigProviderOptionsType<SocketResponses = any> = {
+export type ProviderOptionsType<SocketResponses = any> = {
   useFetchConfig?: Partial<UseFetchOptionsType<RequestInstance>>;
   useSubmitConfig?: Partial<UseSubmitOptionsType<RequestInstance>>;
   useCacheConfig?: Partial<UseCacheOptionsType<RequestInstance>>;
@@ -19,16 +19,31 @@ export type ConfigProviderOptionsType<SocketResponses = any> = {
   useEventMessages?: Partial<UseEventMessagesOptionsType<SocketResponses>>;
 };
 
-export type ConfigProviderProps<Client extends ClientInstance = ClientInstance> = {
+export type ProviderProps<Client extends ClientInstance = ClientInstance> = {
+  /**
+   * Instance of the Client
+   */
   client: Client;
-  fallbacks?: HydrateDataType<string>[];
-  fallbacksConfig?: HydrationOptions;
+  /**
+   * Children to render
+   */
   children: React.ReactNode;
-  config?: ConfigProviderOptionsType;
+  /**
+   * Configuration to set for available hooks
+   */
+  config?: ProviderOptionsType;
+  /**
+   * Fallbacks to hydrate for particular requests
+   */
+  hydrationData?: HydrateDataType[];
+  /**
+   * Hydration configuration
+   */
+  hydrationConfig?: HydrationOptions;
 };
 
-export type ConfigProviderValueType = {
-  config: ConfigProviderOptionsType;
-  setConfig: (newConfig: ConfigProviderOptionsType) => void;
-  fallbacks?: HydrateDataType<string>[];
+export type ProviderValueType = {
+  config: ProviderOptionsType;
+  setConfig: (newConfig: ProviderOptionsType) => void;
+  hydrationData?: HydrateDataType[];
 };

@@ -3,7 +3,7 @@ import { RequestInstance, getRequestDispatcher, QueueElementType } from "@hyper-
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 /**
  * This hook allows to control dispatchers request queues
@@ -16,7 +16,7 @@ export const useQueue = <Request extends RequestInstance>(
   options?: UseQueueOptionsType,
 ): UseQueueReturnType<Request> => {
   // Build the configuration options
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { queueType = "auto" } = {
     ...useQueueDefaultOptions,
     ...globalConfig.useQueueConfig,

@@ -4,13 +4,13 @@ import { useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
 import { useSocketState } from "helpers";
-import { useConfigProvider } from "config-provider";
+import { useProvider } from "provider";
 
 export const useEmitter = <EmitterType extends EmitterInstance>(
   emitter: EmitterType,
   options?: UseEmitterOptionsType,
 ) => {
-  const { config: globalConfig } = useConfigProvider();
+  const { config: globalConfig } = useProvider();
   const { dependencyTracking } = { ...globalConfig.useEmitter, ...options };
 
   const [state, actions, callbacks, { setRenderKey }] = useSocketState(emitter.socket, { dependencyTracking });

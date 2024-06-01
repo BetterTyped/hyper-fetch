@@ -1,5 +1,5 @@
 import {
-  ResponseReturnType,
+  ResponseType,
   ResponseDetailsType,
   RequestInstance,
   ExtractResponseType,
@@ -12,7 +12,7 @@ import {
 export const createCacheData = <T extends RequestInstance>(
   request: T,
   rest?: {
-    data?: ResponseReturnType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
+    data?: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
     details?: Partial<ResponseDetailsType>;
   },
 ) => {

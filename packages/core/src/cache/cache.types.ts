@@ -1,5 +1,5 @@
 import { Cache } from "cache";
-import { AdapterInstance, ResponseReturnType } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { ClientInstance } from "../client";
 import { RequestInstance } from "request";
@@ -39,7 +39,7 @@ export type CacheValueType<
   Response = any,
   Error = any,
   Adapter extends AdapterInstance = AdapterInstance,
-> = ResponseReturnType<Response, Error, Adapter> &
+> = ResponseType<Response, Error, Adapter> &
   ResponseDetailsType & {
     cacheTime: number;
     clearKey: string;

@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
-import { ResponseReturnType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
+import { ResponseType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
@@ -74,7 +74,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit proper data response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = createRequestInterceptor(request);
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -83,7 +83,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
         data: mock,
         error: null,
         status: 200,
@@ -101,7 +101,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper failed response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = createRequestInterceptor(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -110,7 +110,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
         data: null,
         error: mock,
         status: 400,
@@ -128,7 +128,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper retry response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
       createRequestInterceptor(requestWithRetry, { status: 400, delay: 0 });
 
@@ -144,7 +144,7 @@ describe("Dispatcher [ Events ]", () => {
 
       const mock = createRequestInterceptor(requestWithRetry);
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
         data: mock,
         error: null,
         status: 200,
@@ -162,7 +162,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper cancel response", async () => {
-      let response: [ResponseReturnType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       createRequestInterceptor(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
@@ -173,7 +173,7 @@ describe("Dispatcher [ Events ]", () => {
       await sleep(1);
       client.requestManager.abortAll();
 
-      const adapterResponse: ResponseReturnType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,

@@ -1,4 +1,4 @@
-import { getAdapterBindings, ResponseReturnType } from "@hyper-fetch/core";
+import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
 
 import {
@@ -22,7 +22,7 @@ export const firebaseAdapter =
     const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
         await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
-      return new Promise<ResponseReturnType<any, any, FirebaseBrowserAdapterTypes<T>>>((resolve) => {
+      return new Promise<ResponseType<any, any, FirebaseBrowserAdapterTypes<T>>>((resolve) => {
         if (database instanceof Database) {
           const {
             method = RealtimeDBMethods.get,

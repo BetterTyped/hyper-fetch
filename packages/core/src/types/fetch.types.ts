@@ -1,7 +1,7 @@
-import { ResponseReturnType } from "adapter";
+import { ResponseType } from "adapter";
 import { ExtractRouteParams, Request, RequestInstance } from "request";
 
-export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseReturnType<
+export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseType<
   ExtractResponseType<T>,
   ExtractErrorType<T>,
   ExtractAdapterType<T>

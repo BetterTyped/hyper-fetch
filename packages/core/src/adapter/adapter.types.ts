@@ -27,7 +27,7 @@ export type AdapterType<
     endpointType?: EndpointType;
   },
   // [any any any] as a way to avoid circular reference that destroyed request type.
-) => Promise<ResponseReturnType<any, any, any>>;
+) => Promise<ResponseType<any, any, any>>;
 
 /**
  * Extractors
@@ -89,7 +89,7 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type ResponseReturnType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
+export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;
   status: ExtractAdapterStatusType<Adapter> | null;
