@@ -1,7 +1,7 @@
 import { ExtractRouteParams, ParamsType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { ListenType, ListenerOptionsType } from "listener";
+import { ListenType, ListenerListenOptionsType, ListenerOptionsType } from "listener";
 import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterListenerOptionsType } from "types";
 
@@ -53,8 +53,9 @@ export class Listener<
     return newInstance;
   }
 
-  listen: ListenType<this, AdapterType> = ({ callback, ...options }) => {
-    const instance = this.clone(options);
+  listen: ListenType<this, AdapterType> = (callback, options) => {
+    const opts = options as ListenerListenOptionsType<this>;
+    const instance = options ? this.clone(opts as Partial<ListenerOptionsType<Topic, AdapterType>>) : this;
 
     this.socket.adapter.listen(instance, callback);
 

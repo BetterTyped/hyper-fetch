@@ -4,7 +4,7 @@ import { FirebaseAdminDBTypes, FirebaseAdminSocketAdapterTypes } from "./types";
 import { firestoreAdminSockets } from "../firestore/firestore.sockets";
 import { realtimeSocketsAdmin } from "../realtime/realtime.sockets";
 
-export const firebaseSocketsAdminAdapter = <T extends FirebaseAdminDBTypes>(
+export const FirebaseSocketsAdminAdapter = <T extends FirebaseAdminDBTypes>(
   database: T,
 ): FirebaseAdminSocketAdapterTypes<T> => {
   if (database instanceof Firestore) {

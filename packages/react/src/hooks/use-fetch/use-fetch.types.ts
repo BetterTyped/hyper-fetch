@@ -2,7 +2,7 @@ import {
   RequestInstance,
   NullableType,
   ExtractAdapterReturnType,
-  RequestExtend,
+  ExtendRequest,
   ExtractPayloadType,
   ExtractParamsType,
   NegativeTypes,
@@ -12,7 +12,7 @@ import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateTyp
 import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
 
-export type UseFetchRequest<R extends RequestInstance> = RequestExtend<
+export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
   R,
   {
     hasData: ExtractPayloadType<R> extends NegativeTypes ? false : true;

@@ -2,18 +2,20 @@
  * @jest-environment node
  */
 import { Client } from "@hyper-fetch/core";
+import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 import https from "https";
 
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
-import { graphqlAdapter } from "adapter";
+import { GraphqlAdapter } from "adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
+
+const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
 
 describe("Graphql Adapter [ Server ]", () => {
   const requestId = "test";
   const requestCopy = https.request;
-  let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(graphqlAdapter);
-  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
+  let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
   let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
     endpoint: loginMutation,
@@ -24,15 +26,15 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
-    clientHttp = new Client({ url: "shared-base-url" }).setAdapter(graphqlAdapter);
-    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(graphqlAdapter);
+    clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
+    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
     request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
     mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
       endpoint: loginMutation,
     });
     client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
@@ -43,15 +45,15 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should pick correct adapter and not throw", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
     client.appManager.isBrowser = true;
-    await expect(() => graphqlAdapter(client)).not.toThrow();
+    await expect(() => GraphqlAdapter(client)).not.toThrow();
   });
 
   it("should pick http module", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
     await expect(() =>
-      graphqlAdapter(clientHttp).adapter(
+      GraphqlAdapter(clientHttp).adapter(
         clientHttp.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery }),
         requestId,
       ),
@@ -59,12 +61,12 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should pick https module", async () => {
-    createRequestInterceptor(request);
-    await expect(() => graphqlAdapter(client).adapter(request, requestId)).not.toThrow();
+    mockRequest(request);
+    await expect(() => GraphqlAdapter(client).adapter(request, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { username: "prc", firstName: "Maciej" } });
+    const data = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
 
     const { data: response, error, status, extra } = await request.send();
 
@@ -75,7 +77,7 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should make a request with string endpoint", async () => {
-    const data = createRequestInterceptor(request, { fixture: { username: "prc", firstName: "Maciej" } });
+    const data = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
 
     const {
       data: response,
@@ -91,7 +93,7 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = createRequestInterceptor(request, { status: 400 });
+    const data = mockRequest(request, { status: 400 });
 
     const { data: response, error, status, extra } = await request.send();
 
@@ -102,12 +104,12 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   it("should allow to make mutation request", async () => {
-    const data = createRequestInterceptor(
+    const data = mockRequest(
       mutation.setData({
         username: "Kacper",
         password: "Kacper1234",
       }),
-      { fixture: { username: "prc", firstName: "Maciej" } },
+      { data: { username: "prc", firstName: "Maciej" } },
     );
 
     const {
@@ -137,7 +139,7 @@ describe("Graphql Adapter [ Server ]", () => {
     });
 
     const timeoutRequest = request.setOptions({ timeout: 10 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
     await timeoutRequest.send();
 
@@ -151,7 +153,7 @@ describe("Graphql Adapter [ Server ]", () => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     await mutation.send({
       data: {
@@ -170,7 +172,7 @@ describe("Graphql Adapter [ Server ]", () => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     const buffer = Buffer.from("test");
 

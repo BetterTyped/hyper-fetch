@@ -10,7 +10,7 @@
   <a href="https://github.com/BetterTyped/hyper-fetch/blob/main/License.md">
     <img src="https://custom-icon-badges.demolab.com/github/license/BetterTyped/hyper-fetch?logo=law&color=yellow" />
   </a>
-  <a href="https://www.npmjs.com/package/@hyper-fetch/graphql">
+  <a href="https://www.npmjs.com/package/@hyper-fetch/axios">
     <img src="https://custom-icon-badges.demolab.com/npm/v/@hyper-fetch/axios.svg?logo=npm&color=e76f51" />
   </a>
   <a href="https://api.codeclimate.com/v1/badges/eade9435e75ecea0c004/test_coverage">

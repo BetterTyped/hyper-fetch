@@ -50,4 +50,4 @@ export type StringifyCallbackType = (queryParams: QueryParamsType | string | Neg
 
 // Mapper
 
-export type DefaultEndpointMapper = (endpoint: any) => string;
+export type DefaultEndpointMapper<EndpointType = any> = (endpoint: any) => EndpointType;

@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import { realtimeDbAdmin, seedRealtimeDatabaseAdmin } from "../../../utils";
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { methodsSharedTestCases } from "../shared/methods.shared.tests";
 
 describe("Realtime Database Admin [ Methods ]", () => {
@@ -20,5 +20,5 @@ describe("Realtime Database Admin [ Methods ]", () => {
     await db.ref("teas").set(null);
   });
 
-  methodsSharedTestCases(() => firebaseAdminAdapter(db));
+  methodsSharedTestCases(() => FirebaseAdminAdapter(db));
 });

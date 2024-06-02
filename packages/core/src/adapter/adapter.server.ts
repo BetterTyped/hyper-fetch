@@ -2,7 +2,7 @@ import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
 import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse, parseResponse } from "adapter";
-import { HttpMethodsEnum } from "../constants/http.constants";
+import { HttpMethods } from "../constants/http.constants";
 
 export const adapter: AdapterType = async (request, requestId) => {
   const {
@@ -21,9 +21,9 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>(request, requestId, 0, xhrExtra);
+  } = await getAdapterBindings<AdapterType>({ request, requestId, systemErrorStatus: 0, systemErrorExtra: xhrExtra });
 
-  const { method = HttpMethodsEnum.get, client } = request;
+  const { method = HttpMethods.GET, client } = request;
   const httpClient = client.url.includes("https://") ? https : http;
   const options = {
     method,

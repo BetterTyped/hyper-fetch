@@ -1,4 +1,4 @@
-import { sseAdapter, getWebsocketAdapter, getSSEAdapter } from "adapter";
+import { ServerSentEventsAdapter, getWebsocketAdapter, getSSEAdapter } from "adapter";
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
 
@@ -39,7 +39,7 @@ describe("Socket Client [ Utils ]", () => {
       expect(adapter).toBeNull();
     });
     it("should not throw SSE when there is no window", () => {
-      const sseSocket = createSocket({ adapter: sseAdapter });
+      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
       const adapter = getSSEAdapter(sseSocket);
       expect(adapter).toBeNull();
     });
@@ -54,7 +54,7 @@ describe("Socket Client [ Utils ]", () => {
       expect(adapter).toBeNull();
     });
     it("should not throw SSE when there is no window", () => {
-      const sseSocket = createSocket({ adapter: sseAdapter });
+      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
       const adapter = getSSEAdapter(sseSocket);
       expect(adapter).toBeNull();
     });
@@ -85,7 +85,7 @@ describe("Socket Client [ Utils ]", () => {
       expect(adapter).toBeInstanceOf(WebSocket);
     });
     it("should initialize EventSource", () => {
-      const sseSocket = createSocket({ adapter: sseAdapter });
+      const sseSocket = createSocket({ adapter: ServerSentEventsAdapter });
       const adapter = getSSEAdapter(sseSocket);
       expect(adapter).toBeInstanceOf(EventSource);
     });

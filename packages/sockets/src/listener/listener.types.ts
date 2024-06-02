@@ -1,13 +1,14 @@
-import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, NegativeTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
 import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
 import {
-  ExtractListenerHasParams,
+  ExtractListenerHasParamsType,
   ExtractListenerTopicType,
   ExtractListenerResponseType,
   ExtractAdapterListenerOptionsType,
   ExtractAdapterExtraType,
+  ExtractListenerAdapterType,
 } from "types";
 
 export type ListenerInstance = Listener<any, any, any, any>;
@@ -18,21 +19,49 @@ export type ListenerOptionsType<Topic extends string, AdapterType extends Socket
   options?: ExtractAdapterListenerOptionsType<AdapterType>;
 };
 
-export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterInstance> = (
-  options: ExtractRouteParams<ExtractListenerTopicType<Listener>> extends NegativeTypes
-    ? { callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>> }
-    : ExtractListenerHasParams<Listener> extends false
-      ? {
-          params: ExtractRouteParams<ExtractListenerTopicType<Listener>>;
-          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-        }
-      : {
-          params?: never;
-          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>;
-        },
-) => () => void;
+export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
+  ExtractListenerHasParamsType<Listener> extends false
+    ? {
+        params: ExtractRouteParams<ExtractListenerTopicType<Listener>>;
+      }
+    : {
+        params?: never;
+      };
+
+export type ListenerListenOptionsType<Listener extends ListenerInstance> = ListenerParamsOptionsType<Listener>;
+
+export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterInstance> =
+  ExtractRouteParams<ExtractListenerTopicType<Listener>> extends NegativeTypes
+    ? (
+        callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
+        options?: ListenerListenOptionsType<Listener>,
+      ) => () => void
+    : ExtractListenerHasParamsType<Listener> extends true
+      ? (
+          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
+          options?: ListenerListenOptionsType<Listener>,
+        ) => () => void
+      : (
+          callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
+          options: ListenerListenOptionsType<Listener>,
+        ) => () => void;
 
 export type ListenerCallbackType<AdapterType extends SocketAdapterInstance, D> = (response: {
   data: D;
   extra: ExtractAdapterExtraType<AdapterType>;
 }) => void;
+
+export type ExtendListener<
+  T extends ListenerInstance,
+  Properties extends {
+    response?: any;
+    topic?: string;
+    adapter?: SocketAdapterInstance;
+    hasParams?: true | false;
+  },
+> = Listener<
+  TypeWithDefaults<Properties, "response", ExtractListenerResponseType<T>>,
+  TypeWithDefaults<Properties, "topic", ExtractListenerTopicType<T>>,
+  TypeWithDefaults<Properties, "adapter", ExtractListenerAdapterType<T>>,
+  TypeWithDefaults<Properties, "hasParams", ExtractListenerHasParamsType<T>>
+>;

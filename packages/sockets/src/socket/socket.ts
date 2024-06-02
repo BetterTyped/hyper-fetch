@@ -25,7 +25,7 @@ import {
 } from "socket";
 import { Listener, ListenerOptionsType } from "listener";
 import { Emitter, EmitterInstance, EmitterOptionsType } from "emitter";
-import { SocketAdapterInstance, WebsocketAdapterType, websocketAdapter } from "adapter";
+import { SocketAdapterInstance, WebsocketAdapterType, WebsocketAdapter } from "adapter";
 import { ExtractAdapterExtraType } from "types";
 
 export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType> {
@@ -96,7 +96,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     // Adapter must be initialized at the end
     this.adapter = (adapter
       ? adapter(this as unknown as Socket<SocketAdapterInstance>)
-      : websocketAdapter(this as unknown as Socket<SocketAdapterInstance>)) as unknown as ReturnType<Adapter>;
+      : WebsocketAdapter(this as unknown as Socket<SocketAdapterInstance>)) as unknown as ReturnType<Adapter>;
   }
 
   /**

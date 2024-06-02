@@ -3,7 +3,7 @@ import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios";
 
 import { AxiosAdapterType } from "./adapter.types";
 
-export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) => {
+export const AxiosAdapter = (): AxiosAdapterType => async (request, requestId) => {
   const {
     makeRequest,
     config,
@@ -21,7 +21,12 @@ export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) =
     onRequestStart,
     onSuccess,
     getAbortController,
-  } = await getAdapterBindings<AxiosAdapterType>(request, requestId, 0, { headers: {} });
+  } = await getAdapterBindings<AxiosAdapterType>({
+    request,
+    requestId,
+    systemErrorStatus: 0,
+    systemErrorExtra: { headers: {} },
+  });
 
   const { method } = request;
 
@@ -39,11 +44,9 @@ export const axiosAdapter = (): AxiosAdapterType => async (request, requestId) =
       url: fullUrl,
       signal: controller.signal,
       headers: new AxiosHeaders(headers as RawAxiosRequestHeaders),
-      onUploadProgress: payload
-        ? (progressEvent) => {
-            onRequestProgress(progressEvent);
-          }
-        : undefined,
+      onUploadProgress: (progressEvent) => {
+        onRequestProgress(progressEvent);
+      },
       onDownloadProgress: (progressEvent) => {
         onRequestEnd();
         onResponseStart();

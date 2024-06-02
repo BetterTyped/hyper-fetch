@@ -1,6 +1,6 @@
 import { ProgressType, ResponseType, getErrorMessage } from "adapter";
 import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
-import { HttpMethodsEnum } from "constants/http.constants";
+import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
@@ -103,7 +103,7 @@ export const getRequestDispatcher = <Request extends RequestInstance>(
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
 ): [Dispatcher, boolean] => {
   const { fetchDispatcher, submitDispatcher } = request.client;
-  const isGet = request.method === HttpMethodsEnum.get;
+  const isGet = request.method === HttpMethods.GET;
   const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";
   const dispatcher = isFetchDispatcher ? fetchDispatcher : submitDispatcher;
 

@@ -1,8 +1,12 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { parseResponse } from "@hyper-fetch/core";
-
 import { ListenerCallbackType, ListenerInstance } from "listener";
-import { getSocketAdapterBindings, getSSEAdapter, SSEAdapterType, SocketData, parseMessageEvent } from "adapter";
+import {
+  getSocketAdapterBindings,
+  getSSEAdapter,
+  ServerSentEventsAdapterType,
+  SocketData,
+  parseMessageEvent,
+} from "adapter";
 
 /**
  * -------------------------------------------
@@ -10,7 +14,7 @@ import { getSocketAdapterBindings, getSSEAdapter, SSEAdapterType, SocketData, pa
  * -------------------------------------------
  */
 
-export const sseAdapter: SSEAdapterType = (socket) => {
+export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => {
   const {
     open,
     reconnectionAttempts,
@@ -63,11 +67,10 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
       const { response, event } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic) ||
-      new Map();
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic);
 
-      eventListeners.forEach((_, action) => {
-        action({ data: response, extra: event });
+      eventListeners?.forEach((_, action) => {
+        action({ data: response.data, extra: event });
       });
 
       onEvent(response.topic, response, event);
@@ -90,7 +93,7 @@ export const sseAdapter: SSEAdapterType = (socket) => {
     clearTimeout(pongTimer);
   };
 
-  const listen = (listener: ListenerInstance, callback: ListenerCallbackType<SSEAdapterType, any>) => {
+  const listen = (listener: ListenerInstance, callback: ListenerCallbackType<ServerSentEventsAdapterType, any>) => {
     return onListen(listener, callback);
   };
 

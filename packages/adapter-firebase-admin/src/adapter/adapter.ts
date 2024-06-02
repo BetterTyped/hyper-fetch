@@ -16,12 +16,17 @@ import {
 import { getFirestoreAdminMethods } from "../firestore";
 import { getRealtimeDbAdminMethods } from "../realtime";
 
-export const firebaseAdminAdapter =
+export const FirebaseAdminAdapter =
   <T extends FirebaseAdminDBTypes>(database: T) =>
   () => {
     const adapter: FirebaseAdminAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onRequestStart, onResponseEnd, onResponseStart, onRequestEnd } =
-        await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
+        await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>({
+          request,
+          requestId,
+          systemErrorStatus: "error",
+          systemErrorExtra: {},
+        });
       return new Promise<ResponseType<any, any, FirebaseAdminAdapterTypes<T>>>((resolve) => {
         if (database instanceof Firestore) {
           const {

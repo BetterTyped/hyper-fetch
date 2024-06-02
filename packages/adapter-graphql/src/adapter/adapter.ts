@@ -1,11 +1,17 @@
 import * as browser from "@browser-adapter";
 import * as server from "@server-adapter";
-import { HttpMethodsEnum, ClientInstance } from "@hyper-fetch/core";
+import {
+  ClientInstance,
+  Client,
+  ExtractClientGlobalError,
+  ExtractClientAdapterType,
+  ExtractClientMapperType,
+} from "@hyper-fetch/core";
 import { print } from "graphql/language/printer";
 
-import { GraphQLAdapterType, GraphQlEndpointType } from "adapter";
+import { GraphQLAdapterType, GraphQlEndpointType, GraphqlMethod } from "adapter";
 
-export const graphqlAdapter = (client: ClientInstance) => {
+export const GraphqlAdapter = <C extends ClientInstance>(client: C) => {
   const adapter: GraphQLAdapterType = async (request, requestId) => {
     if (typeof XMLHttpRequest !== "undefined") {
       return browser.adapter(request, requestId);
@@ -20,8 +26,16 @@ export const graphqlAdapter = (client: ClientInstance) => {
     return print(endpoint);
   };
 
-  return client
-    .setDefaultMethod(HttpMethodsEnum.post)
-    .setEndpointMapper(mapper)
-    .setAdapter(() => adapter);
+  return (
+    client as Client<
+      ExtractClientGlobalError<C> extends Error
+        ? { errors: Error[] }
+        : ExtractClientGlobalError<C> | { errors: Error[] },
+      ExtractClientAdapterType<C>,
+      ExtractClientMapperType<C>
+    >
+  )
+    .setAdapter(() => adapter)
+    .setDefaultMethod(GraphqlMethod.POST)
+    .setEndpointMapper(mapper);
 };

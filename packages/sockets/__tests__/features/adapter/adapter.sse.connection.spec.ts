@@ -3,11 +3,11 @@ import { sources } from "eventsourcemock";
 
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer, wsUrl } from "../../websocket/websocket.server";
-import { sseAdapter } from "adapter";
+import { ServerSentEventsAdapter } from "adapter";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
-  adapter: sseAdapter,
+  adapter: ServerSentEventsAdapter,
 };
 
 describe("Socket SSE [ Connection ]", () => {

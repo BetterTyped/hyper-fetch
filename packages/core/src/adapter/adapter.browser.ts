@@ -26,8 +26,13 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>(request, requestId, 0, {
-    headers: {},
+  } = await getAdapterBindings<AdapterType>({
+    request,
+    requestId,
+    systemErrorStatus: 0,
+    systemErrorExtra: {
+      headers: {},
+    },
   });
 
   const { method = "GET" } = request;

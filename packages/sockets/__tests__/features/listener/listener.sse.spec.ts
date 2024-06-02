@@ -5,11 +5,11 @@ import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 import { wsUrl } from "../../websocket/websocket.server";
 import { sleep } from "../../utils/helpers.utils";
-import { sseAdapter } from "adapter";
+import { ServerSentEventsAdapter } from "adapter";
 import { sendSseEvent } from "../../websocket/sse.server";
 
 const config = {
-  adapter: sseAdapter,
+  adapter: ServerSentEventsAdapter,
 };
 
 type DataType = { topic: string; age: number };

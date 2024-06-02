@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 import { Tea } from "../../../../utils";
 
-export const removeTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const removeTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   let client = new Client({ url: "teas/" }).setAdapter(adapterFunction());
   beforeEach(() => {
     client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

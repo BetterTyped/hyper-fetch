@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

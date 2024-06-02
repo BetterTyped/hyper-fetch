@@ -18,7 +18,7 @@ import {
  * -------------------------------------------
  */
 
-export const websocketAdapter: WebsocketAdapterType = (socket) => {
+export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   const {
     open,
     listeners,
@@ -80,10 +80,9 @@ export const websocketAdapter: WebsocketAdapterType = (socket) => {
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
       const { event, response } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic) ||
-      new Map();
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic);
 
-      eventListeners.forEach((_, action) => {
+      eventListeners?.forEach((_, action) => {
         action({ data: response.data, extra: event });
       });
 

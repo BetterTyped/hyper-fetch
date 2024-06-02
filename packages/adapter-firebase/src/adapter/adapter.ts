@@ -16,12 +16,17 @@ import {
 import { getRealtimeDbBrowserMethods } from "realtime";
 import { getFirestoreBrowserMethods } from "firestore";
 
-export const firebaseAdapter =
+export const FirebaseAdapter =
   <T extends FirebaseBrowserDBTypes>(database: T) =>
   () => {
     const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
-        await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>(request, requestId, "error", {});
+        await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>({
+          request,
+          requestId,
+          systemErrorStatus: "error",
+          systemErrorExtra: {},
+        });
       return new Promise<ResponseType<any, any, FirebaseBrowserAdapterTypes<T>>>((resolve) => {
         if (database instanceof Database) {
           const {

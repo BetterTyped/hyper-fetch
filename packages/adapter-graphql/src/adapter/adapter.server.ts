@@ -19,7 +19,15 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<GraphQLAdapterType>(request, requestId, 0, gqlExtra);
+  } = await getAdapterBindings<GraphQLAdapterType>({
+    request,
+    requestId,
+    systemErrorStatus: 0,
+    systemErrorExtra: gqlExtra,
+    internalErrorFormatter: (error) => ({
+      errors: [error],
+    }),
+  });
 
   const { fullUrl, payload, method } = getRequestValues(request);
 
@@ -65,15 +73,15 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
       response.on("end", () => {
         const { statusCode } = response;
-        const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
+        const data = parseResponse(chunks);
+        const success = (String(statusCode).startsWith("2") || String(statusCode).startsWith("3")) && !data?.errors;
 
         if (success) {
-          const data = parseResponse(chunks);
           onSuccess(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
-          const data = parseErrorResponse(chunks);
-          onError(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+          const error = data || parseErrorResponse(chunks);
+          onError(error, statusCode, { headers: response.headers as Record<string, string> }, resolve);
         }
 
         unmountListener();

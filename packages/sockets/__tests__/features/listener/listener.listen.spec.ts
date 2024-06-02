@@ -22,11 +22,9 @@ describe("Listener [ Listen ]", () => {
     const spy = jest.fn();
     const message = { topic: "Maciej", age: 99 };
     let receivedExtra;
-    listener.listen({
-      callback: (data) => {
-        spy(data);
-        receivedExtra = data.extra;
-      },
+    listener.listen((data) => {
+      spy(data);
+      receivedExtra = data.extra;
     });
     sendWsEvent(listener, message);
 
@@ -40,7 +38,7 @@ describe("Listener [ Listen ]", () => {
 
   it("should allow to remove given listener", async () => {
     const spy = jest.fn();
-    const removeListener = listener.listen({ callback: (data) => spy(data) });
+    const removeListener = listener.listen(spy);
     const message = { topic: "Maciej", age: 99 };
     sendWsEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
@@ -54,7 +52,7 @@ describe("Listener [ Listen ]", () => {
   it("should allow to set params", async () => {
     const spy = jest.fn();
     const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ topic: "test/:testId" });
-    const removeListener = listenerWithParams.listen({ params: { testId: 1 }, callback: (data) => spy(data) });
+    const removeListener = listenerWithParams.listen(spy, { params: { testId: 1 } });
     const message = { topic: "Maciej", age: 99 };
     sendWsEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();
@@ -63,21 +61,5 @@ describe("Listener [ Listen ]", () => {
     sendWsEvent(listenerWithParams, message);
     sendWsEvent(listenerWithParams, message);
     expect(spy).toHaveBeenCalledOnce();
-  });
-
-  it("should allow for using onData", async () => {
-    const spy = jest.fn();
-    let receivedData;
-    const removeListener = listener
-      .onData(({ data }) => {
-        receivedData = data;
-        spy();
-      })
-      .listen({ callback: () => null });
-    const message = { topic: "Maciej", age: 99 };
-    sendWsEvent(listener, message);
-    expect(spy).toHaveBeenCalledOnce();
-    expect(receivedData).toStrictEqual(message);
-    removeListener();
   });
 });

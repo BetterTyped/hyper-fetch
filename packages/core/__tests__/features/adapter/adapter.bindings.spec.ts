@@ -73,23 +73,43 @@ describe("Fetch Adapter [ Bindings ]", () => {
 
   describe("when getAdapterBindings get initialized", () => {
     it("should create correct fullUrl", async () => {
-      const { fullUrl } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+      const { fullUrl } = await getAdapterBindings({
+        request,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
       expect(fullUrl).toBe(url + endpoint + queryParams);
     });
 
     it("should create correct headers", async () => {
-      const { headers } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+      const { headers } = await getAdapterBindings({
+        request,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
       expect(headers).toEqual({ "Content-Type": "application/json" });
     });
 
     it("should create correct payload", async () => {
-      const { payload } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+      const { payload } = await getAdapterBindings({
+        request,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
       expect(payload).toEqual(JSON.stringify(data));
     });
 
     it("should create AbortController", async () => {
       request.client.requestManager.addAbortController(request.abortKey, requestId);
-      const { getAbortController } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+      const { getAbortController } = await getAdapterBindings({
+        request,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
       expect(getAbortController()).toBeDefined();
     });
   });
@@ -97,8 +117,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
   describe("given bindings abort methods being used", () => {
     describe("when using AbortController methods", () => {
       it("should create listener using createAbortListener", async () => {
-        const { createAbortListener, getAbortController } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { createAbortListener, getAbortController } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         const spy = jest.fn();
         const resolveSpy = jest.fn();
@@ -116,8 +141,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
 
       it("should unmount listener using createAbortListener", async () => {
         request.client.requestManager.addAbortController(request.abortKey, requestId);
-        const { createAbortListener, getAbortController } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { createAbortListener, getAbortController } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         const spy = jest.fn();
         const resolveSpy = jest.fn();
@@ -132,7 +162,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should throw createAbortListener when there is no controller", async () => {
-        const { createAbortListener } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { createAbortListener } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         client.requestManager.abortControllers.clear();
         expect(() =>
           createAbortListener(
@@ -149,7 +184,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
   describe("given bindings pre-request methods being used", () => {
     describe("when onBeforeRequest got executed", () => {
       it("should use effect lifecycle method ", async () => {
-        const { onBeforeRequest } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onBeforeRequest } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         onBeforeRequest();
         expect(onTriggerSpy).toHaveBeenCalledTimes(1);
       });
@@ -176,7 +216,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       const requestMapped = req.setDataMapper(dataMapper);
       const requestSetData = requestMapped.setData(newData);
 
-      const { payload } = await getAdapterBindings(requestSetData, requestId, 0, xhrExtra);
+      const { payload } = await getAdapterBindings({
+        request: requestSetData,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(payload).toBe(`${newData.userId}_${newData.role}`);
@@ -198,19 +243,34 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
       const requestSetData = requestMapped.setData(newData);
 
-      const { payload } = await getAdapterBindings(requestSetData, requestId, 0, xhrExtra);
+      const { payload } = await getAdapterBindings({
+        request: requestSetData,
+        requestId,
+        systemErrorStatus: 0,
+        systemErrorExtra: xhrExtra,
+      });
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(payload).toBe(`"${newData.userId}_${newData.role}"`);
     });
     describe("when onRequestStart got executed", () => {
       it("should use effect lifecycle method", async () => {
-        const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         onRequestStart();
         expect(onStartSpy).toHaveBeenCalledTimes(1);
       });
       it("should emit request start event", async () => {
-        const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onRequestStart(request.queueKey, spy);
         onRequestStart();
@@ -218,7 +278,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should emit upload progress event", async () => {
-        const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onUploadProgress(request.queueKey, spy);
         const startTimestamp = onRequestStart();
@@ -226,7 +291,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         testProgressSpy({ spy, request, requestId, startTimestamp });
       });
       it("should emit upload progress event with specified payload size", async () => {
-        const { onRequestStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const progress = {
           total: 9999,
           loaded: 0,
@@ -246,7 +316,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       };
 
       it("should emit upload progress event", async () => {
-        const { onRequestStart, onRequestProgress } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart, onRequestProgress } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const startTimestamp = onRequestStart();
         await sleep(30);
@@ -257,8 +332,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should create start timestamp if it's not available", async () => {
-        const { onRequestProgress, getRequestStartTimestamp } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { onRequestProgress, getRequestStartTimestamp } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         expect(getRequestStartTimestamp()).toBeNull();
         const progressTimestamp = onRequestProgress(progress);
@@ -266,7 +346,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should emit correct loaded value", async () => {
-        const { onRequestProgress } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestProgress } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         let value: number;
         const unmount = client.requestManager.events.onUploadProgress(request.queueKey, ({ loaded }) => {
           value = loaded;
@@ -277,7 +362,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should emit correct loaded value", async () => {
-        const { onResponseProgress } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseProgress } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         let value: number;
         const unmount = client.requestManager.events.onDownloadProgress(request.queueKey, ({ loaded }) => {
           value = loaded;
@@ -294,7 +384,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       };
 
       it("should emit upload progress event", async () => {
-        const { onRequestStart, onRequestEnd } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onRequestStart, onRequestEnd } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const startTimestamp = onRequestStart({ total: progress.total, loaded: 0 });
         await sleep(30);
@@ -305,8 +400,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should create start timestamp if it's not available", async () => {
-        const { onRequestEnd, getRequestStartTimestamp } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { onRequestEnd, getRequestStartTimestamp } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         expect(getRequestStartTimestamp()).toBeNull();
         const progressTimestamp = onRequestEnd();
@@ -319,7 +419,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
   describe("given bindings response methods being used", () => {
     describe("when onResponseStart got executed", () => {
       it("should emit response start event", async () => {
-        const { onResponseStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onResponseStart(request.queueKey, spy);
         onResponseStart();
@@ -327,7 +432,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should emit download progress event", async () => {
-        const { onResponseStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const unmount = client.requestManager.events.onDownloadProgress(request.queueKey, spy);
         const startTimestamp = onResponseStart();
@@ -335,7 +445,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         testProgressSpy({ spy, request, requestId, startTimestamp });
       });
       it("should emit download progress event with specified payload size", async () => {
-        const { onResponseStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const progress = {
           total: 9999,
           loaded: 0,
@@ -348,7 +463,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp });
       });
       it("should emit correct total value", async () => {
-        const { onResponseStart } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseStart } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         let value: number;
         const unmount = client.requestManager.events.onDownloadProgress(request.queueKey, ({ total }) => {
           value = total;
@@ -372,8 +492,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
       };
 
       it("should emit upload progress event", async () => {
-        const { onResponseStart, onResponseProgress } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { onResponseStart, onResponseProgress } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         const spy = jest.fn();
         const startTimestamp = onResponseStart();
@@ -385,8 +510,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should create start timestamp if it's not available", async () => {
-        const { onResponseProgress, getResponseStartTimestamp } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { onResponseProgress, getResponseStartTimestamp } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         const startTimestamp = getResponseStartTimestamp();
         expect(startTimestamp).toBeNull();
@@ -401,7 +531,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       };
 
       it("should emit upload progress event", async () => {
-        const { onResponseStart, onResponseEnd } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onResponseStart, onResponseEnd } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const spy = jest.fn();
         const startTimestamp = onResponseStart({ total: progress.total, loaded: 0 });
         await sleep(30);
@@ -412,8 +547,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
       });
 
       it("should create start timestamp if it's not available", async () => {
-        const { onResponseEnd, getResponseStartTimestamp } = await getAdapterBindings(request, requestId, 0, {
-          headers: {},
+        const { onResponseEnd, getResponseStartTimestamp } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: {
+            headers: {},
+          },
         });
         const startTimestamp = getResponseStartTimestamp();
         expect(startTimestamp).toBeNull();
@@ -427,12 +567,22 @@ describe("Fetch Adapter [ Bindings ]", () => {
   describe("given bindings data handling methods being used", () => {
     describe("when onSuccess got executed", () => {
       it("should return success data", async () => {
-        const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onSuccess } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         expect(response).toEqual(successResponse);
       });
       it("should use effect lifecycle methods", async () => {
-        const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onSuccess } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         await onSuccess(data, 200, xhrExtra, () => null);
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
@@ -440,21 +590,36 @@ describe("Fetch Adapter [ Bindings ]", () => {
         expect(onFinishedSpy).toHaveBeenCalledWith(successResponse, request);
       });
       it("should return data transformed by __modifyResponse", async () => {
-        const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onSuccess } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         client.__onResponseCallbacks.push(() => successResponse);
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
         expect(response).toEqual(successResponse);
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
-        const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onSuccess } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         client.__onSuccessCallbacks.push(() => successResponse);
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(successResponse);
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
-        const { onSuccess } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onSuccess } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const newData: ResponseType<unknown, unknown, AdapterType> = {
           data: "modified",
           error: null,
@@ -474,12 +639,22 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
     describe("when onError got executed", () => {
       it("should return error data", async () => {
-        const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const response = await onError(data, 400, xhrExtra, () => null);
         expect(response).toEqual(errorResponse);
       });
       it("should use effect lifecycle methods", async () => {
-        const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         await onError(data, 400, xhrExtra, () => null);
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
@@ -487,21 +662,36 @@ describe("Fetch Adapter [ Bindings ]", () => {
         expect(onFinishedSpy).toHaveBeenCalledWith(errorResponse, request);
       });
       it("should return data transformed by __modifyResponse", async () => {
-        const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         client.__onResponseCallbacks.push(() => errorResponse);
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
       it("should return data transformed by __modifyErrorResponse", async () => {
-        const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         client.__onErrorCallbacks.push(() => errorResponse);
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onErrorCallbacks = [];
         expect(response).toEqual(errorResponse);
       });
       it("should execute __modifyErrorResponse as last modifier", async () => {
-        const { onError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const newData: ResponseType<unknown, unknown, AdapterType> = {
           data: "modified",
           error: 444,
@@ -521,7 +711,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
     describe("when errors methods got executed", () => {
       it("should return correct message when onAbortError is executed", async () => {
-        const { onAbortError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onAbortError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const response = await onAbortError(0, xhrExtra, () => null);
         expect(response).toEqual({
           data: null,
@@ -532,7 +727,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
       });
       it("should return correct message when onTimeoutError is executed", async () => {
-        const { onTimeoutError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onTimeoutError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const response = await onTimeoutError(0, xhrExtra, () => null);
         expect(response).toEqual({
           data: null,
@@ -543,7 +743,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
-        const { onUnexpectedError } = await getAdapterBindings(request, requestId, 0, xhrExtra);
+        const { onUnexpectedError } = await getAdapterBindings({
+          request,
+          requestId,
+          systemErrorStatus: 0,
+          systemErrorExtra: xhrExtra,
+        });
         const response = await onUnexpectedError(0, xhrExtra, () => null);
         expect(response).toEqual({
           data: null,

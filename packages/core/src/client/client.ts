@@ -32,8 +32,8 @@ import { RequestEffectInstance } from "effect";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
-import { HttpMethodsEnum } from "../constants/http.constants";
-import { ExtractAdapterType, NegativeTypes } from "types";
+import { HttpMethods } from "../constants/http.constants";
+import { NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -66,7 +66,7 @@ export class Client<
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
 
-  defaultMethod: ExtractAdapterMethodType<Adapter> = HttpMethodsEnum.get as ExtractAdapterMethodType<Adapter>;
+  defaultMethod: ExtractAdapterMethodType<Adapter> = HttpMethods.GET as ExtractAdapterMethodType<Adapter>;
   defaultExtra: ExtractAdapterExtraType<Adapter> = xhrExtra as ExtractAdapterExtraType<Adapter>;
 
   isMockEnabled = true;
@@ -213,7 +213,9 @@ export class Client<
   /**
    * Set the request payload mapping function which get triggered before request get send
    */
-  setEndpointMapper = <NewEndpointMapper extends DefaultEndpointMapper>(endpointMapper: NewEndpointMapper) => {
+  setEndpointMapper = <NewEndpointMapper extends DefaultEndpointMapper<ExtractAdapterEndpointType<Adapter>>>(
+    endpointMapper: NewEndpointMapper,
+  ) => {
     this.endpointMapper = endpointMapper as any;
     return this as unknown as Client<GlobalErrorType, Adapter, NewEndpointMapper>;
   };
@@ -225,11 +227,7 @@ export class Client<
     callback: (
       client: this,
     ) => Returns extends AdapterInstance ? NewAdapter : Client<GlobalErrorType, NewAdapter, EndpointMapper>,
-  ): Client<
-    GlobalErrorType,
-    Returns extends AdapterInstance ? NewAdapter : ExtractAdapterType<NewAdapter>,
-    EndpointMapper
-  > => {
+  ): Returns extends AdapterInstance ? Client<GlobalErrorType, NewAdapter, EndpointMapper> : Returns => {
     const value = callback(this) as unknown as Adapter;
 
     if (value instanceof Client) {
@@ -245,7 +243,7 @@ export class Client<
    */
   setDefaultMethod = (defaultMethod: ExtractAdapterMethodType<Adapter>) => {
     this.defaultMethod = defaultMethod;
-    return this as ClientInstance;
+    return this;
   };
 
   /**
@@ -253,7 +251,7 @@ export class Client<
    */
   setDefaultExtra = (defaultExtra: ExtractAdapterExtraType<Adapter>) => {
     this.defaultExtra = defaultExtra;
-    return this as ClientInstance;
+    return this;
   };
 
   /**

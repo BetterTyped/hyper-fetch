@@ -1,10 +1,12 @@
 import { Client } from "@hyper-fetch/core";
+import { createMockingServer } from "@hyper-fetch/testing";
 
-import { axiosAdapter } from "../../../src/adapter/adapter";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { AxiosAdapter } from "../../../src/adapter/adapter";
+
+const { startServer, stopServer, resetMocks, mockRequest } = createMockingServer();
 
 describe("Axios Adapter [ Base ]", () => {
-  let client = new Client({ url: "shared-base-url" }).setAdapter(axiosAdapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(AxiosAdapter);
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -12,10 +14,10 @@ describe("Axios Adapter [ Base ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" }).setAdapter(axiosAdapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(AxiosAdapter);
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -24,7 +26,7 @@ describe("Axios Adapter [ Base ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const response = createRequestInterceptor(request);
+    const response = mockRequest(request);
     const { data, status, error, extra } = await request.send();
 
     expect(data).toStrictEqual(response);
@@ -32,12 +34,12 @@ describe("Axios Adapter [ Base ]", () => {
     expect(error).toBe(null);
     expect({ ...extra.headers }).toStrictEqual({
       "content-type": "application/json",
-      "x-powered-by": "msw",
+      "content-length": "0",
     });
   });
 
   it("should make a request and return error with status", async () => {
-    createRequestInterceptor(request, { status: 400 });
+    mockRequest(request, { status: 400 });
     const { data, error, status, extra } = await request.send();
 
     expect(error.message).toBe("Request failed with status code 400");
@@ -45,47 +47,47 @@ describe("Axios Adapter [ Base ]", () => {
     expect(status).toBe(400);
     expect({ ...extra.headers }).toStrictEqual({
       "content-type": "application/json",
-      "x-powered-by": "msw",
+      "content-length": "0",
     });
   });
 
   it("should allow to call the request callbacks", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
 
-    const spy1 = jest.fn();
-    const spy2 = jest.fn();
-    const spy3 = jest.fn();
-    const spy4 = jest.fn();
-    const spy5 = jest.fn();
-    const spy6 = jest.fn();
+    const spySettle = jest.fn();
+    const spyReqStart = jest.fn();
+    const spyResStart = jest.fn();
+    const spyUpload = jest.fn();
+    const spyDownload = jest.fn();
+    const spyResponse = jest.fn();
 
     await request.send({
-      onSettle: spy1,
-      onRequestStart: spy2,
-      onResponseStart: spy3,
-      onUploadProgress: spy4,
-      onDownloadProgress: spy5,
-      onResponse: spy6,
+      onSettle: spySettle,
+      onRequestStart: spyReqStart,
+      onResponseStart: spyResStart,
+      onUploadProgress: spyUpload,
+      onDownloadProgress: spyDownload,
+      onResponse: spyResponse,
     });
 
-    expect(spy1).toBeCalledTimes(1);
-    expect(spy2).toBeCalledTimes(1);
-    expect(spy3).toBeCalledTimes(1);
-    expect(spy4).toBeCalledTimes(2);
-    expect(spy5).toBeCalledTimes(3);
-    expect(spy6).toBeCalledTimes(1);
+    expect(spySettle).toHaveBeenCalledTimes(1);
+    expect(spyReqStart).toHaveBeenCalledTimes(1);
+    expect(spyResStart).toHaveBeenCalledTimes(1);
+    expect(spyUpload).toHaveBeenCalledTimes(2);
+    expect(spyDownload).toHaveBeenCalledTimes(3);
+    expect(spyResponse).toHaveBeenCalledTimes(1);
   });
 
   it("should allow to add upload progress", async () => {
     const postRequest = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
-    createRequestInterceptor(postRequest);
+    mockRequest(postRequest);
 
-    const spy1 = jest.fn();
+    const spyUpload = jest.fn();
     await postRequest.send({
       data: { name: "test" },
-      onUploadProgress: spy1,
+      onUploadProgress: spyUpload,
     });
 
-    expect(spy1).toBeCalledTimes(1);
+    expect(spyUpload).toHaveBeenCalledTimes(1);
   });
 });

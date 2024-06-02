@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import {
   getErrorMessage,
   ResponseReturnSuccessType,
@@ -14,12 +15,19 @@ import { RequestInstance, getProgressData, AdapterProgressEventType } from "requ
 import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
 import { mocker } from "mocker";
 
-export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>(
-  req: RequestInstance,
-  requestId: string,
-  systemErrorStatus: ExtractAdapterStatusType<T>,
-  systemErrorExtra: ExtractAdapterExtraType<T>,
-) => {
+export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>({
+  request: req,
+  requestId,
+  systemErrorStatus,
+  systemErrorExtra,
+  internalErrorFormatter,
+}: {
+  request: RequestInstance;
+  requestId: string;
+  systemErrorStatus: ExtractAdapterStatusType<T>;
+  systemErrorExtra: ExtractAdapterExtraType<T>;
+  internalErrorFormatter?: (error: Error) => any;
+}) => {
   const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
 
   const logger = loggerManager.init("Adapter");
@@ -275,6 +283,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage("abort");
+    if (internalErrorFormatter) {
+      return onError(internalErrorFormatter(error), status, extra, resolve);
+    }
     return onError(error, status, extra, resolve);
   };
 
@@ -284,6 +295,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage("timeout");
+    if (internalErrorFormatter) {
+      return onError(internalErrorFormatter(error), status, extra, resolve);
+    }
     return onError(error, status, extra, resolve);
   };
 
@@ -293,6 +307,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const error = getErrorMessage();
+    if (internalErrorFormatter) {
+      return onError(internalErrorFormatter(error), status, extra, resolve);
+    }
     return onError(error, status, extra, resolve);
   };
 

@@ -23,7 +23,7 @@ export type ExtractEmitterHasDataType<E> = E extends Emitter<any, any, any, any,
 export type ExtractListenerResponseType<T> = T extends Listener<infer R, any, any, any> ? R : never;
 export type ExtractListenerTopicType<E> = E extends Listener<any, infer A, any, any> ? A : never;
 export type ExtractListenerAdapterType<E> = E extends Listener<any, any, infer A, any> ? A : never;
-export type ExtractListenerHasParams<E> = E extends Listener<any, any, any, infer P> ? P : never;
+export type ExtractListenerHasParamsType<E> = E extends Listener<any, any, any, infer P> ? P : never;
 
 // Socket
 

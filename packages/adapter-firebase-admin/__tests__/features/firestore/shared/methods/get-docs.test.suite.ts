@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const getDocsTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("getDocs", () => {
     it("should return data available for endpoint", async () => {
       const client = new Client({ url: "teas/" }).setAdapter(adapterFunction());

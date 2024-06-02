@@ -18,7 +18,15 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<GraphQLAdapterType>(request, requestId, 0, gqlExtra);
+  } = await getAdapterBindings<GraphQLAdapterType>({
+    request,
+    requestId,
+    systemErrorStatus: 0,
+    systemErrorExtra: gqlExtra,
+    internalErrorFormatter: (error) => ({
+      errors: [error],
+    }),
+  });
 
   const { fullUrl, payload, method } = getRequestValues(request);
 
@@ -67,16 +75,16 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
       if (event.target && event.target.readyState === finishedState) {
         const { status } = event.target;
-        const success = String(status).startsWith("2") || String(status).startsWith("3");
+        const data = parseResponse(event.target.response);
+        const success = (String(status).startsWith("2") || String(status).startsWith("3")) && !data?.errors;
         const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
         if (success) {
-          const data = parseResponse(event.target.response);
           onSuccess(data, status, { headers: responseHeaders }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
-          const data = parseErrorResponse(event.target.response);
-          onError(data, status, { headers: responseHeaders }, resolve);
+          const error = data || parseErrorResponse(event.target.response);
+          onError(error, status, { headers: responseHeaders }, resolve);
         }
       }
     };

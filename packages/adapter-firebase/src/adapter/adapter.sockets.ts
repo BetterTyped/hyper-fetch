@@ -5,7 +5,7 @@ import { FirebaseBrowserDBTypes, FirebaseBrowserSocketAdapterTypes } from "adapt
 import { realtimeSockets } from "realtime";
 import { firestoreSockets } from "firestore";
 
-export const firebaseSocketsAdapter = <T extends FirebaseBrowserDBTypes>(
+export const FirebaseSocketsAdapter = <T extends FirebaseBrowserDBTypes>(
   database: T,
 ): FirebaseBrowserSocketAdapterTypes<T> => {
   if (database instanceof Database) {

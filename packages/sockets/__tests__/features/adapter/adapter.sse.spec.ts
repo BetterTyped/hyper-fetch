@@ -2,21 +2,21 @@ import { waitFor } from "@testing-library/dom";
 
 import { createSocket } from "../../utils/socket.utils";
 import { createWsServer } from "../../websocket/websocket.server";
-import { SSEAdapterType, sseAdapter } from "adapter";
+import { ServerSentEventsAdapterType, ServerSentEventsAdapter } from "adapter";
 import { emitError, openSse } from "../../websocket/sse.server";
 import { sleep } from "../../utils/helpers.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
-  adapter: sseAdapter,
+  adapter: ServerSentEventsAdapter,
   adapterOptions: { eventSourceInit: { withCredentials: true } },
 };
 
 describe("Socket Adapter [ SSE ]", () => {
-  let socket = createSocket<SSEAdapterType>(socketOptions);
+  let socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
 
   beforeEach(() => {
     createWsServer();
-    socket = createSocket<SSEAdapterType>(socketOptions);
+    socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
     jest.resetAllMocks();
   });
 

@@ -1,4 +1,4 @@
-import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, NegativeTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
 import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
@@ -11,6 +11,7 @@ import {
   EventReturnType,
   ExtractAdapterEmitterOptionsType,
   ExtractEmitterResponseType,
+  ExtractEmitterMappedDataType,
 } from "types";
 
 export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
@@ -95,3 +96,24 @@ export type EmitType<Emitter extends EmitterInstance> =
               > &
               EmitRestType<Emitter>,
           ) => UnMountFunction;
+
+export type ExtendEmitter<
+  T extends EmitterInstance,
+  Properties extends {
+    payload?: any;
+    response?: any;
+    topic?: string;
+    adapter?: SocketAdapterInstance;
+    mappedData?: any;
+    hasData?: true | false;
+    hasParams?: true | false;
+  },
+> = Emitter<
+  TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
+  TypeWithDefaults<Properties, "response", ExtractEmitterResponseType<T>>,
+  TypeWithDefaults<Properties, "topic", ExtractEmitterTopicType<T>>,
+  TypeWithDefaults<Properties, "adapter", ExtractEmitterAdapterType<T>>,
+  TypeWithDefaults<Properties, "mappedData", ExtractEmitterMappedDataType<T>>,
+  TypeWithDefaults<Properties, "hasParams", ExtractEmitterHasParamsType<T>>,
+  TypeWithDefaults<Properties, "hasData", ExtractEmitterHasDataType<T>>
+>;

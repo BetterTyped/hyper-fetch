@@ -29,10 +29,12 @@ export const getJestConfig = (): Config.InitialOptions => ({
     ],
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
-  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts"],
+  setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts", `${__dirname}/jest.polyfills.js`],
   moduleNameMapper: {
     "@browser-adapter": ["<rootDir>/src/adapter/adapter.browser.ts"],
     "@server-adapter": ["<rootDir>/src/adapter/adapter.server.ts"],
-    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+  testEnvironmentOptions: {
+    customExportConditions: [""],
   },
 });

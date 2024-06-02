@@ -304,7 +304,7 @@ export type RequestInstance = Request<
   any
 >;
 
-export type RequestExtend<
+export type ExtendRequest<
   Req extends RequestInstance,
   Properties extends {
     response?: any;

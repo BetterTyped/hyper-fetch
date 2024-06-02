@@ -1,10 +1,10 @@
 import { Client } from "@hyper-fetch/core";
 
 import { Tea } from "../../../../utils";
-import { firebaseAdminAdapter } from "adapter";
+import { FirebaseAdminAdapter } from "adapter";
 import { testLifecycleEvents } from "../../../../shared/request-events.shared";
 
-export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdminAdapter>) => {
+export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdminAdapter>) => {
   describe("setDoc", () => {
     it("should set data", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 10 } as Tea;

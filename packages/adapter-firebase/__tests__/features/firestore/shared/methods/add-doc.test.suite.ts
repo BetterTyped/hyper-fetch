@@ -1,9 +1,9 @@
 import { Client } from "@hyper-fetch/core";
 
-import { firebaseAdapter } from "adapter";
+import { FirebaseAdapter } from "adapter";
 import { Tea } from "../../../../utils";
 
-export const addDocTestSuite = (adapterFunction: () => ReturnType<typeof firebaseAdapter>) => {
+export const addDocTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAdapter>) => {
   describe("addDoc", () => {
     it("should allow for adding data to a list", async () => {
       const newData = { origin: "Poland", type: "Green", year: 2023, name: "Pou Ran Do Cha", amount: 100 } as Tea;

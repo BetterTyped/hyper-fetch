@@ -1,7 +1,5 @@
-import { TypeWithDefaults } from "@hyper-fetch/core";
-
 import { EmitterInstance } from "emitter";
-import { Listener, ListenerCallbackType, ListenerInstance } from "listener";
+import { Listener, ListenerCallbackType } from "listener";
 import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
@@ -84,4 +82,4 @@ export type ServerSentEvent<T = any> = {
 
 export type SocketData<D = any> = { topic: string; data: D };
 export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
-export type SSEAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;
+export type ServerSentEventsAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;

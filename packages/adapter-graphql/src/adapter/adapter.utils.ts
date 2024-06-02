@@ -1,9 +1,9 @@
-import { RequestInstance, HttpMethodsEnum } from "@hyper-fetch/core";
+import { RequestInstance, HttpMethods } from "@hyper-fetch/core";
 
 export const getRequestValues = (request: RequestInstance) => {
   const { method } = request;
 
-  const isPostRequest = request.method === HttpMethodsEnum.post;
+  const isPostRequest = request.method === HttpMethods.POST;
 
   const query = request.endpoint;
   const variables = request.data;

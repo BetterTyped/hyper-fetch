@@ -89,7 +89,6 @@
     "jest-websocket-mock": "2.5.0",
     "jsdom": "22.1.0",
     "lint-staged": "^13.0.1",
-    "msw": "1.3.2",
     "next": "14.2.3",
     "notistack": "^2.0.5",
     "prettier": "^3.2.5",
@@ -107,9 +106,11 @@
     "tsd": "^0.28.1",
     "tslib": "^2.3.0",
     "typescript": "5.4.5",
+    "undici": "5.0.0",
     "vite": "~5.0.0",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-tsconfig-paths": "4.3.2"
+    "vite-tsconfig-paths": "4.3.2",
+    "vitest": "^1.3.1"
   },
   "config": {
     "commitizen": {
