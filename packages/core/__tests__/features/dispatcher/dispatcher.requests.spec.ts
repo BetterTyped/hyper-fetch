@@ -1,9 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { createDispatcher, createAdapter, sleep } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createRequestInterceptor } from "../../server/server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Requests ]", () => {
   const adapterSpy = jest.fn();
@@ -20,7 +21,7 @@ describe("Dispatcher [ Requests ]", () => {
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -40,8 +41,8 @@ describe("Dispatcher [ Requests ]", () => {
     it("should get all running requests", async () => {
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
@@ -54,8 +55,8 @@ describe("Dispatcher [ Requests ]", () => {
     it("should get queueKey running requests", async () => {
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
@@ -76,8 +77,8 @@ describe("Dispatcher [ Requests ]", () => {
     it("should get single running request", async () => {
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       dispatcher.add(secondRequest);
       const firstRequestId = dispatcher.add(firstRequest);
@@ -91,8 +92,8 @@ describe("Dispatcher [ Requests ]", () => {
       const thirdSpy = jest.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
@@ -115,8 +116,8 @@ describe("Dispatcher [ Requests ]", () => {
       const secondSpy = jest.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       dispatcher.add(secondRequest);
       const requestId = dispatcher.add(firstRequest);
@@ -137,8 +138,8 @@ describe("Dispatcher [ Requests ]", () => {
       const thirdSpy = jest.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
@@ -162,8 +163,8 @@ describe("Dispatcher [ Requests ]", () => {
       const thirdSpy = jest.fn();
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(firstRequest, { delay: 5 });
-      createRequestInterceptor(secondRequest, { delay: 5 });
+      mockRequest(firstRequest, { delay: 5 });
+      mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
@@ -189,7 +190,7 @@ describe("Dispatcher [ Requests ]", () => {
     describe("When stoping and starting particular requests", () => {
       it("should allow to stop request", async () => {
         const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-        createRequestInterceptor(request, { delay: 5 });
+        mockRequest(request, { delay: 5 });
 
         const requestId = dispatcher.add(request);
         await sleep(1);
@@ -208,7 +209,7 @@ describe("Dispatcher [ Requests ]", () => {
       });
       it("should allow to start previously stopped request", async () => {
         const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-        createRequestInterceptor(request, { delay: 1 });
+        mockRequest(request, { delay: 1 });
 
         const spy = jest.spyOn(client.cache, "set");
 

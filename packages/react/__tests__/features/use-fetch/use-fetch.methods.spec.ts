@@ -1,8 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Methods ]", () => {
   let request = createRequest();
@@ -12,7 +14,7 @@ describe("useFetch [ Methods ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -29,7 +31,7 @@ describe("useFetch [ Methods ]", () => {
     describe("when processing request", () => {
       it("should trigger onRequestStart helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -41,7 +43,7 @@ describe("useFetch [ Methods ]", () => {
       });
       it("should trigger onResponseStart helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -53,7 +55,7 @@ describe("useFetch [ Methods ]", () => {
       });
       it("should trigger onDownloadProgress helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -65,7 +67,7 @@ describe("useFetch [ Methods ]", () => {
       });
       it("should trigger onUploadProgress helper", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -80,7 +82,7 @@ describe("useFetch [ Methods ]", () => {
       it("should trigger onSuccess helper", async () => {
         const spy = jest.fn();
         const unusedSpy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -95,7 +97,7 @@ describe("useFetch [ Methods ]", () => {
       it("should trigger onError helper", async () => {
         const spy = jest.fn();
         const unusedSpy = jest.fn();
-        const mock = createRequestInterceptor(request, { status: 400 });
+        const mock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);
 
         act(() => {
@@ -109,7 +111,7 @@ describe("useFetch [ Methods ]", () => {
       });
       it("should trigger onFinished helper on success", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request);
+        const mock = mockRequest(request);
         const response = renderUseFetch(request);
 
         act(() => {
@@ -121,7 +123,7 @@ describe("useFetch [ Methods ]", () => {
       });
       it("should trigger onFinished helper on error", async () => {
         const spy = jest.fn();
-        const mock = createRequestInterceptor(request, { status: 400 });
+        const mock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);
 
         act(() => {
@@ -135,7 +137,7 @@ describe("useFetch [ Methods ]", () => {
     describe("when getting internal error", () => {
       it("should trigger onOfflineError helper", async () => {
         const spy = jest.fn();
-        createRequestInterceptor(request, { status: 400 });
+        mockRequest(request, { status: 400 });
         const response = renderUseFetch(request.setOffline(true));
 
         act(() => {
@@ -157,7 +159,7 @@ describe("useFetch [ Methods ]", () => {
         const spy7 = jest.fn();
         const spy8 = jest.fn();
 
-        const errorMock = createRequestInterceptor(request, { status: 400 });
+        const errorMock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request.setRetry(1).setRetryTime(100));
 
         act(() => {
@@ -172,7 +174,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testErrorState(errorMock, response);
-        const successMock = createRequestInterceptor(request);
+        const successMock = mockRequest(request);
         await testSuccessState(successMock, response);
 
         expect(spy1).toBeCalledTimes(2);
@@ -194,7 +196,7 @@ describe("useFetch [ Methods ]", () => {
         const spy7 = jest.fn();
         const spy8 = jest.fn();
 
-        const errorMock = createRequestInterceptor(request, { status: 400 });
+        const errorMock = mockRequest(request, { status: 400 });
         const response = renderUseFetch(request);
 
         act(() => {
@@ -210,7 +212,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testErrorState(errorMock, response);
-        const successMock = createRequestInterceptor(request);
+        const successMock = mockRequest(request);
 
         act(() => {
           client.appManager.setOnline(true);

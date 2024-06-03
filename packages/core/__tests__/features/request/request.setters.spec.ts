@@ -1,5 +1,8 @@
-import { resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client, Time } from "../../../src";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Setters ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -11,7 +14,7 @@ describe("Request [ Setters ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/users/:userId" });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -39,7 +42,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.endpoint).toBe("/users/1");
   });
   it("should allow for setting ", async () => {
-    const req = client.createRequest<{ payload: { test: number } }>()({ endpoint: "/users/:userId" });
+    const req = client.createRequest<void, { test: number }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
     expect(request.data).not.toBeDefined();
     const updatedRequest = req.setData(data);

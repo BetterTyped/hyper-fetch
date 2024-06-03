@@ -1,8 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { AppManager, hasDocument, hasWindow } from "managers";
-import { resetInterceptors, startServer, stopServer } from "../../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("AppManager [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -12,7 +14,7 @@ describe("AppManager [ Base ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
   });

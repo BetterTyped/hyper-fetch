@@ -1,5 +1,8 @@
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client, QueryParamsType } from "../../../src";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Fetch Adapter [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -11,7 +14,7 @@ describe("Fetch Adapter [ Base ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -25,7 +28,7 @@ describe("Fetch Adapter [ Base ]", () => {
     jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
     const header = { it: "works" };
     const c = request.setHeaders(header);
-    createRequestInterceptor(request);
+    mockRequest(request);
 
     await c.send();
 
@@ -38,7 +41,7 @@ describe("Fetch Adapter [ Base ]", () => {
     // The queue should receive request with the appropriate header
     const spy = jest.fn(client.fetchDispatcher.add);
     jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
-    createRequestInterceptor(request);
+    mockRequest(request);
 
     expect(request.auth).toBe(true);
 
@@ -61,7 +64,7 @@ describe("Fetch Adapter [ Base ]", () => {
     const params = { shopId: 11, productId: 1 };
 
     const c = comm.setParams(params);
-    createRequestInterceptor(c);
+    mockRequest(c);
 
     await c.send();
 
@@ -77,10 +80,10 @@ describe("Fetch Adapter [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
-    const req = client.createRequest<{ payload: { userId: number; role: string } }>()({ endpoint: "/shared-endpoint" });
+    const req = client.createRequest<void, { userId: number; role: string }>()({ endpoint: "/shared-endpoint" });
 
     const c = req.setData(data);
-    createRequestInterceptor(c);
+    mockRequest(c);
 
     await c.send();
 
@@ -94,7 +97,7 @@ describe("Fetch Adapter [ Base ]", () => {
     const comm = client.createRequest<{ queryParams: QueryParamsType }>()({
       endpoint: "/some-endpoint/",
     });
-    createRequestInterceptor(comm);
+    mockRequest(comm);
     const spy = jest.fn(client.fetchDispatcher.add);
     jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
 
@@ -112,7 +115,7 @@ describe("Fetch Adapter [ Base ]", () => {
       throw new Error(message);
     };
     const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setRequestMapper(mapper);
-    createRequestInterceptor(mapperRequest);
+    mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
 
@@ -126,7 +129,7 @@ describe("Fetch Adapter [ Base ]", () => {
       return { ...res, data: null, error: new Error(message) };
     };
     const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setResponseMapper(mapper);
-    createRequestInterceptor(mapperRequest);
+    mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
 
@@ -140,7 +143,7 @@ describe("Fetch Adapter [ Base ]", () => {
       throw new Error(message);
     };
     const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setDataMapper(mapper);
-    createRequestInterceptor(mapperRequest);
+    mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
 

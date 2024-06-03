@@ -1,8 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { createAdapter, createDispatcher, sleep } from "../../utils";
 import { AdapterType, Client, getErrorMessage, ResponseDetailsType, ResponseType } from "../../../src";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Mocker [ Base ]", () => {
   const adapterSpy = jest.fn();
@@ -17,7 +19,7 @@ describe("Mocker [ Base ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
@@ -236,7 +238,7 @@ describe("Mocker [ Base ]", () => {
     const response = await mockedRequest.send();
 
     mockedRequest.removeMock();
-    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [64, 64, 64] } });
+    const data = mockRequest(mockedRequest, { data: { data: [64, 64, 64] } });
     const response2 = await mockedRequest.send();
 
     expect(response).toStrictEqual({
@@ -321,7 +323,7 @@ describe("Mocker [ Base ]", () => {
 
   it("should allow for toggling the mocker off and then turning it on again without removal", async () => {
     const mockedRequest = request.setMock({ data: fixture });
-    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [42, 42, 42] } });
+    const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
     expect(mockedRequest.isMockEnabled).toBe(true);
     mockedRequest.setEnableMocking(false);
     expect(mockedRequest.isMockEnabled).toBe(false);
@@ -356,7 +358,7 @@ describe("Mocker [ Base ]", () => {
     const mockedRequest = newClient
       .createRequest<any>()({ endpoint: "shared-base-endpoint" })
       .setMock({ data: fixture });
-    const data = createRequestInterceptor(mockedRequest, { fixture: { data: [42, 42, 42] } });
+    const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
 
     expect(mockedRequest.isMockEnabled).toBe(true);
     expect(newClient.isMockEnabled).toBe(true);

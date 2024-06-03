@@ -1,9 +1,12 @@
 /**
  * @jest-environment jsdom
  */
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { adapter, getErrorMessage } from "adapter";
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Fetch Adapter [ Browser ]", () => {
   const requestId = "test";
@@ -20,7 +23,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -29,7 +32,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { response: [] } });
+    const data = mockRequest(request, { data: { response: [] } });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 
@@ -40,7 +43,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = createRequestInterceptor(request, { status: 400 });
+    const data = mockRequest(request, { status: 400 });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 
@@ -51,7 +54,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should allow to cancel request and return error", async () => {
-    createRequestInterceptor(request, { delay: 5 });
+    mockRequest(request, { delay: 5 });
 
     setTimeout(() => {
       request.abort();
@@ -65,7 +68,7 @@ describe("Fetch Adapter [ Browser ]", () => {
 
   it("should return timeout error when request takes too long", async () => {
     const timeoutRequest = request.setOptions({ timeout: 5 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
     const { data: response, error } = await adapter(timeoutRequest, requestId);
 
@@ -74,7 +77,7 @@ describe("Fetch Adapter [ Browser ]", () => {
   });
 
   it("should not throw when XMLHttpRequest is not available on window", async () => {
-    const data = createRequestInterceptor(request, { delay: 20 });
+    const data = mockRequest(request, { delay: 20 });
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
 
@@ -101,7 +104,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     window.XMLHttpRequest = ExtendedXml;
 
     const timeoutRequest = request.setOptions({ timeout: 50 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
     await adapter(timeoutRequest, requestId);
     expect(instance.timeout).toBe(50);
 

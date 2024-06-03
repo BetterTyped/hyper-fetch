@@ -1,8 +1,10 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, renderUseSubmit } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ refetch ]", () => {
   let requestSubmit = createRequest<null, null>({ method: "POST" });
@@ -13,7 +15,7 @@ describe("useFetch [ refetch ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,13 +30,13 @@ describe("useFetch [ refetch ]", () => {
   });
 
   it("should allow to refetch other request on finished", async () => {
-    const submitMock = createRequestInterceptor(requestSubmit);
-    const errorFetchMock = createRequestInterceptor(requestFetch, { status: 400 });
+    const submitMock = mockRequest(requestSubmit);
+    const errorFetchMock = mockRequest(requestFetch, { status: 400 });
     const responseSubmit = renderUseSubmit(requestSubmit);
     const responseFetch = renderUseFetch(requestFetch);
 
     await testErrorState(errorFetchMock, responseFetch);
-    const fetchMock = createRequestInterceptor(requestFetch);
+    const fetchMock = mockRequest(requestFetch);
 
     act(() => {
       responseSubmit.result.current.onSubmitFinished(() => {

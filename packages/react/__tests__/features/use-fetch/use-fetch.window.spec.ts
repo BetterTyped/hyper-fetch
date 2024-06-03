@@ -1,7 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Basic ]", () => {
   let request = createRequest({ cancelable: true });
@@ -11,7 +13,7 @@ describe("useFetch [ Basic ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -26,7 +28,7 @@ describe("useFetch [ Basic ]", () => {
 
   it("should refresh on tab focus", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request, { delay: 0 });
+    mockRequest(request, { delay: 0 });
     const response = renderUseFetch(request, { refetchOnFocus: true });
 
     await waitForRender();
@@ -42,7 +44,7 @@ describe("useFetch [ Basic ]", () => {
   });
   it("should refresh on tab blur", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request, { delay: 0 });
+    mockRequest(request, { delay: 0 });
     const response = renderUseFetch(request, { refetchOnBlur: true });
 
     await waitForRender();

@@ -1,7 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer } from "../../../server";
 import { createRequest, renderUseTrackedState } from "../../../utils";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useTrackedState [ Actions ]", () => {
   let request = createRequest();
@@ -11,7 +13,7 @@ describe("useTrackedState [ Actions ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

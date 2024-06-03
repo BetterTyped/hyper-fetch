@@ -1,8 +1,10 @@
 import { RequestSendType, xhrExtra } from "@hyper-fetch/core";
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseSubmit } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Base ]", () => {
   let request = createRequest<null, { value: string }>({ method: "POST" });
@@ -12,7 +14,7 @@ describe("useSubmit [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,7 +30,7 @@ describe("useSubmit [ Base ]", () => {
   describe("when submit method gets triggered", () => {
     it("should return data from submit method", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
@@ -45,7 +47,7 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should call onSettle", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
@@ -57,12 +59,12 @@ describe("useSubmit [ Base ]", () => {
     it("should return data from submit method on retries", async () => {
       let data: unknown = null;
       let mock: unknown = {};
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
       await act(async () => {
         response.result.current.onSubmitResponseStart(() => {
-          mock = createRequestInterceptor(request);
+          mock = mockRequest(request);
         });
         data = await response.result.current.submit({ data: { value: "string" } });
       });
@@ -78,13 +80,13 @@ describe("useSubmit [ Base ]", () => {
     it("should return data from submit method on offline", async () => {
       let data: unknown = null;
       let mock: unknown = {};
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
       const response = renderUseSubmit(request.setOffline(true));
 
       await act(async () => {
         response.result.current.onSubmitResponseStart(() => {
           client.appManager.setOnline(false);
-          mock = createRequestInterceptor(request);
+          mock = mockRequest(request);
           setTimeout(() => {
             client.appManager.setOnline(true);
           }, 100);
@@ -106,7 +108,7 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to pass data to submit", async () => {
       let payload: unknown = null;
       const myData = { value: "string" };
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
@@ -121,7 +123,7 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to pass params to submit", async () => {
       let endpoint: unknown = null;
       const requestWithParams = createRequest({ endpoint: "/users/:userId" });
-      createRequestInterceptor(requestWithParams.setParams({ userId: 1 } as any));
+      mockRequest(requestWithParams.setParams({ userId: 1 } as any));
       const response = renderUseSubmit(requestWithParams);
 
       await act(async () => {
@@ -135,7 +137,7 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to pass query params to submit", async () => {
       let endpoint: unknown = null;
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
@@ -149,7 +151,7 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should trigger methods when submit modifies the queue keys", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseSubmit(request);
 
       await act(async () => {
@@ -168,7 +170,7 @@ describe("useSubmit [ Base ]", () => {
       let res: Awaited<ReturnType<RequestSendType<typeof request>>> = {} as Awaited<
         ReturnType<RequestSendType<typeof request>>
       >;
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseSubmit(request, { disabled: true });
 
       await act(async () => {
@@ -182,7 +184,7 @@ describe("useSubmit [ Base ]", () => {
     });
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const mappedRequest = request.setDataMapper(() => new FormData());
       const response = renderUseSubmit(mappedRequest);
 

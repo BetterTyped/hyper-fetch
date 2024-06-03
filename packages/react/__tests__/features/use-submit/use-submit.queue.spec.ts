@@ -1,8 +1,10 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testData, testLoading } from "../../shared";
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Queue ]", () => {
   let request = createRequest<any, null>({ method: "POST", queued: true });
@@ -12,7 +14,7 @@ describe("useSubmit [ Queue ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -30,14 +32,14 @@ describe("useSubmit [ Queue ]", () => {
       it("should send requests one by one", async () => {
         let count = 1;
         const spy = jest.fn();
-        createRequestInterceptor(request, { fixture: count });
+        mockRequest(request, { data: count });
         const response = renderUseSubmit(request);
 
         act(() => {
           response.result.current.onSubmitFinished(() => {
             spy();
             count += 1;
-            createRequestInterceptor(request, { fixture: count, delay: 50 });
+            mockRequest(request, { data: count, delay: 50 });
           });
           response.result.current.submit();
           response.result.current.submit();
@@ -53,7 +55,7 @@ describe("useSubmit [ Queue ]", () => {
         expect(spy).toBeCalledTimes(4);
       });
       it("should start in loading mode when request in queue is ongoing", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {
@@ -65,7 +67,7 @@ describe("useSubmit [ Queue ]", () => {
         await testLoading(true, response);
       });
       it("should not start in loading mode when queue is paused", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         const previouslyRenderedHook = renderUseSubmit(request);
 
         act(() => {

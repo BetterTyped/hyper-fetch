@@ -15,7 +15,7 @@
     "test": "jest --watchAll --maxWorkers=3",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache",
     "start": "yarn build && npx run-when-changed --watch 'src/**/*.ts' --exec 'yarn build'",
-    "build": "yarn clean && node ../../scripts/build.js",
+    "build": "yarn clean && tsc -p tsconfig.build.json && tsc-alias",
     "postbuild": "rollup -c '../../rollup.config.js'",
     "lint": "eslint . --fix",
     "format": "prettier --write .",

@@ -1,8 +1,11 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { xhrExtra, AdapterType, ResponseReturnSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { createCache, sleep } from "../../utils";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Cache [ Base ]", () => {
   const response: ResponseReturnSuccessType<unknown, AdapterType> = {
@@ -31,7 +34,7 @@ describe("Cache [ Base ]", () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
     cache = createCache(client);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 

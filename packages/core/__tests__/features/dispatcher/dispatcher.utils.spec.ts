@@ -1,3 +1,5 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import {
   canRetryRequest,
   QueueElementType,
@@ -9,8 +11,9 @@ import {
   getRequestType,
 } from "dispatcher";
 import { createDispatcher, createAdapter } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Utils ]", () => {
   const adapterSpy = jest.fn();
@@ -27,7 +30,7 @@ describe("Dispatcher [ Utils ]", () => {
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     dispatcher = createDispatcher(client);
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 
@@ -46,7 +49,7 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using getRequest method", () => {
     it("should give stored request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const requestId = dispatcher.add(request);
       const storedRequest = dispatcher.getRequest(request.queueKey, requestId);
@@ -54,7 +57,7 @@ describe("Dispatcher [ Utils ]", () => {
     });
     it("should not return request from empty store", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const storedRequest = dispatcher.getRequest(request.queueKey, "test");
       expect(storedRequest).not.toBeDefined();
@@ -63,7 +66,7 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using clear methods", () => {
     it("should clear request from queue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       dispatcher.stop(request.queueKey);
       dispatcher.add(request);

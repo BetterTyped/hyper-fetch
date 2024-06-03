@@ -1,9 +1,11 @@
 import { act, waitFor } from "@testing-library/react";
 import { AdapterType, ResponseType, xhrExtra } from "@hyper-fetch/core";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { createRequest, renderUseFetch, createCacheData, client, sleep } from "../../utils";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState, testErrorState, testInitialState, testCacheState, testClientIsolation } from "../../shared";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Base ]", () => {
   let request = createRequest();
@@ -13,7 +15,7 @@ describe("useFetch [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -29,14 +31,14 @@ describe("useFetch [ Base ]", () => {
   describe("when hook is initialized", () => {
     it("should initialize in loading state", async () => {
       await testClientIsolation(client);
-      createRequestInterceptor(request);
+      mockRequest(request);
       const view = renderUseFetch(request);
 
       testInitialState(view);
     });
     it("should load cached data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const [cache] = createCacheData(request, {
         data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
         details: { retries: 2 },
@@ -47,7 +49,7 @@ describe("useFetch [ Base ]", () => {
     it("should not load stale cache data", async () => {
       await testClientIsolation(client);
       const timestamp = +new Date() - 11;
-      const mock = createRequestInterceptor(request, { delay: 50 });
+      const mock = mockRequest(request, { delay: 50 });
       act(() => {
         createCacheData(request, {
           data: { data: mock, error: null, status: 200, success: true, extra: xhrExtra },
@@ -75,7 +77,7 @@ describe("useFetch [ Base ]", () => {
     });
     it("should allow to use initial data while requesting", async () => {
       await testClientIsolation(client);
-      createRequestInterceptor(request);
+      mockRequest(request);
       const initialData: ResponseType<unknown, Error, AdapterType> = {
         data: { test: [1, 2, 3] },
         error: null,
@@ -92,7 +94,7 @@ describe("useFetch [ Base ]", () => {
     it("should make only one request", async () => {
       const spy = jest.spyOn(client, "adapter");
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
@@ -105,13 +107,13 @@ describe("useFetch [ Base ]", () => {
   describe("when hook get success response", () => {
     it("should set state with success data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
     });
     it("should map the data on deps change", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const request1 = request.setCacheKey("request1").setResponseMapper((response) => ({ ...response, data: 1 }));
       const request2 = request.setCacheKey("request2").setResponseMapper((response) => ({ ...response, data: 2 }));
 
@@ -140,11 +142,11 @@ describe("useFetch [ Base ]", () => {
     });
     it("should clear previous error state once success response is returned", async () => {
       await testClientIsolation(client);
-      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const errorMock = mockRequest(request, { status: 400 });
       const view = renderUseFetch(request);
 
       await testErrorState(errorMock, view);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
 
       act(() => {
         view.result.current.refetch();
@@ -161,7 +163,7 @@ describe("useFetch [ Base ]", () => {
         ...response,
         data: mappedData,
       }));
-      createRequestInterceptor(mappedRequest);
+      mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest);
 
       await testSuccessState(mappedData, view);
@@ -173,7 +175,7 @@ describe("useFetch [ Base ]", () => {
         ...response,
         data: mappedData,
       }));
-      createRequestInterceptor(mappedRequest);
+      mockRequest(mappedRequest);
       const view = renderUseFetch(mappedRequest, { disabled: true });
 
       act(() => {
@@ -193,19 +195,19 @@ describe("useFetch [ Base ]", () => {
   describe("when hook get error response", () => {
     it("should set state with error data", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request, { status: 400 });
+      const mock = mockRequest(request, { status: 400 });
       const view = renderUseFetch(request);
 
       await testErrorState(mock, view);
     });
     it("should keep previous success state once error response is returned", async () => {
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request);
 
       await testSuccessState(mock, view);
 
-      const errorMock = createRequestInterceptor(request, { status: 400 });
+      const errorMock = mockRequest(request, { status: 400 });
 
       act(() => {
         view.result.current.refetch();
@@ -222,7 +224,7 @@ describe("useFetch [ Base ]", () => {
     it("should fetch data when disabled prop changes", async () => {
       const spy = jest.fn();
       await testClientIsolation(client);
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const view = renderUseFetch(request, { disabled: true });
 
       act(() => {

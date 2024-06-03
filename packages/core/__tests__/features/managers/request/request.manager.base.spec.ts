@@ -1,9 +1,11 @@
 import EventEmitter from "events";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { getRequestManagerEvents } from "managers";
 import { sleep } from "../../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("RequestManager [ Base ]", () => {
   const abortKey = "abort-key";
@@ -17,7 +19,7 @@ describe("RequestManager [ Base ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
     events = getRequestManagerEvents(new EventEmitter());
@@ -47,7 +49,7 @@ describe("RequestManager [ Base ]", () => {
     it("should remove it from dispatcher's queue storage", async () => {
       const spy = jest.fn();
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
       client.onResponse((response) => {
         spy();
         return response;

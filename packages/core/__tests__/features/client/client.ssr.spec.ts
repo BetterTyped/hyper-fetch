@@ -1,8 +1,11 @@
 /**
  * @jest-environment node
  */
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client, getAdapterHeaders, getAdapterPayload } from "client";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ SSR ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -15,7 +18,7 @@ describe("Client [ SSR ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

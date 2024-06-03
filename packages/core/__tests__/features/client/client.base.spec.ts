@@ -1,9 +1,12 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { AppManager } from "managers";
 import { interceptorCallback } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ Base ]", () => {
   let clientInstance = new Client({ url: "shared-base-url" });
@@ -14,7 +17,7 @@ describe("Client [ Base ]", () => {
 
   beforeEach(() => {
     clientInstance = new Client({ url: "shared-base-url" });
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

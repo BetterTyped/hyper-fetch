@@ -1,9 +1,11 @@
 import { useState, StrictMode } from "react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { useFetch } from "hooks/use-fetch";
 import { createRequest, waitForRender } from "../../utils";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Integration ]", () => {
   const queryParams = { page: 1 };
@@ -17,7 +19,7 @@ describe("useFetch [ Integration ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -33,7 +35,7 @@ describe("useFetch [ Integration ]", () => {
   describe("given useFetch is initialized in the component", () => {
     describe("when request is about to change", () => {
       it("should use the latest request when its changed", async () => {
-        function Page() {
+        const Page = () => {
           const [endpoint, setEndpoint] = useState("");
           const [params, setParams] = useState({});
           const { onRequestStart } = useFetch(request.setQueryParams(params), {
@@ -57,10 +59,10 @@ describe("useFetch [ Integration ]", () => {
               {endpoint}
             </>
           );
-        }
+        };
 
-        createRequestInterceptor(request);
-        createRequestInterceptor(request.setQueryParams(queryParams));
+        mockRequest(request);
+        mockRequest(request.setQueryParams(queryParams));
 
         render(<Page />);
 
@@ -75,7 +77,7 @@ describe("useFetch [ Integration ]", () => {
       it("should fetch once in StrictMode", async () => {
         const spy = jest.fn();
 
-        function Page() {
+        const Page = () => {
           const { data, onFinished } = useFetch(request, {
             dependencyTracking: false,
             refresh: false,
@@ -86,10 +88,10 @@ describe("useFetch [ Integration ]", () => {
           });
 
           return <div>{JSON.stringify(data)}</div>;
-        }
+        };
 
-        createRequestInterceptor(request);
-        createRequestInterceptor(request.setQueryParams(queryParams));
+        mockRequest(request);
+        mockRequest(request.setQueryParams(queryParams));
 
         render(
           <StrictMode>
@@ -106,7 +108,7 @@ describe("useFetch [ Integration ]", () => {
       it("should fetch sequence in StrictMode", async () => {
         const spy = jest.fn();
 
-        function Page() {
+        const Page = () => {
           const [params, setParams] = useState({});
           const [dep, setDep] = useState({});
           const { data, onFinished } = useFetch(request.setQueryParams(params), {
@@ -138,10 +140,10 @@ describe("useFetch [ Integration ]", () => {
               </button>
             </div>
           );
-        }
+        };
 
-        createRequestInterceptor(request);
-        createRequestInterceptor(request.setQueryParams(queryParams));
+        mockRequest(request);
+        mockRequest(request.setQueryParams(queryParams));
 
         render(
           <StrictMode>

@@ -1,8 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { sleep } from "../../../utils";
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("RequestManager [ Events ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -13,7 +15,7 @@ describe("RequestManager [ Events ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -25,7 +27,7 @@ describe("RequestManager [ Events ]", () => {
 
   describe("When request manager events get triggered", () => {
     it("should trigger request lifecycle events", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy1 = jest.fn();
       const spy2 = jest.fn();
@@ -56,7 +58,7 @@ describe("RequestManager [ Events ]", () => {
   });
   describe("When request manager aborts the request", () => {
     it("should allow to abort request by id", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const spy1 = jest.fn();
       const spy2 = jest.fn();
 
@@ -75,7 +77,7 @@ describe("RequestManager [ Events ]", () => {
       expect(client.appManager.isFocused).toBeTrue();
     });
     it("should allow to abort all requests", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const spy1 = jest.fn();
       const spy2 = jest.fn();
 
@@ -98,7 +100,7 @@ describe("RequestManager [ Events ]", () => {
     });
 
     it("should emit abort event once", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const spy1 = jest.fn();
 
       client.fetchDispatcher.add(request);

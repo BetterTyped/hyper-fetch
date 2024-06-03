@@ -1,7 +1,10 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { QueueDataType } from "dispatcher";
 import { createDispatcher } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Dispatcher [ Basic ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -14,7 +17,7 @@ describe("Dispatcher [ Basic ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 

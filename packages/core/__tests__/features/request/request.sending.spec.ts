@@ -1,15 +1,16 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { getErrorMessage, xhrExtra } from "adapter";
 import { sleep } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<{
-    response: any;
-  }>()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<any>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -18,9 +19,9 @@ describe("Request [ Sending ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
-    createRequestInterceptor(request, { fixture, delay: 40 });
+    mockRequest(request, { data: fixture, delay: 40 });
   });
 
   afterAll(() => {
@@ -93,14 +94,14 @@ describe("Request [ Sending ]", () => {
     });
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
+      mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send();
       await sleep(5);
       client.appManager.setOnline(false);
 
       const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
         spy();
-        createRequestInterceptor(request, { fixture, delay: 40 });
+        mockRequest(request, { data: fixture, delay: 40 });
         client.appManager.setOnline(true);
         unmount();
       });
@@ -117,13 +118,13 @@ describe("Request [ Sending ]", () => {
     });
     it("should wait to resolve request retries", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
+      mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.setRetry(1).setRetryTime(30).send();
       await sleep(5);
 
       const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
         spy();
-        createRequestInterceptor(request, { fixture, delay: 40 });
+        mockRequest(request, { data: fixture, delay: 40 });
         unmount();
       });
 
@@ -138,7 +139,7 @@ describe("Request [ Sending ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return error once request got removed", async () => {
-      createRequestInterceptor(request, { delay: 10, status: 400 });
+      mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send();
       await sleep(2);
 
@@ -156,7 +157,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should call remove error", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { delay: 10, status: 400 });
+      mockRequest(request, { delay: 10, status: 400 });
       const requestExecution = request.send({ onRemove: spy });
       await sleep(2);
 
@@ -168,7 +169,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should return cancel error", async () => {
       const newRequest = client.createRequest<any>()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
-      const mock = createRequestInterceptor(newRequest);
+      const mock = mockRequest(newRequest);
 
       const [res1, res2, res3] = await Promise.all([newRequest.send(), newRequest.send(), newRequest.send()]);
 
@@ -204,7 +205,7 @@ describe("Request [ Sending ]", () => {
         cancelable: true,
       });
 
-      const mock = createRequestInterceptor(getUsers);
+      const mock = mockRequest(getUsers);
 
       const [res1, res2, res3] = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
 

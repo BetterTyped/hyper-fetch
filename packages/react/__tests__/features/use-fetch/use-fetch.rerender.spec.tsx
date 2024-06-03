@@ -1,9 +1,11 @@
 import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 import { render } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { useFetch } from "hooks/use-fetch";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, sleep, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Rerender ]", () => {
   let rerenders = 0;
@@ -23,7 +25,7 @@ describe("useFetch [ Rerender ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -35,17 +37,17 @@ describe("useFetch [ Rerender ]", () => {
     rerenders = 0;
     request = createRequest();
     client.clear();
-    createRequestInterceptor(request, { delay: fetchTime });
+    mockRequest(request, { delay: fetchTime });
   });
 
   it("should not rerender when the same data is received from backend", async () => {
-    function Page() {
+    const Page = () => {
       const { data } = useFetch(request, { refresh: true, refreshTime: 10 });
 
       rerenders += 1;
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
 
@@ -54,7 +56,7 @@ describe("useFetch [ Rerender ]", () => {
     expect(rerenders).toBe(2);
   });
   it("should not rerender when changed key is not used", async () => {
-    function Page() {
+    const Page = () => {
       const { setError, setTimestamp } = useFetch(request);
 
       rerenders += 1;
@@ -67,7 +69,7 @@ describe("useFetch [ Rerender ]", () => {
       });
 
       return <div>test</div>;
-    }
+    };
 
     render(<Page />);
 
@@ -76,13 +78,13 @@ describe("useFetch [ Rerender ]", () => {
     expect(rerenders).toBe(1);
   });
   it("should rerender when dependency tracking is off", async () => {
-    function Page() {
+    const Page = () => {
       const { data } = useFetch(request, { dependencyTracking: false });
 
       rerenders += 1;
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
 
@@ -91,7 +93,7 @@ describe("useFetch [ Rerender ]", () => {
     expect(rerenders).toBe(3);
   });
   it("should rerender while using the changed key", async () => {
-    function Page() {
+    const Page = () => {
       const { data, setData } = useFetch(request);
 
       rerenders += 1;
@@ -103,7 +105,7 @@ describe("useFetch [ Rerender ]", () => {
       }, [data]);
 
       return <div>{JSON.stringify(data)}</div>;
-    }
+    };
 
     render(<Page />);
 

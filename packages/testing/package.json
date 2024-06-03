@@ -35,15 +35,29 @@
   "bugs": {
     "url": "https://github.com/BetterTyped/hyper-fetch/issues"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@hyper-fetch/core": "*",
     "@hyper-fetch/sockets": "*",
-    "@hyper-fetch/graphql": "*",
-    "msw": "2.3.1"
+    "@hyper-fetch/graphql": "*"
   },
-  "devDependencies": {
-    "abortcontroller-polyfill": "^1.7.5"
+  "peerDependenciesMeta": {
+    "@hyper-fetch/core": {
+      "optional": true
+    },
+    "@hyper-fetch/sockets": {
+      "optional": true
+    },
+    "@hyper-fetch/graphql": {
+      "optional": true
+    }
   },
+  "dependencies": {
+    "msw": "2.3.1",
+    "abortcontroller-polyfill": "^1.7.5",
+    "eventsourcemock": "2.0.0",
+    "jest-websocket-mock": "2.5.0"
+  },
+  "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn jest --passWithNoTests"

@@ -1,5 +1,8 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client } from "client";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Cloning ]", () => {
   const endpoint = "/users/:userId";
@@ -13,7 +16,7 @@ describe("Request [ Cloning ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint });
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 

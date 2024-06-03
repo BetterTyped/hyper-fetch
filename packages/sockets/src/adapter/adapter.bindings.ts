@@ -35,7 +35,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     forceClosed = false;
     connecting = true;
     reconnectionAttempts = 0;
-    socket.events.emitConnecting();
+    // socket.events.emitConnecting();
     return true;
   };
 
@@ -57,14 +57,14 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
       });
-      socket.events.emitReconnecting(reconnectionAttempts);
+      // socket.events.emitReconnecting(reconnectionAttempts);
       return true;
     }
     logger.debug("Stopped reconnecting", { reconnectionAttempts });
     socket.__onReconnectStopCallbacks.forEach((callback) => {
       callback(socket);
     });
-    socket.events.emitReconnectingStop(reconnectionAttempts);
+    // socket.events.emitReconnectingStop(reconnectionAttempts);
     return false;
   };
 
@@ -75,7 +75,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     if (listenerGroup) {
       const unmount = listenerGroup.get(callback);
       logger.debug("Removed event listener", { topic });
-      socket.events.emitListenerRemoveEvent(topic);
+      // socket.events.emitListenerRemoveEvent(topic);
       listenerGroup.delete(callback);
       unmount?.();
       return true;
@@ -103,17 +103,17 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     }
 
     const emitterInstance = await socket.__modifySend(emitter);
-    socket.events.emitEmitterStartEvent(emitterInstance);
+    // socket.events.emitEmitterStartEvent(emitterInstance);
 
     return emitterInstance;
   };
 
   const onEmitResponse = (emitter: EmitterInstance, response: EventReturnType<any, ExtractAdapterExtraType<T>>) => {
-    socket.events.emitEmitterEvent(emitter, response);
+    // socket.events.emitEmitterEvent(emitter, response);
   };
 
   const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error?: ErrorType) => {
-    socket.events.emitEmitterError(error, emitter);
+    // socket.events.emitEmitterError(error, emitter);
   };
 
   // Lifecycle
@@ -125,7 +125,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     });
     open = true;
     connecting = false;
-    socket.events.emitOpen();
+    // socket.events.emitOpen();
   };
 
   const onClose = () => {
@@ -135,7 +135,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     });
     open = false;
     connecting = false;
-    socket.events.emitClose();
+    // socket.events.emitClose();
   };
 
   const onError = (event: Error) => {
@@ -143,7 +143,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     socket.__onErrorCallbacks.forEach((callback) => {
       callback(event, socket);
     });
-    socket.events.emitError(event);
+    // socket.events.emitError(event);
   };
 
   const onEvent = (topic: string, response: any, responseExtra: ExtractAdapterExtraType<T>) => {
@@ -151,7 +151,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
     const { data, extra } = socket.__modifyResponse({ data: response, extra: responseExtra });
 
-    socket.events.emitListenerEvent(topic, { data, extra });
+    // socket.events.emitListenerEvent(topic, { data, extra });
   };
 
   return {

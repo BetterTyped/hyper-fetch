@@ -1,10 +1,12 @@
 import { act } from "react-dom/test-utils";
 import { CacheValueType } from "@hyper-fetch/core";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer } from "../../server";
 import { client, createRequest } from "../../utils";
 import { renderUseCache } from "../../utils/use-cache.utils";
 import { testInitialState, testSuccessState } from "../../shared";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("useCache [ Base ]", () => {
   let request = createRequest();
@@ -33,7 +35,7 @@ describe("useCache [ Base ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

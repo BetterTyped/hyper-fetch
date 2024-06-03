@@ -1,9 +1,11 @@
 import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { initialState } from "helpers";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../../server";
 import { createRequest, renderUseTrackedState } from "../../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useTrackingState [ Events ]", () => {
   let request = createRequest();
@@ -13,7 +15,7 @@ describe("useTrackingState [ Events ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -92,7 +94,7 @@ describe("useTrackingState [ Events ]", () => {
       });
 
       it("should map the cache data", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
 
         await act(async () => {
           await request.send({});

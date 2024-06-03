@@ -1,10 +1,13 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { RequestEffect } from "effect";
 import { xhrExtra, getAdapterBindings, AdapterOptionsType, ResponseType, getErrorMessage, AdapterType } from "adapter";
-import { resetInterceptors, startServer, stopServer } from "../../server";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
 import { Client } from "client";
 import { RequestInstance } from "request";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Fetch Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
@@ -63,7 +66,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
 
   beforeEach(() => {
     setup = initializeSetup();
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
   });
 

@@ -52,7 +52,7 @@ export const createWebsocketMockingServer = () => {
     server.send(JSON.stringify(data));
   };
 
-  const expectEvent = async <T extends EmitterInstance, Data extends ExtractEmitterPayloadType<T> | void = void>(
+  const expectEmitterEvent = async <T extends EmitterInstance, Data extends ExtractEmitterPayloadType<T> | void = void>(
     emitter: ExtendEmitter<
       T,
       {
@@ -78,6 +78,6 @@ export const createWebsocketMockingServer = () => {
     stopServer,
     resetMocks,
     emitListenerEvent,
-    expectEvent,
+    expectEmitterEvent,
   };
 };

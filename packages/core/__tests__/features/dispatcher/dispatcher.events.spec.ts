@@ -1,10 +1,12 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { ResponseType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
@@ -19,13 +21,13 @@ describe("Dispatcher [ Events ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
-    createRequestInterceptor(request);
+    mockRequest(request);
   });
 
   afterAll(() => {
@@ -75,7 +77,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit proper data response", async () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;
@@ -102,7 +104,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit proper failed response", async () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      const mock = createRequestInterceptor(request, { status: 400 });
+      const mock = mockRequest(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;
@@ -130,7 +132,7 @@ describe("Dispatcher [ Events ]", () => {
     it("should emit proper retry response", async () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
-      createRequestInterceptor(requestWithRetry, { status: 400, delay: 0 });
+      mockRequest(requestWithRetry, { status: 400, delay: 0 });
 
       client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
         response = rest;
@@ -142,7 +144,7 @@ describe("Dispatcher [ Events ]", () => {
         expect(response).toBeDefined();
       });
 
-      const mock = createRequestInterceptor(requestWithRetry);
+      const mock = mockRequest(requestWithRetry);
 
       const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
         data: mock,
@@ -163,7 +165,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit proper cancel response", async () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
 
       client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
         response = rest;

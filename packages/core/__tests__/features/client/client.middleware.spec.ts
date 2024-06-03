@@ -1,7 +1,10 @@
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { middlewareCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Client [ Middleware ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -18,7 +21,7 @@ describe("Client [ Middleware ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-    resetInterceptors();
+    resetMocks();
     jest.clearAllMocks();
   });
 
@@ -86,7 +89,7 @@ describe("Client [ Middleware ]", () => {
       const firstCallback = middlewareCallback({ callback: spy1 });
       const secondCallback = middlewareCallback({ callback: spy2 });
       client.onRequest(firstCallback).onRequest(secondCallback);
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       await request.send();
       client.removeOnRequestInterceptors([secondCallback]);
@@ -101,7 +104,7 @@ describe("Client [ Middleware ]", () => {
       const firstCallback = middlewareCallback({ callback: spy1 });
       const secondCallback = middlewareCallback({ callback: spy2 });
       client.onAuth(firstCallback).onAuth(secondCallback);
-      createRequestInterceptor(authRequest);
+      mockRequest(authRequest);
 
       await authRequest.send();
       client.removeOnAuthInterceptors([secondCallback]);

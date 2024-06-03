@@ -1,9 +1,11 @@
 import { waitFor } from "@testing-library/react";
 import { act } from "react-dom/test-utils";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testErrorState, testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Offline ]", () => {
   let request = createRequest({ offline: true });
@@ -13,7 +15,7 @@ describe("useFetch [ Offline ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -28,7 +30,7 @@ describe("useFetch [ Offline ]", () => {
 
   describe("when application is offline", () => {
     it("should not refetch on offline", async () => {
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseFetch(request);
 
       await testSuccessState(mock, response);
@@ -45,7 +47,7 @@ describe("useFetch [ Offline ]", () => {
     it("should finish request when coming back online", async () => {
       client.appManager.setOnline(false);
 
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseFetch(request);
 
       act(() => {
@@ -55,7 +57,7 @@ describe("useFetch [ Offline ]", () => {
     });
     it("should refetch when coming back online", async () => {
       const spy = jest.fn();
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseFetch(request, { refetchOnReconnect: true });
       await testSuccessState(mock, response);
 
@@ -71,7 +73,7 @@ describe("useFetch [ Offline ]", () => {
   });
   describe("when request offline attribute is set to true", () => {
     it("should not emit offline error until request is finished", async () => {
-      const mock = createRequestInterceptor(request);
+      const mock = mockRequest(request);
       const response = renderUseFetch(request);
       await waitForRender();
       act(() => {
@@ -86,7 +88,7 @@ describe("useFetch [ Offline ]", () => {
   });
   describe("when request offline attribute is set to false", () => {
     it("should emit offline error until request is finished", async () => {
-      const mock = createRequestInterceptor(request, { status: 400 });
+      const mock = mockRequest(request, { status: 400 });
       const response = renderUseFetch(request.setOffline(false));
       await waitForRender();
       act(() => {

@@ -1,8 +1,11 @@
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { interceptorCallback } from "../../utils";
 import { testCallbacksExecution } from "../../shared";
 import { Client } from "client";
 import { xhrExtra } from "adapter";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Client [ Interceptor ]", () => {
   let client = new Client({ url: "shared-base-url/" });
@@ -19,7 +22,7 @@ describe("Client [ Interceptor ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url/" });
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-    resetInterceptors();
+    resetMocks();
     jest.clearAllMocks();
   });
 
@@ -127,7 +130,7 @@ describe("Client [ Interceptor ]", () => {
       const firstCallback = interceptorCallback({ callback: spy1 });
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onError(firstCallback).onError(secondCallback);
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
 
       await request.send();
       client.removeOnErrorInterceptors([secondCallback]);
@@ -137,7 +140,7 @@ describe("Client [ Interceptor ]", () => {
       expect(spy2).toHaveBeenCalledTimes(1);
     });
     it("should allow for removing interceptors on success", async () => {
-      createRequestInterceptor(request, { fixture: { data: [1, 2, 3] } });
+      mockRequest(request, { data: { data: [1, 2, 3] } });
       const firstCallback = interceptorCallback({ callback: spy1 });
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onSuccess(firstCallback).onSuccess(secondCallback);
@@ -154,7 +157,7 @@ describe("Client [ Interceptor ]", () => {
       const firstCallback = interceptorCallback({ callback: spy1 });
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onResponse(firstCallback).onResponse(secondCallback);
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       await request.send();
       client.removeOnResponseInterceptors([secondCallback]);

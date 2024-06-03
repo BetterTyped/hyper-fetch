@@ -1,5 +1,8 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { getErrorMessage, parseErrorResponse, parseResponse } from "adapter";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Fetch Adapter [ Utils ]", () => {
   beforeAll(() => {
@@ -7,7 +10,7 @@ describe("Fetch Adapter [ Utils ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {

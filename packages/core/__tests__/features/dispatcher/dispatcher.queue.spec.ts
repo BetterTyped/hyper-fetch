@@ -1,10 +1,11 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Dispatcher } from "dispatcher";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
-import { resetInterceptors, startServer, stopServer } from "../../server";
-import { createRequestInterceptor } from "../../server/server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Queue ]", () => {
   const adapterSpy = jest.fn();
@@ -19,7 +20,7 @@ describe("Dispatcher [ Queue ]", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    resetInterceptors();
+    resetMocks();
     client.clear();
     adapter = createAdapter({ callback: adapterSpy });
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
@@ -33,7 +34,7 @@ describe("Dispatcher [ Queue ]", () => {
   describe("When using dispatcher add method", () => {
     it("should add request to the dispatcher storage and trigger it", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const loadingSpy = jest.fn();
       client.requestManager.events.onLoading(request.queueKey, loadingSpy);
@@ -47,7 +48,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should add running request and delete it once data is fetched", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request, { delay: 1 });
+      mockRequest(request, { delay: 1 });
 
       dispatcher.add(request);
 
@@ -59,7 +60,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should deduplicate requests and return ongoing requestId", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(dispatcher, "performRequest");
 
@@ -72,7 +73,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should queue the queued request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(dispatcher, "flushQueue");
 
@@ -84,7 +85,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should send all concurrent request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(dispatcher, "performRequest");
 
@@ -98,7 +99,7 @@ describe("Dispatcher [ Queue ]", () => {
   describe("When using dispatcher performRequest method", () => {
     it("should trigger fetch adapter", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       const storageElement = dispatcher.createStorageElement(request);
@@ -108,7 +109,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not trigger fetch adapter when app is offline", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       client.appManager.setOnline(false);
       const spy = jest.spyOn(client, "adapter");
@@ -119,7 +120,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should trigger all requests when going back from offline", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       client.appManager.setOnline(false);
@@ -138,7 +139,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not trigger one storage element two times at the same time", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       const storageElement = dispatcher.createStorageElement(request);
@@ -157,7 +158,7 @@ describe("Dispatcher [ Queue ]", () => {
         fetchDispatcher: (instance) => new Dispatcher(instance, { onDeleteFromStorage: spyDelete }),
       });
       const request = customClient.createRequest()({ endpoint: "shared-base-endpoint", retry: 1, retryTime: 0 });
-      createRequestInterceptor(request, { status: 400, delay: 0 });
+      mockRequest(request, { status: 400, delay: 0 });
 
       customClient.onRequest((cmd) => {
         spy();
@@ -172,7 +173,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should retry multiple times", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 2, retryTime: 0 });
-      createRequestInterceptor(request, { status: 400, delay: 0 });
+      mockRequest(request, { status: 400, delay: 0 });
 
       const spy = jest.spyOn(client, "adapter");
       dispatcher.add(request);
@@ -183,7 +184,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not retry failed request when request 'retry' option is disabled", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
-      createRequestInterceptor(request, { status: 400, delay: 0 });
+      mockRequest(request, { status: 400, delay: 0 });
 
       const spy = jest.spyOn(client, "adapter");
       dispatcher.add(request);
@@ -194,7 +195,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not retry failed request in offline mode", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
-      createRequestInterceptor(request, { status: 400, delay: 5 });
+      mockRequest(request, { status: 400, delay: 5 });
 
       const spy = jest.spyOn(client, "adapter");
       dispatcher.add(request);
@@ -209,8 +210,8 @@ describe("Dispatcher [ Queue ]", () => {
     it("should flush all queues request", async () => {
       const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
       const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "2" });
-      createRequestInterceptor(firstRequest);
-      createRequestInterceptor(secondRequest);
+      mockRequest(firstRequest);
+      mockRequest(secondRequest);
 
       const spy = jest.spyOn(client, "adapter");
       client.appManager.setOnline(false);
@@ -235,7 +236,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not trigger flushQueue when queue is processing", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
-      createRequestInterceptor(request, { delay: 1 });
+      mockRequest(request, { delay: 1 });
 
       const spy = jest.spyOn(dispatcher, "performRequest");
       dispatcher.add(request);
@@ -253,7 +254,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not trigger flushQueue when having ongoing request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
-      createRequestInterceptor(request, { delay: 1 });
+      mockRequest(request, { delay: 1 });
 
       const spy = jest.spyOn(dispatcher, "performRequest");
       const jsonRequest = dispatcher.createStorageElement(request);
@@ -267,7 +268,7 @@ describe("Dispatcher [ Queue ]", () => {
 
     it("should not trigger flushQueue on stopped requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
-      createRequestInterceptor(request, { delay: 1 });
+      mockRequest(request, { delay: 1 });
 
       const spy = jest.spyOn(client, "adapter");
       const jsonRequest = dispatcher.createStorageElement(request);
@@ -280,7 +281,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not duplicate ongoing requests using flushQueue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request, { delay: 30 });
+      mockRequest(request, { delay: 30 });
 
       const spy = jest.spyOn(dispatcher, "performRequest");
       dispatcher.add(request);
@@ -298,7 +299,7 @@ describe("Dispatcher [ Queue ]", () => {
   describe("When starting and stopping queue", () => {
     it("should stop queue from being send", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       dispatcher.stop(request.queueKey);
@@ -312,7 +313,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should stop queue and cancel ongoing requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       const firstSpy = jest.fn();
@@ -336,7 +337,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should start previously stopped queue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       dispatcher.stop(request.queueKey);
@@ -351,7 +352,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should pause queue and finish ongoing requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
       const firstSpy = jest.fn();
@@ -375,7 +376,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not remove requests from queue storage on stop", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       dispatcher.add(request);
       await sleep(2);
@@ -385,7 +386,7 @@ describe("Dispatcher [ Queue ]", () => {
     });
     it("should not remove request from queue storage on stopRequest", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       const requestId = dispatcher.add(request);
       await sleep(2);
@@ -398,7 +399,7 @@ describe("Dispatcher [ Queue ]", () => {
   describe("When request is canceled", () => {
     it("should remove request from queue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      createRequestInterceptor(request);
+      mockRequest(request);
 
       dispatcher.add(request);
       await sleep(1);
@@ -412,7 +413,7 @@ describe("Dispatcher [ Queue ]", () => {
   describe("When request is not offline", () => {
     it("should remove request from queue", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", offline: false });
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
 
       dispatcher.add(request);
       await sleep(1);

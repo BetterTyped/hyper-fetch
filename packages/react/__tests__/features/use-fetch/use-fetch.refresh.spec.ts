@@ -1,7 +1,9 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Refreshing ]", () => {
   const hookOptions = {
@@ -20,7 +22,7 @@ describe("useFetch [ Refreshing ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -35,7 +37,7 @@ describe("useFetch [ Refreshing ]", () => {
 
   it("should refetch data after refresh time of 200ms", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request);
+    mockRequest(request);
     const { result } = renderUseFetch(request, hookOptions);
 
     act(() => {
@@ -50,7 +52,7 @@ describe("useFetch [ Refreshing ]", () => {
   });
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request);
+    mockRequest(request);
     const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false });
 
     act(() => {
@@ -64,7 +66,7 @@ describe("useFetch [ Refreshing ]", () => {
   });
   it("should not refresh blurred tab", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request);
+    mockRequest(request);
     const { result } = renderUseFetch(request, { ...hookOptions, refetchOnBlur: false, refetchBlurred: false });
 
     act(() => {
@@ -84,7 +86,7 @@ describe("useFetch [ Refreshing ]", () => {
   });
   it("should stop refreshing when value is changing from true to false", async () => {
     const spy = jest.fn();
-    createRequestInterceptor(request);
+    mockRequest(request);
     const { result, rerender } = renderUseFetch(request, hookOptions);
 
     act(() => {

@@ -1,7 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Retry ]", () => {
   let request = createRequest<null, null>({ method: "POST" });
@@ -11,7 +13,7 @@ describe("useSubmit [ Retry ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -27,7 +29,7 @@ describe("useSubmit [ Retry ]", () => {
   describe("when request retry attribute is set to false", () => {
     it("should not retry request on failure", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { status: 400, delay: 5 });
+      mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(0).setRetryTime(0));
 
       act(() => {
@@ -43,7 +45,7 @@ describe("useSubmit [ Retry ]", () => {
   describe("when request retry attribute is set to true", () => {
     it("should retry request once", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { status: 400, delay: 5 });
+      mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(10));
 
       act(() => {
@@ -57,7 +59,7 @@ describe("useSubmit [ Retry ]", () => {
     });
     it("should retry request twice", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request, { status: 400, delay: 5 });
+      mockRequest(request, { status: 400, delay: 5 });
       const response = renderUseSubmit(request.setRetry(2).setRetryTime(10));
 
       act(() => {
@@ -71,7 +73,7 @@ describe("useSubmit [ Retry ]", () => {
     });
     it("should trigger retries with the config interval", async () => {
       const time: number[] = [];
-      createRequestInterceptor(request, { status: 400, delay: 0 });
+      mockRequest(request, { status: 400, delay: 0 });
       const response = renderUseSubmit(request.setRetry(1).setRetryTime(100));
 
       act(() => {

@@ -1,5 +1,8 @@
+import { createHttpMockingServer } from "@hyper-fetch/testing";
+
 import { Client, stringifyDefaultOptions, stringifyQueryParams } from "client";
-import { resetInterceptors, startServer, stopServer } from "../../server";
+
+const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 const options = {
   ...stringifyDefaultOptions,
@@ -8,7 +11,7 @@ const options = {
 
 describe("Client [ Utils ]", () => {
   let client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-  let request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
+  let request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -16,8 +19,8 @@ describe("Client [ Utils ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
-    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
-    resetInterceptors();
+    request = client.createRequest<any, FormData>()({ endpoint: "shared-nase-endpoint" });
+    resetMocks();
   });
 
   afterAll(() => {

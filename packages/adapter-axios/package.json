@@ -41,8 +41,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "abortcontroller-polyfill": "^1.7.5",
-    "@hyper-fetch/testing": "*"
+    "abortcontroller-polyfill": "^1.7.5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -1,20 +1,22 @@
 import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
 import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
 
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
+
 describe("useFetch [ refetch ]", () => {
   let request = createRequest();
-  let mock = createRequestInterceptor(request);
+  let mock = mockRequest(request);
 
   beforeAll(() => {
     startServer();
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -25,7 +27,7 @@ describe("useFetch [ refetch ]", () => {
     jest.resetModules();
     request = createRequest();
     client.clear();
-    mock = createRequestInterceptor(request);
+    mock = mockRequest(request);
   });
 
   it("should allow to prevent invalidation on mount", async () => {
@@ -93,7 +95,7 @@ describe("useFetch [ refetch ]", () => {
     await waitFor(async () => {
       await testSuccessState(mock, response);
     });
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       response.result.current.refetch();
@@ -112,7 +114,7 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(regexp);
@@ -131,7 +133,7 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(["Maciej"]);
@@ -150,7 +152,7 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch("Maciej");
@@ -169,7 +171,7 @@ describe("useFetch [ refetch ]", () => {
       await testSuccessState(mock, responseOne);
       await testSuccessState(mock, responseTwo);
     });
-    const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
+    const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(request.setQueryParams("?something=123"));
@@ -184,7 +186,7 @@ describe("useFetch [ refetch ]", () => {
     const spy = jest.fn();
 
     const revalidateRequest = createRequest({ endpoint: "123-revalidate" });
-    const revalidateMock = createRequestInterceptor(revalidateRequest, { fixture: { something: 123 } });
+    const revalidateMock = mockRequest(revalidateRequest, { data: { something: 123 } });
 
     // First request
     const response = renderUseFetch(request, { revalidate: false });

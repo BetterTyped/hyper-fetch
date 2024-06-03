@@ -1,7 +1,9 @@
 import { act } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../../server";
 import { createRequest, renderUseRequestEvents } from "../../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useRequestEvents [ Utils ]", () => {
   let request = createRequest();
@@ -11,7 +13,7 @@ describe("useRequestEvents [ Utils ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -31,7 +33,7 @@ describe("useRequestEvents [ Utils ]", () => {
     });
     it("should unmount lifecycle events when handling requests by queue/cache keys", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseRequestEvents(request);
 
       await act(async () => {
@@ -47,7 +49,7 @@ describe("useRequestEvents [ Utils ]", () => {
     });
     it("should listen to every request id events", async () => {
       const spy = jest.fn();
-      createRequestInterceptor(request);
+      mockRequest(request);
       const response = renderUseRequestEvents(request);
 
       await act(async () => {

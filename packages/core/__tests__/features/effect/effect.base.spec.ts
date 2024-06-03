@@ -1,8 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { createEffect } from "../../utils";
-import { createRequestInterceptor, resetInterceptors, startServer, stopServer } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Effect [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" });
@@ -13,7 +15,7 @@ describe("Effect [ Base ]", () => {
   });
 
   beforeEach(() => {
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
@@ -25,7 +27,7 @@ describe("Effect [ Base ]", () => {
 
   describe("When using fetch effects", () => {
     it("should trigger success effects", async () => {
-      createRequestInterceptor(request);
+      mockRequest(request);
       const spy1 = jest.fn();
       const spy2 = jest.fn();
       const spy3 = jest.fn();
@@ -52,7 +54,7 @@ describe("Effect [ Base ]", () => {
       });
     });
     it("should trigger error effects", async () => {
-      createRequestInterceptor(request, { status: 400 });
+      mockRequest(request, { status: 400 });
       const spy1 = jest.fn();
       const spy2 = jest.fn();
       const spy3 = jest.fn();

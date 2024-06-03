@@ -2,11 +2,13 @@
  * @jest-environment node
  */
 import http from "http";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { adapter } from "../../../src/adapter/adapter.server";
 import { getErrorMessage } from "adapter";
-import { resetInterceptors, startServer, stopServer, createRequestInterceptor } from "../../server";
 import { Client } from "client";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Fetch Adapter [ Server ]", () => {
   const requestId = "test";
@@ -29,7 +31,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
     client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
-    resetInterceptors();
+    resetMocks();
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
@@ -40,18 +42,18 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should pick correct adapter and not throw", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
     client.appManager.isBrowser = true;
     await expect(() => adapter(request, requestId)).not.toThrow();
   });
 
   it("should pick https module", async () => {
-    createRequestInterceptor(request);
+    mockRequest(request);
     await expect(() => adapter(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = createRequestInterceptor(request, { fixture: { response: [] } });
+    const data = mockRequest(request, { data: { response: [] } });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 
@@ -62,7 +64,7 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = createRequestInterceptor(request, { status: 400 });
+    const data = mockRequest(request, { status: 400 });
 
     const { data: response, error, status, extra } = await adapter(request, requestId);
 
@@ -73,7 +75,7 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should allow to cancel request and return error", async () => {
-    createRequestInterceptor(request, { delay: 5 });
+    mockRequest(request, { delay: 5 });
 
     setTimeout(() => {
       request.abort();
@@ -87,7 +89,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should return timeout error when request takes too long", async () => {
     const timeoutRequest = request.setOptions({ timeout: 10 });
-    createRequestInterceptor(timeoutRequest, { delay: 20 });
+    mockRequest(timeoutRequest, { delay: 20 });
 
     const { data: response, error } = await adapter(timeoutRequest, requestId);
 
@@ -103,7 +105,7 @@ describe("Fetch Adapter [ Server ]", () => {
       .createRequest<null, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
       .setData(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
-    const mock = createRequestInterceptor(postRequest);
+    const mock = mockRequest(postRequest);
 
     const { data: response, error, status, extra } = await adapter(postRequest, requestId);
 
@@ -124,7 +126,7 @@ describe("Fetch Adapter [ Server ]", () => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     await mutation.send({
       data: {
@@ -147,7 +149,7 @@ describe("Fetch Adapter [ Server ]", () => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
-    createRequestInterceptor(mutation);
+    mockRequest(mutation);
 
     const buffer = Buffer.from("test");
 

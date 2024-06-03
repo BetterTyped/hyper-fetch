@@ -1,8 +1,10 @@
 import { RequestInstance, ExtractAdapterReturnType } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { client, createRequest, renderUseSubmit, waitForRender } from "../../utils";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Bounce ]", () => {
   const hookDebounceOptions = { bounce: true, bounceType: "debounce", bounceTime: 50 } as const;
@@ -15,7 +17,7 @@ describe("useSubmit [ Bounce ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -33,7 +35,7 @@ describe("useSubmit [ Bounce ]", () => {
       it("should debounce single request", async () => {
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
         act(() => {
@@ -54,7 +56,7 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
         await act(async () => {
@@ -80,7 +82,7 @@ describe("useSubmit [ Bounce ]", () => {
         expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
         let value: ExtractAdapterReturnType<RequestInstance>[] = [];
@@ -108,7 +110,7 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
         await act(async () => {
@@ -147,7 +149,7 @@ describe("useSubmit [ Bounce ]", () => {
       it("should not debounce multiple request triggers", async () => {
         const spy = jest.fn();
         let startTime = null;
-        createRequestInterceptor(request, { delay: 0 });
+        mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 
         await act(async () => {
@@ -178,7 +180,7 @@ describe("useSubmit [ Bounce ]", () => {
       it("should throttle single request", async () => {
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         act(() => {
@@ -199,7 +201,7 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         await act(async () => {
@@ -224,7 +226,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
       });
       it("should resolve throttled methods", async () => {
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         let value: ExtractAdapterReturnType<RequestInstance>[] = [];
@@ -252,7 +254,7 @@ describe("useSubmit [ Bounce ]", () => {
         const spy = jest.fn();
         let submitTime = null;
         let startTime = null;
-        createRequestInterceptor(request);
+        mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
         await act(async () => {
@@ -290,7 +292,7 @@ describe("useSubmit [ Bounce ]", () => {
       it("should not throttle multiple request triggers", async () => {
         const spy = jest.fn();
         let startTime = null;
-        createRequestInterceptor(request, { delay: 0 });
+        mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 
         await act(async () => {

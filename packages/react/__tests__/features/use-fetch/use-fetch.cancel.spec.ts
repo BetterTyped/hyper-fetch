@@ -1,9 +1,11 @@
 import { getErrorMessage } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { testErrorState } from "../../shared";
 import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
-import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
+
+const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Cancel ]", () => {
   let request = createRequest({ cacheKey: "test", queueKey: "testQueue", cancelable: true });
@@ -13,7 +15,7 @@ describe("useFetch [ Cancel ]", () => {
   });
 
   afterEach(() => {
-    resetInterceptors();
+    resetMocks();
   });
 
   afterAll(() => {
@@ -29,7 +31,7 @@ describe("useFetch [ Cancel ]", () => {
   describe("given request is cancelable", () => {
     describe("when aborting request", () => {
       it("should allow to cancel the ongoing request", async () => {
-        createRequestInterceptor(request, { delay: 40 });
+        mockRequest(request, { delay: 40 });
         const response = renderUseFetch(request);
 
         await waitForRender();
@@ -42,7 +44,7 @@ describe("useFetch [ Cancel ]", () => {
       });
 
       it("should allow to cancel deduplicated request", async () => {
-        createRequestInterceptor(request, { delay: 100 });
+        mockRequest(request, { delay: 100 });
         const response = renderUseFetch(request);
         await waitForRender();
         const dedupeResponse = renderUseFetch(request);
@@ -58,7 +60,7 @@ describe("useFetch [ Cancel ]", () => {
       it("should cancel previous requests when dependencies change", async () => {
         const spy = jest.fn();
 
-        createRequestInterceptor(request, { delay: 50 });
+        mockRequest(request, { delay: 50 });
         const response = renderUseFetch(request, { dependencies: [{}] });
         await waitForRender(1);
 
