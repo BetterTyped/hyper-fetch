@@ -3,17 +3,18 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { startServer } = createWebsocketMockingServer();
+const { startServer, waitForConnection } = createWebsocketMockingServer();
 
 describe("Listener [ Base ]", () => {
   let socket = createSocket();
   let listener = createListener(socket);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket = createSocket();
     listener = createListener(socket);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should initialize Listener with correct topic", async () => {

@@ -30,8 +30,6 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     onDisconnect,
     onListen,
     onEmit,
-    onEmitResponse,
-    onEmitError,
     onOpen,
     onClose,
     onError,
@@ -107,7 +105,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const sendEventMessage = (payload: WebsocketEvent) => {
-    adapter.send(JSON.stringify({ id: payload.id, topic: payload.topic, data: payload.data }));
+    adapter.send(JSON.stringify({ topic: payload.topic, data: payload.data }));
   };
 
   const onHeartbeat = () => {
@@ -121,8 +119,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     if (connecting || !heartbeat) return;
     clearTimers();
     pingTimer = setTimeout(() => {
-      const id = "heartbeat";
-      sendEventMessage({ id, data: heartbeatMessage, topic: "heartbeat" });
+      sendEventMessage({ data: heartbeatMessage, topic: "heartbeat" });
       pongTimer = setTimeout(() => {
         adapter.close();
       }, pongTimeout);
@@ -133,25 +130,12 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     return onListen(listener, callback);
   };
 
-  const emit = async (eventMessageId: string, emitter: EmitterInstance) => {
+  const emit = async (emitter: EmitterInstance) => {
     const instance = await onEmit(emitter);
 
     if (!instance) return;
-    let timeout;
-    const unmount = onListen(instance, (newEvent) => {
-      const { response, event } = parseMessageEvent(newEvent.extra);
-      if (response.id === eventMessageId) {
-        onEmitResponse(instance, { data: response.data, extra: event });
-        clearTimeout(timeout);
-        unmount();
-      }
-    });
-    timeout = setTimeout(() => {
-      unmount();
-      onEmitError(instance, new Error("Server did not acknowledge the event"));
-    }, instance.timeout);
 
-    sendEventMessage({ id: eventMessageId, data: instance.data, topic: instance.topic });
+    sendEventMessage({ data: instance.data, topic: instance.topic });
   };
 
   // Initialize

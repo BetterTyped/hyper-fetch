@@ -21,21 +21,24 @@ const constructEventData = <T extends Record<string, any>>({ topic }: { topic: s
 
 export const createWebsocketMockingServer = () => {
   const url = "ws://localhost:1234";
-  let server = new WS(url);
+  const server = { current: new WS(url) };
 
-  const startServer = (): void => {
-    server = new WS(url);
+  const getServer = () => {
+    return server.current;
   };
 
-  const resetMocks = () => {
-    if (server) {
-      server.close();
-      WS.clean();
-    }
+  const startServer = () => {
+    getServer().close();
+    server.current = new WS(url);
+  };
+
+  const waitForConnection = async () => {
+    return getServer().connected;
   };
 
   const stopServer = (): void => {
-    server.close();
+    getServer().close();
+    WS.clean();
   };
 
   const emitListenerEvent = <T extends ListenerInstance>(
@@ -49,10 +52,10 @@ export const createWebsocketMockingServer = () => {
   ) => {
     const data = constructEventData(listener, event);
 
-    server.send(JSON.stringify(data));
+    getServer().send(JSON.stringify(data));
   };
 
-  const expectEmitterEvent = async <T extends EmitterInstance, Data extends ExtractEmitterPayloadType<T> | void = void>(
+  const expectEmitterEvent = <T extends EmitterInstance, Data extends ExtractEmitterPayloadType<T> | void = void>(
     emitter: ExtendEmitter<
       T,
       {
@@ -62,7 +65,7 @@ export const createWebsocketMockingServer = () => {
     >,
     data?: Data,
   ) => {
-    await expect(server).toReceiveMessage(
+    return expect(getServer()).toReceiveMessage(
       JSON.stringify({
         topic: emitter.topic,
         data: data ?? emitter.data,
@@ -73,10 +76,10 @@ export const createWebsocketMockingServer = () => {
 
   return {
     url,
-    server,
+    getServer,
+    waitForConnection,
     startServer,
     stopServer,
-    resetMocks,
     emitListenerEvent,
     expectEmitterEvent,
   };

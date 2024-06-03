@@ -6,7 +6,7 @@ import { createSocket } from "../../utils/socket.utils";
 import { sleep } from "../../utils/helpers.utils";
 import { ServerSentEventsAdapter } from "adapter";
 
-const { startServer, emitListenerEvent, emitOpen } = createSseMockingServer();
+const { startServer, emitListenerEvent, emitOpen, waitForConnection } = createSseMockingServer();
 
 const config = {
   adapter: ServerSentEventsAdapter,
@@ -18,11 +18,12 @@ describe("Listener [ SSE ]", () => {
   let socket = createSocket(config);
   let listener = createListener<DataType>(socket);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket = createSocket(config);
     listener = createListener<DataType>(socket);
     jest.resetAllMocks();
+    await waitForConnection();
     emitOpen();
   });
 

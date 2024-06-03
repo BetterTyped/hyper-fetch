@@ -5,17 +5,18 @@ import { createSocket } from "../../utils/socket.utils";
 
 const windowInstance = global.window;
 
-const { startServer } = createWebsocketMockingServer();
+const { startServer, waitForConnection } = createWebsocketMockingServer();
 
 describe("Socket Client [ Utils ]", () => {
   let socket = createSocket();
   let windowSpy: jest.SpyInstance<Window & typeof globalThis, []>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     windowSpy = jest.spyOn(global, "window", "get");
     socket = createSocket();
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should allow to remove listener", async () => {

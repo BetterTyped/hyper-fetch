@@ -20,7 +20,7 @@ describe("Graphql Mocking [ Base ]", () => {
     startServer();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     client = new Client<{ errors: { message: string }[] }>({
       url: "https://shared-base-url/graphql",
     }).setAdapter(GraphqlAdapter);

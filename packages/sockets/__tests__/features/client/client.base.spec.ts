@@ -8,28 +8,29 @@ type DataType = {
   test: string;
 };
 
-const { server } = createWebsocketMockingServer();
+const { getServer, waitForConnection } = createWebsocketMockingServer();
 
 describe("Socket Client [ Base ]", () => {
+  let server = getServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    server = getServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should emit message", async () => {
     const message: DataType = { test: "Maciej" };
 
-    const emitterId = "my-id";
     const emitterInstance = emitter.setData(message);
-    socket.adapter.emit(emitterId, emitterInstance);
+    socket.adapter.emit(emitterInstance);
 
     expect(server).toReceiveMessage(
       JSON.stringify({
-        id: emitterId,
         topic: emitter.topic,
         data: message,
       }),
@@ -39,9 +40,8 @@ describe("Socket Client [ Base ]", () => {
   it("should listen to events", async () => {
     const message = { test: "Maciej" };
 
-    const emitterId = "my-id";
     const emitterInstance = emitter.setData(message);
-    socket.adapter.emit(emitterId, emitterInstance);
+    socket.adapter.emit(emitterInstance);
   });
   it("should not throw on message without name", async () => {
     const spy = jest.fn().mockImplementation((res) => res);

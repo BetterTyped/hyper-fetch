@@ -4,10 +4,10 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { server, startServer } = createWebsocketMockingServer();
+const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
 
 describe("Socket Client  [ Callbacks ]", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     jest.resetAllMocks();
   });
@@ -34,7 +34,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   it("should trigger onError callbacks", async () => {
     const spy = jest.fn();
     createSocket().onError(spy);
-    server.error();
+    getServer().error();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -44,7 +44,7 @@ describe("Socket Client  [ Callbacks ]", () => {
   it("should trigger onMessage callbacks", async () => {
     const spy = jest.fn().mockImplementation((res) => res);
     createSocket().onMessage(spy);
-    server.send({ data: { topic: "test", data: "test" } });
+    getServer().send({ data: { topic: "test", data: "test" } });
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
 
-    await server.connected;
+    await waitForConnection();
 
     emitter.setData({ test: "1" }).emit();
 
@@ -69,6 +69,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     const spy = jest.fn();
     const socket = createSocket().onReconnect(spy);
     socket.adapter.reconnect();
+    await waitForConnection();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -79,6 +80,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     const spy = jest.fn();
     const socket = createSocket({ reconnect: 0 }).onReconnectStop(spy);
     socket.adapter.reconnect();
+    await waitForConnection();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);

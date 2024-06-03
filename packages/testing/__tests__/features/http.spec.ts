@@ -12,7 +12,7 @@ describe("Http Mocking [ Base ]", () => {
     startServer();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "/shared-endpoint" });
 

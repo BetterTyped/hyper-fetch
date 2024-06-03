@@ -3,7 +3,7 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { startServer } = createWebsocketMockingServer();
+const { startServer, waitForConnection } = createWebsocketMockingServer();
 
 type DataType = {
   test: string;
@@ -13,11 +13,12 @@ describe("Emitter [ Base ]", () => {
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should initialize emitter with correct name", async () => {

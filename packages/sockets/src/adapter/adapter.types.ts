@@ -31,7 +31,7 @@ export type SocketAdapterType<
     >,
   ) => RemoveListenerCallbackType;
   removeListener: (endpoint: string, callback: (...args: any) => void) => void;
-  emit: (eventMessageId: string, emitter: EmitterInstance) => void;
+  emit: (emitter: EmitterInstance) => void;
   connecting: boolean;
   connect: () => void;
   reconnect: () => void;
@@ -68,7 +68,6 @@ export type WSAdapterOptionsType = {
 };
 
 export type WebsocketEvent<T = any> = {
-  id?: string;
   topic: string;
   data: T;
 };

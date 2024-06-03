@@ -17,20 +17,24 @@ const constructEventData = <T extends Record<string, any>>({ topic }: { topic: s
 
 export const createSseMockingServer = () => {
   const url = "ws://localhost:1234";
+  const server = { current: new WS(url) };
 
-  let server = new WS(url);
-
-  const startServer = (): void => {
-    server = new WS(url);
+  const getServer = () => {
+    return server.current;
   };
 
-  const resetMocks = () => {
-    server.close();
-    WS.clean();
+  const startServer = () => {
+    getServer().close();
+    server.current = new WS(url);
+  };
+
+  const waitForConnection = async () => {
+    return getServer().connected;
   };
 
   const stopServer = (): void => {
-    server.close();
+    getServer().close();
+    WS.clean();
   };
 
   const emitError = () => {
@@ -59,10 +63,10 @@ export const createSseMockingServer = () => {
   };
 
   return {
-    server,
     url,
+    getServer,
     startServer,
-    resetMocks,
+    waitForConnection,
     stopServer,
     getSource,
     emitError,

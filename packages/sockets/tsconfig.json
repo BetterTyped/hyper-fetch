@@ -3,6 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "jsx": "react-jsx",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "@hyper-fetch/sockets": ["../src"]
+    }
   }
 }

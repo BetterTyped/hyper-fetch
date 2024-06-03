@@ -10,15 +10,16 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   adapterOptions: { eventSourceInit: { withCredentials: true } },
 };
 
-const { startServer, emitOpen, emitError } = createSseMockingServer();
+const { startServer, emitOpen, emitError, waitForConnection } = createSseMockingServer();
 
 describe("Socket Adapter [ SSE ]", () => {
   let socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should emit event on disconnect", async () => {
@@ -34,7 +35,7 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should throw error when emitting", async () => {
-    expect(() => socket.adapter.emit("", {} as any)).rejects.toThrow();
+    expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
   });
 
   it("should reconnect when going online", async () => {

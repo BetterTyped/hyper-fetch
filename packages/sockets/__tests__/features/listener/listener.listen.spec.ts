@@ -7,17 +7,18 @@ import { sleep } from "../../utils/helpers.utils";
 
 type DataType = { topic: string; age: number };
 
-const { startServer, emitListenerEvent } = createWebsocketMockingServer();
+const { startServer, emitListenerEvent, waitForConnection } = createWebsocketMockingServer();
 
 describe("Listener [ Listen ]", () => {
   let socket = createSocket();
   let listener = createListener<DataType>(socket);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket = createSocket();
     listener = createListener<DataType>(socket);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should listen to given event topic", async () => {

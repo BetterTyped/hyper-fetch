@@ -9,16 +9,17 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
 };
 
-const { emitOpen, startServer } = createSseMockingServer();
+const { emitOpen, startServer, waitForConnection } = createSseMockingServer();
 
 describe("Socket SSE [ Connection ]", () => {
   let socket = createSocket(socketOptions);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
     socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should auto connect", async () => {

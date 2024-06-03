@@ -4,7 +4,7 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { server, startServer } = createWebsocketMockingServer();
+const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
 
 type DataType = {
   topic: string;
@@ -23,13 +23,13 @@ describe("Emitter [ Emit ]", () => {
     socket = createSocket();
     emitter = createEmitter<DataType>(socket, { timeout: 4000 });
     jest.resetAllMocks();
-    await server.connected;
+    await waitForConnection();
   });
 
   it("should emit event message", async () => {
     const id = emitter.emit({ data: message });
 
-    await expect(server).toReceiveMessage(
+    await expect(getServer()).toReceiveMessage(
       JSON.stringify({
         id,
         topic: emitter.topic,
@@ -49,7 +49,7 @@ describe("Emitter [ Emit ]", () => {
       },
     });
 
-    server.send(JSON.stringify({ id, topic: emitter.topic, data: response }));
+    getServer().send(JSON.stringify({ id, topic: emitter.topic, data: response }));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -76,7 +76,7 @@ describe("Emitter [ Emit ]", () => {
     const emitterWithParams = socket.createEmitter<DataType>()({ topic: "test/:testId" });
     const id = emitterWithParams.emit({ data: message, params: { testId: 1 }, onEvent: (data) => spy(data) });
 
-    server.send(JSON.stringify({ id, topic: emitterWithParams.setParams({ testId: 1 }).topic, data: response }));
+    getServer().send(JSON.stringify({ id, topic: emitterWithParams.setParams({ testId: 1 }).topic, data: response }));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnce();

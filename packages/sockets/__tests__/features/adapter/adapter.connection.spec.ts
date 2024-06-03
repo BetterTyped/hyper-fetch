@@ -7,16 +7,19 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
-const { server, startServer } = createWebsocketMockingServer();
+const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
 
 describe("Socket Adapter [ Connection ]", () => {
   let socket = createSocket(socketOptions);
+  let server = getServer();
 
-  beforeEach(() => {
+  beforeEach(async () => {
     startServer();
+    server = getServer();
     socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
+    await waitForConnection();
   });
 
   it("should auto connect", async () => {

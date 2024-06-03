@@ -14,8 +14,8 @@ const socketOptions: SocketOptionsType<ServerSentEventsAdapterType> = {
 describe("SSE Mocking [ Base ]", () => {
   let socket = new Socket<ServerSentEventsAdapterType>(socketOptions);
 
-  beforeEach(() => {
-    startServer();
+  beforeEach(async () => {
+    await startServer();
     socket = new Socket<ServerSentEventsAdapterType>(socketOptions);
     jest.resetAllMocks();
   });
