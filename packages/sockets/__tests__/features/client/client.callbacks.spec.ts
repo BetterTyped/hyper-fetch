@@ -1,14 +1,14 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+
+const { server, startServer } = createWebsocketMockingServer();
 
 describe("Socket Client  [ Callbacks ]", () => {
-  let server = createWsServer();
-
   beforeEach(() => {
-    server = createWsServer();
+    startServer();
     jest.resetAllMocks();
   });
 

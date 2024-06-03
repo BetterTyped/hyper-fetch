@@ -1,13 +1,16 @@
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+
+const { startServer } = createWebsocketMockingServer();
 
 describe("Listener [ Base ]", () => {
   let socket = createSocket();
   let listener = createListener(socket);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket = createSocket();
     listener = createListener(socket);
     jest.resetAllMocks();

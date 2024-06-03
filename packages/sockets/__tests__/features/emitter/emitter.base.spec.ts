@@ -1,6 +1,9 @@
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+
+const { startServer } = createWebsocketMockingServer();
 
 type DataType = {
   test: string;
@@ -11,7 +14,7 @@ describe("Emitter [ Base ]", () => {
   let emitter = createEmitter<DataType>(socket);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();

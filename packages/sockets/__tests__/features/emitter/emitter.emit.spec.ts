@@ -1,8 +1,10 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
+
+const { server, startServer } = createWebsocketMockingServer();
 
 type DataType = {
   topic: string;
@@ -13,12 +15,11 @@ describe("Emitter [ Emit ]", () => {
   const message = { topic: "Maciej", age: 99 };
   const response = { data: "test" };
 
-  let server = createWsServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket, { timeout: 4000 });
 
   beforeEach(async () => {
-    server = createWsServer();
+    startServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket, { timeout: 4000 });
     jest.resetAllMocks();
@@ -42,7 +43,7 @@ describe("Emitter [ Emit ]", () => {
     let receivedExtra;
     const id = emitter.emit({
       data: message,
-      ack: (data) => {
+      onEvent: (data) => {
         spy(data);
         receivedExtra = data.extra;
       },
@@ -58,7 +59,7 @@ describe("Emitter [ Emit ]", () => {
 
   it("should not acknowledge event message", async () => {
     const spy = jest.fn();
-    emitter.emit({ data: message, ack: spy, options: { timeout: 0 } });
+    emitter.emit({ data: message, onEvent: spy, options: { timeout: 0 } });
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -70,46 +71,15 @@ describe("Emitter [ Emit ]", () => {
     });
   });
 
-  it("should not acknowledge event message without ack", async () => {
-    const spy = jest.fn();
-    emitter.onData(() => spy).emit({ data: message, options: { timeout: 0 } });
-
-    expect(spy).toHaveBeenCalledTimes(0);
-  });
-
   it("should allow to set params", async () => {
     const spy = jest.fn();
-    const emitterWithParams = socket.createEmitter<{ payload: DataType }>()({ topic: "test/:testId" });
-    const id = emitterWithParams.emit({ data: message, params: { testId: 1 }, ack: (data) => spy(data) });
+    const emitterWithParams = socket.createEmitter<DataType>()({ topic: "test/:testId" });
+    const id = emitterWithParams.emit({ data: message, params: { testId: 1 }, onEvent: (data) => spy(data) });
 
     server.send(JSON.stringify({ id, topic: emitterWithParams.setParams({ testId: 1 }).topic, data: response }));
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnce();
-    });
-  });
-
-  it("should allow for using onData", async () => {
-    const spy = jest.fn();
-    let receivedData;
-
-    const emitterWithParams = socket
-      .createEmitter<{ payload: DataType }>()({ topic: "test/:testId", timeout: 8000 })
-      .onData(({ data }, unmount) => {
-        receivedData = data;
-        spy();
-        unmount();
-      });
-    const id = emitterWithParams.emit({
-      data: message,
-      params: { testId: 1 },
-    });
-
-    server.send(JSON.stringify({ id, topic: emitterWithParams.setParams({ testId: 1 }).topic, data: response }));
-
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledOnce();
-      expect(receivedData).toStrictEqual(response);
     });
   });
 });

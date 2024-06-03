@@ -1,60 +1,31 @@
-import { expectNotType, expectType } from "tsd";
+import { expectType } from "tsd";
 
 import { Socket } from "socket";
-import { ListenerCallbackType } from "listener";
-import { SocketAdapterInstance } from "adapter";
 
 const client = new Socket({
   url: "http://localhost:3000",
 });
 
-const getUsers = client.createListener<{ response: { data: string }[] }>()({
+const listenForUsers = client.createListener<{ response: { data: string }[] }>()({
   topic: "/users",
 });
 
-const getUser = client.createListener<{ response: { data: string } }>()({
+const listenForUser = client.createListener<{ response: { data: string } }>()({
   topic: "/users/:id",
 });
 
-type TestCallbackType = ListenerCallbackType<
-  SocketAdapterInstance,
-  {
-    data: string;
-  }[]
->;
-
-describe("when request does not require params and data", () => {
+describe("when request does not require params", () => {
   it("should allow to make request with no parameters", () => {
-    expectType<(options: { params: null; callback: TestCallbackType }) => void>(getUsers.listen);
+    expectType<(callback: any, options: { params: null }) => void>(listenForUsers.listen);
   });
   it("should not allow to set params", () => {
-    expectType<(options: null) => void>(getUsers.setParams);
+    expectType<(options: null) => void>(listenForUsers.setParams);
   });
 });
 
-describe("when request does not require data and has required params", () => {
-  it("should allow to make request with parameters", () => {
-    expectType<(options?: { params: { id: string }; callback: any }) => void>(getUser.listen);
-    expectType<(options?: { params: never; callback: any }) => void>(getUser.setParams({ id: 1 }).listen);
-  });
-  it("should allow to make request with query params", () => {
-    expectType<(options?: { params: { id: string }; callback: any }) => void>(getUser.listen);
-    expectType<(options?: { params: never; callback: any }) => void>(getUser.setParams({ id: 1 }).listen);
-  });
-  it("should not allow to add data to request", () => {
-    expectNotType<(options?: { data: { value: string }; params: null; callback: any }) => void>(
-      getUser.setParams({ id: 1 }).listen,
-    );
-  });
-  it("should not allow to make request without params", () => {
-    expectType<(options?: { params: { id: string }; callback: any }) => void>(getUser.listen);
-    expectType<(options?: { params: { id: string }; callback: any }) => void>(getUser.listen);
-  });
-  it("should not allow to make request with incorrect params", () => {
-    expectNotType<(options?: { params: { id: null }; callback: any }) => void>(getUser.listen);
-    expectNotType<(options?: { params: null; callback: any }) => void>(getUser.listen);
-  });
-  it("should not allow to redeclare params", () => {
-    expectNotType<(options?: { params: { id: null }; callback: any }) => void>(getUser.setParams({ id: 1 }).listen);
+describe("when listener has required params", () => {
+  it("should allow to add listener with parameters", () => {
+    expectType<(callback: any, options: { params: { id: string } }) => void>(listenForUser.listen);
+    expectType<(callback: any, options?: { params: never }) => void>(listenForUser.setParams({ id: 1 }).listen);
   });
 });
