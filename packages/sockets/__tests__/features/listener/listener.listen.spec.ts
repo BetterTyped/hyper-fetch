@@ -1,18 +1,20 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sendWsEvent, createWsServer } from "../../websocket/websocket.server";
 import { sleep } from "../../utils/helpers.utils";
 
 type DataType = { topic: string; age: number };
+
+const { startServer, emitListenerEvent } = createWebsocketMockingServer();
 
 describe("Listener [ Listen ]", () => {
   let socket = createSocket();
   let listener = createListener<DataType>(socket);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket = createSocket();
     listener = createListener<DataType>(socket);
     jest.resetAllMocks();
@@ -22,11 +24,13 @@ describe("Listener [ Listen ]", () => {
     const spy = jest.fn();
     const message = { topic: "Maciej", age: 99 };
     let receivedExtra;
+
     listener.listen((data) => {
       spy(data);
       receivedExtra = data.extra;
     });
-    sendWsEvent(listener, message);
+
+    emitListenerEvent(listener, message);
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledOnceWith({ data: message, extra: receivedExtra });
@@ -40,12 +44,12 @@ describe("Listener [ Listen ]", () => {
     const spy = jest.fn();
     const removeListener = listener.listen(spy);
     const message = { topic: "Maciej", age: 99 };
-    sendWsEvent(listener, message);
+    emitListenerEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
-    sendWsEvent(listener, message);
-    sendWsEvent(listener, message);
-    sendWsEvent(listener, message);
+    emitListenerEvent(listener, message);
+    emitListenerEvent(listener, message);
+    emitListenerEvent(listener, message);
     expect(spy).toHaveBeenCalledOnce();
   });
 
@@ -54,12 +58,12 @@ describe("Listener [ Listen ]", () => {
     const listenerWithParams = socket.createListener<{ response: ResponseType }>()({ topic: "test/:testId" });
     const removeListener = listenerWithParams.listen(spy, { params: { testId: 1 } });
     const message = { topic: "Maciej", age: 99 };
-    sendWsEvent(listenerWithParams.setParams({ testId: 1 }), message);
+    emitListenerEvent(listenerWithParams.setParams({ testId: 1 }), message);
     expect(spy).toHaveBeenCalledOnce();
     removeListener();
-    sendWsEvent(listenerWithParams, message);
-    sendWsEvent(listenerWithParams, message);
-    sendWsEvent(listenerWithParams, message);
+    emitListenerEvent(listenerWithParams, message);
+    emitListenerEvent(listenerWithParams, message);
+    emitListenerEvent(listenerWithParams, message);
     expect(spy).toHaveBeenCalledOnce();
   });
 });

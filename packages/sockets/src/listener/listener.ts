@@ -32,17 +32,6 @@ export class Listener<
     return this.clone<true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
-    let topic = this.listenerOptions.topic as string;
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
-      });
-    }
-
-    return topic as Topic;
-  };
-
   clone<Params extends true | false = HasParams>(options?: Partial<ListenerOptionsType<Topic, AdapterType>>) {
     const newInstance = new Listener<Response, Topic, AdapterType, Params>(this.socket, {
       ...this.listenerOptions,
@@ -64,5 +53,16 @@ export class Listener<
     };
 
     return removeListener;
+  };
+
+  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
+    let topic = this.listenerOptions.topic as string;
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        topic = topic.replace(new RegExp(`:${key}`, "g"), String(value));
+      });
+    }
+
+    return topic as Topic;
   };
 }

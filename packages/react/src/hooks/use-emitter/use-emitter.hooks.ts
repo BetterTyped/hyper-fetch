@@ -30,16 +30,16 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
         });
       };
       const onEvent = () => {
-        return emitter.socket.events.onEmitterEventByTopic(emitter, (response, emitter) => {
-          onEventCallback.current?.(response, emitter);
+        return emitter.socket.events.onEmitterEventByTopic(emitter, (response, emitterInstance) => {
+          onEventCallback.current?.(response, emitterInstance);
           actions.setData(response.data);
           actions.setExtra(response.extra);
         });
       };
 
       const onEventError = () => {
-        return emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitter) => {
-          onEventErrorCallback.current?.(error, emitter);
+        return emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitterInstance) => {
+          onEventErrorCallback.current?.(error, emitterInstance);
         });
       };
 

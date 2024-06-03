@@ -37,6 +37,14 @@ export const createSseMockingServer = () => {
     sources[url].emitError(new Error("Test error"));
   };
 
+  const emitOpen = () => {
+    sources[url].emitOpen();
+  };
+
+  const getSource = () => {
+    return sources[url];
+  };
+
   const emitListenerEvent = <T extends ListenerInstance>(
     listener: ExtendListener<
       T,
@@ -56,7 +64,9 @@ export const createSseMockingServer = () => {
     startServer,
     resetMocks,
     stopServer,
-    emitListenerEvent,
+    getSource,
     emitError,
+    emitOpen,
+    emitListenerEvent,
   };
 };

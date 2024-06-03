@@ -1,17 +1,19 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
+const { server, startServer } = createWebsocketMockingServer();
+
 describe("Socket Adapter [ Connection ]", () => {
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
@@ -54,7 +56,6 @@ describe("Socket Adapter [ Connection ]", () => {
     socket = createSocket({ url, reconnectTime: 5, autoConnect: false });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
-    const server = createWsServer({ url });
 
     await server.connected;
 

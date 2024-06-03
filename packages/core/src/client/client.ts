@@ -223,11 +223,11 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <NewAdapter extends AdapterInstance, Returns extends AdapterInstance | ClientInstance>(
-    callback: (
-      client: this,
-    ) => Returns extends AdapterInstance ? NewAdapter : Client<GlobalErrorType, NewAdapter, EndpointMapper>,
-  ): Returns extends AdapterInstance ? Client<GlobalErrorType, NewAdapter, EndpointMapper> : Returns => {
+  setAdapter = <Returns extends AdapterInstance | ClientInstance>(
+    callback: (client: this) => Returns,
+  ): Returns extends ClientInstance
+    ? Returns
+    : Client<GlobalErrorType, Returns extends AdapterInstance ? Returns : Adapter, EndpointMapper> => {
     const value = callback(this) as unknown as Adapter;
 
     if (value instanceof Client) {

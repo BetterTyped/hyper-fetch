@@ -1,9 +1,8 @@
 import { waitFor } from "@testing-library/dom";
+import { createSseMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 import { ServerSentEventsAdapterType, ServerSentEventsAdapter } from "adapter";
-import { emitError, openSse } from "../../websocket/sse.server";
 import { sleep } from "../../utils/helpers.utils";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -11,11 +10,13 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   adapterOptions: { eventSourceInit: { withCredentials: true } },
 };
 
+const { startServer, emitOpen, emitError } = createSseMockingServer();
+
 describe("Socket Adapter [ SSE ]", () => {
   let socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket = createSocket<ServerSentEventsAdapterType>(socketOptions);
     jest.resetAllMocks();
   });
@@ -41,7 +42,7 @@ describe("Socket Adapter [ SSE ]", () => {
 
     socket.events.onOpen(spy);
 
-    openSse();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -53,7 +54,7 @@ describe("Socket Adapter [ SSE ]", () => {
       socket.adapter.open = false;
       socket.appManager.setOnline(true);
     });
-    openSse();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(2);
@@ -65,14 +66,14 @@ describe("Socket Adapter [ SSE ]", () => {
 
     socket.events.onOpen(spy);
 
-    openSse();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
     socket.appManager.setOnline(true);
-    openSse();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(2);
@@ -84,7 +85,7 @@ describe("Socket Adapter [ SSE ]", () => {
 
     socket.events.onOpen(spy);
     socket.adapter.connect();
-    openSse();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);

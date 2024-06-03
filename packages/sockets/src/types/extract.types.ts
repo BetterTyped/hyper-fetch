@@ -10,13 +10,12 @@ export type EventReturnType<GenericDataType, Adapter extends SocketAdapterInstan
 
 // Emitter
 
-export type ExtractEmitterPayloadType<E> = E extends Emitter<infer P, any, any, any, any, any, any> ? P : never;
-export type ExtractEmitterResponseType<E> = E extends Emitter<any, infer R, any, any, any, any, any> ? R : never;
-export type ExtractEmitterTopicType<E> = E extends Emitter<any, any, infer A, any, any, any, any> ? A : never;
-export type ExtractEmitterAdapterType<E> = E extends Emitter<any, any, any, infer A, any, any, any> ? A : never;
-export type ExtractEmitterMappedDataType<E> = E extends Emitter<any, any, any, any, infer M, any, any> ? M : never;
-export type ExtractEmitterHasParamsType<E> = E extends Emitter<any, any, any, any, any, infer M, any> ? M : never;
-export type ExtractEmitterHasDataType<E> = E extends Emitter<any, any, any, any, any, any, infer D> ? D : never;
+export type ExtractEmitterPayloadType<E> = E extends Emitter<infer P, any, any, any, any, any> ? P : never;
+export type ExtractEmitterResponseType<E> = E extends Emitter<any, infer R, any, any, any, any> ? R : never;
+export type ExtractEmitterTopicType<E> = E extends Emitter<any, any, infer A, any, any, any> ? A : never;
+export type ExtractEmitterAdapterType<E> = E extends Emitter<any, any, any, infer A, any, any> ? A : never;
+export type ExtractEmitterHasDataType<E> = E extends Emitter<any, any, any, any, infer D, any> ? D : never;
+export type ExtractEmitterHasParamsType<E> = E extends Emitter<any, any, any, any, any, infer M> ? M : never;
 
 // Listener
 

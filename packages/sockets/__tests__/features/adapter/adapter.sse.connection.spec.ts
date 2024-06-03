@@ -1,8 +1,7 @@
 import { waitFor } from "@testing-library/dom";
-import { sources } from "eventsourcemock";
+import { createSseMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer, wsUrl } from "../../websocket/websocket.server";
 import { ServerSentEventsAdapter } from "adapter";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -10,11 +9,13 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   adapter: ServerSentEventsAdapter,
 };
 
+const { emitOpen, startServer } = createSseMockingServer();
+
 describe("Socket SSE [ Connection ]", () => {
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
-    createWsServer();
+    startServer();
     socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
@@ -23,7 +24,8 @@ describe("Socket SSE [ Connection ]", () => {
   it("should auto connect", async () => {
     const spy = jest.fn();
     socket.events.onOpen(spy);
-    sources[wsUrl].emitOpen();
+
+    emitOpen();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -33,7 +35,7 @@ describe("Socket SSE [ Connection ]", () => {
     const spy = jest.fn();
     socket = createSocket({ autoConnect: false });
     socket.events.onOpen(spy);
-    sources[wsUrl].emitOpen();
+    emitOpen();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
@@ -45,7 +47,7 @@ describe("Socket SSE [ Connection ]", () => {
     socket = createSocket({ url, reconnectTime: 500, autoConnect: false });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
-    sources[wsUrl].emitOpen();
+    emitOpen();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);

@@ -4,7 +4,10 @@
     "baseUrl": "../src",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@hyper-fetch/sockets": ["../src"]
+    }
   },
   "include": ["../jest.config.ts", "./"]
 }

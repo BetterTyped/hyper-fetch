@@ -8,7 +8,7 @@ export const createEmitter = <PayloadType = any, ResponseDataType = any>(
   options?: Partial<EmitterOptionsType<any, any>>,
 ) => {
   const randomKey = getUniqueRequestId("some-event-emitter");
-  return socket.createEmitter<{ payload: PayloadType; response: ResponseDataType }>()({
+  return socket.createEmitter<PayloadType, ResponseDataType>()({
     topic: randomKey,
     ...options,
   });

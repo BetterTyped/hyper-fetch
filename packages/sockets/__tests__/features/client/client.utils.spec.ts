@@ -1,16 +1,19 @@
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+
 import { ServerSentEventsAdapter, getWebsocketAdapter, getSSEAdapter } from "adapter";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 const windowInstance = global.window;
+
+const { startServer } = createWebsocketMockingServer();
 
 describe("Socket Client [ Utils ]", () => {
   let socket = createSocket();
   let windowSpy: jest.SpyInstance<Window & typeof globalThis, []>;
 
   beforeEach(() => {
+    startServer();
     windowSpy = jest.spyOn(global, "window", "get");
-    createWsServer();
     socket = createSocket();
     jest.resetAllMocks();
   });

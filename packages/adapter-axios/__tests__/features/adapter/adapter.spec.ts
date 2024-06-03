@@ -1,9 +1,9 @@
 import { Client } from "@hyper-fetch/core";
-import { createMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { AxiosAdapter } from "../../../src/adapter/adapter";
 
-const { startServer, stopServer, resetMocks, mockRequest } = createMockingServer();
+const { startServer, stopServer, resetMocks, mockRequest } = createHttpMockingServer();
 
 describe("Axios Adapter [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" }).setAdapter(AxiosAdapter);

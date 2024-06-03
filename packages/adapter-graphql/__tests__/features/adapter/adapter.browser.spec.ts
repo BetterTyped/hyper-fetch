@@ -111,7 +111,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     const { data: response, error } = await request.send();
 
     expect(response).toBe(null);
-    expect(error.message).toEqual(getErrorMessage("abort").message);
+    expect(error).toStrictEqual({ errors: [getErrorMessage("abort")] });
   });
 
   it("should not throw when XMLHttpRequest is not available on window", async () => {

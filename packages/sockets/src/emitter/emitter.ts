@@ -1,35 +1,29 @@
-import { Time, ExtractRouteParams, ParamsType, TypeWithDefaults } from "@hyper-fetch/core";
+import { Time, ExtractRouteParams, ParamsType, PayloadMapperType } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
-import { EmitterOptionsType, EmitType, EmitterEmitOptionsType } from "emitter";
-import { SocketAdapterInstance } from "adapter";
+import { emitEvent, EmitterEmitOptionsType, EmitterOptionsType, EmitType } from "emitter";
+import { SocketAdapterType } from "adapter";
 import { ExtractAdapterEmitterOptionsType } from "types";
-import { emitEvent } from "./emitter.utils";
 
 export class Emitter<
   Payload,
   Response,
-  Topic extends string,
-  Adapter extends SocketAdapterInstance,
-  MappedData = void,
-  HasParams extends boolean = false,
+  Endpoint extends string,
+  AdapterType extends SocketAdapterType,
   HasData extends boolean = false,
+  HasParams extends boolean = false,
 > {
-  readonly topic: Topic;
+  readonly topic: Endpoint;
   params?: ParamsType;
   timeout: number;
   data: Payload | null = null;
-  options: ExtractAdapterEmitterOptionsType<Adapter>;
-
-  dataMapper?: (data: Payload) => MappedData;
+  options: ExtractAdapterEmitterOptionsType<AdapterType>;
+  dataMapper?: PayloadMapperType<any>;
 
   constructor(
-    readonly socket: Socket<Adapter>,
-    readonly emitterOptions: EmitterOptionsType<Topic, Adapter>,
-    json?: Pick<
-      Emitter<Payload, Response, Topic, Adapter, MappedData, HasData, HasParams>,
-      "topic" | "params" | "timeout" | "data" | "options"
-    >,
+    readonly socket: Socket<AdapterType>,
+    readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
+    json?: Partial<Emitter<Payload, Response, Endpoint, AdapterType>>,
   ) {
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
@@ -40,7 +34,7 @@ export class Emitter<
     this.params = json?.params;
   }
 
-  setOptions(options: ExtractAdapterEmitterOptionsType<Adapter>) {
+  setOptions(options: ExtractAdapterEmitterOptionsType<AdapterType>) {
     return this.clone({ options });
   }
 
@@ -48,27 +42,25 @@ export class Emitter<
     return this.clone({ timeout });
   }
 
-  setData(data: Payload) {
-    if (this.dataMapper) {
-      return this.clone<{
-        payload: MappedData extends void ? Payload : MappedData;
-        hasData: true;
-      }>({ data: this.dataMapper(data) as MappedData extends void ? Payload : MappedData });
-    }
-    return this.clone<{ hasData: true }>({ data: data as any });
-  }
-
-  setDataMapper = <MapperData>(mapper: (data: Payload) => MapperData) => {
-    const newInstance = this.clone<{ mappedData: MapperData }>(undefined);
-    newInstance.dataMapper = mapper;
-    return newInstance;
+  setData = <D extends Payload>(data: D) => {
+    return this.clone<D, D extends null ? false : true, HasParams>({
+      data,
+    });
   };
 
-  setParams(params: ExtractRouteParams<Topic>) {
-    return this.clone<{ hasParams: true }>({ params });
+  setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
+    const cloned = this.clone<Payload, HasData, HasParams>(undefined);
+
+    cloned.dataMapper = dataMapper;
+
+    return cloned;
+  };
+
+  setParams(params: ExtractRouteParams<Endpoint>) {
+    return this.clone<Payload, HasData, true>({ params });
   }
 
-  private paramsMapper = (params: ParamsType | null | undefined): Topic => {
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
     let topic = this.emitterOptions.topic as string;
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -76,53 +68,28 @@ export class Emitter<
       });
     }
 
-    return topic as Topic;
+    return topic as Endpoint;
   };
 
   clone<
-    Extensions extends {
-      payload?: any;
-      mappedData?: any;
-      hasParams?: true | false;
-      hasData?: true | false;
-    } = {
-      payload: Payload;
-      mappedData: MappedData;
-      hasParams: HasParams;
-      hasData: HasData;
-    },
-  >(
-    options?: Partial<EmitterOptionsType<Topic, Adapter>> & {
-      params?: ParamsType;
-      data?: TypeWithDefaults<Extensions, "payload", undefined>;
-    },
-    mapper?: (
-      data: TypeWithDefaults<Extensions, "payload", undefined>,
-    ) => TypeWithDefaults<Extensions, "mappedData", void>,
-  ) {
-    type NewPayload = TypeWithDefaults<Extensions, "payload", Payload>;
-    type NewMappedData = TypeWithDefaults<Extensions, "mappedData", MappedData>;
-    type NewHasParams = TypeWithDefaults<Extensions, "hasParams", HasParams>;
-    type NewHasData = TypeWithDefaults<Extensions, "hasData", HasData>;
-
-    const json: Pick<
-      Emitter<NewPayload, Response, Topic, Adapter, NewMappedData, NewHasParams, NewHasData>,
-      "topic" | "params" | "timeout" | "data" | "options"
-    > = {
+    NewPayload extends Payload = Payload,
+    NewHasData extends boolean = HasData,
+    NewHasParams extends boolean = HasParams,
+  >(options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload }) {
+    const json: Partial<Emitter<NewPayload, Response, Endpoint, AdapterType, NewHasData, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
-      data: this.data as unknown as NewPayload,
+      data: this.data as NewPayload,
       params: options?.params || this.params,
       ...options,
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Response, Topic, Adapter, NewMappedData, NewHasParams, NewHasData>(
+    const newInstance = new Emitter<NewPayload, Response, Endpoint, AdapterType, NewHasData, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,
     );
-    newInstance.dataMapper = (mapper || this.dataMapper) as unknown as typeof newInstance.dataMapper;
     return newInstance;
   }
 
@@ -130,6 +97,9 @@ export class Emitter<
     const typedOptions = options as EmitterEmitOptionsType<this>;
 
     const instance = this.clone(typedOptions as any) as unknown as this;
+
+    // Data mapping before sending
+    instance.data = instance.dataMapper ? instance.dataMapper(instance.data) : instance.data;
 
     return emitEvent(instance, typedOptions);
   };

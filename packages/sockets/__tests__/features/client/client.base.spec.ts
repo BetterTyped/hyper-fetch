@@ -1,27 +1,27 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 type DataType = {
   test: string;
 };
 
+const { server } = createWebsocketMockingServer();
+
 describe("Socket Client [ Base ]", () => {
-  let server = createWsServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
   beforeEach(() => {
-    server = createWsServer();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
   });
 
   it("should emit message", async () => {
-    const message = { test: "Maciej" };
+    const message: DataType = { test: "Maciej" };
 
     const emitterId = "my-id";
     const emitterInstance = emitter.setData(message);

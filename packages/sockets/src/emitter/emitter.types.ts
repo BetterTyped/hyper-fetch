@@ -11,10 +11,9 @@ import {
   EventReturnType,
   ExtractAdapterEmitterOptionsType,
   ExtractEmitterResponseType,
-  ExtractEmitterMappedDataType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, any, any, any, any, any>;
+export type EmitterInstance = Emitter<any, any, any, any, any, any>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
@@ -113,7 +112,6 @@ export type ExtendEmitter<
   TypeWithDefaults<Properties, "response", ExtractEmitterResponseType<T>>,
   TypeWithDefaults<Properties, "topic", ExtractEmitterTopicType<T>>,
   TypeWithDefaults<Properties, "adapter", ExtractEmitterAdapterType<T>>,
-  TypeWithDefaults<Properties, "mappedData", ExtractEmitterMappedDataType<T>>,
-  TypeWithDefaults<Properties, "hasParams", ExtractEmitterHasParamsType<T>>,
-  TypeWithDefaults<Properties, "hasData", ExtractEmitterHasDataType<T>>
+  TypeWithDefaults<Properties, "hasData", ExtractEmitterHasDataType<T>>,
+  TypeWithDefaults<Properties, "hasParams", ExtractEmitterHasParamsType<T>>
 >;

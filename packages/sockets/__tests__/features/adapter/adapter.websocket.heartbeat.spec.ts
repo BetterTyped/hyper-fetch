@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { createWsServer } from "../../websocket/websocket.server";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   adapterOptions: {
@@ -12,12 +12,13 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   },
 };
 
+const { server, startServer } = createWebsocketMockingServer();
+
 describe("Socket Adapter [ Heartbeat ]", () => {
-  let server = createWsServer();
   let socket = createSocket(socketOptions);
 
   beforeEach(() => {
-    server = createWsServer();
+    startServer();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
   });

@@ -3,7 +3,7 @@ import { ServerSentEventsAdapterType, Socket } from "@hyper-fetch/sockets";
 
 import { createWebsocketMockingServer } from "../../src";
 
-const { url, startServer, stopServer, emitListenerEvent, onEmitterEvent } = createWebsocketMockingServer();
+const { url, startServer, stopServer, emitListenerEvent, expectEmitterEvent } = createWebsocketMockingServer();
 
 describe("Websocket Mocking [ Base ]", () => {
   let socket = new Socket<ServerSentEventsAdapterType>({ url });
@@ -18,7 +18,7 @@ describe("Websocket Mocking [ Base ]", () => {
     stopServer();
   });
 
-  it("should emit and receive error event", async () => {
+  it("should receive event", async () => {
     const spy = jest.fn();
     const data = { name: "Maciej" };
 
@@ -40,7 +40,7 @@ describe("Websocket Mocking [ Base ]", () => {
 
     unmount();
   });
-  it("should emit and receive error event", async () => {
+  it("should emit event", async () => {
     const data = { name: "Maciej" };
 
     const emitter = socket
@@ -51,6 +51,6 @@ describe("Websocket Mocking [ Base ]", () => {
 
     emitter.emit();
 
-    onEmitterEvent(emitter);
+    expectEmitterEvent(emitter);
   });
 });

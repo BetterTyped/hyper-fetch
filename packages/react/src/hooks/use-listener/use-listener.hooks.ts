@@ -33,14 +33,13 @@ export const useListener = <ListenerType extends ListenerInstance>(
 
   const listen = () => {
     stopListener();
-    removeListenerRef.current = listener.listen({
-      callback: ({ data, extra }) => {
-        onEventCallback.current?.({ data, extra });
-        actions.setData(data);
-        actions.setExtra(extra);
-        actions.setTimestamp(+new Date());
-      },
-    } as Parameters<typeof listener.listen>[0]);
+    removeListenerRef.current = listener.listen(({ data, extra }) => {
+      onEventCallback.current?.({ data, extra });
+      actions.setData(data);
+      actions.setExtra(extra);
+      actions.setTimestamp(+new Date());
+      // TODO: fix this
+    }, {} as any) as any;
   };
 
   const additionalCallbacks = {
