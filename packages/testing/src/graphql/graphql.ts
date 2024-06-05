@@ -1,9 +1,11 @@
+/* eslint-disable no-nested-ternary */
 import { setupServer } from "msw/node";
 import { ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
 
 import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "../http/http.constants";
 import { createMock } from "./graphql.mock";
 import { MockRequestOptions } from "../http";
+import { getMockSetup } from "http/http.mock";
 
 export const createGraphqlMockingServer = () => {
   const server = setupServer();
@@ -31,11 +33,13 @@ export const createGraphqlMockingServer = () => {
     request: T,
     options: MockRequestOptions<T, StatusType> = {},
   ): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T> => {
-    const response = options.error ?? options.data;
+    const { data } = getMockSetup(options, { gql: true });
 
     const mock = createMock(request, options);
     server.use(mock);
-    return (response || "") as StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T>;
+    return (data && "data" in data ? data?.data : data) as StatusType extends StatusErrorCodesType
+      ? ErrorMockType
+      : ExtractResponseType<T>;
   };
 
   return {

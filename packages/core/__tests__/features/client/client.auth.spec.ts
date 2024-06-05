@@ -102,8 +102,9 @@ describe("Client [ Auth ]", () => {
       const errorResponse = mockRequest(request, { status: 401 });
 
       handleErrorIntercept();
-      const { data, error } = await request.send();
+      const { data, error, status } = await request.send();
 
+      expect(status).toBe(401);
       expect(data).toBe(null);
       expect(error).toEqual(errorResponse);
       expect(interceptor).toHaveBeenCalledTimes(2);

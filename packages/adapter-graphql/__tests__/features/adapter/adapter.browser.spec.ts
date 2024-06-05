@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { Client, getErrorMessage } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 
@@ -37,45 +34,49 @@ describe("Graphql Adapter [ Browser ]", () => {
   });
 
   it("should make a request and return success data with status", async () => {
-    const data = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
+    const expected = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
 
-    const { data: response, error, status, extra } = await request.send();
+    const { data, error, status, extra } = await request.send();
 
-    expect(response).toStrictEqual({ data });
+    expect(data).toStrictEqual(expected);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should make a request with string endpoint", async () => {
-    const data = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
+    const expected = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
 
-    const {
-      data: response,
-      error,
-      status,
-      extra,
-    } = await client.createRequest()({ endpoint: getUserQueryString }).send();
+    const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send();
 
-    expect(response).toStrictEqual({ data });
+    expect(expected).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should make a request and return error data with status", async () => {
-    const data = mockRequest(request, { status: 400 });
+    const expected = mockRequest(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await request.send();
+    const { data, error, status, extra } = await request.send();
 
-    expect(response).toBe(null);
+    expect(data).toBe(null);
     expect(status).toBe(400);
-    expect(error).toStrictEqual({ errors: [data] });
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(error).toStrictEqual(expected);
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "32" },
+      extensions: {},
+    });
   });
 
   it("should allow to make mutation request", async () => {
-    const data = mockRequest(
+    const expected = mockRequest(
       mutation.setData({
         username: "Kacper",
         password: "Kacper1234",
@@ -83,22 +84,20 @@ describe("Graphql Adapter [ Browser ]", () => {
       { data: { username: "prc", firstName: "Maciej" } },
     );
 
-    const {
-      data: response,
-      error,
-      status,
-      extra,
-    } = await mutation
+    const { data, error, status, extra } = await mutation
       .setData({
         username: "Kacper",
         password: "Kacper1234",
       })
       .send();
 
-    expect(response).toStrictEqual({ data });
+    expect(expected).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -108,23 +107,26 @@ describe("Graphql Adapter [ Browser ]", () => {
       request.abort();
     }, 2);
 
-    const { data: response, error } = await request.send();
+    const { data, error } = await request.send();
 
-    expect(response).toBe(null);
+    expect(data).toBe(null);
     expect(error).toStrictEqual({ errors: [getErrorMessage("abort")] });
   });
 
   it("should not throw when XMLHttpRequest is not available on window", async () => {
-    const data = mockRequest(request, { delay: 20 });
+    const expected = mockRequest(request, { delay: 20 });
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
 
-    const { data: response, error, status, extra } = await request.send();
+    const { data, error, status, extra } = await request.send();
 
-    expect(response).toStrictEqual({ data });
+    expect(expected).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "x-powered-by": "msw" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "11" },
+      extensions: {},
+    });
     window.XMLHttpRequest = xml;
   });
 

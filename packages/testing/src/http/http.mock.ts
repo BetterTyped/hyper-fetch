@@ -4,21 +4,42 @@ import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
 import { HttpResponse, http, HttpResponseResolver, delay } from "msw";
 
 import { MockRequestOptions } from "./http";
+import { errorResponses } from "./http.constants";
 
 export const getEndpointMockingRegex = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
-export const createMock = <Status extends number>(
-  request: RequestInstance,
-  options: MockRequestOptions<RequestInstance, Status>,
+export const getMockSetup = <Request extends RequestInstance, Status extends number, Gql extends true | false>(
+  options: MockRequestOptions<Request, Status>,
+  config: { gql?: Gql } = {},
+) => {
+  const status = options.status || 200;
+  const delayTime = options.delay || 20;
+  const syntheticError = errorResponses?.[status as keyof typeof errorResponses];
+  const error = (config?.gql ? { errors: [syntheticError] } : syntheticError) as Gql extends true
+    ? { errors: [typeof syntheticError] }
+    : typeof syntheticError;
+  const syntheticData = (
+    config.gql ? { data: options.data || {} } || { data: {} } : options.data || {}
+  ) as Gql extends true ? { data: {} } : {};
+  const data =
+    status > 399 ? ((options.error || error) as Gql extends true ? { errors: Error[] } : Error) : syntheticData;
+
+  return {
+    status,
+    delayTime,
+    data,
+  };
+};
+
+export const createMock = <Request extends RequestInstance, Status extends number>(
+  request: Request,
+  options: MockRequestOptions<Request, Status>,
 ) => {
   const { method } = request;
-  const status = options.status || 200;
-  const delayTime = options.delay || 0;
+  const { status, delayTime, data } = getMockSetup(options);
   const url = getEndpointMockingRegex(request.endpoint);
-
-  const data = status > 399 ? options.error : options.data;
 
   const requestResolver: HttpResponseResolver = async () => {
     if (delayTime) {

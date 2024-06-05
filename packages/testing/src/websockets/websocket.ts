@@ -44,6 +44,8 @@ export const createWebsocketMockingServer = () => {
   const emitListenerEvent = <T extends ListenerInstance>(
     listener: ExtendListener<
       T,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       { hasParams: ExtractRouteParams<ExtractListenerTopicType<T>> extends NegativeTypes ? false : true }
     >,
     event: ExtractListenerResponseType<T> extends Record<string, any>
@@ -59,6 +61,8 @@ export const createWebsocketMockingServer = () => {
     emitter: ExtendEmitter<
       T,
       {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         hasParams: ExtractRouteParams<ExtractEmitterTopicType<T>> extends NegativeTypes ? false : true;
         hasData: Data extends void ? (ExtractEmitterHasDataType<T> extends false ? true : false) : false;
       }

@@ -3,8 +3,8 @@
 import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
 import { HttpResponse, delay, graphql, GraphQLResponseResolver } from "msw";
 
-import { getEndpointMockingRegex } from "../http/http.mock";
-import { MockRequestOptions } from "../http/http";
+import { getEndpointMockingRegex, getMockSetup } from "../http/http.mock";
+import { MockRequestOptions } from "../http";
 
 const getName = (endpoint: string) => {
   if (endpoint.includes("mutation")) {
@@ -13,17 +13,15 @@ const getName = (endpoint: string) => {
   return endpoint.split("query ")[1].split("(")[0].split(" {")[0];
 };
 
-export const createMock = <Status extends number>(
-  request: RequestInstance,
-  options: MockRequestOptions<RequestInstance, Status>,
+export const createMock = <Request extends RequestInstance, Status extends number>(
+  request: Request,
+  options: MockRequestOptions<Request, Status>,
 ) => {
   const { endpoint } = request;
-  const status = options.status || 200;
-  const delayTime = options.delay || 0;
   const url = getEndpointMockingRegex(endpoint);
   const name = getName(endpoint);
 
-  const data = options.error || options.data;
+  const { status, delayTime, data } = getMockSetup(options, { gql: true });
 
   const requestResolver: GraphQLResponseResolver = async () => {
     if (delayTime) {

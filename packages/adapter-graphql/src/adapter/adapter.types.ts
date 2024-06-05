@@ -6,7 +6,7 @@ export enum GraphqlMethod {
   GET = "GET",
 }
 
-export type GraphQlExtraType = { headers: HeadersInit };
+export type GraphQlExtraType = { headers: HeadersInit; extensions: Record<string, any> };
 
 export type GraphQlEndpointType = string | DocumentNode;
 

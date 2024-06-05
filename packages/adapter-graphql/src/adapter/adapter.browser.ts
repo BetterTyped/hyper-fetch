@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { getAdapterBindings, getResponseHeaders, parseResponse, parseErrorResponse } from "@hyper-fetch/core";
 
 import { gqlExtra, GraphQLAdapterType, defaultTimeout, getRequestValues } from "adapter";
@@ -24,7 +25,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
     internalErrorFormatter: (error) => ({
-      errors: [error],
+      errors: [error] satisfies readonly Partial<GraphQLError>[],
     }),
   });
 
@@ -75,16 +76,19 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
       if (event.target && event.target.readyState === finishedState) {
         const { status } = event.target;
-        const data = parseResponse(event.target.response);
+        const response = parseResponse(event.target.response);
+        console.log({ response });
+        const data = response?.data;
+        const extensions = response?.extensions || {};
         const success = (String(status).startsWith("2") || String(status).startsWith("3")) && !data?.errors;
         const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
         if (success) {
-          onSuccess(data, status, { headers: responseHeaders }, resolve);
+          onSuccess(data, status, { headers: responseHeaders, extensions }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
           const error = data || parseErrorResponse(event.target.response);
-          onError(error, status, { headers: responseHeaders }, resolve);
+          onError(error, status, { headers: responseHeaders, extensions }, resolve);
         }
       }
     };

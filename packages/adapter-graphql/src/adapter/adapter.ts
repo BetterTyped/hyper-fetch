@@ -7,6 +7,7 @@ import {
   ExtractClientAdapterType,
   ExtractClientMapperType,
 } from "@hyper-fetch/core";
+import { GraphQLError } from "graphql";
 import { print } from "graphql/language/printer";
 
 import { GraphQLAdapterType, GraphQlEndpointType, GraphqlMethod } from "adapter";
@@ -29,8 +30,8 @@ export const GraphqlAdapter = <C extends ClientInstance>(client: C) => {
   return (
     client as Client<
       ExtractClientGlobalError<C> extends Error
-        ? { errors: Error[] }
-        : ExtractClientGlobalError<C> | { errors: Error[] },
+        ? { errors: readonly Partial<GraphQLError>[] }
+        : ExtractClientGlobalError<C> | { errors: readonly Partial<GraphQLError>[] },
       ExtractClientAdapterType<C>,
       ExtractClientMapperType<C>
     >

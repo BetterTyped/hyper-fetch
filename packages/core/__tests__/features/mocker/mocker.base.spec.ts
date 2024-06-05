@@ -339,7 +339,7 @@ describe("Mocker [ Base ]", () => {
       extra: {
         headers: {
           "content-type": "application/json",
-          "x-powered-by": "msw",
+          "content-length": "19",
         },
       },
     });
@@ -393,7 +393,7 @@ describe("Mocker [ Base ]", () => {
       extra: {
         headers: {
           "content-type": "application/json",
-          "x-powered-by": "msw",
+          "content-length": "19",
         },
       },
     });

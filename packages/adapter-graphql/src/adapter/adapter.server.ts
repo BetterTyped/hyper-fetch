@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { getAdapterBindings, parseErrorResponse, parseResponse } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
@@ -25,7 +26,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
     internalErrorFormatter: (error) => ({
-      errors: [error],
+      errors: [error] satisfies readonly Partial<GraphQLError>[],
     }),
   });
 
@@ -73,15 +74,17 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
       response.on("end", () => {
         const { statusCode } = response;
-        const data = parseResponse(chunks);
+        const res = parseResponse(chunks);
+        const data = res?.data;
+        const extensions = res?.extensions || {};
         const success = (String(statusCode).startsWith("2") || String(statusCode).startsWith("3")) && !data?.errors;
 
         if (success) {
-          onSuccess(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+          onSuccess(data, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
           const error = data || parseErrorResponse(chunks);
-          onError(error, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+          onError(error, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
         }
 
         unmountListener();

@@ -6,7 +6,7 @@ import {
   ExtendListener,
   ExtractListenerTopicType,
 } from "@hyper-fetch/sockets";
-import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
+import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core/src";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {
@@ -52,6 +52,8 @@ export const createSseMockingServer = () => {
   const emitListenerEvent = <T extends ListenerInstance>(
     listener: ExtendListener<
       T,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       { hasParams: ExtractRouteParams<ExtractListenerTopicType<T>> extends NegativeTypes ? false : true }
     >,
     event: ExtractListenerResponseType<T> extends Record<string, any>

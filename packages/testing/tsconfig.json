@@ -1,8 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": "./src"
+    "rootDirs": [".", "../../core", "../../sockets", "../../adapter-graphql"],
+    "baseUrl": "./src",
+    "moduleResolution": "node",
+    "paths": {
+      "@hyper-fetch/core": ["../../core/src"],
+      "@hyper-fetch/sockets": ["../../sockets/src"],
+      "@hyper-fetch/graphql": ["../../adapter-graphql/src"]
+    }
   },
   "exclude": ["dist", "jest.config.ts"]
 }

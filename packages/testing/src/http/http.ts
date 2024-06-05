@@ -8,10 +8,12 @@ import {
 } from "@hyper-fetch/core";
 
 import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
-import { createMock } from "./http.mock";
+import { createMock, getMockSetup } from "./http.mock";
 
-export type MockRequestOptions<T extends RequestInstance, Status extends number> = Partial<
-  ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>
+export type MockRequestOptions<Request extends RequestInstance, Status extends number> = Partial<
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  Omit<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, "status">
 > & {
   status?: Status;
   delay?: number;
@@ -43,12 +45,11 @@ export const createHttpMockingServer = () => {
     request: T,
     options: MockRequestOptions<T, StatusType> = {},
   ): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T> => {
-    const status = options?.status || 200;
-    const response = status > 399 ? options.error : options.data;
+    const { data } = getMockSetup(options);
 
     const mock = createMock(request, options);
     server.use(mock);
-    return (response || "") as StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T>;
+    return (data || "") as StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T>;
   };
 
   return {
