@@ -73,7 +73,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(expected).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should make a request with string endpoint", async () => {
@@ -84,7 +87,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(expected).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should make a request and return error data with status", async () => {
@@ -95,7 +101,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(data).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(expected);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "32" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "32" },
+      extensions: {},
+    });
   });
 
   it("should allow to make mutation request", async () => {
@@ -122,7 +131,10 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(response).toStrictEqual(expected);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should allow to set options", async () => {

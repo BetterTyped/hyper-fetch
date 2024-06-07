@@ -13,7 +13,7 @@ import {
   ExtractEmitterResponseType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, any, any, any, any>;
+export type EmitterInstance = Emitter<any, any, any, SocketAdapterInstance, any, any>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
@@ -58,12 +58,7 @@ export type EmitParamsType<Params, HasData extends boolean> = HasData extends fa
 
 export type EmitRestType<Emitter extends EmitterInstance> = {
   options?: Partial<EmitterOptionsType<ExtractEmitterTopicType<Emitter>, ExtractEmitterAdapterType<Emitter>>>;
-  onEventStart?: EmitterCallbackStartType<Emitter>;
-  onEvent?: EmitterCallbackResponseType<Emitter>;
-  onEventError?: EmitterCallbackErrorType<Emitter>;
 };
-
-export type UnMountFunction = VoidFunction;
 
 export type EmitType<Emitter extends EmitterInstance> =
   ExtractEmitterHasDataType<Emitter> extends false
@@ -71,13 +66,13 @@ export type EmitType<Emitter extends EmitterInstance> =
         options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
           EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
           EmitRestType<Emitter>,
-      ) => UnMountFunction
+      ) => void
     : ExtractRouteParams<ExtractEmitterTopicType<Emitter>> extends NegativeTypes
       ? (
           options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
             EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
             EmitRestType<Emitter>,
-        ) => UnMountFunction
+        ) => void
       : ExtractEmitterHasParamsType<Emitter> extends false
         ? (
             options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
@@ -86,7 +81,7 @@ export type EmitType<Emitter extends EmitterInstance> =
                 ExtractEmitterHasParamsType<Emitter>
               > &
               EmitRestType<Emitter>,
-          ) => UnMountFunction
+          ) => void
         : (
             options?: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
               EmitParamsType<
@@ -94,7 +89,7 @@ export type EmitType<Emitter extends EmitterInstance> =
                 ExtractEmitterHasParamsType<Emitter>
               > &
               EmitRestType<Emitter>,
-          ) => UnMountFunction;
+          ) => void;
 
 export type ExtendEmitter<
   T extends EmitterInstance,

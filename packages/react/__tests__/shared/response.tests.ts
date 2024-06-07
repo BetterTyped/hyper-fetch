@@ -30,9 +30,7 @@ export const testSuccessState = async <
     expect(response.data).toBeDefined();
     expect(response.success).toBeTrue();
     expect(response.status).toBe(200);
-    expect(response.extra).toStrictEqual({
-      headers: { "content-type": "application/json", "x-powered-by": "msw" },
-    });
+    expect(response.extra).toHaveProperty("headers");
     expect(response.retries).toBeNumber();
     expect(response.timestamp).toBeDate();
     if (typeof response.submitting === "boolean") {

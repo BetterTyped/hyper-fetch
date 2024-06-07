@@ -2,14 +2,14 @@ import { Time, ExtractRouteParams, ParamsType, PayloadMapperType } from "@hyper-
 
 import { Socket } from "socket";
 import { emitEvent, EmitterEmitOptionsType, EmitterOptionsType, EmitType } from "emitter";
-import { SocketAdapterType } from "adapter";
+import { SocketAdapterInstance } from "adapter";
 import { ExtractAdapterEmitterOptionsType } from "types";
 
 export class Emitter<
   Payload,
   Response,
   Endpoint extends string,
-  AdapterType extends SocketAdapterType,
+  AdapterType extends SocketAdapterInstance,
   HasData extends boolean = false,
   HasParams extends boolean = false,
 > {
@@ -90,17 +90,15 @@ export class Emitter<
       this.emitterOptions,
       json,
     );
+
+    newInstance.dataMapper = this.dataMapper;
+
     return newInstance;
   }
 
   emit: EmitType<this> = (options = {}) => {
     const typedOptions = options as EmitterEmitOptionsType<this>;
-
     const instance = this.clone(typedOptions as any) as unknown as this;
-
-    // Data mapping before sending
-    instance.data = instance.dataMapper ? instance.dataMapper(instance.data) : instance.data;
-
-    return emitEvent(instance, typedOptions);
+    emitEvent(instance);
   };
 }

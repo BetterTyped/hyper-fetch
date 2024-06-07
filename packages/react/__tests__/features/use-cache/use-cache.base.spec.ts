@@ -18,7 +18,6 @@ describe("useCache [ Base ]", () => {
     extra: {
       headers: {
         "content-type": "application/json",
-        "x-powered-by": "msw",
       },
     },
     retries: 0,

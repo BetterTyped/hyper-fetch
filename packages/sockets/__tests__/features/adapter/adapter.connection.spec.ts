@@ -7,9 +7,8 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
-const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
-
 describe("Socket Adapter [ Connection ]", () => {
+  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
   let server = getServer();
 
@@ -24,7 +23,7 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should auto connect", async () => {
     const spy = jest.fn();
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -33,7 +32,7 @@ describe("Socket Adapter [ Connection ]", () => {
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
     socket = createSocket({ autoConnect: false });
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
@@ -43,9 +42,9 @@ describe("Socket Adapter [ Connection ]", () => {
     const spy = jest.fn();
     socket.appManager.setOnline(false);
     socket.adapter.disconnect();
-    socket.onClose(() => {
-      socket.adapter.open = false;
-      socket.events.onOpen(spy);
+    socket.onDisconnected(() => {
+      socket.adapter.state.connected = false;
+      socket.events.onConnected(spy);
       socket.appManager.setOnline(true);
     });
     await waitFor(() => {
@@ -63,7 +62,7 @@ describe("Socket Adapter [ Connection ]", () => {
     await server.connected;
 
     await waitFor(() => {
-      return !!socket.adapter.reconnectionAttempts;
+      return !!socket.adapter.state.reconnectionAttempts;
     });
 
     expect(spy).toHaveBeenCalledTimes(1);

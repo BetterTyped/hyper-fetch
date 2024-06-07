@@ -17,8 +17,8 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       onReconnect,
       onDisconnect,
       onListen,
-      onOpen,
-      onClose,
+      onConnected,
+      onDisconnected,
       onEvent,
       onError,
     } = getSocketAdapterBindings(socket, { open: true });
@@ -28,14 +28,14 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
 
       if (enabled) {
         goOnline(database);
-        onOpen();
+        onConnected();
       }
     };
 
     const disconnect = () => {
       goOffline(database);
       onDisconnect();
-      onClose();
+      onDisconnected();
     };
 
     const reconnect = () => {

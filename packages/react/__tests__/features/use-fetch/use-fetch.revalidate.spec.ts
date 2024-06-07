@@ -38,7 +38,7 @@ describe("useFetch [ refetch ]", () => {
       error: null,
       status: 200,
       success: true,
-      extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+      extra: { headers: { "content-type": "application/json" } },
       retries: 0,
       timestamp: +new Date(),
       isCanceled: false,

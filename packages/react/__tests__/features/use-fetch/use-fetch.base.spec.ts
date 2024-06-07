@@ -68,7 +68,7 @@ describe("useFetch [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json" } },
       };
       const view = renderUseFetch(request, { disabled: true, initialData });
 
@@ -83,7 +83,7 @@ describe("useFetch [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json" } },
       };
       const view = renderUseFetch(request, { initialData });
       expect(view.result.current.data).toEqual(initialData.data);

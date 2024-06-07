@@ -50,7 +50,7 @@ describe("RequestManager [ Events ]", () => {
         expect(spy1).toHaveBeenCalledTimes(1);
         expect(spy2).toHaveBeenCalledTimes(1);
         expect(spy3).toHaveBeenCalledTimes(2);
-        expect(spy4).toHaveBeenCalledTimes(2);
+        expect(spy4).toHaveBeenCalledTimes(3);
         expect(spy5).toHaveBeenCalledTimes(1);
         expect(spy6).toHaveBeenCalledTimes(1);
       });

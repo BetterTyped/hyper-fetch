@@ -1,16 +1,24 @@
 import { act } from "@testing-library/react";
+import { Socket } from "@hyper-fetch/sockets";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
-import { socket } from "../../../utils/socket.utils";
 import { renderUseSocketState } from "../../../utils/use-socket-state.utils";
 
 describe("useSocketState [ Base ]", () => {
   const spy = jest.fn();
+  const { url, startServer, stopServer } = createWebsocketMockingServer();
+  const socket = new Socket({ url });
   let view = renderUseSocketState(socket);
 
   beforeEach(async () => {
     view = renderUseSocketState(socket);
     jest.resetModules();
     jest.resetAllMocks();
+    startServer();
+  });
+
+  afterEach(() => {
+    stopServer();
   });
 
   describe("when using actions", () => {
@@ -48,21 +56,21 @@ describe("useSocketState [ Base ]", () => {
     });
   });
   describe("when using callbacks", () => {
-    it("should call onOpen callback", async () => {
+    it("should call onConnected callback", async () => {
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitOpen();
-        callbacks.onOpen(spy);
-        socket.events.emitOpen();
+        socket.events.emitConnected();
+        callbacks.onConnected(spy);
+        socket.events.emitConnected();
       });
       expect(spy).toBeCalledTimes(1);
     });
-    it("should call onClose callback", async () => {
+    it("should call onDisconnected callback", async () => {
       const [, , callbacks] = view.result.current;
       act(() => {
-        socket.events.emitClose();
-        callbacks.onClose(spy);
-        socket.events.emitClose();
+        socket.events.emitDisconnected();
+        callbacks.onDisconnected(spy);
+        socket.events.emitDisconnected();
       });
       expect(spy).toBeCalledTimes(1);
     });

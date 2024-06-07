@@ -90,7 +90,7 @@ describe("Dispatcher [ Events ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
@@ -117,7 +117,7 @@ describe("Dispatcher [ Events ]", () => {
         error: mock,
         status: 400,
         success: false,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "19" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
@@ -151,7 +151,7 @@ describe("Dispatcher [ Events ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,

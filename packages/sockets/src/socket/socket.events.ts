@@ -28,10 +28,10 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
     emitError: <ResponseType>(event: ResponseType): void => {
       eventEmitter.emit(getErrorKey(), event);
     },
-    emitOpen: (): void => {
+    emitConnected: (): void => {
       eventEmitter.emit(getOpenKey());
     },
-    emitClose: (): void => {
+    emitDisconnected: (): void => {
       eventEmitter.emit(getCloseKey());
     },
     emitConnecting: (): void => {
@@ -70,11 +70,11 @@ export const getSocketEvents = <Adapter extends SocketAdapterInstance>(eventEmit
       eventEmitter.on(getErrorKey(), callback);
       return () => eventEmitter.removeListener(getErrorKey(), callback);
     },
-    onOpen: (callback: () => void): VoidFunction => {
+    onConnected: (callback: () => void): VoidFunction => {
       eventEmitter.on(getOpenKey(), callback);
       return () => eventEmitter.removeListener(getOpenKey(), callback);
     },
-    onClose: (callback: () => void): VoidFunction => {
+    onDisconnected: (callback: () => void): VoidFunction => {
       eventEmitter.on(getCloseKey(), callback);
       return () => eventEmitter.removeListener(getCloseKey(), callback);
     },

@@ -20,8 +20,12 @@ export type SocketAdapterType<
     emitterOptions?: EmitterOptions;
   },
 ) => {
-  open: boolean;
-  reconnectionAttempts: number;
+  state: {
+    connected: boolean;
+    connecting: boolean;
+    reconnectionAttempts: number;
+    forceClosed: boolean;
+  };
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
     listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
@@ -30,9 +34,8 @@ export type SocketAdapterType<
       any
     >,
   ) => RemoveListenerCallbackType;
-  removeListener: (endpoint: string, callback: (...args: any) => void) => void;
-  emit: (emitter: EmitterInstance) => void;
-  connecting: boolean;
+  removeListener: (topic: string, callback: (...args: any) => void) => void;
+  emit: (emitter: EmitterInstance, data: any) => void;
   connect: () => void;
   reconnect: () => void;
   disconnect: () => void;
@@ -57,6 +60,7 @@ export type ExtractUnionSocket<
 
 export type SSEAdapterOptionsType = {
   eventSourceInit?: EventSourceInit;
+  autoConnect?: boolean;
 };
 
 export type WSAdapterOptionsType = {
@@ -65,6 +69,7 @@ export type WSAdapterOptionsType = {
   pongTimeout?: number;
   heartbeatMessage?: string;
   heartbeat?: boolean;
+  autoConnect?: boolean;
 };
 
 export type WebsocketEvent<T = any> = {

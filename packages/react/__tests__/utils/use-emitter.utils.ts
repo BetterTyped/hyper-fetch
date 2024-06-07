@@ -6,6 +6,6 @@ import { useEmitter, UseEmitterOptionsType } from "hooks/use-emitter";
 export const renderUseEmitter = <T extends EmitterInstance>(Emitter: T, options?: UseEmitterOptionsType) => {
   return renderHook((rerenderOptions: UseEmitterOptionsType & { Emitter?: EmitterInstance }) => {
     const { Emitter: lst, ...rest } = rerenderOptions || {};
-    return useEmitter(lst || Emitter, { dependencyTracking: false, ...options, ...rest });
+    return useEmitter((lst || Emitter) as T, { dependencyTracking: false, ...options, ...rest });
   });
 };

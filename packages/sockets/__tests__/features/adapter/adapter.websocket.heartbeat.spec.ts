@@ -12,9 +12,8 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   },
 };
 
-const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
-
 describe("Socket Adapter [ Heartbeat ]", () => {
+  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
   let server = getServer();
 
@@ -62,7 +61,7 @@ describe("Socket Adapter [ Heartbeat ]", () => {
       }),
     );
     await waitFor(() => {
-      expect(socket.adapter.open).toBeFalse();
+      expect(socket.adapter.state.connected).toBeFalse();
     });
   });
 });

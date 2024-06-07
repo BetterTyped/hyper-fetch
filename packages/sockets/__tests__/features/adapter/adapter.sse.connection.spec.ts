@@ -24,7 +24,7 @@ describe("Socket SSE [ Connection ]", () => {
 
   it("should auto connect", async () => {
     const spy = jest.fn();
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
 
     emitOpen();
     await waitFor(() => {
@@ -35,7 +35,7 @@ describe("Socket SSE [ Connection ]", () => {
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
     socket = createSocket({ autoConnect: false });
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
     emitOpen();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(0);

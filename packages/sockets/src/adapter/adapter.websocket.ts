@@ -20,18 +20,16 @@ import {
 
 export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   const {
-    open,
+    state,
     listeners,
-    connecting,
-    reconnectionAttempts,
     removeListener,
     onConnect,
     onReconnect,
     onDisconnect,
     onListen,
     onEmit,
-    onOpen,
-    onClose,
+    onConnected,
+    onDisconnected,
     onError,
     onEvent,
   } = getSocketAdapterBindings(socket);
@@ -39,6 +37,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;
   let adapter = getWebsocketAdapter(socket);
+  const autoConnect = socket.options?.adapterOptions?.autoConnect ?? true;
 
   const connect = () => {
     const enabled = onConnect();
@@ -62,12 +61,12 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
 
     adapter.onopen = () => {
       clearTimeout(timeout);
-      onOpen();
+      onConnected();
       onHeartbeat();
     };
 
     adapter.onclose = () => {
-      onClose();
+      onDisconnected();
       clearTimers();
     };
 
@@ -116,7 +115,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
       heartbeatMessage = "heartbeat",
     } = socket.options.adapterOptions || {};
 
-    if (connecting || !heartbeat) return;
+    if (state.connecting || !heartbeat) return;
     clearTimers();
     pingTimer = setTimeout(() => {
       sendEventMessage({ data: heartbeatMessage, topic: "heartbeat" });
@@ -130,30 +129,28 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     return onListen(listener, callback);
   };
 
-  const emit = async (emitter: EmitterInstance) => {
+  const emit = async (emitter: EmitterInstance, data: any) => {
     const instance = await onEmit(emitter);
 
     if (!instance) return;
 
-    sendEventMessage({ data: instance.data, topic: instance.topic });
+    sendEventMessage({ data, topic: instance.topic });
   };
 
   // Initialize
 
-  if (socket.autoConnect) {
+  if (autoConnect) {
     connect();
   }
   socket.appManager.events.onOnline(() => {
-    if (socket.autoConnect && !open) {
+    if (autoConnect && !state.connected) {
       connect();
     }
   });
 
   return {
-    open,
+    state,
     listeners,
-    reconnectionAttempts,
-    connecting,
     listen,
     removeListener,
     emit,

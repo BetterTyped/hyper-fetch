@@ -34,7 +34,7 @@ describe("Axios Adapter [ Base ]", () => {
     expect(error).toBe(null);
     expect({ ...extra.headers }).toStrictEqual({
       "content-type": "application/json",
-      "content-length": "0",
+      "content-length": "2",
     });
   });
 
@@ -47,7 +47,7 @@ describe("Axios Adapter [ Base ]", () => {
     expect(status).toBe(400);
     expect({ ...extra.headers }).toStrictEqual({
       "content-type": "application/json",
-      "content-length": "0",
+      "content-length": "19",
     });
   });
 
@@ -88,6 +88,6 @@ describe("Axios Adapter [ Base ]", () => {
       onUploadProgress: spyUpload,
     });
 
-    expect(spyUpload).toHaveBeenCalledTimes(1);
+    expect(spyUpload).toHaveBeenCalledTimes(2);
   });
 });

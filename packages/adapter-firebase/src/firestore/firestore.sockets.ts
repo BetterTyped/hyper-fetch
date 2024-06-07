@@ -17,8 +17,8 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       onReconnect,
       onDisconnect,
       onListen,
-      onOpen,
-      onClose,
+      onConnected,
+      onDisconnected,
       onEvent,
       onError,
     } = getSocketAdapterBindings(socket, { open: true });
@@ -28,14 +28,14 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
 
       if (enabled) {
         enableNetwork(database);
-        onOpen();
+        onConnected();
       }
     };
 
     const disconnect = () => {
       disableNetwork(database);
       onDisconnect();
-      onClose();
+      onDisconnected();
     };
 
     const reconnect = () => {

@@ -7,7 +7,7 @@ import { EventReturnType, ExtractAdapterExtraType } from "types";
 export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   socket: SocketInstance,
   options?: {
-    open?: boolean;
+    connected?: boolean;
     connecting?: boolean;
     forceClosed?: boolean;
     reconnectionAttempts?: number;
@@ -16,55 +16,57 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   const logger = socket.loggerManager.init("Socket Adapter");
   const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
-  let open = options?.open ?? false;
-  let connecting = options?.connecting ?? false;
-  let forceClosed = options?.forceClosed ?? false;
-  let reconnectionAttempts = options?.reconnectionAttempts ?? 0;
+  const state = {
+    connected: options?.connected ?? false,
+    connecting: options?.connecting ?? false,
+    forceClosed: options?.forceClosed ?? false,
+    reconnectionAttempts: options?.reconnectionAttempts ?? 0,
+  };
 
   // Methods
 
   const onConnect = (): boolean => {
-    if (!socket.appManager.isOnline || connecting) {
+    if (!socket.appManager.isOnline || state.connecting) {
       logger.warning("Cannot initialize adapter.", {
-        connecting,
+        connecting: state.connecting,
         online: socket.appManager.isOnline,
       });
       return false;
     }
 
-    forceClosed = false;
-    connecting = true;
-    reconnectionAttempts = 0;
+    state.forceClosed = false;
+    state.connecting = true;
+    state.reconnectionAttempts = 0;
     socket.events.emitConnecting();
     return true;
   };
 
   const onDisconnect = (): boolean => {
-    logger.debug("Disconnecting", { reconnectionAttempts });
-    open = false;
-    connecting = false;
-    forceClosed = true;
-    reconnectionAttempts = 0;
+    logger.debug("Disconnecting", { reconnectionAttempts: state.reconnectionAttempts });
+    state.connected = false;
+    state.connecting = false;
+    state.forceClosed = true;
+    state.reconnectionAttempts = 0;
     return true;
   };
 
   const onReconnect = (disconnect: () => void, connect: () => void): boolean => {
     disconnect();
-    if (reconnectionAttempts < socket.reconnectAttempts) {
-      reconnectionAttempts += 1;
-      logger.debug("Reconnecting", { reconnectionAttempts });
+    if (state.reconnectionAttempts < socket.reconnectAttempts) {
+      state.reconnectionAttempts += 1;
+      logger.debug("Reconnecting", { reconnectionAttempts: state.reconnectionAttempts });
       connect();
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
       });
-      socket.events.emitReconnecting(reconnectionAttempts);
+      socket.events.emitReconnecting(state.reconnectionAttempts);
       return true;
     }
-    logger.debug("Stopped reconnecting", { reconnectionAttempts });
+    logger.debug("Stopped reconnecting", { reconnectionAttempts: state.reconnectionAttempts });
     socket.__onReconnectStopCallbacks.forEach((callback) => {
       callback(socket);
     });
-    socket.events.emitReconnectingStop(reconnectionAttempts);
+    socket.events.emitReconnectingStop(state.reconnectionAttempts);
     return false;
   };
 
@@ -97,7 +99,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   // Emitters
 
   const onEmit = async (emitter: EmitterInstance): Promise<EmitterInstance | null> => {
-    if (connecting || !open) {
+    if (state.connecting || !state.connected) {
       logger.error("Cannot emit event when connection is not open");
       return null;
     }
@@ -118,24 +120,24 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   // Lifecycle
 
-  const onOpen = () => {
+  const onConnected = () => {
     logger.info("Connection open");
-    socket.__onOpenCallbacks.forEach((callback) => {
+    socket.__onConnectedCallbacks.forEach((callback) => {
       callback(socket);
     });
-    open = true;
-    connecting = false;
-    socket.events.emitOpen();
+    state.connected = true;
+    state.connecting = false;
+    socket.events.emitConnected();
   };
 
-  const onClose = () => {
+  const onDisconnected = () => {
     logger.info("Connection closed");
-    socket.__onCloseCallbacks.forEach((callback) => {
+    socket.__onDisconnectCallbacks.forEach((callback) => {
       callback(socket);
     });
-    open = false;
-    connecting = false;
-    socket.events.emitClose();
+    state.connected = false;
+    state.connecting = false;
+    socket.events.emitDisconnected();
   };
 
   const onError = (event: Error) => {
@@ -155,10 +157,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   return {
-    open,
-    connecting,
-    reconnectionAttempts,
-    forceClosed,
+    state,
+    listeners,
     onConnect,
     onReconnect,
     onDisconnect,
@@ -166,11 +166,10 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     onEmit,
     onEmitResponse,
     onEmitError,
-    onOpen,
-    onClose,
+    onConnected,
+    onDisconnected,
     onError,
     onEvent,
-    listeners,
     removeListener,
   };
 };

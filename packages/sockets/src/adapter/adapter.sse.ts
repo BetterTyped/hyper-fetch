@@ -16,24 +16,23 @@ import {
 
 export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => {
   const {
-    open,
-    reconnectionAttempts,
+    state,
     listeners,
-    connecting,
     removeListener,
     onConnect,
     onReconnect,
     onDisconnect,
     onListen,
-    onOpen,
+    onConnected,
     onError,
     onEvent,
-    onClose,
+    onDisconnected,
   } = getSocketAdapterBindings(socket);
 
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;
   let adapter = getSSEAdapter(socket);
+  const autoConnect = socket.options?.adapterOptions?.autoConnect ?? true;
 
   const connect = () => {
     const enabled = onConnect();
@@ -57,7 +56,7 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
 
     adapter.onopen = () => {
       clearTimeout(timeout);
-      onOpen();
+      onConnected();
     };
 
     adapter.onerror = (event) => {
@@ -80,7 +79,7 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
   const disconnect = () => {
     onDisconnect();
     adapter.close();
-    onClose();
+    onDisconnected();
     clearTimers();
   };
 
@@ -103,21 +102,19 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
 
   // Initialize
 
-  if (socket.autoConnect) {
+  if (autoConnect) {
     connect();
   }
 
   socket.appManager.events.onOnline(() => {
-    if (socket.autoConnect && !open) {
+    if (autoConnect && !state.connected) {
       connect();
     }
   });
 
   return {
-    open,
-    reconnectionAttempts,
+    state,
     listeners,
-    connecting,
     listen,
     removeListener,
     emit,

@@ -24,9 +24,9 @@ describe("Socket Adapter [ SSE ]", () => {
 
   it("should emit event on disconnect", async () => {
     const spy = jest.fn();
-    socket.onClose(spy);
+    socket.onDisconnected(spy);
     await waitFor(() => {
-      return socket.adapter.open;
+      return socket.adapter.state.connected;
     });
     socket.adapter.disconnect();
     await waitFor(() => {
@@ -35,13 +35,13 @@ describe("Socket Adapter [ SSE ]", () => {
   });
 
   it("should throw error when emitting", async () => {
-    expect(() => socket.adapter.emit({} as any)).rejects.toThrow();
+    expect(() => socket.adapter.emit({} as any, {})).rejects.toThrow();
   });
 
   it("should reconnect when going online", async () => {
     const spy = jest.fn();
 
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
 
     emitOpen();
 
@@ -51,8 +51,8 @@ describe("Socket Adapter [ SSE ]", () => {
 
     socket.appManager.setOnline(false);
     socket.adapter.disconnect();
-    socket.onClose(() => {
-      socket.adapter.open = false;
+    socket.onDisconnected(() => {
+      socket.adapter.state.connected = false;
       socket.appManager.setOnline(true);
     });
     emitOpen();
@@ -65,7 +65,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should not reconnect when connection is open", async () => {
     const spy = jest.fn();
 
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
 
     emitOpen();
 
@@ -84,7 +84,7 @@ describe("Socket Adapter [ SSE ]", () => {
   it("should not connect when connection is open", async () => {
     const spy = jest.fn();
 
-    socket.events.onOpen(spy);
+    socket.events.onConnected(spy);
     socket.adapter.connect();
     emitOpen();
 

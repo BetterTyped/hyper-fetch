@@ -4,26 +4,25 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
-
 describe("Socket Client  [ Callbacks ]", () => {
+  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
   beforeEach(async () => {
     startServer();
     jest.resetAllMocks();
   });
 
-  it("should trigger onOpen callbacks", async () => {
+  it("should trigger onConnected callbacks", async () => {
     const spy = jest.fn();
-    createSocket().onOpen(spy);
+    createSocket().onConnected(spy);
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 
-  it("should trigger onClose callbacks", async () => {
+  it("should trigger onDisconnected callbacks", async () => {
     const spy = jest.fn();
-    const socket = createSocket().onClose(spy);
+    const socket = createSocket().onDisconnected(spy);
     socket.adapter.disconnect();
 
     await waitFor(() => {

@@ -10,14 +10,16 @@ describe("Socket Adapter [ Bindings ]", () => {
   });
 
   it("should allow to pass defaults", async () => {
-    const { open, connecting, reconnectionAttempts, forceClosed } = getSocketAdapterBindings(socket, {
-      open: true,
+    const {
+      state: { connected, connecting, reconnectionAttempts, forceClosed },
+    } = getSocketAdapterBindings(socket, {
+      connected: true,
       connecting: true,
       reconnectionAttempts: 10,
       forceClosed: true,
     });
 
-    expect(open).toBeTrue();
+    expect(connected).toBeTrue();
     expect(connecting).toBeTrue();
     expect(reconnectionAttempts).toBe(10);
     expect(forceClosed).toBeTrue();

@@ -3,9 +3,8 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 
-const { startServer, waitForConnection } = createWebsocketMockingServer();
-
 describe("Listener [ Base ]", () => {
+  const { startServer, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket();
   let listener = createListener(socket);
 

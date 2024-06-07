@@ -7,9 +7,8 @@ import { sleep } from "../../utils/helpers.utils";
 
 type DataType = { topic: string; age: number };
 
-const { startServer, emitListenerEvent, waitForConnection } = createWebsocketMockingServer();
-
 describe("Listener [ Listen ]", () => {
+  const { startServer, emitListenerEvent, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket();
   let listener = createListener<DataType>(socket);
 

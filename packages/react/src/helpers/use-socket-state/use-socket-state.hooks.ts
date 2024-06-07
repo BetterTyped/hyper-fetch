@@ -10,9 +10,9 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 ) => {
   const forceUpdate = useForceUpdate();
 
-  const onOpenCallback = useRef<null | VoidFunction>(null);
-  const onCloseCallback = useRef<null | VoidFunction>(null);
+  const onDisconnectCallback = useRef<null | VoidFunction>(null);
   const onErrorCallback = useRef<null | ((event: any) => void)>(null);
+  const onConnectedCallback = useRef<null | VoidFunction>(null);
   const onConnectingCallback = useRef<null | VoidFunction>(null);
   const onReconnectingCallback = useRef<null | ((attempts: number) => void)>(null);
   const onReconnectingStopCallback = useRef<null | ((attempts: number) => void)>(null);
@@ -41,6 +41,9 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
 
   useDidUpdate(
     () => {
+      state.current.connected = socket.adapter.state.connected;
+      state.current.connecting = socket.adapter.state.connecting;
+
       const handleDependencyTracking = () => {
         if (!dependencyTracking) {
           Object.keys(state.current).forEach((key) => setRenderKey(key as Parameters<typeof setRenderKey>[0]));
@@ -81,11 +84,11 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
   };
 
   const callbacks = {
-    onOpen: (callback: VoidFunction) => {
-      onOpenCallback.current = callback;
+    onConnected: (callback: VoidFunction) => {
+      onConnectedCallback.current = callback;
     },
-    onClose: (callback: VoidFunction) => {
-      onCloseCallback.current = callback;
+    onDisconnected: (callback: VoidFunction) => {
+      onDisconnectCallback.current = callback;
     },
     onError: <ErrorType = Event>(callback: (event: ErrorType) => void) => {
       onErrorCallback.current = callback;
@@ -113,13 +116,13 @@ export const useSocketState = <DataType, Socket extends SocketInstance>(
       actions.setConnecting(true);
       onConnectingCallback.current?.();
     });
-    const umountOnOpen = socket.events.onOpen(() => {
+    const umountOnOpen = socket.events.onConnected(() => {
       actions.setConnected(true);
-      onOpenCallback.current?.();
+      onConnectedCallback.current?.();
     });
-    const umountOnClose = socket.events.onClose(() => {
+    const umountOnClose = socket.events.onDisconnected(() => {
       actions.setConnected(false);
-      onCloseCallback.current?.();
+      onDisconnectCallback.current?.();
     });
     const umountOnReconnecting = socket.events.onReconnecting((attempts) => {
       onReconnectingCallback.current?.(attempts);

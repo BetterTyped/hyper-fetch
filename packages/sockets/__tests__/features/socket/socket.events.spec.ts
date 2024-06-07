@@ -25,15 +25,15 @@ describe("Socket [ Events ]", () => {
   });
 
   it("should emit and receive open event", async () => {
-    socket.events.onOpen(spy);
-    socket.events.emitOpen();
+    socket.events.onConnected(spy);
+    socket.events.emitConnected();
 
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it("should emit and receive close event", async () => {
-    socket.events.onClose(spy);
-    socket.events.emitClose();
+    socket.events.onDisconnected(spy);
+    socket.events.emitDisconnected();
 
     expect(spy).toHaveBeenCalledTimes(1);
   });
@@ -87,7 +87,7 @@ describe("Socket [ Events ]", () => {
     const data = { data: 1, extra: {} };
     socket.events.onEmitterEvent(spy);
     socket.events.onEmitterEventByTopic(emitter, spy);
-    socket.events.emitEmitterEvent(data, emitter);
+    socket.events.emitEmitterEvent(emitter, data);
 
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(emitter, data);

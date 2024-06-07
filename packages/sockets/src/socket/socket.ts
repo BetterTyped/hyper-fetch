@@ -38,11 +38,10 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   auth?: QueryParamsType | string;
   queryParams?: QueryParamsType | string;
   debug: boolean;
-  autoConnect: boolean;
 
   // Callbacks
-  __onOpenCallbacks: OpenCallbackType<Socket<Adapter>>[] = [];
-  __onCloseCallbacks: CloseCallbackType<Socket<Adapter>>[] = [];
+  __onConnectedCallbacks: OpenCallbackType<Socket<Adapter>>[] = [];
+  __onDisconnectCallbacks: CloseCallbackType<Socket<Adapter>>[] = [];
   __onReconnectCallbacks: ReconnectCallbackType<Socket<Adapter>>[] = [];
   __onReconnectStopCallbacks: ReconnectStopCallbackType<Socket<Adapter>>[] = [];
   __onMessageCallbacks: MessageCallbackType<Socket<Adapter>, any>[] = [];
@@ -66,23 +65,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   constructor(public options: SocketOptionsType<Adapter>) {
-    const {
-      url,
-      auth,
-      adapter,
-      queryParams,
-      autoConnect,
-      reconnect,
-      reconnectTime,
-      queryParamsConfig,
-      queryParamsStringify,
-    } = this.options;
+    const { url, auth, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
+      this.options;
     this.emitter?.setMaxListeners(Infinity);
     this.url = url;
     this.auth = auth;
     this.queryParams = queryParams;
     this.debug = false;
-    this.autoConnect = autoConnect ?? true;
     this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 2;
 
@@ -104,6 +93,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    */
   connect = () => {
     this.adapter.connect();
+    return this.waitForConnection();
   };
 
   /**
@@ -118,6 +108,26 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    */
   reconnect = () => {
     this.adapter.reconnect();
+  };
+
+  waitForConnection = (timeout = Time.SEC * 4): Promise<boolean> => {
+    return new Promise<boolean>((resolve, reject) => {
+      let id: NodeJS.Timeout;
+      const unmount = this.events.onConnected(() => {
+        unmount();
+        resolve(true);
+        clearTimeout(id);
+      });
+
+      id = setTimeout(() => {
+        reject(new Error("Connection timeout"));
+      }, timeout);
+
+      if (this.adapter.state.connected) {
+        clearTimeout(id);
+        resolve(true);
+      }
+    });
   };
 
   /**
@@ -171,8 +181,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onOpen(callback: OpenCallbackType<Socket<Adapter>>) {
-    this.__onOpenCallbacks.push(callback);
+  onConnected(callback: OpenCallbackType<Socket<Adapter>>) {
+    this.__onConnectedCallbacks.push(callback);
     return this;
   }
   /**
@@ -180,8 +190,8 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param callback
    * @returns
    */
-  onClose(callback: CloseCallbackType<Socket<Adapter>>) {
-    this.__onCloseCallbacks.push(callback);
+  onDisconnected(callback: CloseCallbackType<Socket<Adapter>>) {
+    this.__onDisconnectCallbacks.push(callback);
     return this;
   }
 

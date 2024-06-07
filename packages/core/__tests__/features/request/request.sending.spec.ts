@@ -39,7 +39,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return mapped adapter response", async () => {
@@ -52,7 +52,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
   });
@@ -65,7 +65,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return mapped adapter response", async () => {
@@ -76,7 +76,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should return async mapped adapter response", async () => {
@@ -89,7 +89,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
     });
     it("should wait to resolve request in online mode", async () => {
@@ -112,7 +112,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -134,7 +134,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "25" } },
       });
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -192,7 +192,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     /**
@@ -228,7 +228,7 @@ describe("Request [ Sending ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
 

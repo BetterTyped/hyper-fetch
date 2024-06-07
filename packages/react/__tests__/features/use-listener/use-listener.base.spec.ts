@@ -1,25 +1,30 @@
 import { act, waitFor } from "@testing-library/react";
+import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { renderUseListener } from "../../utils/use-listener.utils";
-import { createWsServer, sendWsEvent } from "../../websocket/websocket.server";
 
 describe("useListener [ Base ]", () => {
+  const { startServer, stopServer, emitListenerEvent } = createWebsocketMockingServer();
   const spy = jest.fn();
   let listener = createListener();
 
   beforeEach(async () => {
-    createWsServer();
+    startServer();
     listener = createListener();
     jest.resetModules();
     jest.resetAllMocks();
+  });
+
+  afterEach(() => {
+    stopServer();
   });
 
   describe("when hook receive event", () => {
     it("should set state with data", async () => {
       const message = { name: "Maciej", age: 99 };
       const view = renderUseListener(listener);
-      sendWsEvent(listener, message);
+      emitListenerEvent(listener, message);
       await waitFor(() => {
         expect(view.result.current.data).toBeTruthy();
         expect(view.result.current.connected).toBeTrue();
@@ -39,7 +44,7 @@ describe("useListener [ Base ]", () => {
           spy();
         });
       });
-      sendWsEvent(listener, message);
+      emitListenerEvent(listener, message);
       await waitFor(() => {
         expect(spy).toBeCalledTimes(1);
         expect(receivedData).toEqual(message);

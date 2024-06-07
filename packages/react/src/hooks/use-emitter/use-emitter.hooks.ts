@@ -74,10 +74,6 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
       setRenderKey("connecting");
       return state.connecting;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
-    },
     ...actions,
     ...callbacks,
     onEmitEventStart: (callback: (emitter: EmitterType) => void) => {

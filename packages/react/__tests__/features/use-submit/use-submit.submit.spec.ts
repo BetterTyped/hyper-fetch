@@ -42,7 +42,7 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     it("should call onSettle", async () => {
@@ -74,7 +74,7 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     it("should return data from submit method on offline", async () => {
@@ -99,7 +99,7 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     it("should allow to change submit details", async () => {
@@ -163,7 +163,7 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
     it("should throw error when hook is disabled", async () => {
@@ -202,7 +202,7 @@ describe("useSubmit [ Base ]", () => {
         error: null,
         status: 200,
         success: true,
-        extra: { headers: { "content-type": "application/json", "x-powered-by": "msw" } },
+        extra: { headers: { "content-type": "application/json", "content-length": "2" } },
       });
     });
   });

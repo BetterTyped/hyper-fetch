@@ -17,8 +17,8 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       onReconnect,
       onDisconnect,
       onListen,
-      onOpen,
-      onClose,
+      onConnected,
+      onDisconnected,
       onEvent,
       onError,
     } = getSocketAdapterBindings(socket, { open: true });
@@ -28,14 +28,14 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
 
       if (enabled) {
         database.goOnline();
-        onOpen();
+        onConnected();
       }
     };
 
     const disconnect = () => {
       database.goOffline();
       onDisconnect();
-      onClose();
+      onDisconnected();
     };
 
     const reconnect = () => {

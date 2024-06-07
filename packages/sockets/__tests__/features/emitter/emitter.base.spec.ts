@@ -1,15 +1,15 @@
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { waitFor } from "@testing-library/react";
 
 import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
-
-const { startServer, waitForConnection } = createWebsocketMockingServer();
 
 type DataType = {
   test: string;
 };
 
 describe("Emitter [ Base ]", () => {
+  const { startServer, waitForConnection, expectEmitterEvent } = createWebsocketMockingServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
@@ -47,9 +47,18 @@ describe("Emitter [ Base ]", () => {
 
   it("should allow to set data mapper", async () => {
     const data = { test: "test-data" };
-    const dataMapper = (d: DataType) => Object.keys(d);
+    const spy = jest.fn();
+    const dataMapper = (d: DataType) => {
+      spy();
+      return Object.keys(d);
+    };
     const newEmitter = emitter.setDataMapper(dataMapper).setTimeout(20000).setData(data);
-    expect(newEmitter.data).toStrictEqual(Object.keys(data));
+    expect(newEmitter.data).toStrictEqual(data);
+    newEmitter.emit();
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalled();
+    });
+    await expectEmitterEvent(emitter, Object.keys(data));
   });
 
   it("should allow inherit params", async () => {

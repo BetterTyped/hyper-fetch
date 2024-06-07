@@ -77,7 +77,6 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       if (event.target && event.target.readyState === finishedState) {
         const { status } = event.target;
         const response = parseResponse(event.target.response);
-        console.log({ response });
         const data = response?.data;
         const extensions = response?.extensions || {};
         const success = (String(status).startsWith("2") || String(status).startsWith("3")) && !data?.errors;
