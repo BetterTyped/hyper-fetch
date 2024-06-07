@@ -8,9 +8,7 @@ import { RealtimeAdminOnValueMethodExtra, RealtimeAdminSocketAdapterType } from 
 export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAdapterType => {
   return (socket) => {
     const {
-      open,
-      connecting,
-      reconnectionAttempts,
+      state,
       listeners,
       removeListener,
       onConnect,
@@ -21,7 +19,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       onDisconnected,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket, { open: true });
+    } = getSocketAdapterBindings(socket, { connected: true });
 
     const connect = () => {
       const enabled = onConnect();
@@ -80,10 +78,8 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
     };
 
     return {
-      open,
-      reconnectionAttempts,
+      state,
       listeners,
-      connecting,
       listen,
       removeListener,
       emit,

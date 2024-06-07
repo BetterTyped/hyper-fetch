@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
 import { RequestInstance } from "@hyper-fetch/core";
 

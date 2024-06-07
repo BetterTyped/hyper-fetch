@@ -8,9 +8,7 @@ import { RealtimeSocketAdapterType } from "adapter";
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
     const {
-      open,
-      connecting,
-      reconnectionAttempts,
+      state,
       listeners,
       removeListener,
       onConnect,
@@ -21,7 +19,7 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
       onDisconnected,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket, { open: true });
+    } = getSocketAdapterBindings(socket, { connected: true });
 
     const connect = () => {
       const enabled = onConnect();
@@ -81,10 +79,8 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
     };
 
     return {
-      open,
-      reconnectionAttempts,
+      state,
       listeners,
-      connecting,
       listen,
       removeListener,
       emit,

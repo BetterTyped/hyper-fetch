@@ -8,9 +8,7 @@ import { FirestoreSocketAdapterType } from "adapter";
 export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterType => {
   return (socket) => {
     const {
-      open,
-      connecting,
-      reconnectionAttempts,
+      state,
       listeners,
       removeListener,
       onConnect,
@@ -21,7 +19,7 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
       onDisconnected,
       onEvent,
       onError,
-    } = getSocketAdapterBindings(socket, { open: true });
+    } = getSocketAdapterBindings(socket, { connected: true });
 
     const connect = () => {
       const enabled = onConnect();
@@ -88,10 +86,8 @@ export const firestoreSockets = (database: Firestore): FirestoreSocketAdapterTyp
     };
 
     return {
-      open,
-      reconnectionAttempts,
+      state,
       listeners,
-      connecting,
       listen,
       removeListener,
       emit,

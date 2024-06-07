@@ -7,17 +7,10 @@ import { FirestoreAdminSocketAdapterType } from "adapter";
 
 export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocketAdapterType => {
   return (socket) => {
-    const {
-      open,
-      connecting,
-      reconnectionAttempts,
-      listeners,
-      removeListener,
-      onReconnect,
-      onListen,
-      onEvent,
-      onError,
-    } = getSocketAdapterBindings(socket, { open: true });
+    const { state, listeners, removeListener, onReconnect, onListen, onEvent, onError } = getSocketAdapterBindings(
+      socket,
+      { connected: true },
+    );
 
     const connect = () => {
       throw new Error("Connect function is not implemented for Firestore Admin socket.");
@@ -71,10 +64,8 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
     };
 
     return {
-      open,
-      reconnectionAttempts,
+      state,
       listeners,
-      connecting,
       listen,
       removeListener,
       emit,
