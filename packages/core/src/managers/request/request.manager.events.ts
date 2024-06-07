@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import EventEmitter from "events";
 
 import {

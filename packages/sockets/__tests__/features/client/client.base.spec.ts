@@ -17,10 +17,10 @@ describe("Socket Client [ Base ]", () => {
 
   beforeEach(async () => {
     server = getServer();
+    await waitForConnection();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
-    await waitForConnection();
   });
 
   it("should emit message", async () => {

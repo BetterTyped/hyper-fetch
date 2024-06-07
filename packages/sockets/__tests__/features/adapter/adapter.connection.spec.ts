@@ -8,17 +8,15 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ Connection ]", () => {
-  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
+  const { startServer, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
-  let server = getServer();
 
   beforeEach(async () => {
     startServer();
-    server = getServer();
+    await waitForConnection();
     socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
-    await waitForConnection();
   });
 
   it("should auto connect", async () => {
@@ -55,11 +53,9 @@ describe("Socket Adapter [ Connection ]", () => {
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
     const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 5, autoConnect: false });
+    socket = createSocket({ url, reconnectTime: 1, autoConnect: false });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
-
-    await server.connected;
 
     await waitFor(() => {
       return !!socket.adapter.state.reconnectionAttempts;

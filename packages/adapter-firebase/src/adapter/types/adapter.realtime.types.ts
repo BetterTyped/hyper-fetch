@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { AdapterType } from "@hyper-fetch/core";
 import { DatabaseReference, DataSnapshot } from "firebase/database";
 import { SocketAdapterType } from "@hyper-fetch/sockets";

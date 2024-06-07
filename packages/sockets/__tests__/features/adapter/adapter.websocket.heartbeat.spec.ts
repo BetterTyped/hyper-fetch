@@ -28,7 +28,6 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should send heartbeat to server", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
         topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
@@ -38,7 +37,6 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should receive heartbeat to keep the connection", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
         topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
@@ -46,7 +44,6 @@ describe("Socket Adapter [ Heartbeat ]", () => {
     server.send(JSON.stringify({ topic: "heartbeat", data: new Date().toISOString() }));
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
         topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),
@@ -55,7 +52,6 @@ describe("Socket Adapter [ Heartbeat ]", () => {
   it("should close connection when no heartbeat event sent", async () => {
     await expect(server).toReceiveMessage(
       JSON.stringify({
-        id: "heartbeat",
         topic: "heartbeat",
         data: socketOptions.adapterOptions.heartbeatMessage,
       }),

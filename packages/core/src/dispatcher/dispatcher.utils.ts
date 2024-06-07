@@ -34,13 +34,13 @@ export const getRequestType = (request: RequestInstance, latestRequest: QueueEle
   const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
 
   if (queued) {
-    return DispatcherRequestType.oneByOne;
+    return DispatcherRequestType.ONE_BY_ONE;
   }
   if (cancelable) {
-    return DispatcherRequestType.previousCanceled;
+    return DispatcherRequestType.PREVIOUS_CANCELED;
   }
   if (canDeduplicate && deduplicate) {
-    return DispatcherRequestType.deduplicated;
+    return DispatcherRequestType.DEDUPLICATED;
   }
-  return DispatcherRequestType.allAtOnce;
+  return DispatcherRequestType.ALL_AT_ONCE;
 };

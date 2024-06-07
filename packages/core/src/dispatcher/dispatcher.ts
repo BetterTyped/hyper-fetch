@@ -416,13 +416,13 @@ export class Dispatcher {
     this.logger.debug("Adding request to queue", { requestType, request, requestId });
 
     switch (requestType) {
-      case DispatcherRequestType.oneByOne: {
+      case DispatcherRequestType.ONE_BY_ONE: {
         // Requests will go one by one
         this.addQueueElement(queueKey, storageElement);
         this.flushQueue(queueKey);
         return requestId;
       }
-      case DispatcherRequestType.previousCanceled: {
+      case DispatcherRequestType.PREVIOUS_CANCELED: {
         // Cancel all previous on-going requests
         this.cancelRunningRequests(queueKey);
         this.clearQueue(queueKey);
@@ -430,7 +430,7 @@ export class Dispatcher {
         this.flushQueue(queueKey);
         return requestId;
       }
-      case DispatcherRequestType.deduplicated: {
+      case DispatcherRequestType.DEDUPLICATED: {
         // Return the running requestId to fulfill the events
         return queue.requests[0].requestId;
       }

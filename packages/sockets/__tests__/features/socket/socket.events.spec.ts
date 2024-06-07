@@ -83,16 +83,6 @@ describe("Socket [ Events ]", () => {
     expect(spy).toHaveBeenCalledWith(listener.topic);
   });
 
-  it("should emit and receive emitter event", async () => {
-    const data = { data: 1, extra: {} };
-    socket.events.onEmitterEvent(spy);
-    socket.events.onEmitterEventByTopic(emitter, spy);
-    socket.events.emitEmitterEvent(emitter, data);
-
-    expect(spy).toHaveBeenCalledTimes(2);
-    expect(spy).toHaveBeenCalledWith(emitter, data);
-  });
-
   it("should emit and receive emitter start event", async () => {
     socket.events.onEmitterStartEvent(spy);
     socket.events.onEmitterStartEventByTopic(emitter, spy);

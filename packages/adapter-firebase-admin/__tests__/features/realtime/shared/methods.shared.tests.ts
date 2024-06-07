@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { FirebaseAdminAdapter, FirebaseAdminAdapterTypes, FirebaseAdminSocketAdapterTypes } from "adapter";
 import { getTestSuite } from "./methods/get.test.suite";
 import { setTestSuite } from "./methods/set.test.suite";

@@ -113,13 +113,13 @@ describe("Dispatcher [ Utils ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
       const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
-      expect(type).toBe(DispatcherRequestType.deduplicated);
+      expect(type).toBe(DispatcherRequestType.DEDUPLICATED);
     });
     it("should return cancelable type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
       const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
-      expect(type).toBe(DispatcherRequestType.previousCanceled);
+      expect(type).toBe(DispatcherRequestType.PREVIOUS_CANCELED);
     });
   });
 });

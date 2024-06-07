@@ -2,7 +2,7 @@ import { SocketInstance } from "socket";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import { EmitterInstance } from "emitter";
 import { SocketAdapterInstance } from "adapter";
-import { EventReturnType, ExtractAdapterExtraType } from "types";
+import { ExtractAdapterExtraType } from "types";
 
 export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   socket: SocketInstance,
@@ -110,10 +110,6 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     return emitterInstance;
   };
 
-  const onEmitResponse = (emitter: EmitterInstance, response: EventReturnType<any, ExtractAdapterExtraType<T>>) => {
-    socket.events.emitEmitterEvent(emitter, response);
-  };
-
   const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error?: ErrorType) => {
     socket.events.emitEmitterError(error, emitter);
   };
@@ -164,7 +160,6 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     onDisconnect,
     onListen,
     onEmit,
-    onEmitResponse,
     onEmitError,
     onConnected,
     onDisconnected,

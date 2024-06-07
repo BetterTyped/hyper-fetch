@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
 import { RequestInstance } from "@hyper-fetch/core";
 

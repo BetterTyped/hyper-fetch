@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { AdapterType } from "@hyper-fetch/core";
 import {
   Unsubscribe as FirestoreUnsubscribe,
