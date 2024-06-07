@@ -8,12 +8,14 @@ import { createListener } from "../../utils/listener.utils";
 describe("useEventMessages [ Base ]", () => {
   const { url, startServer, stopServer, emitListenerEvent } = createWebsocketMockingServer();
   const spy = jest.fn();
-  const socket = new Socket({ url });
+  let socket = new Socket({ url });
   let listener = createListener();
 
   beforeEach(async () => {
     startServer();
+    socket = new Socket({ url });
     listener = createListener();
+    await socket.waitForConnection();
     jest.resetModules();
     jest.resetAllMocks();
   });
@@ -28,7 +30,7 @@ describe("useEventMessages [ Base ]", () => {
       const view = renderUseEventMessages(socket);
       emitListenerEvent(listener, message);
       await waitFor(() => {
-        expect(view.result.current.data).toBe(message);
+        expect(view.result.current.data).toStrictEqual(message);
         expect(view.result.current.connected).toBeTrue();
         expect(view.result.current.connecting).toBeFalse();
         expect(view.result.current.timestamp).toBeNumber();

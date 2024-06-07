@@ -12,6 +12,7 @@ describe("useListener [ Base ]", () => {
   beforeEach(async () => {
     startServer();
     listener = createListener();
+    await listener.socket.waitForConnection();
     jest.resetModules();
     jest.resetAllMocks();
   });
