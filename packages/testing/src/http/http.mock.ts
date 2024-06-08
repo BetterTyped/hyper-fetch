@@ -10,21 +10,77 @@ export const getEndpointMockingRegex = (endpoint: string): RegExp => {
   return new RegExp(`^(?!.*\b${`${endpoint}/`}/\b).*${endpoint}.*`);
 };
 
+const getStatus = <Request extends RequestInstance, Status extends number>(
+  options: MockRequestOptions<Request, Status>,
+) => {
+  const status = options.status || 200;
+
+  return status;
+};
+
+const getErrorMock = <Request extends RequestInstance, Status extends number, Gql extends true | false>(
+  options: MockRequestOptions<Request, Status>,
+  config: { gql?: Gql } = {},
+) => {
+  const { error } = options;
+  const status = getStatus(options);
+  const syntheticError = errorResponses?.[status as keyof typeof errorResponses];
+
+  if (!error && !syntheticError) {
+    return null;
+  }
+
+  if (config.gql) {
+    return error || [syntheticError];
+  }
+  return error || syntheticError;
+};
+
+const getIsSuccessMock = <Request extends RequestInstance, Status extends number, Gql extends true | false>(
+  options: MockRequestOptions<Request, Status>,
+  config: { gql?: Gql } = {},
+) => {
+  const status = getStatus(options);
+
+  if (config.gql) {
+    const failure = options.error || status > 399 || status === 0;
+    return !failure;
+  }
+
+  return status < 399 && status !== 0 && !options.error;
+};
+
+const getDataMock = <Request extends RequestInstance, Status extends number, Gql extends true | false>(
+  options: MockRequestOptions<Request, Status>,
+  config: { gql?: Gql } = {},
+): any => {
+  const success = getIsSuccessMock(options, config);
+  const errors = getErrorMock(options, config);
+  const data = options.data || {};
+
+  if (config.gql) {
+    const response: Record<string, any> = {};
+
+    if (data) {
+      response.data = data;
+    }
+    if (errors) {
+      response.errors = errors;
+    }
+
+    return response;
+  }
+
+  return success ? data || {} : errors;
+};
+
 export const getMockSetup = <Request extends RequestInstance, Status extends number, Gql extends true | false>(
   options: MockRequestOptions<Request, Status>,
   config: { gql?: Gql } = {},
 ) => {
-  const status = options.status || 200;
+  const status = getStatus(options);
   const delayTime = options.delay || 20;
-  const syntheticError = errorResponses?.[status as keyof typeof errorResponses];
-  const error = (config?.gql ? { errors: [syntheticError] } : syntheticError) as Gql extends true
-    ? { errors: [typeof syntheticError] }
-    : typeof syntheticError;
-  const syntheticData = (
-    config.gql ? { data: options.data || {} } || { data: {} } : options.data || {}
-  ) as Gql extends true ? { data: {} } : {};
-  const data =
-    status > 399 ? ((options.error || error) as Gql extends true ? { errors: Error[] } : Error) : syntheticData;
+  const data = getDataMock(options, config);
 
   return {
     status,

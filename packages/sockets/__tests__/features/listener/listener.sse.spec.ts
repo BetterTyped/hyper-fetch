@@ -23,7 +23,7 @@ describe("Listener [ SSE ]", () => {
     await waitForConnection();
     socket = createSocket(config);
     listener = createListener<DataType>(socket);
-    await socket.waitForConnection();
+    await socket.adapter.waitForConnection();
     jest.resetAllMocks();
     emitOpen();
   });

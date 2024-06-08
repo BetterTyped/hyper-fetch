@@ -1,5 +1,4 @@
-import { GraphQLError } from "graphql";
-import { getAdapterBindings, parseErrorResponse, parseResponse } from "@hyper-fetch/core";
+import { getAdapterBindings, getErrorMessage, parseResponse } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
@@ -25,9 +24,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     requestId,
     systemErrorStatus: 0,
     systemErrorExtra: gqlExtra,
-    internalErrorFormatter: (error) => ({
-      errors: [error] satisfies readonly Partial<GraphQLError>[],
-    }),
+    internalErrorFormatter: (error) => [error],
   });
 
   const { fullUrl, payload, method } = getRequestValues(request);
@@ -75,16 +72,16 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       response.on("end", () => {
         const { statusCode } = response;
         const res = parseResponse(chunks);
-        const data = res?.data;
+        const data = res?.data || null;
         const extensions = res?.extensions || {};
-        const success = (String(statusCode).startsWith("2") || String(statusCode).startsWith("3")) && !data?.errors;
+        const failure = res?.errors || statusCode > 399 || statusCode === 0;
 
-        if (success) {
-          onSuccess(data, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
-        } else {
+        if (failure) {
           // delay to finish after onabort/ontimeout
-          const error = data || parseErrorResponse(chunks);
+          const error = res?.errors || [getErrorMessage()];
           onError(error, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
+        } else {
+          onSuccess(data, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
         }
 
         unmountListener();

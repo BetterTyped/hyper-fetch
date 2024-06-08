@@ -34,7 +34,7 @@ describe("Socket SSE [ Connection ]", () => {
 
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
-    socket = createSocket({ autoConnect: false });
+    socket = createSocket({ adapterOptions: { autoConnect: false } });
     socket.events.onConnected(spy);
     emitOpen();
     await waitFor(() => {
@@ -45,7 +45,7 @@ describe("Socket SSE [ Connection ]", () => {
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
     const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 500, autoConnect: false });
+    socket = createSocket({ url, reconnectTime: 500, adapterOptions: { autoConnect: false } });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
     emitOpen();

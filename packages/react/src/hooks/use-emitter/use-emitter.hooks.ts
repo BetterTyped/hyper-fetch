@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { EmitterCallbackResponseType, EmitterInstance, EmitterCallbackErrorType } from "@hyper-fetch/sockets";
+import { EmitterInstance, EmitterCallbackErrorType } from "@hyper-fetch/sockets";
 import { useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseEmitterOptionsType } from "hooks/use-emitter";
@@ -19,7 +19,6 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
    * Callbacks
    */
   const onEventStartCallback = useRef<null | ((emitter: EmitterType) => void)>(null);
-  const onEventCallback = useRef<null | EmitterCallbackResponseType<EmitterType>>(null);
   const onEventErrorCallback = useRef<null | EmitterCallbackErrorType<EmitterType>>(null);
 
   useDidUpdate(
@@ -29,13 +28,6 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
           onEventStartCallback.current?.(emitter);
         });
       };
-      const onEvent = () => {
-        return emitter.socket.events.onEmitterEventByTopic(emitter, (response, emitterInstance) => {
-          onEventCallback.current?.(response, emitterInstance);
-          actions.setData(response.data);
-          actions.setExtra(response.extra);
-        });
-      };
 
       const onEventError = () => {
         return emitter.socket.events.onEmitterErrorByTopic(emitter, (error, emitterInstance) => {
@@ -43,12 +35,10 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
         });
       };
 
-      const unmountEvent = onEvent();
       const unmountEventStart = onEventStart();
       const unmountEventError = onEventError();
 
       return () => {
-        unmountEvent();
         unmountEventStart();
         unmountEventError();
       };
@@ -76,11 +66,8 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     },
     ...actions,
     ...callbacks,
-    onEmitEventStart: (callback: (emitter: EmitterType) => void) => {
+    onEmitStart: (callback: (emitter: EmitterType) => void) => {
       onEventStartCallback.current = callback;
-    },
-    onEmitEvent: (callback: EmitterCallbackResponseType<EmitterType>) => {
-      onEventCallback.current = callback;
     },
     onEmitError: (callback: EmitterCallbackErrorType<EmitterType>) => {
       onEventErrorCallback.current = callback;

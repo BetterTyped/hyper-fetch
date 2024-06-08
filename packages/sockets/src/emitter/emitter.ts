@@ -7,7 +7,6 @@ import { ExtractAdapterEmitterOptionsType } from "types";
 
 export class Emitter<
   Payload,
-  Response,
   Endpoint extends string,
   AdapterType extends SocketAdapterInstance,
   HasData extends boolean = false,
@@ -23,7 +22,7 @@ export class Emitter<
   constructor(
     readonly socket: Socket<AdapterType>,
     readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
-    json?: Partial<Emitter<Payload, Response, Endpoint, AdapterType>>,
+    json?: Partial<Emitter<Payload, Endpoint, AdapterType>>,
   ) {
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
@@ -76,7 +75,7 @@ export class Emitter<
     NewHasData extends boolean = HasData,
     NewHasParams extends boolean = HasParams,
   >(options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload }) {
-    const json: Partial<Emitter<NewPayload, Response, Endpoint, AdapterType, NewHasData, NewHasParams>> = {
+    const json: Partial<Emitter<NewPayload, Endpoint, AdapterType, NewHasData, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as NewPayload,
@@ -85,7 +84,7 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Response, Endpoint, AdapterType, NewHasData, NewHasParams>(
+    const newInstance = new Emitter<NewPayload, Endpoint, AdapterType, NewHasData, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,

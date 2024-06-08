@@ -2,13 +2,15 @@ import { waitFor } from "@testing-library/dom";
 import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
+import { sleep } from "../../utils/helpers.utils";
+import { Socket } from "socket";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
 };
 
 describe("Socket Adapter [ Connection ]", () => {
-  const { startServer, waitForConnection } = createWebsocketMockingServer();
+  const { url, startServer, waitForConnection } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
 
   beforeEach(async () => {
@@ -29,11 +31,10 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
-    socket = createSocket({ autoConnect: false });
-    socket.events.onConnected(spy);
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(0);
-    });
+    const newSocket = new Socket({ url, adapterOptions: { autoConnect: false } });
+    newSocket.events.onConnected(spy);
+    await sleep(20);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
 
   it("should reconnect when going online", async () => {
@@ -52,8 +53,8 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should reconnect when connection attempt takes too long", async () => {
     const spy = jest.fn();
-    const url = "ws://test";
-    socket = createSocket({ url, reconnectTime: 1, autoConnect: false });
+    const newUrl = "ws://test";
+    socket = createSocket({ url: newUrl, reconnectTime: 1, adapterOptions: { autoConnect: false } });
     socket.events.onReconnecting(spy);
     socket.adapter.connect();
 

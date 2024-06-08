@@ -5,10 +5,9 @@ import { createGraphqlMockingServer } from "../../src/graphql";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../constants/mutations.constants";
 
-const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
-
 describe("Graphql Mocking [ Base ]", () => {
-  let client = new Client<{ errors: { message: string }[] }>({
+  const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
+  let client = new Client({
     url: "https://shared-base-url/graphql",
   }).setAdapter(GraphqlAdapter);
   let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
@@ -21,7 +20,7 @@ describe("Graphql Mocking [ Base ]", () => {
   });
 
   beforeEach(async () => {
-    client = new Client<{ errors: { message: string }[] }>({
+    client = new Client({
       url: "https://shared-base-url/graphql",
     }).setAdapter(GraphqlAdapter);
     request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
@@ -42,10 +41,13 @@ describe("Graphql Mocking [ Base ]", () => {
 
     const { data, error, status, extra } = await request.send();
 
-    expect(data).toStrictEqual(expected);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should mock string based graphql request", async () => {
@@ -53,22 +55,50 @@ describe("Graphql Mocking [ Base ]", () => {
 
     const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should mock the error status", async () => {
-    const expected = mockRequest(request, { status: 200, error: { errors: [{ message: "Some Error" }] } });
+    const expected = mockRequest(request, { status: 200, error: [{ message: "Some Error" }] });
 
     const { data, error, status, extra } = await request.send();
 
     expect(data).toBe(null);
     expect(status).toBe(200);
-    expect(error).toStrictEqual(expected);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "37" } });
+    expect(expected.errors).toStrictEqual(error);
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "47" },
+      extensions: {},
+    });
   });
+
+  // TODO: Add handling of this case
+  // it("should mock both errors and data", async () => {
+  //   const expectedData = { username: "prc", firstName: "Maciej" };
+  //   const expectedError = [{ message: "Some Error" }];
+
+  //   const expected = mockRequest(request, {
+  //     status: 200,
+  //     data: expectedData,
+  //     error: expectedError,
+  //   });
+
+  //   const { data, error, status, extra } = await request.send();
+
+  //   expect(data).toBe(expected.data);
+  //   expect(status).toBe(200);
+  //   expect(error).toStrictEqual(expected.errors);
+  //   expect(extra).toStrictEqual({
+  //     headers: { "content-type": "application/json", "content-length": "37" },
+  //     extensions: {},
+  //   });
+  // });
 
   it("should allow to make mutation request", async () => {
     const expected = mockRequest(
@@ -86,10 +116,13 @@ describe("Graphql Mocking [ Base ]", () => {
       })
       .send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "39" } });
+    expect(extra).toStrictEqual({
+      headers: { "content-type": "application/json", "content-length": "48" },
+      extensions: {},
+    });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -102,7 +135,7 @@ describe("Graphql Mocking [ Base ]", () => {
     const { data, error } = await request.send();
 
     expect(data).toBe(null);
-    expect(error).toEqual({ errors: [getErrorMessage("abort")] });
+    expect(error).toStrictEqual([getErrorMessage("abort")]);
   });
 
   it("should mock the timeout of request", async () => {
@@ -111,7 +144,7 @@ describe("Graphql Mocking [ Base ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(500);
-    expect(error).toStrictEqual({ errors: [{ message: getErrorMessage("timeout").message }] });
+    expect(error).toStrictEqual([{ message: getErrorMessage("timeout").message }]);
     expect(extra.headers).toStrictEqual({
       "content-length": "42",
       "content-type": "application/json",
@@ -128,7 +161,7 @@ describe("Graphql Mocking [ Base ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error).toStrictEqual({ errors: [getErrorMessage("abort")] });
+    expect(error).toStrictEqual([getErrorMessage("abort")]);
     expect(extra.headers).toStrictEqual({});
   });
 });

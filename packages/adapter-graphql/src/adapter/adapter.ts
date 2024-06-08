@@ -30,8 +30,8 @@ export const GraphqlAdapter = <C extends ClientInstance>(client: C) => {
   return (
     client as Client<
       ExtractClientGlobalError<C> extends Error
-        ? { errors: readonly Partial<GraphQLError>[] }
-        : ExtractClientGlobalError<C> | { errors: readonly Partial<GraphQLError>[] },
+        ? readonly Partial<GraphQLError>[]
+        : ExtractClientGlobalError<C> | readonly Partial<GraphQLError>[],
       ExtractClientAdapterType<C>,
       ExtractClientMapperType<C>
     >

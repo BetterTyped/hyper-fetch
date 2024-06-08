@@ -25,22 +25,22 @@ describe("Http Mocking [ Base ]", () => {
   });
 
   it("should mock the request", async () => {
-    const response = mockRequest(request, { data: [1, 2, 3] });
+    const expected = mockRequest(request, { data: [1, 2, 3] });
     const { data, status, error, extra } = await request.send();
 
-    expect(data).toStrictEqual(response);
+    expect(data).toStrictEqual(expected);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra.headers).toStrictEqual({ "content-length": "7", "content-type": "application/json" });
   });
 
   it("should mock the error ", async () => {
-    const response = mockRequest(request, { status: 400, error: { message: "Some Error" } as Error });
+    const expected = mockRequest(request, { status: 400, error: { message: "Some Error" } as Error });
     const { data, status, error, extra } = await request.send();
 
     expect(data).toBe(null);
     expect(status).toBe(400);
-    expect(error).toStrictEqual(response);
+    expect(error).toStrictEqual(expected);
     expect(extra.headers).toStrictEqual({ "content-length": "24", "content-type": "application/json" });
   });
 

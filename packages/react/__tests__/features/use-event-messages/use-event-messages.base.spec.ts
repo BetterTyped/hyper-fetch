@@ -15,7 +15,7 @@ describe("useEventMessages [ Base ]", () => {
     startServer();
     socket = new Socket({ url });
     listener = createListener();
-    await socket.waitForConnection();
+    await socket.adapter.waitForConnection();
     jest.resetModules();
     jest.resetAllMocks();
   });

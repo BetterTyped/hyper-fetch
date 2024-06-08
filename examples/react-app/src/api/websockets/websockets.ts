@@ -4,9 +4,6 @@ export const getMessage = socket.createListener<{ message: string; username: str
   topic: "messages",
 });
 
-export const sendMessage = socket.createEmitter<
-  { message: string; username: string; timestamp: string },
-  { message: string }
->()({
+export const sendMessage = socket.createEmitter<{ message: string; username: string; timestamp: string }>()({
   topic: "chat-message",
 });

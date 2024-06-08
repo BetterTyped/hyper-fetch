@@ -5,9 +5,8 @@ import { GraphqlAdapter } from "adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
-const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
-
 describe("Graphql Adapter [ Browser ]", () => {
+  const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
   let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
@@ -38,7 +37,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     const { data, error, status, extra } = await request.send();
 
-    expect(data).toStrictEqual(expected);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
@@ -52,7 +51,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
@@ -68,9 +67,9 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     expect(data).toBe(null);
     expect(status).toBe(400);
-    expect(error).toStrictEqual(expected);
+    expect(error).toStrictEqual(expected.errors);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "32" },
+      headers: { "content-type": "application/json", "content-length": "42" },
       extensions: {},
     });
   });
@@ -91,7 +90,7 @@ describe("Graphql Adapter [ Browser ]", () => {
       })
       .send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
@@ -110,7 +109,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     const { data, error } = await request.send();
 
     expect(data).toBe(null);
-    expect(error).toStrictEqual({ errors: [getErrorMessage("abort")] });
+    expect(error).toStrictEqual([getErrorMessage("abort")]);
   });
 
   it("should not throw when XMLHttpRequest is not available on window", async () => {
@@ -120,7 +119,7 @@ describe("Graphql Adapter [ Browser ]", () => {
 
     const { data, error, status, extra } = await request.send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({

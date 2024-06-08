@@ -24,15 +24,21 @@ export const createSseMockingServer = () => {
   };
 
   const startServer = () => {
+    sources[url]?.close();
     getServer().close();
     server.current = new WS(url);
   };
 
   const waitForConnection = async () => {
-    return getServer().connected;
+    const connected = await getServer().connected;
+
+    sources[url].emitOpen();
+
+    return connected;
   };
 
   const stopServer = (): void => {
+    sources[url].close();
     getServer().close();
     WS.clean();
   };

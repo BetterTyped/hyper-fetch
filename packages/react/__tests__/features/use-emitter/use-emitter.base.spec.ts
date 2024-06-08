@@ -14,7 +14,7 @@ describe("useEmitter [ Base ]", () => {
     await waitForConnection();
     socket = new Socket({ url });
     emitter = socket.createEmitter()({ topic: "test/:testId" });
-    await socket.waitForConnection();
+    await socket.adapter.waitForConnection();
 
     jest.resetModules();
     jest.resetAllMocks();

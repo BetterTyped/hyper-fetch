@@ -11,9 +11,12 @@ import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.con
 import { createMock, getMockSetup } from "./http.mock";
 
 export type MockRequestOptions<Request extends RequestInstance, Status extends number> = Partial<
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  Omit<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>, "status">
+  Omit<
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+    "status" | "extra"
+  >
 > & {
   status?: Status;
   delay?: number;

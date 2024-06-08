@@ -9,9 +9,8 @@ import { GraphqlAdapter } from "adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
-const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
-
 describe("Graphql Adapter [ Server ]", () => {
+  const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
   const requestId = "test";
   const requestCopy = https.request;
   let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
@@ -70,7 +69,7 @@ describe("Graphql Adapter [ Server ]", () => {
 
     const { data, error, status, extra } = await request.send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
@@ -84,7 +83,7 @@ describe("Graphql Adapter [ Server ]", () => {
 
     const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send();
 
-    expect(expected).toStrictEqual(data);
+    expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({
@@ -100,7 +99,7 @@ describe("Graphql Adapter [ Server ]", () => {
 
     expect(data).toBe(null);
     expect(status).toBe(400);
-    expect(error).toStrictEqual(expected);
+    expect(error).toStrictEqual(expected.errors);
     expect(extra).toStrictEqual({
       headers: { "content-type": "application/json", "content-length": "32" },
       extensions: {},
@@ -116,19 +115,14 @@ describe("Graphql Adapter [ Server ]", () => {
       { data: { username: "prc", firstName: "Maciej" } },
     );
 
-    const {
-      data: response,
-      error,
-      status,
-      extra,
-    } = await mutation
+    const { data, error, status, extra } = await mutation
       .setData({
         username: "Kacper",
         password: "Kacper1234",
       })
       .send();
 
-    expect(response).toStrictEqual(expected);
+    expect(data).toStrictEqual(expected.data);
     expect(status).toBe(200);
     expect(error).toBe(null);
     expect(extra).toStrictEqual({

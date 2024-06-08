@@ -281,9 +281,9 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
    * @param options
    * @returns
    */
-  createEmitter = <Payload, Response = never>() => {
+  createEmitter = <Payload>() => {
     return <Endpoint extends string>(options: EmitterOptionsType<Endpoint, Adapter>) => {
-      return new Emitter<Payload, Response, Endpoint, Adapter>(this, options);
+      return new Emitter<Payload, Endpoint, Adapter>(this, options);
     };
   };
 }

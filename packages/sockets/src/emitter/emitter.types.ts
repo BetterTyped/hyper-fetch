@@ -8,12 +8,10 @@ import {
   ExtractEmitterHasParamsType,
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
-  EventReturnType,
   ExtractAdapterEmitterOptionsType,
-  ExtractEmitterResponseType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, any, SocketAdapterInstance, any, any>;
+export type EmitterInstance = Emitter<any, any, SocketAdapterInstance, any, any>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
@@ -27,11 +25,6 @@ export type EmitterEmitOptionsType<Emitter extends EmitterInstance> = EmitDataTy
 > &
   EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
   EmitRestType<Emitter>;
-
-export type EmitterCallbackResponseType<EmitterType extends EmitterInstance> = (
-  response: EventReturnType<ExtractEmitterResponseType<EmitterType>, ExtractEmitterAdapterType<EmitterType>>,
-  emitter: EmitterType,
-) => void;
 
 export type EmitterCallbackErrorType<EmitterType extends EmitterInstance> = (
   error: Error,
@@ -104,7 +97,6 @@ export type ExtendEmitter<
   },
 > = Emitter<
   TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
-  TypeWithDefaults<Properties, "response", ExtractEmitterResponseType<T>>,
   TypeWithDefaults<Properties, "topic", ExtractEmitterTopicType<T>>,
   TypeWithDefaults<Properties, "adapter", ExtractEmitterAdapterType<T>>,
   TypeWithDefaults<Properties, "hasData", ExtractEmitterHasDataType<T>>,

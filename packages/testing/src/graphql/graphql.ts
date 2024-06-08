@@ -1,8 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import { setupServer } from "msw/node";
-import { ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
+import { ExtractErrorType, ExtractResponseType, RequestInstance } from "@hyper-fetch/core";
 
-import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "../http/http.constants";
+import { StatusCodesType } from "../http/http.constants";
 import { createMock } from "./graphql.mock";
 import { MockRequestOptions } from "../http";
 import { getMockSetup } from "http/http.mock";
@@ -19,7 +19,11 @@ export const createGraphqlMockingServer = () => {
   };
 
   const stopServer = (): void => {
-    server.close();
+    try {
+      server?.close();
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   /**
@@ -32,14 +36,13 @@ export const createGraphqlMockingServer = () => {
   const mockRequest = <T extends RequestInstance, StatusType extends StatusCodesType>(
     request: T,
     options: MockRequestOptions<T, StatusType> = {},
-  ): StatusType extends StatusErrorCodesType ? ErrorMockType : ExtractResponseType<T> => {
+  ): { errors?: ExtractErrorType<T>; data?: ExtractResponseType<T> } => {
     const { data } = getMockSetup(options, { gql: true });
 
     const mock = createMock(request, options);
     server.use(mock);
-    return (data && "data" in data ? data?.data : data) as StatusType extends StatusErrorCodesType
-      ? ErrorMockType
-      : ExtractResponseType<T>;
+
+    return data;
   };
 
   return {

@@ -28,17 +28,9 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
       await delay(delayTime);
     }
 
-    const { requestManager } = request.client;
-    const controllers = requestManager.abortControllers.get(request.abortKey);
-    const size = controllers?.size || 0;
-    const abortController = Array.from(controllers || [])[size - 1];
     const timeoutTime = request.options?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;
 
-    if (abortController && abortController?.[1].signal.aborted) {
-      const error = getErrorMessage("abort");
-      return HttpResponse.json({ errors: [{ message: error.message }] }, { status: 0 });
-    }
     if (shouldTimeout) {
       const error = getErrorMessage("timeout");
       return HttpResponse.json({ errors: [{ message: error.message }] }, { status: 500 });
