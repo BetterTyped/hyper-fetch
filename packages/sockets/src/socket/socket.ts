@@ -35,7 +35,6 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   url: string;
   reconnectAttempts: number;
   reconnectTime: number;
-  auth?: QueryParamsType | string;
   queryParams?: QueryParamsType | string;
   debug: boolean;
 
@@ -57,19 +56,11 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   // Logger
   logger = this.loggerManager.init("Socket");
 
-  /**
-   * Method to stringify query params from objects.
-   */
-  queryParamsStringify: StringifyCallbackType = (queryParams) => {
-    return stringifyQueryParams(queryParams, this.queryParamsConfig);
-  };
-
   constructor(public options: SocketOptionsType<Adapter>) {
-    const { url, auth, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
+    const { url, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
       this.options;
     this.emitter?.setMaxListeners(Infinity);
     this.url = url;
-    this.auth = auth;
     this.queryParams = queryParams;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
@@ -155,15 +146,6 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   /**
-   * Set the new auth data to the socket
-   */
-  setAuth = (auth: QueryParamsType | string) => {
-    this.auth = auth;
-    this.adapter.reconnect();
-    return this;
-  };
-
-  /**
    * Set the new query data to the socket
    */
   setQuery = (queryParams: QueryParamsType | string) => {
@@ -244,6 +226,13 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     this.__onErrorCallbacks.push(callback);
     return this;
   }
+
+  /**
+   * Method to stringify query params from objects.
+   */
+  queryParamsStringify: StringifyCallbackType = (queryParams) => {
+    return stringifyQueryParams(queryParams, this.queryParamsConfig);
+  };
 
   /**
    * ********************

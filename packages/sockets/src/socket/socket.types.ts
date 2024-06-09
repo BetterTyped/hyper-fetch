@@ -10,7 +10,6 @@ export type SocketInstance = Socket<any>;
 export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   url: string;
   adapter?: Adapter;
-  auth?: QueryParamsType;
   reconnect?: number;
   reconnectTime?: number;
   queryParams?: QueryParamsType | string;
