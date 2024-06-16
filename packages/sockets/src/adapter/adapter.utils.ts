@@ -5,10 +5,8 @@ import { WebsocketEvent } from "./adapter.types";
 
 export const getSocketUrl = (socket: SocketInstance) => {
   const queryParams = socket.queryParamsStringify(socket.queryParams).substring(1);
-  const authParams = socket.queryParamsStringify(socket.auth).substring(1);
-  const connector = queryParams && authParams ? "&" : "";
-  const queryPrefix = authParams || queryParams ? "?" : "";
-  const fullUrl = `${socket.url}${queryPrefix}${authParams}${connector}${queryParams}`;
+  const queryPrefix = queryParams ? "?" : "";
+  const fullUrl = `${socket.url}${queryPrefix}${queryParams}`;
   return fullUrl;
 };
 

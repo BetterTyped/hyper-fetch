@@ -1,8 +1,7 @@
 import { waitFor } from "@testing-library/dom";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createSocket } from "../../utils/socket.utils";
-import { sleep } from "../../utils/helpers.utils";
 import { Socket } from "socket";
 
 const socketOptions: Parameters<typeof createSocket>[0] = {
@@ -10,22 +9,26 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ Connection ]", () => {
-  const { url, startServer, waitForConnection } = createWebsocketMockingServer();
+  const { url, startServer, stopServer } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
 
   beforeEach(async () => {
     startServer();
-    await waitForConnection();
-    socket.emitter.removeAllListeners();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
+  });
+
+  afterAll(() => {
+    stopServer();
   });
 
   it("should auto connect", async () => {
     const spy = jest.fn();
     socket.events.onConnected(spy);
+    await socket.waitForConnection();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
+      expect(socket.adapter.state.connected).toBe(true);
     });
   });
 
@@ -39,13 +42,14 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should reconnect when going online", async () => {
     const spy = jest.fn();
+    await socket.waitForConnection();
     socket.appManager.setOnline(false);
-    socket.adapter.disconnect();
     socket.onDisconnected(() => {
       socket.adapter.state.connected = false;
       socket.events.onConnected(spy);
       socket.appManager.setOnline(true);
     });
+    socket.adapter.disconnect();
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
     });

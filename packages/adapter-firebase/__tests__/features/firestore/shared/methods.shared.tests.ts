@@ -1,4 +1,4 @@
-import { FirebaseAdapter, FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
+import { FirebaseAdapter, FirebaseAdapterTypes, FirebaseSocketAdapterTypes } from "adapter";
 import { addDocTestSuite } from "./methods/add-doc.test.suite";
 import { onSnapshotTestSuite } from "./methods/on-snapshot.test.suite";
 import { deleteDocTestSuite } from "./methods/delete-doc.test.suite";
@@ -17,8 +17,8 @@ export const methodsSharedTestCases = (adapterFunction: () => ReturnType<typeof 
 };
 
 export const socketsMethodsSharedTestCases = (
-  adapter: FirebaseBrowserSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseBrowserAdapterTypes<any>,
+  adapter: FirebaseSocketAdapterTypes<any>,
+  coreAdapter: () => FirebaseAdapterTypes<any>,
 ) => {
   onSnapshotTestSuite(adapter, coreAdapter);
 };

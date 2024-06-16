@@ -15,40 +15,26 @@ const constructEventData = <T extends Record<string, any>>({ topic }: { topic: s
   };
 };
 
-export const createSseMockingServer = () => {
-  const url = "ws://localhost:1234";
-  const server = { current: new WS(url) };
-
+export const createSseMockingServer = (url = "ws://localhost:1234") => {
   const getServer = () => {
-    return server.current;
+    return sources[url];
   };
 
-  const startServer = () => {
-    sources[url]?.close();
-    getServer().close();
-    server.current = new WS(url);
-  };
-
-  const waitForConnection = async () => {
-    const connected = await getServer().connected;
-
+  /**
+   * This method starts the connection with sse server
+   * Has to be invoked BEFORE creating a socket in tests
+   */
+  const startServer = async () => {
     sources[url].emitOpen();
-
-    return connected;
   };
 
   const stopServer = (): void => {
     sources[url].close();
-    getServer().close();
     WS.clean();
   };
 
   const emitError = () => {
     sources[url].emitError(new Error("Test error"));
-  };
-
-  const emitOpen = () => {
-    sources[url].emitOpen();
   };
 
   const getSource = () => {
@@ -74,11 +60,9 @@ export const createSseMockingServer = () => {
     url,
     getServer,
     startServer,
-    waitForConnection,
     stopServer,
     getSource,
     emitError,
-    emitOpen,
     emitListenerEvent,
   };
 };

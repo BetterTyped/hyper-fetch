@@ -8,8 +8,8 @@ import {
   FirestoreSocketAdapterType,
 } from "adapter/index";
 
-export type FirebaseBrowserDBTypes = Database | Firestore;
-export type FirebaseBrowserAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;
-export type FirebaseBrowserSocketAdapterTypes<T> = T extends Firestore
+export type FirebaseDBTypes = Database | Firestore;
+export type FirebaseAdapterTypes<T> = T extends Database ? RealtimeDbAdapterType : FirestoreAdapterType;
+export type FirebaseSocketAdapterTypes<T> = T extends Firestore
   ? FirestoreSocketAdapterType
   : RealtimeSocketAdapterType;

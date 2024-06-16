@@ -9,7 +9,7 @@ type DataType = {
 };
 
 describe("Emitter [ Emit ]", () => {
-  const { getServer, startServer, waitForConnection, expectEmitterEvent } = createWebsocketMockingServer();
+  const { getServer, startServer, expectEmitterEvent } = createWebsocketMockingServer();
   const message = { topic: "Maciej", age: 99 };
 
   let socket = createSocket();
@@ -20,7 +20,7 @@ describe("Emitter [ Emit ]", () => {
     socket = createSocket();
     emitter = createEmitter<DataType>(socket, { timeout: 4000 });
     jest.resetAllMocks();
-    await waitForConnection();
+    await socket.waitForConnection();
   });
 
   it("should emit event message", async () => {

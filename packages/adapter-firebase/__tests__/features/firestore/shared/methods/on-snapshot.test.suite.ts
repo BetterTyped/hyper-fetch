@@ -2,13 +2,13 @@ import { Client } from "@hyper-fetch/core";
 import { Socket } from "@hyper-fetch/sockets";
 import waitForExpect from "wait-for-expect";
 
-import { FirebaseBrowserAdapterTypes, FirebaseBrowserSocketAdapterTypes } from "adapter";
+import { FirebaseAdapterTypes, FirebaseSocketAdapterTypes } from "adapter";
 import { $where } from "constraints";
 import { Tea } from "../../../../utils";
 
 export const onSnapshotTestSuite = (
-  adapter: FirebaseBrowserSocketAdapterTypes<any>,
-  coreAdapter: () => FirebaseBrowserAdapterTypes<any>,
+  adapter: FirebaseSocketAdapterTypes<any>,
+  coreAdapter: () => FirebaseAdapterTypes<any>,
 ) => {
   const newData = { origin: "Poland", type: "Green", year: 2043, name: "Pou Ran Do Cha", amount: 100 } as Tea;
   let spy = jest.fn();

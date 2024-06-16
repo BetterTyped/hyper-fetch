@@ -3,8 +3,7 @@ import { ServerSentEventsAdapterType, Socket } from "@hyper-fetch/sockets";
 
 import { createWebsocketMockingServer } from "../../src";
 
-const { url, waitForConnection, startServer, stopServer, emitListenerEvent, expectEmitterEvent } =
-  createWebsocketMockingServer();
+const { url, startServer, stopServer, emitListenerEvent, expectEmitterEvent } = createWebsocketMockingServer();
 
 describe("Websocket Mocking [ Base ]", () => {
   let socket = new Socket<ServerSentEventsAdapterType>({ url });
@@ -13,7 +12,7 @@ describe("Websocket Mocking [ Base ]", () => {
     startServer();
     socket = new Socket<ServerSentEventsAdapterType>({ url });
     jest.resetAllMocks();
-    await waitForConnection();
+    await socket.waitForConnection();
   });
 
   afterEach(() => {

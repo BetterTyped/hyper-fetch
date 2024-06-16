@@ -6,8 +6,6 @@ import { createSocket } from "../../utils/socket.utils";
 import { sleep } from "../../utils/helpers.utils";
 import { ServerSentEventsAdapter } from "adapter";
 
-const { startServer, emitListenerEvent, emitOpen, waitForConnection } = createSseMockingServer();
-
 const config = {
   adapter: ServerSentEventsAdapter,
 };
@@ -15,17 +13,16 @@ const config = {
 type DataType = { topic: string; age: number };
 
 describe("Listener [ SSE ]", () => {
+  const { startServer, emitListenerEvent } = createSseMockingServer();
   let socket = createSocket(config);
   let listener = createListener<DataType>(socket);
 
   beforeEach(async () => {
-    startServer();
-    await waitForConnection();
     socket = createSocket(config);
+    startServer();
     listener = createListener<DataType>(socket);
-    await socket.adapter.waitForConnection();
+    await socket.waitForConnection();
     jest.resetAllMocks();
-    emitOpen();
   });
 
   it("should listen to given event topic", async () => {

@@ -19,11 +19,7 @@ export const createGraphqlMockingServer = () => {
   };
 
   const stopServer = (): void => {
-    try {
-      server?.close();
-    } catch (error) {
-      console.warn(error);
-    }
+    server.close();
   };
 
   /**

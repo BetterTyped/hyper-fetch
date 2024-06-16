@@ -2,8 +2,8 @@ import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
 
 import {
-  FirebaseBrowserAdapterTypes,
-  FirebaseBrowserDBTypes,
+  FirebaseAdapterTypes,
+  FirebaseDBTypes,
   RealtimeDbAdapterType,
   RealtimeDBMethodsUnion,
   RealtimeDBQueryParams,
@@ -16,10 +16,9 @@ import {
 import { getRealtimeDbBrowserMethods } from "realtime";
 import { getFirestoreBrowserMethods } from "firestore";
 
-export const FirebaseAdapter =
-  <T extends FirebaseBrowserDBTypes>(database: T) =>
-  () => {
-    const adapter: FirebaseBrowserAdapterTypes<T> = async (request, requestId) => {
+export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
+  return () => {
+    const adapter: FirebaseAdapterTypes<T> = async (request, requestId) => {
       const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
         await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>({
           request,
@@ -27,7 +26,7 @@ export const FirebaseAdapter =
           systemErrorStatus: "error",
           systemErrorExtra: {},
         });
-      return new Promise<ResponseType<any, any, FirebaseBrowserAdapterTypes<T>>>((resolve) => {
+      return new Promise<ResponseType<any, any, FirebaseAdapterTypes<T>>>((resolve) => {
         if (database instanceof Database) {
           const {
             method = RealtimeDBMethods.get,
@@ -84,3 +83,4 @@ export const FirebaseAdapter =
     };
     return adapter;
   };
+};

@@ -102,7 +102,12 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   };
 
   waitForConnection = (timeout = Time.SEC * 4): Promise<boolean> => {
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise<boolean>((resolve) => {
+      if (this.adapter.state.connected) {
+        resolve(true);
+        return;
+      }
+
       let id: NodeJS.Timeout;
       const unmount = this.events.onConnected(() => {
         unmount();
@@ -111,13 +116,9 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
       });
 
       id = setTimeout(() => {
-        reject(new Error("Connection timeout"));
+        unmount();
+        throw new Error("Connection timeout");
       }, timeout);
-
-      if (this.adapter.state.connected) {
-        clearTimeout(id);
-        resolve(true);
-      }
     });
   };
 

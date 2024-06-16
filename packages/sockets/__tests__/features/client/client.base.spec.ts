@@ -10,14 +10,13 @@ type DataType = {
 };
 
 describe("Socket Client [ Base ]", () => {
-  const { getServer, waitForConnection } = createWebsocketMockingServer();
+  const { getServer } = createWebsocketMockingServer();
   let server = getServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
   beforeEach(async () => {
     server = getServer();
-    await waitForConnection();
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();

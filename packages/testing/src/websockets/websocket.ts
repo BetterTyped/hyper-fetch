@@ -19,8 +19,7 @@ const constructEventData = <T extends Record<string, any>>({ topic }: { topic: s
   };
 };
 
-export const createWebsocketMockingServer = () => {
-  const url = "ws://localhost:1234";
+export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
   const server = { current: new WS(url) };
 
   const getServer = () => {
@@ -28,12 +27,8 @@ export const createWebsocketMockingServer = () => {
   };
 
   const startServer = () => {
-    getServer().close();
+    WS.clean();
     server.current = new WS(url);
-  };
-
-  const waitForConnection = async () => {
-    return getServer().connected;
   };
 
   const stopServer = (): void => {
@@ -81,7 +76,6 @@ export const createWebsocketMockingServer = () => {
   return {
     url,
     getServer,
-    waitForConnection,
     startServer,
     stopServer,
     emitListenerEvent,

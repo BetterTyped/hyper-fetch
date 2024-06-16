@@ -4,7 +4,7 @@ import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 describe("Listener [ Base ]", () => {
-  const { startServer, waitForConnection } = createWebsocketMockingServer();
+  const { startServer } = createWebsocketMockingServer();
   let socket = createSocket();
   let listener = createListener(socket);
 
@@ -13,7 +13,6 @@ describe("Listener [ Base ]", () => {
     socket = createSocket();
     listener = createListener(socket);
     jest.resetAllMocks();
-    await waitForConnection();
   });
 
   it("should initialize Listener with correct topic", async () => {

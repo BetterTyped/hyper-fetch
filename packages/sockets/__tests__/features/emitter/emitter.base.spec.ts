@@ -9,7 +9,7 @@ type DataType = {
 };
 
 describe("Emitter [ Base ]", () => {
-  const { startServer, waitForConnection, expectEmitterEvent } = createWebsocketMockingServer();
+  const { startServer, expectEmitterEvent } = createWebsocketMockingServer();
   let socket = createSocket();
   let emitter = createEmitter<DataType>(socket);
 
@@ -18,7 +18,7 @@ describe("Emitter [ Base ]", () => {
     socket = createSocket();
     emitter = createEmitter<DataType>(socket);
     jest.resetAllMocks();
-    await waitForConnection();
+    await socket.waitForConnection();
   });
 
   it("should initialize emitter with correct name", async () => {

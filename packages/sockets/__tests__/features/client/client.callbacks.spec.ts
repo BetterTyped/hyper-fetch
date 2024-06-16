@@ -5,7 +5,7 @@ import { createEmitter } from "../../utils/emitter.utils";
 import { createSocket } from "../../utils/socket.utils";
 
 describe("Socket Client  [ Callbacks ]", () => {
-  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
+  const { getServer, startServer } = createWebsocketMockingServer();
   beforeEach(async () => {
     startServer();
     jest.resetAllMocks();
@@ -55,7 +55,7 @@ describe("Socket Client  [ Callbacks ]", () => {
     const socket = createSocket().onSend(spy);
     const emitter = createEmitter(socket);
 
-    await waitForConnection();
+    await socket.waitForConnection();
 
     emitter.setData({ test: "1" }).emit();
 
@@ -68,7 +68,6 @@ describe("Socket Client  [ Callbacks ]", () => {
     const spy = jest.fn();
     const socket = createSocket().onReconnect(spy);
     socket.adapter.reconnect();
-    await waitForConnection();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
@@ -79,7 +78,6 @@ describe("Socket Client  [ Callbacks ]", () => {
     const spy = jest.fn();
     const socket = createSocket({ reconnect: 0 }).onReconnectStop(spy);
     socket.adapter.reconnect();
-    await waitForConnection();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);

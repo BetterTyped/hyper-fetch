@@ -5,16 +5,15 @@ import { createWebsocketMockingServer } from "@hyper-fetch/testing";
 import { renderUseEmitter } from "../../utils/use-emitter.utils";
 
 describe("useEmitter [ Base ]", () => {
-  const { url, startServer, stopServer, expectEmitterEvent, waitForConnection } = createWebsocketMockingServer();
+  const { url, startServer, stopServer, expectEmitterEvent } = createWebsocketMockingServer();
   let socket = new Socket({ url });
   let emitter = socket.createEmitter()({ topic: "test/:testId" });
 
   beforeEach(async () => {
     startServer();
-    await waitForConnection();
     socket = new Socket({ url });
     emitter = socket.createEmitter()({ topic: "test/:testId" });
-    await socket.adapter.waitForConnection();
+    await socket.waitForConnection();
 
     jest.resetModules();
     jest.resetAllMocks();

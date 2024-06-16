@@ -5,7 +5,7 @@ import { Client } from "@hyper-fetch/core";
 import { createGraphqlMockingServer } from "@hyper-fetch/testing";
 import https from "https";
 
-import { GraphqlAdapter } from "adapter";
+import { GraphqlAdapter } from "../../../src/adapter";
 import { GetUserQueryResponse, getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 import { LoginMutationVariables, loginMutation } from "../../constants/mutations.constants";
 
@@ -13,8 +13,8 @@ describe("Graphql Adapter [ Server ]", () => {
   const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
   const requestId = "test";
   const requestCopy = https.request;
-  let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
-  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+  let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter).setDebug(true);
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter).setDebug(true);
   let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
     endpoint: loginMutation,
@@ -25,6 +25,12 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
+    client.clear();
+    resetMocks();
+    jest.resetAllMocks();
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
+
     clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
     request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
@@ -33,10 +39,14 @@ describe("Graphql Adapter [ Server ]", () => {
     });
     client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
-    resetMocks();
+  });
+
+  afterEach(() => {
+    client.clear();
     jest.resetAllMocks();
     jest.clearAllMocks();
     jest.restoreAllMocks();
+    https.globalAgent.destroy();
   });
 
   afterAll(() => {
@@ -101,7 +111,7 @@ describe("Graphql Adapter [ Server ]", () => {
     expect(status).toBe(400);
     expect(error).toStrictEqual(expected.errors);
     expect(extra).toStrictEqual({
-      headers: { "content-type": "application/json", "content-length": "32" },
+      headers: { "content-type": "application/json", "content-length": "42" },
       extensions: {},
     });
   });

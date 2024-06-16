@@ -3,8 +3,7 @@ import { ServerSentEventsAdapter, ServerSentEventsAdapterType, Socket, SocketOpt
 
 import { createSseMockingServer } from "../../src";
 
-const { url, startServer, stopServer, emitError, emitListenerEvent } = createSseMockingServer();
-
+const url = "ws://localhost:1234";
 const socketOptions: SocketOptionsType<ServerSentEventsAdapterType> = {
   url,
   adapter: ServerSentEventsAdapter,
@@ -12,11 +11,12 @@ const socketOptions: SocketOptionsType<ServerSentEventsAdapterType> = {
 };
 
 describe("SSE Mocking [ Base ]", () => {
+  const { startServer, stopServer, emitError, emitListenerEvent } = createSseMockingServer(url);
   let socket = new Socket<ServerSentEventsAdapterType>(socketOptions);
 
   beforeEach(async () => {
-    await startServer();
     socket = new Socket<ServerSentEventsAdapterType>(socketOptions);
+    startServer();
     jest.resetAllMocks();
   });
 

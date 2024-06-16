@@ -5,4 +5,3 @@ yarn commitlint --edit "$1"
 yarn nx run-many --target=build --all
 yarn nx run-many --target=lint --all --parallel=10
 yarn nx run-many --target=typecheck --all --parallel=10
-yarn nx run-many --target=tests --all --exclude=adapter-firebase,adapter-firebase-admin

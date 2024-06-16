@@ -13,7 +13,7 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
 };
 
 describe("Socket Adapter [ Heartbeat ]", () => {
-  const { getServer, startServer, waitForConnection } = createWebsocketMockingServer();
+  const { getServer, startServer } = createWebsocketMockingServer();
   let socket = createSocket(socketOptions);
   let server = getServer();
 
@@ -22,7 +22,6 @@ describe("Socket Adapter [ Heartbeat ]", () => {
     server = getServer();
     socket = createSocket(socketOptions);
     jest.resetAllMocks();
-    await waitForConnection();
   });
 
   it("should send heartbeat to server", async () => {
