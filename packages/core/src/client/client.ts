@@ -33,7 +33,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
-import { NegativeTypes } from "types";
+import { ExtractAdapterType, NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -223,18 +223,22 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <Returns extends AdapterInstance | ClientInstance>(
-    callback: (client: this) => Returns,
+  setAdapter = <NewAdapter extends AdapterInstance, Returns extends AdapterInstance | ClientInstance>(
+    callback: (client: this) => Returns extends AdapterInstance ? NewAdapter : Returns,
   ): Returns extends ClientInstance
     ? Returns
-    : Client<GlobalErrorType, Returns extends AdapterInstance ? Returns : Adapter, EndpointMapper> => {
-    const value = callback(this) as unknown as Adapter;
+    : Client<
+        GlobalErrorType,
+        Returns extends AdapterInstance ? NewAdapter : ExtractAdapterType<NewAdapter>,
+        EndpointMapper
+      > => {
+    const value = callback(this) as Adapter | ClientInstance;
 
     if (value instanceof Client) {
       return value as any;
     }
 
-    this.adapter = value;
+    this.adapter = value as Adapter;
     return this as any;
   };
 
