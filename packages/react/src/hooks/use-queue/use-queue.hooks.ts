@@ -71,8 +71,8 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const mountEvents = () => {
-    const unmountChange = dispatcher.events.onQueueChange<Request>(queueKey, updateQueueState);
-    const unmountStatus = dispatcher.events.onQueueStatusChange<Request>(queueKey, updateQueueState);
+    const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queueKey, updateQueueState);
+    const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queueKey, updateQueueState);
 
     const unmountDownload = requestManager.events.onDownloadProgressByQueue(queueKey, ({ progress, requestId }) => {
       mergePayloadType(requestId, { downloading: progress });

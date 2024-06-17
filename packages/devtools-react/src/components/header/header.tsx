@@ -1,35 +1,17 @@
-import { useEffect } from "react";
-
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
 
 export const Header = () => {
-  const { setModule, client } = useDevtoolsContext("DevtoolsHeader");
-
-  const [success, setSuccess] = useState(0);
-  const [failed, setFailed] = useState(0);
-  const [inProgress, setInProgress] = useState(0);
-  const [paused, setPaused] = useState(0);
-
-  const countProgressRequests = () => {
-    const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
-    const submitRequests = client.fetchDispatcher.getAllRunningRequest();
-    setInProgress(fetchRequests.length + submitRequests.length);
-  };
-
-  useEffect(() => {
-    const unmountFetchQueue = client.requestManager.events.onRequestStartByQueue(() => {
-      countProgressRequests();
-    });
-
-    return () => {
-      unmountFetchQueue();
-    };
-  }, [client]);
+  const { setModule, success, failed, inProgress, paused, canceled } = useDevtoolsContext("DevtoolsHeader");
 
   return (
     <div>
-      <div>
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+        }}
+      >
         <button type="button" onClick={() => setModule(DevtoolsModule.NETWORK)}>
           Network
         </button>
@@ -43,16 +25,21 @@ export const Header = () => {
           Processing
         </button>
       </div>
-      <div>
-        <button>Success</button>
-        <button>Failed</button>
-        <button>In Progress</button>
-        <button>Paused</button>
-        <button>Idle</button>
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+        }}
+      >
+        <div>Success {success.length}</div>
+        <div>Failed {failed.length}</div>
+        <div>In Progress {inProgress.length}</div>
+        <div>Paused {paused.length}</div>
+        <div>Canceled {canceled.length}</div>
         <div className="spacer" />
 
-        <button>go offline</button>
-        <button>options</button>
+        <button type="button">go offline</button>
+        <button type="button">options</button>
       </div>
     </div>
   );

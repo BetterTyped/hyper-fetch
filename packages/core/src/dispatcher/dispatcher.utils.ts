@@ -3,13 +3,22 @@ import { DispatcherRequestType, QueueElementType } from "dispatcher";
 
 // Events
 
-export const getDispatcherDrainedEventKey = (key: string): string => {
+export const getDispatcherDrainedKey = (): string => {
+  return `drained-event`;
+};
+export const getDispatcherDrainedByKey = (key: string): string => {
   return `${key}-drained-event`;
 };
-export const getDispatcherStatusEventKey = (key: string): string => {
+export const getDispatcherStatusKey = (): string => {
+  return `status-event`;
+};
+export const getDispatcherStatusByKey = (key: string): string => {
   return `${key}-status-event`;
 };
-export const getDispatcherChangeEventKey = (key: string): string => {
+export const getDispatcherChangeKey = (): string => {
+  return `change-event`;
+};
+export const getDispatcherChangeByKey = (key: string): string => {
   return `${key}-change-event`;
 };
 

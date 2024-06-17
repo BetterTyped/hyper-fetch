@@ -46,7 +46,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit drained event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onDrained(request.queueKey, spy);
+      const unmount = dispatcher.events.onDrainedByKey(request.queueKey, spy);
       dispatcher.add(request.setQueued(true));
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -59,7 +59,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueStatusChange(request.queueKey, spy);
+      const unmount = dispatcher.events.onQueueStatusChangeByKey(request.queueKey, spy);
       dispatcher.stop(request.queueKey);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
@@ -68,7 +68,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit queue change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueChange(request.queueKey, spy);
+      const unmount = dispatcher.events.onQueueChangeByKey(request.queueKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();

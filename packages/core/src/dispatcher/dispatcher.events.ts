@@ -2,21 +2,36 @@ import EventEmitter from "events";
 
 import {
   QueueDataType,
-  getDispatcherChangeEventKey,
-  getDispatcherStatusEventKey,
-  getDispatcherDrainedEventKey,
+  getDispatcherChangeKey,
+  getDispatcherChangeByKey,
+  getDispatcherStatusKey,
+  getDispatcherStatusByKey,
+  getDispatcherDrainedKey,
+  getDispatcherDrainedByKey,
 } from "dispatcher";
 import { RequestInstance } from "request";
 
 export const getDispatcherEvents = (emitter: EventEmitter) => ({
   setDrained: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherDrainedEventKey(queueKey), values);
+    emitter.emit(getDispatcherDrainedKey(), values);
+    emitter.emit(getDispatcherDrainedByKey(queueKey), values);
   },
   setQueueStatusChanged: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherStatusEventKey(queueKey), values);
+    emitter.emit(getDispatcherStatusKey(), values);
+    emitter.emit(getDispatcherStatusByKey(queueKey), values);
   },
   setQueueChanged: <Request extends RequestInstance>(queueKey: string, values: QueueDataType<Request>): void => {
-    emitter.emit(getDispatcherChangeEventKey(queueKey), values);
+    emitter.emit(getDispatcherChangeKey(), values);
+    emitter.emit(getDispatcherChangeByKey(queueKey), values);
+  },
+  /**
+   * When queue becomes empty
+   * @param callback
+   * @returns
+   */
+  onDrained: <Request extends RequestInstance>(callback: (values: QueueDataType<Request>) => void): VoidFunction => {
+    emitter.on(getDispatcherDrainedKey(), callback);
+    return () => emitter.removeListener(getDispatcherDrainedKey(), callback);
   },
   /**
    * When queue becomes empty
@@ -24,12 +39,23 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onDrained: <Request extends RequestInstance>(
+  onDrainedByKey: <Request extends RequestInstance>(
     queueKey: string,
     callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
-    emitter.on(getDispatcherDrainedEventKey(queueKey), callback);
-    return () => emitter.removeListener(getDispatcherDrainedEventKey(queueKey), callback);
+    emitter.on(getDispatcherDrainedByKey(queueKey), callback);
+    return () => emitter.removeListener(getDispatcherDrainedByKey(queueKey), callback);
+  },
+  /**
+   * When queue status change from enabled to paused or vice versa
+   * @param callback
+   * @returns
+   */
+  onQueueStatusChange: <Request extends RequestInstance>(
+    callback: (values: QueueDataType<Request>) => void,
+  ): VoidFunction => {
+    emitter.on(getDispatcherStatusKey(), callback);
+    return () => emitter.removeListener(getDispatcherStatusKey(), callback);
   },
   /**
    * When queue status change from enabled to paused or vice versa
@@ -37,12 +63,12 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onQueueStatusChange: <Request extends RequestInstance>(
+  onQueueStatusChangeByKey: <Request extends RequestInstance>(
     queueKey: string,
     callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
-    emitter.on(getDispatcherStatusEventKey(queueKey), callback);
-    return () => emitter.removeListener(getDispatcherStatusEventKey(queueKey), callback);
+    emitter.on(getDispatcherStatusByKey(queueKey), callback);
+    return () => emitter.removeListener(getDispatcherStatusByKey(queueKey), callback);
   },
   /**
    * When new elements are added or removed from the queue
@@ -54,7 +80,20 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
     queueKey: string,
     callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
-    emitter.on(getDispatcherChangeEventKey(queueKey), callback);
-    return () => emitter.removeListener(getDispatcherChangeEventKey(queueKey), callback);
+    emitter.on(getDispatcherChangeKey(), callback);
+    return () => emitter.removeListener(getDispatcherChangeKey(), callback);
+  },
+  /**
+   * When new elements are added or removed from the queue
+   * @param queueKey
+   * @param callback
+   * @returns
+   */
+  onQueueChangeByKey: <Request extends RequestInstance>(
+    queueKey: string,
+    callback: (values: QueueDataType<Request>) => void,
+  ): VoidFunction => {
+    emitter.on(getDispatcherChangeByKey(queueKey), callback);
+    return () => emitter.removeListener(getDispatcherChangeByKey(queueKey), callback);
   },
 });

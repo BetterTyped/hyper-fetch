@@ -231,7 +231,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       it("should not emit changes when started requests is not found in storage", async () => {
         const spy = jest.fn();
-        dispatcher.events.onQueueChange("fake-key", spy);
+        dispatcher.events.onQueueChangeByKey("fake-key", spy);
         dispatcher.startRequest("fake-key", "fake-request-id");
 
         expect(spy).not.toBeCalled();

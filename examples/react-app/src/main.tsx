@@ -1,9 +1,11 @@
 import { Stack } from "@mui/material";
 import * as ReactDOM from "react-dom/client";
 import { SnackbarProvider } from "notistack";
+import { Devtools } from "@hyper-fetch/devtools-react";
 
 import { routing } from "./constants/routing.constants";
 import DashboardPage from "./pages/index";
+import { client } from "./api";
 
 const { Route } = routing;
 
@@ -24,5 +26,6 @@ root.render(
       <Route to="Form" />
       <Route to="Websockets" />
     </Stack>
+    <Devtools client={client} />
   </SnackbarProvider>,
 );
