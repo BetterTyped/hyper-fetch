@@ -211,8 +211,8 @@ export const useTrackedState = <T extends RequestInstance>({
     },
     setLoading: (loading, emitToHooks = true) => {
       if (emitToHooks) {
-        requestManager.events.emitLoading(queueKey, "", {
-          queueKey,
+        requestManager.events.emitLoading({
+          request,
           requestId: "",
           loading,
           isRetry: false,

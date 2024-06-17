@@ -18,8 +18,9 @@ import { RequestInstance } from "request";
 import { getErrorMessage } from "adapter";
 
 /**
- * Dispatcher class was made to store controlled request Fetches, and firing them all-at-once or one-by-one in request queue.
- * Generally requests should be flushed at the same time, the queue provide mechanism to fire them in the order.
+ * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
+ * This class can also run them with different modes like deduplication, cancelation, queueing or run-all-at-once mode. With it's help we can pause,
+ * stop, start and cancel requests.
  */
 export class Dispatcher {
   public emitter = new EventEmitter();
@@ -50,11 +51,11 @@ export class Dispatcher {
     this.options?.onInitialization?.(this);
   }
 
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
   // Queue
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
 
   /**
    * Start request handling by queueKey
@@ -67,7 +68,7 @@ export class Dispatcher {
     queue.stopped = false;
     this.setQueue(queueKey, queue);
     this.flushQueue(queueKey);
-    this.events.setQueueStatus(queueKey, queue);
+    this.events.setQueueStatusChanged(queueKey, queue);
   };
 
   /**
@@ -79,7 +80,7 @@ export class Dispatcher {
 
     queue.stopped = true;
     this.setQueue(queueKey, queue);
-    this.events.setQueueStatus(queueKey, queue);
+    this.events.setQueueStatusChanged(queueKey, queue);
   };
 
   /**
@@ -94,7 +95,7 @@ export class Dispatcher {
 
     // Cancel running requests
     this.cancelRunningRequests(queueKey);
-    this.events.setQueueStatus(queueKey, queue);
+    this.events.setQueueStatusChanged(queueKey, queue);
   };
 
   /**
@@ -139,10 +140,10 @@ export class Dispatcher {
    */
   addQueueElement = <Request extends RequestInstance = RequestInstance>(
     queueKey: string,
-    dispatcherDump: QueueElementType<Request>,
+    element: QueueElementType<Request>,
   ) => {
     const queue = this.getQueue<Request>(queueKey);
-    queue.requests.push(dispatcherDump);
+    queue.requests.push(element);
     this.setQueue<Request>(queueKey, queue);
   };
 
@@ -232,11 +233,11 @@ export class Dispatcher {
     this.options?.onClearStorage?.(this);
   };
 
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
   // Requests
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
 
   /**
    * Start particular request
@@ -251,7 +252,7 @@ export class Dispatcher {
       request.stopped = false;
       this.setQueue(queueKey, queue);
       this.flushQueue(queueKey);
-      this.events.setQueueStatus(queueKey, queue);
+      this.events.setQueueStatusChanged(queueKey, queue);
     }
   };
 
@@ -269,7 +270,7 @@ export class Dispatcher {
 
       // Cancel running requests
       this.cancelRunningRequest(queueKey, requestId);
-      this.events.setQueueStatus(queueKey, queue);
+      this.events.setQueueStatusChanged(queueKey, queue);
     }
   };
 
@@ -392,11 +393,11 @@ export class Dispatcher {
     return storageElement;
   };
 
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
   // Dispatching
-  // ********************
-  // ********************
+  // *********************************************************************
+  // *********************************************************************
 
   /**
    * Add request to the dispatcher handler
@@ -464,7 +465,7 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.client.requestManager.events.emitRemove(queueKey, requestId, { requestId, request: queueElement.request });
+    this.client.requestManager.events.emitRemove({ requestId, request: queueElement.request });
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -481,7 +482,7 @@ export class Dispatcher {
     const { request, requestId } = storageElement;
     this.logger.info("Performing request", { request, requestId });
 
-    const { retry, retryTime, queueKey, cacheKey, abortKey, offline } = request;
+    const { retry, retryTime, queueKey, abortKey, offline } = request;
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
@@ -499,8 +500,8 @@ export class Dispatcher {
     this.addRunningRequest(queueKey, requestId, request);
 
     // Propagate the loading to all connected hooks
-    requestManager.events.emitLoading(queueKey, requestId, {
-      queueKey,
+    requestManager.events.emitLoading({
+      request,
       requestId,
       loading: true,
       isRetry: !!storageElement.retries,
@@ -534,15 +535,15 @@ export class Dispatcher {
     };
 
     // Turn off loading
-    requestManager.events.emitLoading(queueKey, requestId, {
-      queueKey,
+    requestManager.events.emitLoading({
+      request,
       requestId,
       loading: false,
       isRetry: !!storageElement.retries,
       isOffline,
     });
     // Global response emitter to handle request execution
-    requestManager.events.emitResponse(cacheKey, requestId, response, requestDetails);
+    requestManager.events.emitResponse({ request, requestId, response, details: requestDetails });
     // Cache event to emit the data inside and store it
     cache.set(request, { ...response, ...requestDetails });
     this.logger.info("Request finished", { requestId, request, response, requestDetails });

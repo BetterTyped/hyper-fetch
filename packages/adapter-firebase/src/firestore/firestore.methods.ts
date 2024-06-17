@@ -89,15 +89,15 @@ export const getFirestoreBrowserMethods = <R extends RequestInstance>(
 
   return async (methodName: FirestoreMethodsUnion, data) => {
     try {
-      events.onRequestStart();
+      events.onRequestStartByQueue();
       const { result, status, extra } = await methods[methodName](data);
       events.onRequestEnd();
-      events.onResponseStart();
+      events.onResponseStartByQueue();
       onSuccess(result, status, extra, resolve);
       events.onResponseEnd();
     } catch (e) {
       events.onRequestEnd();
-      events.onResponseStart();
+      events.onResponseStartByQueue();
       onError(e, "error", {}, resolve);
       events.onResponseEnd();
     }

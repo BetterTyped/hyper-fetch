@@ -27,15 +27,21 @@ import { Time } from "constants/time.constants";
 import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
 
 /**
- * Fetch request it is designed to prepare the necessary setup to execute the request to the server.
- * We can set up basic options for example endpoint, method, headers and advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
- * :::info Usage
- * We should not use this class directly in the standard development flow. We can initialize it using the `createRequest` method on the **Client** class.
- * :::
+ * Request is a class that represents a request sent to the server. It contains all the necessary information to make a request, like endpoint, method, headers, data, and much more.
+ * It is executed at any time via methods like `send` or `exec`.
  *
- * @attention
- * The most important thing about the request is that it keeps data in the format that can be dumped. This is necessary for the persistence and different dispatcher storage types.
+ * We can set it up with options like endpoint, method, headers and more.
+ * We can choose some of advanced settings like cache, invalidation patterns, concurrency, retries and much, much more.
+ *
+ * @info We should not use this class directly in the standard development flow.
+ * We can initialize it using the `createRequest` method on the **Client** class.
+ *
+ * @attention The most important thing about the request is that it keeps data in the format that can be dumped.
+ * This is necessary for the persistence and different dispatcher storage types.
  * This class doesn't have any callback methods by design and communicate with dispatcher and cache by events.
+ *
+ * It should be serializable to JSON and deserializable back to the class.
+ * Serialization should not affect the result of the request, so it's methods and functional part should be only syntax sugar for given runtime.
  */
 export class Request<
   Response,

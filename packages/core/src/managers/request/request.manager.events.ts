@@ -2,28 +2,37 @@
 import EventEmitter from "events";
 
 import {
-  getRequestStartEventKey,
-  getResponseStartEventKey,
-  getDownloadProgressEventKey,
-  getUploadProgressEventKey,
-  getResponseIdEventKey,
-  getAbortEventKey,
-  getAbortByIdEventKey,
-  getResponseEventKey,
-  getUploadProgressIdEventKey,
-  getDownloadProgressIdEventKey,
-  getResponseStartIdEventKey,
-  getRequestStartIdEventKey,
-  getLoadingEventKey,
-  getLoadingIdEventKey,
+  getRequestStarByQueueKey,
+  getResponseStartByQueueKey,
+  getDownloadProgressByQueueKey,
+  getUploadProgressByQueueKey,
+  getResponseByIdKey,
+  getAbortByAbortKey,
+  getAbortByIdKey,
+  getResponseByCacheKey,
+  getUploadProgressByIdKey,
+  getDownloadProgressByIdKey,
+  getResponseStartByIdKey,
+  getRequestStartByIdKey,
+  getLoadingByQueueKey,
+  getLoadingByIdKey,
   RequestEventType,
-  ResponseDetailsType,
   RequestLoadingEventType,
-  getRemoveEventKey,
-  getRemoveIdEventKey,
+  getRemoveByQueueKey,
+  getRemoveByIdKey,
+  getLoadingKey,
+  getRequestStartKey,
+  getUploadProgressKey,
+  getDownloadProgressKey,
+  getResponseKey,
+  getAbortKey,
+  getRemoveKey,
+  getResponseStartKey,
+  RequestProgressEventType,
+  RequestResponseEventType,
 } from "managers";
-import { AdapterInstance, ProgressType, ResponseType } from "adapter";
-import { RequestInstance } from "request";
+import { AdapterInstance } from "adapter";
+import { ExtendRequest, RequestInstance } from "request";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
@@ -31,62 +40,57 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
    */
 
   // Loading
-  emitLoading: (queueKey: string, requestId: string, values: RequestLoadingEventType): void => {
-    emitter.emit(getLoadingIdEventKey(requestId), values);
-    emitter.emit(getLoadingEventKey(queueKey), values);
+  emitLoading: (data: RequestLoadingEventType<RequestInstance>): void => {
+    emitter.emit(getLoadingKey(), data);
+    emitter.emit(getLoadingByIdKey(data.requestId), data);
+    emitter.emit(getLoadingByQueueKey(data.request.queueKey), data);
   },
 
   // Start
-  emitRequestStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>): void => {
-    emitter.emit(getRequestStartIdEventKey(requestId), details);
-    emitter.emit(getRequestStartEventKey(queueKey), details);
+  emitRequestStart: (data: RequestEventType<RequestInstance>): void => {
+    emitter.emit(getRequestStartKey(), data);
+    emitter.emit(getRequestStartByIdKey(data.requestId), data);
+    emitter.emit(getRequestStarByQueueKey(data.request.queueKey), data);
   },
-  emitResponseStart: (queueKey: string, requestId: string, details: RequestEventType<RequestInstance>): void => {
-    emitter.emit(getResponseStartIdEventKey(requestId), details);
-    emitter.emit(getResponseStartEventKey(queueKey), details);
+  emitResponseStart: (data: RequestEventType<RequestInstance>): void => {
+    emitter.emit(getResponseStartKey(), data);
+    emitter.emit(getResponseStartByIdKey(data.requestId), data);
+    emitter.emit(getResponseStartByQueueKey(data.request.queueKey), data);
   },
 
   // Progress
-  emitUploadProgress: (
-    queueKey: string,
-    requestId: string,
-    values: ProgressType,
-    details: RequestEventType<RequestInstance>,
-  ): void => {
-    emitter.emit(getUploadProgressIdEventKey(requestId), values, details);
-    emitter.emit(getUploadProgressEventKey(queueKey), values, details);
+  emitUploadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
+    emitter.emit(getUploadProgressKey(), data);
+    emitter.emit(getUploadProgressByIdKey(data.requestId), data);
+    emitter.emit(getUploadProgressByQueueKey(data.request.queueKey), data);
   },
-  emitDownloadProgress: (
-    queueKey: string,
-    requestId: string,
-    values: ProgressType,
-    details: RequestEventType<RequestInstance>,
-  ): void => {
-    emitter.emit(getDownloadProgressIdEventKey(requestId), values, details);
-    emitter.emit(getDownloadProgressEventKey(queueKey), values, details);
+  emitDownloadProgress: (data: RequestProgressEventType<RequestInstance>): void => {
+    emitter.emit(getDownloadProgressKey(), data);
+    emitter.emit(getDownloadProgressByIdKey(data.requestId), data);
+    emitter.emit(getDownloadProgressByQueueKey(data.request.queueKey), data);
   },
 
   // Response
   emitResponse: <Adapter extends AdapterInstance>(
-    cacheKey: string,
-    requestId: string,
-    response: ResponseType<unknown, unknown, Adapter>,
-    details: ResponseDetailsType,
+    data: RequestResponseEventType<ExtendRequest<RequestInstance, { adapter: Adapter }>>,
   ): void => {
-    emitter.emit(getResponseIdEventKey(requestId), response, details);
-    emitter.emit(getResponseEventKey(cacheKey), response, details);
+    emitter.emit(getResponseKey(), data);
+    emitter.emit(getResponseByIdKey(data.requestId), data);
+    emitter.emit(getResponseByCacheKey(data.request.cacheKey), data);
   },
 
   // Abort
-  emitAbort: (abortKey: string, requestId: string, request: RequestInstance): void => {
-    emitter.emit(getAbortByIdEventKey(requestId), request);
-    emitter.emit(getAbortEventKey(abortKey), request);
+  emitAbort: (data: RequestEventType<RequestInstance>): void => {
+    emitter.emit(getAbortKey(), data);
+    emitter.emit(getAbortByIdKey(data.requestId), data);
+    emitter.emit(getAbortByAbortKey(data.request.abortKey), data);
   },
 
   // Remove
-  emitRemove: <T extends RequestInstance>(queueKey: string, requestId: string, details: RequestEventType<T>): void => {
-    emitter.emit(getRemoveEventKey(queueKey), details);
-    emitter.emit(getRemoveIdEventKey(requestId), details);
+  emitRemove: (data: RequestEventType<RequestInstance>): void => {
+    emitter.emit(getRemoveKey(), data);
+    emitter.emit(getRemoveByIdKey(data.requestId), data);
+    emitter.emit(getRemoveByQueueKey(data.request.queueKey), data);
   },
 
   /**
@@ -94,116 +98,169 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
    */
 
   // Loading
-  onLoading: (queueKey: string, callback: (values: RequestLoadingEventType) => void): VoidFunction => {
-    emitter.on(getLoadingEventKey(queueKey), callback);
-    return () => emitter.removeListener(getLoadingEventKey(queueKey), callback);
+  onLoading: <T extends RequestInstance>(callback: (data: RequestLoadingEventType<T>) => void): VoidFunction => {
+    emitter.on(getLoadingKey(), callback);
+    return () => emitter.removeListener(getLoadingKey(), callback);
   },
-  onLoadingById: (requestId: string, callback: (values: RequestLoadingEventType) => void): VoidFunction => {
-    emitter.on(getLoadingIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getLoadingIdEventKey(requestId), callback);
+  onLoadingByQueue: <T extends RequestInstance>(
+    queueKey: string,
+    callback: (data: RequestLoadingEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getLoadingByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getLoadingByQueueKey(queueKey), callback);
+  },
+  onLoadingById: <T extends RequestInstance>(
+    requestId: string,
+    callback: (data: RequestLoadingEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getLoadingByIdKey(requestId), callback);
+    return () => emitter.removeListener(getLoadingByIdKey(requestId), callback);
   },
 
   // Request Start
-  onRequestStart: <T extends RequestInstance>(
+  onRequestStart: <T extends RequestInstance>(callback: (details: RequestEventType<T>) => void): VoidFunction => {
+    emitter.on(getRequestStartKey(), callback);
+    return () => emitter.removeListener(getRequestStartKey(), callback);
+  },
+  onRequestStartByQueue: <T extends RequestInstance>(
     queueKey: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRequestStartEventKey(queueKey), callback);
-    return () => emitter.removeListener(getRequestStartEventKey(queueKey), callback);
+    emitter.on(getRequestStarByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getRequestStarByQueueKey(queueKey), callback);
   },
   onRequestStartById: <T extends RequestInstance>(
     requestId: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRequestStartIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getRequestStartIdEventKey(requestId), callback);
+    emitter.on(getRequestStartByIdKey(requestId), callback);
+    return () => emitter.removeListener(getRequestStartByIdKey(requestId), callback);
   },
+
   // Response Start
-  onResponseStart: <T extends RequestInstance>(
+  onResponseStart: <T extends RequestInstance>(callback: (details: RequestEventType<T>) => void): VoidFunction => {
+    emitter.on(getResponseStartKey(), callback);
+    return () => emitter.removeListener(getResponseStartKey(), callback);
+  },
+  onResponseStartByQueue: <T extends RequestInstance>(
     queueKey: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getResponseStartEventKey(queueKey), callback);
-    return () => emitter.removeListener(getResponseStartEventKey(queueKey), callback);
+    emitter.on(getResponseStartByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getResponseStartByQueueKey(queueKey), callback);
   },
   onResponseStartById: <T extends RequestInstance>(
     requestId: string,
     callback: (details: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getResponseStartIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getResponseStartIdEventKey(requestId), callback);
+    emitter.on(getResponseStartByIdKey(requestId), callback);
+    return () => emitter.removeListener(getResponseStartByIdKey(requestId), callback);
   },
 
   // Progress
   onUploadProgress: <T extends RequestInstance = RequestInstance>(
-    queueKey: string,
-    callback: (values: ProgressType, details: RequestEventType<T>) => void,
+    callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getUploadProgressEventKey(queueKey), callback);
-    return () => emitter.removeListener(getUploadProgressEventKey(queueKey), callback);
+    emitter.on(getUploadProgressKey(), callback);
+    return () => emitter.removeListener(getUploadProgressKey(), callback);
+  },
+  onUploadProgressByQueue: <T extends RequestInstance = RequestInstance>(
+    queueKey: string,
+    callback: (data: RequestProgressEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getUploadProgressByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getUploadProgressByQueueKey(queueKey), callback);
   },
   onUploadProgressById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
-    callback: (values: ProgressType, details: RequestEventType<T>) => void,
+    callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getUploadProgressIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getUploadProgressIdEventKey(requestId), callback);
+    emitter.on(getUploadProgressByIdKey(requestId), callback);
+    return () => emitter.removeListener(getUploadProgressByIdKey(requestId), callback);
   },
+
   onDownloadProgress: <T extends RequestInstance = RequestInstance>(
-    queueKey: string,
-    callback: (values: ProgressType, details: RequestEventType<T>) => void,
+    callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getDownloadProgressEventKey(queueKey), callback);
-    return () => emitter.removeListener(getDownloadProgressEventKey(queueKey), callback);
+    emitter.on(getDownloadProgressKey(), callback);
+    return () => emitter.removeListener(getDownloadProgressKey(), callback);
+  },
+  onDownloadProgressByQueue: <T extends RequestInstance = RequestInstance>(
+    queueKey: string,
+    callback: (data: RequestProgressEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getDownloadProgressByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getDownloadProgressByQueueKey(queueKey), callback);
   },
   onDownloadProgressById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
-    callback: (values: ProgressType, details: RequestEventType<T>) => void,
+    callback: (data: RequestProgressEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getDownloadProgressIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getDownloadProgressIdEventKey(requestId), callback);
+    emitter.on(getDownloadProgressByIdKey(requestId), callback);
+    return () => emitter.removeListener(getDownloadProgressByIdKey(requestId), callback);
   },
 
   // Response
-  onResponse: <Response, ErrorType, Adapter extends AdapterInstance>(
-    cacheKey: string,
-    callback: (response: ResponseType<Response, ErrorType, Adapter>, details: ResponseDetailsType) => void,
-  ): VoidFunction => {
-    emitter.on(getResponseEventKey(cacheKey), callback);
-    return () => emitter.removeListener(getResponseEventKey(cacheKey), callback);
+  onResponse: <T extends RequestInstance>(callback: (data: RequestResponseEventType<T>) => void): VoidFunction => {
+    emitter.on(getResponseKey(), callback);
+    return () => emitter.removeListener(getResponseKey(), callback);
   },
-  // Response by requestId
-  onResponseById: <Response, ErrorType, Adapter extends AdapterInstance>(
-    requestId: string,
-    callback: (response: ResponseType<Response, ErrorType, Adapter>, details: ResponseDetailsType) => void,
+  onResponseByCache: <T extends RequestInstance>(
+    cacheKey: string,
+    callback: (data: RequestResponseEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getResponseIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getResponseIdEventKey(requestId), callback);
+    emitter.on(getResponseByCacheKey(cacheKey), callback);
+    return () => emitter.removeListener(getResponseByCacheKey(cacheKey), callback);
+  },
+  onResponseById: <T extends RequestInstance>(
+    requestId: string,
+    callback: (data: RequestResponseEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getResponseByIdKey(requestId), callback);
+    return () => emitter.removeListener(getResponseByIdKey(requestId), callback);
   },
 
   // Abort
-  onAbort: (abortKey: string, callback: (request: RequestInstance) => void): VoidFunction => {
-    emitter.on(getAbortEventKey(abortKey), callback);
-    return () => emitter.removeListener(getAbortEventKey(abortKey), callback);
+  onAbort: <T extends RequestInstance = RequestInstance>(
+    callback: (request: RequestEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getAbortKey(), callback);
+    return () => emitter.removeListener(getAbortKey(), callback);
   },
-  onAbortById: (requestId: string, callback: (request: RequestInstance) => void): VoidFunction => {
-    emitter.on(getAbortByIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getAbortByIdEventKey(requestId), callback);
+  onAbortByAbortKey: <T extends RequestInstance = RequestInstance>(
+    abortKey: string,
+    callback: (request: RequestEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getAbortByAbortKey(abortKey), callback);
+    return () => emitter.removeListener(getAbortByAbortKey(abortKey), callback);
+  },
+  onAbortById: <T extends RequestInstance = RequestInstance>(
+    requestId: string,
+    callback: (data: RequestEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getAbortByIdKey(requestId), callback);
+    return () => emitter.removeListener(getAbortByIdKey(requestId), callback);
   },
 
   // Remove
   onRemove: <T extends RequestInstance = RequestInstance>(
-    queueKey: string,
-    callback: (details: RequestEventType<T>) => void,
+    callback: (data: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRemoveEventKey(queueKey), callback);
-    return () => emitter.removeListener(getRemoveEventKey(queueKey), callback);
+    emitter.on(getRemoveKey(), callback);
+    return () => emitter.removeListener(getRemoveKey(), callback);
+  },
+  onRemoveByQueue: <T extends RequestInstance = RequestInstance>(
+    queueKey: string,
+    callback: (data: RequestEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getRemoveByQueueKey(queueKey), callback);
+    return () => emitter.removeListener(getRemoveByQueueKey(queueKey), callback);
   },
   onRemoveById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
-    callback: (details: RequestEventType<T>) => void,
+    callback: (data: RequestEventType<T>) => void,
   ): VoidFunction => {
-    emitter.on(getRemoveIdEventKey(requestId), callback);
-    return () => emitter.removeListener(getRemoveIdEventKey(requestId), callback);
+    emitter.on(getRemoveByIdKey(requestId), callback);
+    return () => emitter.removeListener(getRemoveByIdKey(requestId), callback);
   },
 });

@@ -65,7 +65,8 @@ describe("useQueue [ Base ]", () => {
           expect(result.current.requests).toHaveLength(1);
         });
         act(() => {
-          client.requestManager.events.emitDownloadProgress(request.queueKey, requestId, progress, {
+          client.requestManager.events.emitDownloadProgress({
+            progress,
             requestId,
             request,
           });
@@ -93,7 +94,8 @@ describe("useQueue [ Base ]", () => {
           expect(result.current.requests).toHaveLength(1);
         });
         act(() => {
-          client.requestManager.events.emitUploadProgress(request.queueKey, requestId, progress, {
+          client.requestManager.events.emitUploadProgress({
+            progress,
             requestId,
             request,
           });

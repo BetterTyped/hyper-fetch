@@ -20,13 +20,12 @@ import { Request } from "request";
 import {
   ResponseType,
   QueryParamsType,
-  ProgressType,
   ExtractAdapterOptionsType,
   AdapterType,
   ExtractAdapterMethodType,
   AdapterInstance,
 } from "adapter";
-import { RequestEventType, ResponseDetailsType } from "managers";
+import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 
 // Progress
 export type AdapterProgressEventType = { total: number; loaded: number };
@@ -35,8 +34,6 @@ export type AdapterProgressType = {
   timeLeft: number;
   sizeLeft: number;
 };
-
-// Dump
 
 /**
  * Dump of the request used to later recreate it
@@ -263,15 +260,12 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
   RequestQueueOptions;
 
 export type FetchSendActionsType<Request extends RequestInstance> = {
-  onSettle?: (requestId: string, request: Request) => void;
-  onRequestStart?: (details: RequestEventType<Request>) => void;
-  onResponseStart?: (details: RequestEventType<Request>) => void;
-  onUploadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
-  onDownloadProgress?: (values: ProgressType, details: RequestEventType<Request>) => void;
-  onResponse?: (
-    response: ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
-    details: ResponseDetailsType,
-  ) => void;
+  onSettle?: (data: RequestEventType<Request>) => void;
+  onRequestStart?: (data: RequestEventType<Request>) => void;
+  onResponseStart?: (data: RequestEventType<Request>) => void;
+  onUploadProgress?: (data: RequestProgressEventType<Request>) => void;
+  onDownloadProgress?: (data: RequestProgressEventType<Request>) => void;
+  onResponse?: (data: RequestResponseEventType<Request>) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 

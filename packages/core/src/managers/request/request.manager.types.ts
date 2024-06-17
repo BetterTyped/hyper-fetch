@@ -1,17 +1,28 @@
+import { ProgressType, ResponseType } from "adapter";
 import { RequestInstance } from "request";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 // Events
-export type RequestLoadingEventType = {
-  queueKey: string;
-  requestId: string;
+export type RequestLoadingEventType<T extends RequestInstance> = {
   loading: boolean;
   isRetry: boolean;
   isOffline: boolean;
-};
+} & RequestEventType<T>;
+
+export type RequestProgressEventType<T extends RequestInstance> = {
+  progress: ProgressType;
+} & RequestEventType<T>;
 
 export type RequestEventType<T extends RequestInstance> = {
-  requestId: string;
   request: T;
+  requestId: string;
+};
+
+export type RequestResponseEventType<T extends RequestInstance> = {
+  request: T;
+  requestId: string;
+  response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>;
+  details: ResponseDetailsType;
 };
 
 export type ResponseDetailsType = {
@@ -20,5 +31,3 @@ export type ResponseDetailsType = {
   isCanceled: boolean;
   isOffline: boolean;
 };
-
-export type RequestRemoveDataType = { queueKey: string; requestId: string };

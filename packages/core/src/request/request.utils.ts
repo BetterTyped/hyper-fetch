@@ -122,30 +122,27 @@ export const sendRequest = <Request extends RequestInstance>(
   >((resolve) => {
     let isResolved = false;
     const requestId = dispatcher.add(request);
-    options?.onSettle?.(requestId, request);
+    options?.onSettle?.({ requestId, request });
 
-    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (...props) =>
-      options?.onRequestStart?.(...props),
+    const unmountRequestStart = requestManager.events.onRequestStartById<Request>(requestId, (data) =>
+      options?.onRequestStart?.(data),
     );
 
-    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (...props) =>
-      options?.onResponseStart?.(...props),
+    const unmountResponseStart = requestManager.events.onResponseStartById<Request>(requestId, (data) =>
+      options?.onResponseStart?.(data),
     );
 
-    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (...props) =>
-      options?.onUploadProgress?.(...props),
+    const unmountUpload = requestManager.events.onUploadProgressById<Request>(requestId, (data) =>
+      options?.onUploadProgress?.(data),
     );
 
-    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (...props) =>
-      options?.onDownloadProgress?.(...props),
+    const unmountDownload = requestManager.events.onDownloadProgressById<Request>(requestId, (data) =>
+      options?.onDownloadProgress?.(data),
     );
 
     // When resolved
-    const unmountResponse = requestManager.events.onResponseById<
-      ExtractResponseType<Request>,
-      ExtractErrorType<Request>,
-      ExtractAdapterType<Request>
-    >(requestId, (response, details) => {
+    const unmountResponse = requestManager.events.onResponseById<Request>(requestId, (values) => {
+      const { details, response } = values;
       isResolved = true;
 
       const mapping = request.responseMapper?.(response);
@@ -160,7 +157,7 @@ export const sendRequest = <Request extends RequestInstance>(
         // When request is in retry mode we need to listen for retries end
         if (!success && willRetry) return;
 
-        options?.onResponse?.(data, details);
+        options?.onResponse?.(values);
         resolve(data);
 
         // Unmount Listeners

@@ -37,8 +37,9 @@ import { ExtractAdapterType, NegativeTypes } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
- * requests which, when called using the appropriate method, will cause the server to be queried for the endpoint and
- * method specified in the request.
+ * requests. It allows you to set global defaults for the requests configuration, query params configuration.
+ * It is also orchestrator for all of the HyperFetch modules like Cache, Dispatcher, AppManager, LoggerManager,
+ * RequestManager and more.
  */
 export class Client<
   GlobalErrorType extends ClientErrorType = Error,

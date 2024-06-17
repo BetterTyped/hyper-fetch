@@ -37,7 +37,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       const loadingSpy = jest.fn();
-      client.requestManager.events.onLoading(request.queueKey, loadingSpy);
+      client.requestManager.events.onLoadingByQueue(request.queueKey, loadingSpy);
       const requestId = dispatcher.add(request);
 
       expect(requestId).toBeString();

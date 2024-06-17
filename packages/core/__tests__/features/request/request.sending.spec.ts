@@ -99,7 +99,7 @@ describe("Request [ Sending ]", () => {
       await sleep(5);
       client.appManager.setOnline(false);
 
-      const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
+      const unmount = client.requestManager.events.onResponseByCache(request.cacheKey, () => {
         spy();
         mockRequest(request, { data: fixture, delay: 40 });
         client.appManager.setOnline(true);
@@ -122,7 +122,7 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.setRetry(1).setRetryTime(30).send();
       await sleep(5);
 
-      const unmount = client.requestManager.events.onResponse(request.cacheKey, () => {
+      const unmount = client.requestManager.events.onResponseByCache(request.cacheKey, () => {
         spy();
         mockRequest(request, { data: fixture, delay: 40 });
         unmount();

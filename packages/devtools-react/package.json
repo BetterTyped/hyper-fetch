@@ -25,17 +25,18 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
-    "@hyper-fetch/sockets": "*",
-    "react": ">= 16.8.0"
+    "@hyper-fetch/sockets": "*"
   },
   "peerDependenciesMeta": {
+    "@hyper-fetch/core": {
+      "optional": true
+    },
     "@hyper-fetch/sockets": {
       "optional": true
     }
   },
-  "dependencies": {
-    "@better-hooks/lifecycle": "^1.1.1",
-    "@better-hooks/performance": "^1.1.1"
+  "devDependencies": {
+    "react": ">= 16.8.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

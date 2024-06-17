@@ -1,5 +1,4 @@
-"use client";
-
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-console */
@@ -12,11 +11,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import LinearProgress, { LinearProgressProps } from "@mui/material/LinearProgress";
-
 import { UseFetchReturnType, UseSubmitReturnType } from "@hyper-fetch/react";
 import { RequestInstance, ProgressType } from "@hyper-fetch/core";
 import { useSnackbar } from "notistack";
-
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import ErrorIcon from "@mui/icons-material/Error";
@@ -45,7 +42,7 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
 export function Request({ name, children, result }: Props) {
   const { data, error, timestamp } = result;
 
-  const { enqueueSnackbar } = useSnackbar() || {};
+  const { enqueueSnackbar } = useSnackbar();
 
   const [mounted, setMounted] = React.useState(false);
 
@@ -130,26 +127,26 @@ export function Request({ name, children, result }: Props) {
     enqueueSnackbar("Finished", { variant: "warning" });
   });
 
-  onDownloadProgress((progress, details) => {
-    setDownloadProgress((prev) => ({ ...prev, [details.requestId]: progress }));
+  onDownloadProgress(({ progress, requestId }) => {
+    setDownloadProgress((prev) => ({ ...prev, [requestId]: progress }));
     if (progress.total === progress.loaded) {
       setTimeout(() => {
         setUploadProgress((prev) => {
           const newProgress = { ...prev };
-          delete newProgress[details.requestId];
+          delete newProgress[requestId];
           return newProgress;
         });
         setDownloadProgress((prev) => {
           const newProgress = { ...prev };
-          delete newProgress[details.requestId];
+          delete newProgress[requestId];
           return newProgress;
         });
       }, 4000);
     }
   });
 
-  onUploadProgress((progress, details) => {
-    setUploadProgress((prev) => ({ ...prev, [details.requestId]: progress }));
+  onUploadProgress(({ progress, requestId }) => {
+    setUploadProgress((prev) => ({ ...prev, [requestId]: progress }));
   });
 
   React.useEffect(() => {

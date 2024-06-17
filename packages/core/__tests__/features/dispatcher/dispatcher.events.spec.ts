@@ -37,7 +37,7 @@ describe("Dispatcher [ Events ]", () => {
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
       const spy = jest.fn();
-      const unmount = client.requestManager.events.onLoading(request.queueKey, spy);
+      const unmount = client.requestManager.events.onLoadingByQueue(request.queueKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
@@ -59,7 +59,7 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueStatus(request.queueKey, spy);
+      const unmount = dispatcher.events.onQueueStatusChange(request.queueKey, spy);
       dispatcher.stop(request.queueKey);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
@@ -79,8 +79,8 @@ describe("Dispatcher [ Events ]", () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = mockRequest(request);
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
         delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
       dispatcher.add(request);
@@ -106,8 +106,8 @@ describe("Dispatcher [ Events ]", () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       const mock = mockRequest(request, { status: 400 });
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
         delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
       dispatcher.add(request);
@@ -134,8 +134,8 @@ describe("Dispatcher [ Events ]", () => {
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
       mockRequest(requestWithRetry, { status: 400, delay: 0 });
 
-      client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
-        response = rest;
+      client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (data) => {
+        response = [data.response, data.details];
         delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
       dispatcher.add(requestWithRetry);
@@ -167,8 +167,8 @@ describe("Dispatcher [ Events ]", () => {
       let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
       mockRequest(request, { status: 400 });
 
-      client.requestManager.events.onResponse(request.cacheKey, (...rest) => {
-        response = rest;
+      client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
+        response = [data.response, data.details];
         delete (response[1] as Partial<ResponseDetailsType>).timestamp;
       });
       dispatcher.add(request);

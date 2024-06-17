@@ -3,12 +3,11 @@ import {
   ExtractErrorType,
   ExtractResponseType,
   RequestInstance,
-  ProgressType,
-  ResponseType,
   RequestEventType,
-  ResponseDetailsType,
   RequestLoadingEventType,
   ExtractAdapterType,
+  RequestProgressEventType,
+  RequestResponseEventType,
 } from "@hyper-fetch/core";
 import { useWillUnmount } from "@better-hooks/lifecycle";
 
@@ -80,27 +79,23 @@ export const useRequestEvents = <T extends RequestInstance>({
   // Response handlers
   // ******************
 
-  const handleResponseCallbacks = (
-    cmd: T,
-    response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-    details: ResponseDetailsType,
-  ) => {
-    const { data, error, success } = response;
-    const { isOffline, isCanceled } = details;
+  const handleResponseCallbacks = (values: RequestResponseEventType<T>) => {
+    const { success } = values.response;
+    const { isOffline, isCanceled } = values.details;
     if (request.offline && isOffline && !success) {
-      logger.debug("Performing offline error callback", { data, details });
-      onOfflineErrorCallback.current?.({ response: error, request: cmd, details });
+      logger.debug("Performing offline error callback", values);
+      onOfflineErrorCallback.current?.(values);
     } else if (isCanceled) {
-      logger.debug("Performing abort callback", { data, details });
-      onAbortCallback.current?.({ response: error, request: cmd, details });
+      logger.debug("Performing abort callback", values);
+      onAbortCallback.current?.(values);
     } else if (success) {
-      logger.debug("Performing success callback", { data, details });
-      onSuccessCallback.current?.({ response: data, request: cmd, details });
+      logger.debug("Performing success callback", values);
+      onSuccessCallback.current?.(values);
     } else {
-      logger.debug("Performing error callback", { data, details });
-      onErrorCallback.current?.({ response: error, request: cmd, details });
+      logger.debug("Performing error callback", values);
+      onErrorCallback.current?.(values);
     }
-    onFinishedCallback.current?.({ response, request: cmd, details });
+    onFinishedCallback.current?.(values);
   };
 
   // ******************
@@ -108,7 +103,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   // ******************
 
   const handleGetLoadingEvent = (queueKey: string) => {
-    return ({ loading }: RequestLoadingEventType) => {
+    return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queueKey);
       if (loading || canDisableLoading) {
         actions.setLoading(loading, false);
@@ -116,39 +111,35 @@ export const useRequestEvents = <T extends RequestInstance>({
     };
   };
 
-  const handleDownloadProgress = (progress: ProgressType, details: RequestEventType<T>) => {
-    onDownloadProgressCallback.current?.(progress, details);
+  const handleDownloadProgress = (data: RequestProgressEventType<RequestInstance>) => {
+    onDownloadProgressCallback.current?.(data);
   };
 
-  const handleUploadProgress = (progress: ProgressType, details: RequestEventType<T>) => {
-    onUploadProgressCallback.current?.(progress, details);
+  const handleUploadProgress = (data: RequestProgressEventType<RequestInstance>) => {
+    onUploadProgressCallback.current?.(data);
   };
 
-  const handleRequestStart = (cmd: T) => {
+  const handleRequestStart = () => {
     return (details: RequestEventType<T>) => {
-      onRequestStartCallback.current?.({ request: cmd, details });
+      onRequestStartCallback.current?.(details);
     };
   };
-  const handleResponseStart = (cmd: T) => {
+  const handleResponseStart = () => {
     return (details: RequestEventType<T>) => {
-      onResponseStartCallback.current?.({ request: cmd, details });
+      onResponseStartCallback.current?.(details);
     };
   };
 
-  const handleResponse = (req: T) => {
-    return (
-      response: ResponseType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
-      details: ResponseDetailsType,
-    ) => {
-      const data = responseMapper ? responseMapper(response) : response;
+  const handleResponse = () => {
+    return (values: RequestResponseEventType<T>) => {
+      const data = responseMapper ? responseMapper(values.response) : values.response;
 
       if (data instanceof Promise) {
         return (async () => {
-          const promiseData = await data;
-          handleResponseCallbacks(req, promiseData, details);
+          handleResponseCallbacks({ ...values, response: await data });
         })();
       }
-      return handleResponseCallbacks(req, data, details);
+      return handleResponseCallbacks(values);
     };
   };
 
@@ -167,7 +158,7 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const addDataListener = (req: T) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoading(req.queueKey, handleGetLoadingEvent(req.queueKey));
+    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queueKey, handleGetLoadingEvent(req.queueKey));
     const getResponseUnmount = cache.events.onData<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(
       req.cacheKey,
       setCacheData,
@@ -198,11 +189,11 @@ export const useRequestEvents = <T extends RequestInstance>({
       // events to be triggered during lifecycle
       clearLifecycleListeners();
       const { queueKey, cacheKey } = req;
-      const requestStartUnmount = requestManager.events.onRequestStart(queueKey, handleRequestStart(req));
-      const responseStartUnmount = requestManager.events.onResponseStart(queueKey, handleResponseStart(req));
-      const uploadUnmount = requestManager.events.onUploadProgress(queueKey, handleUploadProgress);
-      const downloadUnmount = requestManager.events.onDownloadProgress(queueKey, handleDownloadProgress);
-      const responseUnmount = requestManager.events.onResponse(cacheKey, handleResponse(req));
+      const requestStartUnmount = requestManager.events.onRequestStartByQueue(queueKey, handleRequestStart());
+      const responseStartUnmount = requestManager.events.onResponseStartByQueue(queueKey, handleResponseStart());
+      const uploadUnmount = requestManager.events.onUploadProgressByQueue(queueKey, handleUploadProgress);
+      const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queueKey, handleDownloadProgress);
+      const responseUnmount = requestManager.events.onResponseByCache(cacheKey, handleResponse());
 
       const unmount = () => {
         downloadUnmount();
@@ -220,9 +211,9 @@ export const useRequestEvents = <T extends RequestInstance>({
      * useSubmit handles requesting by requestIds, this makes it possible to track single requests
      */
     const requestRemove = requestManager.events.onRemoveById(requestId, handleRemove);
-    const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart(req));
-    const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart(req));
-    const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse(req));
+    const requestStartUnmount = requestManager.events.onRequestStartById(requestId, handleRequestStart());
+    const responseStartUnmount = requestManager.events.onResponseStartById(requestId, handleResponseStart());
+    const responseUnmount = requestManager.events.onResponseById(requestId, handleResponse());
     const uploadUnmount = requestManager.events.onUploadProgressById(requestId, handleUploadProgress);
     const downloadUnmount = requestManager.events.onDownloadProgressById(requestId, handleDownloadProgress);
 

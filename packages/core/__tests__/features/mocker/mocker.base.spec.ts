@@ -98,7 +98,7 @@ describe("Mocker [ Base ]", () => {
     dispatcher.add(secondRequest);
     const requestId = dispatcher.add(firstRequest);
     client.requestManager.events.onAbortById(requestId, firstSpy);
-    client.requestManager.events.onAbort(firstRequest.abortKey, secondSpy);
+    client.requestManager.events.onAbortByQueue(firstRequest.abortKey, secondSpy);
 
     await sleep(5);
 
@@ -119,7 +119,7 @@ describe("Mocker [ Base ]", () => {
         { data: { data: [1, 2, 3] }, status: 200 },
       ]);
 
-    client.requestManager.events.onResponse(requestWithRetry.cacheKey, (...rest) => {
+    client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (...rest) => {
       response = rest;
       delete (response[1] as Partial<ResponseDetailsType>).timestamp;
     });
@@ -307,8 +307,8 @@ describe("Mocker [ Base ]", () => {
 
     const requestSpy = jest.fn();
     const responseSpy = jest.fn();
-    client.requestManager.events.onUploadProgress(request.queueKey, requestSpy);
-    client.requestManager.events.onDownloadProgress(request.queueKey, responseSpy);
+    client.requestManager.events.onUploadProgressByQueue(request.queueKey, requestSpy);
+    client.requestManager.events.onDownloadProgressByQueue(request.queueKey, responseSpy);
     const response = await mockedRequest.send();
     expect(requestSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
     expect(responseSpy.mock.calls.length).toBeGreaterThanOrEqual(3);

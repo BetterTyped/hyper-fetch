@@ -4,11 +4,14 @@ import {
   CacheValueType,
   ExtractResponseType,
   LoggerType,
-  ProgressType,
-  ExtractAdapterReturnType,
   RequestEventType,
   RequestInstance,
-  ResponseDetailsType,
+  RequestProgressEventType,
+  RequestResponseEventType,
+  ResponseReturnErrorType,
+  ExtractAdapterType,
+  ResponseType,
+  ResponseReturnSuccessType,
 } from "@hyper-fetch/core";
 
 import { UseTrackedStateActions } from "helpers";
@@ -83,26 +86,28 @@ export type UseRequestEventsReturnType<T extends RequestInstance> = [
 
 // Lifecycle
 
-export type CallbackParameters<Request, ResponseType> = {
+export type CallbackParameters<Request extends RequestInstance, ResponseType> = {
   response: ResponseType;
-  details: ResponseDetailsType;
-  request: Request;
-};
+} & Omit<RequestResponseEventType<Request>, "response">;
 
 export type OnSuccessCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractResponseType<Request>>,
+  params: CallbackParameters<
+    Request,
+    ResponseReturnSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>
+  >,
 ) => void | Promise<void>;
 export type OnErrorCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractErrorType<Request>>,
+  params: CallbackParameters<Request, ResponseReturnErrorType<ExtractErrorType<Request>, ExtractAdapterType<Request>>>,
 ) => void | Promise<void>;
 export type OnFinishedCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ExtractAdapterReturnType<Request>>,
+  params: CallbackParameters<
+    Request,
+    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>
+  >,
 ) => void | Promise<void>;
-export type OnStartCallbackType<Request extends RequestInstance> = (params: {
-  details: RequestEventType<Request>;
-  request: Request;
-}) => void | Promise<void>;
+export type OnStartCallbackType<Request extends RequestInstance> = (
+  data: RequestEventType<Request>,
+) => void | Promise<void>;
 export type OnProgressCallbackType = <Request extends RequestInstance>(
-  progress: ProgressType,
-  details: RequestEventType<Request>,
+  data: RequestProgressEventType<Request>,
 ) => void | Promise<void>;

@@ -119,9 +119,9 @@ export const useSubmit = <RequestType extends RequestInstance>(
       return sendRequest(requestClone, {
         dispatcherType: "submit",
         ...submitOptions,
-        onSettle: (requestId, cmd) => {
-          addLifecycleListeners(requestClone, requestId);
-          submitOptions?.onSettle?.(requestId, cmd);
+        onSettle: (data) => {
+          addLifecycleListeners(requestClone, data.requestId);
+          submitOptions?.onSettle?.(data);
         },
       });
     };

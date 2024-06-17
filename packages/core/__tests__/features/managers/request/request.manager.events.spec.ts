@@ -36,11 +36,11 @@ describe("RequestManager [ Events ]", () => {
       const spy5 = jest.fn();
       const spy6 = jest.fn();
 
-      client.requestManager.events.onRequestStart(request.queueKey, spy1);
-      client.requestManager.events.onResponseStart(request.queueKey, spy2);
-      client.requestManager.events.onUploadProgress(request.queueKey, spy3);
-      client.requestManager.events.onDownloadProgress(request.queueKey, spy4);
-      client.requestManager.events.onResponse(request.cacheKey, spy5);
+      client.requestManager.events.onRequestStartByQueue(request.queueKey, spy1);
+      client.requestManager.events.onResponseStartByQueue(request.queueKey, spy2);
+      client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy3);
+      client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy4);
+      client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
       const requestId = client.fetchDispatcher.add(request);
 
@@ -63,7 +63,7 @@ describe("RequestManager [ Events ]", () => {
       const spy2 = jest.fn();
 
       const requestId = client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbort(request.abortKey, spy1);
+      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
       client.requestManager.events.onAbortById(requestId, spy2);
 
       await sleep(5);
@@ -82,7 +82,7 @@ describe("RequestManager [ Events ]", () => {
       const spy2 = jest.fn();
 
       const requestId = client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbort(request.abortKey, spy1);
+      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
       client.requestManager.events.onAbortById(requestId, spy2);
 
       await sleep(5);
@@ -104,7 +104,7 @@ describe("RequestManager [ Events ]", () => {
       const spy1 = jest.fn();
 
       client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbort(request.abortKey, spy1);
+      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
 
       await sleep(5);
       client.requestManager.abortAll();

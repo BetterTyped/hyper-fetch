@@ -27,6 +27,7 @@ export type DispatcherStorageType = {
   set: <Request extends RequestInstance = RequestInstance>(key: string, data: QueueDataType<Request>) => void;
   get: <Request extends RequestInstance = RequestInstance>(key: string) => QueueDataType<Request> | undefined;
   keys: () => string[] | IterableIterator<string>;
+  entries: () => [string, QueueDataType] | IterableIterator<[string, QueueDataType<any>]>;
   delete: (key: string) => void;
   clear: () => void;
 };

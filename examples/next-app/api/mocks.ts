@@ -1,5 +1,7 @@
-import { rest } from "msw";
-import { RequestInstance, Time } from "@hyper-fetch/core";
+import { HttpResponse, HttpResponseResolver, PathParams, delay, http } from "msw";
+import { DefaultBodyType, ResponseResolverInfo } from "msw/lib/core/handlers/RequestHandler";
+import { HttpRequestResolverExtras } from "msw/lib/core/handlers/HttpHandler";
+import { RequestInstance, Time, getErrorMessage } from "@hyper-fetch/core";
 
 import { getRandomUser, getRandomUsers } from "../utils";
 import { client } from "./client";
@@ -9,40 +11,56 @@ import { postFile } from "./files/files.api";
 // Mocks setup
 const getMock = (
   request: RequestInstance,
-  response: Record<string, any> | null | ((req: any) => Record<string, any> | null),
-  delay?: number,
+  response:
+    | Record<string, any>
+    | null
+    | ((
+        details: ResponseResolverInfo<HttpRequestResolverExtras<PathParams>, DefaultBodyType>,
+      ) => Record<string, any> | null),
+  delayTime?: number,
 ) => {
   const { method, endpoint } = request;
 
   const url = client.url + endpoint;
 
-  function callback(req: any, res: any, ctx: any) {
-    return res(
-      ctx.delay(delay),
-      ctx.status(200),
-      ctx.json(typeof response === "function" ? response(req) : response || {}),
-    );
-  }
+  const requestResolver: HttpResponseResolver = async (details) => {
+    if (delayTime) {
+      await delay(delayTime);
+    }
+
+    const { requestManager } = request.client;
+    const controllers = requestManager.abortControllers.get(request.abortKey);
+    const size = controllers?.size || 0;
+    const abortController = Array.from(controllers || [])[size - 1];
+
+    if (abortController && abortController?.[1].signal.aborted) {
+      const error = getErrorMessage("abort");
+      return HttpResponse.json({ message: error.message }, { status: 0 });
+    }
+
+    return HttpResponse.json(typeof response === "function" ? response(details) : response, { status: 200 });
+  };
 
   if (method.toUpperCase() === "POST") {
-    return rest.post(url, callback);
+    return http.post(url, requestResolver);
   }
   if (method.toUpperCase() === "PUT") {
-    return rest.put(url, callback);
+    return http.put(url, requestResolver);
   }
   if (method.toUpperCase() === "PATCH") {
-    return rest.patch(url, callback);
+    return http.patch(url, requestResolver);
   }
   if (method.toUpperCase() === "DELETE") {
-    return rest.delete(url, callback);
+    return http.delete(url, requestResolver);
   }
-  return rest.get(url, callback);
+  return http.get(url, requestResolver);
 };
 
 const usersPages = new Map();
 
-const getPage = (req: any) => {
-  const page = req.url.searchParams.get("page") || 1;
+const getPage = (details: ResponseResolverInfo<HttpRequestResolverExtras<PathParams>, DefaultBodyType>) => {
+  const url = new URL(details.request.url);
+  const page = url.searchParams.get("page") || 1;
   const cachedData = usersPages.get(page);
 
   if (!cachedData) {

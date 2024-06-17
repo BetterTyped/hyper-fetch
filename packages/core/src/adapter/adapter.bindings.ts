@@ -62,7 +62,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   }
 
   // Request Setup
-  const { client, abortKey, queueKey, endpoint, data } = request;
+  const { client, abortKey, endpoint, data } = request;
 
   const fullUrl = url + endpoint;
 
@@ -109,7 +109,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     if (previousRequestTotal !== 100) {
       previousRequestTotal = progress.total;
-      requestManager.events.emitUploadProgress(queueKey, requestId, progress, { requestId, request });
+      requestManager.events.emitUploadProgress({ progress, requestId, request });
     }
   };
 
@@ -122,7 +122,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     if (previousResponseTotal !== 100) {
       previousResponseTotal = progress.total;
-      requestManager.events.emitDownloadProgress(queueKey, requestId, progress, { requestId, request });
+      requestManager.events.emitDownloadProgress({ progress, requestId, request });
     }
   };
 
@@ -147,7 +147,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     };
     requestStartTimestamp = +new Date();
     handleRequestProgress(requestStartTimestamp, requestStartTimestamp, initialPayload);
-    requestManager.events.emitRequestStart(queueKey, requestId, { requestId, request });
+    requestManager.events.emitRequestStart({ requestId, request });
     return requestStartTimestamp;
   };
 
@@ -192,7 +192,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     };
 
     handleResponseProgress(responseStartTimestamp, responseStartTimestamp, initialPayload);
-    requestManager.events.emitResponseStart(queueKey, requestId, { requestId, request });
+    requestManager.events.emitResponseStart({ requestId, request });
     return responseStartTimestamp;
   };
 
@@ -333,7 +333,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     const fn = () => {
       onAbortError(status, abortExtra, resolve);
       callback();
-      requestManager.events.emitAbort(abortKey, requestId, request);
+      requestManager.events.emitAbort({ requestId, request });
     };
 
     // Instant abort when we stack many requests triggered at once, and we receive aborted controller

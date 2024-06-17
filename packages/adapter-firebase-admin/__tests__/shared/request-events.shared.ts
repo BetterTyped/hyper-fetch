@@ -8,11 +8,11 @@ export const testLifecycleEvents = async <R extends RequestInstance>(request: R)
   const spy5 = jest.fn();
   const spy6 = jest.fn();
 
-  request.client.requestManager.events.onRequestStart(request.queueKey, spy1);
-  request.client.requestManager.events.onResponseStart(request.queueKey, spy2);
-  // request.client.requestManager.events.onUploadProgress(request.queueKey, spy3);
-  // request.client.requestManager.events.onDownloadProgress(request.queueKey, spy4);
-  request.client.requestManager.events.onResponse(request.cacheKey, spy5);
+  request.client.requestManager.events.onRequestStartByQueue(request.queueKey, spy1);
+  request.client.requestManager.events.onResponseStartByQueue(request.queueKey, spy2);
+  // request.client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy3);
+  // request.client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy4);
+  request.client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
   const response = request.send({
     onSettle: (requestId) => {

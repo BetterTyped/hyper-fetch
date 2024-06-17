@@ -68,18 +68,18 @@ describe("RequestManager [ Base ]", () => {
     it("should propagate the loading events", async () => {
       const spy = jest.fn();
       const spyById = jest.fn();
-      events.onLoading(queueKey, spy);
+      events.onLoadingByQueue(queueKey, spy);
       events.onLoadingById(requestId, spyById);
 
-      const values = {
-        queueKey,
+      const data = {
+        request: client.createRequest()({ endpoint: "shared-base-endpoint" }),
         requestId,
         loading: false,
         isRetry: false,
         isOffline: false,
       };
 
-      events.emitLoading(queueKey, requestId, values);
+      events.emitLoading(data);
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spyById).toHaveBeenCalledTimes(1);
@@ -87,16 +87,11 @@ describe("RequestManager [ Base ]", () => {
     it("should propagate the request start events", async () => {
       const spy = jest.fn();
       const spyById = jest.fn();
-      events.onRequestStart(queueKey, spy);
+      events.onRequestStartByQueue(queueKey, spy);
       events.onRequestStartById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-      const values = {
-        requestId,
-        request,
-      };
-
-      events.emitRequestStart(queueKey, requestId, values);
+      events.emitRequestStart({ request, requestId });
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spyById).toHaveBeenCalledTimes(1);
@@ -104,16 +99,11 @@ describe("RequestManager [ Base ]", () => {
     it("should propagate the response start events", async () => {
       const spy = jest.fn();
       const spyById = jest.fn();
-      events.onResponseStart(queueKey, spy);
+      events.onResponseStartByQueue(queueKey, spy);
       events.onResponseStartById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-      const values = {
-        requestId,
-        request,
-      };
-
-      events.emitResponseStart(queueKey, requestId, values);
+      events.emitResponseStart({ request, requestId });
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spyById).toHaveBeenCalledTimes(1);
@@ -121,7 +111,7 @@ describe("RequestManager [ Base ]", () => {
     it("should propagate the upload events", async () => {
       const spy = jest.fn();
       const spyById = jest.fn();
-      events.onUploadProgress(queueKey, spy);
+      events.onUploadProgressByQueue(queueKey, spy);
       events.onUploadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
@@ -137,9 +127,10 @@ describe("RequestManager [ Base ]", () => {
       const details = {
         requestId,
         request,
+        progress: values,
       };
 
-      events.emitUploadProgress(queueKey, requestId, values, details);
+      events.emitUploadProgress(details);
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spyById).toHaveBeenCalledTimes(1);
@@ -147,7 +138,7 @@ describe("RequestManager [ Base ]", () => {
     it("should propagate the download events", async () => {
       const spy = jest.fn();
       const spyById = jest.fn();
-      events.onDownloadProgress(queueKey, spy);
+      events.onDownloadProgressByQueue(queueKey, spy);
       events.onDownloadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
@@ -163,9 +154,10 @@ describe("RequestManager [ Base ]", () => {
       const details = {
         requestId,
         request,
+        progress: values,
       };
 
-      events.emitDownloadProgress(queueKey, requestId, values, details);
+      events.emitDownloadProgress(details);
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spyById).toHaveBeenCalledTimes(1);
@@ -174,7 +166,7 @@ describe("RequestManager [ Base ]", () => {
   it("should propagate the response events", async () => {
     const spy = jest.fn();
     const spyById = jest.fn();
-    events.onResponse(queueKey, spy);
+    events.onResponseByCache(queueKey, spy);
     events.onResponseById(requestId, spyById);
 
     const details = {
@@ -185,12 +177,12 @@ describe("RequestManager [ Base ]", () => {
       isOffline: false,
     };
 
-    events.emitResponse(
-      queueKey,
+    events.emitResponse({
+      request: client.createRequest()({ endpoint: "shared-base-endpoint" }),
       requestId,
-      { data: null, error: null, status: 200, success: true, extra: null },
+      response: { data: null, error: null, status: 200, success: true, extra: null },
       details,
-    );
+    });
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spyById).toHaveBeenCalledTimes(1);
@@ -198,7 +190,7 @@ describe("RequestManager [ Base ]", () => {
   it("should propagate the remove events", async () => {
     const spy = jest.fn();
     const spyById = jest.fn();
-    events.onRemove(queueKey, spy);
+    events.onRemoveByQueue(queueKey, spy);
     events.onRemoveById(requestId, spyById);
     const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
@@ -207,7 +199,7 @@ describe("RequestManager [ Base ]", () => {
       request,
     };
 
-    events.emitRemove(queueKey, requestId, values);
+    events.emitRemove(values);
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spyById).toHaveBeenCalledTimes(1);
