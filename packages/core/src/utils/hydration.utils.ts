@@ -40,7 +40,7 @@ export const hydrate = (
   options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
 ) => {
   hydrationData?.forEach((item) => {
-    const { cacheKey, response, ...fallbackOptions } = item;
+    const { cacheKey, effectKey, queueKey, endpoint, method, response, ...fallbackOptions } = item;
     const defaults = {
       cache: true,
       cacheTime: null,
@@ -60,6 +60,6 @@ export const hydrate = (
     }
 
     const parsedData = parseResponse(response);
-    client.cache.set({ ...config, cacheKey }, parsedData);
+    client.cache.set({ ...config, cacheKey, effectKey, queueKey, endpoint, method }, parsedData);
   });
 };

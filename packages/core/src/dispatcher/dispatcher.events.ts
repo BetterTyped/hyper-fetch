@@ -77,7 +77,6 @@ export const getDispatcherEvents = (emitter: EventEmitter) => ({
    * @returns
    */
   onQueueChange: <Request extends RequestInstance>(
-    queueKey: string,
     callback: (values: QueueDataType<Request>) => void,
   ): VoidFunction => {
     emitter.on(getDispatcherChangeKey(), callback);

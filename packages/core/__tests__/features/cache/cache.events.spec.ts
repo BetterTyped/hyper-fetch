@@ -70,7 +70,7 @@ describe("Cache [ Events ]", () => {
         isCanceled: false,
         isOffline: false,
       });
-      cache.events.onInvalidate(cacheKey, spy);
+      cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(cacheKey);
       await sleep(1);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -87,7 +87,7 @@ describe("Cache [ Events ]", () => {
         isCanceled: false,
         isOffline: false,
       });
-      cache.events.onInvalidate(cacheKey, spy);
+      cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
       expect(spy).toHaveBeenCalledTimes(1);
@@ -98,7 +98,7 @@ describe("Cache [ Events ]", () => {
       cache = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
       });
-      cache.events.onInvalidate(cacheKey, spy);
+      cache.events.onInvalidateByKey(cacheKey, spy);
       await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
       expect(spy).toHaveBeenCalledTimes(1);

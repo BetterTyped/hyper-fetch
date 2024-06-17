@@ -9,6 +9,8 @@ export const Content = () => {
       {cache.map((item, index) => {
         return (
           <div key={index}>
+            <div>{JSON.stringify(item.endpoint)}</div>
+            <div>{JSON.stringify(item.method)}</div>
             <div>{JSON.stringify(item.data)}</div>
             <div>{JSON.stringify(item.error)}</div>
             <div>{JSON.stringify(item.status)}</div>

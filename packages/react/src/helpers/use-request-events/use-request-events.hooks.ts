@@ -159,10 +159,11 @@ export const useRequestEvents = <T extends RequestInstance>({
   const addDataListener = (req: T) => {
     // Data handlers
     const loadingUnmount = requestManager.events.onLoadingByQueue(req.queueKey, handleGetLoadingEvent(req.queueKey));
-    const getResponseUnmount = cache.events.onData<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(
-      req.cacheKey,
-      setCacheData,
-    );
+    const getResponseUnmount = cache.events.onDataByKey<
+      ExtractResponseType<T>,
+      ExtractErrorType<T>,
+      ExtractAdapterType<T>
+    >(req.cacheKey, setCacheData);
 
     const unmount = () => {
       loadingUnmount();

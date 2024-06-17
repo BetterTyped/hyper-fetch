@@ -69,7 +69,7 @@ describe("Cache [ Base ]", () => {
   describe("When managing cache data", () => {
     it("should add element to cache and emit set event", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.onData(request.cacheKey, trigger);
+      const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
       unmount();
@@ -88,7 +88,7 @@ describe("Cache [ Base ]", () => {
 
     it("should invalidate and remove cache", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.onInvalidate(request.cacheKey, trigger);
+      const unmount = cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(true), { ...response, ...details });
       await cache.invalidate(request.cacheKey);
@@ -101,7 +101,7 @@ describe("Cache [ Base ]", () => {
 
     it("should not add to cache when useCache is set to false", async () => {
       const trigger = jest.fn();
-      const unmount = cache.events.onData(request.cacheKey, trigger);
+      const unmount = cache.events.onDataByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
       unmount();
@@ -124,7 +124,7 @@ describe("Cache [ Base ]", () => {
     it("should return undefined when removed cache entity", async () => {
       const trigger = jest.fn();
 
-      cache.events.onInvalidate(request.cacheKey, trigger);
+      cache.events.onInvalidateByKey(request.cacheKey, trigger);
 
       cache.set(request.setCache(false), { ...response, ...details });
       cache.clear();

@@ -43,6 +43,11 @@ export type CacheValueType<
   ResponseDetailsType & {
     cacheTime: number;
     clearKey: string;
+    cacheKey: string;
+    queueKey: string;
+    effectKey: string;
+    endpoint: string;
+    method: string;
     garbageCollection: number;
   };
 
@@ -78,5 +83,5 @@ export type CacheMethodType<CacheData> = CacheData | ((previousData: CacheData |
 
 export type RequestCacheType<R extends RequestInstance> = Pick<
   R,
-  "cacheKey" | "cache" | "cacheTime" | "garbageCollection"
+  "cacheKey" | "cache" | "cacheTime" | "garbageCollection" | "queueKey" | "effectKey" | "endpoint" | "method"
 >;

@@ -45,7 +45,7 @@ describe("Cache [ Lazy Storage ]", () => {
 
   describe("when using lazy storage", () => {
     it("should new data to lazy storage", async () => {
-      cache.events.onData(cacheKey, spy);
+      cache.events.onDataByKey(cacheKey, spy);
       await cache.set(request, cacheData);
       await sleep(10);
       const data = cache.get(cacheKey);
@@ -55,7 +55,7 @@ describe("Cache [ Lazy Storage ]", () => {
     });
     it("should lazy load data", async () => {
       await cache.options.lazyStorage.set(cacheKey, cacheData);
-      cache.events.onData(cacheKey, spy);
+      cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();
@@ -63,7 +63,7 @@ describe("Cache [ Lazy Storage ]", () => {
     });
     it("should not emit stale data", async () => {
       await cache.options.lazyStorage.set(cacheKey, { ...cacheData, timestamp: +new Date() - cacheTime });
-      cache.events.onData(cacheKey, spy);
+      cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();
@@ -75,7 +75,7 @@ describe("Cache [ Lazy Storage ]", () => {
         clearKey: "old-key",
       });
       const deleteSpy = jest.spyOn(cache.options.lazyStorage, "delete");
-      cache.events.onData(cacheKey, spy);
+      cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
       expect(data).not.toBeDefined();

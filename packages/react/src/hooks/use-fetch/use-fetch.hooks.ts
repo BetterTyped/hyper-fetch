@@ -213,7 +213,7 @@ export const useFetch = <R extends RequestInstance>(
       }
     });
 
-    const invalidateUnmount = cache.events.onInvalidate(cacheKey, handleFetch);
+    const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleFetch);
 
     const unmount = () => {
       clearDataListener();

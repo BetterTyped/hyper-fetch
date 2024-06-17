@@ -14,14 +14,15 @@ export const getCacheData = <T extends RequestInstance>(
   return { ...response, data: computedData };
 };
 
-export const getInvalidateEventKey = (key: string): string => {
+export const getInvalidateByKey = (key: string): string => {
   return `${key}_invalidate`;
 };
-
-export const getCacheKey = (key: string): string => {
+export const getInvalidateKey = (): string => {
+  return `invalidate`;
+};
+export const getCacheByKey = (key: string): string => {
   return `${key}_cache`;
 };
-
-export const getCacheIdKey = (key: string): string => {
-  return `${key}_cache_by_id`;
+export const getCacheKey = (): string => {
+  return `cache`;
 };

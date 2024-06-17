@@ -92,12 +92,22 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     setSubmitQueues(submitQueuesArray);
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
+  const handleCacheChange = useCallback(() => {
+    const cacheItems = requests
+      .map((item) => {
+        const key = item.request.cacheKey;
+        return client.cache.get(key);
+      })
+      .filter(Boolean);
+
+    setCache(cacheItems);
+  }, [client.cache, requests]);
+
   useEffect(() => {
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests((prev) => [...prev, details] as RequestEvent<T>[]);
       countProgressRequests();
     });
-
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
       countProgressRequests();
 
@@ -106,28 +116,32 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       } else {
         setFailed((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
       }
-
-      const cacheItems = requests.map((item) => {
-        const key = item.request.cacheKey;
-        return client.cache.get(key);
-      });
-
-      setCache(cacheItems);
     });
-
     const unmountOnRequestPause = client.requestManager.events.onAbort((details) => {
       setCanceled((prev) => [...prev, details] as RequestEvent<T>[]);
 
       countProgressRequests();
     });
-    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueStatusChange(() => {
+    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange(() => {
       countProgressRequests();
     });
-    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueStatusChange(() => {
+    const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange(() => {
+      countProgressRequests();
+    });
+    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange(() => {
+      countProgressRequests();
+    });
+    const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange(() => {
       countProgressRequests();
     });
     const unmountOnRemove = client.requestManager.events.onRemove(() => {
       countProgressRequests();
+    });
+    const unmountOnCacheChange = client.cache.events.onData(() => {
+      handleCacheChange();
+    });
+    const unmountOnCacheInvalidate = client.cache.events.onInvalidate(() => {
+      handleCacheChange();
     });
 
     return () => {
@@ -135,10 +149,14 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       unmountOnRequestStart();
       unmountOnRequestPause();
       unmountOnFetchQueueChange();
+      unmountOnFetchQueueStatusChange();
       unmountOnSubmitQueueChange();
+      unmountOnSubmitQueueStatusChange();
       unmountOnRemove();
+      unmountOnCacheChange();
+      unmountOnCacheInvalidate();
     };
-  }, [client, countProgressRequests, requests]);
+  }, [client, countProgressRequests, handleCacheChange, requests]);
 
   useLayoutEffect(() => {
     client
