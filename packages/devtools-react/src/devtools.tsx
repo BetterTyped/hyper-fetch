@@ -25,6 +25,7 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
 
   const Component = modules[module];
 
+  const [requests, setRequests] = useState<RequestEvent<T>[]>([]);
   const [success, setSuccess] = useState<RequestResponse<T>[]>([]);
   const [failed, setFailed] = useState<RequestResponse<T>[]>([]);
   const [inProgress, setInProgress] = useState<RequestEvent<T>[]>([]);
@@ -79,7 +80,8 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
   useEffect(() => {
-    const unmountOnRequestStart = client.requestManager.events.onRequestStart(() => {
+    const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
+      setRequests((prev) => [...prev, details] as RequestEvent<T>[]);
       countProgressRequests();
     });
 
@@ -118,6 +120,22 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     };
   }, [client, countProgressRequests]);
 
+  const allRequests = requests.map((item) => {
+    const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
+    const isSuccess = !!success.find((el) => el.requestId === item.requestId);
+    const response =
+      success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
+
+    return {
+      requestId: item.requestId,
+      request: item.request,
+      isCanceled,
+      isSuccess,
+      isFinished: !!response,
+      response,
+    };
+  });
+
   return (
     <DevtoolsProvider
       module={module}
@@ -128,6 +146,7 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       inProgress={inProgress}
       paused={paused}
       canceled={canceled}
+      requests={allRequests}
     >
       <div
         style={{
@@ -136,6 +155,7 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
           right: 0,
           bottom: 0,
           height: "200px",
+          overflowY: "auto",
           background: "#fff",
         }}
       >

@@ -1,25 +1,19 @@
 import { useDevtoolsContext } from "devtools.context";
 
 export const Content = () => {
-  const { success, failed } = useDevtoolsContext("DevtoolsNetworkContent");
+  const { requests } = useDevtoolsContext("DevtoolsNetworkContent");
 
   return (
     <div>
-      Success
-      {success.map((item) => {
+      Requests
+      {requests.map((item) => {
         return (
           <div key={item.requestId}>
             <div>{item.request.endpoint}</div>
-            <div>{JSON.stringify(item.response)}</div>
-          </div>
-        );
-      })}
-      Failed
-      {failed.map((item) => {
-        return (
-          <div key={item.requestId}>
-            <div>{item.request.endpoint}</div>
-            <div>{JSON.stringify(item.response)}</div>
+            <div>isSuccess: {String(item.isSuccess)}</div>
+            <div>isFinished: {String(item.isFinished)}</div>
+            <div>isCanceled: {String(item.isCanceled)}</div>
+            <div>data: {JSON.stringify(item.response)}</div>
           </div>
         );
       })}

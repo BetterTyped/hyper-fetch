@@ -14,4 +14,12 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   inProgress: [] as RequestEvent<ClientInstance>[],
   paused: [] as RequestEvent<ClientInstance>[],
   canceled: [] as RequestEvent<ClientInstance>[],
+  requests: [] as Array<
+    RequestEvent<ClientInstance> & {
+      isCanceled: boolean;
+      isSuccess: boolean;
+      isFinished: boolean;
+      response: RequestResponse<ClientInstance>;
+    }
+  >,
 });
