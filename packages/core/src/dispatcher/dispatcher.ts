@@ -109,7 +109,7 @@ export class Dispatcher {
    * Return queue state object
    */
   getQueue = <Request extends RequestInstance = RequestInstance>(queueKey: string) => {
-    const initialQueueState: QueueDataType<Request> = { requests: [], stopped: false };
+    const initialQueueState: QueueDataType<Request> = { queueKey, requests: [], stopped: false };
     const storedEntity = this.storage.get<Request>(queueKey);
 
     return storedEntity || initialQueueState;
@@ -119,7 +119,7 @@ export class Dispatcher {
    * Return request from queue state
    */
   getRequest = <Request extends RequestInstance = RequestInstance>(queueKey: string, requestId: string) => {
-    const initialQueueState: QueueDataType<Request> = { requests: [], stopped: false };
+    const initialQueueState: QueueDataType<Request> = { queueKey, requests: [], stopped: false };
     const storedEntity = this.storage.get<Request>(queueKey) || initialQueueState;
 
     return storedEntity.requests.find((req) => req.requestId === requestId);
@@ -165,7 +165,7 @@ export class Dispatcher {
    */
   clearQueue = (queueKey: string) => {
     const queue = this.getQueue(queueKey);
-    const newQueue = { requests: [], stopped: queue.stopped };
+    const newQueue = { queueKey, requests: [], stopped: queue.stopped };
     this.storage.set(queueKey, newQueue);
 
     // Emit Queue Changes

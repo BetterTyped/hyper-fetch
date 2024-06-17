@@ -1,5 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
-import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import {
+  CacheValueType,
+  ClientInstance,
+  ExtractClientAdapterType,
+  LogType,
+  LoggerManager,
+  QueueDataType,
+} from "@hyper-fetch/core";
 
 import { Header } from "./components/header/header";
 import { Cache } from "./pages/cache/cache";
@@ -31,6 +38,10 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
   const [inProgress, setInProgress] = useState<RequestEvent<T>[]>([]);
   const [paused, setPaused] = useState<RequestEvent<T>[]>([]);
   const [canceled, setCanceled] = useState<RequestEvent<T>[]>([]);
+  const [fetchQueues, setFetchQueues] = useState<QueueDataType[]>([]);
+  const [submitQueues, setSubmitQueues] = useState<QueueDataType[]>([]);
+  const [cache, setCache] = useState<CacheValueType<unknown, unknown, ExtractClientAdapterType<T>>[]>([]);
+  const [logs, setLogs] = useState<LogType[]>([]);
 
   const countProgressRequests = useCallback(() => {
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
@@ -43,14 +54,14 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       } as RequestEvent<T>;
     });
 
-    const fetchQueues = Array.from(
+    const fetchQueuesArray = Array.from(
       client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
-    const submitQueues = Array.from(
+    const submitQueuesArray = Array.from(
       client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
 
-    const pausedRequests: RequestEvent<T>[] = [...fetchQueues, ...submitQueues].reduce((acc, queue) => {
+    const pausedRequests: RequestEvent<T>[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
       if (queue.stopped) {
         return [
           ...acc,
@@ -77,6 +88,8 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
 
     setInProgress(allQueuedRequest);
     setPaused(pausedRequests);
+    setFetchQueues(fetchQueuesArray);
+    setSubmitQueues(submitQueuesArray);
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
   useEffect(() => {
@@ -93,6 +106,13 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       } else {
         setFailed((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
       }
+
+      const cacheItems = requests.map((item) => {
+        const key = item.request.cacheKey;
+        return client.cache.get(key);
+      });
+
+      setCache(cacheItems);
     });
 
     const unmountOnRequestPause = client.requestManager.events.onAbort((details) => {
@@ -118,7 +138,20 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       unmountOnSubmitQueueChange();
       unmountOnRemove();
     };
-  }, [client, countProgressRequests]);
+  }, [client, countProgressRequests, requests]);
+
+  useLayoutEffect(() => {
+    client
+      .setLogger((oldClient) => {
+        return new LoggerManager(oldClient, {
+          logger: (log) => {
+            setLogs((prev) => [...prev, log]);
+          },
+          severity: 0,
+        });
+      })
+      .setDebug(true);
+  }, [client]);
 
   const allRequests = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
@@ -147,6 +180,10 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       paused={paused}
       canceled={canceled}
       requests={allRequests}
+      fetchQueues={fetchQueues}
+      submitQueues={submitQueues}
+      cache={cache}
+      logs={logs}
     >
       <div
         style={{

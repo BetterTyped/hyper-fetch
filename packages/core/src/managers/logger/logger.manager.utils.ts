@@ -11,14 +11,12 @@ export const logger: LoggerFunctionType = (log) => {
   if (log.enabled && log.severity >= severity[log.level]) {
     const styles = loggerStyles[log.level];
     const emoji = loggerIconLevels[log.level];
-    const module = `%c[${log.module}]:[${getTime()}]:`;
-    const message = `${emoji}${module} ${log.message}`;
+    const module = `%c[${emoji} ${log.module}]:[${getTime()}]:`;
+    const message = `${module} ${log.message}`;
 
     if (log.extra?.length) {
       console.groupCollapsed(message, styles);
-      log.extra.forEach((data) => {
-        console.log(data);
-      });
+      console.log(log.extra);
       console.groupEnd();
     } else {
       console.log(message, styles);

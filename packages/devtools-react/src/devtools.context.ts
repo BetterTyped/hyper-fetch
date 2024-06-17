@@ -1,4 +1,4 @@
-import { ClientInstance } from "@hyper-fetch/core";
+import { AdapterInstance, CacheValueType, ClientInstance, LogType, QueueDataType } from "@hyper-fetch/core";
 
 import { DevtoolsModule, RequestEvent, RequestResponse } from "devtools.types";
 import { createContext } from "utils/context";
@@ -22,4 +22,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
       response: RequestResponse<ClientInstance>;
     }
   >,
+  fetchQueues: [] as QueueDataType[],
+  submitQueues: [] as QueueDataType[],
+  cache: [] as CacheValueType<unknown, unknown, AdapterInstance>[],
+  logs: [] as LogType[],
 });

@@ -45,7 +45,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let previousResponseTotal = 0;
 
   // Pre request modifications
-  logger.debug(`Starting request middleware callbacks`);
+  logger.debug(`Running request middleware callbacks`, { requestId, request });
 
   try {
     request = await request.client.__modifyRequest(req);
@@ -129,12 +129,19 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   // Pre-request
 
   const onBeforeRequest = () => {
+    logger.debug(`Request ready to send`, { requestId, request });
+
     effects.forEach((effect) => effect.onTrigger(request));
   };
 
   // Request
 
   const onRequestStart = (progress?: ProgressDataType) => {
+    logger.info(`Request start`, {
+      requestId,
+      request,
+    });
+
     effects.forEach((action) => action.onStart(request));
 
     if (progress?.total) {
@@ -247,6 +254,12 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     resolve(response);
 
+    logger.info(`Request response received`, {
+      requestId,
+      request,
+      response,
+    });
+
     return response;
   };
 
@@ -258,7 +271,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseReturnErrorType<any, T>) => void,
   ): Promise<ResponseReturnErrorType<any, T>> => {
-    let responseData: ResponseReturnErrorType<any, T> = {
+    let response: ResponseReturnErrorType<any, T> = {
       data: null,
       status,
       error,
@@ -266,15 +279,21 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       extra,
     };
 
-    responseData = (await request.client.__modifyResponse(responseData, request)) as typeof responseData;
-    responseData = (await request.client.__modifyErrorResponse(responseData, request)) as typeof responseData;
+    response = (await request.client.__modifyResponse(response, request)) as typeof response;
+    response = (await request.client.__modifyErrorResponse(response, request)) as typeof response;
 
-    effects.forEach((effect) => effect.onError(responseData, request));
-    effects.forEach((effect) => effect.onFinished(responseData, request));
+    effects.forEach((effect) => effect.onError(response, request));
+    effects.forEach((effect) => effect.onFinished(response, request));
 
-    resolve(responseData);
+    resolve(response);
 
-    return responseData;
+    logger.error(`Request error`, {
+      requestId,
+      request,
+      response,
+    });
+
+    return response;
   };
 
   const onAbortError = (
@@ -282,6 +301,10 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
+    logger.error(`Abort error`, {
+      requestId,
+      request,
+    });
     const error = getErrorMessage("abort");
     if (internalErrorFormatter) {
       return onError(internalErrorFormatter(error), status, extra, resolve);
@@ -294,6 +317,10 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
+    logger.error(`Timeout error`, {
+      requestId,
+      request,
+    });
     const error = getErrorMessage("timeout");
     if (internalErrorFormatter) {
       return onError(internalErrorFormatter(error), status, extra, resolve);
@@ -306,6 +333,10 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
+    logger.error(`Unexpected error`, {
+      requestId,
+      request,
+    });
     const error = getErrorMessage();
     if (internalErrorFormatter) {
       return onError(internalErrorFormatter(error), status, extra, resolve);
@@ -378,6 +409,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     headers,
     payload,
     config,
+    request,
   });
 
   return {

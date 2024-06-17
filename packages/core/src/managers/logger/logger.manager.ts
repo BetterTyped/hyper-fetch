@@ -29,7 +29,7 @@ export class LoggerManager {
 
   init = (module: string): LoggerType => {
     return {
-      error: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
+      error: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
         this.logger({
           level: "error",
           module,
@@ -39,7 +39,7 @@ export class LoggerManager {
           enabled: this.client.debug,
         });
       },
-      warning: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
+      warning: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
         this.logger({
           level: "warning",
           module,
@@ -49,7 +49,7 @@ export class LoggerManager {
           enabled: this.client.debug,
         });
       },
-      info: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
+      info: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
         this.logger({
           level: "info",
           module,
@@ -59,7 +59,7 @@ export class LoggerManager {
           enabled: this.client.debug,
         });
       },
-      debug: (message: LoggerMessageType, ...extra: LoggerMessageType[]) => {
+      debug: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
         this.logger({
           level: "debug",
           module,

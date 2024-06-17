@@ -18,6 +18,7 @@ export type QueueElementType<Request extends RequestInstance = RequestInstance> 
   stopped: boolean;
 };
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
+  queueKey: string;
   requests: QueueElementType<Request>[];
   stopped: boolean;
 };
