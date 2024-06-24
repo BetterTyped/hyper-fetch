@@ -25,6 +25,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "strict": true,
     "baseUrl": ".",
     "paths": {},
     "plugins": []

@@ -50,7 +50,7 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   /**
    * Request status
    */
-  status: ExtractAdapterStatusType<ExtractAdapterType<T>>;
+  status: ExtractAdapterStatusType<ExtractAdapterType<T>> | null;
   /**
    * Request additional response data
    */

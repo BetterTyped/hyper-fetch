@@ -76,9 +76,9 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
 export type UseRequestEventsReturnType<T extends RequestInstance> = [
   UseRequestEventsActionsType<T>,
   {
-    addDataListener: (request: RequestInstance) => VoidFunction;
+    addDataListener: (request: T) => VoidFunction;
     clearDataListener: VoidFunction;
-    addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction;
+    addLifecycleListeners: (request: T, requestId?: string) => VoidFunction;
     removeLifecycleListener: (requestId: string) => void;
     clearLifecycleListeners: () => void;
   },

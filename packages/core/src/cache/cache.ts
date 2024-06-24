@@ -221,7 +221,7 @@ export class Cache<C extends ClientInstance> {
       const isValidLazyData = data.clearKey === this.clearKey;
 
       if (!isValidLazyData) {
-        this.lazyStorage.delete(cacheKey);
+        this.lazyStorage?.delete(cacheKey);
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);

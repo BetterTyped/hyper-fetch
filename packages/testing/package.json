@@ -51,13 +51,13 @@
       "optional": true
     }
   },
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "msw": "2.3.1",
     "abortcontroller-polyfill": "^1.7.5",
     "eventsourcemock": "2.0.0",
     "jest-websocket-mock": "2.5.0"
   },
-  "devDependencies": {},
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "yarn jest --passWithNoTests"

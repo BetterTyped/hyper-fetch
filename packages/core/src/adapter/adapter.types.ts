@@ -93,21 +93,21 @@ export type ResponseType<GenericDataType, GenericErrorType, Adapter extends Adap
   data: GenericDataType | null;
   error: GenericErrorType | null;
   status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
+  success: true | false;
   extra: ExtractAdapterExtraType<Adapter> | null;
 };
 export type ResponseReturnSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
   data: GenericDataType;
   error: null;
   status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
+  success: true;
   extra: ExtractAdapterExtraType<Adapter> | null;
 };
 export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
   data: null;
   error: GenericErrorType;
   status: ExtractAdapterStatusType<Adapter> | null;
-  success: boolean;
+  success: false;
   extra: ExtractAdapterExtraType<Adapter> | null;
 };
 
@@ -178,9 +178,4 @@ export type ProgressType = {
   total: number;
   loaded: number;
   startTimestamp: number;
-};
-
-export type AdapterBindingsReturnType = {
-  fullUrl: string;
-  config;
 };

@@ -84,16 +84,16 @@ export const useRequestEvents = <T extends RequestInstance>({
     const { isOffline, isCanceled } = values.details;
     if (request.offline && isOffline && !success) {
       logger.debug("Performing offline error callback", values);
-      onOfflineErrorCallback.current?.(values);
+      onOfflineErrorCallback.current?.(values as any);
     } else if (isCanceled) {
       logger.debug("Performing abort callback", values);
-      onAbortCallback.current?.(values);
+      onAbortCallback.current?.(values as any);
     } else if (success) {
       logger.debug("Performing success callback", values);
-      onSuccessCallback.current?.(values);
+      onSuccessCallback.current?.(values as any);
     } else {
       logger.debug("Performing error callback", values);
-      onErrorCallback.current?.(values);
+      onErrorCallback.current?.(values as any);
     }
     onFinishedCallback.current?.(values);
   };

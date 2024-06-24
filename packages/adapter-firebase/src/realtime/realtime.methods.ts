@@ -63,15 +63,15 @@ export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
 
   return async (methodName: RealtimeDBMethodsUnion, data) => {
     try {
-      events.onRequestStartByQueue();
+      events.onRequestStart();
       const { result, status, extra } = await methods[methodName](data);
       events.onRequestEnd();
-      events.onResponseStartByQueue();
+      events.onResponseStart();
       onSuccess(result, status, extra, resolve);
       events.onResponseEnd();
     } catch (e) {
       events.onRequestEnd();
-      events.onResponseStartByQueue();
+      events.onResponseStart();
       onError(e, "error", {}, resolve);
       events.onResponseEnd();
     }
