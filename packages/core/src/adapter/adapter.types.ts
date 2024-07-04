@@ -96,14 +96,14 @@ export type ResponseType<GenericDataType, GenericErrorType, Adapter extends Adap
   success: true | false;
   extra: ExtractAdapterExtraType<Adapter> | null;
 };
-export type ResponseReturnSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
+export type ResponseSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
   data: GenericDataType;
   error: null;
   status: ExtractAdapterStatusType<Adapter> | null;
   success: true;
   extra: ExtractAdapterExtraType<Adapter> | null;
 };
-export type ResponseReturnErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
+export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
   data: null;
   error: GenericErrorType;
   status: ExtractAdapterStatusType<Adapter> | null;

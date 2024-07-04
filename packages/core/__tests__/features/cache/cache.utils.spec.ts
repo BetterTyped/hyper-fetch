@@ -1,5 +1,5 @@
 import { getCacheData, getCacheByKey, getInvalidateByKey } from "cache";
-import { xhrExtra, AdapterType, ResponseReturnErrorType, ResponseReturnSuccessType } from "adapter";
+import { xhrExtra, AdapterType, ResponseErrorType, ResponseSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 
 describe("Cache [ Utils ]", () => {
@@ -10,8 +10,8 @@ describe("Cache [ Utils ]", () => {
         error: null,
         status: 200,
         extra: xhrExtra,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType>;
-      const errorResponse: ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType = {
+      } as ResponseSuccessType<Record<string, string>, AdapterType>;
+      const errorResponse: ResponseErrorType<Record<string, string>, AdapterType> & ResponseDetailsType = {
         data: null,
         error: {},
         status: 400,
@@ -47,7 +47,7 @@ describe("Cache [ Utils ]", () => {
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       const newResponse = {
         data: { test: "2" },
         error: null,
@@ -58,7 +58,7 @@ describe("Cache [ Utils ]", () => {
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       expect(getCacheData(previousResponse, newResponse)).toStrictEqual(newResponse);
     });
 
@@ -73,7 +73,7 @@ describe("Cache [ Utils ]", () => {
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseSuccessType<Record<string, string>, AdapterType> & ResponseDetailsType;
       const errorResponse = {
         data: null,
         error: {},
@@ -84,7 +84,7 @@ describe("Cache [ Utils ]", () => {
         timestamp: +new Date(),
         isCanceled: false,
         isOffline: false,
-      } as ResponseReturnErrorType<Record<string, string>, AdapterType> & ResponseDetailsType;
+      } as ResponseErrorType<Record<string, string>, AdapterType> & ResponseDetailsType;
       expect(getCacheData(undefined, newResponse)).toStrictEqual(newResponse);
       expect(getCacheData(undefined, errorResponse)).toStrictEqual(errorResponse);
     });

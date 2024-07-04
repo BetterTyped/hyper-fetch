@@ -8,10 +8,10 @@ import {
   RequestInstance,
   RequestProgressEventType,
   RequestResponseEventType,
-  ResponseReturnErrorType,
+  ResponseErrorType,
   ExtractAdapterType,
   ResponseType,
-  ResponseReturnSuccessType,
+  ResponseSuccessType,
 } from "@hyper-fetch/core";
 
 import { UseTrackedStateActions } from "helpers";
@@ -91,13 +91,10 @@ export type CallbackParameters<Request extends RequestInstance, ResponseType> = 
 } & Omit<RequestResponseEventType<Request>, "response">;
 
 export type OnSuccessCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<
-    Request,
-    ResponseReturnSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>
-  >,
+  params: CallbackParameters<Request, ResponseSuccessType<ExtractResponseType<Request>, ExtractAdapterType<Request>>>,
 ) => void | Promise<void>;
 export type OnErrorCallbackType<Request extends RequestInstance> = (
-  params: CallbackParameters<Request, ResponseReturnErrorType<ExtractErrorType<Request>, ExtractAdapterType<Request>>>,
+  params: CallbackParameters<Request, ResponseErrorType<ExtractErrorType<Request>, ExtractAdapterType<Request>>>,
 ) => void | Promise<void>;
 export type OnFinishedCallbackType<Request extends RequestInstance> = (
   params: CallbackParameters<

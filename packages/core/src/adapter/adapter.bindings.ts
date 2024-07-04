@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import {
   getErrorMessage,
-  ResponseReturnSuccessType,
-  ResponseReturnErrorType,
+  ResponseSuccessType,
+  ResponseErrorType,
   ProgressDataType,
   ExtractAdapterOptionsType,
   ExtractAdapterStatusType,
@@ -237,9 +237,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     responseData: any,
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnSuccessType<any, T>) => void,
-  ): Promise<ResponseReturnSuccessType<ExtractResponseType<T>, T>> => {
-    let response: ResponseReturnSuccessType<ExtractResponseType<T>, T> = {
+    resolve: (value: ResponseSuccessType<any, T>) => void,
+  ): Promise<ResponseSuccessType<ExtractResponseType<T>, T>> => {
+    let response: ResponseSuccessType<ExtractResponseType<T>, T> = {
       data: responseData,
       error: null,
       success: true,
@@ -269,9 +269,9 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     error: any,
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<any, T>) => void,
-  ): Promise<ResponseReturnErrorType<any, T>> => {
-    let response: ResponseReturnErrorType<any, T> = {
+    resolve: (value: ResponseErrorType<any, T>) => void,
+  ): Promise<ResponseErrorType<any, T>> => {
+    let response: ResponseErrorType<any, T> = {
       data: null,
       status,
       error,
@@ -299,7 +299,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const onAbortError = (
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     logger.error(`Abort error`, {
       requestId,
@@ -315,7 +315,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const onTimeoutError = (
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     logger.error(`Timeout error`, {
       requestId,
@@ -331,7 +331,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const onUnexpectedError = (
     status: ExtractAdapterStatusType<T>,
     extra: ExtractAdapterExtraType<T>,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     logger.error(`Unexpected error`, {
       requestId,
@@ -354,7 +354,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     status: ExtractAdapterStatusType<T>,
     abortExtra: ExtractAdapterExtraType<T>,
     callback: () => void,
-    resolve: (value: ResponseReturnErrorType<ExtractErrorType<T>, T>) => void,
+    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const controller = getAbortController();
     if (!controller) {

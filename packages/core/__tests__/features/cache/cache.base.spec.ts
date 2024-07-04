@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { xhrExtra, AdapterType, ResponseReturnSuccessType } from "adapter";
+import { xhrExtra, AdapterType, ResponseSuccessType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createCache, sleep } from "../../utils";
 import { Client } from "client";
@@ -8,7 +8,7 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Cache [ Base ]", () => {
-  const response: ResponseReturnSuccessType<unknown, AdapterType> = {
+  const response: ResponseSuccessType<unknown, AdapterType> = {
     data: 123,
     error: null,
     status: 200,

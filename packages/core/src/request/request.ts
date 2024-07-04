@@ -21,6 +21,7 @@ import {
   ExtractAdapterOptionsType,
   QueryParamsType,
   AdapterInstance,
+  ResponseType,
 } from "adapter";
 import { ExtractParamsType, ExtractPayloadType, NegativeTypes } from "types";
 import { Time } from "constants/time.constants";
@@ -465,6 +466,27 @@ export class Request<
 
     return this.clone();
   };
+
+  /**
+   * Read the response from cache data
+   *
+   * If it returns error and data at the same time, it means that latest request was failed
+   * and we show previous data from cache together with error received from actual request
+   */
+  public read(): ResponseType<Response, LocalError | GlobalError, Adapter> | undefined {
+    const cacheData = this.client.cache.get<Response, LocalError | GlobalError, Adapter>(this.cacheKey);
+
+    if (cacheData?.data) {
+      return {
+        data: cacheData.data,
+        error: cacheData.error,
+        status: cacheData.status,
+        success: cacheData.success,
+        extra: cacheData.extra,
+      };
+    }
+    return undefined;
+  }
 
   /**
    * Method to use the request WITHOUT adding it to cache and queues. This mean it will make simple request without queue side effects.
