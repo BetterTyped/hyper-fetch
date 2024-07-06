@@ -9,9 +9,7 @@ export type RequestLoadingEventType<T extends RequestInstance> = {
   isOffline: boolean;
 } & RequestEventType<T>;
 
-export type RequestProgressEventType<T extends RequestInstance> = {
-  progress: ProgressType;
-} & RequestEventType<T>;
+export type RequestProgressEventType<T extends RequestInstance> = ProgressType & RequestEventType<T>;
 
 export type RequestEventType<T extends RequestInstance> = {
   request: T;
