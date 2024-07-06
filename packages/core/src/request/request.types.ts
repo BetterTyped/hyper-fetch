@@ -176,7 +176,7 @@ export type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewData
 
 export type PayloadType<Payload> = Payload | NegativeTypes;
 
-export type RequestCurrentType<
+export type RequestConfigurationType<
   Payload,
   QueryParams,
   GenericEndpoint extends string,
@@ -222,12 +222,11 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
 /**
  * If the request endpoint parameters are not filled it will throw an error
  */
-export type FetchParamsType<Endpoint extends string, HasParams extends true | false> =
-  ExtractRouteParams<Endpoint> extends NegativeTypes
+export type FetchParamsType<Params, HasParams extends true | false> = Params extends NegativeTypes
+  ? { params?: NegativeTypes }
+  : HasParams extends true
     ? { params?: NegativeTypes }
-    : HasParams extends true
-      ? { params?: NegativeTypes }
-      : { params: NonNullable<ExtractRouteParams<Endpoint>> };
+    : { params: Params };
 
 /**
  * If the request data is not filled it will throw an error
@@ -248,9 +247,9 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
   ExtractQueryParamsType<Request>,
   ExtractHasQueryParamsType<Request>
 > &
-  FetchParamsType<ExtractEndpointType<Request>, ExtractHasParamsType<Request>> &
+  FetchParamsType<ExtractParamsType<Request>, ExtractHasParamsType<Request>> &
   FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
-  Omit<FetchOptionsType<ExtractAdapterType<Request>>, "params" | "data"> &
+  Omit<FetchOptionsType<ExtractAdapterOptionsType<ExtractAdapterType<Request>>>, "params" | "data"> &
   FetchSendActionsType<Request> &
   RequestQueueOptions;
 

@@ -8,7 +8,7 @@ import {
   RequestOptionsType,
   ExtractRouteParams,
   sendRequest,
-  RequestCurrentType,
+  RequestConfigurationType,
   PayloadMapperType,
   RequestInstance,
   RequestMapper,
@@ -105,15 +105,7 @@ export class Request<
       ExtractAdapterOptionsType<Adapter>,
       ExtractAdapterMethodType<Adapter>
     >,
-    readonly requestJSON?:
-      | RequestCurrentType<
-          Payload,
-          QueryParams,
-          Endpoint,
-          ExtractAdapterOptionsType<Adapter>,
-          ExtractAdapterMethodType<Adapter>
-        >
-      | undefined,
+    readonly requestJSON?: any,
   ) {
     const configuration: RequestOptionsType<
       Endpoint,
@@ -435,7 +427,7 @@ export class Request<
     NewParams extends true | false = HasParams,
     NewQueryParams extends true | false = HasQuery,
   >(
-    options?: RequestCurrentType<
+    configuration?: RequestConfigurationType<
       Payload,
       QueryParams,
       Endpoint,
@@ -456,7 +448,7 @@ export class Request<
     NewQueryParams
   > {
     const json = this.toJSON();
-    const requestJSON: RequestCurrentType<
+    const requestJSON: RequestConfigurationType<
       Payload,
       QueryParams,
       Endpoint,
@@ -464,15 +456,17 @@ export class Request<
       ExtractAdapterMethodType<Adapter>
     > = {
       ...json,
-      ...options,
-      options: options?.options || this.options,
-      abortKey: this.updatedAbortKey ? options?.abortKey || this.abortKey : undefined,
-      cacheKey: this.updatedCacheKey ? options?.cacheKey || this.cacheKey : undefined,
-      queueKey: this.updatedQueueKey ? options?.queueKey || this.queueKey : undefined,
-      endpoint: this.paramsMapper(options?.params || this.params, options?.queryParams || this.queryParams) as Endpoint,
-      queryParams: options?.queryParams || this.queryParams,
-      // Typescript circular types issue - we have to leave any here
-      data: options?.data || this.data,
+      ...configuration,
+      options: configuration?.options || this.options,
+      abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
+      cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
+      queueKey: this.updatedQueueKey ? configuration?.queueKey || this.queueKey : undefined,
+      endpoint: this.paramsMapper(
+        configuration?.params || this.params,
+        configuration?.queryParams || this.queryParams,
+      ) as Endpoint,
+      queryParams: configuration?.queryParams || this.queryParams,
+      data: configuration?.data || this.data,
     };
 
     const cloned = new Request<
@@ -540,7 +534,7 @@ export class Request<
    */
   public exec: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any) as this;
+    const request = this.clone(options);
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -572,8 +566,8 @@ export class Request<
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
     const { dispatcherType, ...rest } = options || {};
 
-    const request = this.clone(rest as any) as any;
-    return sendRequest<this>(request, options);
+    const request = this.clone(rest);
+    return sendRequest(request, options);
   };
 }
 
