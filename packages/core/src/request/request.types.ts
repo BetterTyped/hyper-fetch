@@ -178,13 +178,14 @@ export type PayloadType<Payload> = Payload | NegativeTypes;
 
 export type RequestConfigurationType<
   Payload,
+  Params,
   QueryParams,
   GenericEndpoint extends string,
   AdapterOptions extends Record<string, any>,
   MethodsType = HttpMethodsType,
 > = {
   used?: boolean;
-  params?: ExtractRouteParams<GenericEndpoint> | NegativeTypes;
+  params?: Params | NegativeTypes;
   queryParams?: QueryParams | NegativeTypes;
   data?: PayloadType<Payload>;
   headers?: HeadersInit;
@@ -223,7 +224,7 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
  * If the request endpoint parameters are not filled it will throw an error
  */
 export type FetchParamsType<Params, HasParams extends true | false> = Params extends NegativeTypes
-  ? { params?: NegativeTypes }
+  ? { params?: never }
   : HasParams extends true
     ? { params?: NegativeTypes }
     : { params: Params };

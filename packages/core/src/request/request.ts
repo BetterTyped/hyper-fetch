@@ -6,7 +6,6 @@ import {
   PayloadType,
   RequestJSON,
   RequestOptionsType,
-  ExtractRouteParams,
   sendRequest,
   RequestConfigurationType,
   PayloadMapperType,
@@ -63,7 +62,7 @@ export class Request<
   headers?: HeadersInit;
   auth: boolean;
   method: ExtractAdapterMethodType<Adapter>;
-  params: ExtractRouteParams<Endpoint> | NegativeTypes;
+  params: ExtractParamsType<this> | NegativeTypes;
   data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
   options?: ExtractAdapterOptionsType<Adapter> | undefined;
@@ -180,7 +179,7 @@ export class Request<
     return this.clone({ auth });
   };
 
-  public setParams = <P extends ExtractRouteParams<Endpoint>>(params: P) => {
+  public setParams = <P extends ExtractParamsType<this>>(params: P) => {
     return this.clone<HasData, P extends null ? false : true, HasQuery>({ params });
   };
 
@@ -429,6 +428,7 @@ export class Request<
   >(
     configuration?: RequestConfigurationType<
       Payload,
+      ExtractParamsType<this>,
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<Adapter>,
@@ -450,6 +450,7 @@ export class Request<
     const json = this.toJSON();
     const requestJSON: RequestConfigurationType<
       Payload,
+      ExtractParamsType<this>,
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<Adapter>,
@@ -564,10 +565,10 @@ export class Request<
    * ```
    */
   public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
-    const { dispatcherType, ...rest } = options || {};
+    const { dispatcherType, ...configuration } = options || {};
 
-    const request = this.clone(rest);
-    return sendRequest(request, options);
+    const request = this.clone(configuration);
+    return sendRequest(request as this, options);
   };
 }
 
