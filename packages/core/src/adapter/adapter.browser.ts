@@ -45,6 +45,8 @@ export const adapter: AdapterType = async (request, requestId) => {
 
     // Inject xhr options
     Object.entries(config).forEach(([name, value]) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       xhr[name] = value;
     });
 

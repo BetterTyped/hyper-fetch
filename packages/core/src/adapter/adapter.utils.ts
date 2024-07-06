@@ -16,12 +16,14 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => 
 export const getResponseHeaders = (headersString: string): Record<string, string> => {
   const arr = headersString.trim().split(/[\r\n]+/);
 
-  const headers = {};
+  const headers: Record<string, string> = {};
   arr.forEach((line) => {
     const parts = line.split(": ");
     const header = parts.shift();
     const value = parts.join(": ");
-    headers[header] = value;
+    if (header) {
+      headers[header] = value;
+    }
   });
 
   return headers;

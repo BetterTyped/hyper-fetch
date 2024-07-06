@@ -4,7 +4,7 @@ import { Client } from "client";
 import { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, any, any>;
+export type ClientInstance = Client<any, AdapterInstance, any>;
 
 /**
  * Configuration setup for the client
