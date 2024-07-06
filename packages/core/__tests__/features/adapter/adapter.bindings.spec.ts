@@ -202,7 +202,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
   // Request
   describe("given bindings request methods being used", () => {
     it("should allow for setting data mapper", async () => {
-      const req = client.createRequest<any, Record<string, unknown>, void, { userId: number; role: string }>()({
+      const req = client.createRequest<any, Record<string, unknown>, Error, { userId: number; role: string }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();

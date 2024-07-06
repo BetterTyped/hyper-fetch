@@ -19,7 +19,7 @@ import {
 import { Request } from "request";
 import { ResponseType, ExtractAdapterOptionsType, ExtractAdapterMethodType, ExtractAdapterEndpointType } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
-import { ClientInstance } from "client";
+import { Client, ClientInstance } from "client";
 
 // Progress
 export type AdapterProgressEventType = { total: number; loaded: number };
@@ -281,7 +281,7 @@ export type ExtendRequest<
     globalError?: any;
     localError?: any;
     endpoint?: ExtractAdapterEndpointType<ExtractAdapterType<Req>>;
-    client?: ClientInstance;
+    client?: Client<any, any, any>;
     hasData?: true | false;
     hasParams?: true | false;
     hasQuery?: true | false;

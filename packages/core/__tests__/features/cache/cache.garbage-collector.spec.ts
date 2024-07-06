@@ -22,6 +22,11 @@ describe("Cache [ Garbage Collector ]", () => {
     cacheTime,
     clearKey,
     garbageCollection,
+    cacheKey,
+    queueKey: "1",
+    effectKey: "2",
+    endpoint: "shared-endpoint",
+    method: "GET",
   };
 
   let lazyStorage = new Map<string, CacheValueType>();

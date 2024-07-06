@@ -17,6 +17,7 @@ import { ClientErrorType, ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
 import { ExtractAdapterMethodType, ExtractAdapterOptionsType, QueryParamsType, ResponseType } from "adapter";
 import {
+  ExtractAdapterType,
   ExtractClientAdapterType,
   ExtractClientGlobalError,
   ExtractEndpointType,
@@ -60,7 +61,7 @@ export class Request<
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
+  method: ExtractAdapterMethodType<ExtractAdapterType<this>>;
   params: ExtractParamsType<this> | NegativeTypes;
   data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
@@ -143,7 +144,7 @@ export class Request<
     this.endpoint = requestJSON?.endpoint ?? endpoint;
     this.headers = requestJSON?.headers ?? headers;
     this.auth = requestJSON?.auth ?? auth;
-    this.method = method as ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
+    this.method = method as ExtractAdapterMethodType<ExtractAdapterType<this>>;
     this.params = requestJSON?.params;
     this.data = requestJSON?.data;
     this.queryParams = requestJSON?.queryParams;
@@ -370,7 +371,7 @@ export class Request<
       QueryParams,
       LocalError,
       Endpoint,
-      ExtractClientAdapterType<Client>,
+      Client,
       HasData,
       HasParams,
       HasQuery
@@ -392,15 +393,15 @@ export class Request<
 
   public toJSON(): RequestJSON<this> {
     return {
-      requestOptions: this.requestOptions as RequestOptionsType<
+      requestOptions: this.requestOptions as unknown as RequestOptionsType<
         ExtractEndpointType<this>,
-        ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
-        ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+        ExtractAdapterOptionsType<ExtractAdapterType<this>>,
+        ExtractAdapterMethodType<ExtractAdapterType<this>>
       >,
       endpoint: this.endpoint as ExtractEndpointType<this>,
       headers: this.headers,
       auth: this.auth,
-      method: this.method,
+      method: this.method as ExtractAdapterMethodType<ExtractAdapterType<this>>,
       params: this.params as ExtractParamsType<this>,
       data: this.data as ExtractPayloadType<this>,
       queryParams: this.queryParams as ExtractQueryParamsType<this>,
