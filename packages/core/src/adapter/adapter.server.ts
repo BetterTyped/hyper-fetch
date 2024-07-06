@@ -1,8 +1,8 @@
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
+import { HttpMethods, parseResponse } from "@hyper-fetch/core";
 
-import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse, parseResponse } from "adapter";
-import { HttpMethods } from "../constants/http.constants";
+import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse } from "adapter";
 
 export const adapter: AdapterType = async (request, requestId) => {
   const {
@@ -32,10 +32,12 @@ export const adapter: AdapterType = async (request, requestId) => {
   };
 
   Object.entries(config).forEach(([name, value]) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options[name] = value;
   });
 
-  let unmountListener = () => null;
+  let unmountListener: () => void = () => undefined;
   onBeforeRequest();
 
   if (payload) {
@@ -46,34 +48,49 @@ export const adapter: AdapterType = async (request, requestId) => {
 
   return makeRequest((resolve) => {
     const httpRequest = httpClient.request(requestUrl, options, (response) => {
+      // TODO - Change to settable from options
       response.setEncoding("utf8");
       unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
+      onRequestStart();
 
+      // if (requestResponseType === "stream") {
+      //   onSuccess(response, 200, { headers: response.headers as Record<string, string> }, resolve);
+      //   unmountListener();
+      //   onResponseEnd();
+      //   return;
+      // }
+
+      // const responseChunks: string[] = [];
       let chunks = "";
       const totalDownloadBytes = Number(response.headers["content-length"]);
       let downloadedBytes = 0;
 
-      onRequestStart();
-
       response.on("data", (chunk) => {
         if (!chunks) {
+          // if (!responseChunks.length) {
           onRequestEnd();
           onResponseStart();
         }
         downloadedBytes += chunk.length;
         chunks += chunk;
+        // responseChunks.push(chunk);
+
         onResponseProgress({ total: totalDownloadBytes, loaded: downloadedBytes });
       });
 
-      response.on("end", () => {
-        const { statusCode } = response;
+      response.on("end", async () => {
+        const { statusCode = 0 } = response;
         const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
         if (success) {
           const data = parseResponse(chunks);
           onSuccess(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
+          // TODO - try catch
+          // const responseData = handleResponse(responseChunks, requestResponseType, "utf8");
+          // onSuccess(responseData, statusCode, { headers: response.headers as Record<string, string> }, resolve);
         } else {
           // delay to finish after onabort/ontimeout
+          // const data = parseErrorResponse(responseChunks.toString());
           const data = parseErrorResponse(chunks);
           onError(data, statusCode, { headers: response.headers as Record<string, string> }, resolve);
         }
