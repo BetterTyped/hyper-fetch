@@ -13,7 +13,7 @@ import {
   CacheMethodType,
   RequestCacheType,
 } from "cache";
-import { RequestJSON, RequestInstance } from "request";
+import { RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 /**
@@ -124,7 +124,7 @@ export class Cache<C extends ClientInstance> {
    * @returns
    */
   update = <Request extends RequestInstance>(
-    request: RequestInstance | RequestJSON<RequestInstance>,
+    request: RequestCacheType<Request>,
     partialResponse: CacheMethodType<
       Partial<
         ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &

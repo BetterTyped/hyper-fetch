@@ -1,5 +1,6 @@
-import { RequestInstance } from "request";
+import { ExtendRequest, RequestInstance } from "request";
 import { HttpMethodsType, HttpStatusType } from "../types";
+import { Client } from "client";
 
 /**
  * Base Adapter
@@ -15,7 +16,12 @@ export type AdapterType<
   QueryParams = QueryParamsType | string,
   EndpointType = string,
 > = (
-  request: RequestInstance,
+  request: ExtendRequest<
+    RequestInstance,
+    {
+      client: Client<any, AdapterType<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>, any>;
+    }
+  >,
   requestId: string,
   // This is never used in the application, we pass this type to have unions extracting possibilities
   DO_NOT_USE?: {
