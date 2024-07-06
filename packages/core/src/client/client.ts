@@ -500,14 +500,12 @@ export class Client<
       };
 
       return new Request<
-        this,
         Response,
         Payload,
         QueryParams,
-        GlobalErrorType,
         LocalError,
         EndpointType extends string ? EndpointType : typeof endpoint,
-        ExtractedAdapterType
+        Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>
       >(this as any, mappedParams);
     };
   };

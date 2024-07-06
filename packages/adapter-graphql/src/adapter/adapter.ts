@@ -1,12 +1,6 @@
 import * as browser from "@browser-adapter";
 import * as server from "@server-adapter";
-import {
-  ClientInstance,
-  Client,
-  ExtractClientGlobalError,
-  ExtractClientAdapterType,
-  ExtractClientMapperType,
-} from "@hyper-fetch/core";
+import { ClientInstance, ExtractClientGlobalError, ExtractClientAdapterType } from "@hyper-fetch/core";
 import { GraphQLError } from "graphql";
 import { print } from "graphql/language/printer";
 
@@ -32,8 +26,7 @@ export const GraphqlAdapter = <C extends ClientInstance>(client: C) => {
       ExtractClientGlobalError<C> extends Error
         ? readonly Partial<GraphQLError>[]
         : ExtractClientGlobalError<C> | readonly Partial<GraphQLError>[],
-      ExtractClientAdapterType<C>,
-      ExtractClientMapperType<C>
+      ExtractClientAdapterType<C>
     >
   )
     .setAdapter(() => adapter)

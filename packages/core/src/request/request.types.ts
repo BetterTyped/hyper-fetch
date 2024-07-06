@@ -11,21 +11,15 @@ import {
   ExtractErrorType,
   ExtractResponseType,
   HttpMethodsType,
-  ExtractGlobalErrorType,
   ExtractQueryParamsType,
   ExtractLocalErrorType,
   TypeWithDefaults,
   ExtractClientType,
 } from "types";
 import { Request } from "request";
-import {
-  ResponseType,
-  ExtractAdapterOptionsType,
-  ExtractAdapterMethodType,
-  AdapterInstance,
-  ExtractAdapterEndpointType,
-} from "adapter";
+import { ResponseType, ExtractAdapterOptionsType, ExtractAdapterMethodType, ExtractAdapterEndpointType } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
+import { ClientInstance } from "client";
 
 // Progress
 export type AdapterProgressEventType = { total: number; loaded: number };
@@ -80,11 +74,7 @@ export type RequestJSON<Request extends RequestInstance> = {
 /**
  * Configuration options for request creation
  */
-export type RequestOptionsType<
-  GenericEndpoint extends string,
-  AdapterOptions extends Record<string, any>,
-  RequestMethods = HttpMethodsType,
-> = {
+export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods = HttpMethodsType> = {
   /**
    * Determine the endpoint for request request
    */
@@ -206,7 +196,7 @@ export type ExtractRouteParams<T extends string> = string extends T
       ? { [k in Param]: ParamType }
       : NegativeTypes;
 
-export type FetchOptionsType<AdapterOptions extends Record<string, any>> = Omit<
+export type FetchOptionsType<AdapterOptions> = Omit<
   Partial<RequestOptionsType<string, AdapterOptions>>,
   "endpoint" | "method"
 >;
@@ -280,7 +270,7 @@ export type RequestSendType<Request extends RequestInstance> =
 
 // Instance
 
-export type RequestInstance = Request<any, any, any, any, any, any, any, AdapterInstance, any, any, any>;
+export type RequestInstance = Request<any, any, any, any, any, ClientInstance, any, any, any>;
 
 export type ExtendRequest<
   Req extends RequestInstance,
@@ -291,24 +281,22 @@ export type ExtendRequest<
     globalError?: any;
     localError?: any;
     endpoint?: ExtractAdapterEndpointType<ExtractAdapterType<Req>>;
-    adapter?: AdapterInstance;
+    client?: ClientInstance;
     hasData?: true | false;
     hasParams?: true | false;
     hasQuery?: true | false;
   },
 > = Request<
-  ExtractClientType<Req>,
   TypeWithDefaults<Properties, "response", ExtractResponseType<Req>>,
   TypeWithDefaults<Properties, "payload", ExtractPayloadType<Req>>,
   TypeWithDefaults<Properties, "queryParams", ExtractQueryParamsType<Req>>,
-  TypeWithDefaults<Properties, "globalError", ExtractGlobalErrorType<Req>>,
   TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
   Properties["endpoint"] extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
     ? Properties["endpoint"]
     : ExtractEndpointType<Req> extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
       ? ExtractEndpointType<Req>
       : never,
-  Properties["adapter"] extends AdapterInstance ? Properties["adapter"] : ExtractAdapterType<Req>,
+  Properties["client"] extends ClientInstance ? Properties["client"] : ExtractClientType<Req>,
   Properties["hasData"] extends true ? true : ExtractHasDataType<Req>,
   Properties["hasParams"] extends true ? true : ExtractHasParamsType<Req>,
   Properties["hasQuery"] extends true ? true : ExtractHasQueryParamsType<Req>
