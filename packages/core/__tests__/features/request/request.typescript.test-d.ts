@@ -6,22 +6,22 @@ const client = new Client({
   url: "http://localhost:3000",
 });
 
-const getUsers = client.createRequest<{ response: { id: string }[] }>()({
+const getUsers = client.createRequest<{ id: string }[]>()({
   method: "GET",
   endpoint: "/users",
 });
 
-const getUser = client.createRequest<{ response: { id: string } }>()({
+const getUser = client.createRequest<{ id: string }>()({
   method: "GET",
   endpoint: "/users/:id",
 });
 
-const postUser = client.createRequest<{ response: { id: string }; payload: { name: string } }>()({
+const postUser = client.createRequest<{ id: string }, { name: string }>()({
   method: "POST",
   endpoint: "/users",
 });
 
-const patchUser = client.createRequest<{ response: { id: string }; payload: { name: string } }>()({
+const patchUser = client.createRequest<{ id: string }, { name: string }>()({
   method: "PATCH",
   endpoint: "/users/:id",
 });
@@ -102,7 +102,7 @@ describe("when request does not require params and has required data", () => {
     );
   });
   it("should not allow to add params to request", () => {
-    expectNotType<(options?: { data: null; params: { id: string }; queryParams: null }) => Promise<any>>(
+    expectNotType<(options?: { data: any; params: { id: string }; queryParams: null }) => Promise<any>>(
       postUser.setQueryParams("").setData({ name: "Kacper" }).send,
     );
   });

@@ -44,7 +44,9 @@ import { ExtractAdapterType, NegativeTypes } from "types";
 export class Client<
   GlobalErrorType extends ClientErrorType = Error,
   Adapter extends AdapterInstance = AdapterType,
-  EndpointMapper extends DefaultEndpointMapper = DefaultEndpointMapper,
+  EndpointMapper extends DefaultEndpointMapper = (
+    endpoint: ExtractAdapterEndpointType<Adapter>,
+  ) => ExtractAdapterEndpointType<Adapter>,
 > {
   readonly url: string;
   public debug: boolean;
@@ -79,12 +81,22 @@ export class Client<
   queryParamsConfig?: QueryStringifyOptionsType;
   adapterDefaultOptions?: (request: RequestInstance) => ExtractAdapterOptionsType<Adapter>;
   requestDefaultOptions?: (
-    options: RequestOptionsType<string, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>,
-  ) => Partial<RequestOptionsType<string, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>>;
-  abortKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
-  cacheKeyMapper?: (request: RequestInstance) => string = getRequestKey;
-  queueKeyMapper?: (request: RequestInstance) => string = getRequestKey;
-  effectKeyMapper?: (request: RequestInstance) => string = getSimpleKey;
+    options: RequestOptionsType<
+      ExtractAdapterEndpointType<Adapter>,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >,
+  ) => Partial<
+    RequestOptionsType<
+      ExtractAdapterEndpointType<Adapter>,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    >
+  >;
+  abortKeyMapper: (request: RequestInstance) => string = getSimpleKey;
+  cacheKeyMapper: (request: RequestInstance) => string = getRequestKey;
+  queueKeyMapper: (request: RequestInstance) => string = getRequestKey;
+  effectKeyMapper: (request: RequestInstance) => string = getSimpleKey;
 
   // Utils
 
@@ -105,7 +117,7 @@ export class Client<
    * Method to get request data and transform them to the required format. It handles FormData and JSON by default.
    */
   // eslint-disable-next-line class-methods-use-this
-  endpointMapper: EndpointMapper = ((endpoint) => endpoint) as any;
+  endpointMapper = ((endpoint) => endpoint) as EndpointMapper;
 
   // Logger
   logger = this.loggerManager.init("Client");
@@ -126,9 +138,7 @@ export class Client<
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
   setRequestDefaultOptions = (
-    callback: (
-      request: RequestInstance,
-    ) => Partial<RequestOptionsType<string, ExtractAdapterOptionsType<Adapter>, ExtractAdapterMethodType<Adapter>>>,
+    callback: typeof this.requestDefaultOptions,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.requestDefaultOptions = callback;
     return this;
@@ -449,7 +459,7 @@ export class Client<
   createRequest = <
     Response,
     Payload = undefined,
-    LocalError = undefined,
+    LocalError extends ClientErrorType = Error,
     QueryParams = ExtractAdapterQueryParamsType<Adapter>,
   >() => {
     return <
@@ -490,6 +500,7 @@ export class Client<
       };
 
       return new Request<
+        this,
         Response,
         Payload,
         QueryParams,

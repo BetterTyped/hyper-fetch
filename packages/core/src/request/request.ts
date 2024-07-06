@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
   RequestSendOptionsType,
   ParamsType,
@@ -13,7 +14,7 @@ import {
   RequestMapper,
   ResponseMapper,
 } from "request";
-import { Client, ClientErrorType } from "client";
+import { ClientErrorType, ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
 import {
   AdapterType,
@@ -22,8 +23,9 @@ import {
   QueryParamsType,
   AdapterInstance,
   ResponseType,
+  ExtractAdapterEndpointType,
 } from "adapter";
-import { ExtractParamsType, ExtractPayloadType, NegativeTypes } from "types";
+import { ExtractParamsType, ExtractPayloadType, ExtractQueryParamsType, NegativeTypes } from "types";
 import { Time } from "constants/time.constants";
 import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
 
@@ -45,12 +47,13 @@ import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
  * Serialization should not affect the result of the request, so it's methods and functional part should be only syntax sugar for given runtime.
  */
 export class Request<
+  Client extends ClientInstance,
   Response,
   Payload,
   QueryParams,
   GlobalError extends ClientErrorType, // Global Error Type
   LocalError extends ClientErrorType, // Additional Error for specific endpoint
-  Endpoint extends string,
+  Endpoint extends ExtractAdapterEndpointType<Adapter>,
   Adapter extends AdapterInstance = AdapterType,
   HasData extends true | false = false,
   HasParams extends true | false = false,
@@ -81,33 +84,14 @@ export class Request<
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
   mock?: Generator<
-    GeneratorReturnMockTypes<
-      Response,
-      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-    >,
-    GeneratorReturnMockTypes<
-      Response,
-      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-    >,
-    GeneratorReturnMockTypes<
-      Response,
-      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-    >
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>,
+    GeneratorReturnMockTypes<Response, this>
   >;
-  mockData?: RequestDataMockTypes<
-    Response,
-    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-  >;
+  mockData?: RequestDataMockTypes<Response, this>;
   isMockEnabled = false;
-  requestMapper?: RequestMapper<
-    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
-    any
-  >;
-  responseMapper?: ResponseMapper<
-    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
-    any,
-    any
-  >;
+  requestMapper?: RequestMapper<this, any>;
+  responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -115,7 +99,7 @@ export class Request<
   private updatedEffectKey: boolean;
 
   constructor(
-    readonly client: Client<GlobalError, Adapter, any>,
+    readonly client: Client,
     readonly requestOptions: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<Adapter>,
@@ -131,6 +115,19 @@ export class Request<
         >
       | undefined,
   ) {
+    const configuration: RequestOptionsType<
+      Endpoint,
+      ExtractAdapterOptionsType<Adapter>,
+      ExtractAdapterMethodType<Adapter>
+    > = {
+      ...(this.client.requestDefaultOptions?.(requestOptions) as RequestOptionsType<
+        Endpoint,
+        ExtractAdapterOptionsType<Adapter>,
+        ExtractAdapterMethodType<Adapter>
+      >),
+      ...requestOptions,
+    };
+
     const {
       endpoint,
       headers,
@@ -151,12 +148,12 @@ export class Request<
       effectKey,
       deduplicate = false,
       deduplicateTime = 10,
-    } = { ...this.client.requestDefaultOptions?.(requestOptions), ...requestOptions };
+    } = configuration;
 
     this.endpoint = requestJSON?.endpoint ?? endpoint;
     this.headers = requestJSON?.headers ?? headers;
     this.auth = requestJSON?.auth ?? auth;
-    this.method = method;
+    this.method = method as ExtractAdapterMethodType<Adapter>;
     this.params = requestJSON?.params;
     this.data = requestJSON?.data;
     this.queryParams = requestJSON?.queryParams;
@@ -295,12 +292,7 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setMock = (
-    mockData: RequestDataMockTypes<
-      Response,
-      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
-    >,
-  ) => {
+  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
     const mockGenerator = function* mocked(mockedValues: typeof mockData) {
       if (Array.isArray(mockedValues)) {
         let iteration = 0;
@@ -355,15 +347,10 @@ export class Request<
    * @param requestMapper mapper of the request
    * @returns new request
    */
-  public setRequestMapper = <NewRequest extends RequestInstance>(
-    requestMapper: RequestMapper<
-      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
-      NewRequest
-    >,
-  ) => {
+  public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
-    cloned.requestMapper = requestMapper;
+    cloned.requestMapper = requestMapper as any;
 
     return cloned;
   };
@@ -381,6 +368,7 @@ export class Request<
     cloned.responseMapper = responseMapper;
 
     return cloned as unknown as Request<
+      Client,
       NewResponse,
       Payload,
       QueryParams,
@@ -416,7 +404,7 @@ export class Request<
       method: this.method,
       params: this.params as ExtractParamsType<this>,
       data: this.data as ExtractPayloadType<this>,
-      queryParams: this.queryParams as QueryParamsType,
+      queryParams: this.queryParams as ExtractQueryParamsType<this>,
       options: this.options,
       cancelable: this.cancelable,
       retry: this.retry,
@@ -442,7 +430,11 @@ export class Request<
     };
   }
 
-  public clone<D extends true | false = HasData, P extends true | false = HasParams, Q extends true | false = HasQuery>(
+  public clone<
+    NewData extends true | false = HasData,
+    NewParams extends true | false = HasParams,
+    NewQueryParams extends true | false = HasQuery,
+  >(
     options?: RequestCurrentType<
       Payload,
       QueryParams,
@@ -450,7 +442,19 @@ export class Request<
       ExtractAdapterOptionsType<Adapter>,
       ExtractAdapterMethodType<Adapter>
     >,
-  ): Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q> {
+  ): Request<
+    Client,
+    Response,
+    Payload,
+    QueryParams,
+    GlobalError,
+    LocalError,
+    Endpoint,
+    Adapter,
+    NewData,
+    NewParams,
+    NewQueryParams
+  > {
     const json = this.toJSON();
     const requestJSON: RequestCurrentType<
       Payload,
@@ -471,19 +475,27 @@ export class Request<
       data: options?.data || this.data,
     };
 
-    const cloned = new Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, D, P, Q>(
-      this.client,
-      this.requestOptions,
-      requestJSON,
-    );
+    const cloned = new Request<
+      Client,
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      Adapter,
+      NewData,
+      NewParams,
+      NewQueryParams
+    >(this.client, this.requestOptions, requestJSON);
 
     // Inherit methods
     cloned.dataMapper = this.dataMapper;
     cloned.responseMapper = this.responseMapper;
-    cloned.requestMapper = this.requestMapper;
+    cloned.requestMapper = this.requestMapper as any;
 
-    cloned.mockData = this.mockData;
-    cloned.mock = this.mock;
+    cloned.mockData = this.mockData as any;
+    cloned.mock = this.mock as any;
     cloned.isMockEnabled = this.isMockEnabled;
 
     return cloned;

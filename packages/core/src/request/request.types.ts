@@ -15,15 +15,15 @@ import {
   ExtractQueryParamsType,
   ExtractLocalErrorType,
   TypeWithDefaults,
+  ExtractClientType,
 } from "types";
 import { Request } from "request";
 import {
   ResponseType,
-  QueryParamsType,
   ExtractAdapterOptionsType,
-  AdapterType,
   ExtractAdapterMethodType,
   AdapterInstance,
+  ExtractAdapterEndpointType,
 } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 
@@ -38,16 +38,10 @@ export type AdapterProgressType = {
 /**
  * Dump of the request used to later recreate it
  */
-export type RequestJSON<
-  Request extends RequestInstance,
-  // Bellow generics provided only to overcome the typescript bugs
-  AdapterOptions = unknown,
-  QueryParams = QueryParamsType,
-  Params = ExtractParamsType<Request>,
-> = {
+export type RequestJSON<Request extends RequestInstance> = {
   requestOptions: RequestOptionsType<
-    string,
-    AdapterOptions | ExtractAdapterType<Request>,
+    ExtractAdapterEndpointType<ExtractAdapterType<Request>>,
+    ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
   endpoint: string;
@@ -64,10 +58,10 @@ export type RequestJSON<
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
-  options?: AdapterOptions | ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
+  options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
   data: PayloadType<ExtractPayloadType<Request>>;
-  params: Params | NegativeTypes;
-  queryParams: QueryParams | NegativeTypes;
+  params: ExtractParamsType<Request> | NegativeTypes;
+  queryParams: ExtractQueryParamsType<Request> | NegativeTypes;
   abortKey: string;
   cacheKey: string;
   queueKey: string;
@@ -104,7 +98,8 @@ export type RequestOptionsType<
    */
   auth?: boolean;
   /**
-   * Request method GET | POST | PATCH | PUT | DELETE or set of method names handled by adapter
+   * Request method picked from method names handled by adapter
+   * With default adapter it is GET | POST | PATCH | PUT | DELETE
    */
   method?: RequestMethods;
   /**
@@ -185,7 +180,7 @@ export type RequestCurrentType<
   Payload,
   QueryParams,
   GenericEndpoint extends string,
-  AdapterOptions,
+  AdapterOptions extends Record<string, any>,
   MethodsType = HttpMethodsType,
 > = {
   used?: boolean;
@@ -210,7 +205,7 @@ export type ExtractRouteParams<T extends string> = string extends T
       ? { [k in Param]: ParamType }
       : NegativeTypes;
 
-export type FetchOptionsType<AdapterOptions> = Omit<
+export type FetchOptionsType<AdapterOptions extends Record<string, any>> = Omit<
   Partial<RequestOptionsType<string, AdapterOptions>>,
   "endpoint" | "method"
 >;
@@ -285,18 +280,7 @@ export type RequestSendType<Request extends RequestInstance> =
 
 // Instance
 
-export type RequestInstance = Request<
-  any,
-  any,
-  any,
-  any,
-  any,
-  any,
-  AdapterType<any, any, any, any, any>,
-  any,
-  any,
-  any
->;
+export type RequestInstance = Request<any, any, any, any, any, any, any, AdapterInstance, any, any, any>;
 
 export type ExtendRequest<
   Req extends RequestInstance,
@@ -306,22 +290,28 @@ export type ExtendRequest<
     queryParams?: any;
     globalError?: any;
     localError?: any;
-    endpoint?: string;
+    endpoint?: ExtractAdapterEndpointType<ExtractAdapterType<Req>>;
     adapter?: AdapterInstance;
     hasData?: true | false;
     hasParams?: true | false;
     hasQuery?: true | false;
   },
 > = Request<
+  ExtractClientType<Req>,
   TypeWithDefaults<Properties, "response", ExtractResponseType<Req>>,
   TypeWithDefaults<Properties, "payload", ExtractPayloadType<Req>>,
   TypeWithDefaults<Properties, "queryParams", ExtractQueryParamsType<Req>>,
   TypeWithDefaults<Properties, "globalError", ExtractGlobalErrorType<Req>>,
   TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
-  TypeWithDefaults<Properties, "endpoint", ExtractEndpointType<Req>>,
-  TypeWithDefaults<Properties, "adapter", ExtractAdapterType<Req>>,
-  TypeWithDefaults<Properties, "hasData", ExtractHasDataType<Req>>,
-  TypeWithDefaults<Properties, "hasParams", ExtractHasParamsType<Req>>
+  Properties["endpoint"] extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
+    ? Properties["endpoint"]
+    : ExtractEndpointType<Req> extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
+      ? ExtractEndpointType<Req>
+      : never,
+  Properties["adapter"] extends AdapterInstance ? Properties["adapter"] : ExtractAdapterType<Req>,
+  Properties["hasData"] extends true ? true : ExtractHasDataType<Req>,
+  Properties["hasParams"] extends true ? true : ExtractHasParamsType<Req>,
+  Properties["hasQuery"] extends true ? true : ExtractHasQueryParamsType<Req>
 >;
 
 // Mappers
