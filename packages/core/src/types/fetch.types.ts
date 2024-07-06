@@ -2,7 +2,7 @@ import { ResponseType } from "adapter";
 import { ExtractRouteParams, Request, RequestInstance } from "request";
 import { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
 
-export type ExtractAdapterReturnType<T extends RequestInstance> = ResponseType<
+export type ExtractAdapterResolvedType<T extends RequestInstance> = ResponseType<
   ExtractResponseType<T>,
   ExtractErrorType<T>,
   ExtractAdapterType<T>

@@ -1,4 +1,4 @@
-import { RequestInstance, ExtractAdapterReturnType } from "@hyper-fetch/core";
+import { RequestInstance, ExtractAdapterResolvedType } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -85,7 +85,7 @@ describe("useSubmit [ Bounce ]", () => {
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
-        let value: ExtractAdapterReturnType<RequestInstance>[] = [];
+        let value: ExtractAdapterResolvedType<RequestInstance>[] = [];
         await act(async () => {
           const promiseOne = await response.result.current.submit();
           await waitForRender(1);
@@ -99,7 +99,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(value).toHaveLength(4);
-        const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
+        const isResponse = (res: ExtractAdapterResolvedType<RequestInstance>) => {
           return !!res.data && !res.error && res.status === 200 && res.extra;
         };
         expect(value).toSatisfyAny(isResponse);
@@ -229,7 +229,7 @@ describe("useSubmit [ Bounce ]", () => {
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
-        let value: ExtractAdapterReturnType<RequestInstance>[] = [];
+        let value: ExtractAdapterResolvedType<RequestInstance>[] = [];
         await act(async () => {
           const promiseOne = await response.result.current.submit();
           await waitForRender(1);
@@ -243,7 +243,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect(value).toHaveLength(4);
-        const isResponse = (res: ExtractAdapterReturnType<RequestInstance>) => {
+        const isResponse = (res: ExtractAdapterResolvedType<RequestInstance>) => {
           return !!res.data && !res.error && res.status === 200 && !!res.extra;
         };
         expect(value).toSatisfyAny(isResponse);

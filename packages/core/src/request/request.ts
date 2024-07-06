@@ -15,16 +15,11 @@ import {
 } from "request";
 import { ClientErrorType, ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
-import {
-  ExtractAdapterMethodType,
-  ExtractAdapterOptionsType,
-  QueryParamsType,
-  ResponseType,
-  ExtractAdapterEndpointType,
-} from "adapter";
+import { ExtractAdapterMethodType, ExtractAdapterOptionsType, QueryParamsType, ResponseType } from "adapter";
 import {
   ExtractClientAdapterType,
   ExtractClientGlobalError,
+  ExtractEndpointType,
   ExtractParamsType,
   ExtractPayloadType,
   ExtractQueryParamsType,
@@ -56,7 +51,7 @@ export class Request<
   Payload,
   QueryParams,
   LocalError extends ClientErrorType, // Additional Error for specific endpoint
-  Endpoint extends ExtractAdapterEndpointType<ExtractClientAdapterType<Client>>,
+  Endpoint extends string,
   Client extends ClientInstance,
   HasData extends true | false = false,
   HasParams extends true | false = false,
@@ -397,8 +392,12 @@ export class Request<
 
   public toJSON(): RequestJSON<this> {
     return {
-      requestOptions: this.requestOptions,
-      endpoint: this.endpoint,
+      requestOptions: this.requestOptions as RequestOptionsType<
+        ExtractEndpointType<this>,
+        ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
+        ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+      >,
+      endpoint: this.endpoint as ExtractEndpointType<this>,
       headers: this.headers,
       auth: this.auth,
       method: this.method,

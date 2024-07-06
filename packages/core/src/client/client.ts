@@ -44,9 +44,7 @@ import { ExtractAdapterType, NegativeTypes } from "types";
 export class Client<
   GlobalErrorType extends ClientErrorType = Error,
   Adapter extends AdapterInstance = AdapterType,
-  EndpointMapper extends DefaultEndpointMapper = (
-    endpoint: ExtractAdapterEndpointType<Adapter>,
-  ) => ExtractAdapterEndpointType<Adapter>,
+  EndpointMapper extends DefaultEndpointMapper = (endpoint: any) => any,
 > {
   readonly url: string;
   public debug: boolean;
@@ -506,7 +504,7 @@ export class Client<
         LocalError,
         EndpointType extends string ? EndpointType : typeof endpoint,
         Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>
-      >(this as any, mappedParams);
+      >(this as unknown as Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>, mappedParams);
     };
   };
 }

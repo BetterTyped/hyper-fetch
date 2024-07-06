@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { AdapterInstance, ResponseType } from "adapter";
+import { AdapterInstance, ExtractAdapterMethodType, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -81,7 +81,7 @@ export class Cache<C extends ClientInstance> {
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const processedResponse = typeof response === "function" ? response(cachedData) : response;
+    const processedResponse = typeof response === "function" ? response(cachedData || null) : response;
     const data = getCacheData(cachedData, processedResponse);
 
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
@@ -92,7 +92,7 @@ export class Cache<C extends ClientInstance> {
       queueKey: request.queueKey,
       effectKey: request.effectKey,
       endpoint: request.endpoint,
-      method: request.method,
+      method: request.method as ExtractAdapterMethodType<ExtractAdapterType<Request>>,
       garbageCollection,
     };
 
@@ -140,7 +140,8 @@ export class Cache<C extends ClientInstance> {
       ExtractAdapterType<Request>
     >(cacheKey);
 
-    const processedResponse = typeof partialResponse === "function" ? partialResponse(cachedData) : partialResponse;
+    const processedResponse =
+      typeof partialResponse === "function" ? partialResponse(cachedData || null) : partialResponse;
     if (cachedData) {
       this.set(request, { ...cachedData, ...processedResponse });
     }

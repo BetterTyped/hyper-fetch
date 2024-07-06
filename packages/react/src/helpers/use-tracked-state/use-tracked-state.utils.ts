@@ -4,7 +4,7 @@ import {
   RequestInstance,
   ExtractResponseType,
   ExtractErrorType,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   Dispatcher,
   ExtractAdapterType,
   ExtractAdapterExtraType,
@@ -33,7 +33,7 @@ export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType
 
 export const getValidCacheData = <T extends RequestInstance>(
   request: T,
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>,
+  initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
   cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
 ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
   const isStale = isStaleCacheData(request.cacheTime, cacheData?.timestamp);
@@ -49,7 +49,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       status: null,
       success: true,
       extra: null,
-      ...((initialData || {}) as Partial<ExtractAdapterReturnType<T>>),
+      ...((initialData || {}) as Partial<ExtractAdapterResolvedType<T>>),
       ...getDetailsState(),
       cacheTime: 1000,
       clearKey: request.client.cache.clearKey,
@@ -70,7 +70,7 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
 };
 
 export const getInitialState = <T extends RequestInstance>(
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>,
+  initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
   dispatcher: Dispatcher,
   request: T,
 ): UseTrackedStateType<T> => {

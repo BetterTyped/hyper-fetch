@@ -1,7 +1,7 @@
 import {
   RequestInstance,
   NullableType,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   ExtendRequest,
   ExtractPayloadType,
   ExtractParamsType,
@@ -40,7 +40,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  initialData?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   /**
    * Enable/disable refresh data
    */

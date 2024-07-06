@@ -34,11 +34,11 @@ export type AdapterProgressType = {
  */
 export type RequestJSON<Request extends RequestInstance> = {
   requestOptions: RequestOptionsType<
-    ExtractAdapterEndpointType<ExtractAdapterType<Request>>,
+    ExtractEndpointType<Request>,
     ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
-  endpoint: ExtractAdapterEndpointType<ExtractAdapterType<Request>>;
+  endpoint: ExtractEndpointType<Request>;
   method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
   auth: boolean;
@@ -170,7 +170,7 @@ export type RequestConfigurationType<
   Payload,
   Params,
   QueryParams,
-  GenericEndpoint,
+  GenericEndpoint extends string,
   AdapterOptions,
   MethodsType = HttpMethodsType,
 > = {
@@ -291,11 +291,7 @@ export type ExtendRequest<
   TypeWithDefaults<Properties, "payload", ExtractPayloadType<Req>>,
   TypeWithDefaults<Properties, "queryParams", ExtractQueryParamsType<Req>>,
   TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
-  Properties["endpoint"] extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
-    ? Properties["endpoint"]
-    : ExtractEndpointType<Req> extends ExtractAdapterEndpointType<ExtractAdapterType<Req>>
-      ? ExtractEndpointType<Req>
-      : never,
+  Properties["endpoint"] extends string ? Properties["endpoint"] : ExtractEndpointType<Req>,
   Properties["client"] extends ClientInstance ? Properties["client"] : ExtractClientType<Req>,
   Properties["hasData"] extends true ? true : ExtractHasDataType<Req>,
   Properties["hasParams"] extends true ? true : ExtractHasParamsType<Req>,

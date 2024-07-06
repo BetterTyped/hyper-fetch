@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react";
 import {
   Request,
   getRequestKey,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   RequestInstance,
   sendRequest,
   ResponseType,
@@ -126,7 +126,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
       });
     };
 
-    return new Promise<ExtractAdapterReturnType<RequestType>>((resolve) => {
+    return new Promise<ExtractAdapterResolvedType<RequestType>>((resolve) => {
       const performSubmit = async () => {
         logger.debug(`Submitting request`, { disabled, submitOptions });
         if (bounce) {

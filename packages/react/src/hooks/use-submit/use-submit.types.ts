@@ -1,4 +1,4 @@
-import { ExtractAdapterReturnType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
+import { ExtractAdapterResolvedType, NullableType, RequestInstance, RequestSendType } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
 import {
@@ -20,7 +20,7 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  initialData?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */

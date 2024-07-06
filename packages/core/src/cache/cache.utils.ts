@@ -1,11 +1,11 @@
 import { ResponseDetailsType } from "managers";
 import { RequestInstance } from "request";
-import { ExtractAdapterReturnType } from "types";
+import { ExtractAdapterResolvedType } from "types";
 
 export const getCacheData = <T extends RequestInstance>(
-  previousResponse: ExtractAdapterReturnType<T> | undefined,
-  response: ExtractAdapterReturnType<T> & ResponseDetailsType,
-): ExtractAdapterReturnType<T> & ResponseDetailsType => {
+  previousResponse: ExtractAdapterResolvedType<T> | undefined,
+  response: ExtractAdapterResolvedType<T> & ResponseDetailsType,
+): ExtractAdapterResolvedType<T> & ResponseDetailsType => {
   const { data, success } = response;
 
   const previousData = !success && previousResponse ? previousResponse.data : null;

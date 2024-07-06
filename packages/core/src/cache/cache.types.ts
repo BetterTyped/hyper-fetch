@@ -1,5 +1,5 @@
 import { Cache } from "cache";
-import { AdapterInstance, ResponseType } from "adapter";
+import { AdapterInstance, ExtractAdapterMethodType, ResponseType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { ClientInstance } from "../client";
 import { RequestInstance } from "request";
@@ -47,7 +47,7 @@ export type CacheValueType<
     queueKey: string;
     effectKey: string;
     endpoint: string;
-    method: string;
+    method: ExtractAdapterMethodType<Adapter>;
     garbageCollection: number;
   };
 

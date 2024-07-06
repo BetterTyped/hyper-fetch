@@ -8,7 +8,7 @@ import {
   ExtractAdapterType,
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
-  ExtractAdapterReturnType,
+  ExtractAdapterResolvedType,
   NullableType,
 } from "@hyper-fetch/core";
 
@@ -17,7 +17,7 @@ import { isEqual } from "utils";
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
   logger: LoggerType;
-  initialData: NullableType<Partial<ExtractAdapterReturnType<T>>>;
+  initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   defaultCacheEmitting?: boolean;

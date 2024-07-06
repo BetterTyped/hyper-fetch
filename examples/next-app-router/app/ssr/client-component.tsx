@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ExtractAdapterReturnType, RequestInstance } from "@hyper-fetch/core";
+import { ExtractAdapterResolvedType, RequestInstance } from "@hyper-fetch/core";
 import { UseFetchRequest, useFetch } from "@hyper-fetch/react";
 import { Stack, Button } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
@@ -14,7 +14,7 @@ import { Request } from "../../components/request";
 import { getUser } from "../../api";
 
 export const ClientComponents: React.FC<{
-  fallback: Partial<ExtractAdapterReturnType<UseFetchRequest<RequestInstance>>>;
+  fallback: Partial<ExtractAdapterResolvedType<UseFetchRequest<RequestInstance>>>;
 }> = (props) => {
   const [dep, setDep] = useState(+new Date());
   const [disabled, setDisabled] = useState(true);

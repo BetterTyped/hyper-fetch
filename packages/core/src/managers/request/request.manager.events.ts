@@ -33,6 +33,7 @@ import {
 } from "managers";
 import { AdapterInstance } from "adapter";
 import { ExtendRequest, RequestInstance } from "request";
+import { Client } from "client";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**
@@ -72,7 +73,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
 
   // Response
   emitResponse: <Adapter extends AdapterInstance>(
-    data: RequestResponseEventType<ExtendRequest<RequestInstance, { adapter: Adapter }>>,
+    data: RequestResponseEventType<ExtendRequest<RequestInstance, { client: Client<any, Adapter, any> }>>,
   ): void => {
     emitter.emit(getResponseKey(), data);
     emitter.emit(getResponseByIdKey(data.requestId), data);
