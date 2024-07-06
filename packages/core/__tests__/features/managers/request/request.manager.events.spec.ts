@@ -63,7 +63,7 @@ describe("RequestManager [ Events ]", () => {
       const spy2 = jest.fn();
 
       const requestId = client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
+      client.requestManager.events.onAbortByKey(request.abortKey, spy1);
       client.requestManager.events.onAbortById(requestId, spy2);
 
       await sleep(5);
@@ -82,7 +82,7 @@ describe("RequestManager [ Events ]", () => {
       const spy2 = jest.fn();
 
       const requestId = client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
+      client.requestManager.events.onAbortByKey(request.abortKey, spy1);
       client.requestManager.events.onAbortById(requestId, spy2);
 
       await sleep(5);

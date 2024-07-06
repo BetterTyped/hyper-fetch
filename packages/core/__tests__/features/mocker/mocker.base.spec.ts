@@ -98,7 +98,7 @@ describe("Mocker [ Base ]", () => {
     dispatcher.add(secondRequest);
     const requestId = dispatcher.add(firstRequest);
     client.requestManager.events.onAbortById(requestId, firstSpy);
-    client.requestManager.events.onAbortByQueue(firstRequest.abortKey, secondSpy);
+    client.requestManager.events.onAbortByKey(firstRequest.abortKey, secondSpy);
 
     await sleep(5);
 

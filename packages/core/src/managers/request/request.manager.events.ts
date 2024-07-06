@@ -227,7 +227,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
     emitter.on(getAbortKey(), callback);
     return () => emitter.removeListener(getAbortKey(), callback);
   },
-  onAbortByAbortKey: <T extends RequestInstance = RequestInstance>(
+  onAbortByKey: <T extends RequestInstance = RequestInstance>(
     abortKey: string,
     callback: (request: RequestEventType<T>) => void,
   ): VoidFunction => {

@@ -102,7 +102,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       client.requestManager.events.onAbortById(firstRequestId, firstSpy);
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
-      client.requestManager.events.onAbortByQueue(firstRequest.abortKey, thirdSpy);
+      client.requestManager.events.onAbortByKey(firstRequest.abortKey, thirdSpy);
 
       dispatcher.cancelRunningRequests(firstRequest.queueKey);
 
@@ -122,7 +122,7 @@ describe("Dispatcher [ Requests ]", () => {
       dispatcher.add(secondRequest);
       const requestId = dispatcher.add(firstRequest);
       client.requestManager.events.onAbortById(requestId, firstSpy);
-      client.requestManager.events.onAbortByQueue(firstRequest.abortKey, secondSpy);
+      client.requestManager.events.onAbortByKey(firstRequest.abortKey, secondSpy);
 
       await sleep(5);
 
@@ -148,7 +148,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       client.requestManager.events.onAbortById(firstRequestId, firstSpy);
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
-      client.requestManager.events.onAbortByQueue(firstRequest.abortKey, thirdSpy);
+      client.requestManager.events.onAbortByKey(firstRequest.abortKey, thirdSpy);
 
       dispatcher.deleteRunningRequests(firstRequest.queueKey);
 
@@ -173,7 +173,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       client.requestManager.events.onAbortById(firstRequestId, firstSpy);
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
-      client.requestManager.events.onAbortByQueue(firstRequest.queueKey, thirdSpy);
+      client.requestManager.events.onAbortByKey(firstRequest.queueKey, thirdSpy);
 
       dispatcher.deleteRunningRequest(firstRequest.queueKey, firstRequestId);
 
