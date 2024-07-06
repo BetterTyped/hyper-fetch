@@ -23,7 +23,7 @@ export type ExtractGlobalErrorType<T> =
 export type ExtractLocalErrorType<T> = T extends Request<any, any, any, infer E, any, any, any, any, any> ? E : never;
 
 export type ExtractParamsType<T> =
-  T extends Request<any, any, any, any, any, infer E, any, any, any>
+  T extends Request<any, any, any, any, infer E, any, any, any, any>
     ? E extends string
       ? ExtractRouteParams<E>
       : never

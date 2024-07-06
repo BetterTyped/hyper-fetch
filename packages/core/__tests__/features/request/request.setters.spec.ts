@@ -149,15 +149,15 @@ describe("Request [ Setters ]", () => {
   it("should allow for setting response mapper", async () => {
     const mapper = (res) => ({ ...res });
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.responseMapper).not.toBeDefined();
+    expect(mapperRequest.__responseMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setResponseMapper(mapper);
-    expect(updatedRequest.responseMapper).toBe(mapper);
+    expect(updatedRequest.__responseMapper).toBe(mapper);
   });
   it("should allow for setting request mapper", async () => {
     const mapper = (req) => req;
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.requestMapper).not.toBeDefined();
+    expect(mapperRequest.__requestMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setRequestMapper(mapper);
-    expect(updatedRequest.requestMapper).toBe(mapper);
+    expect(updatedRequest.__requestMapper).toBe(mapper);
   });
 });

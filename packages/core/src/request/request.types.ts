@@ -38,7 +38,7 @@ export type RequestJSON<Request extends RequestInstance> = {
     ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
     ExtractAdapterMethodType<ExtractAdapterType<Request>>
   >;
-  endpoint: string;
+  endpoint: ExtractAdapterEndpointType<ExtractAdapterType<Request>>;
   method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
   headers?: HeadersInit;
   auth: boolean;
@@ -170,8 +170,8 @@ export type RequestConfigurationType<
   Payload,
   Params,
   QueryParams,
-  GenericEndpoint extends string,
-  AdapterOptions extends Record<string, any>,
+  GenericEndpoint,
+  AdapterOptions,
   MethodsType = HttpMethodsType,
 > = {
   used?: boolean;

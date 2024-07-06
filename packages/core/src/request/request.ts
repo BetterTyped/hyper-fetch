@@ -86,18 +86,17 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
-  // mock?: Generator<
-  //   GeneratorReturnMockTypes<Response, this>,
-  //   GeneratorReturnMockTypes<Response, this>,
-  //   GeneratorReturnMockTypes<Response, this>
-  // >;
-  // mockData?: RequestDataMockTypes<Response, this>;
+
+  mock?: Generator<
+    GeneratorReturnMockTypes<Response, any>,
+    GeneratorReturnMockTypes<Response, any>,
+    GeneratorReturnMockTypes<Response, any>
+  >;
+  mockData?: RequestDataMockTypes<Response, any>;
   isMockEnabled = false;
-  // requestMapper?: RequestMapper<
-  //   Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasData, HasParams, HasQuery>,
-  //   any
-  // >;
-  // responseMapper?: ResponseMapper<this, any, any>;
+
+  __requestMapper?: RequestMapper<any, any>;
+  __responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -173,12 +172,6 @@ export class Request<
     this.updatedCacheKey = requestJSON?.updatedCacheKey ?? false;
     this.updatedQueueKey = requestJSON?.updatedQueueKey ?? false;
     this.updatedEffectKey = requestJSON?.updatedEffectKey ?? false;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-dupe-class-members, class-methods-use-this
-  methodA() {
-    type A = RequestSendType<this>;
-    return null as any as A;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -301,33 +294,33 @@ export class Request<
     return this.clone({ offline });
   };
 
-  // public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
-  //   const mockGenerator = function* mocked(mockedValues: typeof mockData) {
-  //     if (Array.isArray(mockedValues)) {
-  //       let iteration = 0;
-  //       // eslint-disable-next-line no-restricted-syntax
-  //       while (true) {
-  //         yield mockedValues[iteration];
-  //         iteration = mockedValues.length === iteration + 1 ? 0 : iteration + 1;
-  //       }
-  //     } else {
-  //       while (true) {
-  //         yield mockedValues;
-  //       }
-  //     }
-  //   };
-  //   this.mockData = mockData;
-  //   this.mock = mockGenerator(mockData);
-  //   this.isMockEnabled = true;
-  //   return this;
-  // };
+  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
+    const mockGenerator = function* mocked(mockedValues: typeof mockData) {
+      if (Array.isArray(mockedValues)) {
+        let iteration = 0;
+        // eslint-disable-next-line no-restricted-syntax
+        while (true) {
+          yield mockedValues[iteration];
+          iteration = mockedValues.length === iteration + 1 ? 0 : iteration + 1;
+        }
+      } else {
+        while (true) {
+          yield mockedValues;
+        }
+      }
+    };
+    this.mockData = mockData;
+    this.mock = mockGenerator(mockData);
+    this.isMockEnabled = true;
+    return this;
+  };
 
-  // public removeMock = () => {
-  //   this.mockData = undefined;
-  //   this.mock = undefined;
-  //   this.isMockEnabled = false;
-  //   return this;
-  // };
+  public removeMock = () => {
+    this.mockData = undefined;
+    this.mock = undefined;
+    this.isMockEnabled = false;
+    return this;
+  };
 
   public setEnableMocking = (isMockEnabled: boolean) => {
     this.isMockEnabled = isMockEnabled;
@@ -359,7 +352,7 @@ export class Request<
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
-    cloned.requestMapper = requestMapper as any;
+    cloned.__requestMapper = requestMapper as any;
 
     return cloned;
   };
@@ -374,7 +367,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>();
 
-    cloned.responseMapper = responseMapper;
+    cloned.__responseMapper = responseMapper;
 
     return cloned as unknown as Request<
       NewResponse,
@@ -450,17 +443,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     >,
-  ): Request<
-    Response,
-    Payload,
-    QueryParams,
-    LocalError,
-    Endpoint,
-    ExtractClientAdapterType<Client>,
-    NewData,
-    NewParams,
-    NewQueryParams
-  > {
+  ) {
     const json = this.toJSON();
     const requestJSON: RequestConfigurationType<
       Payload,
@@ -498,11 +481,11 @@ export class Request<
 
     // Inherit methods
     cloned.dataMapper = this.dataMapper;
-    cloned.responseMapper = this.responseMapper;
-    cloned.requestMapper = this.requestMapper as any;
+    cloned.__responseMapper = this.__responseMapper;
+    cloned.__requestMapper = this.__requestMapper as any;
 
-    cloned.mockData = this.mockData as any;
-    cloned.mock = this.mock as any;
+    // cloned.mockData = this.mockData as any;
+    // cloned.mock = this.mock as any;
     cloned.isMockEnabled = this.isMockEnabled;
 
     return cloned;
@@ -565,8 +548,8 @@ export class Request<
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);
 
-    if (request.responseMapper) {
-      return request.responseMapper(response);
+    if (request.__responseMapper) {
+      return request.__responseMapper(response);
     }
 
     return response;
@@ -586,7 +569,7 @@ export class Request<
     const { dispatcherType, ...configuration } = options || {};
 
     const request = this.clone(configuration);
-    return sendRequest(request, options);
+    return sendRequest(request as unknown as this, options);
   };
 }
 
