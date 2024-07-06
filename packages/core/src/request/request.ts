@@ -13,7 +13,7 @@ import {
   RequestMapper,
   ResponseMapper,
 } from "request";
-import { Client } from "client";
+import { Client, ClientErrorType } from "client";
 import { getUniqueRequestId } from "utils";
 import {
   AdapterType,
@@ -48,8 +48,8 @@ export class Request<
   Response,
   Payload,
   QueryParams,
-  GlobalError, // Global Error Type
-  LocalError, // Additional Error for specific endpoint
+  GlobalError extends ClientErrorType, // Global Error Type
+  LocalError extends ClientErrorType, // Additional Error for specific endpoint
   Endpoint extends string,
   Adapter extends AdapterInstance = AdapterType,
   HasData extends true | false = false,
@@ -81,14 +81,33 @@ export class Request<
   deduplicateTime: number;
   dataMapper?: PayloadMapperType<Payload>;
   mock?: Generator<
-    GeneratorReturnMockTypes<Response, this>,
-    GeneratorReturnMockTypes<Response, this>,
-    GeneratorReturnMockTypes<Response, this>
+    GeneratorReturnMockTypes<
+      Response,
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >,
+    GeneratorReturnMockTypes<
+      Response,
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >,
+    GeneratorReturnMockTypes<
+      Response,
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >
   >;
-  mockData?: RequestDataMockTypes<Response, this>;
+  mockData?: RequestDataMockTypes<
+    Response,
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  >;
   isMockEnabled = false;
-  requestMapper?: RequestMapper<this, any>;
-  responseMapper?: ResponseMapper<this, any, any>;
+  requestMapper?: RequestMapper<
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
+    any
+  >;
+  responseMapper?: ResponseMapper<
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
+    any,
+    any
+  >;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -276,18 +295,23 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
-    const mockGenerator = function* mocked(mockedValues: RequestDataMockTypes<Response, RequestInstance>) {
-      if (Array.isArray(mockData)) {
+  public setMock = (
+    mockData: RequestDataMockTypes<
+      Response,
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >,
+  ) => {
+    const mockGenerator = function* mocked(mockedValues: typeof mockData) {
+      if (Array.isArray(mockedValues)) {
         let iteration = 0;
         // eslint-disable-next-line no-restricted-syntax
         while (true) {
           yield mockedValues[iteration];
-          iteration = mockData.length === iteration + 1 ? 0 : iteration + 1;
+          iteration = mockedValues.length === iteration + 1 ? 0 : iteration + 1;
         }
       } else {
         while (true) {
-          yield mockData;
+          yield mockedValues;
         }
       }
     };
@@ -298,8 +322,8 @@ export class Request<
   };
 
   public removeMock = () => {
-    this.mockData = null;
-    this.mock = null;
+    this.mockData = undefined;
+    this.mock = undefined;
     this.isMockEnabled = false;
     return this;
   };
@@ -331,7 +355,12 @@ export class Request<
    * @param requestMapper mapper of the request
    * @returns new request
    */
-  public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
+  public setRequestMapper = <NewRequest extends RequestInstance>(
+    requestMapper: RequestMapper<
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
+      NewRequest
+    >,
+  ) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
 
     cloned.requestMapper = requestMapper;
