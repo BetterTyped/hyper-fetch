@@ -32,7 +32,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   const logger = loggerManager.init("Adapter");
 
-  let processingError = null;
+  let processingError: Error | null = null;
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
@@ -58,7 +58,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       request = await request.requestMapper(request, requestId);
     }
   } catch (err) {
-    processingError = err;
+    processingError = err as Error;
   }
 
   // Request Setup
@@ -76,7 +76,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       payload = await request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
     }
   } catch (err) {
-    processingError = err;
+    processingError = err as Error;
   }
 
   const config: ExtractAdapterOptionsType<T> = {
@@ -109,7 +109,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     if (previousRequestTotal !== 100) {
       previousRequestTotal = progress.total;
-      requestManager.events.emitUploadProgress({ progress, requestId, request });
+      requestManager.events.emitUploadProgress({ ...progress, requestId, request });
     }
   };
 
@@ -122,7 +122,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     if (previousResponseTotal !== 100) {
       previousResponseTotal = progress.total;
-      requestManager.events.emitDownloadProgress({ progress, requestId, request });
+      requestManager.events.emitDownloadProgress({ ...progress, requestId, request });
     }
   };
 

@@ -35,7 +35,7 @@ describe("Request [ Utils ]", () => {
       const client = new Client({ url: "shared-base-url" });
       const request = client
         .createRequest()({ endpoint: "/users/:userId" })
-        .setParams({ userId: 1 } as null)
+        .setParams({ userId: 1 })
         .setQueryParams("?test=1");
       expect(getRequestKey(request)).toBe("GET_/users/1?test=1");
     });
@@ -43,7 +43,7 @@ describe("Request [ Utils ]", () => {
       const client = new Client({ url: "shared-base-url" });
       const request = client
         .createRequest()({ endpoint: "/users/:userId" })
-        .setParams({ userId: 1 } as null)
+        .setParams({ userId: 1 })
         .setQueryParams("?test=1");
       expect(getRequestKey(request, true)).toBe("GET_/users/:userId");
     });

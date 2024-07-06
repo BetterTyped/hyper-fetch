@@ -4,9 +4,9 @@ import { Client } from "client";
 import { xhrExtra } from "adapter";
 
 describe("Cache [ Lazy Storage ]", () => {
-  const cacheKey = "test";
   const cacheTime = 10000;
   const clearKey = "test";
+  const cacheKey = "1";
   const cacheData: CacheValueType = {
     data: null,
     error: null,
@@ -20,6 +20,11 @@ describe("Cache [ Lazy Storage ]", () => {
     cacheTime,
     clearKey,
     garbageCollection: Infinity,
+    cacheKey,
+    queueKey: "2",
+    effectKey: "3",
+    endpoint: "shared-endpoint",
+    method: "GET",
   };
 
   const lazyStorage = new Map();
