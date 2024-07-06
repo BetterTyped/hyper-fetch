@@ -214,7 +214,7 @@ export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = fa
  * If the request endpoint parameters are not filled it will throw an error
  */
 export type FetchParamsType<Params, HasParams extends true | false> = Params extends NegativeTypes
-  ? { params?: never }
+  ? { params?: NegativeTypes }
   : HasParams extends true
     ? { params?: NegativeTypes }
     : { params: Params };

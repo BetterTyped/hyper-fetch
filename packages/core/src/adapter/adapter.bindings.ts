@@ -54,8 +54,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       request = await request.client.__modifyAuth(req);
     }
 
-    if (request.requestMapper) {
-      request = await request.requestMapper(request, requestId);
+    if (request.__requestMapper) {
+      request = await request.__requestMapper(request, requestId);
     }
   } catch (err) {
     processingError = err as Error;

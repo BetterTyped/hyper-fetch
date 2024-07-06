@@ -12,6 +12,7 @@ import {
   RequestInstance,
   RequestMapper,
   ResponseMapper,
+  ExtractRouteParams,
 } from "request";
 import { ClientErrorType, ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
@@ -62,7 +63,7 @@ export class Request<
   headers?: HeadersInit;
   auth: boolean;
   method: ExtractAdapterMethodType<ExtractAdapterType<this>>;
-  params: ExtractParamsType<this> | NegativeTypes;
+  params: ExtractRouteParams<Endpoint> | NegativeTypes;
   data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
   options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
@@ -437,7 +438,7 @@ export class Request<
   >(
     configuration?: RequestConfigurationType<
       Payload,
-      ExtractParamsType<this>,
+      (typeof this)["params"],
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
@@ -447,7 +448,7 @@ export class Request<
     const json = this.toJSON();
     const requestJSON: RequestConfigurationType<
       Payload,
-      ExtractParamsType<this>,
+      (typeof this)["params"],
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
