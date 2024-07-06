@@ -4,12 +4,11 @@ import { ClientInstance } from "client";
 import { RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, NegativeTypes } from "types";
 
-export type HydrationOptions = Partial<RequestCacheType<RequestInstance>> & {
+export type HydrationOptions = RequestCacheType<RequestInstance> & {
   override?: boolean;
 };
 
 export type HydrateDataType<Data = any, Error = any, Adapter extends AdapterInstance = any> = HydrationOptions & {
-  cacheKey: string;
   timestamp: number;
   response: ResponseType<Data, Error, Adapter>;
 };
@@ -19,18 +18,22 @@ export const serialize = <R extends RequestInstance>(
   /**
    * If response is not provided, it will try to get the data from the cache. For ssr make sure to provide response.
    */
-  response?: ResponseType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
+  response: ResponseType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
   options?: HydrationOptions,
 ): HydrateDataType => {
-  const { cacheKey } = request;
+  const { cacheKey, effectKey, queueKey, cache, cacheTime, garbageCollection, endpoint, method } = request;
   return {
-    // Cache settings
     ...options,
-    // Keys to allow for easy serialization and deserialization
     cacheKey,
-    // Data to be stored
+    queueKey,
+    effectKey,
+    cache,
+    cacheTime,
+    garbageCollection,
+    endpoint,
+    method,
     timestamp: Date.now(),
-    response: response ?? request.client.cache.get(cacheKey),
+    response,
   };
 };
 
@@ -43,10 +46,8 @@ export const hydrate = (
     const { cacheKey, effectKey, queueKey, endpoint, method, response, ...fallbackOptions } = item;
     const defaults = {
       cache: true,
-      cacheTime: null,
-      garbageCollection: null,
       override: false,
-    } satisfies HydrationOptions;
+    } satisfies Partial<HydrationOptions>;
     const config =
       typeof options === "function"
         ? { ...defaults, ...fallbackOptions, ...options(item) }

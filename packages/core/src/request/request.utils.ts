@@ -189,7 +189,7 @@ export const sendRequest = <Request extends RequestInstance>(
         resolve({
           data: null,
           status: null,
-          success: null,
+          success: false,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
           extra: request.client.defaultExtra as any,
         });
