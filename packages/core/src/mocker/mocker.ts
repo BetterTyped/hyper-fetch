@@ -30,6 +30,9 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     | "onSuccess"
   >,
 ) => {
+  if (!request.mock) {
+    throw new Error("[Internal HF Error] mock should be defined when calling mocker");
+  }
   const mock = request.mock.next();
   const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
 
@@ -48,7 +51,11 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     onBeforeRequest();
     onRequestStart();
 
-    const progress = (totalTime, totalSize, progressFunction: typeof onResponseProgress | typeof onRequestProgress) =>
+    const progress = (
+      totalTime: number,
+      totalSize: number,
+      progressFunction: typeof onResponseProgress | typeof onRequestProgress,
+    ) =>
       new Promise((resolveProgress) => {
         const interval = 20;
         const dataStart = +new Date();

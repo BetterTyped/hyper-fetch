@@ -374,7 +374,11 @@ export class Request<
    * @returns new response
    */
   public setResponseMapper = <NewResponse = Response, NewError = GlobalError | LocalError>(
-    responseMapper?: ResponseMapper<this, NewResponse, NewError>,
+    responseMapper?: ResponseMapper<
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>,
+      NewResponse,
+      NewError
+    >,
   ) => {
     const cloned = this.clone<HasData, HasParams, HasQuery>();
 
@@ -407,15 +411,43 @@ export class Request<
     return endpoint;
   };
 
-  public toJSON(): RequestJSON<this> {
+  public toJSON(): RequestJSON<
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  > {
     return {
       requestOptions: this.requestOptions,
       endpoint: this.endpoint,
       headers: this.headers,
       auth: this.auth,
       method: this.method,
-      params: this.params as ExtractParamsType<this>,
-      data: this.data as ExtractPayloadType<this>,
+      params: this.params as ExtractParamsType<
+        Request<
+          Response,
+          Payload,
+          QueryParams,
+          GlobalError,
+          LocalError,
+          Endpoint,
+          Adapter,
+          HasData,
+          HasParams,
+          HasQuery
+        >
+      >,
+      data: this.data as ExtractPayloadType<
+        Request<
+          Response,
+          Payload,
+          QueryParams,
+          GlobalError,
+          LocalError,
+          Endpoint,
+          Adapter,
+          HasData,
+          HasParams,
+          HasQuery
+        >
+      >,
       queryParams: this.queryParams as QueryParamsType,
       options: this.options,
       cancelable: this.cancelable,
@@ -526,9 +558,26 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public exec: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
+  public exec: RequestSendType<
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  > = async (
+    options?: RequestSendOptionsType<
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >,
+  ) => {
     const { adapter, requestManager } = this.client;
-    const request = this.clone(options as any) as this;
+    const request = this.clone(options as any) as Request<
+      Response,
+      Payload,
+      QueryParams,
+      GlobalError,
+      LocalError,
+      Endpoint,
+      Adapter,
+      HasData,
+      HasParams,
+      HasQuery
+    >;
 
     const requestId = getUniqueRequestId(this.queueKey);
 
@@ -557,11 +606,19 @@ export class Request<
    * Promise<[Data | null, Error | null, HttpStatus]>
    * ```
    */
-  public send: RequestSendType<this> = async (options?: RequestSendOptionsType<this>) => {
+  public send: RequestSendType<
+    Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+  > = async (
+    options?: RequestSendOptionsType<
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >,
+  ) => {
     const { dispatcherType, ...rest } = options || {};
 
     const request = this.clone(rest as any) as any;
-    return sendRequest<this>(request, options);
+    return sendRequest<
+      Request<Response, Payload, QueryParams, GlobalError, LocalError, Endpoint, Adapter, HasData, HasParams, HasQuery>
+    >(request, options);
   };
 }
 
