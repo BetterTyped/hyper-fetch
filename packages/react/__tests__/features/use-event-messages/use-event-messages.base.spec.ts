@@ -39,8 +39,8 @@ describe("useEventMessages [ Base ]", () => {
     it("should trigger onEvent callback", async () => {
       const message = { name: "Maciej", age: 99 };
       const view = renderUseEventMessages(socket);
-      let receivedData;
-      let receivedEventData;
+      let receivedData: any;
+      let receivedEventData: any;
       act(() => {
         view.result.current.onEvent((data, event) => {
           receivedData = data;

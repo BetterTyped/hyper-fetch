@@ -102,7 +102,7 @@ describe("useFetch [ refetch ]", () => {
     const { result } = renderUseSubmit(requestSubmit);
 
     act(() => {
-      result.current.refetch(undefined);
+      result.current.refetch(requestSubmit.cacheKey);
     });
 
     expect(spy).toBeCalledTimes(0);

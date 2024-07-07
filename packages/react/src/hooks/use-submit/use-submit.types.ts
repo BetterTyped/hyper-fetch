@@ -128,6 +128,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
     };
     /**
      * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * @values cacheKey | Request | RegExp
      */
     refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
   };

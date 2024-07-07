@@ -192,7 +192,7 @@ describe("useTrackingState [ Events ]", () => {
             success: true,
             extra: xhrExtra,
             retries: 0,
-            timestamp: null,
+            timestamp: 0,
             isCanceled: false,
             isOffline: false,
             cacheTime: request.cacheTime,

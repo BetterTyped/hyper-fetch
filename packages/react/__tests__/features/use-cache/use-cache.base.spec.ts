@@ -72,7 +72,7 @@ describe("useCache [ Base ]", () => {
         const response = renderUseCache(request);
 
         await testSuccessState(cacheData.data, response);
-        expect(+response.result.current.timestamp).toBe(cacheData.timestamp);
+        expect(+(response.result.current?.timestamp || 0)).toBe(cacheData.timestamp);
         expect(response.result.current.retries).toBe(0);
       });
       it("should allow to invalidate by Request", async () => {

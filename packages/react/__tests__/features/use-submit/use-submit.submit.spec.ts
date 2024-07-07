@@ -155,7 +155,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        data = await response.result.current.submit({ data: null, queryParams: "?something=test" });
+        data = await response.result.current.submit({ data: { value: "123" }, queryParams: "?something=test" });
       });
 
       expect(data).toStrictEqual({

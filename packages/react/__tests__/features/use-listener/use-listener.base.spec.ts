@@ -36,8 +36,8 @@ describe("useListener [ Base ]", () => {
     it("should trigger onEvent callback", async () => {
       const message = { name: "Maciej", age: 99 };
       const view = renderUseListener(listener);
-      let receivedData;
-      let receivedEventData;
+      let receivedData: any;
+      let receivedEventData: any;
       act(() => {
         view.result.current.onEvent(({ data, extra }) => {
           receivedData = data;

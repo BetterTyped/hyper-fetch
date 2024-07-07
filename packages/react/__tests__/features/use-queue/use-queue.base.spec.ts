@@ -66,7 +66,7 @@ describe("useQueue [ Base ]", () => {
         });
         act(() => {
           client.requestManager.events.emitDownloadProgress({
-            progress,
+            ...progress,
             requestId,
             request,
           });
@@ -95,7 +95,7 @@ describe("useQueue [ Base ]", () => {
         });
         act(() => {
           client.requestManager.events.emitUploadProgress({
-            progress,
+            ...progress,
             requestId,
             request,
           });

@@ -32,7 +32,7 @@ export const createCacheData = <T extends RequestInstance>(
   };
 
   request.client.cache.storage.set<any, any, AdapterType>(request.cacheKey, {
-    ...dataValue,
+    ...(dataValue as any),
     ...detailsValue,
     cacheTime: 1000,
     clearKey: request.client.cache.clearKey,
