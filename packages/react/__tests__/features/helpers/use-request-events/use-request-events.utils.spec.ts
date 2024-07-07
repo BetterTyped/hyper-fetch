@@ -54,7 +54,7 @@ describe("useRequestEvents [ Utils ]", () => {
 
       await act(async () => {
         await request.send({
-          onSettle: (requestId) => {
+          onSettle: ({ requestId }) => {
             response.result.current[0].onRequestStart(spy);
             response.result.current[1].addLifecycleListeners(request, requestId);
             response.result.current[1].addLifecycleListeners(request, requestId);

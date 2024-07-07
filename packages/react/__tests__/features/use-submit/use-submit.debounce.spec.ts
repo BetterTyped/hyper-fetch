@@ -33,8 +33,8 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given debounce is active", () => {
     describe("when request is about to change", () => {
       it("should debounce single request", async () => {
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
@@ -50,12 +50,12 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
+        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
       });
       it("should debounce multiple request triggers by bounceTime", async () => {
         const spy = jest.fn();
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
@@ -78,7 +78,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
+        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
         expect(spy).toBeCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
@@ -100,7 +100,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         expect(value).toHaveLength(4);
         const isResponse = (res: ExtractAdapterResolvedType<RequestInstance>) => {
-          return !!res.data && !res.error && res.status === 200 && res.extra;
+          return Boolean(!!res.data && !res.error && res.status === 200 && res.extra);
         };
         expect(value).toSatisfyAny(isResponse);
         expect(value).toHaveLength(4);
@@ -108,8 +108,8 @@ describe("useSubmit [ Bounce ]", () => {
       it("should change debounce time", async () => {
         const newBounceTime = 200;
         const spy = jest.fn();
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookDebounceOptions);
 
@@ -138,7 +138,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
+        expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
         expect(spy).toBeCalledTimes(1);
       });
     });
@@ -148,7 +148,7 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when request is about to change", () => {
       it("should not debounce multiple request triggers", async () => {
         const spy = jest.fn();
-        let startTime = null;
+        let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 
@@ -178,8 +178,8 @@ describe("useSubmit [ Bounce ]", () => {
   describe("given throttle is active", () => {
     describe("when request is about to change", () => {
       it("should throttle single request", async () => {
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
@@ -194,13 +194,13 @@ describe("useSubmit [ Bounce ]", () => {
 
         await waitFor(() => {
           expect(startTime).not.toBeNull();
-          expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
+          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
         });
       });
       it("should throttle multiple request triggers by bounceTime", async () => {
         const spy = jest.fn();
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
@@ -221,7 +221,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         await waitFor(() => {
           expect(startTime).not.toBeNull();
-          expect(startTime - submitTime).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
+          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
           expect(spy).toBeCalledTimes(2);
         });
       });
@@ -252,8 +252,8 @@ describe("useSubmit [ Bounce ]", () => {
       it("should change throttle time", async () => {
         const newBounceTime = 200;
         const spy = jest.fn();
-        let submitTime = null;
-        let startTime = null;
+        let submitTime: number | null = null;
+        let startTime: number | null = null;
         mockRequest(request);
         const response = renderUseSubmit(request, hookThrottleOptions);
 
@@ -280,7 +280,7 @@ describe("useSubmit [ Bounce ]", () => {
 
         await waitFor(() => {
           expect(startTime).not.toBeNull();
-          expect(startTime - submitTime).toBeGreaterThanOrEqual(newBounceTime);
+          expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
           expect(spy).toBeCalledTimes(2);
         });
       });
@@ -291,7 +291,7 @@ describe("useSubmit [ Bounce ]", () => {
     describe("when request is about to change", () => {
       it("should not throttle multiple request triggers", async () => {
         const spy = jest.fn();
-        let startTime = null;
+        let startTime: number | null = null;
         mockRequest(request, { delay: 0 });
         const response = renderUseSubmit(request);
 

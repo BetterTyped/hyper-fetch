@@ -20,7 +20,7 @@ export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
   }
 >;
 
-export type UseFetchOptionsType<T extends RequestInstance> = {
+export type UseFetchOptionsType<R extends RequestInstance> = {
   /**
    * Refetch dependencies
    */
@@ -40,7 +40,7 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
+  initialData?: NullableType<Partial<ExtractAdapterResolvedType<UseFetchRequest<R>>>>;
   /**
    * Enable/disable refresh data
    */
@@ -100,9 +100,9 @@ export type UseFetchOptionsType<T extends RequestInstance> = {
     }
 );
 
-export type UseFetchReturnType<T extends RequestInstance> = UseTrackedStateType<T> &
-  UseTrackedStateActions<T> &
-  UseRequestEventsActionsType<T> & {
+export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<UseFetchRequest<R>> &
+  UseTrackedStateActions<UseFetchRequest<R>> &
+  UseRequestEventsActionsType<UseFetchRequest<R>> & {
     /**
      * Data related to current state of the bounce usage
      */

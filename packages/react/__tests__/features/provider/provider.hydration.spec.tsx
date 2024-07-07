@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { AdapterExtraType, Client } from "@hyper-fetch/core";
 import { render, waitFor } from "@testing-library/react";
 
-import { UseFetchReturnType, useFetch } from "hooks/use-fetch";
+import { UseFetchRequest, UseFetchReturnType, useFetch } from "hooks/use-fetch";
 import { UseSubmitReturnType, useSubmit } from "hooks/use-submit";
 import { Provider, ProviderValueType, useProvider } from "provider";
 
@@ -33,6 +33,9 @@ describe("Provider [ Hydration ]", () => {
         hydrationData={[
           {
             cacheKey: request.cacheKey,
+            cache: true,
+            garbageCollection: Infinity,
+            cacheTime: 1000,
             timestamp: Date.now(),
             response: {
               data,
@@ -65,9 +68,9 @@ describe("Provider [ Hydration ]", () => {
         render(<App />, { hydrate: true });
         await waitFor(() => {
           expect(values).toBeDefined();
-          expect(values.hydrationData).toBeDefined();
-          expect(values.hydrationData?.length).toBe(1);
-          expect(values.hydrationData?.[0].response.data).toStrictEqual(data);
+          expect(values?.hydrationData).toBeDefined();
+          expect(values?.hydrationData?.length).toBe(1);
+          expect(values?.hydrationData?.[0].response.data).toStrictEqual(data);
         });
       });
       it("should hydrate the data for useFetch hook", async () => {
@@ -83,11 +86,11 @@ describe("Provider [ Hydration ]", () => {
           { hydrate: true },
         );
         await waitFor(() => {
-          expect(useFetchResults.data).toStrictEqual(data);
-          expect(useFetchResults.status).toBe(200);
-          expect(useFetchResults.error).toBe(null);
-          expect(useFetchResults.extra).toBe(extra);
-          expect(useFetchResults.success).toBe(true);
+          expect(useFetchResults?.data).toStrictEqual(data);
+          expect(useFetchResults?.status).toBe(200);
+          expect(useFetchResults?.error).toBe(null);
+          expect(useFetchResults?.extra).toBe(extra);
+          expect(useFetchResults?.success).toBe(true);
         });
       });
       it("should hydrate the data for useSubmit hook", async () => {
@@ -103,10 +106,10 @@ describe("Provider [ Hydration ]", () => {
           { hydrate: true },
         );
         await waitFor(() => {
-          expect(useSubmitResults.data).toStrictEqual(data);
-          expect(useSubmitResults.status).toBe(200);
-          expect(useSubmitResults.error).toBe(null);
-          expect(useSubmitResults.extra).toBe(extra);
+          expect(useSubmitResults?.data).toStrictEqual(data);
+          expect(useSubmitResults?.status).toBe(200);
+          expect(useSubmitResults?.error).toBe(null);
+          expect(useSubmitResults?.extra).toBe(extra);
         });
       });
     });
@@ -118,14 +121,14 @@ describe("Provider [ Hydration ]", () => {
         render(<App />);
         await waitFor(() => {
           expect(values).toBeDefined();
-          expect(values.hydrationData).toBeDefined();
-          expect(values.hydrationData?.length).toBe(1);
-          expect(values.hydrationData?.[0].response.data).toStrictEqual(data);
+          expect(values?.hydrationData).toBeDefined();
+          expect(values?.hydrationData?.length).toBe(1);
+          expect(values?.hydrationData?.[0].response.data).toStrictEqual(data);
         });
       });
 
       it("should hydrate the data for useFetch hook", async () => {
-        let useFetchResults: UseFetchReturnType<typeof request> | undefined;
+        let useFetchResults: UseFetchReturnType<UseFetchRequest<typeof request>> | undefined;
         const Children = () => {
           useFetchResults = useFetch(request);
           return <Fragment />;
@@ -136,11 +139,11 @@ describe("Provider [ Hydration ]", () => {
           </App>,
         );
         await waitFor(() => {
-          expect(useFetchResults.data).toStrictEqual(data);
-          expect(useFetchResults.status).toBe(200);
-          expect(useFetchResults.error).toBe(null);
-          expect(useFetchResults.extra).toBe(extra);
-          expect(useFetchResults.success).toBe(true);
+          expect(useFetchResults?.data).toStrictEqual(data);
+          expect(useFetchResults?.status).toBe(200);
+          expect(useFetchResults?.error).toBe(null);
+          expect(useFetchResults?.extra).toBe(extra);
+          expect(useFetchResults?.success).toBe(true);
         });
       });
       it("should hydrate the data for useSubmit hook", async () => {
@@ -155,10 +158,10 @@ describe("Provider [ Hydration ]", () => {
           </App>,
         );
         await waitFor(() => {
-          expect(useSubmitResults.data).toStrictEqual(data);
-          expect(useSubmitResults.status).toBe(200);
-          expect(useSubmitResults.error).toBe(null);
-          expect(useSubmitResults.extra).toBe(extra);
+          expect(useSubmitResults?.data).toStrictEqual(data);
+          expect(useSubmitResults?.status).toBe(200);
+          expect(useSubmitResults?.error).toBe(null);
+          expect(useSubmitResults?.extra).toBe(extra);
         });
       });
     });

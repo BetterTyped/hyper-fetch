@@ -1,5 +1,5 @@
 import { Cache } from "cache";
-import { AdapterInstance, ExtractAdapterMethodType, ResponseType } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { ClientInstance } from "../client";
 import { RequestInstance } from "request";
@@ -43,11 +43,6 @@ export type CacheValueType<
   ResponseDetailsType & {
     cacheTime: number;
     clearKey: string;
-    cacheKey: string;
-    queueKey: string;
-    effectKey: string;
-    endpoint: string;
-    method: ExtractAdapterMethodType<Adapter>;
     garbageCollection: number;
   };
 
@@ -83,5 +78,5 @@ export type CacheMethodType<CacheData> = CacheData | ((previousData: CacheData |
 
 export type RequestCacheType<R extends RequestInstance> = Pick<
   R,
-  "cacheKey" | "cache" | "cacheTime" | "garbageCollection" | "queueKey" | "effectKey" | "endpoint" | "method"
+  "cacheKey" | "cache" | "cacheTime" | "garbageCollection"
 >;

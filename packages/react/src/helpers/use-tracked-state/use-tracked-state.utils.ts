@@ -55,11 +55,6 @@ export const getValidCacheData = <T extends RequestInstance>(
       ...getDetailsState(),
       cacheTime: 1000,
       clearKey: request.client.cache.clearKey,
-      cacheKey: request.cacheKey,
-      queueKey: request.queueKey,
-      effectKey: request.effectKey,
-      endpoint: request.endpoint,
-      method: request.method,
       garbageCollection: request.garbageCollection,
     };
   }

@@ -37,7 +37,7 @@ export const emitDownloadProgress = <T extends RequestInstance>(
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
   request.client.requestManager.events.emitDownloadProgress({
-    progress,
+    ...progress,
     requestId,
     request,
   });
@@ -59,7 +59,7 @@ export const emitUploadProgress = <T extends RequestInstance>(
 
   const progress = getProgressData(startTimestamp, progressTimestamp, values);
   request.client.requestManager.events.emitUploadProgress({
-    progress,
+    ...progress,
     requestId,
     request,
   });

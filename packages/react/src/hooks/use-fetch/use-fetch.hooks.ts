@@ -25,7 +25,7 @@ import { InvalidationKeyType } from "types";
 export const useFetch = <R extends RequestInstance>(
   request: UseFetchRequest<R>,
   options?: UseFetchOptionsType<R>,
-): UseFetchReturnType<UseFetchRequest<R>> => {
+): UseFetchReturnType<R> => {
   // Build the configuration options
   const { config: globalConfig } = useProvider();
   const {

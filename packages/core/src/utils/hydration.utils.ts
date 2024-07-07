@@ -21,17 +21,13 @@ export const serialize = <R extends RequestInstance>(
   response: ResponseType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
   options?: HydrationOptions,
 ): HydrateDataType => {
-  const { cacheKey, effectKey, queueKey, cache, cacheTime, garbageCollection, endpoint, method } = request;
+  const { cacheKey, cache, cacheTime, garbageCollection } = request;
   return {
     ...options,
     cacheKey,
-    queueKey,
-    effectKey,
     cache,
     cacheTime,
     garbageCollection,
-    endpoint,
-    method,
     timestamp: Date.now(),
     response,
   };
@@ -43,7 +39,7 @@ export const hydrate = (
   options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
 ) => {
   hydrationData?.forEach((item) => {
-    const { cacheKey, effectKey, queueKey, endpoint, method, response, ...fallbackOptions } = item;
+    const { cacheKey, response, ...fallbackOptions } = item;
     const defaults = {
       cache: true,
       override: false,
@@ -61,6 +57,6 @@ export const hydrate = (
     }
 
     const parsedData = parseResponse(response);
-    client.cache.set({ ...config, cacheKey, effectKey, queueKey, endpoint, method }, parsedData);
+    client.cache.set({ ...config, cacheKey }, parsedData);
   });
 };

@@ -88,11 +88,6 @@ export class Cache<C extends ClientInstance> {
       ...data,
       cacheTime,
       clearKey: this.clearKey,
-      cacheKey: request.cacheKey,
-      queueKey: request.queueKey,
-      effectKey: request.effectKey,
-      endpoint: request.endpoint,
-      method: request.method as ExtractAdapterMethodType<ExtractAdapterType<Request>>,
       garbageCollection,
     };
 
