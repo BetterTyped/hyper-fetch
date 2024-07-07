@@ -29,27 +29,27 @@ import {
  * @param options
  * @returns
  */
-export const useRequestEvents = <T extends RequestInstance>({
+export const useRequestEvents = <R extends RequestInstance>({
   request,
   dispatcher,
   logger,
   actions,
   setCacheData,
-}: UseRequestEventsPropsType<T>): UseRequestEventsReturnType<T> => {
-  const { responseMapper } = request;
+}: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
+  const { __responseMapper } = request;
   const { cache, requestManager } = request.client;
 
   // ******************
   // Callbacks
   // ******************
 
-  const onSuccessCallback = useRef<null | OnSuccessCallbackType<T>>(null);
-  const onErrorCallback = useRef<null | OnErrorCallbackType<T>>(null);
-  const onAbortCallback = useRef<null | OnErrorCallbackType<T>>(null);
-  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<T>>(null);
-  const onFinishedCallback = useRef<null | OnFinishedCallbackType<T>>(null);
-  const onRequestStartCallback = useRef<null | OnStartCallbackType<T>>(null);
-  const onResponseStartCallback = useRef<null | OnStartCallbackType<T>>(null);
+  const onSuccessCallback = useRef<null | OnSuccessCallbackType<R>>(null);
+  const onErrorCallback = useRef<null | OnErrorCallbackType<R>>(null);
+  const onAbortCallback = useRef<null | OnErrorCallbackType<R>>(null);
+  const onOfflineErrorCallback = useRef<null | OnErrorCallbackType<R>>(null);
+  const onFinishedCallback = useRef<null | OnFinishedCallbackType<R>>(null);
+  const onRequestStartCallback = useRef<null | OnStartCallbackType<R>>(null);
+  const onResponseStartCallback = useRef<null | OnStartCallbackType<R>>(null);
   const onDownloadProgressCallback = useRef<null | OnProgressCallbackType>(null);
   const onUploadProgressCallback = useRef<null | OnProgressCallbackType>(null);
 
@@ -79,7 +79,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   // Response handlers
   // ******************
 
-  const handleResponseCallbacks = (values: RequestResponseEventType<T>) => {
+  const handleResponseCallbacks = (values: RequestResponseEventType<R>) => {
     const { success } = values.response;
     const { isOffline, isCanceled } = values.details;
     if (request.offline && isOffline && !success) {
@@ -120,19 +120,19 @@ export const useRequestEvents = <T extends RequestInstance>({
   };
 
   const handleRequestStart = () => {
-    return (details: RequestEventType<T>) => {
+    return (details: RequestEventType<R>) => {
       onRequestStartCallback.current?.(details);
     };
   };
   const handleResponseStart = () => {
-    return (details: RequestEventType<T>) => {
+    return (details: RequestEventType<R>) => {
       onResponseStartCallback.current?.(details);
     };
   };
 
   const handleResponse = () => {
-    return (values: RequestResponseEventType<T>) => {
-      const data = responseMapper ? responseMapper(values.response) : values.response;
+    return (values: RequestResponseEventType<R>) => {
+      const data = __responseMapper ? __responseMapper(values.response) : values.response;
 
       if (data instanceof Promise) {
         return (async () => {
@@ -143,7 +143,7 @@ export const useRequestEvents = <T extends RequestInstance>({
     };
   };
 
-  const handleRemove = ({ requestId }: RequestEventType<T>) => {
+  const handleRemove = ({ requestId }: RequestEventType<R>) => {
     removeLifecycleListener(requestId);
   };
 
@@ -156,13 +156,13 @@ export const useRequestEvents = <T extends RequestInstance>({
     dataEvents.current = null;
   };
 
-  const addDataListener = (req: T) => {
+  const addDataListener = (req: R) => {
     // Data handlers
     const loadingUnmount = requestManager.events.onLoadingByQueue(req.queueKey, handleGetLoadingEvent(req.queueKey));
     const getResponseUnmount = cache.events.onDataByKey<
-      ExtractResponseType<T>,
-      ExtractErrorType<T>,
-      ExtractAdapterType<T>
+      ExtractResponseType<R>,
+      ExtractErrorType<R>,
+      ExtractAdapterType<R>
     >(req.cacheKey, setCacheData);
 
     const unmount = () => {
@@ -180,7 +180,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   // Lifecycle Listeners
   // ******************
 
-  const addLifecycleListeners = (req: T, requestId?: string) => {
+  const addLifecycleListeners = (req: R, requestId?: string) => {
     /**
      * useFetch handles requesting by general keys
      * This makes it possible to deduplicate requests from different places and share data
@@ -262,25 +262,25 @@ export const useRequestEvents = <T extends RequestInstance>({
   return [
     {
       abort,
-      onSuccess: (callback: OnSuccessCallbackType<T>) => {
+      onSuccess: (callback: OnSuccessCallbackType<R>) => {
         onSuccessCallback.current = callback;
       },
-      onError: (callback: OnErrorCallbackType<T>) => {
+      onError: (callback: OnErrorCallbackType<R>) => {
         onErrorCallback.current = callback;
       },
-      onAbort: (callback: OnErrorCallbackType<T>) => {
+      onAbort: (callback: OnErrorCallbackType<R>) => {
         onAbortCallback.current = callback;
       },
-      onOfflineError: (callback: OnErrorCallbackType<T>) => {
+      onOfflineError: (callback: OnErrorCallbackType<R>) => {
         onOfflineErrorCallback.current = callback;
       },
-      onFinished: (callback: OnFinishedCallbackType<T>) => {
+      onFinished: (callback: OnFinishedCallbackType<R>) => {
         onFinishedCallback.current = callback;
       },
-      onRequestStart: (callback: OnStartCallbackType<T>) => {
+      onRequestStart: (callback: OnStartCallbackType<R>) => {
         onRequestStartCallback.current = callback;
       },
-      onResponseStart: (callback: OnStartCallbackType<T>) => {
+      onResponseStart: (callback: OnStartCallbackType<R>) => {
         onResponseStartCallback.current = callback;
       },
       onDownloadProgress: (callback: OnProgressCallbackType) => {

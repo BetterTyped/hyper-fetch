@@ -25,7 +25,7 @@ export const useEventMessages = <ResponsesType extends { topic: string }>(
   useDidUpdate(
     () => {
       const unmountListener = socket.events.onListenerEvent<ResponsesType>(({ topic, data, extra }) => {
-        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => filter.includes(topic);
+        const filterFn = typeof filter === "function" ? () => filter(topic, data) : () => filter?.includes(topic);
         const isFiltered = filter ? filterFn() : false;
         if (!isFiltered) {
           onEventCallback.current?.(data, extra);

@@ -74,13 +74,19 @@ export const useQueue = <Request extends RequestInstance>(
     const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queueKey, updateQueueState);
     const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queueKey, updateQueueState);
 
-    const unmountDownload = requestManager.events.onDownloadProgressByQueue(queueKey, ({ progress, requestId }) => {
-      mergePayloadType(requestId, { downloading: progress });
-    });
+    const unmountDownload = requestManager.events.onDownloadProgressByQueue(
+      queueKey,
+      ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
+        mergePayloadType(requestId, { downloading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
+      },
+    );
 
-    const unmountUpload = requestManager.events.onUploadProgressByQueue(queueKey, ({ progress, requestId }) => {
-      mergePayloadType(requestId, { uploading: progress });
-    });
+    const unmountUpload = requestManager.events.onUploadProgressByQueue(
+      queueKey,
+      ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
+        mergePayloadType(requestId, { uploading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
+      },
+    );
 
     const unmount = () => {
       unmountStatus();

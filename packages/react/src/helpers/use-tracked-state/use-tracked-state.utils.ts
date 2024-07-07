@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import {
   CacheValueType,
   NullableType,
@@ -9,6 +10,7 @@ import {
   ExtractAdapterType,
   ExtractAdapterExtraType,
   ResponseDetailsType,
+  ExtractAdapterStatusType,
 } from "@hyper-fetch/core";
 
 import { initialState, UseTrackedStateType } from "helpers";
@@ -74,7 +76,7 @@ export const getInitialState = <T extends RequestInstance>(
   dispatcher: Dispatcher,
   request: T,
 ): UseTrackedStateType<T> => {
-  const { client, cacheKey, responseMapper } = request;
+  const { client, cacheKey, __responseMapper } = request;
   const { cache } = client;
 
   const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
@@ -82,7 +84,7 @@ export const getInitialState = <T extends RequestInstance>(
   const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
 
   if (cacheState) {
-    const mappedData = responseMapper ? responseMapper(cacheState) : cacheState;
+    const mappedData = __responseMapper ? __responseMapper(cacheState) : cacheState;
     if (mappedData instanceof Promise) {
       // For the async mapper we cannot return async values
       // So we have return the initial state instead
@@ -93,7 +95,7 @@ export const getInitialState = <T extends RequestInstance>(
       error: mappedData.error,
       status: mappedData.status,
       success: mappedData.success,
-      extra: mappedData.extra || client.defaultExtra,
+      extra: (mappedData.extra || client.defaultExtra) as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheState.retries,
       timestamp: getTimestamp(cacheState.timestamp),
       loading: initialLoading,
@@ -103,9 +105,9 @@ export const getInitialState = <T extends RequestInstance>(
   return {
     data: initialState.data,
     error: initialState.error,
-    status: initialState.status,
+    status: initialState.status as ExtractAdapterStatusType<ExtractAdapterType<T>>,
     success: initialState.success,
-    extra: request.client.defaultExtra as unknown as ExtractAdapterExtraType<ExtractAdapterType<T>>,
+    extra: request.client.defaultExtra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
     retries: initialState.retries,
     timestamp: getTimestamp(initialState.timestamp),
     loading: initialLoading,

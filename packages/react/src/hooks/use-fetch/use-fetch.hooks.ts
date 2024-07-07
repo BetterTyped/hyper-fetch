@@ -1,7 +1,14 @@
 import { useRef } from "react";
 import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecycle";
 import { useDebounce, useThrottle } from "@better-hooks/performance";
-import { RequestInstance, Request, getRequestKey } from "@hyper-fetch/core";
+import {
+  RequestInstance,
+  Request,
+  getRequestKey,
+  ExtractAdapterStatusType,
+  ExtractAdapterType,
+  ExtractAdapterExtraType,
+} from "@hyper-fetch/core";
 
 import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
@@ -17,10 +24,8 @@ import { InvalidationKeyType } from "types";
  */
 export const useFetch = <R extends RequestInstance>(
   request: UseFetchRequest<R>,
-  options?: UseFetchOptionsType<UseFetchRequest<R>>,
+  options?: UseFetchOptionsType<R>,
 ): UseFetchReturnType<UseFetchRequest<R>> => {
-  type RequestType = UseFetchRequest<R>;
-
   // Build the configuration options
   const { config: globalConfig } = useProvider();
   const {
@@ -62,7 +67,7 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState<RequestType>({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState({
     logger,
     request,
     dispatcher,
@@ -74,7 +79,7 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * Handles the data exchange with the core logic - responses, loading, downloading etc
    */
-  const [callbacks, listeners] = useRequestEvents({
+  const [callbacks, listeners] = useRequestEvents<UseFetchRequest<R>>({
     logger,
     actions,
     request,
@@ -273,7 +278,7 @@ export const useFetch = <R extends RequestInstance>(
     },
     get status() {
       setRenderKey("status");
-      return state.status;
+      return state.status as ExtractAdapterStatusType<ExtractAdapterType<R>>;
     },
     get success() {
       setRenderKey("success");
@@ -281,7 +286,7 @@ export const useFetch = <R extends RequestInstance>(
     },
     get extra() {
       setRenderKey("extra");
-      return state.extra;
+      return state.extra as ExtractAdapterExtraType<ExtractAdapterType<R>>;
     },
     get retries() {
       setRenderKey("retries");

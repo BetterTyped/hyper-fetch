@@ -42,7 +42,15 @@ export const useSubmit = <RequestType extends RequestInstance>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [globalConfig.useSubmitConfig, JSON.stringify(options), options?.deepCompare],
   );
-  const { disabled, dependencyTracking, initialData, bounce, bounceType, bounceTime, deepCompare } = mergedOptions;
+  const {
+    disabled,
+    dependencyTracking = true,
+    initialData,
+    bounce,
+    bounceType,
+    bounceTime,
+    deepCompare = true,
+  } = mergedOptions;
 
   /**
    * Because of the dynamic cacheKey / queueKey signing within the request we need to store it's latest instance
@@ -116,14 +124,17 @@ export const useSubmit = <RequestType extends RequestInstance>(
 
     const triggerRequest = () => {
       addDataListener(requestClone);
-      return sendRequest(requestClone, {
+
+      const configuration: RequestSendOptionsType<RequestType> = {
         dispatcherType: "submit",
-        ...submitOptions,
+        ...(submitOptions as RequestSendOptionsType<RequestType>),
         onSettle: (data) => {
           addLifecycleListeners(requestClone, data.requestId);
           submitOptions?.onSettle?.(data);
         },
-      });
+      };
+
+      return sendRequest(requestClone, configuration);
     };
 
     return new Promise<ExtractAdapterResolvedType<RequestType>>((resolve) => {

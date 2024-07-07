@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { useMemo, useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 import {
@@ -7,6 +8,7 @@ import {
   RequestInstance,
   ExtractAdapterType,
   HydrateDataType,
+  ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -35,7 +37,7 @@ export const useTrackedState = <T extends RequestInstance>({
   dependencyTracking,
   defaultCacheEmitting = true,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { client, cacheKey, queueKey, cacheTime, responseMapper } = request;
+  const { client, cacheKey, queueKey, cacheTime, __responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
@@ -98,7 +100,7 @@ export const useTrackedState = <T extends RequestInstance>({
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
 
-      if (cacheState || shouldLoadInitialCache || shouldRemovePreviousData) {
+      if (cacheState && (shouldLoadInitialCache || shouldRemovePreviousData)) {
         // Don't update the state when we are fetching data for new cacheKey
         // So on paginated page we will have previous page access until the new one will be fetched
         // However: When we have some cached data, we can use it right away
@@ -150,7 +152,7 @@ export const useTrackedState = <T extends RequestInstance>({
       error: cacheData.error,
       status: cacheData.status,
       success: cacheData.success,
-      extra: cacheData.extra,
+      extra: cacheData.extra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheData.retries,
       timestamp: new Date(cacheData.timestamp),
       loading: state.current.loading,
@@ -175,7 +177,7 @@ export const useTrackedState = <T extends RequestInstance>({
   const setCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
-    const data = responseMapper ? responseMapper(cacheData) : cacheData;
+    const data = __responseMapper ? __responseMapper(cacheData) : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
