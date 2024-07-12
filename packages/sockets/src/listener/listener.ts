@@ -17,7 +17,7 @@ export class Listener<
 
   constructor(
     readonly socket: Socket<AdapterType>,
-    readonly listenerOptions?: ListenerOptionsType<Topic, AdapterType>,
+    readonly listenerOptions: ListenerOptionsType<Topic, AdapterType>,
   ) {
     const { topic, options } = listenerOptions;
     this.topic = topic;
@@ -42,7 +42,10 @@ export class Listener<
     return newInstance;
   }
 
-  listen: ListenType<this, AdapterType> = (callback, options) => {
+  listen: ListenType<this, AdapterType> = (
+    callback: Parameters<ListenType<this, AdapterType>>[0],
+    options: Parameters<ListenType<this, AdapterType>>[1],
+  ) => {
     const opts = options as ListenerListenOptionsType<this>;
     const instance = options ? this.clone(opts as Partial<ListenerOptionsType<Topic, AdapterType>>) : this;
 

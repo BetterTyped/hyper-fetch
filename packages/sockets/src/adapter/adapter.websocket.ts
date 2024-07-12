@@ -37,7 +37,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;
   let adapter = getWebsocketAdapter(socket);
-  const autoConnect = socket.options?.adapterOptions?.autoConnect ?? true;
+  const autoConnect = socket.options?.autoConnect ?? true;
 
   const connect = () => {
     const enabled = onConnect();
@@ -77,7 +77,9 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
       const { event, response } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic);
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(
+        response.topic,
+      );
 
       eventListeners?.forEach((_, action) => {
         action({ data: response.data, extra: event });
@@ -90,7 +92,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
 
   const disconnect = () => {
     onDisconnect();
-    adapter.close();
+    adapter?.close();
     clearTimers();
   };
 
@@ -104,7 +106,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const sendEventMessage = (payload: WebsocketEvent) => {
-    adapter.send(JSON.stringify({ topic: payload.topic, data: payload.data }));
+    adapter?.send(JSON.stringify({ topic: payload.topic, data: payload.data }));
   };
 
   const onHeartbeat = () => {
@@ -120,7 +122,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     pingTimer = setTimeout(() => {
       sendEventMessage({ data: heartbeatMessage, topic: "heartbeat" });
       pongTimer = setTimeout(() => {
-        adapter.close();
+        adapter?.close();
       }, pongTimeout);
     }, pingTimeout);
   };

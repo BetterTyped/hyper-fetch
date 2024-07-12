@@ -1,5 +1,5 @@
 import { EmitterInstance } from "emitter";
-import { Listener, ListenerCallbackType } from "listener";
+import { ListenerCallbackType, ListenerInstance } from "listener";
 import { Socket } from "socket";
 
 export type RemoveListenerCallbackType = () => void;
@@ -12,7 +12,7 @@ export type SocketAdapterType<
   ListenerOptions extends Record<string, any> = never,
   EmitterOptions extends Record<string, any> = never,
 > = (
-  socket: Socket<SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
+  socket: Socket<any>,
   DO_NOT_USE?: {
     adapterOptions?: AdapterOptions;
     adapterExtra?: AdapterExtra;
@@ -28,11 +28,8 @@ export type SocketAdapterType<
   };
   listeners: Map<string, Map<ListenerCallbackType<SocketAdapterInstance, any>, VoidFunction>>;
   listen: (
-    listener: Listener<any, any, SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>>,
-    callback: ListenerCallbackType<
-      SocketAdapterType<AdapterOptions, AdapterExtra, ListenerOptions, EmitterOptions>,
-      any
-    >,
+    listener: ListenerInstance,
+    callback: ListenerCallbackType<SocketAdapterInstance, any>,
   ) => RemoveListenerCallbackType;
   removeListener: (topic: string, callback: (...args: any) => void) => void;
   emit: (emitter: EmitterInstance, data: any) => void;
@@ -85,5 +82,10 @@ export type ServerSentEvent<T = any> = {
 // Adapters
 
 export type SocketData<D = any> = { topic: string; data: D };
-export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>>;
-export type ServerSentEventsAdapterType = SocketAdapterType<SSEAdapterOptionsType, MessageEvent<SocketData>>;
+export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>, never, never>;
+export type ServerSentEventsAdapterType = SocketAdapterType<
+  SSEAdapterOptionsType,
+  MessageEvent<SocketData>,
+  never,
+  never
+>;

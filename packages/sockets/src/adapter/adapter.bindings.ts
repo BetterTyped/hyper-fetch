@@ -90,7 +90,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     callback: ListenerCallbackType<T, any>,
     unmount: VoidFunction = () => null,
   ): (() => void) => {
-    const listenerGroup = listeners.get(listener.topic) || listeners.set(listener.topic, new Map()).get(listener.topic);
+    const listenerGroup = (listeners.get(listener.topic) ||
+      listeners.set(listener.topic, new Map()).get(listener.topic)) as Map<ListenerCallbackType<T, any>, VoidFunction>;
 
     listenerGroup.set(callback, unmount);
     return () => removeListener(listener.topic, callback);
@@ -110,7 +111,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     return emitterInstance;
   };
 
-  const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error?: ErrorType) => {
+  const onEmitError = <ErrorType extends Error>(emitter: EmitterInstance, error: ErrorType) => {
     socket.events.emitEmitterError(error, emitter);
   };
 

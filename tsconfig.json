@@ -2,16 +2,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
+    "outDir": "dist",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es6",
-    "module": "esnext",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "lib": ["es2017", "dom", "dom.iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
@@ -26,17 +27,17 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "strict": true,
-    "baseUrl": ".",
-    "paths": {},
-    "plugins": []
+    "baseUrl": "."
   },
   "exclude": [
+    "node_modules",
     "node_modules/**/*",
     "**/node_modules/**/*",
+    "dist",
     "dist/**/*",
     "**/dist/**/*",
+    "coverage",
     "coverage/**/*",
-    "**/coverage/**/*",
-    "**/*.js"
+    "**/coverage/**/*"
   ]
 }

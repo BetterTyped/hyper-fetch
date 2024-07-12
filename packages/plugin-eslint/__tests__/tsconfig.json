@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": "../src",
+    "jsx": "react-jsx",
+    "moduleResolution": "nodenext",
+    "module": "nodenext"
+  },
+  "include": ["../jest.config.ts", "./"]
+}

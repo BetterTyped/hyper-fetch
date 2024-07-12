@@ -61,7 +61,7 @@ export type ExtendListener<
   },
 > = Listener<
   TypeWithDefaults<Properties, "response", ExtractListenerResponseType<T>>,
-  TypeWithDefaults<Properties, "topic", ExtractListenerTopicType<T>>,
-  TypeWithDefaults<Properties, "adapter", ExtractListenerAdapterType<T>>,
-  TypeWithDefaults<Properties, "hasParams", ExtractListenerHasParamsType<T>>
+  Properties["topic"] extends string ? Properties["topic"] : ExtractListenerTopicType<T>,
+  Properties["adapter"] extends SocketAdapterInstance ? Properties["adapter"] : ExtractListenerAdapterType<T>,
+  Properties["hasParams"] extends true ? true : ExtractListenerHasParamsType<T>
 >;

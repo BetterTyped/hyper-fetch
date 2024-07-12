@@ -12,7 +12,9 @@ export type EventReturnType<GenericDataType, Adapter extends SocketAdapterInstan
 
 export type ExtractEmitterPayloadType<E> = E extends Emitter<infer P, any, any, any, any> ? P : never;
 export type ExtractEmitterTopicType<E> = E extends Emitter<any, infer A, any, any, any> ? A : never;
-export type ExtractEmitterAdapterType<E> = E extends Emitter<any, any, infer A, any, any> ? A : never;
+export type ExtractEmitterSocketType<E> = E extends Emitter<any, any, infer S, any, any> ? S : never;
+export type ExtractEmitterAdapterType<E> =
+  E extends Emitter<any, any, infer S, any, any> ? ExtractSocketAdapterType<S> : never;
 export type ExtractEmitterHasDataType<E> = E extends Emitter<any, any, any, infer D, any> ? D : never;
 export type ExtractEmitterHasParamsType<E> = E extends Emitter<any, any, any, any, infer M> ? M : never;
 

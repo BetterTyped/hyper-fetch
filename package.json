@@ -60,6 +60,7 @@
     "@types/react-router-dom": "5.3.3",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",
+    "@typescript-eslint/rule-tester": "^7.16.0",
     "@vitejs/plugin-react": "4.3.0",
     "@zerollup/ts-transform-paths": "^1.7.18",
     "babel-jest": "^28.1.3",

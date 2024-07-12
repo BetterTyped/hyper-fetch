@@ -2,6 +2,7 @@ import { ExtractRouteParams, NegativeTypes, TypeWithDefaults } from "@hyper-fetc
 
 import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
+import { SocketInstance } from "socket";
 import {
   ExtractEmitterAdapterType,
   ExtractEmitterHasDataType,
@@ -9,9 +10,10 @@ import {
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
   ExtractAdapterEmitterOptionsType,
+  ExtractEmitterSocketType,
 } from "types";
 
-export type EmitterInstance = Emitter<any, any, SocketAdapterInstance, any, any>;
+export type EmitterInstance = Emitter<any, any, any, any, any>;
 
 export type EmitterOptionsType<Topic extends string, AdapterType extends SocketAdapterInstance> = {
   topic: Topic;
@@ -90,15 +92,15 @@ export type ExtendEmitter<
     payload?: any;
     response?: any;
     topic?: string;
-    adapter?: SocketAdapterInstance;
+    socket?: SocketInstance;
     mappedData?: any;
     hasData?: true | false;
     hasParams?: true | false;
   },
 > = Emitter<
   TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
-  TypeWithDefaults<Properties, "topic", ExtractEmitterTopicType<T>>,
-  TypeWithDefaults<Properties, "adapter", ExtractEmitterAdapterType<T>>,
-  TypeWithDefaults<Properties, "hasData", ExtractEmitterHasDataType<T>>,
-  TypeWithDefaults<Properties, "hasParams", ExtractEmitterHasParamsType<T>>
+  Properties["topic"] extends string ? Properties["topic"] : ExtractEmitterTopicType<T>,
+  Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractEmitterSocketType<T>,
+  Properties["hasData"] extends true ? true : ExtractEmitterHasDataType<T>,
+  Properties["hasParams"] extends true ? true : ExtractEmitterHasParamsType<T>
 >;

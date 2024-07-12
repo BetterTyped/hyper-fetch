@@ -1,28 +1,27 @@
 import { Time, ExtractRouteParams, ParamsType, PayloadMapperType } from "@hyper-fetch/core";
 
-import { Socket } from "socket";
+import { SocketInstance } from "socket";
 import { emitEvent, EmitterEmitOptionsType, EmitterOptionsType, EmitType } from "emitter";
-import { SocketAdapterInstance } from "adapter";
-import { ExtractAdapterEmitterOptionsType } from "types";
+import { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
 
 export class Emitter<
   Payload,
   Endpoint extends string,
-  AdapterType extends SocketAdapterInstance,
+  Socket extends SocketInstance,
   HasData extends boolean = false,
   HasParams extends boolean = false,
 > {
   readonly topic: Endpoint;
   params?: ParamsType;
   timeout: number;
-  data: Payload | null = null;
-  options: ExtractAdapterEmitterOptionsType<AdapterType>;
+  data: Payload | undefined;
+  options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
   dataMapper?: PayloadMapperType<any>;
 
   constructor(
-    readonly socket: Socket<AdapterType>,
-    readonly emitterOptions: EmitterOptionsType<Endpoint, AdapterType>,
-    json?: Partial<Emitter<Payload, Endpoint, AdapterType>>,
+    readonly socket: Socket,
+    readonly emitterOptions: EmitterOptionsType<Endpoint, ExtractSocketAdapterType<Socket>>,
+    json?: Partial<Emitter<Payload, Endpoint, Socket>>,
   ) {
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
@@ -33,7 +32,7 @@ export class Emitter<
     this.params = json?.params;
   }
 
-  setOptions(options: ExtractAdapterEmitterOptionsType<AdapterType>) {
+  setOptions(options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>>) {
     return this.clone({ options });
   }
 
@@ -55,7 +54,7 @@ export class Emitter<
     return cloned;
   };
 
-  setParams(params: ExtractRouteParams<Endpoint>) {
+  setParams(params: NonNullable<ExtractRouteParams<Endpoint>>) {
     return this.clone<Payload, HasData, true>({ params });
   }
 
@@ -74,8 +73,13 @@ export class Emitter<
     NewPayload extends Payload = Payload,
     NewHasData extends boolean = HasData,
     NewHasParams extends boolean = HasParams,
-  >(options?: Partial<EmitterOptionsType<Endpoint, AdapterType>> & { params?: ParamsType; data?: NewPayload }) {
-    const json: Partial<Emitter<NewPayload, Endpoint, AdapterType, NewHasData, NewHasParams>> = {
+  >(
+    options?: Partial<EmitterOptionsType<Endpoint, ExtractSocketAdapterType<Socket>>> & {
+      params?: ParamsType;
+      data?: NewPayload;
+    },
+  ) {
+    const json: Partial<Emitter<NewPayload, Endpoint, Socket, NewHasData, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as NewPayload,
@@ -84,7 +88,7 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Endpoint, AdapterType, NewHasData, NewHasParams>(
+    const newInstance = new Emitter<NewPayload, Endpoint, Socket, NewHasData, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,
@@ -97,7 +101,8 @@ export class Emitter<
 
   emit: EmitType<this> = (options = {}) => {
     const typedOptions = options as EmitterEmitOptionsType<this>;
-    const instance = this.clone(typedOptions as any) as unknown as this;
+    // TODO: fix this type
+    const instance = this.clone(typedOptions as any);
     emitEvent(instance);
   };
 }

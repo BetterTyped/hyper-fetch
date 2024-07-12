@@ -32,7 +32,7 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
   let pingTimer: ReturnType<typeof setTimeout> | undefined;
   let pongTimer: ReturnType<typeof setTimeout> | undefined;
   let adapter = getSSEAdapter(socket);
-  const autoConnect = socket.options?.adapterOptions?.autoConnect ?? true;
+  const autoConnect = socket.options?.autoConnect ?? true;
 
   const connect = () => {
     const enabled = onConnect();
@@ -66,7 +66,9 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
       const { response, event } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> = listeners.get(response.topic);
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(
+        response.topic,
+      );
 
       eventListeners?.forEach((_, action) => {
         action({ data: response.data, extra: event });
@@ -78,7 +80,7 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
 
   const disconnect = () => {
     onDisconnect();
-    adapter.close();
+    adapter?.close();
     onDisconnected();
     clearTimers();
   };
