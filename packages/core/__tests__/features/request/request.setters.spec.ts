@@ -42,7 +42,7 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.endpoint).toBe("/users/1");
   });
   it("should allow for setting ", async () => {
-    const req = client.createRequest<void, { test: number }>()({ endpoint: "/users/:userId" });
+    const req = client.createRequest<{ response: void; payload: { test: number } }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
     expect(request.data).not.toBeDefined();
     const updatedRequest = req.setData(data);

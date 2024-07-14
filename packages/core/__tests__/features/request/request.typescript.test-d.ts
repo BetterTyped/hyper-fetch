@@ -6,22 +6,22 @@ const client = new Client({
   url: "http://localhost:3000",
 });
 
-const getUsers = client.createRequest<{ id: string }[]>()({
+const getUsers = client.createRequest<{ response: { id: string }[] }>()({
   method: "GET",
   endpoint: "/users",
 });
 
-const getUser = client.createRequest<{ id: string }>()({
+const getUser = client.createRequest<{ response: { id: string } }>()({
   method: "GET",
   endpoint: "/users/:id",
 });
 
-const postUser = client.createRequest<{ id: string }, { name: string }>()({
+const postUser = client.createRequest<{ response: { id: string }; payload: { name: string } }>()({
   method: "POST",
   endpoint: "/users",
 });
 
-const patchUser = client.createRequest<{ id: string }, { name: string }>()({
+const patchUser = client.createRequest<{ response: { id: string }; payload: { name: string } }>()({
   method: "PATCH",
   endpoint: "/users/:id",
 });

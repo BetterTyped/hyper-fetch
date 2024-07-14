@@ -84,8 +84,11 @@ export type ExtractUnionAdapter<
 /**
  * Options
  */
-
-export type AdapterOptionsType = Partial<XMLHttpRequest>;
+// // TODO - rewrite options under singular unified interface between frontend and backend
+export interface HyperFetchRequest extends Omit<XMLHttpRequest, "responseType"> {
+  responseType: XMLHttpRequestResponseType | "stream";
+}
+export type AdapterOptionsType = Partial<HyperFetchRequest>;
 
 export type AdapterExtraType = {
   headers: Record<string, string>;
@@ -185,3 +188,16 @@ export type ProgressType = {
   loaded: number;
   startTimestamp: number;
 };
+
+export type HFBufferEncoding =
+  | "ascii"
+  | "utf8"
+  | "utf-8"
+  | "utf16le"
+  | "ucs2"
+  | "ucs-2"
+  | "base64"
+  | "base64url"
+  | "latin1"
+  | "binary"
+  | "hex";

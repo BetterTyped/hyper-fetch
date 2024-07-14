@@ -80,7 +80,9 @@ describe("Fetch Adapter [ Base ]", () => {
       userId: 11,
       role: "ADMIN",
     };
-    const req = client.createRequest<void, { userId: number; role: string }>()({ endpoint: "/shared-endpoint" });
+    const req = client.createRequest<{ response: void; payload: { userId: number; role: string } }>()({
+      endpoint: "/shared-endpoint",
+    });
 
     const c = req.setData(data);
     mockRequest(c);
@@ -114,7 +116,9 @@ describe("Fetch Adapter [ Base ]", () => {
     const mapper = () => {
       throw new Error(message);
     };
-    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setRequestMapper(mapper);
+    const mapperRequest = client
+      .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
+      .setRequestMapper(mapper);
     mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
@@ -128,7 +132,9 @@ describe("Fetch Adapter [ Base ]", () => {
     const mapper = (res) => {
       return { ...res, data: null, error: new Error(message) };
     };
-    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setResponseMapper(mapper);
+    const mapperRequest = client
+      .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
+      .setResponseMapper(mapper);
     mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
@@ -142,7 +148,9 @@ describe("Fetch Adapter [ Base ]", () => {
     const mapper = () => {
       throw new Error(message);
     };
-    const mapperRequest = client.createRequest<null>()({ endpoint: "/some-endpoint/" }).setDataMapper(mapper);
+    const mapperRequest = client
+      .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
+      .setDataMapper(mapper);
     mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();

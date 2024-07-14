@@ -102,7 +102,10 @@ describe("Fetch Adapter [ Server ]", () => {
       testData: "123",
     };
     const postRequest = client
-      .createRequest<null, { testData: string }>()({ endpoint: "shared-endpoint", method: "POST" })
+      .createRequest<{
+        response: null;
+        payload: { testData: string };
+      }>()({ endpoint: "shared-endpoint", method: "POST" })
       .setData(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = mockRequest(postRequest);
@@ -117,7 +120,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate payload size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });
@@ -140,7 +143,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   it("should allow to calculate Buffer size", async () => {
     let receivedOptions: any;
-    const mutation = client.createRequest<any, any>()({
+    const mutation = client.createRequest<{ response: any; payload: any }>()({
       endpoint: "/shared-endpoint",
       method: "POST",
     });

@@ -384,7 +384,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     }
 
     if (req.mock && req.isMockEnabled && req.client.isMockEnabled) {
-      return mocker(request, {
+      return mocker(req, {
         onError,
         onResponseEnd,
         onTimeoutError,

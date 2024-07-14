@@ -48,7 +48,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     });
     const client = new Client({ url }).addEffect([effect]);
     const request = client
-      .createRequest<any, { value: number }>()({ endpoint, options: requestConfig })
+      .createRequest<{ response: any; payload: { value: number } }>()({ endpoint, options: requestConfig })
       .setData(data)
       .setEffectKey("test")
       .setQueryParams(queryParams);
@@ -202,7 +202,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
   // Request
   describe("given bindings request methods being used", () => {
     it("should allow for setting data mapper", async () => {
-      const req = client.createRequest<any, Record<string, unknown>, Error, { userId: number; role: string }>()({
+      const req = client.createRequest<{
+        response: any;
+        payload: Record<string, unknown>;
+        error: Error;
+        queryParams: { userId: number; role: string };
+      }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();
@@ -230,7 +235,12 @@ describe("Fetch Adapter [ Bindings ]", () => {
       expect(payload).toBe(`${newData.userId}_${newData.role}`);
     });
     it("should allow for setting request mapper", async () => {
-      const req = client.createRequest<any, Record<string, unknown>, any, { userId: number; role: string }>()({
+      const req = client.createRequest<{
+        response: any;
+        payload: Record<string, unknown>;
+        error: any;
+        queryParams: { userId: number; role: string };
+      }>()({
         endpoint: "shared-endpoint/",
       });
       const spy = jest.fn();
@@ -355,7 +365,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        let value: number;
+        let value: number | undefined;
         const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, ({ loaded }) => {
           value = loaded;
         });
@@ -371,7 +381,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        let value: number;
+        let value: number | undefined;
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, ({ loaded }) => {
           value = loaded;
         });
@@ -472,7 +482,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        let value: number;
+        let value: number | undefined;
         const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, ({ total }) => {
           value = total;
         });

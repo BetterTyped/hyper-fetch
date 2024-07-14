@@ -5,6 +5,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { adapter, getErrorMessage } from "adapter";
 import { Client } from "client";
+import { expect } from "vitest";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -106,7 +107,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     const timeoutRequest = request.setOptions({ timeout: 50 });
     mockRequest(timeoutRequest, { delay: 20 });
     await adapter(timeoutRequest, requestId);
-    expect(instance.timeout).toBe(50);
+    expect(instance!.timeout).toBe(50);
 
     window.XMLHttpRequest = xml;
   });

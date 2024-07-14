@@ -33,7 +33,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
-import { ExtractAdapterType, NegativeTypes } from "types";
+import { ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -455,11 +455,23 @@ export class Client<
    * @template Response Your response
    */
   createRequest = <
-    Response,
-    Payload = undefined,
-    LocalError extends ClientErrorType = Error,
-    QueryParams = ExtractAdapterQueryParamsType<Adapter>,
+    RequestProperties extends {
+      response?: any;
+      payload?: any;
+      error?: any;
+      queryParams?: ExtractAdapterQueryParamsType<Adapter>;
+    } = {
+      response?: undefined;
+      payload?: undefined;
+      error?: Error;
+      queryParams?: ExtractAdapterQueryParamsType<Adapter>;
+    },
   >() => {
+    type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
+    type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
+    type LocalError = TypeWithDefaults<RequestProperties, "error", Error>;
+    type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", ExtractAdapterQueryParamsType<Adapter>>;
+
     return <
       EndpointType extends ExtractAdapterEndpointType<Adapter>,
       AdapterOptions extends ExtractAdapterOptionsType<Adapter>,

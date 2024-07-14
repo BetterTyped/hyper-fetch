@@ -1,5 +1,6 @@
 import { RequestInstance } from "request";
 import { ExtractErrorType } from "types";
+import { HFBufferEncoding, HyperFetchRequest } from "./adapter.types";
 
 // Utils
 
@@ -36,6 +37,22 @@ export const parseResponse = (response: string | unknown) => {
     return JSON.parse(response as string);
   } catch (err) {
     return response;
+  }
+};
+
+export const handleResponse = (
+  responseChunks: any[],
+  responseType: HyperFetchRequest["responseType"],
+  responseEncoding: HFBufferEncoding,
+) => {
+  const bufferedResponse = Buffer.concat(responseChunks);
+  switch (responseType) {
+    case "arraybuffer":
+      return bufferedResponse;
+    case "json":
+      return parseResponse(bufferedResponse.toString(responseEncoding));
+    default:
+      return bufferedResponse.toString(responseEncoding);
   }
 };
 
