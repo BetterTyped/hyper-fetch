@@ -1,6 +1,6 @@
 import * as browser from "@browser-adapter";
 import * as server from "@server-adapter";
-import { ClientInstance, ExtractClientGlobalError, ExtractClientAdapterType } from "@hyper-fetch/core";
+import { Client, ClientInstance, ExtractClientGlobalError, ExtractClientAdapterType } from "@hyper-fetch/core";
 import { GraphQLError } from "graphql";
 import { print } from "graphql/language/printer";
 

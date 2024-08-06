@@ -32,23 +32,18 @@ const buildPackage = async (additionalOptions = {}) => {
     plugins: [nodeExternalsPlugin()],
   };
 
-  build({
-    ...options,
-    outfile: preDir ? outputMain.replace("dist", preDir) : outputMain,
-    format: "cjs",
-  });
-  build({
-    ...options,
-    outfile: preDir ? outputModule.replace("dist", preDir) : outputModule,
-    format: "esm",
-  });
-
   if (pkg.cli) {
     build({
       ...options,
       entryPoints: [pkg.cli],
       outfile: pkg.climain,
       format: "cjs",
+    });
+  } else {
+    build({
+      ...options,
+      outfile: preDir ? outputModule.replace("dist", preDir) : outputModule,
+      format: "esm",
     });
   }
 };

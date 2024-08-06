@@ -6,12 +6,12 @@
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "client": "dist/browser/index.esm.js",
-  "browser": "dist/browser/index.esm.js",
-  "server": "dist/server/index.esm.js",
-  "node": "dist/server/index.esm.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "client": "dist/browser/index.js",
+  "browser": "dist/browser/index.js",
+  "server": "dist/server/index.js",
+  "node": "dist/server/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "exports": {
@@ -20,12 +20,12 @@
         "import": "./dist/index.d.ts"
       },
       "browser": {
-        "require": "./dist/browser/index.cjs.js",
-        "import": "./dist/browser/index.esm.js"
+        "require": "./dist/browser/index.js",
+        "import": "./dist/browser/index.js"
       },
       "default": {
-        "require": "./dist/index.cjs.js",
-        "import": "./dist/index.esm.js"
+        "require": "./dist/index.js",
+        "import": "./dist/index.js"
       }
     },
     "./package.json": "./package.json"

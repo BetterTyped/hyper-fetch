@@ -39,11 +39,11 @@ export type AdapterType<
  * Extractors
  */
 
-export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any> ? O : never;
-export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any> ? M : never;
-export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any> ? S : never;
-export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any> ? A : never;
-export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q> ? Q : never;
+export type ExtractAdapterOptionsType<T> = T extends AdapterType<infer O, any, any, any, any, any> ? O : never;
+export type ExtractAdapterMethodType<T> = T extends AdapterType<any, infer M, any, any, any, any> ? M : never;
+export type ExtractAdapterStatusType<T> = T extends AdapterType<any, any, infer S, any, any, any> ? S : never;
+export type ExtractAdapterExtraType<T> = T extends AdapterType<any, any, any, infer A, any, any> ? A : never;
+export type ExtractAdapterQueryParamsType<T> = T extends AdapterType<any, any, any, any, infer Q, any> ? Q : never;
 export type ExtractAdapterEndpointType<T> = T extends AdapterType<any, any, any, any, any, infer E> ? E : never;
 // Special type only for selecting appropriate AdapterType union version (check FirebaseAdapterType).
 export type ExtractUnionAdapter<
