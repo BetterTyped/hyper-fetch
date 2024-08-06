@@ -1,13 +1,14 @@
 import { Time, ExtractRouteParams, ParamsType, PayloadMapperType } from "@hyper-fetch/core";
 
-import { SocketInstance } from "socket";
+import { Socket } from "socket";
 import { emitEvent, EmitterEmitOptionsType, EmitterOptionsType, EmitType } from "emitter";
 import { ExtractAdapterEmitterOptionsType, ExtractSocketAdapterType } from "types";
+import { SocketAdapterInstance } from "adapter";
 
 export class Emitter<
   Payload,
   Endpoint extends string,
-  Socket extends SocketInstance,
+  Adapter extends SocketAdapterInstance,
   HasData extends boolean = false,
   HasParams extends boolean = false,
 > {
@@ -19,9 +20,9 @@ export class Emitter<
   dataMapper?: PayloadMapperType<any>;
 
   constructor(
-    readonly socket: Socket,
+    readonly socket: Socket<Adapter>,
     readonly emitterOptions: EmitterOptionsType<Endpoint, ExtractSocketAdapterType<Socket>>,
-    json?: Partial<Emitter<Payload, Endpoint, Socket>>,
+    json?: Partial<Emitter<Payload, Endpoint, Adapter>>,
   ) {
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
@@ -74,12 +75,12 @@ export class Emitter<
     NewHasData extends boolean = HasData,
     NewHasParams extends boolean = HasParams,
   >(
-    options?: Partial<EmitterOptionsType<Endpoint, ExtractSocketAdapterType<Socket>>> & {
+    options?: Partial<EmitterOptionsType<Endpoint, Adapter>> & {
       params?: ParamsType;
       data?: NewPayload;
     },
-  ) {
-    const json: Partial<Emitter<NewPayload, Endpoint, Socket, NewHasData, NewHasParams>> = {
+  ): Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams> {
+    const json: Partial<Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as NewPayload,
@@ -88,7 +89,7 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Endpoint, Socket, NewHasData, NewHasParams>(
+    const newInstance = new Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,

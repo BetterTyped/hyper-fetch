@@ -1,7 +1,7 @@
 import { getAdapterBindings } from "@hyper-fetch/core";
-import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios";
+import axios, { AxiosHeaders } from "axios";
 
-import { AxiosAdapterType } from "./adapter.types";
+import { AxiosAdapterType, RawAxiosHeaders } from "./adapter.types";
 
 export const AxiosAdapter = (): AxiosAdapterType => async (request, requestId) => {
   const {
@@ -42,8 +42,8 @@ export const AxiosAdapter = (): AxiosAdapterType => async (request, requestId) =
       data: payload,
       method,
       url: fullUrl,
-      signal: controller.signal,
-      headers: new AxiosHeaders(headers as RawAxiosRequestHeaders),
+      signal: controller?.signal,
+      headers: new AxiosHeaders(headers as RawAxiosHeaders),
       onUploadProgress: (progressEvent) => {
         onRequestProgress(progressEvent);
       },

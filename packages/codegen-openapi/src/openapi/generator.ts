@@ -10,6 +10,7 @@ import * as prettier from "prettier";
 import { Document, Operation, GeneratedTypes } from "./openapi.types";
 import { getAvailableOperations } from "./operations";
 import { adjustPathParamsFormat, normalizeOperationId, createTypeBaseName, getBaseUrl } from "./utils";
+import { HttpMethod } from "./http-methods.enum";
 
 export class OpenapiRequestGenerator {
   protected openapiDocument: Document;
@@ -57,9 +58,9 @@ export class OpenapiRequestGenerator {
   generateRequestsFromSchema = async () => {
     const { schemaTypes, exportedTypes } = await OpenapiRequestGenerator.prepareSchema(this.openapiDocument);
 
-    const generatedTypes = [];
-    const generatedRequests = [];
-    const metadata = [];
+    const generatedTypes: string[] = [];
+    const generatedRequests: string[] = [];
+    const metadata: ReturnType<(typeof OpenapiRequestGenerator)["generateMethodMetadata"]>[] = [];
 
     getAvailableOperations(this.openapiDocument).forEach((operation) => {
       const meta = OpenapiRequestGenerator.generateMethodMetadata(operation, exportedTypes);
@@ -87,7 +88,7 @@ export class OpenapiRequestGenerator {
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
       ? `${createTypeBaseName(id)}QueryParams`
       : "undefined";
-    const getVariableName = (str) => str.charAt(0).toLowerCase() + str.slice(1);
+    const getVariableName = (str: string) => str.charAt(0).toLowerCase() + str.slice(1);
     return `export const ${getVariableName(
       createTypeBaseName(id),
     )} = client.createRequest<${Response}, ${Payload}, ${LocalError}, ${QueryParams}>()({method: "${method}", endpoint: "${path}"})`;
@@ -128,7 +129,10 @@ export class OpenapiRequestGenerator {
     return types;
   }
 
-  static generateMethodMetadata(operation: Partial<Operation>, exportTypes: ExportedType[]) {
+  static generateMethodMetadata(
+    operation: { operationId: string; path: string; method: string } & Partial<Operation>,
+    exportTypes: ExportedType[],
+  ) {
     const { operationId, method, path: relPath } = operation;
     const normalizedOperationId = normalizeOperationId(operationId);
     const pathParametersType = find(exportTypes, {
@@ -162,7 +166,7 @@ export class OpenapiRequestGenerator {
       errorType,
       responseType,
       path: adjustPathParamsFormat(relPath),
-      method: method.toUpperCase(),
+      method: method ? method.toUpperCase() : HttpMethod.GET,
     };
   }
 

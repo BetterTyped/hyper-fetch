@@ -1,5 +1,9 @@
 import { AdapterType } from "@hyper-fetch/core";
-import { AxiosHeaders, AxiosRequestConfig, Method, Method as AxiosMethods, RawAxiosRequestHeaders } from "axios";
+import { AxiosHeaderValue, AxiosRequestConfig, Method, Method as AxiosMethods, RawAxiosRequestHeaders } from "axios";
+
+export type RawAxiosHeaders = {
+  [key: string]: AxiosHeaderValue;
+};
 
 export type AxiosAdapterType = AdapterType<
   Omit<AxiosRequestConfig, "url" | "baseURL" | "method" | "onUploadProgress" | "onDownloadProgress" | "data">,
@@ -10,10 +14,10 @@ export type AxiosAdapterType = AdapterType<
 
 type MethodsHeaders = Partial<
   {
-    [Key in Method as Lowercase<Key>]: AxiosHeaders;
-  } & { common: AxiosHeaders }
+    [Key in Method as Lowercase<Key>]: RawAxiosHeaders;
+  } & { common: RawAxiosHeaders }
 >;
 
 export type AxiosExtra = {
-  headers: (RawAxiosRequestHeaders & MethodsHeaders) | AxiosHeaders;
+  headers: (RawAxiosRequestHeaders & MethodsHeaders) | RawAxiosHeaders;
 };

@@ -2,7 +2,6 @@ import {
   AdapterInstance,
   ClientInstance,
   ExtendRequest,
-  ExtractClientAdapterType,
   RequestEventType,
   RequestInstance,
   ResponseDetailsType,
@@ -20,7 +19,7 @@ export type RequestEvent<T extends ClientInstance> = RequestEventType<
   ExtendRequest<
     RequestInstance,
     {
-      adapter: ExtractClientAdapterType<T>;
+      client: T;
     }
   >
 >;

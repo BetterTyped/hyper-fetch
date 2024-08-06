@@ -98,7 +98,7 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
         const key = item.request.cacheKey;
         return client.cache.get(key);
       })
-      .filter(Boolean);
+      .filter(Boolean) as CacheValueType<unknown, unknown, ExtractClientAdapterType<T>>[];
 
     setCache(cacheItems);
   }, [client.cache, requests]);
@@ -171,10 +171,17 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       .setDebug(true);
   }, [client]);
 
-  const allRequests = requests.map((item) => {
+  const allRequests: Array<
+    RequestEvent<ClientInstance> & {
+      isCanceled: boolean;
+      isSuccess: boolean;
+      isFinished: boolean;
+      response: RequestResponse<ClientInstance>;
+    }
+  > = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
     const isSuccess = !!success.find((el) => el.requestId === item.requestId);
-    const response =
+    const response: any =
       success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
 
     return {

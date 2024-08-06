@@ -2,7 +2,6 @@ import { ExtractRouteParams, NegativeTypes, TypeWithDefaults } from "@hyper-fetc
 
 import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
-import { SocketInstance } from "socket";
 import {
   ExtractEmitterAdapterType,
   ExtractEmitterHasDataType,
@@ -10,7 +9,6 @@ import {
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
   ExtractAdapterEmitterOptionsType,
-  ExtractEmitterSocketType,
 } from "types";
 
 export type EmitterInstance = Emitter<any, any, any, any, any>;
@@ -92,7 +90,7 @@ export type ExtendEmitter<
     payload?: any;
     response?: any;
     topic?: string;
-    socket?: SocketInstance;
+    adapter?: SocketAdapterInstance;
     mappedData?: any;
     hasData?: true | false;
     hasParams?: true | false;
@@ -100,7 +98,7 @@ export type ExtendEmitter<
 > = Emitter<
   TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
   Properties["topic"] extends string ? Properties["topic"] : ExtractEmitterTopicType<T>,
-  Properties["socket"] extends SocketInstance ? Properties["socket"] : ExtractEmitterSocketType<T>,
+  Properties["adapter"] extends SocketAdapterInstance ? Properties["adapter"] : ExtractEmitterAdapterType<T>,
   Properties["hasData"] extends true ? true : ExtractEmitterHasDataType<T>,
   Properties["hasParams"] extends true ? true : ExtractEmitterHasParamsType<T>
 >;
