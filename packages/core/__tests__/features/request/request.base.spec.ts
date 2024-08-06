@@ -123,23 +123,23 @@ describe("Fetch Adapter [ Base ]", () => {
 
     const { data, error } = await mapperRequest.send();
 
-    expect(error.message).toStrictEqual(message);
+    expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
   });
 
   it("Should allow to validate response", async () => {
     const message = "something went wrong";
-    const mapper = (res) => {
-      return { ...res, data: null, error: new Error(message) };
-    };
+
     const mapperRequest = client
       .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
-      .setResponseMapper(mapper);
+      .setResponseMapper((res) => {
+        return { ...res, data: null, error: new Error(message) };
+      });
     mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();
 
-    expect(error.message).toStrictEqual(message);
+    expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
   });
 
@@ -155,7 +155,7 @@ describe("Fetch Adapter [ Base ]", () => {
 
     const { data, error } = await mapperRequest.send();
 
-    expect(error.message).toStrictEqual(message);
+    expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
   });
 });

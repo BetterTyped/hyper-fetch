@@ -2,6 +2,27 @@
   "files": [],
   "references": [
     {
+      "path": "./packages/adapter-axios"
+    },
+    {
+      "path": "./packages/adapter-firebase"
+    },
+    {
+      "path": "./packages/adapter-firebase-admin"
+    },
+    {
+      "path": "./packages/adapter-graphql"
+    },
+    {
+      "path": "./packages/codegen-openapi"
+    },
+    {
+      "path": "./packages/devtools-react"
+    },
+    {
+      "path": "./packages/plugin-eslint"
+    },
+    {
       "path": "./packages/core"
     },
     {
@@ -9,15 +30,6 @@
     },
     {
       "path": "./packages/sockets"
-    },
-    {
-      "path": "./packages/adapter-firebase"
-    },
-    {
-      "path": "./packages/adapter-graphql"
-    },
-    {
-      "path": "./packages/adapter-axios"
     }
   ]
 }

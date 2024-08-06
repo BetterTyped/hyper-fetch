@@ -481,24 +481,16 @@ export class Client<
     ) => {
       const endpoint = this.endpointMapper(params.endpoint);
 
-      type ExtractedAdapterType =
-        ExtractUnionAdapter<
-          Adapter,
-          {
-            method: MethodType;
-            options: AdapterOptions;
-            queryParams: QueryParams;
-          }
-        > extends NegativeTypes
-          ? Adapter
-          : ExtractUnionAdapter<
-              Adapter,
-              {
-                method: MethodType;
-                options: AdapterOptions;
-                queryParams: QueryParams;
-              }
-            >;
+      // Splitting this type prevents "Type instantiation is excessively deep and possibly infinite" error
+      type ExtractedAdapter = ExtractUnionAdapter<
+        Adapter,
+        {
+          method: MethodType;
+          options: AdapterOptions;
+          queryParams: QueryParams;
+        }
+      >;
+      type ExtractedAdapterType = ExtractedAdapter extends NegativeTypes ? Adapter : ExtractedAdapter;
 
       const mappedParams: RequestOptionsType<
         EndpointType extends string ? EndpointType : typeof endpoint,

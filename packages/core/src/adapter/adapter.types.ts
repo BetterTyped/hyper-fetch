@@ -1,5 +1,5 @@
 import { ExtendRequest, RequestInstance } from "request";
-import { HttpMethodsType, HttpStatusType } from "../types";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsType, HttpStatusType } from "../types";
 import { Client } from "client";
 
 /**
@@ -98,6 +98,13 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
+export type Response<Request extends RequestInstance> = {
+  data: ExtractResponseType<Request> | null;
+  error: ExtractErrorType<Request> | null;
+  status: ExtractAdapterStatusType<ExtractAdapterType<Request>> | null;
+  success: true | false;
+  extra: ExtractAdapterExtraType<ExtractAdapterType<Request>> | null;
+};
 export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
   data: GenericDataType | null;
   error: GenericErrorType | null;

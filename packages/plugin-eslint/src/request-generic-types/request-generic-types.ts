@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { NewExpression } from "@typescript-eslint/types/dist/generated/ast-spec";
+
+import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic.utilities";
 
 // The Rule creator returns a function that is used to create a well-typed ESLint rule
 // The parameter passed into RuleCreator is a URL generator function.
@@ -46,7 +47,10 @@ export const requestGenericTypes = createRule({
             });
           }
 
-          const unexpectedGenericElements = getUnexpectedGenerics({ typeParameters });
+          const unexpectedGenericElements = getUnexpectedGenerics({
+            typeParameters,
+            allowedGenerics: ["response", "queryParams", "error", "payload"],
+          });
           const isEmpty = getEmptyGenerics({ typeParameters });
 
           if (unexpectedGenericElements.length) {
@@ -70,72 +74,3 @@ export const requestGenericTypes = createRule({
     };
   },
 });
-
-/* -------------------------------------------------------------------------------------------------
- * Utilities
- * -----------------------------------------------------------------------------------------------*/
-
-function getUnexpectedGenerics({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  const allowedGenerics = ["response", "queryParams", "error", "payload"];
-
-  if (!typeParameters) {
-    /**
-     * This is valid: client.createRequest()({ endpoint: "/ping" });
-     */
-    return [];
-  }
-
-  // createRequest<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  if (mainGenericParam && "members" in mainGenericParam) {
-    return mainGenericParam.members
-      .map((member) => {
-        if ("key" in member) {
-          if ("name" in member.key) {
-            return member.key.name;
-          }
-          return member.type;
-        }
-        return member.type;
-      })
-      .filter((key) => !allowedGenerics.includes(key));
-  }
-  return [mainGenericParam.type];
-}
-
-function getEmptyGenerics({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  if (!typeParameters) {
-    /**
-     * This is valid: client.createRequest()({ endpoint: "/ping" });
-     */
-    return false;
-  }
-
-  // createRequest<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  if (mainGenericParam && "members" in mainGenericParam) {
-    return !mainGenericParam.members.length;
-  }
-  return false;
-}
-
-function getNotMatchingGeneric({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  if (!typeParameters) {
-    /**
-     * This is valid: client.createRequest()({ endpoint: "/ping" });
-     */
-    return false;
-  }
-
-  // createRequest<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  // createRequest<{}> is valid
-  if (mainGenericParam && "members" in mainGenericParam) {
-    return false;
-  }
-  // createRequest<string> is invalid
-  return true;
-}

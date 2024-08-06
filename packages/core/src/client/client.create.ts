@@ -1,11 +1,6 @@
-import {
-  AdapterInstance,
-  Client,
-  ClientErrorType,
-  ClientOptionsType,
-  DefaultEndpointMapper,
-  TypeWithDefaults,
-} from "@hyper-fetch/core";
+import { TypeWithDefaults } from "types";
+import { Client, ClientErrorType, ClientOptionsType, DefaultEndpointMapper } from "client";
+import { AdapterInstance } from "adapter";
 
 export function createClient<
   ClientProperties extends {

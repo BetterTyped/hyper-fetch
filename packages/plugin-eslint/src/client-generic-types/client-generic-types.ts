@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { ESLintUtils } from "@typescript-eslint/utils";
-import { NewExpression } from "@typescript-eslint/types/dist/generated/ast-spec";
+
+import { getIsHyperFetchDeclaration } from "utils/is-hf-declaration";
+import { getEmptyGenerics, getNotMatchingGeneric, getUnexpectedGenerics } from "utils/generic.utilities";
 
 // The Rule creator returns a function that is used to create a well-typed ESLint rule
 // The parameter passed into RuleCreator is a URL generator function.
@@ -27,14 +29,12 @@ export const clientGenericTypes = createRule({
   },
   defaultOptions: [],
   create(context) {
+    const { isClientDeclaration, hooks } = getIsHyperFetchDeclaration();
+
     return {
+      ...hooks,
       CallExpression(node) {
-        if (
-          node.callee &&
-          "property" in node.callee &&
-          "name" in node.callee.property &&
-          node.callee.property.name === "createRequest"
-        ) {
+        if (isClientDeclaration(node.callee)) {
           const typeParameters = "typeParameters" in node ? node.typeParameters : undefined;
           const notMatchingGeneric = getNotMatchingGeneric({ typeParameters });
 
@@ -46,7 +46,10 @@ export const clientGenericTypes = createRule({
             });
           }
 
-          const unexpectedGenericElements = getUnexpectedGenerics({ typeParameters });
+          const unexpectedGenericElements = getUnexpectedGenerics({
+            typeParameters,
+            allowedGenerics: ["adapter", "error", "endpointMapper"],
+          });
           const isEmpty = getEmptyGenerics({ typeParameters });
 
           if (unexpectedGenericElements.length) {
@@ -70,73 +73,3 @@ export const clientGenericTypes = createRule({
     };
   },
 });
-
-/* -------------------------------------------------------------------------------------------------
- * Utilities
- * -----------------------------------------------------------------------------------------------*/
-
-function getUnexpectedGenerics({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  const allowedGenerics = ["adapter", "error", "endpointMapper"];
-
-  if (!typeParameters) {
-    /**
-     * This is valid: createClient();
-     */
-    return [];
-  }
-
-  // createClient<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  if (mainGenericParam && "members" in mainGenericParam) {
-    return mainGenericParam.members
-      .map((member) => {
-        if ("key" in member) {
-          if ("name" in member.key) {
-            return member.key.name;
-          }
-          return member.type;
-        }
-        return member.type;
-      })
-      .filter((key) => !allowedGenerics.includes(key));
-  }
-  return [mainGenericParam.type];
-}
-
-function getEmptyGenerics({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  if (!typeParameters) {
-    /**
-     * This is valid: createClient();
-     */
-    return false;
-  }
-
-  // createClient<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  if (mainGenericParam && "members" in mainGenericParam) {
-    // createClient<{}> is invalid
-    return !mainGenericParam.members.length;
-  }
-  return false;
-}
-
-function getNotMatchingGeneric({ typeParameters }: { typeParameters: NewExpression["typeParameters"] | undefined }) {
-  if (!typeParameters) {
-    /**
-     * This is valid: createClient();
-     */
-    return false;
-  }
-
-  // createClient<{ ... }>
-  const mainGenericParam = typeParameters.params[0];
-
-  // createClient<{}> is valid
-  if (mainGenericParam && "members" in mainGenericParam) {
-    return false;
-  }
-  // createClient<string> is invalid
-  return true;
-}

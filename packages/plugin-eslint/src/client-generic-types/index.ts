@@ -1,1 +1,1 @@
-export * from "./request-generic-types";
+export * from "./client-generic-types";

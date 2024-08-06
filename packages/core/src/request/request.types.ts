@@ -17,7 +17,13 @@ import {
   ExtractClientType,
 } from "types";
 import { Request } from "request";
-import { ResponseType, ExtractAdapterOptionsType, ExtractAdapterMethodType, ExtractAdapterEndpointType } from "adapter";
+import {
+  ResponseType,
+  ExtractAdapterOptionsType,
+  ExtractAdapterMethodType,
+  ExtractAdapterEndpointType,
+  Response,
+} from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { Client, ClientInstance } from "client";
 
@@ -258,15 +264,9 @@ export type FetchSendActionsType<Request extends RequestInstance> = {
 export type RequestSendType<Request extends RequestInstance> =
   RequestSendOptionsType<Request>["data"] extends NegativeTypes
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
-      ? (
-          options?: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>
-      : (
-          options: RequestSendOptionsType<Request>,
-        ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>
-    : (
-        options: RequestSendOptionsType<Request>,
-      ) => Promise<ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>>;
+      ? (options?: RequestSendOptionsType<Request>) => Promise<Response<Request>>
+      : (options: RequestSendOptionsType<Request>) => Promise<Response<Request>>
+    : (options: RequestSendOptionsType<Request>) => Promise<Response<Request>>;
 
 // Instance
 
