@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { Database, get, push, query, ref, remove, set, update } from "firebase/database";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 
-import { RealtimeDBMethodsUnion } from "adapter/types";
+import { FirebaseAdapterTypes, FirebaseDBTypes, RealtimeDBMethodsUnion } from "adapter/types";
 import { mapRealtimeConstraint, getOrderedResultRealtime } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
 import {
@@ -12,14 +12,22 @@ import {
   SharedQueryConstraints,
 } from "constraints";
 
-export const getRealtimeDbBrowserMethods = <R extends RequestInstance>(
-  request: R,
+export const getRealtimeDbBrowserMethods = <T extends FirebaseDBTypes>(
   database: Database,
   url: string,
-  onSuccess,
-  onError,
-  resolve,
-  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
+  resolve: (
+    value:
+      | ResponseType<any, any, FirebaseAdapterTypes<T>>
+      | PromiseLike<ResponseType<any, any, FirebaseAdapterTypes<T>>>,
+  ) => void,
+  events: {
+    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+  },
 ): ((
   methodName: RealtimeDBMethodsUnion,
   data: {

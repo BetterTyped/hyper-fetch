@@ -11,9 +11,9 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter/types";
+import { FirebaseAdapterTypes, FirebaseDBTypes, FirestoreMethodsUnion } from "adapter/types";
 import {
   FirestoreConstraintsUnion,
   FirestorePermittedMethods,
@@ -23,14 +23,22 @@ import {
 import { getStatus } from "utils";
 import { getOrderedResultFirestore, mapConstraint } from "./utils";
 
-export const getFirestoreBrowserMethods = <R extends RequestInstance>(
-  request: R,
+export const getFirestoreBrowserMethods = <T extends FirebaseDBTypes>(
   database: Firestore,
   url: string,
-  onSuccess,
-  onError,
-  resolve,
-  events: { onResponseStart; onRequestStart; onRequestEnd; onResponseEnd },
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
+  resolve: (
+    value:
+      | ResponseType<any, any, FirebaseAdapterTypes<T>>
+      | PromiseLike<ResponseType<any, any, FirebaseAdapterTypes<T>>>,
+  ) => void,
+  events: {
+    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+  },
 ): ((
   methodName: FirestoreMethodsUnion,
   data: {

@@ -1,4 +1,4 @@
-import { Database } from "firebase-admin/lib/database";
+import { Database, DataSnapshot } from "firebase-admin/database";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
 import { applyRealtimeAdminConstraints, getOrderedResultRealtime } from "./utils";
@@ -50,7 +50,7 @@ export const realtimeSocketsAdmin = (database: Database): RealtimeAdminSocketAda
       q[method](
         "value",
         (snapshot) => {
-          const getSnapshotData = (s) => (s.val() ? { ...s.val(), __key: s.key } : null);
+          const getSnapshotData = (s: DataSnapshot) => (s.val() ? { ...s.val(), __key: s.key } : null);
           const response =
             isDocOrQuery(fullUrl) === "doc" ? getSnapshotData(snapshot) : getOrderedResultRealtime(snapshot);
           const status = getStatus(response);

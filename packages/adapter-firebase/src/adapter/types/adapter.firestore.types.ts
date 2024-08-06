@@ -8,6 +8,7 @@ import {
   QuerySnapshot,
 } from "firebase/firestore";
 import { SocketAdapterType } from "@hyper-fetch/sockets";
+import { DocumentData } from "@firebase/firestore";
 
 import {
   FirestoreConstraintsUnion,
@@ -17,9 +18,10 @@ import {
 } from "constraints";
 
 export type FirestoreSocketAdapterType = SocketAdapterType<
-  never,
+  any,
   FirestoreOnSnapshotExtra,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
+  { groupByChangeType?: boolean } & FirestoreQueryParams,
+  any
 >;
 
 export type FirestoreAdapterType =
@@ -62,9 +64,9 @@ export type FirestoreExtra = {
 
 export type FirestoreOnSnapshotExtra = {
   ref?: DocumentReference | CollectionReference;
-  snapshot?: DocumentSnapshot;
+  snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: FirestoreUnsubscribe;
-  groupedResult?: { added: DocumentSnapshot[]; modified: DocumentSnapshot[]; removed: DocumentSnapshot[] };
+  groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
 };
 
 export type FirestoreGetDocsExtra = {

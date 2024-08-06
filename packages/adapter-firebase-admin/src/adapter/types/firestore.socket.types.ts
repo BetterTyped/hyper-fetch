@@ -1,17 +1,18 @@
-import { DocumentReference, DocumentSnapshot, Query } from "firebase-admin/firestore";
+import { DocumentReference, DocumentSnapshot, DocumentData, Query, QuerySnapshot } from "firebase-admin/firestore";
 import { SocketAdapterType } from "@hyper-fetch/sockets";
 
 import { FirestoreQueryParams } from "adapter";
 
 export type FirestoreAdminSocketAdapterType = SocketAdapterType<
-  never,
+  any,
   FirestoreAdminOnSnapshotExtra,
-  { groupByChangeType?: boolean } & FirestoreQueryParams
+  { groupByChangeType?: boolean } & FirestoreQueryParams,
+  any
 >;
 
 export type FirestoreAdminOnSnapshotExtra = {
   ref?: DocumentReference | Query;
-  snapshot?: DocumentSnapshot;
+  snapshot?: DocumentSnapshot | QuerySnapshot;
   unsubscribe?: () => void;
-  groupedResult?: { added: DocumentSnapshot[]; modified: DocumentSnapshot[]; removed: DocumentSnapshot[] };
+  groupedResult: { added: DocumentData[]; modified: DocumentData[]; removed: DocumentData[] } | null;
 };

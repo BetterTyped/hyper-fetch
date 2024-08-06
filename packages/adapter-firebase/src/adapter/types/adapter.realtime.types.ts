@@ -11,9 +11,10 @@ import {
 } from "constraints";
 
 export type RealtimeSocketAdapterType = SocketAdapterType<
-  never,
+  any,
   RealtimeDbOnValueMethodExtra,
-  { onlyOnce?: boolean } & RealtimeDBQueryParams
+  { onlyOnce?: boolean } & RealtimeDBQueryParams,
+  any
 >;
 
 export type RealtimeDbAdapterType =

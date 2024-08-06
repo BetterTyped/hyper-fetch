@@ -1,4 +1,11 @@
-import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore, Query } from "firebase-admin/firestore";
+import {
+  CollectionReference,
+  DocumentReference,
+  DocumentSnapshot,
+  Firestore,
+  Query,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
 import { getSocketAdapterBindings } from "@hyper-fetch/sockets";
 
 import { getGroupedResultFirestore, getOrderedResultFirestore, getRef, applyFireStoreAdminConstraints } from "./utils";
@@ -37,11 +44,14 @@ export const firestoreAdminSockets = (database: Firestore): FirestoreAdminSocket
 
       unsubscribe = pathRef.onSnapshot(
         (snapshot) => {
-          const getSnapshotData = (s) => (s.data() ? { ...s.data(), __key: s.id } : null);
+          const getSnapshotData = (s: DocumentSnapshot) => (s.data() ? { ...s.data(), __key: s.id } : null);
           const response =
-            snapshot instanceof DocumentSnapshot ? getSnapshotData(snapshot) : getOrderedResultFirestore(snapshot);
+            snapshot instanceof DocumentSnapshot
+              ? getSnapshotData(snapshot)
+              : getOrderedResultFirestore(snapshot as QuerySnapshot);
           const status = getStatus(response);
-          const groupedResult = options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot) : null;
+          const groupedResult =
+            options?.groupByChangeType === true ? getGroupedResultFirestore(snapshot as QuerySnapshot) : null;
           const extra = { ref: pathRef, snapshot, unsubscribe, groupedResult, status };
           callback({ data: response, extra });
           onEvent(listener.topic, response, extra);
