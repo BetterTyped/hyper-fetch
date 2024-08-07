@@ -1,7 +1,11 @@
+import { useMemo } from "react";
+
 import { useDevtoolsContext } from "devtools.context";
 import { Request } from "./request/request";
 import { Table } from "components/table/table";
 import { NoContent } from "components/no-content/no-content";
+import { useNetworkContext } from "../network.context";
+import { Status } from "utils/request.status.utils";
 
 const thStyle = {
   fontWeight: 400,
@@ -11,6 +15,25 @@ const thStyle = {
 
 export const Content = () => {
   const { requests } = useDevtoolsContext("DevtoolsNetworkContent");
+  const { filter } = useNetworkContext("ToolbarNetwork");
+
+  const items = useMemo(() => {
+    if (!filter) return requests;
+    switch (filter) {
+      case Status.SUCCESS:
+        return requests.filter((item) => item.isSuccess);
+      case Status.FAILED:
+        return requests.filter((item) => item.isSuccess === false);
+      case Status.IN_PROGRESS:
+        return requests.filter((item) => !item.isFinished);
+      case Status.PAUSED:
+        return requests.filter((item) => item.isPaused);
+      case Status.CANCELED:
+        return requests.filter((item) => item.isCanceled);
+      default:
+        return requests;
+    }
+  }, [requests, filter]);
 
   return (
     <>
@@ -26,7 +49,7 @@ export const Content = () => {
           </tr>
         </thead>
         <tbody style={{ position: "relative" }}>
-          {requests.map((item, index) => {
+          {items.map((item, index) => {
             return (
               // eslint-disable-next-line no-console
               <Request item={item} background={index % 2 ? "transparent" : "rgba(0,0,0,0.1)"} />

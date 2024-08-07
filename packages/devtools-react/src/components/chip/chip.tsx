@@ -27,6 +27,10 @@ const styles = {
     background: "#FF9800",
     color: "#fff",
   },
+  inactive: {
+    background: "#475055",
+    color: "#838181",
+  },
 };
 
 export const Chip = ({
@@ -34,7 +38,7 @@ export const Chip = ({
   color = "green",
   ...props
 }: React.DetailedHTMLProps<React.HTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
-  color?: "green" | "red" | "blue" | "gray" | "orange";
+  color?: keyof typeof styles;
 }) => {
   return (
     <button type="button" {...props} style={{ ...baseStyles, ...styles[color], ...props.style }}>

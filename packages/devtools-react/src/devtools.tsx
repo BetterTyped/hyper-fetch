@@ -200,6 +200,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
     const isSuccess = !!success.find((el) => el.requestId === item.requestId);
     const isRemoved = !!removed.find((el) => el.requestId === item.requestId);
+    const isPaused = !!paused.find((el) => el.requestId === item.requestId);
     const response: any =
       success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
 
@@ -212,6 +213,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       isCanceled,
       isSuccess,
       isFinished: !!response,
+      isPaused,
       addedTimestamp: item.addedTimestamp,
     };
   });

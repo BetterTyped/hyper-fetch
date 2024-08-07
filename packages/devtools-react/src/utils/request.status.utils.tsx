@@ -6,6 +6,7 @@ export enum Status {
   SUCCESS = "success",
   FAILED = "failed",
   IN_PROGRESS = "in progress",
+  PAUSED = "paused",
 }
 
 export const getStatus = (

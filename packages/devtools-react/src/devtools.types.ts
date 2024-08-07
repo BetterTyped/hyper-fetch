@@ -35,5 +35,6 @@ export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
     isCanceled: boolean;
     isSuccess: boolean;
     isFinished: boolean;
+    isPaused: boolean;
     addedTimestamp: number;
   };
