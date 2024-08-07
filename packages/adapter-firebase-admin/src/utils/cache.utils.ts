@@ -3,7 +3,7 @@ import { RequestInstance } from "@hyper-fetch/core";
 export const setCacheManually = <R extends RequestInstance>(
   request: R,
   response: { value: any; status: "success" | "error" | "emptyResource" },
-  extra,
+  extra: any,
 ) => {
   if (["success", "emptyResource"].includes(response.status)) {
     request.client.cache.set(request, {

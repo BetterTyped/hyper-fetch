@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { CollectionReference, DocumentReference, DocumentSnapshot, Firestore } from "firebase-admin/firestore";
-import { RequestInstance } from "@hyper-fetch/core";
+import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 
-import { FirestoreMethodsUnion } from "adapter";
+import { FirebaseAdminAdapterTypes, FirebaseAdminDBTypes, FirestoreMethodsUnion } from "adapter";
 import { getStatus } from "utils";
 import {
   FirestoreConstraintsUnion,
@@ -12,14 +12,22 @@ import {
 } from "constraints";
 import { applyFireStoreAdminConstraints, getOrderedResultFirestore, getRef } from "./utils";
 
-export const getFirestoreAdminMethods = <R extends RequestInstance>(
-  request: R,
+export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
   database: Firestore,
   url: string,
-  onSuccess,
-  onError,
-  resolve,
-  events: { onRequestStart; onResponseEnd; onResponseStart; onRequestEnd },
+  onSuccess: Awaited<ReturnType<typeof getAdapterBindings>>["onSuccess"],
+  onError: Awaited<ReturnType<typeof getAdapterBindings>>["onError"],
+  resolve: (
+    value:
+      | ResponseType<any, any, FirebaseAdminAdapterTypes<T>>
+      | PromiseLike<ResponseType<any, any, FirebaseAdminAdapterTypes<T>>>,
+  ) => void,
+  events: {
+    onResponseStart: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseStart"];
+    onRequestStart: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestStart"];
+    onRequestEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onRequestEnd"];
+    onResponseEnd: Awaited<ReturnType<typeof getAdapterBindings>>["onResponseEnd"];
+  },
 ): ((
   methodName: FirestoreMethodsUnion,
   data: {
@@ -69,17 +77,17 @@ export const getFirestoreAdminMethods = <R extends RequestInstance>(
     },
   };
 
-  return async (methodName: FirestoreMethodsUnion, data) => {
+  return async (methodName: FirestoreMethodsUnion, data?) => {
     try {
-      events.onRequestStartByQueue();
-      const { result, status, extra } = await methods[methodName](data);
+      events.onRequestStart();
+      const { result, status, extra } = await methods[methodName](data as any);
       events.onRequestEnd();
-      events.onResponseStartByQueue();
+      events.onResponseStart();
       onSuccess(result, status, extra, resolve);
       events.onResponseEnd();
     } catch (e) {
       events.onRequestEnd();
-      events.onResponseStartByQueue();
+      events.onResponseStart();
       onError(e, "error", {}, resolve);
       events.onResponseEnd();
     }

@@ -4,10 +4,10 @@ import { Reference, DataSnapshot } from "firebase-admin/database";
 import { RealtimeDBQueryParams, RealtimeDBStatuses } from "adapter/index";
 
 export type RealtimeAdminSocketAdapterType = SocketAdapterType<
-  never,
+  any,
   RealtimeAdminOnValueMethodExtra,
   { onlyOnce?: boolean } & RealtimeDBQueryParams,
-  never
+  any
 >;
 
 export type RealtimeAdminOnValueMethodExtra = {

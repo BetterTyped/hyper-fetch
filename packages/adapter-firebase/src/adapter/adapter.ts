@@ -2,23 +2,22 @@ import { getAdapterBindings, ResponseType } from "@hyper-fetch/core";
 import { Database } from "firebase/database";
 
 import {
-  FirebaseAdapterTypes,
   FirebaseDBTypes,
   RealtimeDbAdapterType,
-  RealtimeDBMethodsUnion,
-  RealtimeDBQueryParams,
   FirestoreAdapterType,
-  FirestoreMethodsUnion,
-  FirestoreQueryParams,
   FirestoreMethods,
   RealtimeDBMethods,
+  FirebaseRequestType,
+  FirebaseRealtimeDBType,
+  FirestoreRequestType,
 } from "adapter";
 import { getRealtimeDbBrowserMethods } from "realtime";
 import { getFirestoreBrowserMethods } from "firestore";
 
+// TODO - check ResponseType
 export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
   return () => {
-    const adapter: FirebaseAdapterTypes<T> = async (request, requestId) => {
+    const adapter = async (request: FirebaseRequestType<T>, requestId: string) => {
       const { fullUrl, onSuccess, onError, onResponseStart, onResponseEnd, onRequestStart, onRequestEnd } =
         await getAdapterBindings<RealtimeDbAdapterType | FirestoreAdapterType>({
           request,
@@ -26,28 +25,15 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
           systemErrorStatus: "error",
           systemErrorExtra: {},
         });
-      return new Promise<ResponseType<any, any, FirebaseAdapterTypes<T>>>((resolve) => {
+      return new Promise<ResponseType<any, any, any>>((resolve) => {
         if (database instanceof Database) {
-          const {
-            method = RealtimeDBMethods.get,
-            queryParams,
-            data,
-            options,
-          }: { method: RealtimeDBMethodsUnion; queryParams: RealtimeDBQueryParams; data; options } = request;
-          const availableMethods = getRealtimeDbBrowserMethods(
-            request,
-            database,
-            fullUrl,
-            onSuccess,
-            onError,
-            resolve,
-            {
-              onResponseStart,
-              onResponseEnd,
-              onRequestStart,
-              onRequestEnd,
-            },
-          );
+          const { method = RealtimeDBMethods.get, queryParams, data, options } = request as FirebaseRealtimeDBType;
+          const availableMethods = getRealtimeDbBrowserMethods(database, fullUrl, onSuccess, onError, resolve, {
+            onResponseStart,
+            onResponseEnd,
+            onRequestStart,
+            onRequestEnd,
+          });
           if (!Object.values(RealtimeDBMethods).includes(method)) {
             throw new Error(`Cannot find method ${method} in Realtime database available methods.`);
           }
@@ -57,13 +43,8 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
             data,
           });
         } else {
-          const {
-            method = FirestoreMethods.getDocs,
-            queryParams,
-            data,
-            options,
-          }: { method: FirestoreMethodsUnion; queryParams: FirestoreQueryParams; data; options } = request;
-          const availableMethods = getFirestoreBrowserMethods(request, database, fullUrl, onSuccess, onError, resolve, {
+          const { method = FirestoreMethods.getDocs, queryParams, data, options } = request as FirestoreRequestType;
+          const availableMethods = getFirestoreBrowserMethods(database, fullUrl, onSuccess, onError, resolve, {
             onResponseStart,
             onResponseEnd,
             onRequestStart,

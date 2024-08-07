@@ -4,6 +4,7 @@ import { onValue, query, Database, ref, goOffline, goOnline } from "firebase/dat
 import { getOrderedResultRealtime, mapRealtimeConstraint } from "./utils";
 import { getStatus, isDocOrQuery } from "utils";
 import { RealtimeSocketAdapterType } from "adapter";
+import { RealtimePermittedMethods } from "../constraints";
 
 export const realtimeSockets = (database: Database): RealtimeSocketAdapterType => {
   return (socket) => {
@@ -46,7 +47,8 @@ export const realtimeSockets = (database: Database): RealtimeSocketAdapterType =
 
       const { options } = listener;
       const onlyOnce = options?.onlyOnce || false;
-      const params = options?.constraints?.map((constraint) => mapRealtimeConstraint(constraint)) || [];
+      const params =
+        options?.constraints?.map((constraint: RealtimePermittedMethods) => mapRealtimeConstraint(constraint)) || [];
       const queryConstraints = query(path, ...params);
       let unsubscribe = () => {};
       let unmount = () => {};
