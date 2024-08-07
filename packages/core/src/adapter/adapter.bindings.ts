@@ -79,7 +79,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     processingError = err as Error;
   }
 
-  const config: ExtractAdapterOptionsType<T> = request.options as ExtractAdapterOptionsType<T>;
+  const config = request.options as ExtractAdapterOptionsType<T> | undefined;
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;

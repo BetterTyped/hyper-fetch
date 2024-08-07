@@ -127,9 +127,10 @@ export function Request({ name, children, result }: Props) {
     enqueueSnackbar("Finished", { variant: "warning" });
   });
 
-  onDownloadProgress(({ progress, requestId }) => {
+  onDownloadProgress(({ requestId, ...progress }) => {
+    const { total, loaded } = progress;
     setDownloadProgress((prev) => ({ ...prev, [requestId]: progress }));
-    if (progress.total === progress.loaded) {
+    if (total === loaded) {
       setTimeout(() => {
         setUploadProgress((prev) => {
           const newProgress = { ...prev };
@@ -145,7 +146,7 @@ export function Request({ name, children, result }: Props) {
     }
   });
 
-  onUploadProgress(({ progress, requestId }) => {
+  onUploadProgress(({ requestId, ...progress }) => {
     setUploadProgress((prev) => ({ ...prev, [requestId]: progress }));
   });
 

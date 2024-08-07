@@ -44,11 +44,13 @@ export const adapter: AdapterType = async (request, requestId) => {
     const abort = () => xhr.abort();
 
     // Inject xhr options
-    Object.entries(config).forEach(([name, value]) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      xhr[name] = value;
-    });
+    if (config) {
+      Object.entries(config).forEach(([name, value]) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        xhr[name] = value;
+      });
+    }
 
     // Open connection
     xhr.open(method, fullUrl, true);

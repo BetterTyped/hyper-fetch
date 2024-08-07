@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-console */
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const uuidv4 = require("uuid").v4;
@@ -22,20 +24,20 @@ const sendMessage = ({ connection, id, message, username, topic }) => {
   connection.send(JSON.stringify(response));
 };
 
-const handleClose = (username, uuid, id) => {
-  console.log(`${username} disconnected`);
-  delete connections[uuid];
-  delete users[uuid];
-  broadcast();
-  clearInterval(id);
-};
-
 const broadcast = () => {
   Object.keys(connections).forEach((uuid) => {
     const connection = connections[uuid];
     const message = JSON.stringify(users);
     connection.send(message);
   });
+};
+
+const handleClose = (username, uuid, id) => {
+  console.log(`${username} disconnected`);
+  delete connections[uuid];
+  delete users[uuid];
+  broadcast();
+  clearInterval(id);
 };
 
 wsServer.on("connection", (connection, request) => {
@@ -57,7 +59,7 @@ wsServer.on("connection", (connection, request) => {
       id: value.id,
       message: value.data.message,
       username,
-      topic: "chat-message",
+      topic: "messages",
     });
   });
 

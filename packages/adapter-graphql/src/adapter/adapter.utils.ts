@@ -1,8 +1,6 @@
 import { RequestInstance, HttpMethods } from "@hyper-fetch/core";
 
-export const getRequestValues = (request: RequestInstance) => {
-  const { method } = request;
-
+export const getRequestValues = <R extends RequestInstance>(request: R) => {
   const isPostRequest = request.method === HttpMethods.POST;
 
   const query = request.endpoint;
@@ -19,5 +17,5 @@ export const getRequestValues = (request: RequestInstance) => {
       })
     : null;
 
-  return { fullUrl, payload, method };
+  return { fullUrl, payload };
 };

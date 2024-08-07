@@ -62,7 +62,7 @@ export class Request<
   endpoint: Endpoint;
   headers?: HeadersInit;
   auth: boolean;
-  method: ExtractAdapterMethodType<ExtractAdapterType<this>>;
+  method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
   data: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;

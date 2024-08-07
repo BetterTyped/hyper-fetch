@@ -26,7 +26,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     internalErrorFormatter: (error) => [error],
   });
 
-  const { fullUrl, payload, method } = getRequestValues(request);
+  const { fullUrl, payload } = getRequestValues(request);
 
   return makeRequest((resolve) => {
     const xhr = new XMLHttpRequest();
@@ -35,12 +35,16 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     const abort = () => xhr.abort();
 
     // Inject xhr options
-    Object.entries(config).forEach(([name, value]) => {
-      xhr[name] = value;
-    });
+    if (config) {
+      Object.entries(config).forEach(([name, value]) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        xhr[name] = value;
+      });
+    }
 
     // Open connection
-    xhr.open(method, fullUrl, true);
+    xhr.open(request.method, fullUrl, true);
 
     // Set Headers
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));

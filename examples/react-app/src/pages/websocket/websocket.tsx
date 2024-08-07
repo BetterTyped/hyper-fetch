@@ -1,26 +1,21 @@
+/* eslint-disable react/no-array-index-key */
 import React, { useEffect, useState } from "react";
 import { useEmitter, useListener } from "@hyper-fetch/react";
 import { Typography, Box, TextField, Stack, Button, Card, CardContent, CardHeader, Avatar } from "@mui/material";
+import { ExtractListenerResponseType } from "@hyper-fetch/sockets";
+import { blue, red } from "@mui/material/colors";
 
 import { Viewer } from "../../components/viewer";
 import { getMessage, sendMessage } from "../../api/websockets/websockets";
-import { ExtractEmitterResponseType, ExtractListenerResponseType } from "@hyper-fetch/sockets";
 import { socket } from "../../api";
-import { blue, red } from "@mui/material/colors";
 
 export const WebsocketsPage: React.FC = () => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<
-    (ExtractListenerResponseType<typeof getMessage> | ExtractEmitterResponseType<typeof sendMessage>)[]
-  >([]);
+  const [messages, setMessages] = useState<ExtractListenerResponseType<typeof getMessage>[]>([]);
   const { onEvent } = useListener(getMessage, {});
-  const { emit, onEmitEvent } = useEmitter(sendMessage, {});
+  const { emit } = useEmitter(sendMessage, {});
 
   onEvent((event) => {
-    setMessages((prev) => [...prev, event.data]);
-  });
-
-  onEmitEvent((event) => {
     setMessages((prev) => [...prev, event.data]);
   });
 
@@ -31,15 +26,8 @@ export const WebsocketsPage: React.FC = () => {
     emit({
       data: {
         message,
-      },
-      onEventStart: (...data) => {
-        console.log("onEventStart", data);
-      },
-      onEvent: (...data) => {
-        console.log("onEvent", data);
-      },
-      onEventError: (...data) => {
-        console.log("onEventError", data);
+        username: "Client User",
+        timestamp: new Date().toLocaleTimeString(),
       },
     });
   };
@@ -87,7 +75,7 @@ export const WebsocketsPage: React.FC = () => {
         <Typography variant="h5" mt={4} mb={2}>
           Your messages:
         </Typography>
-        {messages.map(({ message, username, timestamp }, index) => (
+        {messages.map(({ message: msg, username, timestamp }, index) => (
           <Card key={index} sx={{ p: 2, mt: 1 }}>
             <CardHeader
               sx={{
@@ -102,7 +90,7 @@ export const WebsocketsPage: React.FC = () => {
               subheader={timestamp}
             />
             <CardContent sx={{ padding: "10px 0 0 0!important" }}>
-              <Typography variant="body1">{message}</Typography>
+              <Typography variant="body1">{msg}</Typography>
             </CardContent>
           </Card>
         ))}

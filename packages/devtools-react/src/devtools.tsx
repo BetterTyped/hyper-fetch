@@ -14,7 +14,7 @@ import { Logs } from "./pages/logs/logs";
 import { Network } from "./pages/network/network";
 import { Processing } from "./pages/processing/processing";
 import { DevtoolsProvider } from "devtools.context";
-import { DevtoolsModule, RequestEvent, RequestResponse } from "devtools.types";
+import { DevtoolsModule, DevtoolsRequestEvent, RequestEvent, RequestResponse } from "devtools.types";
 
 const modules = {
   Network,
@@ -29,6 +29,7 @@ export type DevtoolsProps<T extends ClientInstance> = {
 
 export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>) => {
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
+  const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
 
   const Component = modules[module];
 
@@ -103,6 +104,14 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     setCache(cacheItems);
   }, [client.cache, requests]);
 
+  const handleSetOnline = useCallback(
+    (value: boolean) => {
+      client.appManager.setOnline(value);
+      setIsOnline(value);
+    },
+    [client.appManager],
+  );
+
   useEffect(() => {
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests((prev) => [...prev, details] as RequestEvent<T>[]);
@@ -171,26 +180,19 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       .setDebug(true);
   }, [client]);
 
-  const allRequests: Array<
-    RequestEvent<ClientInstance> & {
-      isCanceled: boolean;
-      isSuccess: boolean;
-      isFinished: boolean;
-      response: RequestResponse<ClientInstance>;
-    }
-  > = requests.map((item) => {
+  const allRequests: Array<DevtoolsRequestEvent> = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
     const isSuccess = !!success.find((el) => el.requestId === item.requestId);
     const response: any =
       success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
 
     return {
+      ...response,
       requestId: item.requestId,
       request: item.request,
       isCanceled,
       isSuccess,
       isFinished: !!response,
-      response,
     };
   });
 
@@ -198,6 +200,8 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     <DevtoolsProvider
       module={module}
       setModule={setModule}
+      isOnline={isOnline}
+      setIsOnline={handleSetOnline}
       client={client}
       success={success}
       failed={failed}
@@ -216,9 +220,13 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
           left: 0,
           right: 0,
           bottom: 0,
-          height: "200px",
+          height: "300px",
           overflowY: "auto",
-          background: "#fff",
+          background: "rgb(35 39 46)",
+          border: "1px solid #7e8186",
+          borderRadius: "10px 10px 0 0",
+          fontFamily:
+            "Optimistic Text,-apple-system,ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji",
         }}
       >
         <Header />

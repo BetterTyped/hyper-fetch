@@ -27,21 +27,25 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     internalErrorFormatter: (error) => [error],
   });
 
-  const { fullUrl, payload, method } = getRequestValues(request);
+  const { fullUrl, payload } = getRequestValues(request);
 
   const httpClient = request.client.url.includes("https://") ? https : http;
   const options = {
     path: fullUrl,
-    method,
+    method: request.method,
     headers: headers as OutgoingHttpHeaders,
     timeout: defaultTimeout,
   };
 
-  Object.entries(config).forEach(([name, value]) => {
-    options[name] = value;
-  });
+  if (config) {
+    Object.entries(config).forEach(([name, value]) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      options[name] = value;
+    });
+  }
 
-  let unmountListener = () => null;
+  let unmountListener = () => {};
   onBeforeRequest();
 
   if (payload) {
@@ -70,7 +74,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       });
 
       response.on("end", () => {
-        const { statusCode } = response;
+        const { statusCode = 0 } = response;
         const res = parseResponse(chunks);
         const data = res?.data || null;
         const extensions = res?.extensions || {};

@@ -31,11 +31,13 @@ export const adapter: AdapterType = async (request, requestId) => {
     timeout: defaultTimeout,
   };
 
-  Object.entries(config).forEach(([name, value]) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    options[name] = value;
-  });
+  if (config) {
+    Object.entries(config).forEach(([name, value]) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      options[name] = value;
+    });
+  }
 
   let unmountListener: () => void = () => undefined;
   onBeforeRequest();

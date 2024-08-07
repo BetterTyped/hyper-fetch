@@ -66,7 +66,7 @@ export const useEmitter = <EmitterType extends EmitterInstance>(
     },
     ...actions,
     ...callbacks,
-    onEmitStart: (callback: (emitter: EmitterType) => void) => {
+    onEmit: (callback: (emitter: EmitterType) => void) => {
       onEventStartCallback.current = callback;
     },
     onEmitError: (callback: EmitterCallbackErrorType<EmitterType>) => {

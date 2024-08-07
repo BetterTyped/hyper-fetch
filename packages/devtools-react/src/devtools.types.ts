@@ -28,3 +28,10 @@ export type RequestResponse<T extends ClientInstance> = {
   response: ResponseType<any, any, AdapterInstance>;
   details: ResponseDetailsType;
 } & RequestEvent<T>;
+
+export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
+  RequestResponse<ClientInstance> & {
+    isCanceled: boolean;
+    isSuccess: boolean;
+    isFinished: boolean;
+  };
