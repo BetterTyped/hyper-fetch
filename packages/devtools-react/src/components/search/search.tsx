@@ -1,10 +1,12 @@
 const baseStyle = {
   backgroundColor: "transparent",
-  border: "0px",
-  fontSize: "16px",
+  fontSize: "14px",
   color: "#fff",
-  padding: "0 0 0 22px",
+  padding: "2px 2px 2px 22px",
   outline: "none",
+  minWidth: "80px",
+  borderRadius: "4px",
+  border: "1px solid rgb(77, 78, 79)",
 };
 
 export const Search = ({
@@ -25,7 +27,7 @@ export const Search = ({
         style={{
           position: "absolute",
           pointerEvents: "none",
-          marginLeft: "2px",
+          marginLeft: "5px",
         }}
       >
         <path

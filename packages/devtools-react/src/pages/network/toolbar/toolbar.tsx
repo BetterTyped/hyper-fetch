@@ -1,6 +1,7 @@
-import { Chip } from "components/header/chip/chip";
+import { Chip } from "components/chip/chip";
 import { Options } from "components/options/options";
 import { Search } from "components/search/search";
+import { Select } from "components/select/select";
 import { useDevtoolsContext } from "devtools.context";
 
 export const Toolbar = () => {
@@ -9,13 +10,22 @@ export const Toolbar = () => {
   return (
     <Options>
       <Search placeholder="Search" />
-      <select>
-        Sort
-        <option>Time</option>
-        <option>Status</option>
-      </select>
+      <Select
+        style={{ marginLeft: "6px" }}
+        options={[
+          {
+            value: "time",
+            label: "Sort by time",
+          },
+          {
+            value: "status",
+            label: "Sort by status",
+          },
+        ]}
+      />
       {/* <button>clear list</button> */}
 
+      <div style={{ flex: "1 1 auto" }} />
       <div
         style={{
           display: "flex",
@@ -24,7 +34,7 @@ export const Toolbar = () => {
           padding: "0px 10px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <Chip color="green">Success {success.length}</Chip>
           <Chip color="red">Failed {failed.length}</Chip>
           <Chip color="blue">In Progress {inProgress.length}</Chip>

@@ -389,6 +389,7 @@ export class Dispatcher {
       request,
       retries: 0,
       stopped: false,
+      resolved: false,
     };
     return storageElement;
   };
@@ -465,7 +466,11 @@ export class Dispatcher {
     // Emit Queue Changes
     this.options?.onDeleteFromStorage?.(queueKey, queue);
     this.events.setQueueChanged(queueKey, queue);
-    this.client.requestManager.events.emitRemove({ requestId, request: queueElement.request });
+    this.client.requestManager.events.emitRemove({
+      requestId,
+      request: queueElement.request,
+      resolved: queueElement.resolved,
+    });
 
     if (!queue.requests.length) {
       this.events.setDrained(queueKey, queue);
@@ -515,6 +520,8 @@ export class Dispatcher {
 
     const response = await adapter(request, requestId);
 
+    // eslint-disable-next-line no-param-reassign
+    storageElement.resolved = true;
     // Stop listening for aborting
     requestManager.removeAbortController(abortKey, requestId);
     // Do not continue the request handling when it got stopped and request was unsuccessful
@@ -532,6 +539,7 @@ export class Dispatcher {
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
       timestamp: +new Date(),
+      addedTimestamp: storageElement.timestamp,
     };
 
     // Turn off loading

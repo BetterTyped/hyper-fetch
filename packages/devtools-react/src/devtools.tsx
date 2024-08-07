@@ -15,6 +15,7 @@ import { Network } from "./pages/network/network";
 import { Processing } from "./pages/processing/processing";
 import { DevtoolsProvider } from "devtools.context";
 import { DevtoolsModule, DevtoolsRequestEvent, RequestEvent, RequestResponse } from "devtools.types";
+import { IconButton } from "components/icon-button/icon-button";
 
 const modules = {
   Network,
@@ -23,20 +24,28 @@ const modules = {
   Processing,
 };
 
+/**
+ * TODO:  Add description
+ * - errors drafts - allowing to test the error handling with button clicks
+ *
+ */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
+  initiallyOpen?: boolean;
 };
 
-export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>) => {
+export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = false }: DevtoolsProps<T>) => {
+  const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
 
   const Component = modules[module];
 
-  const [requests, setRequests] = useState<RequestEvent<T>[]>([]);
+  const [requests, setRequests] = useState<(RequestEvent<T> & { addedTimestamp: number })[]>([]);
   const [success, setSuccess] = useState<RequestResponse<T>[]>([]);
   const [failed, setFailed] = useState<RequestResponse<T>[]>([]);
-  const [inProgress, setInProgress] = useState<RequestEvent<T>[]>([]);
+  const [removed, setRemoved] = useState<RequestEvent<T>[]>([]);
+  const [inProgress, setInProgress] = useState<(RequestEvent<T> & { addedTimestamp: number })[]>([]);
   const [paused, setPaused] = useState<RequestEvent<T>[]>([]);
   const [canceled, setCanceled] = useState<RequestEvent<T>[]>([]);
   const [fetchQueues, setFetchQueues] = useState<QueueDataType[]>([]);
@@ -48,11 +57,12 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
     const submitRequests = client.submitDispatcher.getAllRunningRequest();
 
-    const allQueuedRequest: RequestEvent<T>[] = [...fetchRequests, ...submitRequests].map((item) => {
+    const allQueuedRequest = [...fetchRequests, ...submitRequests].map((item) => {
       return {
         requestId: item.requestId,
         request: item.request,
-      } as RequestEvent<T>;
+        addedTimestamp: item.timestamp,
+      } as RequestEvent<T> & { addedTimestamp: number };
     });
 
     const fetchQueuesArray = Array.from(
@@ -114,7 +124,10 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
 
   useEffect(() => {
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
-      setRequests((prev) => [...prev, details] as RequestEvent<T>[]);
+      setRequests(
+        (prev) =>
+          [...prev, { ...details, addedTimestamp: new Date() }] as (RequestEvent<T> & { addedTimestamp: number })[],
+      );
       countProgressRequests();
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
@@ -143,7 +156,10 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
     const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange(() => {
       countProgressRequests();
     });
-    const unmountOnRemove = client.requestManager.events.onRemove(() => {
+    const unmountOnRemove = client.requestManager.events.onRemove((details) => {
+      if (!details.resolved) {
+        setRemoved((prev) => [...prev, details] as RequestEvent<T>[]);
+      }
       countProgressRequests();
     });
     const unmountOnCacheChange = client.cache.events.onData(() => {
@@ -183,6 +199,7 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
   const allRequests: Array<DevtoolsRequestEvent> = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
     const isSuccess = !!success.find((el) => el.requestId === item.requestId);
+    const isRemoved = !!removed.find((el) => el.requestId === item.requestId);
     const response: any =
       success.find((el) => el.requestId === item.requestId) || failed.find((el) => el.requestId === item.requestId);
 
@@ -190,14 +207,19 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       ...response,
       requestId: item.requestId,
       request: item.request,
+      details: response?.details,
+      isRemoved,
       isCanceled,
       isSuccess,
       isFinished: !!response,
+      addedTimestamp: item.addedTimestamp,
     };
   });
 
   return (
     <DevtoolsProvider
+      open={open}
+      setOpen={setOpen}
       module={module}
       setModule={setModule}
       isOnline={isOnline}
@@ -214,24 +236,72 @@ export const Devtools = <T extends ClientInstance>({ client }: DevtoolsProps<T>)
       cache={cache}
       logs={logs}
     >
-      <div
-        style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: "300px",
-          overflowY: "auto",
-          background: "rgb(35 39 46)",
-          border: "1px solid #7e8186",
-          borderRadius: "10px 10px 0 0",
-          fontFamily:
-            "Optimistic Text,-apple-system,ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji",
-        }}
-      >
-        <Header />
-        <Component />
-      </div>
+      {open && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: "300px",
+            overflowY: "hidden",
+            background: "rgb(35 39 46)",
+            border: "1px solid #7e8186",
+            borderRadius: "10px 10px 0 0",
+            color: "rgb(180, 194, 204)",
+            fontFamily:
+              "Optimistic Text,-apple-system,ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji",
+          }}
+        >
+          <Header />
+          <Component />
+        </div>
+      )}
+      {!open && (
+        <IconButton
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: "rgb(35 39 46)",
+            color: "white",
+            width: "40px",
+            height: "40px",
+            padding: "10px",
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="100%"
+            zoomAndPan="magnify"
+            viewBox="0 0 224.87999 299.999988"
+            height="100%"
+            preserveAspectRatio="xMidYMid meet"
+            version="1.0"
+            style={{ padding: "2px 0 0 2px" }}
+          >
+            <defs>
+              <clipPath id="58708a0c3a">
+                <path
+                  d="M 28.484375 0.078125 L 202.390625 0.078125 L 202.390625 299.917969 L 28.484375 299.917969 Z M 28.484375 0.078125 "
+                  clipRule="nonzero"
+                />
+              </clipPath>
+            </defs>
+            <g clipPath="url(#58708a0c3a)">
+              <path
+                fill="#fbc646"
+                d="M 80.019531 0.0859375 L 191.648438 0.0859375 L 144.414062 88.105469 L 202.378906 88.105469 L 62.128906 299.910156 L 99.335938 143.910156 L 28.496094 143.910156 L 80.019531 0.0859375 "
+                fillOpacity="1"
+                fillRule="nonzero"
+              />
+            </g>
+          </svg>
+        </IconButton>
+      )}
     </DevtoolsProvider>
   );
 };

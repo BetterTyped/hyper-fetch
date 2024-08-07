@@ -18,6 +18,8 @@ export const Options = ({ children }: { children: React.ReactNode }) => {
       <div
         style={{
           display: "flex",
+          alignItems: "center",
+          flex: "1 1 auto",
         }}
       >
         {children}
@@ -25,6 +27,7 @@ export const Options = ({ children }: { children: React.ReactNode }) => {
       <div
         style={{
           display: "flex",
+          alignItems: "center",
         }}
       >
         <IconButton onClick={() => setIsOnline(!isOnline)}>

@@ -11,7 +11,7 @@ type Props = {
   request: QueueRequest<RequestInstance>;
 };
 
-export function RequestCard({ request }: Props) {
+export const RequestCard = ({ request }: Props) => {
   return (
     <Card
       sx={{
@@ -43,7 +43,10 @@ export function RequestCard({ request }: Props) {
         >
           {request.stopped ? "Start Request" : "Stop Request"}
         </Button>
+        <Button size="small" variant="contained" color="warning" onClick={request.deleteRequest}>
+          Remove Request
+        </Button>
       </CardActions>
     </Card>
   );
-}
+};

@@ -30,6 +30,7 @@ import {
   getResponseStartKey,
   RequestProgressEventType,
   RequestResponseEventType,
+  RequestRemovedEventType,
 } from "managers";
 import { AdapterInstance } from "adapter";
 import { ExtendRequest, RequestInstance } from "request";
@@ -88,7 +89,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   },
 
   // Remove
-  emitRemove: (data: RequestEventType<RequestInstance>): void => {
+  emitRemove: (data: RequestRemovedEventType<RequestInstance>): void => {
     emitter.emit(getRemoveKey(), data);
     emitter.emit(getRemoveByIdKey(data.requestId), data);
     emitter.emit(getRemoveByQueueKey(data.request.queueKey), data);
@@ -245,21 +246,21 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
 
   // Remove
   onRemove: <T extends RequestInstance = RequestInstance>(
-    callback: (data: RequestEventType<T>) => void,
+    callback: (data: RequestRemovedEventType<T>) => void,
   ): VoidFunction => {
     emitter.on(getRemoveKey(), callback);
     return () => emitter.removeListener(getRemoveKey(), callback);
   },
   onRemoveByQueue: <T extends RequestInstance = RequestInstance>(
     queueKey: string,
-    callback: (data: RequestEventType<T>) => void,
+    callback: (data: RequestRemovedEventType<T>) => void,
   ): VoidFunction => {
     emitter.on(getRemoveByQueueKey(queueKey), callback);
     return () => emitter.removeListener(getRemoveByQueueKey(queueKey), callback);
   },
   onRemoveById: <T extends RequestInstance = RequestInstance>(
     requestId: string,
-    callback: (data: RequestEventType<T>) => void,
+    callback: (data: RequestRemovedEventType<T>) => void,
   ): VoidFunction => {
     emitter.on(getRemoveByIdKey(requestId), callback);
     return () => emitter.removeListener(getRemoveByIdKey(requestId), callback);

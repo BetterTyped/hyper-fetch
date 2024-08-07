@@ -8,23 +8,23 @@ const baseStyles = {
 
 const styles = {
   blue: {
-    background: "rgb(88 196 220)",
+    background: "#00bcd4",
     color: "#fff",
   },
   green: {
-    background: "rgb(12 198 112)",
+    background: "#4CAF50",
     color: "#fff",
   },
   red: {
-    background: "rgb(255 61 61)",
+    background: "#F44336",
     color: "#fff",
   },
   gray: {
-    background: "rgb(149 163 171)",
+    background: "#607d8b",
     color: "#fff",
   },
   orange: {
-    background: "rgb(230 168 8)",
+    background: "#FF9800",
     color: "#fff",
   },
 };

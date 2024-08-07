@@ -5,7 +5,8 @@ import { createContext } from "utils/context";
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {
   client: null as any as ClientInstance,
-
+  open: false,
+  setOpen: (() => {}) as (open: boolean) => void,
   module: DevtoolsModule.NETWORK,
   setModule: (() => {}) as (module: DevtoolsModule) => void,
   isOnline: true,

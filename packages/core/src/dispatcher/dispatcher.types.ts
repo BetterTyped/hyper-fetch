@@ -16,6 +16,8 @@ export type QueueElementType<Request extends RequestInstance = RequestInstance> 
   retries: number;
   timestamp: number;
   stopped: boolean;
+  /** Resolved when we receive response */
+  resolved: boolean;
 };
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
   queueKey: string;

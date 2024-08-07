@@ -26,12 +26,14 @@ export type RequestEvent<T extends ClientInstance> = RequestEventType<
 
 export type RequestResponse<T extends ClientInstance> = {
   response: ResponseType<any, any, AdapterInstance>;
-  details: ResponseDetailsType;
+  details?: ResponseDetailsType;
 } & RequestEvent<T>;
 
 export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
   RequestResponse<ClientInstance> & {
+    isRemoved: boolean;
     isCanceled: boolean;
     isSuccess: boolean;
     isFinished: boolean;
+    addedTimestamp: number;
   };
