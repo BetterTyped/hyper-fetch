@@ -26,6 +26,10 @@ export const styles = createStyles((theme, css) => {
       font-weight: 500;
       max-width: 200px;
     `,
-    cardFooter: css``,
+    cardFooter: css`
+      font-size: 12px;
+      font-weight: 500;
+      max-width: 200px;
+    `,
   };
 });
