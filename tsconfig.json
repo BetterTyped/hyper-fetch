@@ -29,7 +29,6 @@
     "allowJs": true,
     "strict": true,
     "baseUrl": ".",
-    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },

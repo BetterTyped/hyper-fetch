@@ -1,10 +1,10 @@
 import { IconButton } from "components/icon-button/icon-button";
-import { useNetworkContext } from "pages/network/network.context";
+import { useDevtoolsContext } from "devtools.context";
 
 export const Back = () => {
-  const { setRequestId } = useNetworkContext("DevtoolsNetworkBack");
+  const { setDetailsRequestId } = useDevtoolsContext("DevtoolsNetworkBack");
   return (
-    <IconButton onClick={() => setRequestId(null)}>
+    <IconButton onClick={() => setDetailsRequestId(null)}>
       <svg
         version="1.1"
         id="fi_507257"

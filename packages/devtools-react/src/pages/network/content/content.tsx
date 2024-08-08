@@ -5,22 +5,17 @@ import { useDevtoolsContext } from "devtools.context";
 import { Request } from "./request/request";
 import { Table } from "components/table/table";
 import { NoContent } from "components/no-content/no-content";
-import { useNetworkContext } from "../network.context";
 import { Status } from "utils/request.status.utils";
 
-const thStyle = {
-  fontWeight: 400,
-  fontSize: "14px",
-  padding: "8px 5px",
-};
+import { styles } from "../network.styles";
 
 export const Content = () => {
-  const { requests } = useDevtoolsContext("DevtoolsNetworkContent");
-  const { filter } = useNetworkContext("ToolbarNetwork");
+  const { requests, networkFilter } = useDevtoolsContext("DevtoolsNetworkContent");
+  const css = styles.useStyles();
 
   const items = useMemo(() => {
-    if (!filter) return requests;
-    switch (filter) {
+    if (!networkFilter) return requests;
+    switch (networkFilter) {
       case Status.SUCCESS:
         return requests.filter((item) => item.isSuccess);
       case Status.FAILED:
@@ -34,22 +29,22 @@ export const Content = () => {
       default:
         return requests;
     }
-  }, [requests, filter]);
+  }, [requests, networkFilter]);
 
   return (
     <>
       <Table>
         <thead style={{ opacity: !requests.length ? 0.4 : 1 }}>
-          <tr style={{ textAlign: "left", color: "#60d6f6" }}>
-            <th style={{ ...thStyle, paddingLeft: "10px" }}>Endpoint</th>
-            <th style={{ ...thStyle }}>Status</th>
-            <th style={{ ...thStyle }}>Method</th>
-            <th style={{ ...thStyle }}>Status</th>
-            <th style={{ ...thStyle }}>Added Time</th>
-            <th style={{ ...thStyle, paddingRight: "10px" }}>Response Time</th>
+          <tr>
+            <th className={css.label}>Endpoint</th>
+            <th className={css.label}>Status</th>
+            <th className={css.label}>Method</th>
+            <th className={css.label}>Status</th>
+            <th className={css.label}>Added Time</th>
+            <th className={css.label}>Response Time</th>
           </tr>
         </thead>
-        <tbody style={{ position: "relative" }}>
+        <tbody className={css.tbody}>
           {items.map((item, index) => {
             return <Request key={index} item={item} />;
           })}

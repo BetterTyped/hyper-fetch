@@ -4,14 +4,11 @@ import { DevtoolsRequestEvent } from "devtools.types";
 import { getStatus, getStatusColor, RequestStatusIcon } from "utils/request.status.utils";
 import { useDevtoolsContext } from "devtools.context";
 
-const baseStyle = {
-  fontWeight: 300,
-  fontSize: "14px",
-  padding: "4px 5px",
-};
+import { styles } from "pages/network/network.styles";
 
 export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
   const { setDetailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
+  const css = styles.useStyles();
 
   const status = useMemo(() => {
     return getStatus(item);
@@ -22,22 +19,30 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [status]);
 
   return (
-    <tr onClick={() => setDetailsRequestId(item.requestId)} className="hf-tr-active">
-      <td style={{ ...baseStyle, color, paddingLeft: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+    <tr onClick={() => setDetailsRequestId(item.requestId)} className={css.row}>
+      <td className={css.cell} style={{ color }}>
+        <div className={css.endpointCell}>
           <RequestStatusIcon status={status} />
           <span>{item.request.endpoint}</span>
         </div>
       </td>
-      <td style={{ ...baseStyle, color }}>{status}</td>
-      <td style={{ ...baseStyle, color }}>{String(item.request.method)}</td>
-      <td style={{ ...baseStyle, color }}>{String(item.response?.status || "")}</td>
-      <td style={{ ...baseStyle, color }}>{new Date(item.addedTimestamp).toLocaleTimeString()} </td>
-      <td style={{ ...baseStyle, color, paddingRight: "10px" }}>
+      <td className={css.cell} style={{ color }}>
+        {status}
+      </td>
+      <td className={css.cell} style={{ color }}>
+        {String(item.request.method)}
+      </td>
+      <td className={css.cell} style={{ color }}>
+        {String(item.response?.status || "")}
+      </td>
+      <td className={css.cell} style={{ color }}>
+        {new Date(item.addedTimestamp).toLocaleTimeString()}{" "}
+      </td>
+      <td className={css.cell} style={{ color }}>
         {!!item.details?.timestamp && (
           <div>
             {new Date(item.details.timestamp).toLocaleTimeString()}{" "}
-            <span style={{ color: "#a7a7a7" }}>({item.details.timestamp - item.addedTimestamp}ms)</span>
+            <span className={css.timestamp}>({item.details.timestamp - item.addedTimestamp}ms)</span>
           </div>
         )}
       </td>

@@ -1,22 +1,18 @@
 import { DevtoolsCacheEvent } from "devtools.types";
 import { useDevtoolsContext } from "devtools.context";
 
-const baseStyle = {
-  fontWeight: 300,
-  fontSize: "14px",
-  padding: "4px 5px",
-  color: "#fff",
-};
+import { styles } from "pages/cache/cache.styles";
 
 export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { setDetailsCacheKey } = useDevtoolsContext("DevtoolsNetworkRequest");
+  const css = styles.useStyles();
 
   return (
-    <tr onClick={() => setDetailsCacheKey(item.cacheKey)} className="hf-tr-active">
-      <td style={{ ...baseStyle, paddingLeft: "10px" }}>
+    <tr onClick={() => setDetailsCacheKey(item.cacheKey)} className={css.row}>
+      <td className={css.cell}>
         <span>{item.cacheKey}</span>
       </td>
-      <td style={{ ...baseStyle, paddingRight: "10px" }}>
+      <td className={css.cell}>
         {!!item.data?.timestamp && <div>{new Date(item.data.timestamp).toLocaleTimeString()} </div>}
       </td>
     </tr>
