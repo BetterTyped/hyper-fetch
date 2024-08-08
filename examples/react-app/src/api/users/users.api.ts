@@ -7,6 +7,7 @@ export const getUser = client.createRequest<UserModel>()({
   endpoint: "/api/user/:userId",
   cache: true,
   cacheTime: Time.SEC * 10,
+  cacheKey: "customUserDetailsCacheKey",
 });
 
 export const getUsers = client.createRequest<UserModel[]>()({

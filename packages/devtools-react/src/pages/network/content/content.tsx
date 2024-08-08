@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { useMemo } from "react";
 
 import { useDevtoolsContext } from "devtools.context";
@@ -23,7 +24,7 @@ export const Content = () => {
       case Status.SUCCESS:
         return requests.filter((item) => item.isSuccess);
       case Status.FAILED:
-        return requests.filter((item) => item.isSuccess === false);
+        return requests.filter((item) => item.isFinished && !item.isCanceled && !item.isSuccess);
       case Status.IN_PROGRESS:
         return requests.filter((item) => !item.isFinished);
       case Status.PAUSED:
@@ -44,20 +45,17 @@ export const Content = () => {
             <th style={{ ...thStyle }}>Status</th>
             <th style={{ ...thStyle }}>Method</th>
             <th style={{ ...thStyle }}>Status</th>
-            <th style={{ ...thStyle }}>Request Time</th>
+            <th style={{ ...thStyle }}>Added Time</th>
             <th style={{ ...thStyle, paddingRight: "10px" }}>Response Time</th>
           </tr>
         </thead>
         <tbody style={{ position: "relative" }}>
           {items.map((item, index) => {
-            return (
-              // eslint-disable-next-line no-console
-              <Request item={item} background={index % 2 ? "transparent" : "rgba(0,0,0,0.1)"} />
-            );
+            return <Request key={index} item={item} />;
           })}
         </tbody>
       </Table>
-      {!requests.length && <NoContent style={{ marginTop: "40px" }} />}
+      {!items.length && <NoContent style={{ marginTop: "40px" }} text="Make some request to see them here!" />}
     </>
   );
 };

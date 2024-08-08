@@ -1,9 +1,21 @@
-import { AdapterInstance, CacheValueType, ClientInstance, LogType, QueueDataType } from "@hyper-fetch/core";
+import { ClientInstance, LogType, QueueDataType } from "@hyper-fetch/core";
+import clsx from "clsx";
+import { css } from "goober";
 
-import { DevtoolsModule, DevtoolsRequestEvent, RequestEvent, RequestResponse } from "devtools.types";
+import {
+  DevtoolsCacheEvent,
+  DevtoolsModule,
+  DevtoolsRequestEvent,
+  RequestEvent,
+  RequestResponse,
+} from "devtools.types";
 import { createContext } from "utils/context";
+import { Status } from "utils/request.status.utils";
+
+export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...params));
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {
+  css: cssWrapper,
   client: null as any as ClientInstance,
   open: false,
   setOpen: (() => {}) as (open: boolean) => void,
@@ -19,6 +31,19 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   requests: [] as Array<DevtoolsRequestEvent>,
   fetchQueues: [] as QueueDataType[],
   submitQueues: [] as QueueDataType[],
-  cache: [] as CacheValueType<unknown, unknown, AdapterInstance>[],
+  cache: [] as DevtoolsCacheEvent[],
   logs: [] as LogType[],
+  // Network
+  detailsRequestId: null as string | null,
+  setDetailsRequestId: (() => {}) as (requestId: string | null) => void,
+  networkFilter: null as string | null,
+  setNetworkFilter: (() => {}) as (filter: Status | null) => void,
+  // Cache
+  detailsCacheKey: null as string | null,
+  setDetailsCacheKey: (() => {}) as (cacheKey: string | null) => void,
+  // Logs
+  // ...
+  // Processing
+  detailsQueue: null as QueueDataType | null,
+  setDetailsQueue: (() => {}) as (queue: QueueDataType | null) => void,
 });

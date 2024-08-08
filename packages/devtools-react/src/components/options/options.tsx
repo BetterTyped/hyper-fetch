@@ -1,20 +1,12 @@
 import { IconButton } from "components/icon-button/icon-button";
+import { Toolbar } from "components/toolbar/toolbar";
 import { useDevtoolsContext } from "devtools.context";
 
 export const Options = ({ children }: { children: React.ReactNode }) => {
   const { isOnline, setIsOnline } = useDevtoolsContext("DevtoolsOptions");
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-
-        borderBottom: "1px solid #3d424a",
-        padding: "0px 10px",
-      }}
-    >
+    <Toolbar>
       <div
         style={{
           display: "flex",
@@ -109,6 +101,6 @@ C292.359,239.441,285.221,256.669,270.946,270.939z"
           </svg>
         </IconButton>
       </div>
-    </div>
+    </Toolbar>
   );
 };

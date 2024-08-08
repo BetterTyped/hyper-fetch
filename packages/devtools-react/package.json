@@ -36,6 +36,10 @@
     }
   },
   "devDependencies": {
+    "clsx": "2.1.1",
+    "goober": "2.1.14",
+    "match-sorter": "6.3.4",
+    "re-resizable": "6.9.17",
     "react": ">= 16.8.0"
   },
   "lint-staged": {

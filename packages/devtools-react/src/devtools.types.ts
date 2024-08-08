@@ -1,5 +1,6 @@
 import {
   AdapterInstance,
+  CacheValueType,
   ClientInstance,
   ExtendRequest,
   RequestEventType,
@@ -38,3 +39,8 @@ export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
     isPaused: boolean;
     addedTimestamp: number;
   };
+
+export type DevtoolsCacheEvent = {
+  cacheKey: string;
+  data: CacheValueType<unknown, unknown, any>;
+};

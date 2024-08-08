@@ -12,11 +12,11 @@ const styles = {
     color: "#fff",
   },
   secondary: {
-    background: "#009688",
+    background: "#607d8b",
     color: "#fff",
   },
   tertiary: {
-    background: "#607d8b",
+    background: "#009688",
     color: "#fff",
   },
   quaternary: {

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
 import { DevtoolsRequestEvent } from "devtools.types";
-import { useNetworkContext } from "pages/network/network.context";
 import { getStatus, getStatusColor, RequestStatusIcon } from "utils/request.status.utils";
+import { useDevtoolsContext } from "devtools.context";
 
 const baseStyle = {
   fontWeight: 300,
@@ -10,8 +10,8 @@ const baseStyle = {
   padding: "4px 5px",
 };
 
-export const Request = ({ item, background }: { item: DevtoolsRequestEvent; background: string }) => {
-  const { setRequestId } = useNetworkContext("DevtoolsNetworkRequest");
+export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
+  const { setDetailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
 
   const status = useMemo(() => {
     return getStatus(item);
@@ -22,7 +22,7 @@ export const Request = ({ item, background }: { item: DevtoolsRequestEvent; back
   }, [status]);
 
   return (
-    <tr onClick={() => setRequestId(item.requestId)} style={{ background, cursor: "pointer" }}>
+    <tr onClick={() => setDetailsRequestId(item.requestId)} className="hf-tr-active">
       <td style={{ ...baseStyle, color, paddingLeft: "10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <RequestStatusIcon status={status} />

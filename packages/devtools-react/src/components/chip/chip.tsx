@@ -8,28 +8,34 @@ const baseStyles = {
 
 const styles = {
   blue: {
-    background: "#00bcd4",
-    color: "#fff",
+    color: "#00bbd4",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
   green: {
-    background: "#4CAF50",
-    color: "#fff",
+    color: "#4CAF50",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
   red: {
-    background: "#F44336",
-    color: "#fff",
+    color: "#F44336",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
   gray: {
-    background: "#607d8b",
-    color: "#fff",
+    color: "#607d8b",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
   orange: {
-    background: "#FF9800",
-    color: "#fff",
+    color: "#FF9800",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
   inactive: {
-    background: "#475055",
-    color: "#838181",
+    color: "#475055",
+    background: "transparent",
+    border: "1px solid rgb(61, 66, 74)",
   },
 };
 

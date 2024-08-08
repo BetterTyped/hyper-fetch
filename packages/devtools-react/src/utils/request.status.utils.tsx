@@ -1,12 +1,12 @@
 import { DevtoolsRequestEvent } from "devtools.types";
 
 export enum Status {
-  REMOVED = "removed",
-  CANCELED = "canceled",
-  SUCCESS = "success",
-  FAILED = "failed",
-  IN_PROGRESS = "in progress",
-  PAUSED = "paused",
+  REMOVED = "Removed",
+  CANCELED = "Canceled",
+  SUCCESS = "Success",
+  FAILED = "Failed",
+  IN_PROGRESS = "In progress",
+  PAUSED = "Paused",
 }
 
 export const getStatus = (
@@ -32,6 +32,8 @@ export const getStatusColor = (status: Status) => {
       return "#efb851";
     case Status.FAILED:
       return "#ed7281";
+    case Status.IN_PROGRESS:
+      return "#9e9e9e";
     default:
       return "#fff";
   }

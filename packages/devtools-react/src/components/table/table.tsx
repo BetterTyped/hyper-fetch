@@ -1,6 +1,5 @@
 const baseStyle = {
   width: "100%",
-  flex: "1 1 auto",
   borderSpacing: "0",
 };
 

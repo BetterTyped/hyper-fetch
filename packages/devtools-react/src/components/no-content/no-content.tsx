@@ -1,8 +1,8 @@
-export const NoContent = (props: React.HTMLProps<HTMLDivElement>) => {
-  const { style } = props;
+export const NoContent = (props: React.HTMLProps<HTMLDivElement> & { text: string }) => {
+  const { style, text, ...divProps } = props;
   return (
     <div
-      {...props}
+      {...divProps}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -11,12 +11,20 @@ export const NoContent = (props: React.HTMLProps<HTMLDivElement>) => {
         alignItems: "center",
         color: "#e2e2e2",
         flex: "1 1 auto",
+        top: "50%",
         left: "50%",
-        transform: "translate(-50%, 0)",
+        transform: "translate(-50%, -50%)",
         ...style,
       }}
     >
-      <svg id="fi_14005478" viewBox="0 0 3000 3000" xmlns="http://www.w3.org/2000/svg" width="40%" height="40%">
+      <svg
+        id="fi_14005478"
+        viewBox="0 0 3000 3000"
+        xmlns="http://www.w3.org/2000/svg"
+        width="40%"
+        height="40%"
+        style={{ opacity: "0.4" }}
+      >
         <g>
           <path
             d="m2567.58 2515.03c62.16-85.68 107.28-185.8 129.37-296.4 81.99-410.55-184.36-809.83-594.9-891.82-410.55-81.99-809.83 184.36-891.82 594.9-22.09 110.6-18.88 220.37 5.6 323.35l1351.75 269.96z"
@@ -76,7 +84,7 @@ export const NoContent = (props: React.HTMLProps<HTMLDivElement>) => {
           <path d="m2553.62 2454.95c-.18 0-.36 0-.55-.03-1.39-.15-140.89-15.91-294.7-84.19-44.35-19.69-109.09-51.35-165.65-90.35-34.02-23.46-48.79-38.31-49.4-38.93-1.94-1.97-1.92-5.13.05-7.07s5.13-1.92 7.07.05c.58.59 60.02 59.7 211.99 127.17 152.32 67.62 290.35 83.24 291.72 83.39 2.74.3 4.73 2.77 4.43 5.51-.28 2.56-2.45 4.46-4.96 4.46z" />
         </g>
       </svg>
-      <div style={{ fontSize: "14px", fontWeight: 300 }}>Make some requests to see it here!</div>
+      <div style={{ fontSize: "14px", fontWeight: 300 }}>{text}</div>
     </div>
   );
 };

@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import {
-  CacheValueType,
-  ClientInstance,
-  ExtractClientAdapterType,
-  LogType,
-  LoggerManager,
-  QueueDataType,
-} from "@hyper-fetch/core";
+import { ClientInstance, LogType, LoggerManager, QueueDataType } from "@hyper-fetch/core";
+import { Resizable } from "re-resizable";
+import { css } from "goober";
 
 import { Header } from "./components/header/header";
 import { Cache } from "./pages/cache/cache";
@@ -14,8 +9,15 @@ import { Logs } from "./pages/logs/logs";
 import { Network } from "./pages/network/network";
 import { Processing } from "./pages/processing/processing";
 import { DevtoolsProvider } from "devtools.context";
-import { DevtoolsModule, DevtoolsRequestEvent, RequestEvent, RequestResponse } from "devtools.types";
+import {
+  DevtoolsCacheEvent,
+  DevtoolsModule,
+  DevtoolsRequestEvent,
+  RequestEvent,
+  RequestResponse,
+} from "devtools.types";
 import { IconButton } from "components/icon-button/icon-button";
+import { Status } from "utils/request.status.utils";
 
 const modules = {
   Network,
@@ -50,8 +52,18 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   const [canceled, setCanceled] = useState<RequestEvent<T>[]>([]);
   const [fetchQueues, setFetchQueues] = useState<QueueDataType[]>([]);
   const [submitQueues, setSubmitQueues] = useState<QueueDataType[]>([]);
-  const [cache, setCache] = useState<CacheValueType<unknown, unknown, ExtractClientAdapterType<T>>[]>([]);
+  const [cache, setCache] = useState<DevtoolsCacheEvent[]>([]);
   const [logs, setLogs] = useState<LogType[]>([]);
+
+  // Network
+  const [detailsRequestId, setDetailsRequestId] = useState<string | null>(null);
+  const [networkFilter, setNetworkFilter] = useState<Status | null>(null);
+  // Cache
+  const [detailsCacheKey, setDetailsCacheKey] = useState<string | null>(null);
+  // Logs
+  // ....
+  // Processing
+  const [detailsQueue, setDetailsQueue] = useState<QueueDataType | null>(null);
 
   const countProgressRequests = useCallback(() => {
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
@@ -107,9 +119,13 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     const cacheItems = requests
       .map((item) => {
         const key = item.request.cacheKey;
-        return client.cache.get(key);
+        const data = client.cache.get(key);
+        return {
+          cacheKey: item.request.cacheKey,
+          data,
+        };
       })
-      .filter(Boolean) as CacheValueType<unknown, unknown, ExtractClientAdapterType<T>>[];
+      .filter(({ data }) => !!data) as DevtoolsCacheEvent[];
 
     setCache(cacheItems);
   }, [client.cache, requests]);
@@ -126,7 +142,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests(
         (prev) =>
-          [...prev, { ...details, addedTimestamp: new Date() }] as (RequestEvent<T> & { addedTimestamp: number })[],
+          [{ ...details, addedTimestamp: new Date() }, ...prev] as (RequestEvent<T> & { addedTimestamp: number })[],
       );
       countProgressRequests();
     });
@@ -135,7 +151,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
 
       if (response.success) {
         setSuccess((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
-      } else {
+      } else if (!details.isCanceled) {
         setFailed((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
       }
     });
@@ -220,6 +236,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
 
   return (
     <DevtoolsProvider
+      css={css}
       open={open}
       setOpen={setOpen}
       module={module}
@@ -237,17 +254,30 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       submitQueues={submitQueues}
       cache={cache}
       logs={logs}
+      detailsRequestId={detailsRequestId}
+      setDetailsRequestId={setDetailsRequestId}
+      networkFilter={networkFilter}
+      setNetworkFilter={setNetworkFilter}
+      detailsCacheKey={detailsCacheKey}
+      setDetailsCacheKey={setDetailsCacheKey}
+      detailsQueue={detailsQueue}
+      setDetailsQueue={setDetailsQueue}
     >
       {open && (
-        <div
+        <Resizable
+          defaultSize={{ width: "100%", height: 400 }}
+          minHeight={44}
+          minWidth={44}
+          maxHeight="100vh"
+          maxWidth="100vw"
           style={{
             display: "flex",
             flexDirection: "column",
             position: "fixed",
+            zIndex: 9999,
             left: 0,
             right: 0,
             bottom: 0,
-            height: "300px",
             overflowY: "hidden",
             background: "rgb(35 39 46)",
             border: "1px solid #7e8186",
@@ -258,8 +288,18 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
           }}
         >
           <Header />
-          <Component />
-        </div>
+          <div
+            style={{
+              flex: "1 1 auto",
+              position: "relative",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Component />
+          </div>
+        </Resizable>
       )}
       {!open && (
         <IconButton

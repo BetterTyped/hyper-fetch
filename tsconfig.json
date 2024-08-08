@@ -11,9 +11,10 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "es6",
-    "moduleResolution": "nodenext",
-    "module": "nodenext",
-    "lib": ["es2017", "dom", "dom.iterable"],
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "ESNext"],
+    "jsx": "preserve",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
@@ -27,7 +28,10 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "strict": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "exclude": [
     "node_modules",

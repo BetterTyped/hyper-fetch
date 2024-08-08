@@ -1,12 +1,10 @@
+import { Options } from "components/options/options";
+import { Search } from "components/search/search";
+
 export const Toolbar = () => {
   return (
-    <div>
-      <input placeholder="Search" />
-      <button>All</button>
-      <button>Info</button>
-      <button>Warnings</button>
-      <button>Errors</button>
-      <button>Verbose</button>
-    </div>
+    <Options>
+      <Search placeholder="Search" />
+    </Options>
   );
 };
