@@ -45,7 +45,7 @@ export const styles = createStyles((theme, css) => {
       align-items: center;
       justify-content: space-between;
       padding: 0px 10px;
-      gap: "5px";
+      gap: 5px;
     `,
     spacer: css`
       flex: 1 1 auto;

@@ -22,9 +22,9 @@ export const styles = createStyles((theme, css) => {
       margin-bottom: 5px;
     `,
     cardContent: css`
-      font-size: "12px";
+      font-size: 12px;
       font-weight: 500;
-      max-width: "200px";
+      max-width: 200px;
     `,
     cardFooter: css``,
   };
