@@ -116,23 +116,20 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
   const handleCacheChange = useCallback(() => {
-    // TODO: fix events listener triggering order or something else
-    setTimeout(() => {
-      // TODO: just take the cache without iterating etc.
-      const cacheKeys = [...new Set(requests.map((item) => item.request.cacheKey))];
-      const cacheItems = cacheKeys
-        .map((key) => {
-          const data = client.cache.get(key);
-          return {
-            cacheKey: key,
-            data,
-          };
-        })
-        .filter(({ data }) => !!data) as DevtoolsCacheEvent[];
+    const cacheKeys = [...client.cache.storage.keys()];
 
-      setCache(cacheItems);
-    }, 0);
-  }, [client.cache, requests]);
+    const cacheItems = cacheKeys
+      .map((key) => {
+        const data = client.cache.get(key);
+        return {
+          cacheKey: key,
+          data,
+        };
+      })
+      .filter(({ data }) => !!data) as DevtoolsCacheEvent[];
+
+    setCache(cacheItems);
+  }, [client.cache]);
 
   const handleSetOnline = useCallback(
     (value: boolean) => {
