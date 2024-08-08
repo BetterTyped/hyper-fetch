@@ -21,12 +21,31 @@ export const styles = createStyles((theme, css) => {
       gap: 15px;
       margin-bottom: 5px;
     `,
+    title: css`
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      & svg {
+        width: 22px;
+        height: 22px;
+      }
+      & path {
+        stroke: gray;
+      }
+    `,
     cardContent: css`
       font-size: 12px;
       font-weight: 500;
-      max-width: 200px;
+    `,
+    value: css`
+      font-size: 28px;
+      font-weight: 700;
+      margin-right: 5px;
     `,
     cardFooter: css`
+      margin-top: 10px;
       font-size: 12px;
       font-weight: 500;
       max-width: 200px;
