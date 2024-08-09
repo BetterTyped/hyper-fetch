@@ -17,7 +17,7 @@ export const Content = () => {
           <tr>
             <th className={css.label}>Cache Key</th>
             {/* <th style={{ ...thStyle }}>>...</th> */}
-            <th className={css.label}>Timestamp</th>
+            <th className={css.label}>Last updated</th>
           </tr>
         </thead>
         <tbody className={css.tbody}>

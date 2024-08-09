@@ -1,11 +1,6 @@
 export const tokens = {
   colors: {
-    inherit: "inherit",
-    current: "currentColor",
-    transparent: "transparent",
-    black: "#000000",
-    white: "#ffffff",
-    neutral: {
+    light: {
       50: "#f9fafb",
       100: "#f2f4f7",
       200: "#eaecf0",
@@ -17,7 +12,7 @@ export const tokens = {
       800: "#1d2939",
       900: "#101828",
     },
-    darkGray: {
+    dark: {
       50: "#525c7a",
       100: "#49536e",
       200: "#414962",

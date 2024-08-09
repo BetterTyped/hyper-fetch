@@ -16,8 +16,8 @@ import {
   RequestEvent,
   RequestResponse,
 } from "devtools.types";
-import { IconButton } from "components/icon-button/icon-button";
 import { Status } from "utils/request.status.utils";
+import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
 
 const modules = {
   Network,
@@ -302,49 +302,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
           </div>
         </Resizable>
       )}
-      {!open && (
-        <IconButton
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            background: "rgb(35 39 46)",
-            color: "white",
-            width: "40px",
-            height: "40px",
-            padding: "10px",
-          }}
-          onClick={() => setOpen(true)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="100%"
-            zoomAndPan="magnify"
-            viewBox="0 0 224.87999 299.999988"
-            height="100%"
-            preserveAspectRatio="xMidYMid meet"
-            version="1.0"
-            style={{ padding: "2px 0 0 2px" }}
-          >
-            <defs>
-              <clipPath id="58708a0c3a">
-                <path
-                  d="M 28.484375 0.078125 L 202.390625 0.078125 L 202.390625 299.917969 L 28.484375 299.917969 Z M 28.484375 0.078125 "
-                  clipRule="nonzero"
-                />
-              </clipPath>
-            </defs>
-            <g clipPath="url(#58708a0c3a)">
-              <path
-                fill="#fbc646"
-                d="M 80.019531 0.0859375 L 191.648438 0.0859375 L 144.414062 88.105469 L 202.378906 88.105469 L 62.128906 299.910156 L 99.335938 143.910156 L 28.496094 143.910156 L 80.019531 0.0859375 "
-                fillOpacity="1"
-                fillRule="nonzero"
-              />
-            </g>
-          </svg>
-        </IconButton>
-      )}
+      {!open && <DevtoolsToggle onClick={() => setOpen(true)} />}
     </DevtoolsProvider>
   );
 };

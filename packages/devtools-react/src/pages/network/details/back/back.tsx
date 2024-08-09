@@ -6,7 +6,7 @@ export const Back = () => {
   const { setDetailsRequestId } = useDevtoolsContext("DevtoolsNetworkBack");
   return (
     <IconButton onClick={() => setDetailsRequestId(null)}>
-      <BackIcon />
+      <BackIcon fill="rgb(135, 139, 145)" />
     </IconButton>
   );
 };

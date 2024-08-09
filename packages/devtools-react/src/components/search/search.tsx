@@ -7,6 +7,7 @@ const styles = createStyles((theme, css) => {
       display: flex;
       gap: 2px;
       position: relative;
+      align-items: center;
     `,
     input: css`
       background-color: transparent;
@@ -17,11 +18,13 @@ const styles = createStyles((theme, css) => {
       min-width: 80px;
       border-radius: 4px;
       border: 1px solid rgb(77, 78, 79);
+      height: 24px;
     `,
     icon: css`
       position: absolute;
       pointer-events: none;
       margin-left: 5px;
+      fill: #fff;
     `,
   };
 });
@@ -32,7 +35,7 @@ export const Search = ({
   const css = styles.useStyles();
   return (
     <div className={css.wrapper}>
-      <SearchIcon height="100%" width="14px" className={css.icon} />
+      <SearchIcon height="14px" width="14px" className={css.icon} />
       <input type="text" {...props} className={styles.clsx(css.input, props.className)} />
     </div>
   );

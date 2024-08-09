@@ -12,6 +12,8 @@ import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
 
+import { styles } from "../network.styles";
+
 const nameStyle = {
   display: "flex",
   alignItems: "center",
@@ -33,6 +35,8 @@ const tryStringify = (value: any) => {
 };
 
 export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
+  const css = styles.useStyles();
+
   const status = useMemo(() => {
     return getStatus(item);
   }, [item]);
@@ -48,16 +52,7 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
       maxWidth="90%"
       minWidth="200px"
       boundsByDirection
-      style={{
-        position: "absolute",
-        top: "29px",
-        right: "0px",
-        bottom: "0px",
-        background: "rgb(32 34 42)",
-        borderLeft: "1px solid rgb(61, 66, 74)",
-        overflowY: "auto",
-        minHeight: "100%",
-      }}
+      className={css.details}
     >
       <Toolbar>
         <Back />
@@ -75,69 +70,69 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
           <Button color="error">Remove</Button>
         </div>
       </Toolbar>
-      <div style={{ padding: "10px" }}>
-        <Table>
-          <RowInfo label="Request URL:" value={`${item.request.client.url}${item.request.endpoint}`} />
-          <RowInfo label="Request Method:" value={String(item.request.method)} />
-          <RowInfo label="Status Code:" value={item.response?.status ? String(item.response.status) : status} />
-        </Table>
-        {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
-        {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
-          <Chip color="orange">Mocked</Chip>
+      <div className={css.detailsContent}>
+        <div style={{ padding: "10px" }}>
+          <Table>
+            <RowInfo label="Request URL:" value={`${item.request.client.url}${item.request.endpoint}`} />
+            <RowInfo label="Request Method:" value={String(item.request.method)} />
+            <RowInfo label="Status Code:" value={item.response?.status ? String(item.response.status) : status} />
+          </Table>
+          {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
+          {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
+            <Chip color="orange">Mocked</Chip>
+          )}
+        </div>
+        <Collapsible title="Request config">
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <RowInfo label="Deduplicate:" value={String(item.request.deduplicate)} />
+              <RowInfo label="Deduplicate Time:" value={String(item.request.deduplicateTime)} />
+              <RowInfo label="Cancelable:" value={String(item.request.cancelable)} />
+              <RowInfo label="Retry:" value={String(item.request.retry)} />
+              <RowInfo label="Retry Time:" value={String(item.request.retryTime)} />
+              <RowInfo label="Garbage Collection:" value={String(item.request.garbageCollection)} />
+              <RowInfo label="Cache:" value={String(item.request.cache)} />
+              <RowInfo label="Cache Time:" value={String(item.request.cacheTime)} />
+              <RowInfo label="Queued:" value={String(item.request.queued)} />
+              <RowInfo label="Offline:" value={String(item.request.offline)} />
+              <RowInfo label="Used:" value={String(item.request.used)} />
+              <RowInfo label="Cache Key:" value={item.request.cacheKey} />
+              <RowInfo label="Queue Key:" value={item.request.queueKey} />
+              <RowInfo label="Abort Key:" value={item.request.abortKey} />
+              <RowInfo label="Effect Key:" value={item.request.effectKey} />
+            </Table>
+          </div>
+        </Collapsible>
+        <Collapsible title="Payload">
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <RowInfo label="Params:" value={tryStringify(item.request.params)} />
+              <RowInfo label="Data:" value={tryStringify(item.request.data)} />
+              <RowInfo label="Query Params:" value={tryStringify(item.request.queryParams)} />
+              <RowInfo label="Headers:" value={tryStringify(item.request.headers)} />
+            </Table>
+          </div>
+        </Collapsible>
+        {item.response?.extra && (
+          <Collapsible title="Response extra">
+            <div style={{ padding: "10px" }}>
+              <Table>
+                {Object.entries(item.response.extra).map(([key, value]) => (
+                  <RowInfo key={key} label={key} value={tryStringify(value)} />
+                ))}
+              </Table>
+            </div>
+          </Collapsible>
         )}
+        <Collapsible title="Response" initiallyExpanded>
+          <div style={{ padding: "10px" }}>
+            <h5>Response</h5>
+            {tryStringify(item.response.data)}
+            <h5>Error</h5>
+            {tryStringify(item.response.error)}
+          </div>
+        </Collapsible>
       </div>
-      <Collapsible title="Request config">
-        <div style={{ padding: "10px" }}>
-          <Table>
-            <RowInfo label="Deduplicate:" value={String(item.request.deduplicate)} />
-            <RowInfo label="Deduplicate Time:" value={String(item.request.deduplicateTime)} />
-            <RowInfo label="Cancelable:" value={String(item.request.cancelable)} />
-            <RowInfo label="Retry:" value={String(item.request.retry)} />
-            <RowInfo label="Retry Time:" value={String(item.request.retryTime)} />
-            <RowInfo label="Garbage Collection:" value={String(item.request.garbageCollection)} />
-            <RowInfo label="Cache:" value={String(item.request.cache)} />
-            <RowInfo label="Cache Time:" value={String(item.request.cacheTime)} />
-            <RowInfo label="Queued:" value={String(item.request.queued)} />
-            <RowInfo label="Offline:" value={String(item.request.offline)} />
-            <RowInfo label="Used:" value={String(item.request.used)} />
-            <RowInfo label="Cache Key:" value={item.request.cacheKey} />
-            <RowInfo label="Queue Key:" value={item.request.queueKey} />
-            <RowInfo label="Abort Key:" value={item.request.abortKey} />
-            <RowInfo label="Effect Key:" value={item.request.effectKey} />
-          </Table>
-        </div>
-      </Collapsible>
-      <Collapsible title="Payload">
-        <div style={{ padding: "10px" }}>
-          <Table>
-            <RowInfo label="Params:" value={tryStringify(item.request.params)} />
-            <RowInfo label="Data:" value={tryStringify(item.request.data)} />
-            <RowInfo label="Query Params:" value={tryStringify(item.request.queryParams)} />
-          </Table>
-        </div>
-      </Collapsible>
-      {item.request.headers && (
-        <Collapsible title="Request headers">
-          <div style={{ padding: "10px" }}>
-            <Table>
-              {Object.entries(item.request.headers).map(([key, value]) => (
-                <RowInfo key={key} label={key} value={value} />
-              ))}
-            </Table>
-          </div>
-        </Collapsible>
-      )}
-      {item.response?.extra && (
-        <Collapsible title="Response extra" initiallyExpanded>
-          <div style={{ padding: "10px" }}>
-            <Table>
-              {Object.entries(item.response.extra).map(([key, value]) => (
-                <RowInfo key={key} label={key} value={tryStringify(value)} />
-              ))}
-            </Table>
-          </div>
-        </Collapsible>
-      )}
     </Resizable>
   );
 };

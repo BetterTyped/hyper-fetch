@@ -9,8 +9,8 @@ const styles = createStyles((theme, css) => {
       justify-content: space-between;
       gap: 5px;
       border-bottom: 1px solid #3d424a;
-      padding: 0px 10px;
       background: rgba(0, 0, 0, 0.1);
+      padding: 5px 10px;
     `,
   };
 });

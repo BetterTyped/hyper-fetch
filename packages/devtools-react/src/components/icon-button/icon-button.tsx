@@ -28,12 +28,13 @@ const styles = createStyles((theme, css) => {
 
 export const IconButton = ({
   children,
+  className,
   ...props
 }: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) => {
   const css = styles.useStyles();
 
   return (
-    <button type="button" {...props} className={css.base}>
+    <button type="button" {...props} className={styles.clsx(css.base, className)}>
       {children}
     </button>
   );

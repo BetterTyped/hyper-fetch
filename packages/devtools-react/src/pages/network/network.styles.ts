@@ -50,5 +50,19 @@ export const styles = createStyles((theme, css) => {
     spacer: css`
       flex: 1 1 auto;
     `,
+    details: css`
+      position: absolute !important;
+      display: flex;
+      flex-direction: column;
+      top: 40px;
+      right: 0px;
+      bottom: 0px;
+      background: rgb(32 34 42);
+      border-left: 1px solid rgb(61, 66, 74);
+    `,
+    detailsContent: css`
+      overflow-y: auto;
+      height: calc(100% - 80px);
+    `,
   };
 });
