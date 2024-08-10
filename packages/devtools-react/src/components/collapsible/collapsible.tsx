@@ -30,16 +30,16 @@ const styles = createStyles((theme, css) => {
 export const Collapsible = ({
   title,
   children,
-  initiallyExpanded = false,
+  defaultOpen = false,
 }: {
   title: React.ReactNode;
   children: React.ReactNode;
-  initiallyExpanded?: boolean;
+  defaultOpen?: boolean;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const css = styles.useStyles();
 
-  const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
+  const [isExpanded, setIsExpanded] = useState(defaultOpen);
 
   const [height, setHeight] = useState<number>(0);
 

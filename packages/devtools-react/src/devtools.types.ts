@@ -42,5 +42,5 @@ export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
 
 export type DevtoolsCacheEvent = {
   cacheKey: string;
-  data: CacheValueType<unknown, unknown, any>;
+  cacheData: CacheValueType<unknown, unknown, any>;
 };

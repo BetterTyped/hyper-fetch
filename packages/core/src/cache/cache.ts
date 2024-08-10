@@ -1,6 +1,6 @@
 import EventEmitter from "events";
 
-import { AdapterInstance, ExtractAdapterMethodType, ResponseType } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
 import {
@@ -91,25 +91,23 @@ export class Cache<C extends ClientInstance> {
       garbageCollection,
     };
 
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
-      cacheKey,
-      newCacheData,
-    );
-    this.logger.debug("Emitting cache response", { request, data });
-
-    // If request should not use cache - just emit response data
-    if (!cache) {
-      return this.logger.debug("Prevented saving response to cache", { request, data });
-    }
-
     // Only success data is valid for the cache store
-    if (processedResponse.success) {
+    if (processedResponse.success && cache) {
       this.logger.debug("Saving response to cache storage", { request, data });
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
       this.scheduleGarbageCollector(cacheKey);
+    } else {
+      // If request should not use cache - just emit response data
+      this.logger.debug("Prevented saving response to cache", { request, data });
     }
+
+    this.logger.debug("Emitting cache response", { request, data });
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+      cacheKey,
+      newCacheData,
+    );
   };
 
   /**

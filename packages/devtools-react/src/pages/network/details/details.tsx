@@ -73,17 +73,21 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
         </div>
       </Toolbar>
       <div className={css.detailsContent}>
-        <div style={{ padding: "10px" }}>
-          <Table>
-            <RowInfo label="Request URL:" value={`${item.request.client.url}${item.request.endpoint}`} />
-            <RowInfo label="Request Method:" value={String(item.request.method)} />
-            <RowInfo label="Status Code:" value={item.response?.status ? String(item.response.status) : status} />
-          </Table>
-          {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
-          {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
-            <Chip color="orange">Mocked</Chip>
-          )}
-        </div>
+        <Collapsible title="General" defaultOpen>
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <tbody>
+                <RowInfo label="Request URL:" value={`${item.request.client.url}${item.request.endpoint}`} />
+                <RowInfo label="Request Method:" value={String(item.request.method)} />
+                <RowInfo label="Status Code:" value={item.response?.status ? String(item.response.status) : status} />
+              </tbody>
+            </Table>
+            {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
+            {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
+              <Chip color="orange">Mocked</Chip>
+            )}
+          </div>
+        </Collapsible>
         <Collapsible title="Request">
           <div style={{ padding: "10px" }}>
             <JSONViewer data={config} sortObjectKeys />
@@ -101,7 +105,7 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
             />
           </div>
         </Collapsible>
-        <Collapsible title="Response" initiallyExpanded>
+        <Collapsible title="Response" defaultOpen>
           <div style={{ padding: "10px" }}>
             <JSONViewer data={item.response} />
           </div>
@@ -110,31 +114,3 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
     </Resizable>
   );
 };
-
-// endpoint: Endpoint;
-// headers?: HeadersInit;
-// auth: boolean;
-// method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
-// params: ExtractRouteParams<Endpoint> | NegativeTypes;
-// data: PayloadType<Payload>;
-// queryParams: QueryParams | NegativeTypes;
-// options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
-// cancelable: boolean;
-// retry: number;
-// retryTime: number;
-// garbageCollection: number;
-// cache: boolean;
-// cacheTime: number;
-// queued: boolean;
-// offline: boolean;
-// abortKey: string;
-// cacheKey: string;
-// queueKey: string;
-// effectKey: string;
-// used: boolean;
-// deduplicate: boolean;
-// deduplicateTime: number;
-// dataMapper?: PayloadMapperType<Payload>;
-// mock?: Generator<GeneratorReturnMockTypes<Response, any>, GeneratorReturnMockTypes<Response, any>, GeneratorReturnMockTypes<Response, any>>;
-// mockData?: RequestDataMockTypes<Response, any>;
-// isMockEnabled: boolean;

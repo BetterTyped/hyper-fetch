@@ -3,7 +3,6 @@ import { CommonExternalProps, JSONTree } from "react-json-tree";
 import type { Theme } from "react-base16-styling";
 
 import { Value } from "./value/value";
-import { useDevtoolsContext } from "devtools.context";
 import { Label } from "./label/label";
 import { getRaw, updateValue } from "./json-viewer.utils";
 
@@ -40,26 +39,22 @@ const theme: Theme = {
 
 export const JSONViewer = ({
   data,
-  cacheKey,
   shouldExpandNodeInitially = () => true,
   hideRoot = true,
+  onChange,
   ...props
 }: {
   data: any;
-  cacheKey?: string;
+  onChange?: (value: any) => void;
 } & Partial<Omit<CommonExternalProps, "data" | "theme" | "valueRenderer">>) => {
-  const { client } = useDevtoolsContext("DevtoolsJSONViewer");
   const css = styles.useStyles();
 
-  const onChange = (path: (number | string)[]) => (value: any) => {
-    if (cacheKey) {
-      const newData = updateValue(data, path, value);
-
-      client.cache.storage.set<any, any, any>(cacheKey, newData);
-      client.cache.lazyStorage?.set<any, any, any>(cacheKey, newData);
-      client.cache.events.emitCacheData<any, any, any>(cacheKey, newData);
+  const handleOnChange = (path: (number | string)[]) => (value: any) => {
+    if (onChange) {
+      const newData = updateValue(data, path.reverse(), value);
+      onChange(newData);
     } else {
-      console.error("Cache key is not provided");
+      console.error("onChange is not provided");
     }
   };
 
@@ -87,7 +82,7 @@ export const JSONViewer = ({
         data={data}
         theme={theme}
         valueRenderer={(value, raw, ...path: (string | number)[]) => (
-          <Value value={value} raw={raw} onChange={onChange(path)} disabled={!cacheKey} />
+          <Value value={value} raw={raw} onChange={handleOnChange(path)} disabled={!onChange} />
         )}
         // eslint-disable-next-line @typescript-eslint/no-unused-vars, max-params
         labelRenderer={(path, _nodeType, _expanded, expandable) => (

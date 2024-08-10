@@ -13,7 +13,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
         <span>{item.cacheKey}</span>
       </td>
       <td className={css.cell}>
-        {!!item.data?.timestamp && <div>{new Date(item.data.timestamp).toLocaleTimeString()} </div>}
+        {!!item.cacheData?.timestamp && <div>{new Date(item.cacheData.timestamp).toLocaleTimeString()} </div>}
       </td>
     </tr>
   );

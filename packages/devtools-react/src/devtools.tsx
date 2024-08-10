@@ -121,12 +121,13 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     const cacheItems = cacheKeys
       .map((key) => {
         const data = client.cache.get(key);
+
         return {
           cacheKey: key,
-          data,
+          cacheData: data,
         };
       })
-      .filter(({ data }) => !!data) as DevtoolsCacheEvent[];
+      .filter(({ cacheData }) => !!cacheData) as DevtoolsCacheEvent[];
 
     setCache(cacheItems);
   }, [client.cache]);
