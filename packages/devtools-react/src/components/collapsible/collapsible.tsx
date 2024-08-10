@@ -51,14 +51,24 @@ export const Collapsible = ({
     }
   };
 
-  const heightValue = height ? `${height}px` : "auto";
-  const currentHeight = isExpanded ? heightValue : 0;
-
   useLayoutEffect(() => {
     if (ref.current?.clientHeight) {
       setHeight(ref.current.clientHeight);
+      try {
+        const resizeObserver = new ResizeObserver(() => {
+          setHeight(ref.current!.clientHeight);
+        });
+        resizeObserver.observe(ref.current);
+        return () => {
+          resizeObserver.disconnect();
+        };
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, []);
+
+  const maxHeight = isExpanded ? height : 0;
 
   return (
     <>
@@ -69,8 +79,9 @@ export const Collapsible = ({
       <div
         style={{
           overflow: "hidden",
-          transition: "height 0.15s ease-out",
-          height: currentHeight,
+          transition: "0.15s ease-out",
+          height: "auto",
+          maxHeight,
         }}
       >
         <div ref={ref}>{children}</div>

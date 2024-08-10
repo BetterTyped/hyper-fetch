@@ -9,6 +9,8 @@ export const getRandomUser = (): UserModel => {
     name,
     email: `${name}@local.local`,
     age: Math.round(Math.random() * 100),
+    admin: false,
+    permissions: ["read", "write", "delete", "update"],
   };
 };
 

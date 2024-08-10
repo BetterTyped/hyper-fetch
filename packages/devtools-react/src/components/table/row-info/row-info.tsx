@@ -6,11 +6,11 @@ const styles = createStyles((theme, css) => {
       display: flex;
       gap: 5px;
       align-items: center;
-      font-size: 14px;
     `,
     label: css`
-      font-weight: 400;
+      font-weight: 300;
       padding: 3px 0;
+      font-size: 14px;
     `,
     value: css`
       flex: 1;
@@ -18,12 +18,14 @@ const styles = createStyles((theme, css) => {
       text-overflow: ellipsis;
       white-space: nowrap;
       padding: 3px 0;
-      font-weight: 300;
+      font-weight: 400;
+      font-size: 14px;
+      color: #fff;
     `,
   };
 });
 
-export const RowInfo = ({ label, value }: { label: string; value: string }) => {
+export const RowInfo = ({ label, value }: { label: string; value: React.ReactNode }) => {
   const css = styles.useStyles();
   return (
     <tr className={css.row}>

@@ -9,8 +9,8 @@ export const styles = createStyles((theme, css) => {
       bottom: 20px;
       right: 20px;
       color: white;
-      width: 50px;
-      height: 50px;
+      width: 50px !important;
+      height: 50px !important;
       padding: 4px;
       box-shadow: ${tokens.shadow.sm(tokens.colors.yellow[500] + tokens.alpha[40])};
       border-radius: 100%;

@@ -3,6 +3,8 @@ export type UserModel = {
   name: string;
   email: string;
   age: number;
+  admin?: boolean;
+  permissions: string[];
 };
 
 export type PostUserModel = {

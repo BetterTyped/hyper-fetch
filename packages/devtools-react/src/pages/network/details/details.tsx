@@ -11,6 +11,7 @@ import { Toolbar } from "components/toolbar/toolbar";
 import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
+import { JSONViewer } from "components/json-viewer/json-viewer";
 
 import { styles } from "../network.styles";
 
@@ -26,16 +27,17 @@ const buttonsStyle = {
   gap: "4px",
 };
 
-const tryStringify = (value: any) => {
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return value;
-  }
-};
-
 export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
   const css = styles.useStyles();
+
+  const config = useMemo(() => {
+    const values = item.request.toJSON();
+    delete values.data;
+    delete values.params;
+    delete values.queryParams;
+    delete values.headers;
+    return values;
+  }, [item.request]);
 
   const status = useMemo(() => {
     return getStatus(item);
@@ -82,54 +84,26 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
             <Chip color="orange">Mocked</Chip>
           )}
         </div>
-        <Collapsible title="Request config">
+        <Collapsible title="Request">
           <div style={{ padding: "10px" }}>
-            <Table>
-              <RowInfo label="Deduplicate:" value={String(item.request.deduplicate)} />
-              <RowInfo label="Deduplicate Time:" value={String(item.request.deduplicateTime)} />
-              <RowInfo label="Cancelable:" value={String(item.request.cancelable)} />
-              <RowInfo label="Retry:" value={String(item.request.retry)} />
-              <RowInfo label="Retry Time:" value={String(item.request.retryTime)} />
-              <RowInfo label="Garbage Collection:" value={String(item.request.garbageCollection)} />
-              <RowInfo label="Cache:" value={String(item.request.cache)} />
-              <RowInfo label="Cache Time:" value={String(item.request.cacheTime)} />
-              <RowInfo label="Queued:" value={String(item.request.queued)} />
-              <RowInfo label="Offline:" value={String(item.request.offline)} />
-              <RowInfo label="Used:" value={String(item.request.used)} />
-              <RowInfo label="Cache Key:" value={item.request.cacheKey} />
-              <RowInfo label="Queue Key:" value={item.request.queueKey} />
-              <RowInfo label="Abort Key:" value={item.request.abortKey} />
-              <RowInfo label="Effect Key:" value={item.request.effectKey} />
-            </Table>
+            <JSONViewer data={config} sortObjectKeys />
           </div>
         </Collapsible>
         <Collapsible title="Payload">
           <div style={{ padding: "10px" }}>
-            <Table>
-              <RowInfo label="Params:" value={tryStringify(item.request.params)} />
-              <RowInfo label="Data:" value={tryStringify(item.request.data)} />
-              <RowInfo label="Query Params:" value={tryStringify(item.request.queryParams)} />
-              <RowInfo label="Headers:" value={tryStringify(item.request.headers)} />
-            </Table>
+            <JSONViewer
+              data={{
+                params: item.request.params,
+                queryParams: item.request.queryParams,
+                headers: item.request.headers,
+                payload: item.request.data,
+              }}
+            />
           </div>
         </Collapsible>
-        {item.response?.extra && (
-          <Collapsible title="Response extra">
-            <div style={{ padding: "10px" }}>
-              <Table>
-                {Object.entries(item.response.extra).map(([key, value]) => (
-                  <RowInfo key={key} label={key} value={tryStringify(value)} />
-                ))}
-              </Table>
-            </div>
-          </Collapsible>
-        )}
         <Collapsible title="Response" initiallyExpanded>
           <div style={{ padding: "10px" }}>
-            <h5>Response</h5>
-            {tryStringify(item.response.data)}
-            <h5>Error</h5>
-            {tryStringify(item.response.error)}
+            <JSONViewer data={item.response} />
           </div>
         </Collapsible>
       </div>

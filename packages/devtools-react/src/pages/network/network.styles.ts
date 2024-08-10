@@ -54,7 +54,7 @@ export const styles = createStyles((theme, css) => {
       position: absolute !important;
       display: flex;
       flex-direction: column;
-      top: 40px;
+      top: 0px;
       right: 0px;
       bottom: 0px;
       background: rgb(32 34 42);
@@ -62,7 +62,7 @@ export const styles = createStyles((theme, css) => {
     `,
     detailsContent: css`
       overflow-y: auto;
-      height: calc(100% - 80px);
+      padding-bottom: 10px;
     `,
   };
 });

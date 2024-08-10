@@ -18,7 +18,7 @@ const styles = createStyles((theme, css) => {
       min-width: 80px;
       border-radius: 4px;
       border: 1px solid rgb(77, 78, 79);
-      height: 24px;
+      height: 22px;
     `,
     icon: css`
       position: absolute;

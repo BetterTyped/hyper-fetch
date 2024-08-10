@@ -9,7 +9,7 @@ const styles = createStyles((theme, css) => {
       border-radius: 4px;
       background: transparent;
       color: rgb(180, 194, 204);
-      height: 30px;
+      height: 28px;
       border: 1px solid rgb(77, 78, 79);
     `,
   };

@@ -10,7 +10,7 @@ const styles = createStyles((theme, css) => {
       gap: 5px;
       border-bottom: 1px solid #3d424a;
       background: rgba(0, 0, 0, 0.1);
-      padding: 5px 10px;
+      padding: 4px 10px;
     `,
   };
 });
