@@ -1,4 +1,4 @@
-import { ClientInstance, LogType, QueueDataType } from "@hyper-fetch/core";
+import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
 import clsx from "clsx";
 import { css } from "goober";
 
@@ -32,7 +32,6 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   requests: [] as Array<DevtoolsRequestEvent>,
   queues: [] as QueueDataType[],
   cache: [] as DevtoolsCacheEvent[],
-  logs: [] as LogType[],
   // Network
   detailsRequestId: null as string | null,
   setDetailsRequestId: (() => {}) as (requestId: string | null) => void,
@@ -41,8 +40,6 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   // Cache
   detailsCacheKey: null as string | null,
   setDetailsCacheKey: (() => {}) as (cacheKey: string | null) => void,
-  // Logs
-  // ...
   // Processing
   detailsQueueKey: null as string | null,
   setDetailsQueueKey: (() => {}) as (item: string | null) => void,

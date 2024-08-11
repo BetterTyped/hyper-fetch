@@ -6,7 +6,6 @@ import { LogoIcon } from "icons/logo";
 import { NetworkIcon } from "icons/network";
 import { CacheIcon } from "icons/cache";
 import { ProcessingIcon } from "icons/processing";
-import { LogsIcon } from "icons/logs";
 import { CloseIcon } from "icons/close";
 
 import { styles } from "./header.styles";
@@ -41,10 +40,6 @@ export const Header = () => {
         <Button color={getColor(DevtoolsModule.PROCESSING)} onClick={() => setModule(DevtoolsModule.PROCESSING)}>
           <ProcessingIcon fill={getIconColor(DevtoolsModule.PROCESSING)} />
           Processing
-        </Button>
-        <Button color={getColor(DevtoolsModule.LOGS)} onClick={() => setModule(DevtoolsModule.LOGS)}>
-          <LogsIcon fill={getIconColor(DevtoolsModule.LOGS)} />
-          Logs
         </Button>
         <IconButton style={{ height: "36px", width: "36px", marginTop: "2px" }} onClick={() => setOpen(false)}>
           <CloseIcon fill="#b6b9be" />
