@@ -5,6 +5,7 @@ import { css } from "goober";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
+  DevtoolsQueueItemData,
   DevtoolsRequestEvent,
   RequestEvent,
   RequestResponse,
@@ -44,6 +45,6 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   // Logs
   // ...
   // Processing
-  detailsQueue: null as QueueDataType | null,
-  setDetailsQueue: (() => {}) as (queue: QueueDataType | null) => void,
+  detailsQueue: null as DevtoolsQueueItemData | null,
+  setDetailsQueue: (() => {}) as (item: DevtoolsQueueItemData | null) => void,
 });

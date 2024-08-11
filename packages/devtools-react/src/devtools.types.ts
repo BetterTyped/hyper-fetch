@@ -44,3 +44,8 @@ export type DevtoolsCacheEvent = {
   cacheKey: string;
   cacheData: CacheValueType<unknown, unknown, any>;
 };
+
+export type DevtoolsQueueItemData = {
+  queueKey: string;
+  type: "fetchDispatcher" | "submitDispatcher";
+};

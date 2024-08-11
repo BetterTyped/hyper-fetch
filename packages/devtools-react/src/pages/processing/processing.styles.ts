@@ -5,6 +5,12 @@ export const styles = createStyles((theme, css) => {
     wrapper: css`
       overflow-y: auto;
     `,
+    row: css`
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      flex-wrap: wrap;
+    `,
     card: css`
       display: flex;
       flex-direction: column;
@@ -13,6 +19,8 @@ export const styles = createStyles((theme, css) => {
       border-radius: 8px;
       margin: 10px;
       min-width: 180px;
+      background: transparent;
+      color: rgb(180, 194, 204);
     `,
     cardHeader: css`
       display: flex;
@@ -43,12 +51,27 @@ export const styles = createStyles((theme, css) => {
       font-size: 28px;
       font-weight: 700;
       margin-right: 5px;
+      color: #fff;
     `,
     cardFooter: css`
       margin-top: 10px;
       font-size: 12px;
       font-weight: 500;
       max-width: 200px;
+    `,
+    details: css`
+      position: absolute !important;
+      display: flex;
+      flex-direction: column;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      background: rgb(32 34 42);
+      border-left: 1px solid rgb(61, 66, 74);
+    `,
+    detailsContent: css`
+      overflow-y: auto;
+      padding-bottom: 10px;
     `,
   };
 });

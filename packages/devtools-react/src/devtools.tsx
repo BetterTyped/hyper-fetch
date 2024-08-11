@@ -12,6 +12,7 @@ import { DevtoolsProvider } from "devtools.context";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
+  DevtoolsQueueItemData,
   DevtoolsRequestEvent,
   RequestEvent,
   RequestResponse,
@@ -63,7 +64,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   // Logs
   // ....
   // Processing
-  const [detailsQueue, setDetailsQueue] = useState<QueueDataType | null>(null);
+  const [detailsQueue, setDetailsQueue] = useState<DevtoolsQueueItemData | null>(null);
 
   const countProgressRequests = useCallback(() => {
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();

@@ -3,12 +3,14 @@ import { QueueDataType } from "@hyper-fetch/core";
 import { Chip } from "components/chip/chip";
 import { getQueueStatus, getQueueStatusColor } from "utils/queue.status.utils";
 import { StackIcon } from "icons/stack";
+import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "pages/processing/processing.styles";
 
-export const Card = ({ queue }: { queue: QueueDataType }) => {
+export const Card = ({ queue, type }: { queue: QueueDataType; type: "fetchDispatcher" | "submitDispatcher" }) => {
   const css = styles.useStyles();
   const status = getQueueStatus(queue);
+  const { setDetailsQueue } = useDevtoolsContext("}DevtoolsProcessingCard");
 
   const statusColor = (
     {
@@ -19,12 +21,14 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   )[status];
 
   return (
-    <div
+    <button
+      type="button"
       className={css.card}
       style={{
         border: `1px solid ${getQueueStatusColor(queue, 1)}`,
         boxShadow: `0 3px 6px ${getQueueStatusColor(queue, 0.16, true)}, 0 3px 6px  ${getQueueStatusColor(queue, 0.23, true)}`,
       }}
+      onClick={() => setDetailsQueue({ queueKey: queue.queueKey, type })}
     >
       <div className={css.cardHeader}>
         <div className={css.title}>
@@ -40,6 +44,6 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
       <div className={css.cardFooter}>
         <span style={{ color: "rgb(88 196 220)" }}>Queue Key:</span> <span>{queue.queueKey}</span>
       </div>
-    </div>
+    </button>
   );
 };
