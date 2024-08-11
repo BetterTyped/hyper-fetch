@@ -28,7 +28,7 @@ const styles = createStyles((theme, css) => {
       color: #f44336;
     `,
     gray: css`
-      color: #e3e3e3;
+      color: #a0a9bb;
     `,
     orange: css`
       color: #ff9800;

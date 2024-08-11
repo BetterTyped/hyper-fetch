@@ -93,7 +93,7 @@ export const Details = ({ queueKey }: { queueKey: string }) => {
                 <RowInfo label="Failed Requests:" value={<Chip color="blue">{statistics.failed}</Chip>} />
                 <RowInfo label="Canceled Requests:" value={<Chip color="blue">{statistics.canceled}</Chip>} />
                 <RowInfo
-                  label="Average Time:"
+                  label="Average request time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgTime), 10)}ms</Chip>}
                 />
               </tbody>

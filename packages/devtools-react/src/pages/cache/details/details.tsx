@@ -31,7 +31,7 @@ const buttonsStyle = {
 export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
   const css = styles.useStyles();
 
-  const [stale, setStale] = useState(false);
+  const [stale, setStale] = useState(item.cacheData.timestamp + item.cacheData.cacheTime < Date.now());
 
   const { client } = useDevtoolsContext("DevtoolsCacheDetails");
 
@@ -87,18 +87,21 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
                       value={item.cacheData.timestamp + item.cacheData.cacheTime}
                       onDone={() => setStale(true)}
                       onStart={() => setStale(false)}
+                      doneText={<Chip color="gray">Cache data is stale</Chip>}
                     />
                   }
                 />
                 <RowInfo
                   label="Time left for garbage collection:"
-                  value={<Countdown value={item.cacheData.timestamp + item.cacheData.garbageCollection} />}
+                  value={
+                    <Countdown
+                      value={item.cacheData.timestamp + item.cacheData.garbageCollection}
+                      doneText={<Chip color="gray">Data removed from cache</Chip>}
+                    />
+                  }
                 />
               </tbody>
             </Table>
-            {/* // TODO: Info about hydration - "is hydrated"?
-                // How much time left to garbage collect?
-                // How much time left for cache? */}
           </div>
         </Collapsible>
         <Collapsible title="Config" defaultOpen>

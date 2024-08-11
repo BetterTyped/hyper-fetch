@@ -9,18 +9,16 @@ const getPlural = (value: number, singular: string) => {
 
 export const Countdown = ({
   value,
-  nowText = "Past",
-  pastText = "Past",
+  doneText = "Past",
   onDone,
   onStart,
 }: {
   value: number;
-  nowText?: string;
-  pastText?: string;
+  doneText?: React.ReactNode;
   onDone?: () => void;
   onStart?: () => void;
 }) => {
-  const triggered = useRef(false);
+  const triggered = useRef(true);
   const number = useMemo(() => {
     if (value === Infinity) return -1;
     if (Number.isNaN(value)) return -1;
@@ -42,8 +40,8 @@ export const Countdown = ({
   }, [countdown, onDone, onStart]);
 
   if (number === -1) return String(value);
-  if (Object.values(countdown).every((v) => !v)) return nowText;
-  if (Object.values(countdown).some((v) => v < 0)) return pastText;
+  if (Object.values(countdown).every((v) => !v)) return doneText;
+  if (Object.values(countdown).some((v) => v < 0)) return doneText;
 
   return (
     <>
