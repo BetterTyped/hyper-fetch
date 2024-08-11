@@ -20,6 +20,7 @@ export const postUser = client.createRequest<UserModel, PostUserModel>()({
   endpoint: "/api/user",
   method: "POST",
   cancelable: true,
+  cacheTime: Time.SEC * 5,
 });
 
 export const patchUser = client.createRequest<UserModel, PostUserModel>()({

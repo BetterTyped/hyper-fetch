@@ -37,6 +37,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
   let request = req;
+  let startTime: number;
 
   // Progress
   let requestTotal = 1;
@@ -243,6 +244,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       success: true,
       status,
       extra,
+      startTimestamp: startTime,
+      endTimestamp: +new Date(),
     };
     response = (await request.client.__modifyResponse(response, request)) as typeof responseData;
     response = (await request.client.__modifySuccessResponse(response, request)) as typeof responseData;
@@ -275,6 +278,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       error,
       success: false,
       extra,
+      startTimestamp: startTime,
+      endTimestamp: +new Date(),
     };
 
     response = (await request.client.__modifyResponse(response, request)) as typeof response;
@@ -379,6 +384,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const makeRequest = (
     apiCall: (resolve: (value: ResponseType<any, any, T> | PromiseLike<ResponseType<any, any, T>>) => void) => void,
   ): Promise<ResponseType<any, any, T>> => {
+    startTime = +new Date();
+
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }

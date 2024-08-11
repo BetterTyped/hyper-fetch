@@ -21,9 +21,11 @@ export const getDetailsState = (
 ): ResponseDetailsType => {
   return {
     retries: state?.retries || 0,
-    timestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
+    timestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
     ...details,
   };
 };
@@ -56,6 +58,8 @@ export const getValidCacheData = <T extends RequestInstance>(
       cacheTime: 1000,
       clearKey: request.client.cache.clearKey,
       garbageCollection: request.garbageCollection,
+      startTimestamp: initialData?.startTimestamp ?? +new Date(),
+      endTimestamp: initialData?.endTimestamp ?? +new Date(),
     };
   }
 

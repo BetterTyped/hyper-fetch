@@ -7,7 +7,7 @@ import { styles } from "./processing.styles";
 
 export const Processing = () => {
   const css = styles.useStyles();
-  const { detailsQueue } = useDevtoolsContext("DevtoolsProcessingContent");
+  const { detailsQueueKey } = useDevtoolsContext("DevtoolsProcessingContent");
 
   return (
     <>
@@ -15,7 +15,7 @@ export const Processing = () => {
       <div className={css.wrapper}>
         <Content />
       </div>
-      {detailsQueue && <Details item={detailsQueue} />}
+      {detailsQueueKey && <Details queueKey={detailsQueueKey} />}
     </>
   );
 };

@@ -104,6 +104,8 @@ export type Response<Request extends RequestInstance> = {
   status: ExtractAdapterStatusType<ExtractAdapterType<Request>> | null;
   success: true | false;
   extra: ExtractAdapterExtraType<ExtractAdapterType<Request>> | null;
+  startTimestamp: number;
+  endTimestamp: number;
 };
 export type ResponseType<GenericDataType, GenericErrorType, Adapter extends AdapterInstance> = {
   data: GenericDataType | null;
@@ -111,6 +113,8 @@ export type ResponseType<GenericDataType, GenericErrorType, Adapter extends Adap
   status: ExtractAdapterStatusType<Adapter> | null;
   success: true | false;
   extra: ExtractAdapterExtraType<Adapter> | null;
+  startTimestamp: number;
+  endTimestamp: number;
 };
 export type ResponseSuccessType<GenericDataType, Adapter extends AdapterInstance> = {
   data: GenericDataType;
@@ -118,6 +122,8 @@ export type ResponseSuccessType<GenericDataType, Adapter extends AdapterInstance
   status: ExtractAdapterStatusType<Adapter> | null;
   success: true;
   extra: ExtractAdapterExtraType<Adapter> | null;
+  startTimestamp: number;
+  endTimestamp: number;
 };
 export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance> = {
   data: null;
@@ -125,6 +131,8 @@ export type ResponseErrorType<GenericErrorType, Adapter extends AdapterInstance>
   status: ExtractAdapterStatusType<Adapter> | null;
   success: false;
   extra: ExtractAdapterExtraType<Adapter> | null;
+  startTimestamp: number;
+  endTimestamp: number;
 };
 
 // QueryParams

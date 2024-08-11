@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
-import { ClientInstance, LogType, LoggerManager, QueueDataType } from "@hyper-fetch/core";
+import {
+  ClientInstance,
+  LogType,
+  LoggerManager,
+  QueueDataType,
+  RequestInstance,
+  Response,
+  ResponseDetailsType,
+} from "@hyper-fetch/core";
 import { Resizable } from "re-resizable";
 import { css } from "goober";
 
@@ -12,8 +20,8 @@ import { DevtoolsProvider } from "devtools.context";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
-  DevtoolsQueueItemData,
   DevtoolsRequestEvent,
+  DevtoolsRequestQueueStats,
   RequestEvent,
   RequestResponse,
 } from "devtools.types";
@@ -30,7 +38,8 @@ const modules = {
 /**
  * TODO:  Add description
  * - errors drafts - allowing to test the error handling with button clicks
- *
+ * - max network elements - performance handling
+ * - max cache elements - performance handling?
  */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
@@ -44,15 +53,14 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
 
   const Component = modules[module];
 
-  const [requests, setRequests] = useState<(RequestEvent<T> & { addedTimestamp: number })[]>([]);
+  const [requests, setRequests] = useState<(RequestEvent<T> & { triggerTimestamp: number })[]>([]);
   const [success, setSuccess] = useState<RequestResponse<T>[]>([]);
   const [failed, setFailed] = useState<RequestResponse<T>[]>([]);
   const [removed, setRemoved] = useState<RequestEvent<T>[]>([]);
-  const [inProgress, setInProgress] = useState<(RequestEvent<T> & { addedTimestamp: number })[]>([]);
+  const [inProgress, setInProgress] = useState<(RequestEvent<T> & { triggerTimestamp: number })[]>([]);
   const [paused, setPaused] = useState<RequestEvent<T>[]>([]);
   const [canceled, setCanceled] = useState<RequestEvent<T>[]>([]);
-  const [fetchQueues, setFetchQueues] = useState<QueueDataType[]>([]);
-  const [submitQueues, setSubmitQueues] = useState<QueueDataType[]>([]);
+  const [queues, setQueues] = useState<QueueDataType[]>([]);
   const [cache, setCache] = useState<DevtoolsCacheEvent[]>([]);
   const [logs, setLogs] = useState<LogType[]>([]);
 
@@ -64,7 +72,10 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   // Logs
   // ....
   // Processing
-  const [detailsQueue, setDetailsQueue] = useState<DevtoolsQueueItemData | null>(null);
+  const [detailsQueueKey, setDetailsQueueKey] = useState<string | null>(null);
+  const [stats, setStats] = useState<{
+    [queueKey: string]: DevtoolsRequestQueueStats;
+  }>({});
 
   const countProgressRequests = useCallback(() => {
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
@@ -74,18 +85,18 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       return {
         requestId: item.requestId,
         request: item.request,
-        addedTimestamp: item.timestamp,
-      } as RequestEvent<T> & { addedTimestamp: number };
+        triggerTimestamp: item.timestamp,
+      } as RequestEvent<T> & { triggerTimestamp: number };
     });
 
-    const fetchQueuesArray = Array.from(
+    const queuesArray = Array.from(
       client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
     const submitQueuesArray = Array.from(
       client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
 
-    const pausedRequests: RequestEvent<T>[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
+    const pausedRequests: RequestEvent<T>[] = [...queuesArray, ...submitQueuesArray].reduce((acc, queue) => {
       if (queue.stopped) {
         return [
           ...acc,
@@ -112,8 +123,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
 
     setInProgress(allQueuedRequest);
     setPaused(pausedRequests);
-    setFetchQueues(fetchQueuesArray);
-    setSubmitQueues(submitQueuesArray);
+    setQueues([...queuesArray, ...submitQueuesArray]);
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
   const handleCacheChange = useCallback(() => {
@@ -141,16 +151,44 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     [client.appManager],
   );
 
+  const handleStats = useCallback(
+    (request: RequestInstance, response: Response<RequestInstance>, details: ResponseDetailsType) => {
+      const key = request.queueKey;
+      const current = stats[key] || {
+        total: 0,
+        success: 0,
+        failed: 0,
+        canceled: 0,
+        avgTime: 0,
+      };
+      const time = response.endTimestamp - response.startTimestamp;
+      const avgTime = current.avgTime ? (current.avgTime + time) / 2 : time;
+
+      setStats((prev) => ({
+        ...prev,
+        [key]: {
+          total: current.total + 1,
+          success: response.success ? current.success + 1 : current.success,
+          failed: !response.success && !details.isCanceled ? current.failed + 1 : current.failed,
+          canceled: details.isCanceled ? current.canceled + 1 : current.canceled,
+          avgTime,
+        },
+      }));
+    },
+    [stats],
+  );
+
   useEffect(() => {
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests(
         (prev) =>
-          [{ ...details, addedTimestamp: new Date() }, ...prev] as (RequestEvent<T> & { addedTimestamp: number })[],
+          [{ ...details, triggerTimestamp: new Date() }, ...prev] as (RequestEvent<T> & { triggerTimestamp: number })[],
       );
       countProgressRequests();
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
       countProgressRequests();
+      handleStats(request, response, details);
 
       if (response.success) {
         setSuccess((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
@@ -200,7 +238,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       unmountOnCacheChange();
       unmountOnCacheInvalidate();
     };
-  }, [client, countProgressRequests, handleCacheChange, requests]);
+  }, [client, countProgressRequests, handleCacheChange, handleStats, requests]);
 
   useLayoutEffect(() => {
     client
@@ -233,7 +271,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       isSuccess,
       isFinished: !!response,
       isPaused,
-      addedTimestamp: item.addedTimestamp,
+      triggerTimestamp: item.triggerTimestamp,
     };
   });
 
@@ -253,18 +291,18 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       paused={paused}
       canceled={canceled}
       requests={allRequests}
-      fetchQueues={fetchQueues}
-      submitQueues={submitQueues}
+      queues={queues}
       cache={cache}
       logs={logs}
+      stats={stats}
       detailsRequestId={detailsRequestId}
       setDetailsRequestId={setDetailsRequestId}
       networkFilter={networkFilter}
       setNetworkFilter={setNetworkFilter}
       detailsCacheKey={detailsCacheKey}
       setDetailsCacheKey={setDetailsCacheKey}
-      detailsQueue={detailsQueue}
-      setDetailsQueue={setDetailsQueue}
+      detailsQueueKey={detailsQueueKey}
+      setDetailsQueueKey={setDetailsQueueKey}
     >
       {open && (
         <Resizable

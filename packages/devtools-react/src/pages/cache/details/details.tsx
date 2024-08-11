@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Resizable } from "re-resizable";
 
 import { DevtoolsCacheEvent } from "devtools.types";
@@ -11,6 +11,8 @@ import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
 import { Table } from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
+import { Countdown } from "components/countdown/countdown";
+import { Chip } from "components/chip/chip";
 
 import { styles } from "../cache.styles";
 
@@ -28,6 +30,8 @@ const buttonsStyle = {
 
 export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
   const css = styles.useStyles();
+
+  const [stale, setStale] = useState(false);
 
   const { client } = useDevtoolsContext("DevtoolsCacheDetails");
 
@@ -56,7 +60,11 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
       <Toolbar>
         <Back />
         <Separator style={{ height: "18px", margin: "0 12px" }} />
-        <div style={{ ...nameStyle }}>{item.cacheKey}</div>
+        <div style={{ ...nameStyle }}>
+          {item.cacheKey}
+          <Chip color={stale ? "orange" : "green"}>{stale ? "Stale" : "Fresh"}</Chip>
+          {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
+        </div>
         <div style={{ flex: "1 1 auto" }} />
         <div style={{ ...buttonsStyle }}>
           <Button color="secondary">Invalidate</Button>
@@ -68,10 +76,24 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
           <div style={{ padding: "10px" }}>
             <Table>
               <tbody>
-                <RowInfo label="Last updated:" value="12:22:56 GMT+0200" />
-                <RowInfo label="Hydrated:" value="false" />
-                <RowInfo label="Time left before stale:" value="20min" />
-                <RowInfo label="Time left for garbage collection:" value="20min" />
+                <RowInfo
+                  label="Last updated:"
+                  value={`${new Date(item.cacheData.timestamp).toLocaleDateString()}, ${new Date(item.cacheData.timestamp).toLocaleTimeString()}`}
+                />
+                <RowInfo
+                  label="Time left before stale:"
+                  value={
+                    <Countdown
+                      value={item.cacheData.timestamp + item.cacheData.cacheTime}
+                      onDone={() => setStale(true)}
+                      onStart={() => setStale(false)}
+                    />
+                  }
+                />
+                <RowInfo
+                  label="Time left for garbage collection:"
+                  value={<Countdown value={item.cacheData.timestamp + item.cacheData.garbageCollection} />}
+                />
               </tbody>
             </Table>
             {/* // TODO: Info about hydration - "is hydrated"?

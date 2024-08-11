@@ -15,7 +15,7 @@ import { ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
 import { ResponseDetailsType, LoggerType } from "managers";
 import { RequestInstance } from "request";
-import { getErrorMessage } from "adapter";
+import { getErrorMessage, Response } from "adapter";
 
 /**
  * Dispatcher controls and manages the requests that are going to be executed with adapter. It manages them based on the options provided with request.
@@ -518,7 +518,7 @@ export class Dispatcher {
     // Listen for aborting
     requestManager.addAbortController(abortKey, requestId);
 
-    const response = await adapter(request, requestId);
+    const response: Response<any> = await adapter(request, requestId);
 
     // eslint-disable-next-line no-param-reassign
     storageElement.resolved = true;
@@ -538,8 +538,9 @@ export class Dispatcher {
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
-      timestamp: +new Date(),
-      addedTimestamp: storageElement.timestamp,
+      triggerTimestamp: storageElement.timestamp,
+      requestTimestamp: response.startTimestamp,
+      timestamp: response.endTimestamp,
     };
 
     // Turn off loading

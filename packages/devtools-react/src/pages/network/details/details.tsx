@@ -77,9 +77,24 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
           <div style={{ padding: "10px" }}>
             <Table>
               <tbody>
-                <RowInfo label="Request URL:" value={`${item.request.client.url}${item.request.endpoint}`} />
-                <RowInfo label="Request Method:" value={String(item.request.method)} />
-                <RowInfo label="Status Code:" value={item.response?.status ? String(item.response.status) : status} />
+                <RowInfo
+                  label="Request URL:"
+                  value={
+                    <Chip color="blue">
+                      {item.request.client.url}
+                      {item.request.endpoint}
+                    </Chip>
+                  }
+                />
+                <RowInfo label="Request Method:" value={<Chip color="gray">{String(item.request.method)}</Chip>} />
+                <RowInfo
+                  label="Status Code:"
+                  value={
+                    <Chip color={item.isSuccess ? "green" : "red"}>
+                      {item.response?.status ? String(item.response.status) : status}
+                    </Chip>
+                  }
+                />
               </tbody>
             </Table>
             {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}

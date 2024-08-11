@@ -11,6 +11,7 @@ export type HydrationOptions = RequestCacheType<RequestInstance> & {
 export type HydrateDataType<Data = any, Error = any, Adapter extends AdapterInstance = any> = HydrationOptions & {
   timestamp: number;
   response: ResponseType<Data, Error, Adapter>;
+  hydrated: true;
 };
 
 export const serialize = <R extends RequestInstance>(
@@ -30,6 +31,7 @@ export const serialize = <R extends RequestInstance>(
     garbageCollection,
     timestamp: Date.now(),
     response,
+    hydrated: true,
   };
 };
 

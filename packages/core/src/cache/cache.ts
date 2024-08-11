@@ -69,7 +69,7 @@ export class Cache<C extends ClientInstance> {
     response: CacheMethodType<
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
-    >,
+    > & { hydrated?: boolean },
   ): void => {
     this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, cacheTime, garbageCollection } = request;

@@ -8,7 +8,7 @@ export const styles = createStyles((theme, css) => {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
       & * {
-        font-size: 12px;
+        font-size: 12px !important;
       }
       & > ul {
         margin: 0 !important;
@@ -49,7 +49,7 @@ export const styles = createStyles((theme, css) => {
       background: ${tokens.colors.dark[200]};
       padding: 2px 4px;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 12px;
     `,
     input: css`
       color: inherit;

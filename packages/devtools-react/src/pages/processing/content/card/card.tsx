@@ -7,10 +7,10 @@ import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "pages/processing/processing.styles";
 
-export const Card = ({ queue, type }: { queue: QueueDataType; type: "fetchDispatcher" | "submitDispatcher" }) => {
+export const Card = ({ queue }: { queue: QueueDataType }) => {
   const css = styles.useStyles();
   const status = getQueueStatus(queue);
-  const { setDetailsQueue } = useDevtoolsContext("}DevtoolsProcessingCard");
+  const { setDetailsQueueKey } = useDevtoolsContext("DevtoolsProcessingCard");
 
   const statusColor = (
     {
@@ -28,7 +28,7 @@ export const Card = ({ queue, type }: { queue: QueueDataType; type: "fetchDispat
         border: `1px solid ${getQueueStatusColor(queue, 1)}`,
         boxShadow: `0 3px 6px ${getQueueStatusColor(queue, 0.16, true)}, 0 3px 6px  ${getQueueStatusColor(queue, 0.23, true)}`,
       }}
-      onClick={() => setDetailsQueue({ queueKey: queue.queueKey, type })}
+      onClick={() => setDetailsQueueKey(queue.queueKey)}
     >
       <div className={css.cardHeader}>
         <div className={css.title}>

@@ -6,29 +6,16 @@ import { styles } from "../processing.styles";
 
 export const Content = () => {
   const css = styles.useStyles();
-  const { fetchQueues, submitQueues } = useDevtoolsContext("DevtoolsProcessingContent");
+  const { queues } = useDevtoolsContext("DevtoolsProcessingContent");
   return (
-    <div style={{ padding: "0 10px 20px" }}>
-      <h4>Fetch Queues</h4>
+    <div style={{ padding: "10px 20px" }}>
       <div className={css.row}>
-        {fetchQueues.map((queue, index) => {
-          return <Card key={index} queue={queue} type="fetchDispatcher" />;
+        {queues.map((queue, index) => {
+          return <Card key={index} queue={queue} />;
         })}
-        {!fetchQueues.length && (
+        {!queues.length && (
           <div style={{ color: "#a7a7a7", fontSize: "14px" }}>
             No fetch queues, trigger your requests to see data here.
-          </div>
-        )}
-      </div>
-      {/* Todo make a switcher between fetch/submit queues */}
-      <h4>Submit Queues</h4>
-      <div className={css.row}>
-        {submitQueues.map((queue, index) => {
-          return <Card key={index} queue={queue} type="submitDispatcher" />;
-        })}
-        {!submitQueues.length && (
-          <div style={{ color: "#a7a7a7", fontSize: "14px" }}>
-            No submit queues, trigger your requests to see data here.
           </div>
         )}
       </div>

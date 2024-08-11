@@ -34,8 +34,10 @@ export type ResponseDetailsType = {
   retries: number;
   /** When we receive response */
   timestamp: number;
-  /** When added to dispatcher's queue */
-  addedTimestamp: number;
+  /** When adapter triggers request (after all middlewares) */
+  requestTimestamp: number;
+  /** When added to dispatcher's queue (pre-middleware which could take time) */
+  triggerTimestamp: number;
   isCanceled: boolean;
   isOffline: boolean;
 };

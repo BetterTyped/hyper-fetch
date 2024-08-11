@@ -7,9 +7,13 @@ const styles = createStyles((theme, css) => {
       gap: 5px;
       align-items: center;
     `,
+    content: css`
+      display: flex;
+      align-items: center;
+      min-height: 24px;
+    `,
     label: css`
       font-weight: 300;
-      padding: 3px 0;
       font-size: 14px;
     `,
     value: css`
@@ -17,7 +21,6 @@ const styles = createStyles((theme, css) => {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      padding: 3px 0;
       font-weight: 400;
       font-size: 14px;
       color: #fff;
@@ -30,7 +33,9 @@ export const RowInfo = ({ label, value }: { label: string; value: React.ReactNod
   return (
     <tr className={css.row}>
       <td className={css.label}>{label}</td>
-      <td className={css.value}>{value}</td>
+      <td className={css.value}>
+        <div className={css.content}>{value}</div>
+      </td>
     </tr>
   );
 };

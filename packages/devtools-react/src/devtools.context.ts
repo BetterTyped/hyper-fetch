@@ -5,8 +5,8 @@ import { css } from "goober";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
-  DevtoolsQueueItemData,
   DevtoolsRequestEvent,
+  DevtoolsRequestQueueStats,
   RequestEvent,
   RequestResponse,
 } from "devtools.types";
@@ -30,8 +30,7 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   paused: [] as RequestEvent<ClientInstance>[],
   canceled: [] as RequestEvent<ClientInstance>[],
   requests: [] as Array<DevtoolsRequestEvent>,
-  fetchQueues: [] as QueueDataType[],
-  submitQueues: [] as QueueDataType[],
+  queues: [] as QueueDataType[],
   cache: [] as DevtoolsCacheEvent[],
   logs: [] as LogType[],
   // Network
@@ -45,6 +44,7 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   // Logs
   // ...
   // Processing
-  detailsQueue: null as DevtoolsQueueItemData | null,
-  setDetailsQueue: (() => {}) as (item: DevtoolsQueueItemData | null) => void,
+  detailsQueueKey: null as string | null,
+  setDetailsQueueKey: (() => {}) as (item: string | null) => void,
+  stats: {} as Record<string, DevtoolsRequestQueueStats>,
 });

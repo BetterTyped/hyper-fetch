@@ -37,7 +37,7 @@ export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
     isSuccess: boolean;
     isFinished: boolean;
     isPaused: boolean;
-    addedTimestamp: number;
+    triggerTimestamp: number;
   };
 
 export type DevtoolsCacheEvent = {
@@ -45,7 +45,10 @@ export type DevtoolsCacheEvent = {
   cacheData: CacheValueType<unknown, unknown, any>;
 };
 
-export type DevtoolsQueueItemData = {
-  queueKey: string;
-  type: "fetchDispatcher" | "submitDispatcher";
+export type DevtoolsRequestQueueStats = {
+  total: number;
+  success: number;
+  failed: number;
+  canceled: number;
+  avgTime: number;
 };

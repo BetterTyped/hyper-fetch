@@ -36,13 +36,13 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
         {String(item.response?.status || "")}
       </td>
       <td className={css.cell} style={{ color }}>
-        {new Date(item.addedTimestamp).toLocaleTimeString()}{" "}
+        {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
       </td>
       <td className={css.cell} style={{ color }}>
         {!!item.details?.timestamp && (
           <div>
             {new Date(item.details.timestamp).toLocaleTimeString()}{" "}
-            <span className={css.timestamp}>({item.details.timestamp - item.addedTimestamp}ms)</span>
+            <span className={css.timestamp}>({item.details.timestamp - item.triggerTimestamp}ms)</span>
           </div>
         )}
       </td>

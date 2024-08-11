@@ -14,7 +14,8 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
    */
   lazyStorage?: CacheAsyncStorageType;
   /**
-   * Key to clear lazy storage data
+   * Key to clear lazy storage data, often used for versioning
+   * If the new key is different from the old one, the cache will be cleared
    */
   clearKey?: string;
   /**
@@ -44,6 +45,7 @@ export type CacheValueType<
     cacheTime: number;
     clearKey: string;
     garbageCollection: number;
+    hydrated?: boolean;
   };
 
 // Storage
