@@ -31,13 +31,16 @@ export type RequestResponseEventType<T extends RequestInstance> = {
 };
 
 export type ResponseDetailsType = {
+  /** If it's retry request we can see which attempt is it */
   retries: number;
-  /** When we receive response */
-  timestamp: number;
-  /** When adapter triggers request (after all middlewares) */
-  requestTimestamp: number;
-  /** When added to dispatcher's queue (pre-middleware which could take time) */
-  triggerTimestamp: number;
   isCanceled: boolean;
   isOffline: boolean;
+  /** When added to dispatcher's queue (pre-middleware which could take time) */
+  addedTimestamp: number;
+  /** When request is picked from queue and started to be sent */
+  triggerTimestamp: number;
+  /** When adapter triggers request (after all middlewares) */
+  requestTimestamp: number;
+  /** When we receive response */
+  timestamp: number;
 };

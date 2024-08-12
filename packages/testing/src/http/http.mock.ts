@@ -105,8 +105,9 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     const { requestManager } = request.client;
     const controllers = requestManager.abortControllers.get(request.abortKey);
     const size = controllers?.size || 0;
-    const abortController = Array.from(controllers || [])[size - 1];
-    const timeoutTime = request.options?.timeout ?? 5000;
+    const abortController: any = Array.from(controllers || [])[size - 1];
+    // Todo: something generic?
+    const timeoutTime = (request.options as any)?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;
 
     if (abortController && abortController?.[1].signal.aborted) {
@@ -121,7 +122,7 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     return HttpResponse.json(data, { status });
   };
 
-  switch (method.toUpperCase()) {
+  switch (String(method).toUpperCase()) {
     case "POST":
       return http.post(url, requestResolver);
     case "PUT":

@@ -95,6 +95,7 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
                     </Chip>
                   }
                 />
+                <RowInfo label="Request ID:" value={<Chip color="gray">{String(item.requestId)}</Chip>} />
               </tbody>
             </Table>
             {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}

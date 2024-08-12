@@ -6,7 +6,7 @@ import {
   ExtendListener,
   ExtractListenerTopicType,
 } from "@hyper-fetch/sockets";
-import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core/src";
+import type { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core/src";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {

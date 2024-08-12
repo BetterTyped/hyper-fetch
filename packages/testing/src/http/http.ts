@@ -1,22 +1,11 @@
 import { setupServer } from "msw/node";
-import {
-  ResponseType,
-  ExtractResponseType,
-  ExtractErrorType,
-  RequestInstance,
-  ExtractAdapterType,
-} from "@hyper-fetch/core";
+import { ExtractResponseType, RequestInstance, Response } from "@hyper-fetch/core";
 
 import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
 import { createMock, getMockSetup } from "./http.mock";
 
 export type MockRequestOptions<Request extends RequestInstance, Status extends number> = Partial<
-  Omit<
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
-    "status" | "extra"
-  >
+  Omit<Response<Request>, "status" | "extra">
 > & {
   status?: Status;
   delay?: number;

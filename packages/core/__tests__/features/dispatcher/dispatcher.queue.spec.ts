@@ -83,7 +83,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(spy).toHaveBeenCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
     });
-    it("should send all concurrent request", async () => {
+    it("should send all concurrent requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
       mockRequest(request);
 
@@ -94,6 +94,28 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(spy).toHaveBeenCalledTimes(2);
       expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
+    });
+    it("should send all concurrent requests without any duplicates", async () => {
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
+      mockRequest(request, { delay: 40 });
+
+      const spy1 = jest.spyOn(dispatcher, "performRequest");
+      const spy2 = jest.spyOn(client.requestManager.events, "emitResponse");
+
+      setTimeout(() => {
+        dispatcher.add(request);
+      }, 0);
+      setTimeout(() => {
+        dispatcher.add(request);
+      }, 10);
+      setTimeout(() => {
+        dispatcher.add(request);
+      }, 20);
+
+      await sleep(100);
+
+      expect(spy1).toHaveBeenCalledTimes(3);
+      expect(spy2).toHaveBeenCalledTimes(3);
     });
   });
   describe("When using dispatcher performRequest method", () => {

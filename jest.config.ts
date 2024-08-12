@@ -27,6 +27,14 @@ export const getJestConfig = (): Config.InitialOptions => ({
         useESM: true,
       },
     ],
+    "^.+\\.[jt]s?$": [
+      "ts-jest",
+      {
+        tsconfig: "./tsconfig.json",
+        isolatedModules: true,
+        useESM: true,
+      },
+    ],
   },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
   setupFilesAfterEnv: ["jest-extended/all", "<rootDir>/__tests__/jest.setup.ts", `${__dirname}/jest.polyfills.js`],

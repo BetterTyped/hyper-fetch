@@ -140,28 +140,43 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   const handleStats = useCallback(
     (request: RequestInstance, response: Response<RequestInstance>, details: ResponseDetailsType) => {
       const key = request.queueKey;
-      const current = stats[key] || {
-        total: 0,
-        success: 0,
-        failed: 0,
-        canceled: 0,
-        avgTime: 0,
-      };
-      const time = response.endTimestamp - response.startTimestamp;
-      const avgTime = current.avgTime ? (current.avgTime + time) / 2 : time;
 
-      setStats((prev) => ({
-        ...prev,
-        [key]: {
-          total: current.total + 1,
-          success: response.success ? current.success + 1 : current.success,
-          failed: !response.success && !details.isCanceled ? current.failed + 1 : current.failed,
-          canceled: details.isCanceled ? current.canceled + 1 : current.canceled,
-          avgTime,
-        },
-      }));
+      setStats((prev) => {
+        const current: DevtoolsRequestQueueStats = prev[key] || {
+          total: 0,
+          success: 0,
+          failed: 0,
+          canceled: 0,
+          avgTime: 0,
+          avgQueueTime: 0,
+          avgProcessingTime: 0,
+        };
+
+        const reqTime = response.endTimestamp - response.startTimestamp;
+        const processTime = details.requestTimestamp - details.triggerTimestamp;
+        const queueTime = details.triggerTimestamp - details.addedTimestamp;
+
+        const avgTime = current.avgTime ? (current.avgTime + reqTime) / 2 : reqTime;
+        const avgProcessingTime = current.avgProcessingTime
+          ? (current.avgProcessingTime + processTime) / 2
+          : processTime;
+        const avgQueueTime = current.avgProcessingTime ? (current.avgProcessingTime + queueTime) / 2 : queueTime;
+
+        return {
+          ...prev,
+          [key]: {
+            total: current.total + 1,
+            success: response.success ? current.success + 1 : current.success,
+            failed: !response.success && !details.isCanceled ? current.failed + 1 : current.failed,
+            canceled: details.isCanceled ? current.canceled + 1 : current.canceled,
+            avgTime,
+            avgQueueTime,
+            avgProcessingTime,
+          },
+        };
+      });
     },
-    [stats],
+    [],
   );
 
   useEffect(() => {
@@ -225,6 +240,10 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       unmountOnCacheInvalidate();
     };
   }, [client, countProgressRequests, handleCacheChange, handleStats, requests]);
+
+  useEffect(() => {
+    countProgressRequests();
+  }, [countProgressRequests]);
 
   const allRequests: Array<DevtoolsRequestEvent> = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);

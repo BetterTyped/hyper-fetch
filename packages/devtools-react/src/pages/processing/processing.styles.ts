@@ -18,7 +18,7 @@ export const styles = createStyles((theme, css) => {
       padding: 10px;
       border-radius: 8px;
       margin: 10px;
-      min-width: 180px;
+      width: 200px;
       background: transparent;
       color: rgb(180, 194, 204);
     `,
@@ -54,6 +54,7 @@ export const styles = createStyles((theme, css) => {
       color: #fff;
     `,
     cardFooter: css`
+      text-align: left;
       margin-top: 10px;
       font-size: 12px;
       font-weight: 500;

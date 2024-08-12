@@ -1,21 +1,23 @@
+import { useMemo } from "react";
+
 import { Content } from "./content/content";
 import { Toolbar } from "./toolbar/toolbar";
 import { useDevtoolsContext } from "devtools.context";
 import { Details } from "./details/details";
 
-import { styles } from "./processing.styles";
-
 export const Processing = () => {
-  const css = styles.useStyles();
-  const { detailsQueueKey } = useDevtoolsContext("DevtoolsProcessingContent");
+  const { queues, detailsQueueKey } = useDevtoolsContext("DevtoolsProcessingContent");
+
+  const activatedQueue = useMemo(() => {
+    if (!detailsQueueKey) return null;
+    return queues.find((request) => request.queueKey === detailsQueueKey);
+  }, [detailsQueueKey, queues]);
 
   return (
     <>
       <Toolbar />
-      <div className={css.wrapper}>
-        <Content />
-      </div>
-      {detailsQueueKey && <Details queueKey={detailsQueueKey} />}
+      <Content />
+      {activatedQueue && <Details item={activatedQueue} />}
     </>
   );
 };

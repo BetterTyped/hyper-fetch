@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Resizable } from "re-resizable";
+import { QueueDataType } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -33,33 +34,34 @@ const defaultStats: DevtoolsRequestQueueStats = {
   failed: 0,
   canceled: 0,
   avgTime: 0,
+  avgQueueTime: 0,
+  avgProcessingTime: 0,
 };
 
-export const Details = ({ queueKey }: { queueKey: string }) => {
+export const Details = ({ item }: { item: QueueDataType }) => {
   const css = styles.useStyles();
 
-  const { client, stats } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { stats } = useDevtoolsContext("DevtoolsCacheDetails");
 
-  // TODO: Create use queue hook
-  const { queue, status, color, statistics } = useMemo(() => {
-    const queueElement = client.fetchDispatcher.getQueue(queueKey) || client.submitDispatcher.getQueue(queueKey);
-    const statusValue = getQueueStatus(queueElement);
+  const status = getQueueStatus(item);
 
+  const { queue, color, statistics } = useMemo(() => {
     const statusColor = (
       {
         Pending: "gray",
         Running: "blue",
         Stopped: "orange",
       } as const
-    )[statusValue];
+    )[status];
 
     return {
-      queue: queueElement,
-      status: statusValue,
+      queue: item,
+      status,
       color: statusColor,
-      statistics: stats[queueKey] || defaultStats,
+      statistics: stats[item.queueKey] || defaultStats,
     };
-  }, [client.fetchDispatcher, client.submitDispatcher, queueKey, stats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, item?.requests?.length, stats, status]);
 
   return (
     <Resizable
@@ -92,6 +94,15 @@ export const Details = ({ queueKey }: { queueKey: string }) => {
                 <RowInfo label="Success Requests:" value={<Chip color="blue">{statistics.success}</Chip>} />
                 <RowInfo label="Failed Requests:" value={<Chip color="blue">{statistics.failed}</Chip>} />
                 <RowInfo label="Canceled Requests:" value={<Chip color="blue">{statistics.canceled}</Chip>} />
+                <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
+                <RowInfo
+                  label="Average time spent in queue:"
+                  value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Average pre-processing time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.avgProcessingTime), 10)}ms</Chip>}
+                />
                 <RowInfo
                   label="Average request time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgTime), 10)}ms</Chip>}

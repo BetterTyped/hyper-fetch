@@ -23,9 +23,10 @@ export const getDetailsState = (
     retries: state?.retries || 0,
     isCanceled: false,
     isOffline: false,
-    timestamp: +new Date(),
-    requestTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    timestamp: +new Date(),
     ...details,
   };
 };

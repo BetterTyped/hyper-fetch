@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDirs": [".", "../../core", "../../sockets", "../../adapter-graphql"],
     "baseUrl": "./src",
+    "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
       "@hyper-fetch/core": ["../../core/src"],

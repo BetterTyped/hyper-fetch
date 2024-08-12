@@ -10,7 +10,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es6",
+    "target": "esnext",
     "moduleResolution": "bundler",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "ESNext"],

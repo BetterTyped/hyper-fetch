@@ -299,10 +299,12 @@ export class Dispatcher {
   /**
    * Add request to the running requests list
    */
-  addRunningRequest = (queueKey: string, requestId: string, request: RequestInstance) => {
+  addRunningRequest = (queueKey: string, requestId: string, request: RequestInstance): RunningRequestValueType => {
+    const newRunningRequest = { requestId, request, timestamp: Date.now() };
     const runningRequests = this.getRunningRequests(queueKey);
-    runningRequests.push({ requestId, request, timestamp: Date.now() });
+    runningRequests.push(newRunningRequest);
     this.runningRequests.set(queueKey, runningRequests);
+    return newRunningRequest;
   };
 
   /**
@@ -502,7 +504,7 @@ export class Dispatcher {
     }
 
     // Additionally keep the running request to possibly abort it later
-    this.addRunningRequest(queueKey, requestId, request);
+    const runningRequest = this.addRunningRequest(queueKey, requestId, request);
 
     // Propagate the loading to all connected hooks
     requestManager.events.emitLoading({
@@ -538,7 +540,8 @@ export class Dispatcher {
       isCanceled,
       isOffline: isOfflineResponseStatus,
       retries: storageElement.retries,
-      triggerTimestamp: storageElement.timestamp,
+      addedTimestamp: storageElement.timestamp,
+      triggerTimestamp: runningRequest.timestamp,
       requestTimestamp: response.startTimestamp,
       timestamp: response.endTimestamp,
     };

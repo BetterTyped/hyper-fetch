@@ -50,4 +50,6 @@ export type DevtoolsRequestQueueStats = {
   failed: number;
   canceled: number;
   avgTime: number;
+  avgQueueTime: number;
+  avgProcessingTime: number;
 };
