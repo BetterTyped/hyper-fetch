@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { useInterval } from "hooks/use-interval";
 
@@ -35,14 +35,6 @@ export function getTimeRemaining(endTime: string | number, hasEnded: boolean) {
   };
 }
 
-const initialState = {
-  total: 0,
-  days: 0,
-  hours: 0,
-  minutes: 0,
-  seconds: 0,
-};
-
 export const useCountdown = (endTime: Date | string | number, options?: UseCountdownOptions) => {
   const { updateFrequency = 1000 } = options || {};
   const time = endTime instanceof Date ? endTime.toISOString() : endTime;
@@ -50,15 +42,16 @@ export const useCountdown = (endTime: Date | string | number, options?: UseCount
   const ended = useRef(new Date(time) < new Date());
   const hasEnded = ended.current;
 
-  const [countdown, setCountdown] = useState(!hasEnded || hasEnded ? getTimeRemaining(time, hasEnded) : initialState);
+  const [countdown, setCountdown] = useState(getTimeRemaining(time, hasEnded));
+
+  useLayoutEffect(() => {
+    ended.current = new Date(time) < new Date();
+    setCountdown(getTimeRemaining(time, hasEnded));
+  }, [hasEnded, time]);
 
   useInterval(() => {
     setCountdown(getTimeRemaining(time, hasEnded));
   }, updateFrequency);
-
-  useEffect(() => {
-    ended.current = new Date(time) < new Date();
-  }, [time]);
 
   return countdown;
 };

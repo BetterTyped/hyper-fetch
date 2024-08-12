@@ -9,16 +9,18 @@ const getPlural = (value: number, singular: string) => {
 
 export const Countdown = ({
   value,
+  countInPast = false,
   doneText = "Past",
   onDone,
   onStart,
 }: {
   value: number;
+  countInPast?: boolean;
   doneText?: React.ReactNode;
   onDone?: () => void;
   onStart?: () => void;
 }) => {
-  const triggered = useRef(true);
+  const triggered = useRef(false);
   const number = useMemo(() => {
     if (value === Infinity) return -1;
     if (Number.isNaN(value)) return -1;
@@ -28,16 +30,27 @@ export const Countdown = ({
   }, [value]);
 
   const countdown = useCountdown(number);
+  const prev = useRef(countdown);
 
   useLayoutEffect(() => {
-    if (Object.values(countdown).every((v) => v < 1) && onDone) {
+    const hasChanged = JSON.stringify(prev.current) !== JSON.stringify(countdown);
+
+    const now = Date.now();
+    const shouldHandlePast = countInPast ? true : now < new Date(value).getTime();
+
+    if (hasChanged && Object.values(countdown).every((v) => v < 1) && onDone) {
       triggered.current = false;
       onDone();
-    } else if (!triggered.current && onStart) {
+    } else if (shouldHandlePast && !triggered.current && onStart) {
       triggered.current = true;
       onStart();
     }
-  }, [countdown, onDone, onStart]);
+    prev.current = countdown;
+  }, [countInPast, countdown, onDone, onStart, value]);
+
+  useLayoutEffect(() => {
+    triggered.current = false;
+  }, [value]);
 
   if (number === -1) return String(value);
   if (Object.values(countdown).every((v) => !v)) return doneText;

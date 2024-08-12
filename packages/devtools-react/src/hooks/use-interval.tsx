@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 export type UseIntervalOptions = {
   immediate?: boolean;
@@ -24,11 +24,11 @@ export const useInterval = (callback: () => void, interval: number | null, optio
     setId(setInterval(() => savedCallback.current(), interval));
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     savedCallback.current = callback;
   }, [callback]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     savedCallback.current = callback;
     if (immediate) {
       start();
@@ -36,7 +36,7 @@ export const useInterval = (callback: () => void, interval: number | null, optio
     }
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     savedCallback.current = callback;
     start();
     return stop;
