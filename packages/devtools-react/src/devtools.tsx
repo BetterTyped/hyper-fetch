@@ -96,14 +96,14 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       };
     });
 
-    const queuesArray = Array.from(
+    const fetchQueuesArray = Array.from(
       client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
     const submitQueuesArray = Array.from(
       client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
 
-    const pausedRequests: DevtoolsElement[] = [...queuesArray, ...submitQueuesArray].reduce((acc, queue) => {
+    const pausedRequests: DevtoolsElement[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
       if (queue.stopped) {
         return [
           ...acc,
@@ -134,7 +134,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
 
     setInProgress(allQueuedRequest);
     setPaused(pausedRequests);
-    setQueues([...queuesArray, ...submitQueuesArray]);
+    setQueues([...fetchQueuesArray, ...submitQueuesArray]);
   }, [client.fetchDispatcher, client.submitDispatcher]);
 
   const handleCacheChange = useCallback(() => {

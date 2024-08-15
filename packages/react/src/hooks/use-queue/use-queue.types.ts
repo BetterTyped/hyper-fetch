@@ -1,4 +1,4 @@
-import { ProgressType, RequestInstance, QueueElementType } from "@hyper-fetch/core";
+import { ProgressType, RequestInstance, QueueElementType, Dispatcher } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
   queueType?: "auto" | "fetch" | "submit";
@@ -36,6 +36,10 @@ export type UseQueueReturnType<T extends RequestInstance> = {
    * List of requests for provided request
    */
   requests: QueueRequest<T>[];
+  /**
+   * Request dispatcher instance
+   */
+  dispatcher: Dispatcher;
   /**
    * Callback which allow to stop queue, it will cancel ongoing requests.
    */

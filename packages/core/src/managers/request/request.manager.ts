@@ -1,5 +1,4 @@
-import EventEmitter from "events";
-
+import { EventEmitter } from "utils";
 import { getRequestManagerEvents } from "managers";
 
 /**

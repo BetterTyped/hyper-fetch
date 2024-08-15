@@ -80,13 +80,13 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
                 <RowInfo
                   label="Request URL:"
                   value={
-                    <Chip color="blue">
+                    <Chip color="white">
                       {item.request.client.url}
                       {item.request.endpoint}
                     </Chip>
                   }
                 />
-                <RowInfo label="Request Method:" value={<Chip color="gray">{String(item.request.method)}</Chip>} />
+                <RowInfo label="Request Method:" value={<Chip color="blue">{String(item.request.method)}</Chip>} />
                 <RowInfo
                   label="Status Code:"
                   value={

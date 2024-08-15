@@ -101,7 +101,7 @@ export const getRequestKey = (
 export const getRequestDispatcher = <Request extends RequestInstance>(
   request: Request,
   dispatcherType: "auto" | "fetch" | "submit" = "auto",
-): [Dispatcher, boolean] => {
+): [Dispatcher, isFetchDispatcher: boolean] => {
   const { fetchDispatcher, submitDispatcher } = request.client;
   const isGet = request.method === HttpMethods.GET;
   const isFetchDispatcher = (dispatcherType === "auto" && isGet) || dispatcherType === "fetch";

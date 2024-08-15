@@ -1,6 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { RequestInstance, getRequestDispatcher, QueueElementType, QueueDataType } from "@hyper-fetch/core";
-import { useDidMount, useDidUpdate } from "@better-hooks/lifecycle";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useProvider } from "provider";
@@ -28,8 +27,6 @@ export const useQueue = <Request extends RequestInstance>(
 
   const [dispatcher] = getRequestDispatcher(request, queueType);
 
-  const unmountCallbacks = useRef<null | VoidFunction>(null);
-
   const [stopped, setStopped] = useState(false);
   const [requests, setRequests] = useState<QueueRequest<Request>[]>([]);
 
@@ -37,18 +34,21 @@ export const useQueue = <Request extends RequestInstance>(
   // Mapping
   // ******************
 
-  const createRequestsArray = (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
-    return queueElements.map<QueueRequest<Request>>((req) => ({
-      ...req,
-      stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
-      startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
-      deleteRequest: () => dispatcher.delete(queueKey, req.requestId, abortKey),
-    }));
-  };
+  const createRequestsArray = useCallback(
+    (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
+      return queueElements.map<QueueRequest<Request>>((req) => ({
+        ...req,
+        stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
+        startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
+        deleteRequest: () => dispatcher.delete(queueKey, req.requestId, abortKey),
+      }));
+    },
+    [abortKey, dispatcher, queueKey],
+  );
 
-  const mergePayloadType = (requestId: string, data: Partial<QueueRequest<Request>>) => {
+  const mergePayloadType = useCallback((requestId: string, data: Partial<QueueRequest<Request>>) => {
     setRequests((prev) => prev.map((el) => (el.requestId === requestId ? { ...el, ...data } : el)));
-  };
+  }, []);
 
   // ******************
   // State
@@ -61,10 +61,13 @@ export const useQueue = <Request extends RequestInstance>(
     setRequests(createRequestsArray(requestQueue.requests));
   };
 
-  const updateQueueState = (values: QueueDataType<Request>) => {
-    setStopped(values.stopped);
-    setRequests(createRequestsArray(values.requests));
-  };
+  const updateQueueState = useCallback(
+    (values: QueueDataType<Request>) => {
+      setStopped(values.stopped);
+      setRequests(createRequestsArray(values.requests));
+    },
+    [createRequestsArray],
+  );
 
   // ******************
   // Events
@@ -95,8 +98,6 @@ export const useQueue = <Request extends RequestInstance>(
       unmountUpload();
     };
 
-    unmountCallbacks.current?.();
-    unmountCallbacks.current = unmount;
     return unmount;
   };
 
@@ -104,13 +105,24 @@ export const useQueue = <Request extends RequestInstance>(
   // Lifecycle
   // ******************
 
-  useDidMount(getInitialState);
+  useEffect(getInitialState, [createRequestsArray, dispatcher, queueKey]);
 
-  useDidUpdate(mountEvents, [stopped, requests, setRequests, setStopped], true);
+  useEffect(mountEvents, [
+    stopped,
+    requests,
+    setRequests,
+    setStopped,
+    queueKey,
+    dispatcher.events,
+    requestManager.events,
+    updateQueueState,
+    mergePayloadType,
+  ]);
 
   return {
     stopped,
     requests,
+    dispatcher,
     stop: () => dispatcher.stop(queueKey),
     pause: () => dispatcher.pause(queueKey),
     start: () => dispatcher.start(queueKey),

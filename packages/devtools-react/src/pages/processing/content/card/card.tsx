@@ -10,7 +10,7 @@ import { styles } from "pages/processing/processing.styles";
 export const Card = ({ queue }: { queue: QueueDataType }) => {
   const css = styles.useStyles();
   const status = getQueueStatus(queue);
-  const { setDetailsQueueKey } = useDevtoolsContext("DevtoolsProcessingCard");
+  const { stats, setDetailsQueueKey } = useDevtoolsContext("DevtoolsProcessingCard");
 
   const statusColor = (
     {
@@ -19,6 +19,8 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
       Stopped: "orange",
     } as const
   )[status];
+
+  const total = (stats[queue.queueKey]?.total || 0) + queue.requests.length;
 
   return (
     <button
@@ -42,7 +44,15 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
         <span>Active request{queue.requests.length === 1 ? "" : "s"}</span>
       </div>
       <div className={css.cardFooter}>
-        <span style={{ color: "rgb(88 196 220)" }}>Queue Key:</span> <span>{queue.queueKey}</span>
+        <div className={css.footerRow}>
+          <span style={{ color: "rgb(88 196 220)" }}>Total:</span>{" "}
+          <span>
+            {total} request{total !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className={css.footerRow}>
+          <span style={{ color: "rgb(88 196 220)" }}>Key:</span> <span>{queue.queueKey}</span>
+        </div>
       </div>
     </button>
   );

@@ -12,10 +12,10 @@ const styles = createStyles((theme, css) => {
     `,
     small: css`
       font-size: 12px;
-      padding: 2px 6px;
+      padding: 3px 6px;
     `,
     medium: css`
-      font-size: 14px;
+      font-size: 13px;
       padding: 3px 8px;
     `,
     blue: css`
@@ -32,6 +32,9 @@ const styles = createStyles((theme, css) => {
     `,
     orange: css`
       color: #ff9800;
+    `,
+    white: css`
+      color: #fff;
     `,
     inactive: css`
       color: #607d8b;

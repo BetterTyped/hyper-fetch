@@ -55,10 +55,13 @@ export const styles = createStyles((theme, css) => {
     `,
     cardFooter: css`
       text-align: left;
-      margin-top: 10px;
+      margin-top: 5px;
       font-size: 12px;
       font-weight: 500;
       max-width: 200px;
+    `,
+    footerRow: css`
+      margin-top: 5px;
     `,
     details: css`
       position: absolute !important;

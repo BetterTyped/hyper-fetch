@@ -1,5 +1,3 @@
-import EventEmitter from "events";
-
 import {
   QueueDataType,
   getRequestType,
@@ -12,7 +10,7 @@ import {
   RunningRequestValueType,
 } from "dispatcher";
 import { ClientInstance } from "client";
-import { getUniqueRequestId } from "utils";
+import { EventEmitter, getUniqueRequestId } from "utils";
 import { ResponseDetailsType, LoggerType } from "managers";
 import { RequestInstance } from "request";
 import { getErrorMessage, Response } from "adapter";

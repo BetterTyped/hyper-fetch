@@ -13,12 +13,18 @@ const styles = createStyles((theme, css) => {
       font-weight: 500;
       border-radius: 4px;
       color: #fff;
+      filter: grayscale(0);
+      transition: all 0.15 ease-in-out;
 
       & svg {
         width: 16px;
         height: 16px;
         fill: #fff;
         margin-left: -2px;
+      }
+
+      &:disabled {
+        filter: grayscale(1);
       }
     `,
   };

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Resizable } from "re-resizable";
+import { useQueue } from "@hyper-fetch/react";
 import { QueueDataType } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
@@ -13,6 +14,9 @@ import { RowInfo } from "components/table/row-info/row-info";
 import { getQueueStatus } from "utils/queue.status.utils";
 import { Chip } from "components/chip/chip";
 import { DevtoolsRequestQueueStats } from "devtools.types";
+import { StopIcon } from "icons/stop";
+import { PlayIcon } from "icons/play";
+import { ClearIcon } from "icons/clear";
 
 import { styles } from "../processing.styles";
 
@@ -50,11 +54,17 @@ const defaultStats: DevtoolsRequestQueueStats = {
 export const Details = ({ item }: { item: QueueDataType }) => {
   const css = styles.useStyles();
 
-  const { stats } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { client, stats } = useDevtoolsContext("DevtoolsCacheDetails");
 
   const status = getQueueStatus(item);
 
-  const { queue, color, statistics } = useMemo(() => {
+  const dummyRequest = useMemo(() => {
+    return client.createRequest()({ endpoint: "", queueKey: item.queueKey, method: item.queueKey.split("_")[0] });
+  }, [client, item.queueKey]);
+
+  const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
+
+  const { color, statistics } = useMemo(() => {
     const statusColor = (
       {
         Pending: "gray",
@@ -64,13 +74,24 @@ export const Details = ({ item }: { item: QueueDataType }) => {
     )[status];
 
     return {
-      queue: item,
       status,
       color: statusColor,
       statistics: stats[item.queueKey] || defaultStats,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, item?.requests?.length, stats, status]);
+  }, [item, stats, status]);
+
+  const toggleQueue = () => {
+    if (stopped) {
+      start();
+    } else {
+      stop();
+    }
+  };
+
+  const clear = () => {
+    dispatcher.cancelRunningRequests(item.queueKey);
+    dispatcher.clearQueue(item.queueKey);
+  };
 
   return (
     <Resizable
@@ -85,13 +106,19 @@ export const Details = ({ item }: { item: QueueDataType }) => {
         <Back />
         <Separator style={{ height: "18px", margin: "0 12px" }} />
         <div style={{ ...nameStyle }}>
-          {queue.queueKey}
+          {item.queueKey}
           <Chip color={color}>{status}</Chip>
         </div>
         <div style={{ flex: "1 1 auto" }} />
         <div style={{ ...buttonsStyle }}>
-          <Button color="red">Stop</Button>
-          <Button color="gray">Clear</Button>
+          <Button color={stopped ? "blue" : "red"} onClick={toggleQueue}>
+            {stopped ? <PlayIcon /> : <StopIcon />}
+            {stopped ? "Play" : "Stop"}
+          </Button>
+          <Button color="gray" disabled={!requests.length} onClick={clear}>
+            <ClearIcon />
+            Clear
+          </Button>
         </div>
       </Toolbar>
       <div className={css.detailsContent}>

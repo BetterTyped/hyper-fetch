@@ -1,5 +1,3 @@
-import EventEmitter from "events";
-
 import { AdapterInstance, ResponseType } from "adapter";
 import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
@@ -15,6 +13,7 @@ import {
 } from "cache";
 import { RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
+import { EventEmitter } from "utils";
 
 /**
  * Cache class handles the data exchange with the dispatchers.
@@ -67,10 +66,7 @@ export class Cache<C extends ClientInstance> {
   set = <Request extends RequestInstance>(
     request: RequestCacheType<Request>,
     response: CacheMethodType<
-      Omit<
-        ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
-        "details"
-      > &
+      ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     > & { hydrated?: boolean },
   ): void => {
