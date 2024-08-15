@@ -33,7 +33,9 @@ export type RequestResponseEventType<T extends RequestInstance> = {
 export type ResponseDetailsType = {
   /** If it's retry request we can see which attempt is it */
   retries: number;
+  /** If request was canceled */
   isCanceled: boolean;
+  /** If error from offline status */
   isOffline: boolean;
   /** When added to dispatcher's queue (pre-middleware which could take time) */
   addedTimestamp: number;
@@ -42,5 +44,5 @@ export type ResponseDetailsType = {
   /** When adapter triggers request (after all middlewares) */
   requestTimestamp: number;
   /** When we receive response */
-  timestamp: number;
+  responseTimestamp: number;
 };

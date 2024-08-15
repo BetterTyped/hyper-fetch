@@ -1,6 +1,14 @@
 import EventEmitter from "events";
 
-import { CacheValueType, getInvalidateByKey, getInvalidateKey, getCacheByKey, getCacheKey } from "cache";
+import {
+  CacheValueType,
+  getInvalidateByKey,
+  getInvalidateKey,
+  getCacheByKey,
+  getCacheKey,
+  getDeleteKey,
+  getDeleteByKey,
+} from "cache";
 import { AdapterInstance } from "adapter";
 
 export const getCacheEvents = (emitter: EventEmitter) => ({
@@ -22,6 +30,13 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
   emitInvalidation: (cacheKey: string): void => {
     emitter.emit(getInvalidateKey());
     emitter.emit(getInvalidateByKey(cacheKey));
+  },
+  /**
+   * Delete of cache values
+   */
+  emitDelete: (cacheKey: string): void => {
+    emitter.emit(getDeleteKey());
+    emitter.emit(getDeleteByKey(cacheKey));
   },
   /**
    * Cache data listener
@@ -65,5 +80,13 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
   onInvalidateByKey: (cacheKey: string, callback: () => void): VoidFunction => {
     emitter.on(getInvalidateByKey(cacheKey), callback);
     return () => emitter.removeListener(getInvalidateByKey(cacheKey), callback);
+  },
+  onDelete: (callback: () => void): VoidFunction => {
+    emitter.on(getDeleteKey(), callback);
+    return () => emitter.removeListener(getDeleteKey(), callback);
+  },
+  onDeleteByKey: (cacheKey: string, callback: () => void): VoidFunction => {
+    emitter.on(getDeleteByKey(cacheKey), callback);
+    return () => emitter.removeListener(getDeleteByKey(cacheKey), callback);
   },
 });

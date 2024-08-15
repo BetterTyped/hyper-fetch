@@ -64,7 +64,7 @@ export const useTrackedState = <T extends RequestInstance>({
 
   const getStaleStatus = (): boolean => {
     const cacheData = cache.get(cacheKey);
-    return !cacheData || isStaleCacheData(cacheTime, cacheData?.timestamp);
+    return !cacheData || isStaleCacheData(cacheTime, cacheData?.responseTimestamp);
   };
 
   // ******************
@@ -154,7 +154,7 @@ export const useTrackedState = <T extends RequestInstance>({
       success: cacheData.success,
       extra: cacheData.extra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheData.retries,
-      timestamp: new Date(cacheData.timestamp),
+      timestamp: new Date(cacheData.responseTimestamp),
       loading: state.current.loading,
     };
 
@@ -264,7 +264,7 @@ export const useTrackedState = <T extends RequestInstance>({
     setTimestamp: (timestamp, emitToCache = defaultCacheEmitting) => {
       if (emitToCache) {
         const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current, { timestamp: +timestamp }) });
+        cache.set(request, { ...currentState, ...getDetailsState(state.current, { responseTimestamp: +timestamp }) });
       } else {
         state.current.timestamp = timestamp;
         renderKeyTrigger(["timestamp"]);

@@ -6,14 +6,11 @@ const styles = createStyles((theme, css) => {
     base: css`
       display: flex;
       flex-direction: column;
-      position: absolute;
       justify-content: center;
       align-items: center;
       color: #e2e2e2;
-      flex: 1 1 auto;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      width: 300px;
+      margin: auto;
     `,
     text: css`
       font-size: 14px;
@@ -28,7 +25,7 @@ export const NoContent = (props: React.HTMLProps<HTMLDivElement> & { text: strin
 
   return (
     <div {...divProps} className={css.base}>
-      <NoContentIcon width="40%" height="40%" style={{ opacity: "0.4" }} />
+      <NoContentIcon width="50%" height="auto" style={{ opacity: "0.4" }} />
       <div className={css.text}>{text}</div>
     </div>
   );

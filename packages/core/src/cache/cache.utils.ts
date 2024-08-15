@@ -14,11 +14,17 @@ export const getCacheData = <T extends RequestInstance>(
   return { ...response, data: computedData };
 };
 
+export const getInvalidateKey = (): string => {
+  return `invalidate`;
+};
 export const getInvalidateByKey = (key: string): string => {
   return `${key}_invalidate`;
 };
-export const getInvalidateKey = (): string => {
-  return `invalidate`;
+export const getDeleteKey = (): string => {
+  return `delete`;
+};
+export const getDeleteByKey = (key: string): string => {
+  return `${key}_delete`;
 };
 export const getCacheByKey = (key: string): string => {
   return `${key}_cache`;

@@ -39,10 +39,10 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
         {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
       </td>
       <td className={css.cell} style={{ color }}>
-        {!!item.details?.timestamp && (
+        {!!item.details?.responseTimestamp && (
           <div>
-            {new Date(item.details.timestamp).toLocaleTimeString()}{" "}
-            <span className={css.timestamp}>({item.details.timestamp - item.triggerTimestamp}ms)</span>
+            {new Date(item.details.responseTimestamp).toLocaleTimeString()}{" "}
+            <span className={css.timestamp}>({item.details.responseTimestamp - item.triggerTimestamp}ms)</span>
           </div>
         )}
       </td>

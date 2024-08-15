@@ -542,8 +542,8 @@ export class Dispatcher {
       retries: storageElement.retries,
       addedTimestamp: storageElement.timestamp,
       triggerTimestamp: runningRequest.timestamp,
-      requestTimestamp: response.startTimestamp,
-      timestamp: response.endTimestamp,
+      requestTimestamp: response.requestTimestamp,
+      responseTimestamp: response.responseTimestamp,
     };
 
     // Turn off loading

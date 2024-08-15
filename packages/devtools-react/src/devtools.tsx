@@ -11,10 +11,10 @@ import { DevtoolsProvider } from "devtools.context";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
+  DevtoolsElement,
   DevtoolsRequestEvent,
   DevtoolsRequestQueueStats,
-  RequestEvent,
-  RequestResponse,
+  DevtoolsRequestResponse,
 } from "devtools.types";
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
@@ -44,35 +44,56 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   const Component = modules[module];
 
   // Network
-  const [requests, setRequests] = useState<(RequestEvent<T> & { triggerTimestamp: number })[]>([]);
-  const [success, setSuccess] = useState<RequestResponse<T>[]>([]);
-  const [failed, setFailed] = useState<RequestResponse<T>[]>([]);
-  const [removed, setRemoved] = useState<RequestEvent<T>[]>([]);
-  const [inProgress, setInProgress] = useState<(RequestEvent<T> & { triggerTimestamp: number })[]>([]);
-  const [paused, setPaused] = useState<RequestEvent<T>[]>([]);
-  const [canceled, setCanceled] = useState<RequestEvent<T>[]>([]);
+  const [networkSearchTerm, setNetworkSearchTerm] = useState("");
+  const [requests, setRequests] = useState<DevtoolsRequestEvent[]>([] as unknown as DevtoolsRequestEvent[]);
+  const [success, setSuccess] = useState<DevtoolsRequestResponse[]>([]);
+  const [failed, setFailed] = useState<DevtoolsRequestResponse[]>([]);
+  const [removed, setRemoved] = useState<DevtoolsElement[]>([]);
+  const [inProgress, setInProgress] = useState<DevtoolsElement[]>([]);
+  const [paused, setPaused] = useState<DevtoolsElement[]>([]);
+  const [canceled, setCanceled] = useState<DevtoolsElement[]>([]);
   const [detailsRequestId, setDetailsRequestId] = useState<string | null>(null);
   const [networkFilter, setNetworkFilter] = useState<Status | null>(null);
   // Cache
+  const [cacheSearchTerm, setCacheSearchTerm] = useState("");
   const [cache, setCache] = useState<DevtoolsCacheEvent[]>([]);
   const [detailsCacheKey, setDetailsCacheKey] = useState<string | null>(null);
+  const [loadingKeys, setLoadingKeys] = useState<string[]>([]);
   // Processing
+  const [processingSearchTerm, setProcessingSearchTerm] = useState("");
   const [queues, setQueues] = useState<QueueDataType[]>([]);
   const [detailsQueueKey, setDetailsQueueKey] = useState<string | null>(null);
   const [stats, setStats] = useState<{
     [queueKey: string]: DevtoolsRequestQueueStats;
   }>({});
 
-  const countProgressRequests = useCallback(() => {
+  const handleClearNetwork = useCallback(() => {
+    setRequests([]);
+    setSuccess([]);
+    setFailed([]);
+    setInProgress([]);
+    setPaused([]);
+    setCanceled([]);
+    setRemoved([]);
+  }, []);
+
+  const removeNetworkRequest = (requestId: string) => {
+    setRequests((prev) => prev.filter((i) => i.requestId !== requestId));
+    setSuccess((prev) => prev.filter((i) => i.requestId !== requestId));
+    setFailed((prev) => prev.filter((i) => i.requestId !== requestId));
+  };
+
+  const updateQueues = useCallback(() => {
     const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
     const submitRequests = client.submitDispatcher.getAllRunningRequest();
 
-    const allQueuedRequest = [...fetchRequests, ...submitRequests].map((item) => {
+    const allQueuedRequest: DevtoolsElement[] = [...fetchRequests, ...submitRequests].map((item) => {
       return {
         requestId: item.requestId,
-        request: item.request,
-        triggerTimestamp: item.timestamp,
-      } as RequestEvent<T> & { triggerTimestamp: number };
+        queueKey: item.request.queueKey,
+        cacheKey: item.request.cacheKey,
+        abortKey: item.request.abortKey,
+      };
     });
 
     const queuesArray = Array.from(
@@ -82,30 +103,34 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
     ).map(([, value]) => value);
 
-    const pausedRequests: RequestEvent<T>[] = [...queuesArray, ...submitQueuesArray].reduce((acc, queue) => {
+    const pausedRequests: DevtoolsElement[] = [...queuesArray, ...submitQueuesArray].reduce((acc, queue) => {
       if (queue.stopped) {
         return [
           ...acc,
           ...queue.requests.map((item) => {
             return {
               requestId: item.requestId,
-              request: item.request,
+              queueKey: item.request.queueKey,
+              cacheKey: item.request.cacheKey,
+              abortKey: item.request.abortKey,
             };
           }),
-        ] as RequestEvent<T>[];
+        ];
       }
 
       queue.requests.forEach((item) => {
         if (item.stopped) {
           acc.push({
             requestId: item.requestId,
-            request: item.request,
-          } as RequestEvent<T>);
+            queueKey: item.request.queueKey,
+            cacheKey: item.request.cacheKey,
+            abortKey: item.request.abortKey,
+          });
         }
       });
 
       return acc;
-    }, [] as RequestEvent<T>[]);
+    }, [] as DevtoolsElement[]);
 
     setInProgress(allQueuedRequest);
     setPaused(pausedRequests);
@@ -148,11 +173,20 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
           failed: 0,
           canceled: 0,
           avgTime: 0,
+          minTime: 0,
+          maxTime: 0,
+          lastTime: 0,
           avgQueueTime: 0,
+          minQueueTime: 0,
+          maxQueueTime: 0,
+          lastQueueTime: 0,
           avgProcessingTime: 0,
+          minProcessingTime: 0,
+          maxProcessingTime: 0,
+          lastProcessingTime: 0,
         };
 
-        const reqTime = response.endTimestamp - response.startTimestamp;
+        const reqTime = details.responseTimestamp - response.requestTimestamp;
         const processTime = details.requestTimestamp - details.triggerTimestamp;
         const queueTime = details.triggerTimestamp - details.addedTimestamp;
 
@@ -170,8 +204,19 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
             failed: !response.success && !details.isCanceled ? current.failed + 1 : current.failed,
             canceled: details.isCanceled ? current.canceled + 1 : current.canceled,
             avgTime,
+            minTime: current.minTime ? Math.min(current.minTime, reqTime) : reqTime,
+            maxTime: Math.max(current.maxTime, reqTime),
+            lastTime: reqTime,
             avgQueueTime,
+            minQueueTime: current.minQueueTime ? Math.min(current.minQueueTime, queueTime) : queueTime,
+            maxQueueTime: Math.max(current.maxQueueTime, queueTime),
+            lastQueueTime: queueTime,
             avgProcessingTime,
+            minProcessingTime: current.minProcessingTime
+              ? Math.min(current.minProcessingTime, processTime)
+              : processTime,
+            maxProcessingTime: Math.max(current.maxProcessingTime, processTime),
+            lastProcessingTime: processTime,
           },
         };
       });
@@ -180,45 +225,60 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   );
 
   useEffect(() => {
+    const unmountOffline = client.appManager.events.onOffline(() => {
+      setIsOnline(false);
+    });
+
+    const unmountOnline = client.appManager.events.onOnline(() => {
+      setIsOnline(true);
+    });
+
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
-      setRequests(
-        (prev) =>
-          [{ ...details, triggerTimestamp: new Date() }, ...prev] as (RequestEvent<T> & { triggerTimestamp: number })[],
-      );
-      countProgressRequests();
+      setRequests((prev) => [{ ...details, triggerTimestamp: new Date() }, ...prev] as DevtoolsRequestEvent[]);
+      setLoadingKeys((prev) => prev.filter((i) => i !== details.request.cacheKey));
+      updateQueues();
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
-      countProgressRequests();
-      handleStats(request, response, details);
+      updateQueues();
+
+      if (!details.isCanceled) {
+        handleStats(request, response, details);
+      }
 
       if (response.success) {
-        setSuccess((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
+        setSuccess((prev) => [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse]);
       } else if (!details.isCanceled) {
-        setFailed((prev) => [...prev, { response, details, request, requestId }] as RequestResponse<T>[]);
+        setFailed((prev) => [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse]);
       }
     });
-    const unmountOnRequestPause = client.requestManager.events.onAbort((details) => {
-      setCanceled((prev) => [...prev, details] as RequestEvent<T>[]);
+    const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
+      setCanceled((prev) => [
+        ...prev,
+        { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+      ]);
 
-      countProgressRequests();
+      updateQueues();
     });
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange(() => {
-      countProgressRequests();
+      updateQueues();
     });
     const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange(() => {
-      countProgressRequests();
+      updateQueues();
     });
     const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange(() => {
-      countProgressRequests();
+      updateQueues();
     });
     const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange(() => {
-      countProgressRequests();
+      updateQueues();
     });
-    const unmountOnRemove = client.requestManager.events.onRemove((details) => {
-      if (!details.resolved) {
-        setRemoved((prev) => [...prev, details] as RequestEvent<T>[]);
+    const unmountOnRemove = client.requestManager.events.onRemove(({ requestId, request, resolved }) => {
+      if (!resolved) {
+        setRemoved((prev) => [
+          ...prev,
+          { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+        ]);
       }
-      countProgressRequests();
+      updateQueues();
     });
     const unmountOnCacheChange = client.cache.events.onData(() => {
       handleCacheChange();
@@ -227,7 +287,13 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       handleCacheChange();
     });
 
+    const unmountCacheDelete = client.cache.events.onDelete(() => {
+      handleCacheChange();
+    });
+
     return () => {
+      unmountOffline();
+      unmountOnline();
       unmountOnResponse();
       unmountOnRequestStart();
       unmountOnRequestPause();
@@ -238,14 +304,15 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       unmountOnRemove();
       unmountOnCacheChange();
       unmountOnCacheInvalidate();
+      unmountCacheDelete();
     };
-  }, [client, countProgressRequests, handleCacheChange, handleStats, requests]);
+  }, [client, updateQueues, handleCacheChange, handleStats, requests]);
 
   useEffect(() => {
-    countProgressRequests();
-  }, [countProgressRequests]);
+    updateQueues();
+  }, [updateQueues]);
 
-  const allRequests: Array<DevtoolsRequestEvent> = requests.map((item) => {
+  const allRequests: DevtoolsRequestEvent[] = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
     const isSuccess = !!success.find((el) => el.requestId === item.requestId);
     const isRemoved = !!removed.find((el) => el.requestId === item.requestId);
@@ -286,14 +353,24 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       queues={queues}
       cache={cache}
       stats={stats}
+      networkSearchTerm={networkSearchTerm}
+      setNetworkSearchTerm={setNetworkSearchTerm}
       detailsRequestId={detailsRequestId}
       setDetailsRequestId={setDetailsRequestId}
       networkFilter={networkFilter}
       setNetworkFilter={setNetworkFilter}
+      clearNetwork={handleClearNetwork}
+      removeNetworkRequest={removeNetworkRequest}
+      cacheSearchTerm={cacheSearchTerm}
+      setCacheSearchTerm={setCacheSearchTerm}
       detailsCacheKey={detailsCacheKey}
       setDetailsCacheKey={setDetailsCacheKey}
+      processingSearchTerm={processingSearchTerm}
+      setProcessingSearchTerm={setProcessingSearchTerm}
       detailsQueueKey={detailsQueueKey}
       setDetailsQueueKey={setDetailsQueueKey}
+      loadingKeys={loadingKeys}
+      setLoadingKeys={setLoadingKeys}
     >
       {open && (
         <Resizable
@@ -315,8 +392,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
             border: "1px solid #7e8186",
             borderRadius: "10px 10px 0 0",
             color: "rgb(180, 194, 204)",
-            fontFamily:
-              "Optimistic Text,-apple-system,ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji",
+            fontFamily: "ui-sans-serif, Inter, system-ui, sans-serif, sans-serif",
           }}
         >
           <Header />

@@ -1,9 +1,9 @@
 /* eslint-disable react/require-default-props */
 import React, { useState } from "react";
-import { Button, Stack, Box, Typography, Container, Chip } from "@mui/material";
+import { Button, Stack, Box, Typography, Container, Chip, useTheme, lighten } from "@mui/material";
 import { useAppManager } from "@hyper-fetch/react";
 
-import { Sidebar } from "../components/sidebar";
+import { Sidebar } from "./sidebar";
 import { client } from "../api";
 import { routing } from "../constants/routing.constants";
 
@@ -12,6 +12,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
   children,
   noButtons,
 }) => {
+  const theme = useTheme();
   const [mount, setMount] = useState(true);
   const { isOnline, isFocused } = useAppManager(client);
 
@@ -23,7 +24,7 @@ export const Viewer: React.FC<{ name: string; children: React.ReactNode; noButto
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box sx={{ background: "#eaeaea", pt: "30px", pb: "40px", pl: 3, pr: 3 }}>
+      <Box sx={{ bgcolor: lighten(theme.palette.background.paper, 0.1), pt: "30px", pb: "40px", pl: 3, pr: 3 }}>
         <Typography variant="h3" sx={{ fontWeight: "800" }}>
           {name}
           {!isFocused && <Chip label="Blur" color="primary" />}

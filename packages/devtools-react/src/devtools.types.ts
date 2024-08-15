@@ -24,13 +24,21 @@ export type RequestEvent<T extends ClientInstance> = RequestEventType<
   >
 >;
 
-export type RequestResponse<T extends ClientInstance> = {
-  response: ResponseType<any, any, AdapterInstance>;
-  details?: ResponseDetailsType;
-} & RequestEvent<T>;
+export type DevtoolsElement = {
+  requestId: string;
+  cacheKey: string;
+  queueKey: string;
+  abortKey: string;
+};
 
-export type DevtoolsRequestEvent = RequestEvent<ClientInstance> &
-  RequestResponse<ClientInstance> & {
+export type DevtoolsRequestResponse = {
+  requestId: string;
+  response: ResponseType<any, any, AdapterInstance>;
+  details: ResponseDetailsType;
+};
+
+export type DevtoolsRequestEvent = Partial<DevtoolsRequestResponse> &
+  RequestEvent<ClientInstance> & {
     isRemoved: boolean;
     isCanceled: boolean;
     isSuccess: boolean;
@@ -50,6 +58,15 @@ export type DevtoolsRequestQueueStats = {
   failed: number;
   canceled: number;
   avgTime: number;
+  minTime: number;
+  maxTime: number;
+  lastTime: number;
   avgQueueTime: number;
+  minQueueTime: number;
+  maxQueueTime: number;
+  lastQueueTime: number;
   avgProcessingTime: number;
+  minProcessingTime: number;
+  maxProcessingTime: number;
+  lastProcessingTime: number;
 };

@@ -26,7 +26,7 @@ export const getDetailsState = (
     addedTimestamp: +new Date(),
     triggerTimestamp: +new Date(),
     requestTimestamp: +new Date(),
-    timestamp: +new Date(),
+    responseTimestamp: +new Date(),
     ...details,
   };
 };
@@ -41,7 +41,7 @@ export const getValidCacheData = <T extends RequestInstance>(
   initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
   cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
 ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
-  const isStale = isStaleCacheData(request.cacheTime, cacheData?.timestamp);
+  const isStale = isStaleCacheData(request.cacheTime, cacheData?.responseTimestamp);
 
   if (!isStale && cacheData) {
     return cacheData;
@@ -59,8 +59,8 @@ export const getValidCacheData = <T extends RequestInstance>(
       cacheTime: 1000,
       clearKey: request.client.cache.clearKey,
       garbageCollection: request.garbageCollection,
-      startTimestamp: initialData?.startTimestamp ?? +new Date(),
-      endTimestamp: initialData?.endTimestamp ?? +new Date(),
+      requestTimestamp: initialData?.requestTimestamp ?? +new Date(),
+      responseTimestamp: initialData?.responseTimestamp ?? +new Date(),
     };
   }
 
@@ -97,7 +97,7 @@ export const getInitialState = <T extends RequestInstance>(
       success: mappedData.success,
       extra: (mappedData.extra || client.defaultExtra) as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheState.retries,
-      timestamp: getTimestamp(cacheState.timestamp),
+      timestamp: getTimestamp(cacheState.responseTimestamp),
       loading: initialLoading,
     };
   }

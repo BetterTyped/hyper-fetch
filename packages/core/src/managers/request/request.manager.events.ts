@@ -31,6 +31,7 @@ import {
   RequestProgressEventType,
   RequestResponseEventType,
   RequestRemovedEventType,
+  getLoadingByCacheKey,
 } from "managers";
 import { AdapterInstance } from "adapter";
 import { ExtendRequest, RequestInstance } from "request";
@@ -45,6 +46,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   emitLoading: (data: RequestLoadingEventType<RequestInstance>): void => {
     emitter.emit(getLoadingKey(), data);
     emitter.emit(getLoadingByIdKey(data.requestId), data);
+    emitter.emit(getLoadingByCacheKey(data.request.cacheKey), data);
     emitter.emit(getLoadingByQueueKey(data.request.queueKey), data);
   },
 
@@ -110,6 +112,13 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   ): VoidFunction => {
     emitter.on(getLoadingByQueueKey(queueKey), callback);
     return () => emitter.removeListener(getLoadingByQueueKey(queueKey), callback);
+  },
+  onLoadingByCache: <T extends RequestInstance>(
+    cacheKey: string,
+    callback: (data: RequestLoadingEventType<T>) => void,
+  ): VoidFunction => {
+    emitter.on(getLoadingByCacheKey(cacheKey), callback);
+    return () => emitter.removeListener(getLoadingByCacheKey(cacheKey), callback);
   },
   onLoadingById: <T extends RequestInstance>(
     requestId: string,

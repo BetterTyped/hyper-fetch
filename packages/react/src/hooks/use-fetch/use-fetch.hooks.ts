@@ -219,6 +219,7 @@ export const useFetch = <R extends RequestInstance>(
     });
 
     const invalidateUnmount = cache.events.onInvalidateByKey(cacheKey, handleFetch);
+    const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleFetch);
 
     const unmount = () => {
       clearDataListener();
@@ -226,6 +227,7 @@ export const useFetch = <R extends RequestInstance>(
       blurUnmount();
       onlineUnmount();
       invalidateUnmount();
+      deletionUnmount();
     };
 
     return unmount;

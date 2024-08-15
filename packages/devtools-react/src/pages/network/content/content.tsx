@@ -6,14 +6,15 @@ import { Request } from "./request/request";
 import { Table } from "components/table/table";
 import { NoContent } from "components/no-content/no-content";
 import { Status } from "utils/request.status.utils";
+import { useSearch } from "hooks/use-search";
 
 import { styles } from "../network.styles";
 
 export const Content = () => {
-  const { requests, networkFilter } = useDevtoolsContext("DevtoolsNetworkContent");
+  const { requests, networkFilter, networkSearchTerm } = useDevtoolsContext("DevtoolsNetworkContent");
   const css = styles.useStyles();
 
-  const items = useMemo(() => {
+  const data = useMemo(() => {
     if (!networkFilter) return requests;
     switch (networkFilter) {
       case Status.SUCCESS:
@@ -30,6 +31,19 @@ export const Content = () => {
         return requests;
     }
   }, [requests, networkFilter]);
+
+  const { items } = useSearch({
+    data,
+    searchKeys: [
+      "request.endpoint",
+      "request.method",
+      "request.queueKey",
+      "request.cacheKey",
+      "request.abortKey",
+      "request.effectKey",
+    ],
+    searchTerm: networkSearchTerm,
+  });
 
   return (
     <>

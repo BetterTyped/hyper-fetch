@@ -12,6 +12,8 @@ import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
 import { JSONViewer } from "components/json-viewer/json-viewer";
+import { RemoveIcon } from "icons/remove";
+import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "../network.styles";
 
@@ -21,14 +23,10 @@ const nameStyle = {
   gap: "4px",
 };
 
-const buttonsStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
-
 export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
   const css = styles.useStyles();
+
+  const { removeNetworkRequest } = useDevtoolsContext("DevtoolsNetworkDetails");
 
   const config = useMemo(() => {
     const values = item.request.toJSON();
@@ -47,6 +45,10 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
     return getStatusColor(status);
   }, [status]);
 
+  const remove = () => {
+    removeNetworkRequest(item.requestId);
+  };
+
   return (
     <Resizable
       bounds="parent"
@@ -63,14 +65,12 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
           <RequestStatusIcon status={status} />
           {item.request.endpoint}
         </div>
-        <div style={{ flex: "1 1 auto" }} />
-        <div style={{ ...buttonsStyle, color }}>
-          <Button color="primary">Refetch</Button>
-          <Button color="secondary">Invalidate</Button>
-          <Button color="quaternary">Simulate Loading</Button>
-          <Button color="tertiary">Simulate Errors</Button>
-          <Button color="error">Remove</Button>
-        </div>
+        <div className={css.spacer} />
+
+        <Button color="gray" onClick={remove}>
+          <RemoveIcon />
+          Remove
+        </Button>
       </Toolbar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
@@ -124,6 +124,11 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
         <Collapsible title="Response" defaultOpen>
           <div style={{ padding: "10px" }}>
             <JSONViewer data={item.response} />
+          </div>
+        </Collapsible>
+        <Collapsible title="Response Details" defaultOpen>
+          <div style={{ padding: "10px" }}>
+            <JSONViewer data={item.details} />
           </div>
         </Collapsible>
       </div>

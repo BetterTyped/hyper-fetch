@@ -5,6 +5,9 @@ export const styles = createStyles((theme, css) => {
     wrapper: css`
       overflow-y: auto;
     `,
+    spacer: css`
+      flex: 1 1 auto;
+    `,
     row: css`
       cursor: pointer;
       &:nth-child(2n + 1) {
@@ -34,6 +37,12 @@ export const styles = createStyles((theme, css) => {
     `,
     tbody: css`
       position: relative;
+    `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 10px;
     `,
     details: css`
       position: absolute !important;

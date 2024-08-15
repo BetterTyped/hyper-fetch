@@ -12,10 +12,10 @@ export const styles = createStyles((theme, css) => {
       width: 50px !important;
       height: 50px !important;
       padding: 4px;
-      box-shadow: ${tokens.shadow.sm(tokens.colors.yellow[500] + tokens.alpha[40])};
+      box-shadow: ${tokens.shadow.sm(tokens.colors.orange[500] + tokens.alpha[40])};
       border-radius: 100%;
       overflow: hidden;
-      border: 1px solid ${`#ffa52f${tokens.alpha[60]}`};
+      border: 1px solid ${tokens.colors.orange[700] + tokens.alpha[60]};
 
       &:hover > svg:first-of-type {
         filter: brightness(1.1);

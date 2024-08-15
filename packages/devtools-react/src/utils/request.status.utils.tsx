@@ -33,7 +33,7 @@ export const getStatusColor = (status: Status) => {
     case Status.FAILED:
       return "#ed7281";
     case Status.IN_PROGRESS:
-      return "#9e9e9e";
+      return "#4278a9";
     default:
       return "#fff";
   }

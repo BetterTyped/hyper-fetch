@@ -2,6 +2,7 @@
 
 export const getLoadingKey = (): string => `loading-event-any`;
 export const getLoadingByQueueKey = (queueKey: string): string => `${queueKey}-loading-event`;
+export const getLoadingByCacheKey = (cacheKey: string): string => `${cacheKey}-loading-cache-event`;
 export const getLoadingByIdKey = (id: string): string => `${id}-loading-event-by-id`;
 export const getRemoveKey = (): string => `remove-event-any`;
 export const getRemoveByQueueKey = (queueKey: string): string => `${queueKey}-remove-event`;

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Resizable } from "re-resizable";
+import { CacheValueType } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent } from "devtools.types";
 import { Back } from "./back/back";
@@ -13,6 +14,10 @@ import { Table } from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Countdown } from "components/countdown/countdown";
 import { Chip } from "components/chip/chip";
+import { InvalidateIcon } from "icons/invalidate";
+import { RemoveIcon } from "icons/remove";
+import { LoadingIcon } from "icons/loading";
+import { ErrorIcon } from "icons/error";
 
 import { styles } from "../cache.styles";
 
@@ -22,30 +27,89 @@ const nameStyle = {
   gap: "4px",
 };
 
-const buttonsStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
-
 export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
   const css = styles.useStyles();
 
-  const [stale, setStale] = useState(item.cacheData.timestamp + item.cacheData.cacheTime < Date.now());
+  const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now());
 
-  const { client } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { client, inProgress, loadingKeys, setLoadingKeys } = useDevtoolsContext("DevtoolsCacheDetails");
+
+  const hasInProgressRequest = inProgress.some((i) => i.cacheKey === item.cacheKey);
+  const isLoading = loadingKeys.includes(item.cacheKey);
 
   const elements = useMemo(() => {
-    const { data, error, extra, timestamp, success, status, retries, isCanceled, isOffline, ...additionalData } =
-      item.cacheData;
+    const {
+      data,
+      error,
+      extra,
+      responseTimestamp,
+      success,
+      status,
+      retries,
+      isCanceled,
+      isOffline,
+      ...additionalData
+    } = item.cacheData;
 
-    return { data: { data, error, extra, status, timestamp, success, retries, isCanceled, isOffline }, additionalData };
+    return {
+      data: { data, error, extra, status, timestamp: responseTimestamp, success, retries, isCanceled, isOffline },
+      additionalData,
+    };
   }, [item]);
 
   const onChangeData = (newData: any) => {
     client.cache.storage.set<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
     client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
     client.cache.events.emitCacheData<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
+  };
+
+  const invalidate = () => {
+    client.cache.invalidate(item.cacheKey);
+  };
+
+  const remove = () => {
+    client.cache.delete(item.cacheKey);
+  };
+
+  const toggleLoading = () => {
+    if (!hasInProgressRequest) {
+      setLoadingKeys((prev) => {
+        if (prev.includes(item.cacheKey)) {
+          client.requestManager.events.emitLoading({
+            loading: false,
+            isOffline: false,
+            isRetry: false,
+            request: {
+              cacheKey: item.cacheKey,
+            } as any,
+            requestId: "",
+          });
+          return prev.filter((i) => i !== item.cacheKey);
+        }
+        client.requestManager.events.emitLoading({
+          loading: true,
+          isOffline: false,
+          isRetry: false,
+          request: {
+            cacheKey: item.cacheKey,
+          } as any,
+          requestId: "",
+        });
+        return [...prev, item.cacheKey];
+      });
+    }
+  };
+
+  const error = () => {
+    const data: CacheValueType<unknown, unknown, any> = {
+      ...item.cacheData,
+      data: null,
+      error: new Error("This is error simulated by HyperFetch Devtools"),
+      responseTimestamp: Date.now(),
+      extra: client.defaultExtra,
+    };
+    client.cache.storage.set(item.cacheKey, data);
+    client.cache.events.emitCacheData(item.cacheKey, data);
   };
 
   return (
@@ -65,11 +129,7 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
           <Chip color={stale ? "orange" : "green"}>{stale ? "Stale" : "Fresh"}</Chip>
           {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
         </div>
-        <div style={{ flex: "1 1 auto" }} />
-        <div style={{ ...buttonsStyle }}>
-          <Button color="secondary">Invalidate</Button>
-          <Button color="error">Remove</Button>
-        </div>
+        <div className={css.spacer} />
       </Toolbar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
@@ -78,13 +138,13 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
               <tbody>
                 <RowInfo
                   label="Last updated:"
-                  value={`${new Date(item.cacheData.timestamp).toLocaleDateString()}, ${new Date(item.cacheData.timestamp).toLocaleTimeString()}`}
+                  value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
                 />
                 <RowInfo
                   label="Time left before stale:"
                   value={
                     <Countdown
-                      value={item.cacheData.timestamp + item.cacheData.cacheTime}
+                      value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
                       onDone={() => setStale(true)}
                       onStart={() => setStale(false)}
                       doneText={<Chip color="gray">Cache data is stale</Chip>}
@@ -95,13 +155,33 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
                   label="Time left for garbage collection:"
                   value={
                     <Countdown
-                      value={item.cacheData.timestamp + item.cacheData.garbageCollection}
+                      value={item.cacheData.responseTimestamp + item.cacheData.garbageCollection}
                       doneText={<Chip color="gray">Data removed from cache</Chip>}
                     />
                   }
                 />
               </tbody>
             </Table>
+          </div>
+        </Collapsible>
+        <Collapsible title="Actions" defaultOpen>
+          <div className={css.buttons}>
+            <Button color="blue" onClick={toggleLoading} disabled={hasInProgressRequest}>
+              <LoadingIcon />
+              {isLoading ? "Restore" : "Set"} loading
+            </Button>
+            <Button color="red" onClick={error}>
+              <ErrorIcon />
+              Simulate Error
+            </Button>
+            <Button color="pink" onClick={invalidate}>
+              <InvalidateIcon />
+              Invalidate
+            </Button>
+            <Button color="gray" onClick={remove}>
+              <RemoveIcon />
+              Remove
+            </Button>
           </div>
         </Collapsible>
         <Collapsible title="Config" defaultOpen>

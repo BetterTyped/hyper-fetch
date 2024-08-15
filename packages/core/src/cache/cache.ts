@@ -67,7 +67,10 @@ export class Cache<C extends ClientInstance> {
   set = <Request extends RequestInstance>(
     request: RequestCacheType<Request>,
     response: CacheMethodType<
-      ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
+      Omit<
+        ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>,
+        "details"
+      > &
         ResponseDetailsType
     > & { hydrated?: boolean },
   ): void => {
@@ -172,10 +175,12 @@ export class Cache<C extends ClientInstance> {
     this.storage.delete(cacheKey);
     this.options?.onDelete?.(cacheKey);
     this.lazyStorage?.delete(cacheKey);
+    this.events.emitDelete(cacheKey);
   };
 
   /**
    * Invalidate cache by cacheKey or partial matching with RegExp
+   * It emits invalidation event for each matching cacheKey and sets cacheTime to 0 to indicate out of time cache
    * @param cacheKey
    */
   invalidate = async (cacheKey: string | RegExp) => {
@@ -183,14 +188,20 @@ export class Cache<C extends ClientInstance> {
     const keys = await this.getLazyKeys();
 
     if (typeof cacheKey === "string") {
+      const value = this.storage.get(cacheKey);
+      if (value) {
+        this.storage.set(cacheKey, { ...value, cacheTime: 0 });
+      }
       this.events.emitInvalidation(cacheKey);
-      this.delete(cacheKey);
     } else {
       // eslint-disable-next-line no-restricted-syntax
       for (const entityKey of keys) {
         if (cacheKey.test(entityKey)) {
+          const value = this.storage.get(entityKey);
+          if (value) {
+            this.storage.set(entityKey, { ...value, cacheTime: 0 });
+          }
           this.events.emitInvalidation(entityKey);
-          this.delete(entityKey);
         }
       }
     }
@@ -210,8 +221,8 @@ export class Cache<C extends ClientInstance> {
     const hasLazyData = this.lazyStorage && data;
     if (hasLazyData) {
       const now = +new Date();
-      const isNewestData = syncData ? syncData.timestamp < data.timestamp : true;
-      const isStaleData = data.cacheTime <= now - data.timestamp;
+      const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
+      const isStaleData = data.cacheTime <= now - data.responseTimestamp;
       const isValidLazyData = data.clearKey === this.clearKey;
 
       if (!isValidLazyData) {
@@ -257,7 +268,7 @@ export class Cache<C extends ClientInstance> {
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.garbageCollection + cacheData.timestamp - +new Date();
+      const timeLeft = cacheData.garbageCollection + cacheData.responseTimestamp - +new Date();
       if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
         this.logger.info("Cache value is Infinite", { cacheKey });
       } else if (timeLeft >= 0) {

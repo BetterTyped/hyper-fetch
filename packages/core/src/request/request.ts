@@ -521,8 +521,8 @@ export class Request<
         status: cacheData.status,
         success: cacheData.success,
         extra: cacheData.extra,
-        startTimestamp: cacheData.startTimestamp,
-        endTimestamp: cacheData.endTimestamp,
+        requestTimestamp: cacheData.requestTimestamp,
+        responseTimestamp: cacheData.responseTimestamp,
       };
     }
     return undefined;

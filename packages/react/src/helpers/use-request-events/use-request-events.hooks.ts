@@ -158,7 +158,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const addDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queueKey, handleGetLoadingEvent(req.queueKey));
+    const loadingUnmount = requestManager.events.onLoadingByCache(req.cacheKey, handleGetLoadingEvent(req.cacheKey));
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,

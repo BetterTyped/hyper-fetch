@@ -34,8 +34,17 @@ const defaultStats: DevtoolsRequestQueueStats = {
   failed: 0,
   canceled: 0,
   avgTime: 0,
+  minTime: 0,
+  maxTime: 0,
+  lastTime: 0,
   avgQueueTime: 0,
+  minQueueTime: 0,
+  maxQueueTime: 0,
+  lastQueueTime: 0,
   avgProcessingTime: 0,
+  minProcessingTime: 0,
+  maxProcessingTime: 0,
+  lastProcessingTime: 0,
 };
 
 export const Details = ({ item }: { item: QueueDataType }) => {
@@ -81,8 +90,8 @@ export const Details = ({ item }: { item: QueueDataType }) => {
         </div>
         <div style={{ flex: "1 1 auto" }} />
         <div style={{ ...buttonsStyle }}>
-          <Button color="secondary">Stop</Button>
-          <Button color="error">Clear</Button>
+          <Button color="red">Stop</Button>
+          <Button color="gray">Clear</Button>
         </div>
       </Toolbar>
       <div className={css.detailsContent}>
@@ -90,22 +99,82 @@ export const Details = ({ item }: { item: QueueDataType }) => {
           <div style={{ padding: "10px" }}>
             <Table>
               <tbody>
-                <RowInfo label="Total Requests:" value={<Chip color="blue">{statistics.total}</Chip>} />
-                <RowInfo label="Success Requests:" value={<Chip color="blue">{statistics.success}</Chip>} />
-                <RowInfo label="Failed Requests:" value={<Chip color="blue">{statistics.failed}</Chip>} />
-                <RowInfo label="Canceled Requests:" value={<Chip color="blue">{statistics.canceled}</Chip>} />
+                <RowInfo label="Total Requests:" value={<Chip color="gray">{statistics.total}</Chip>} />
+                <RowInfo label="Success Requests:" value={<Chip color="green">{statistics.success}</Chip>} />
+                <RowInfo label="Failed Requests:" value={<Chip color="red">{statistics.failed}</Chip>} />
+                <RowInfo label="Canceled Requests:" value={<Chip color="orange">{statistics.canceled}</Chip>} />
                 <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
+              </tbody>
+            </Table>
+          </div>
+        </Collapsible>
+        <Collapsible title="Response times" defaultOpen>
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <tbody>
                 <RowInfo
-                  label="Average time spent in queue:"
-                  value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
+                  label="Last response time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.lastTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Min response time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.minTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Max response time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.maxTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Average response time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.avgTime), 10)}ms</Chip>}
+                />
+              </tbody>
+            </Table>
+          </div>
+        </Collapsible>
+        <Collapsible title="Processing times" defaultOpen>
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <tbody>
+                <RowInfo
+                  label="Last pre-processing time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.lastProcessingTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Min pre-processing time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.minProcessingTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Max pre-processing time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.maxProcessingTime), 10)}ms</Chip>}
                 />
                 <RowInfo
                   label="Average pre-processing time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgProcessingTime), 10)}ms</Chip>}
                 />
+              </tbody>
+            </Table>
+          </div>
+        </Collapsible>
+        <Collapsible title="Queue times" defaultOpen>
+          <div style={{ padding: "10px" }}>
+            <Table>
+              <tbody>
                 <RowInfo
-                  label="Average request time:"
-                  value={<Chip color="blue">{parseInt(String(statistics.avgTime), 10)}ms</Chip>}
+                  label="Last queue time:"
+                  value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Min time spent in queue:"
+                  value={<Chip color="blue">{parseInt(String(statistics.minQueueTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Max time spent in queue:"
+                  value={<Chip color="blue">{parseInt(String(statistics.maxQueueTime), 10)}ms</Chip>}
+                />
+                <RowInfo
+                  label="Average time spent in queue:"
+                  value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
                 />
               </tbody>
             </Table>

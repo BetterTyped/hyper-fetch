@@ -40,6 +40,12 @@ export const styles = createStyles((theme, css) => {
     timestamp: css`
       color: #a7a7a7;
     `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 10px;
+    `,
     toolbarRow: css`
       display: flex;
       align-items: center;

@@ -192,8 +192,8 @@ export const sendRequest = <Request extends RequestInstance>(
           success: false,
           error: getErrorMessage("deleted") as unknown as ExtractErrorType<Request>,
           extra: request.client.defaultExtra as any,
-          startTimestamp: +new Date(),
-          endTimestamp: +new Date(),
+          requestTimestamp: +new Date(),
+          responseTimestamp: +new Date(),
         });
 
         // Unmount Listeners
