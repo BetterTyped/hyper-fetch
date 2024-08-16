@@ -17,6 +17,8 @@ export const Toolbar = () => {
       <Search placeholder="Search" onChange={(e) => setNetworkSearchTerm(e.target.value)} />
       <Select
         style={{ marginLeft: "6px" }}
+        // eslint-disable-next-line no-console
+        onChange={(e) => console.log(e.currentTarget.value)}
         options={[
           {
             value: "time",

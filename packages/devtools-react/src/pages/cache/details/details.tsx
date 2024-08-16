@@ -32,7 +32,7 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
 
   const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now());
 
-  const { client, inProgress, loadingKeys, setLoadingKeys } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { client, requests, inProgress, loadingKeys, setLoadingKeys } = useDevtoolsContext("DevtoolsCacheDetails");
 
   const hasInProgressRequest = inProgress.some((i) => i.cacheKey === item.cacheKey);
   const isLoading = loadingKeys.includes(item.cacheKey);
@@ -57,10 +57,24 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
     };
   }, [item]);
 
+  const latestItem = useMemo(() => {
+    const element = requests.find((el) => el.request.cacheKey === item.cacheKey);
+    if (!element)
+      return {
+        request: {
+          cacheKey: item.cacheKey,
+        } as any,
+        requestId: "",
+      };
+    return element;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.cacheKey, requests?.length]);
+
   const onChangeData = (newData: any) => {
-    client.cache.storage.set<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
-    client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
-    client.cache.events.emitCacheData<any, any, any>(item.cacheKey, { ...item.cacheData, ...newData });
+    const data = { ...item.cacheData, ...newData };
+    client.cache.storage.set<any, any, any>(item.cacheKey, data);
+    client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
+    client.cache.events.emitCacheData<any, any, any>(item.cacheKey, data);
   };
 
   const invalidate = () => {
@@ -79,10 +93,8 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
             loading: false,
             isOffline: false,
             isRetry: false,
-            request: {
-              cacheKey: item.cacheKey,
-            } as any,
-            requestId: "",
+            request: latestItem?.request,
+            requestId: latestItem.requestId,
           });
           return prev.filter((i) => i !== item.cacheKey);
         }
@@ -90,10 +102,8 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
           loading: true,
           isOffline: false,
           isRetry: false,
-          request: {
-            cacheKey: item.cacheKey,
-          } as any,
-          requestId: "",
+          request: latestItem.request,
+          requestId: latestItem.requestId,
         });
         return [...prev, item.cacheKey];
       });
@@ -107,6 +117,7 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
       error: new Error("This is error simulated by HyperFetch Devtools"),
       responseTimestamp: Date.now(),
       extra: client.defaultExtra,
+      success: false,
     };
     client.cache.storage.set(item.cacheKey, data);
     client.cache.events.emitCacheData(item.cacheKey, data);

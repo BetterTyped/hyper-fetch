@@ -3,10 +3,10 @@
 import { KeyPath } from "react-json-tree";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateValue = <S>(target: S, path: KeyPath, value: any): S => {
-  const keys = path;
+export const updateValue = <S extends object>(target: S, path: KeyPath, value: any): S => {
+  const keys = [...path].reverse();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let reference: any = target;
+  let reference: any = typeof target === "object" ? new Proxy(target, {}) : target;
   if (typeof target === "object" && target !== null) {
     keys.forEach((key, index) => {
       if (keys.length - 2 >= index && key in reference) {

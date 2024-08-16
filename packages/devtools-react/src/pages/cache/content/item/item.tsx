@@ -16,7 +16,6 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
 
   useEffect(() => {
     return client.requestManager.emitter.onListenChange(getLoadingByCacheKey(item.cacheKey), (count) => {
-      console.log(count);
       setListeners(count);
     });
   }, [client.requestManager.emitter, item.cacheKey, setDetailsCacheKey]);

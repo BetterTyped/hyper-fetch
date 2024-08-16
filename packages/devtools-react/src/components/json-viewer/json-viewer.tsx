@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { CommonExternalProps, JSONTree } from "react-json-tree";
+import { produce } from "immer";
 import type { Theme } from "react-base16-styling";
 
 import { Value } from "./value/value";
@@ -51,7 +52,9 @@ export const JSONViewer = ({
 
   const handleOnChange = (path: (number | string)[]) => (value: any) => {
     if (onChange) {
-      const newData = updateValue(data, path.reverse(), value);
+      const newData = produce(data, (draft: any) => {
+        updateValue(draft, path, value);
+      });
       onChange(newData);
     } else {
       console.error("onChange is not provided");
