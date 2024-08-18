@@ -33,19 +33,21 @@ const modules = {
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
   initiallyOpen?: boolean;
+  initialTheme?: "light" | "dark";
   initialPosition?: "top" | "left" | "right" | "bottom";
   simulatedError?: any;
 };
 
 export const Devtools = <T extends ClientInstance>({
   client,
+  initialTheme = "dark",
   initiallyOpen = false,
   initialPosition = "right",
   simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
 }: DevtoolsProps<T>) => {
   const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
   const [position, setPosition] = useState<"top" | "left" | "right" | "bottom">(initialPosition);
 
