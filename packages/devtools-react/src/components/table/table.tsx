@@ -56,7 +56,7 @@ export const Table = (props: React.HTMLProps<HTMLTableElement>) => {
   const css = styles.useStyles();
 
   return (
-    <div style={{ overflow: "auto" }}>
+    <div style={{ overflow: "auto", paddingBottom: "5px" }}>
       <table {...props} className={styles.clsx(css.base, className)} />
     </div>
   );

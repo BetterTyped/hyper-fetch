@@ -10,8 +10,7 @@ export const styles = createStyles((isLight, css) => {
       }
     `,
     activeRow: css`
-      outline: 2px solid ${isLight ? tokens.colors.cyan[400] : tokens.colors.cyan[400]}!important;
-      outline-offset: -2px !important;
+      box-shadow: inset 0px 0px 2px 1px ${isLight ? tokens.colors.blue[400] : tokens.colors.blue[400]}!important;
     `,
     cell: css`
       font-weight: 300;
