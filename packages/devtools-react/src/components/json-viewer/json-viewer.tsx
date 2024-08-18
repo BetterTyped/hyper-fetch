@@ -1,42 +1,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { CommonExternalProps, JSONTree } from "react-json-tree";
 import { produce } from "immer";
-import type { Theme } from "react-base16-styling";
 
+import { useDevtoolsContext } from "devtools.context";
 import { Value } from "./value/value";
 import { Label } from "./label/label";
-import { getRaw, updateValue } from "./json-viewer.utils";
+import { getRaw, getTheme, updateValue } from "./json-viewer.utils";
 
 import { styles } from "./json-viewer.styles";
-
-const theme: Theme = {
-  scheme: "bright",
-  base00: "transparent",
-  base01: "#444c56",
-  base02: "#58626d",
-  base03: "#6a737d",
-  base04: "#a0a6ab",
-  base05: "#c8ccd1",
-  base06: "#e2e5e9",
-  base07: "#f0f3f6",
-  base08: "#ff5c57",
-  base09: "#ff9f43",
-  base0A: "#f3f99d",
-  base0B: "#5af78e",
-  base0C: "#9aedfe",
-  base0D: "#b4c2cc",
-  base0E: "#ff6ac1",
-  base0F: "#b2643c",
-  // eslint-disable-next-line max-params
-  nestedNode: ({ style }) => {
-    return {
-      style: {
-        ...style,
-        transform: "translateX(10px)",
-      },
-    };
-  },
-};
 
 export const JSONViewer = ({
   data,
@@ -49,6 +20,7 @@ export const JSONViewer = ({
   onChange?: (value: any) => void;
 } & Partial<Omit<CommonExternalProps, "data" | "theme" | "valueRenderer">>) => {
   const css = styles.useStyles();
+  const { theme } = useDevtoolsContext("JSONViewer");
 
   const handleOnChange = (path: (number | string)[]) => (value: any) => {
     if (onChange) {
@@ -83,7 +55,7 @@ export const JSONViewer = ({
         shouldExpandNodeInitially={shouldExpandNodeInitially}
         hideRoot={hideRoot}
         data={data}
-        theme={theme}
+        theme={getTheme(theme === "light")}
         valueRenderer={(value, raw, ...path: (string | number)[]) => (
           <Value value={value} raw={raw} onChange={handleOnChange(path)} disabled={!onChange} />
         )}

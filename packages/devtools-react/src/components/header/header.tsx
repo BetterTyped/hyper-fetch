@@ -24,10 +24,10 @@ export const Header = () => {
 
   return (
     <div className={css.wrapper}>
-      <div className={css.heading}>
+      <button type="button" className={css.heading} onClick={() => setModule(DevtoolsModule.NETWORK)}>
         <LogoIcon style={{ padding: "0 0 0 5px" }} />
         <div className={css.title}>DevTools</div>
-      </div>
+      </button>
       <div style={{ display: "flex", alignItems: "center", padding: "0 10px 0 0" }}>
         <Button color={getColor(DevtoolsModule.NETWORK)} onClick={() => setModule(DevtoolsModule.NETWORK)}>
           <NetworkIcon fill={getIconColor(DevtoolsModule.NETWORK)} />
@@ -41,8 +41,11 @@ export const Header = () => {
           <ProcessingIcon fill={getIconColor(DevtoolsModule.PROCESSING)} />
           Processing
         </Button>
-        <IconButton style={{ height: "36px", width: "36px", marginTop: "2px" }} onClick={() => setOpen(false)}>
-          <CloseIcon fill="#b6b9be" />
+        <IconButton
+          style={{ height: "32px", width: "32px", marginTop: "2px", marginLeft: "7px" }}
+          onClick={() => setOpen(false)}
+        >
+          <CloseIcon />
         </IconButton>
       </div>
     </div>

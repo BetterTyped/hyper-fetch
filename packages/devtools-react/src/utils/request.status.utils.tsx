@@ -1,4 +1,5 @@
 import { DevtoolsRequestEvent } from "devtools.types";
+import { tokens } from "theme/tokens";
 
 export enum Status {
   REMOVED = "Removed",
@@ -24,18 +25,18 @@ export const getStatus = (
   return Status.IN_PROGRESS;
 };
 
-export const getStatusColor = (status: Status) => {
+export const getStatusColor = (status: Status, isLight: boolean) => {
   switch (status) {
     case Status.REMOVED:
-      return "#9e9e9e";
+      return isLight ? tokens.colors.light[600] : tokens.colors.light[700];
     case Status.CANCELED:
-      return "#efb851";
+      return isLight ? tokens.colors.orange[500] : tokens.colors.orange[400];
     case Status.FAILED:
-      return "#ed7281";
+      return isLight ? tokens.colors.red[500] : tokens.colors.red[400];
     case Status.IN_PROGRESS:
-      return "#4278a9";
+      return isLight ? tokens.colors.blue[500] : tokens.colors.blue[400];
     default:
-      return "#fff";
+      return "inherit";
   }
 };
 
@@ -91,7 +92,7 @@ export const RequestStatusIcon = ({ status }: { status: Status }) => {
           height="14px"
         >
           <path
-            fill="#d19f41"
+            fill={tokens.colors.orange[500]}
             d="M234.146,0C104.898,0,0,104.898,0,234.146s104.898,234.146,234.146,234.146
       s234.146-104.898,234.146-234.146S363.395,0,234.146,0z M66.185,234.146c0-93.034,75.551-168.585,167.961-168.585
       c34.966,0,68.059,10.615,94.907,29.346L95.532,329.054C76.8,302.205,66.185,269.112,66.185,234.146z M234.146,402.107
@@ -113,7 +114,7 @@ export const RequestStatusIcon = ({ status }: { status: Status }) => {
           width="14px"
           height="14px"
         >
-          <ellipse fill="#E04F5F" cx="256" cy="256" rx="256" ry="255.832" />
+          <ellipse fill={tokens.colors.red[500]} cx="256" cy="256" rx="256" ry="255.832" />
           <g transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 77.26 32)">
             <rect x="3.98" y="-427.615" fill="#fff" width="55.992" height="285.672" />
             <rect x="-110.828" y="-312.815" fill="#fff" width="285.672" height="55.992" />
@@ -126,7 +127,7 @@ export const RequestStatusIcon = ({ status }: { status: Status }) => {
           <g id="Checkmark">
             <path
               d="m32 8a24 24 0 1 0 24 24 24.03187 24.03187 0 0 0 -24-24zm13.41 17.41-15 15a1.97983 1.97983 0 0 1 -2.82 0l-7-7a1.994 1.994 0 0 1 2.82-2.82l5.59 5.58 13.59-13.58a1.994 1.994 0 0 1 2.82 2.82z"
-              fill="#88c941"
+              fill={tokens.colors.green[500]}
             />
             <path
               d="m45.41 25.41-15 15a1.97983 1.97983 0 0 1 -2.82 0l-7-7a1.994 1.994 0 0 1 2.82-2.82l5.59 5.58 13.59-13.58a1.994 1.994 0 0 1 2.82 2.82z"
@@ -150,7 +151,7 @@ export const RequestStatusIcon = ({ status }: { status: Status }) => {
         >
           <g>
             <path
-              fill="#3DB39E"
+              fill={tokens.colors.blue[500]}
               d="M78.493,143.181H62.832v-0.125c0-43.623,34.809-80.328,79.201-80.122
       c21.642,0.098,41.523,8.841,55.691,23.135l25.843-24.931c-20.864-21.043-49.693-34.049-81.534-34.049
       c-63.629,0-115.208,51.955-115.298,116.075h-15.84c-9.708,0-13.677,6.49-8.823,14.437l33.799,33.504

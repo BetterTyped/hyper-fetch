@@ -11,7 +11,7 @@ type JoinString<K, P, S extends string = "."> = K extends string | number
 
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...0[]];
 
-export type PathsOf<T, S extends string = ".", D extends number = 2> = [D] extends [never]
+export type PathsOf<T, S extends string = ".", D extends number = 1> = [D] extends [never]
   ? never
   : T extends object
     ? {
@@ -23,15 +23,25 @@ export const useSearch = <T extends Array<Record<string, any>>>({
   data,
   searchKeys,
   searchTerm,
-  options,
+  dependencies,
+  ...options
 }: {
   data: T;
   searchKeys: Array<PathsOf<T[0]>>;
   searchTerm: string;
-  options?: Omit<MatchSorterOptions<T>, "keys">;
-}) => {
+  dependencies?: readonly any[];
+} & Omit<MatchSorterOptions<T[0]>, "keys">) => {
   const [filteredData, setFilteredData] = useState<T>(data as unknown as T);
   const { debounce } = useDebounce({ delay: 200 });
+
+  const handleMatchSorter = () => {
+    const filtered = matchSorter(data as readonly T[], searchTerm, {
+      ...options,
+      keys: searchKeys,
+    }) as T;
+
+    setFilteredData(filtered);
+  };
 
   const handleSearch = () => {
     if (!searchTerm) {
@@ -39,12 +49,7 @@ export const useSearch = <T extends Array<Record<string, any>>>({
       return;
     }
 
-    const filtered = matchSorter(data as readonly T[], searchTerm, {
-      ...options,
-      keys: searchKeys,
-    }) as T;
-
-    setFilteredData(filtered);
+    handleMatchSorter();
   };
 
   useDidUpdate(
@@ -58,6 +63,10 @@ export const useSearch = <T extends Array<Record<string, any>>>({
   useDidUpdate(() => {
     debounce(handleSearch);
   }, [searchTerm]);
+
+  useDidUpdate(() => {
+    debounce(handleMatchSorter);
+  }, dependencies || []);
 
   return { items: filteredData };
 };

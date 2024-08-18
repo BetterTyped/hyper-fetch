@@ -7,7 +7,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { styles } from "pages/network/network.styles";
 
 export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
-  const { setDetailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
+  const { client, setDetailsRequestId, theme, detailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
   const css = styles.useStyles();
 
   const status = useMemo(() => {
@@ -15,36 +15,38 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [item]);
 
   const color = useMemo(() => {
-    return getStatusColor(status);
-  }, [status]);
+    return getStatusColor(status, theme === "light");
+  }, [status, theme]);
 
   return (
-    <tr onClick={() => setDetailsRequestId(item.requestId)} className={css.row}>
+    <tr
+      tabIndex={0}
+      role="button"
+      onClick={() => setDetailsRequestId(item.requestId)}
+      className={styles.clsx(css.row, { [css.activeRow]: item.requestId === detailsRequestId })}
+    >
       <td className={css.cell} style={{ color }}>
         <div className={css.endpointCell}>
           <RequestStatusIcon status={status} />
           <span>{item.request.endpoint}</span>
         </div>
       </td>
-      <td className={css.cell} style={{ color }}>
-        {status}
+
+      {typeof client.defaultMethod === "string" && (
+        <td className={css.cell} style={{ color }}>
+          {String(item.request.method)}
+        </td>
+      )}
+      <td className={css.cell} style={{ color, textTransform: "capitalize" }}>
+        {String(item.response?.success ?? "")}
       </td>
       <td className={css.cell} style={{ color }}>
-        {String(item.request.method)}
-      </td>
-      <td className={css.cell} style={{ color }}>
-        {String(item.response?.status || "")}
-      </td>
-      <td className={css.cell} style={{ color }}>
-        {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
-      </td>
-      <td className={css.cell} style={{ color }}>
-        {!!item.details?.responseTimestamp && (
-          <div>
-            {new Date(item.details.responseTimestamp).toLocaleTimeString()}{" "}
+        <div>
+          {new Date(item.triggerTimestamp).toLocaleTimeString()}{" "}
+          {!!item.details?.responseTimestamp && (
             <span className={css.timestamp}>({item.details.responseTimestamp - item.triggerTimestamp}ms)</span>
-          </div>
-        )}
+          )}
+        </div>
       </td>
     </tr>
   );

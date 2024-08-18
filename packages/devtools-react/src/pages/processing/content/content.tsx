@@ -16,13 +16,16 @@ export const Content = () => {
     searchTerm: processingSearchTerm,
   });
 
+  if (!items.length) {
+    return <NoContent text="Make some request to see them here!" />;
+  }
+
   return (
-    <div style={{ padding: "10px 20px" }} className={css.wrapper}>
+    <div className={css.wrapper}>
       <div className={css.row}>
         {items.map((queue, index) => {
           return <Card key={index} queue={queue} />;
         })}
-        {!items.length && <NoContent text="No queues at the moment, trigger your requests to see data here" />}
       </div>
     </div>
   );

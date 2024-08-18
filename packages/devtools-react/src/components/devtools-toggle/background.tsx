@@ -1,5 +1,7 @@
 import { SVGProps } from "react";
 
+import { tokens } from "theme/tokens";
+
 export const Background = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg
@@ -23,8 +25,8 @@ export const Background = (props: SVGProps<SVGSVGElement>) => {
           y2="1493.77"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#5d4a37" />
-          <stop offset="1" stopColor="#2a375c" />
+          <stop stopColor={tokens.colors.orange[600]} />
+          <stop offset="1" stopColor={tokens.colors.dark[400]} />
         </linearGradient>
       </defs>
     </svg>

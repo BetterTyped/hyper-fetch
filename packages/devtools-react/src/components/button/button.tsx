@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles, ExtractKeys } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     button: css`
       display: flex;
@@ -12,14 +12,14 @@ const styles = createStyles((theme, css) => {
       font-size: 14px;
       font-weight: 500;
       border-radius: 4px;
-      color: #fff;
+      color: #fff !important;
       filter: grayscale(0);
-      transition: all 0.15 ease-in-out;
+      transition: background 0.15 ease-in-out;
 
       & svg {
         width: 16px;
         height: 16px;
-        fill: #fff;
+        fill: #fff !important;
         margin-left: -2px;
       }
 
@@ -42,12 +42,12 @@ const colorVariants = createStyles((theme, css) => {
       }
     `,
     gray: css`
-      background: ${tokens.colors.gray[700]};
+      background: ${tokens.colors.light[700]};
       &:hover {
-        background: ${tokens.colors.gray[800]};
+        background: ${tokens.colors.light[800]};
       }
       &:active {
-        background: ${tokens.colors.gray[900]};
+        background: ${tokens.colors.light[900]};
       }
     `,
     teal: css`

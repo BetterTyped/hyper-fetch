@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
-import { Resizable } from "re-resizable";
 import { css } from "goober";
 
 import { Header } from "./components/header/header";
 import { Cache } from "./pages/cache/cache";
 import { Network } from "./pages/network/network";
 import { Processing } from "./pages/processing/processing";
-import { DevtoolsProvider } from "devtools.context";
+import { DevtoolsProvider, Sort } from "devtools.context";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
@@ -18,6 +17,7 @@ import {
 } from "devtools.types";
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
+import { DevtoolsWrapper } from "devtools.wrapper";
 
 const modules = {
   Network,
@@ -26,25 +26,34 @@ const modules = {
 };
 
 /**
- * TODO:  Add description
- * - errors drafts - allowing to test the error handling with button clicks
- * - max network elements - performance handling
+ * TODO:
+ * - max network elements - performance handling?
  * - max cache elements - performance handling?
  */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
   initiallyOpen?: boolean;
+  initialPosition?: "top" | "left" | "right" | "bottom";
+  simulatedError?: any;
 };
 
-export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = false }: DevtoolsProps<T>) => {
+export const Devtools = <T extends ClientInstance>({
+  client,
+  initiallyOpen = false,
+  initialPosition = "right",
+  simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
+}: DevtoolsProps<T>) => {
   const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
+  const [position, setPosition] = useState<"top" | "left" | "right" | "bottom">(initialPosition);
 
   const Component = modules[module];
 
   // Network
   const [networkSearchTerm, setNetworkSearchTerm] = useState("");
+  const [networkSort, setNetworkSort] = useState<Sort | null>(null);
   const [requests, setRequests] = useState<DevtoolsRequestEvent[]>([] as unknown as DevtoolsRequestEvent[]);
   const [success, setSuccess] = useState<DevtoolsRequestResponse[]>([]);
   const [failed, setFailed] = useState<DevtoolsRequestResponse[]>([]);
@@ -56,11 +65,13 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
   const [networkFilter, setNetworkFilter] = useState<Status | null>(null);
   // Cache
   const [cacheSearchTerm, setCacheSearchTerm] = useState("");
+  const [cacheSort, setCacheSort] = useState<Sort | null>(null);
   const [cache, setCache] = useState<DevtoolsCacheEvent[]>([]);
   const [detailsCacheKey, setDetailsCacheKey] = useState<string | null>(null);
   const [loadingKeys, setLoadingKeys] = useState<string[]>([]);
   // Processing
   const [processingSearchTerm, setProcessingSearchTerm] = useState("");
+  const [processingSort, setProcessingSort] = useState<Sort | null>(null);
   const [queues, setQueues] = useState<QueueDataType[]>([]);
   const [detailsQueueKey, setDetailsQueueKey] = useState<string | null>(null);
   const [stats, setStats] = useState<{
@@ -338,6 +349,8 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
     <DevtoolsProvider
       css={css}
       open={open}
+      theme={theme}
+      setTheme={setTheme}
       setOpen={setOpen}
       module={module}
       setModule={setModule}
@@ -355,6 +368,8 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       stats={stats}
       networkSearchTerm={networkSearchTerm}
       setNetworkSearchTerm={setNetworkSearchTerm}
+      networkSort={networkSort}
+      setNetworkSort={setNetworkSort}
       detailsRequestId={detailsRequestId}
       setDetailsRequestId={setDetailsRequestId}
       networkFilter={networkFilter}
@@ -363,38 +378,24 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
       removeNetworkRequest={removeNetworkRequest}
       cacheSearchTerm={cacheSearchTerm}
       setCacheSearchTerm={setCacheSearchTerm}
+      cacheSort={cacheSort}
+      setCacheSort={setCacheSort}
       detailsCacheKey={detailsCacheKey}
       setDetailsCacheKey={setDetailsCacheKey}
       processingSearchTerm={processingSearchTerm}
       setProcessingSearchTerm={setProcessingSearchTerm}
+      processingSort={processingSort}
+      setProcessingSort={setProcessingSort}
       detailsQueueKey={detailsQueueKey}
       setDetailsQueueKey={setDetailsQueueKey}
       loadingKeys={loadingKeys}
       setLoadingKeys={setLoadingKeys}
+      position={position}
+      setPosition={setPosition}
+      simulatedError={simulatedError}
     >
       {open && (
-        <Resizable
-          defaultSize={{ width: "100%", height: 400 }}
-          minHeight={44}
-          minWidth={44}
-          maxHeight="100vh"
-          maxWidth="100vw"
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            position: "fixed",
-            zIndex: 9999,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            overflowY: "hidden",
-            background: "rgb(35 39 46)",
-            border: "1px solid #7e8186",
-            borderRadius: "10px 10px 0 0",
-            color: "rgb(180, 194, 204)",
-            fontFamily: "ui-sans-serif, Inter, system-ui, sans-serif, sans-serif",
-          }}
-        >
+        <DevtoolsWrapper>
           <Header />
           <div
             style={{
@@ -407,7 +408,7 @@ export const Devtools = <T extends ClientInstance>({ client, initiallyOpen = fal
           >
             <Component />
           </div>
-        </Resizable>
+        </DevtoolsWrapper>
       )}
       {!open && <DevtoolsToggle onClick={() => setOpen(true)} />}
     </DevtoolsProvider>

@@ -11,22 +11,25 @@ export const styles = createStyles((theme, css) => {
       color: white;
       width: 50px !important;
       height: 50px !important;
-      padding: 4px;
-      box-shadow: ${tokens.shadow.sm(tokens.colors.orange[500] + tokens.alpha[40])};
+      padding: 3px !important;
       border-radius: 100%;
       overflow: hidden;
-      border: 1px solid ${tokens.colors.orange[700] + tokens.alpha[60]};
+      border: 1px solid ${tokens.colors.orange[600] + tokens.alpha[60]};
+
+      &:hover {
+        box-shadow: ${tokens.shadow.md(tokens.colors.orange[500] + tokens.alpha[40])};
+      }
 
       &:hover > svg:first-of-type {
-        filter: brightness(1.1);
+        filter: brightness(1.05);
       }
 
       &:hover > div {
-        background-color: ${tokens.colors.light[600]};
+        background-color: ${tokens.colors.dark[500]};
       }
       &:hover > div > svg:last-of-type {
-        transform: scale(1.05);
-        margin-bottom: 1px;
+        transform: scale(1.15);
+        margin-bottom: -1px;
       }
 
       & > svg:first-of-type {
@@ -52,7 +55,7 @@ export const styles = createStyles((theme, css) => {
       width: 100%;
       height: 100%;
       border-radius: 100%;
-      background: ${tokens.colors.dark[200]};
+      background: ${tokens.colors.dark[400]};
     `,
   };
 });

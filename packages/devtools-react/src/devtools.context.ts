@@ -14,6 +14,8 @@ import {
 import { createContext } from "utils/context";
 import { Status } from "utils/request.status.utils";
 
+export type Sort = { key: string; order: "asc" | "desc" };
+
 export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...params));
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {
@@ -21,10 +23,14 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   client: null as any as ClientInstance,
   open: false,
   setOpen: (() => {}) as (open: boolean) => void,
+  theme: "light" as "light" | "dark",
+  setTheme: (() => {}) as (theme: "light" | "dark") => void,
   module: DevtoolsModule.NETWORK,
   setModule: (() => {}) as (module: DevtoolsModule) => void,
   isOnline: true,
   setIsOnline: (() => {}) as (isOffline: boolean) => void,
+  position: "right" as "top" | "right" | "bottom" | "left",
+  setPosition: (() => {}) as (position: "top" | "right" | "bottom" | "left") => void,
   success: [] as DevtoolsRequestResponse[],
   failed: [] as DevtoolsRequestResponse[],
   inProgress: [] as DevtoolsElement[],
@@ -38,6 +44,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setDetailsRequestId: (() => {}) as React.Dispatch<React.SetStateAction<string | null>>,
   networkFilter: null as Status | null,
   setNetworkFilter: (() => {}) as React.Dispatch<React.SetStateAction<Status | null>>,
+  networkSort: null as Sort | null,
+  setNetworkSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
   networkSearchTerm: "",
   setNetworkSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
   clearNetwork: () => {},
@@ -47,6 +55,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setDetailsCacheKey: (() => {}) as React.Dispatch<React.SetStateAction<string | null>>,
   cacheSearchTerm: "",
   setCacheSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
+  cacheSort: null as Sort | null,
+  setCacheSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
   loadingKeys: [] as string[],
   setLoadingKeys: (() => {}) as React.Dispatch<React.SetStateAction<string[]>>,
   // Processing
@@ -55,4 +65,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   stats: {} as Record<string, DevtoolsRequestQueueStats>,
   processingSearchTerm: "",
   setProcessingSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
+  processingSort: null as Sort | null,
+  setProcessingSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
+  // Common
+  simulatedError: new Error("Simulated error") as any,
 });

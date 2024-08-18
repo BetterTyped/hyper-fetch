@@ -5,7 +5,7 @@ export const ChevronIcon = (props: React.SVGProps<SVGSVGElement>) => {
       enableBackground="new 0 0 58.026 58.026"
       viewBox="0 0 58.026 58.026"
       xmlns="http://www.w3.org/2000/svg"
-      width="16px"
+      width="14px"
       {...props}
     >
       <g>

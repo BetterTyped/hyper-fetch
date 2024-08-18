@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-export const styles = createStyles((theme, css) => {
+export const styles = createStyles((isLight, css) => {
   return {
     base: css`
       padding: 0 10px;
@@ -26,10 +26,10 @@ export const styles = createStyles((theme, css) => {
       }
       /* Expandable arrow down */
       & ul > li > div > div {
-        padding-top: 3px;
+        color: ${isLight ? tokens.colors.light[400] : tokens.colors.dark[200]}!important;
       }
       & ul > li > div {
-        margin-left: -4px;
+        margin-left: -6px;
       }
       /* Line under arrow */
       & ul > li > div::after {
@@ -37,7 +37,7 @@ export const styles = createStyles((theme, css) => {
         content: "";
         display: block;
         width: 2px;
-        background: ${tokens.colors.dark[500]};
+        background: ${isLight ? tokens.colors.light[300] : tokens.colors.dark[500]};
         top: 25px;
         left: -3px;
         bottom: 5px;
@@ -46,10 +46,13 @@ export const styles = createStyles((theme, css) => {
     value: css`
       color: inherit;
       position: relative;
-      background: ${tokens.colors.dark[200]};
+      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[400]};
       padding: 2px 4px;
       border-radius: 4px;
       font-size: 12px;
+    `,
+    disabledValue: css`
+      background: transparent !important;
     `,
     input: css`
       color: inherit;
@@ -66,6 +69,7 @@ export const styles = createStyles((theme, css) => {
     `,
     label: css`
       position: relative;
+      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
     `,
     copy: css`
       position: relative;
@@ -75,15 +79,14 @@ export const styles = createStyles((theme, css) => {
       border: 0;
       padding: 0;
       margin-left: 4px;
-      transform: translateY(2px);
 
       & svg {
         width: 12px;
         height: 12px;
-        fill: rgb(180, 194, 204);
+        transform: translateY(2px);
       }
       & svg.copied {
-        fill: ${tokens.colors.green[400]};
+        fill: ${isLight ? tokens.colors.green[600] : tokens.colors.green[400]};
       }
     `,
   };

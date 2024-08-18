@@ -1,6 +1,7 @@
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     base: css`
       display: flex;
@@ -8,8 +9,8 @@ const styles = createStyles((theme, css) => {
       align-items: center;
       justify-content: space-between;
       gap: 5px;
-      border-bottom: 1px solid #3d424a;
-      background: rgba(0, 0, 0, 0.1);
+      border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
+      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[700]};
       padding: 4px 10px;
     `,
   };

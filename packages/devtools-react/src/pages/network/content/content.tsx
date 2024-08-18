@@ -6,12 +6,15 @@ import { Request } from "./request/request";
 import { Table } from "components/table/table";
 import { NoContent } from "components/no-content/no-content";
 import { Status } from "utils/request.status.utils";
-import { useSearch } from "hooks/use-search";
+import { PathsOf, useSearch } from "hooks/use-search";
+import { Label } from "components/table/label/label";
+import { DevtoolsRequestEvent } from "devtools.types";
 
 import { styles } from "../network.styles";
 
 export const Content = () => {
-  const { requests, networkFilter, networkSearchTerm } = useDevtoolsContext("DevtoolsNetworkContent");
+  const { client, requests, networkFilter, networkSearchTerm, networkSort, setNetworkSort } =
+    useDevtoolsContext("DevtoolsNetworkContent");
   const css = styles.useStyles();
 
   const data = useMemo(() => {
@@ -32,6 +35,19 @@ export const Content = () => {
     }
   }, [requests, networkFilter]);
 
+  const handleSort = (key: PathsOf<DevtoolsRequestEvent>) => {
+    return (sort: "asc" | "desc" | null) => {
+      const sorting = sort ? { key, order: sort } : null;
+      setNetworkSort(sorting);
+    };
+  };
+
+  const handleGetSort = (key: PathsOf<DevtoolsRequestEvent>) => {
+    if (!networkSort) return null;
+    if (networkSort.key === key) return networkSort.order;
+    return null;
+  };
+
   const { items } = useSearch({
     data,
     searchKeys: [
@@ -43,28 +59,52 @@ export const Content = () => {
       "request.effectKey",
     ],
     searchTerm: networkSearchTerm,
+    baseSort: networkSort
+      ? (a, b) => {
+          const { key, order } = networkSort;
+
+          const path = key.split(".");
+
+          const valueA = path.reduce((acc, k) => (acc as any)[k as any], a.item);
+          const valueB = path.reduce((acc, k) => (acc as any)[k as any], b.item);
+
+          if (valueA === valueB) return 0;
+          if (order === "asc") return valueA > valueB ? 1 : -1;
+          return valueA < valueB ? 1 : -1;
+        }
+      : undefined,
+    dependencies: [networkSort],
   });
 
+  if (!items.length) {
+    return <NoContent text="Make some request to see them here!" />;
+  }
+
   return (
-    <>
-      <Table>
-        <thead style={{ opacity: !requests.length ? 0.4 : 1 }}>
-          <tr>
-            <th className={css.label}>Endpoint</th>
-            <th className={css.label}>Status</th>
-            <th className={css.label}>Method</th>
-            <th className={css.label}>Status</th>
-            <th className={css.label}>Added Time</th>
-            <th className={css.label}>Response Time</th>
-          </tr>
-        </thead>
-        <tbody className={css.tbody}>
-          {items.map((item, index) => {
-            return <Request key={index} item={item} />;
-          })}
-        </tbody>
-      </Table>
-      {!items.length && <NoContent style={{ marginTop: "40px" }} text="Make some request to see them here!" />}
-    </>
+    <Table>
+      <thead style={{ opacity: !requests.length ? 0.4 : 1 }}>
+        <tr>
+          <Label sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>
+            Endpoint
+          </Label>
+          {typeof client.defaultMethod === "string" && (
+            <Label sort={handleGetSort("request.method")} onSort={handleSort("request.method")}>
+              Method
+            </Label>
+          )}
+          <Label sort={handleGetSort("response.success")} onSort={handleSort("response.success")}>
+            Success
+          </Label>
+          <Label sort={handleGetSort("triggerTimestamp")} onSort={handleSort("triggerTimestamp")}>
+            Timestamp
+          </Label>
+        </tr>
+      </thead>
+      <tbody className={css.tbody}>
+        {items.map((item, index) => {
+          return <Request key={index} item={item} />;
+        })}
+      </tbody>
+    </Table>
   );
 };

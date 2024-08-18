@@ -6,6 +6,7 @@ const styles = createStyles((theme, css) => {
       display: flex;
       gap: 5px;
       align-items: center;
+      background: transparent !important;
     `,
     content: css`
       display: flex;
@@ -14,7 +15,7 @@ const styles = createStyles((theme, css) => {
     `,
     label: css`
       font-weight: 300;
-      font-size: 14px;
+      font-size: 12px;
     `,
     value: css`
       flex: 1;
@@ -22,8 +23,13 @@ const styles = createStyles((theme, css) => {
       text-overflow: ellipsis;
       white-space: nowrap;
       font-weight: 400;
-      font-size: 14px;
+      font-size: 12px;
       color: #fff;
+      max-width: 100% !important;
+
+      & * {
+        max-width: 100% !important;
+      }
     `,
   };
 });

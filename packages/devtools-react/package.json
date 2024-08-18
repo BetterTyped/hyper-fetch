@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@better-hooks/performance": "^1.1.1",
+    "@radix-ui/react-dropdown-menu": "2.1.1",
     "react": ">= 16.8.0",
     "clsx": "2.1.1",
     "goober": "2.1.14",

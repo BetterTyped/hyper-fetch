@@ -2,26 +2,50 @@ import { useLayoutEffect, useRef, useState } from "react";
 
 import { ChevronIcon } from "icons/chevron";
 import { createStyles } from "theme/use-styles.hook";
+import { tokens } from "theme/tokens";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
-    base: css`
+    button: css`
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(0, 0, 0, 0.1);
-      text-align: left;
-      width: 100%;
+      background: transparent;
       border: 0;
-      border-top: 1px solid rgb(61, 66, 74);
-      border-bottom: 1px solid rgb(61, 66, 74);
-      color: #fff;
+      color: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[100]};
+      width: 100%;
       height: 30px;
       padding: 0 10px;
-      margin-bottom: -1px;
+      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[700]};
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 100;
 
+      &:focus-within {
+        outline-offset: -2px !important;
+      }
       & svg {
-        fill: rgb(180, 194, 204);
+        fill: ${isLight ? tokens.colors.light[600] : tokens.colors.light[300]};
+        transition: 0.15s ease-out;
+      }
+    `,
+    bottomBorder: css`
+      border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]}!important;
+    `,
+    wrapper: css`
+      border-top: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
+      &:last-child {
+        border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
+      }
+    `,
+    content: css`
+      overflow: hidden;
+      transition: 0.15s ease-out;
+      height: auto;
+
+      & > div {
+        border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
       }
     `,
   };
@@ -71,21 +95,28 @@ export const Collapsible = ({
   const maxHeight = isExpanded ? height : 0;
 
   return (
-    <>
-      <button onClick={handleToggle} type="button" className={css.base}>
-        <ChevronIcon />
+    <div className={css.wrapper}>
+      <button
+        onClick={handleToggle}
+        type="button"
+        className={styles.clsx(css.button, { [css.bottomBorder]: isExpanded })}
+      >
+        <ChevronIcon
+          style={{
+            transform: `rotate(${!isExpanded ? -90 : 0}deg)`,
+          }}
+        />
         <span>{title}</span>
       </button>
       <div
+        className={css.content}
         style={{
-          overflow: "hidden",
-          transition: "0.15s ease-out",
-          height: "auto",
           maxHeight,
+          visibility: isExpanded ? "visible" : "hidden",
         }}
       >
         <div ref={ref}>{children}</div>
       </div>
-    </>
+    </div>
   );
 };

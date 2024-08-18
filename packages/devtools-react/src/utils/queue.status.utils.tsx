@@ -1,5 +1,7 @@
 import { QueueDataType } from "@hyper-fetch/core";
 
+import { tokens } from "theme/tokens";
+
 export enum QueueStatus {
   PENDING = "Pending",
   RUNNING = "Running",
@@ -16,15 +18,25 @@ export const getQueueStatus = (queue: QueueDataType): QueueStatus => {
   return QueueStatus.PENDING;
 };
 
-export const getQueueStatusColor = (queue: QueueDataType, alpha: number, useBlack?: boolean): string => {
+export const getQueueStatusColor = ({
+  isLight,
+  queue,
+  alpha,
+  custom,
+}: {
+  isLight: boolean;
+  queue: QueueDataType;
+  alpha: string;
+  custom?: string;
+}): string => {
   if (queue.stopped) {
-    return `rgba(255, 152, 0, ${alpha})`;
+    return isLight ? tokens.colors.orange[400] + alpha : tokens.colors.orange[500] + alpha;
   }
   if (queue.requests.length) {
-    return `rgba(88, 196, 220, ${alpha})`;
+    return isLight ? tokens.colors.cyan[400] + alpha : tokens.colors.cyan[400] + alpha;
   }
-  if (useBlack) {
-    return `rgba(0, 0, 0, ${alpha})`;
+  if (custom) {
+    return custom + alpha;
   }
-  return `rgba(61, 66, 74, ${alpha})`;
+  return isLight ? tokens.colors.light[400] + alpha : tokens.colors.dark[400] + alpha;
 };

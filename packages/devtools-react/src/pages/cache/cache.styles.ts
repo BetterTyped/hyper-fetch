@@ -1,6 +1,7 @@
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-export const styles = createStyles((theme, css) => {
+export const styles = createStyles((isLight, css) => {
   return {
     wrapper: css`
       overflow-y: auto;
@@ -10,33 +11,18 @@ export const styles = createStyles((theme, css) => {
     `,
     row: css`
       cursor: pointer;
-      &:nth-child(2n + 1) {
-        background: rgba(0, 0, 0, 0.1);
-      }
       &:hover {
-        background: rgb(58 66 79);
+        background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[500]}!important;
       }
+    `,
+    activeRow: css`
+      outline: 2px solid ${isLight ? tokens.colors.cyan[400] : tokens.colors.cyan[400]}!important;
+      outline-offset: -2px !important;
     `,
     cell: css`
       font-weight: 300;
       font-size: 14px;
-      padding: 4px 5px;
-      &:first-child {
-        padding-left: 10px;
-      }
-      &:last-child {
-        padding-right: 10px;
-      }
-    `,
-    label: css`
-      font-weight: 400;
-      font-size: 14px;
-      padding: 8px 5px;
-      text-align: left;
-      color: #60d6f6;
-    `,
-    tbody: css`
-      position: relative;
+      padding: 4px 8px;
     `,
     buttons: css`
       display: flex;
@@ -51,8 +37,8 @@ export const styles = createStyles((theme, css) => {
       top: 0px;
       right: 0px;
       bottom: 0px;
-      background: rgb(32 34 42);
-      border-left: 1px solid rgb(61, 66, 74);
+      background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
+      border-left: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
     `,
     detailsContent: css`
       overflow-y: auto;

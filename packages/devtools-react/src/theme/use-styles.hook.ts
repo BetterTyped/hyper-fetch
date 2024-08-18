@@ -4,7 +4,7 @@ import * as goober from "goober";
 import { useDevtoolsContext } from "devtools.context";
 
 export type StylesFactory<Keys extends string> = (
-  theme: "light" | "dark",
+  isLight: boolean,
   css: (typeof goober)["css"],
 ) => Record<Keys, ReturnType<(typeof goober)["css"]>>;
 
@@ -15,13 +15,12 @@ export type ExtractKeys<T> = T extends {
   : never;
 
 export const useStyles = <Keys extends string>(styles: StylesFactory<Keys>) => {
-  const { css } = useDevtoolsContext("DevtoolsThemeContext");
-  const theme = "light";
+  const { css, theme } = useDevtoolsContext("DevtoolsThemeContext");
 
   if (theme === "light") {
-    return styles("light", css);
+    return styles(true, css);
   }
-  return styles("dark", css);
+  return styles(false, css);
 };
 
 export const createStyles = <Keys extends string>(styles: StylesFactory<Keys>) => {

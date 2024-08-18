@@ -7,6 +7,7 @@ export const StackIcon = (props: React.SVGProps<SVGSVGElement>) => {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="2"
+        fill="transparent"
       />
     </svg>
   );

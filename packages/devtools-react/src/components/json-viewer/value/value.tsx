@@ -15,22 +15,27 @@ export const Value = ({
 
   if (typeof raw === "boolean") {
     return (
-      <span className={css.value} style={{ paddingLeft: "18px" }}>
-        <input
-          disabled={disabled}
-          className={css.checkbox}
-          type="checkbox"
-          value={value}
-          onChange={(e) => onChange(e.target.checked)}
-          checked={raw}
-        />{" "}
+      <span
+        className={styles.clsx(css.value, { [css.disabledValue]: disabled })}
+        style={{ paddingLeft: !disabled ? "20px" : "" }}
+      >
+        {!disabled && (
+          <input
+            disabled={disabled}
+            className={css.checkbox}
+            type="checkbox"
+            value={value}
+            onChange={(e) => onChange(e.target.checked)}
+            checked={raw}
+          />
+        )}
         {raw ? "true" : "false"}
       </span>
     );
   }
   if (typeof raw === "number") {
     return (
-      <span className={css.value}>
+      <span className={styles.clsx(css.value, { [css.disabledValue]: disabled })}>
         <input
           disabled={disabled}
           className={css.input}
@@ -43,7 +48,7 @@ export const Value = ({
   }
   if (typeof raw === "string") {
     return (
-      <span className={css.value}>
+      <span className={styles.clsx(css.value, { [css.disabledValue]: disabled })}>
         <input
           disabled={disabled}
           className={css.input}

@@ -1,15 +1,23 @@
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-export const styles = createStyles((theme, css) => {
+export const styles = createStyles((isLight, css) => {
   return {
     wrapper: css`
       overflow-y: auto;
+      padding: 10 20px;
     `,
     row: css`
       display: flex;
       flex-direction: row;
       gap: 10px;
       flex-wrap: wrap;
+    `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 10px;
     `,
     card: css`
       display: flex;
@@ -20,7 +28,11 @@ export const styles = createStyles((theme, css) => {
       margin: 10px;
       width: 200px;
       background: transparent;
-      color: rgb(180, 194, 204);
+      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[400]};
+    `,
+    active: css`
+      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[500]}!important;
+      border: 1px solid ${isLight ? tokens.colors.blue[400] : tokens.colors.blue[400]}!important;
     `,
     cardHeader: css`
       display: flex;
@@ -51,7 +63,7 @@ export const styles = createStyles((theme, css) => {
       font-size: 28px;
       font-weight: 700;
       margin-right: 5px;
-      color: #fff;
+      color: ${isLight ? tokens.colors.light[900] : tokens.colors.light[100]};
     `,
     cardFooter: css`
       text-align: left;
@@ -70,8 +82,8 @@ export const styles = createStyles((theme, css) => {
       top: 0px;
       right: 0px;
       bottom: 0px;
-      background: rgb(32 34 42);
-      border-left: 1px solid rgb(61, 66, 74);
+      background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
+      border-left: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
     `,
     detailsContent: css`
       overflow-y: auto;

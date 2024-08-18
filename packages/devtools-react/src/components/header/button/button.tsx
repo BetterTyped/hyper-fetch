@@ -1,8 +1,9 @@
 import clsx from "clsx";
 
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     base: css`
       display: flex;
@@ -11,21 +12,33 @@ const styles = createStyles((theme, css) => {
       padding: 14px 14px 12px;
       font-size: 14px;
       font-weight: 500;
+      background: transparent;
 
       & svg {
         width: 16px !important;
         height: 16px !important;
       }
+
+      &:hover {
+        background: ${isLight ? "rgba(0, 0, 0, 0.04)" : "rgba(255, 255, 255, 0.1)"};
+      }
+
+      &:focus-within {
+        border-radius: 4px;
+        outline-offset: -2px !important;
+      }
     `,
     primary: css`
-      background: transparent;
-      border-bottom: 2px solid rgb(88 196 220);
-      color: #fff;
+      border-bottom: 2px solid ${tokens.colors.cyan[300]}!important;
+      color: ${isLight ? tokens.colors.dark[300] : tokens.colors.light[50]};
+
+      & svg {
+        fill: ${isLight ? tokens.colors.cyan[400] : tokens.colors.cyan[300]}!important;
+      }
     `,
     secondary: css`
-      background: transparent;
-      border-bottom: 2px solid transparent;
-      color: #b4c2cc;
+      border-bottom: 2px solid transparent !important;
+      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
     `,
   };
 });

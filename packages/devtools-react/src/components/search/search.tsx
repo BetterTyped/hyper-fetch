@@ -1,7 +1,8 @@
 import { SearchIcon } from "icons/search";
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     wrapper: css`
       display: flex;
@@ -10,21 +11,29 @@ const styles = createStyles((theme, css) => {
       align-items: center;
     `,
     input: css`
-      background-color: transparent;
+      background-color: ${isLight ? tokens.colors.light[300] : tokens.colors.dark[500]};
       font-size: 14px;
-      color: #fff;
+      color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[500]};
       padding: 2px 2px 2px 22px;
       outline: none;
       min-width: 80px;
       border-radius: 4px;
-      border: 1px solid rgb(77, 78, 79);
-      height: 22px;
+      border: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[300]};
+      height: 26px;
+
+      &::placeholder {
+        color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
+      }
+
+      &:focus-within {
+        outline-offset: 2px;
+        outline: 2px solid ${tokens.colors.cyan[300]};
+      }
     `,
     icon: css`
       position: absolute;
       pointer-events: none;
       margin-left: 5px;
-      fill: #fff;
     `,
   };
 });

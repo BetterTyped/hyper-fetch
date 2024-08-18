@@ -17,20 +17,9 @@ import { DevtoolsRequestQueueStats } from "devtools.types";
 import { StopIcon } from "icons/stop";
 import { PlayIcon } from "icons/play";
 import { ClearIcon } from "icons/clear";
+import { Key } from "components/key/key";
 
 import { styles } from "../processing.styles";
-
-const nameStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
-
-const buttonsStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
 
 const defaultStats: DevtoolsRequestQueueStats = {
   total: 0,
@@ -102,24 +91,12 @@ export const Details = ({ item }: { item: QueueDataType }) => {
       boundsByDirection
       className={css.details}
     >
-      <Toolbar>
+      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
-        <Separator style={{ height: "18px", margin: "0 12px" }} />
-        <div style={{ ...nameStyle }}>
-          {item.queueKey}
-          <Chip color={color}>{status}</Chip>
-        </div>
+        <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
+        <Key value={item.queueKey} type="queue" />
+        <Chip color={color}>{status}</Chip>
         <div style={{ flex: "1 1 auto" }} />
-        <div style={{ ...buttonsStyle }}>
-          <Button color={stopped ? "blue" : "red"} onClick={toggleQueue}>
-            {stopped ? <PlayIcon /> : <StopIcon />}
-            {stopped ? "Play" : "Stop"}
-          </Button>
-          <Button color="gray" disabled={!requests.length} onClick={clear}>
-            <ClearIcon />
-            Clear
-          </Button>
-        </div>
       </Toolbar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
@@ -133,6 +110,19 @@ export const Details = ({ item }: { item: QueueDataType }) => {
                 <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
               </tbody>
             </Table>
+          </div>
+        </Collapsible>
+
+        <Collapsible title="Actions" defaultOpen>
+          <div className={css.buttons}>
+            <Button color={stopped ? "blue" : "orange"} onClick={toggleQueue}>
+              {stopped ? <PlayIcon /> : <StopIcon />}
+              {stopped ? "Play" : "Stop"}
+            </Button>
+            <Button color="gray" disabled={!requests.length} onClick={clear}>
+              <ClearIcon />
+              Clear
+            </Button>
           </div>
         </Collapsible>
         <Collapsible title="Response times" defaultOpen>

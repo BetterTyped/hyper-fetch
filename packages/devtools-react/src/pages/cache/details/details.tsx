@@ -18,21 +18,17 @@ import { InvalidateIcon } from "icons/invalidate";
 import { RemoveIcon } from "icons/remove";
 import { LoadingIcon } from "icons/loading";
 import { ErrorIcon } from "icons/error";
+import { Key } from "components/key/key";
 
 import { styles } from "../cache.styles";
-
-const nameStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
 
 export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
   const css = styles.useStyles();
 
   const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now());
 
-  const { client, requests, inProgress, loadingKeys, setLoadingKeys } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { client, requests, inProgress, loadingKeys, setLoadingKeys, simulatedError } =
+    useDevtoolsContext("DevtoolsCacheDetails");
 
   const hasInProgressRequest = inProgress.some((i) => i.cacheKey === item.cacheKey);
   const isLoading = loadingKeys.includes(item.cacheKey);
@@ -114,7 +110,7 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
     const data: CacheValueType<unknown, unknown, any> = {
       ...item.cacheData,
       data: null,
-      error: new Error("This is error simulated by HyperFetch Devtools"),
+      error: simulatedError,
       responseTimestamp: Date.now(),
       extra: client.defaultExtra,
       success: false,
@@ -132,15 +128,13 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
       boundsByDirection
       className={css.details}
     >
-      <Toolbar>
+      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
-        <Separator style={{ height: "18px", margin: "0 12px" }} />
-        <div style={{ ...nameStyle }}>
-          {item.cacheKey}
-          <Chip color={stale ? "orange" : "green"}>{stale ? "Stale" : "Fresh"}</Chip>
-          {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
-        </div>
-        <div className={css.spacer} />
+        <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
+        <Key value={item.cacheKey} type="cache" />
+        <Chip color={stale ? "orange" : "green"}>{stale ? "Stale" : "Fresh"}</Chip>
+        {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
+        <div style={{ flex: "1 1 auto" }} />
       </Toolbar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
@@ -177,7 +171,7 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
         </Collapsible>
         <Collapsible title="Actions" defaultOpen>
           <div className={css.buttons}>
-            <Button color="blue" onClick={toggleLoading} disabled={hasInProgressRequest}>
+            <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
               <LoadingIcon />
               {isLoading ? "Restore" : "Set"} loading
             </Button>

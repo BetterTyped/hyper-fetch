@@ -1,6 +1,6 @@
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     base: css`
       display: flex;
@@ -12,15 +12,19 @@ const styles = createStyles((theme, css) => {
       width: 28px;
       height: 28px;
       background: transparent;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: ${isLight ? "rgba(0, 0, 0, 0.05)" : "rgba(255, 255, 255, 0.1)"};
       }
 
       & svg {
         width: 18px !important;
         height: 18px !important;
+      }
+
+      &:focus-within {
+        outline-offset: 0px !important;
       }
     `,
   };

@@ -1,20 +1,26 @@
 import { NoContentIcon } from "icons/no-content";
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     base: css`
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      color: #e2e2e2;
+      color: ${isLight ? tokens.colors.dark[200] : tokens.colors.light[100]};
       width: 300px;
       margin: auto;
     `,
     text: css`
       font-size: 14px;
       font-weight: 300;
+      text-align: center;
     `,
   };
 });

@@ -17,16 +17,10 @@ import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "../network.styles";
 
-const nameStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-};
-
 export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
   const css = styles.useStyles();
 
-  const { removeNetworkRequest } = useDevtoolsContext("DevtoolsNetworkDetails");
+  const { removeNetworkRequest, theme } = useDevtoolsContext("DevtoolsNetworkDetails");
 
   const config = useMemo(() => {
     const values = item.request.toJSON();
@@ -34,6 +28,7 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
     delete values.params;
     delete values.queryParams;
     delete values.headers;
+
     return values;
   }, [item.request]);
 
@@ -42,8 +37,8 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [item]);
 
   const color = useMemo(() => {
-    return getStatusColor(status);
-  }, [status]);
+    return getStatusColor(status, theme === "light");
+  }, [status, theme]);
 
   const remove = () => {
     removeNetworkRequest(item.requestId);
@@ -58,29 +53,24 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
       boundsByDirection
       className={css.details}
     >
-      <Toolbar>
+      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
-        <Separator style={{ height: "18px", margin: "0 12px" }} />
-        <div style={{ ...nameStyle, color }}>
+        <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
+        <div className={css.name} style={{ color }}>
           <RequestStatusIcon status={status} />
           {item.request.endpoint}
         </div>
         <div className={css.spacer} />
-
-        <Button color="gray" onClick={remove}>
-          <RemoveIcon />
-          Remove
-        </Button>
       </Toolbar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <Table>
               <tbody>
                 <RowInfo
                   label="Request URL:"
                   value={
-                    <Chip color="white">
+                    <Chip color="normal">
                       {item.request.client.url}
                       {item.request.endpoint}
                     </Chip>
@@ -104,30 +94,38 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
             )}
           </div>
         </Collapsible>
+        <Collapsible title="Actions" defaultOpen>
+          <div className={css.buttons}>
+            <Button color="gray" onClick={remove}>
+              <RemoveIcon />
+              Remove
+            </Button>
+          </div>
+        </Collapsible>
         <Collapsible title="Request">
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <JSONViewer data={config} sortObjectKeys />
           </div>
         </Collapsible>
         <Collapsible title="Payload">
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <JSONViewer
               data={{
+                payload: item.request.data,
                 params: item.request.params,
                 queryParams: item.request.queryParams,
                 headers: item.request.headers,
-                payload: item.request.data,
               }}
             />
           </div>
         </Collapsible>
         <Collapsible title="Response" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <JSONViewer data={item.response} />
           </div>
         </Collapsible>
         <Collapsible title="Response Details" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <JSONViewer data={item.details} />
           </div>
         </Collapsible>
