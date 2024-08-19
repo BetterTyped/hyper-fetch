@@ -31,8 +31,10 @@ export const styles = createStyles((isLight, css) => {
       color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[400]};
     `,
     active: css`
-      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[500]}!important;
       border: 1px solid ${isLight ? tokens.colors.blue[400] : tokens.colors.blue[400]}!important;
+    `,
+    activeBackground: css`
+      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[500]}!important;
     `,
     cardHeader: css`
       display: flex;

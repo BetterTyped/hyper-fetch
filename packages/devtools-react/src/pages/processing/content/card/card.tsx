@@ -27,7 +27,11 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
   return (
     <button
       type="button"
-      className={styles.clsx(css.card, { [css.active]: detailsQueueKey === queue.queueKey })}
+      className={styles.clsx(
+        css.card,
+        { [css.active]: detailsQueueKey === queue.queueKey && !queue.stopped },
+        { [css.activeBackground]: detailsQueueKey === queue.queueKey },
+      )}
       style={{
         border: `1px solid ${getQueueStatusColor({ queue, alpha: tokens.alpha[70], isLight })}`,
         boxShadow: `0 3px 6px ${getQueueStatusColor({ queue, alpha: tokens.alpha[30], isLight, custom: tokens.colors.dark[800] })}, 0px 0px 6px  ${getQueueStatusColor({ queue, alpha: tokens.alpha[40], isLight, custom: tokens.colors.dark[900] })}`,
