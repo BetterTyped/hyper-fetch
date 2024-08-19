@@ -79,11 +79,7 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
                 <RowInfo label="Request Method:" value={<Chip color="blue">{String(item.request.method)}</Chip>} />
                 <RowInfo
                   label="Status Code:"
-                  value={
-                    <Chip color={item.isSuccess ? "green" : "red"}>
-                      {item.response?.status ? String(item.response.status) : status}
-                    </Chip>
-                  }
+                  value={<Chip color={item.isSuccess ? "green" : "red"}>{String(item.response?.status ?? "")}</Chip>}
                 />
                 <RowInfo label="Request ID:" value={<Chip color="gray">{String(item.requestId)}</Chip>} />
               </tbody>
