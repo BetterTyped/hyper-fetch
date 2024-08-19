@@ -1,6 +1,7 @@
+import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((theme, css) => {
+const styles = createStyles((isLight, css) => {
   return {
     row: css`
       display: flex;
@@ -24,7 +25,7 @@ const styles = createStyles((theme, css) => {
       white-space: nowrap;
       font-weight: 400;
       font-size: 12px;
-      color: #fff;
+      color: ${isLight ? tokens.colors.light[800] : tokens.colors.light[100]};
       max-width: 100% !important;
 
       & * {
