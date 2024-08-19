@@ -1,4 +1,4 @@
-# ⚛️ React Hyper Fetch
+# Eslint Plugin Hyper Fetch
 
 <p>
   <a href="https://bettertyped.com/">
@@ -26,36 +26,49 @@
 
 ## About
 
-**`React Hyper Fetch`** is a set of hooks for Hyper Fetch. Combined with React's lifecycle it allow to `create modern`,
-`optimized`, `maintainable` and `high quality solutions`. We offer many hooks for your use, thanks to which you can
-fetch or mutate data, observe sent requests and interact with data in the cache.
+**`Eslint Plugin Hyper Fetch`** is a plugin for eslint rules to add some additional functionality for your code static
+analysis. It allows to find generic types issues like typos, missing values or completely incorrect usage of types.
 
-## Key Features
+## Installation
 
-🔮 **Simple setup** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/setup)
+Assuming you already have ESLint installed, run:
 
-🎯 **Request cancellation** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/cancellation)
+```sh
+#npm
+npm i eslint-plugin-hyper-fetch
 
-✨ **Window Focus/Blur Events** -
-[Read more](https://hyperfetch.bettertyped.com/docs/guides/react/core/window-focus-blur)
+#yarn
+yarn add -D eslint-plugin-hyper-fetch
+```
 
-🚀 **Queueing** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/queueing)
+Then extend the recommended eslint config:
 
-💎 **Automatic caching** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/cache)
+```js
+{
+  "extends": [
+    // ...
+    "plugin:hyper-fetch/recommended"
+  ]
+}
+```
 
-🪄 **Persistence** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/persistence)
+### Custom Configuration
 
-🎊 **SSR Support** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/environment)
+If you want more fine-grained configuration, you can instead add a snippet like this to your ESLint configuration file:
 
-🔋 **Offline First** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/offline)
-
-📡 **Built-in adapter** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/core/adapter)
-
-🧪 **Easy to test** - [Read more](https://hyperfetch.bettertyped.com/docs/documentation/getting-started/testing)
-
-🎟 **Authentication** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/basic/authentication)
-
-💡 **Prefetching** - [Read more](https://hyperfetch.bettertyped.com/docs/guides/advanced/prefetching)
+```js
+{
+  "plugins": [
+    // ...
+    "hyper-fetch"
+  ],
+  "rules": {
+    // ...
+    "hyper-fetch/client-generic-types": "error",
+    "hyper-fetch/request-generic-types": "warn"
+  }
+}
+```
 
 ## Help me keep working on this project ❤️
 
@@ -72,4 +85,3 @@ fetch or mutate data, observe sent requests and interact with data in the cache.
 ## Other Packages
 
 - - #### [Hyper Fetch](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/core)
-- #### [Hyper Fetch Sockets](https://github.com/BetterTyped/hyper-fetch/tree/main/packages/sockets)

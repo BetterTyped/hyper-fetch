@@ -5,10 +5,10 @@ export const styles = createStyles((isLight, css) => {
   return {
     base: css`
       padding: 0 10px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
       & * {
         font-size: 12px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
       }
       & > ul {
         margin: 0 !important;
@@ -69,7 +69,7 @@ export const styles = createStyles((isLight, css) => {
     `,
     label: css`
       position: relative;
-      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
+      color: ${isLight ? tokens.colors.light[900] : tokens.colors.light[300]};
     `,
     copy: css`
       position: relative;

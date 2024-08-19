@@ -12,19 +12,18 @@ const styles = createStyles((isLight, css) => {
     content: css`
       display: flex;
       align-items: center;
-      min-height: 24px;
     `,
     label: css`
-      font-weight: 300;
-      font-size: 12px;
+      font-weight: 400;
+      font-size: 13px;
     `,
     value: css`
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-weight: 400;
-      font-size: 12px;
+      font-weight: 600;
+      font-size: 13px;
       color: ${isLight ? tokens.colors.light[800] : tokens.colors.light[100]};
       max-width: 100% !important;
 

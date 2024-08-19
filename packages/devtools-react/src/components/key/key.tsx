@@ -31,12 +31,12 @@ const colorsVariants = createStyles((isLight, css) => {
   return {
     queue: css`
       & svg {
-        stroke: ${isLight ? tokens.colors.cyan[500] : tokens.colors.cyan[300]};
+        stroke: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]};
       }
     `,
     cache: css`
       & svg {
-        fill: ${isLight ? tokens.colors.cyan[500] : tokens.colors.cyan[300]};
+        fill: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]};
       }
     `,
   };

@@ -10,7 +10,7 @@ const styles = createStyles((isLight, css) => {
       justify-content: space-between;
       gap: 5px;
       border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
-      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[700]};
+      background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
       padding: 4px 10px;
     `,
   };

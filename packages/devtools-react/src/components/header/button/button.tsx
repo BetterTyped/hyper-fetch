@@ -33,7 +33,7 @@ const styles = createStyles((isLight, css) => {
       color: ${isLight ? tokens.colors.dark[300] : tokens.colors.light[50]};
 
       & svg {
-        fill: ${isLight ? tokens.colors.cyan[400] : tokens.colors.cyan[300]}!important;
+        fill: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]}!important;
       }
     `,
     secondary: css`

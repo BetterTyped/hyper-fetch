@@ -97,50 +97,6 @@
             "pathGroupsExcludedImportTypes": ["css"],
             "newlines-between": "always"
           }
-        ],
-        "@typescript-eslint/naming-convention": [
-          "error",
-          // destructured variables come from other places so no format is enforced
-          {
-            "selector": "variable",
-            "modifiers": ["destructured"],
-            "format": null
-          },
-          // functions defined as constants must be constants (not var/let)
-          {
-            "selector": "variable",
-            "types": ["function"],
-            "modifiers": ["const"],
-            "format": ["camelCase", "PascalCase"]
-          },
-          // Constants can also be camelCase apart from UPPER_CASE
-          // - functional components (PascalCase)
-          {
-            "selector": "variable",
-            "modifiers": ["const"],
-            "format": ["UPPER_CASE", "camelCase", "PascalCase"]
-          },
-          // functions can be:
-          // - regular functions (camelCase)
-          {
-            "selector": "function",
-            "format": ["camelCase"]
-          },
-          // forbid lower case
-          {
-            "selector": "typeLike",
-            "format": ["PascalCase"]
-          },
-          // forbid lower case
-          {
-            "selector": "typeParameter",
-            "format": ["PascalCase"]
-          },
-          // Uppercase enums
-          {
-            "selector": "enumMember",
-            "format": ["UPPER_CASE"]
-          }
         ]
       }
     },

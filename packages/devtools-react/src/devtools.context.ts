@@ -48,8 +48,6 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setNetworkSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
   networkSearchTerm: "",
   setNetworkSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
-  visualizerSearchTerm: "",
-  setVisualizerSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
   clearNetwork: () => {},
   removeNetworkRequest: (() => {}) as (requestId: string) => void,
   // Cache
@@ -69,6 +67,9 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setProcessingSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
   processingSort: null as Sort | null,
   setProcessingSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
+  // Explorer
+  explorerSearchTerm: "",
+  setExplorerSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
   // Common
   simulatedError: new Error("Simulated error") as any,
 });

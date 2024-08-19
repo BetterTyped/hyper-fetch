@@ -34,7 +34,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
       )}
       style={{
         border: `1px solid ${getQueueStatusColor({ queue, alpha: tokens.alpha[70], isLight })}`,
-        boxShadow: `0 3px 6px ${getQueueStatusColor({ queue, alpha: tokens.alpha[30], isLight, custom: tokens.colors.dark[800] })}, 0px 0px 6px  ${getQueueStatusColor({ queue, alpha: tokens.alpha[40], isLight, custom: tokens.colors.dark[900] })}`,
+        boxShadow: `0 3px 6px ${getQueueStatusColor({ queue, alpha: tokens.alpha[30], isLight, custom: isLight ? tokens.colors.light[300] : tokens.colors.dark[800] })}, 0px 0px 6px  ${getQueueStatusColor({ queue, alpha: tokens.alpha[40], isLight, custom: isLight ? tokens.colors.light[500] : tokens.colors.dark[900] })}`,
       }}
       onClick={() => setDetailsQueueKey(queue.queueKey)}
     >

@@ -121,6 +121,7 @@ export const Options = ({ children }: { children: React.ReactNode }) => {
           display: "flex",
           alignItems: "center",
           flex: "1 1 auto",
+          gap: "5px",
         }}
       >
         {children}

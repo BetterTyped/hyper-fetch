@@ -36,6 +36,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   actions,
   setCacheData,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const { __responseMapper } = request;
   const { cache, requestManager } = request.client;
 

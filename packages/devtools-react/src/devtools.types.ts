@@ -13,7 +13,7 @@ export enum DevtoolsModule {
   NETWORK = "Network",
   CACHE = "Cache",
   PROCESSING = "Processing",
-  VISUALIZATION = "Visualizer",
+  VISUALIZATION = "Explorer",
 }
 
 export type RequestEvent<T extends ClientInstance> = RequestEventType<

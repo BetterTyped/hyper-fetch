@@ -1,5 +1,5 @@
 {
-  "name": "@hyper-fetch/eslint-plugin",
+  "name": "eslint-plugin-hyper-fetch",
   "version": "0.0.0",
   "private": false,
   "description": "Eslint plugin for HyperFetch",
@@ -21,7 +21,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "tests": "yarn lint-staged",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'eslint-plugin-hyper-fetch-v${version}'"
+    "release": "yarn semantic-release --extends ../../release.config.js  -t 'eslint-hyper-fetch-v${version}'"
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
@@ -33,9 +33,9 @@
       "optional": true
     }
   },
-  "dependencies": {
-    "@better-hooks/lifecycle": "^1.1.1",
-    "@better-hooks/performance": "^1.1.1"
+  "devDependencies": {
+    "assert": "2.1.0",
+    "path": "0.12.7"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

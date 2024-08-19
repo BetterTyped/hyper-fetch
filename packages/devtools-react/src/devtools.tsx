@@ -5,6 +5,7 @@ import { css } from "goober";
 import { Header } from "./components/header/header";
 import { Cache } from "./pages/cache/cache";
 import { Network } from "./pages/network/network";
+import { Explorer } from "pages/explorer/explorer";
 import { Processing } from "./pages/processing/processing";
 import { DevtoolsProvider, Sort } from "devtools.context";
 import {
@@ -18,13 +19,12 @@ import {
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
 import { DevtoolsWrapper } from "devtools.wrapper";
-import { Visualizer } from "pages/visualizer/visualizer";
 
 const modules = {
   Network,
   Cache,
   Processing,
-  Visualizer,
+  Explorer,
 };
 
 /**
@@ -32,6 +32,7 @@ const modules = {
  * - max network elements - performance handling?
  * - max cache elements - performance handling?
  * - Do not show for production use
+ * - Prop for default sizes
  */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
@@ -59,7 +60,6 @@ export const Devtools = <T extends ClientInstance>({
   // Network
   const [networkSearchTerm, setNetworkSearchTerm] = useState("");
   const [networkSort, setNetworkSort] = useState<Sort | null>(null);
-  const [visualizerSearchTerm, setVisualizerSearchTerm] = useState("");
   const [requests, setRequests] = useState<DevtoolsRequestEvent[]>([] as unknown as DevtoolsRequestEvent[]);
   const [success, setSuccess] = useState<DevtoolsRequestResponse[]>([]);
   const [failed, setFailed] = useState<DevtoolsRequestResponse[]>([]);
@@ -83,6 +83,8 @@ export const Devtools = <T extends ClientInstance>({
   const [stats, setStats] = useState<{
     [queueKey: string]: DevtoolsRequestQueueStats;
   }>({});
+  // Explorer
+  const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
 
   const handleClearNetwork = useCallback(() => {
     setRequests([]);
@@ -374,8 +376,6 @@ export const Devtools = <T extends ClientInstance>({
       stats={stats}
       networkSearchTerm={networkSearchTerm}
       setNetworkSearchTerm={setNetworkSearchTerm}
-      visualizerSearchTerm={visualizerSearchTerm}
-      setVisualizerSearchTerm={setVisualizerSearchTerm*}
       networkSort={networkSort}
       setNetworkSort={setNetworkSort}
       detailsRequestId={detailsRequestId}
@@ -400,6 +400,8 @@ export const Devtools = <T extends ClientInstance>({
       setLoadingKeys={setLoadingKeys}
       position={position}
       setPosition={setPosition}
+      explorerSearchTerm={explorerSearchTerm}
+      setExplorerSearchTerm={setExplorerSearchTerm}
       simulatedError={simulatedError}
     >
       {open && (
