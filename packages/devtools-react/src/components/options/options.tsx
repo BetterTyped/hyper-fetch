@@ -61,10 +61,10 @@ const styles = createStyles((isLight, css) => {
       display: flex;
       align-items: center;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       padding: 4px 12px;
       cursor: pointer;
-      color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[100]};
+      color: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[200]};
       &:hover {
         background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[400]};
       }
