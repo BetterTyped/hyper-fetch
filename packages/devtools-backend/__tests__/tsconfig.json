@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": "../src",
+    "jsx": "react-jsx"
+  },
+  "include": ["../jest.config.ts", "./"]
+}

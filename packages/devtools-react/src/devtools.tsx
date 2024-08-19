@@ -59,6 +59,7 @@ export const Devtools = <T extends ClientInstance>({
   // Network
   const [networkSearchTerm, setNetworkSearchTerm] = useState("");
   const [networkSort, setNetworkSort] = useState<Sort | null>(null);
+  const [visualizerSearchTerm, setVisualizerSearchTerm] = useState("");
   const [requests, setRequests] = useState<DevtoolsRequestEvent[]>([] as unknown as DevtoolsRequestEvent[]);
   const [success, setSuccess] = useState<DevtoolsRequestResponse[]>([]);
   const [failed, setFailed] = useState<DevtoolsRequestResponse[]>([]);
@@ -373,6 +374,8 @@ export const Devtools = <T extends ClientInstance>({
       stats={stats}
       networkSearchTerm={networkSearchTerm}
       setNetworkSearchTerm={setNetworkSearchTerm}
+      visualizerSearchTerm={visualizerSearchTerm}
+      setVisualizerSearchTerm={setVisualizerSearchTerm*}
       networkSort={networkSort}
       setNetworkSort={setNetworkSort}
       detailsRequestId={detailsRequestId}

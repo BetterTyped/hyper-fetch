@@ -7,6 +7,7 @@ import { getRandomUser, getRandomUsers } from "../utils";
 import { client } from "./client";
 import { deleteUser, getUser, getUsers, patchUser, postUser } from "./users/users.api";
 import { postFile } from "./files/files.api";
+import { getTea } from "./visualizer/visualizer.api";
 
 // Mocks setup
 const getMock = (
@@ -82,4 +83,5 @@ export const handlers = [
   getMock(patchUser, getRandomUser, Time.SEC * 3),
   getMock(deleteUser, null),
   getMock(postFile, { response: "ok" }, Time.SEC * 2),
+  getMock(getTea, { response: "ok" }, Time.SEC),
 ];
