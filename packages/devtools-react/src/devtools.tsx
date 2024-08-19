@@ -18,11 +18,13 @@ import {
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
 import { DevtoolsWrapper } from "devtools.wrapper";
+import { Visualizer } from "pages/visualizer/visualizer";
 
 const modules = {
   Network,
   Cache,
   Processing,
+  Visualizer,
 };
 
 /**

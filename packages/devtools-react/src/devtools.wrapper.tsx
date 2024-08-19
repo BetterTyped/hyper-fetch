@@ -17,6 +17,7 @@ const styles = createStyles((isLight, css) => {
       border: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
       border-radius: 10px 10px 0 0;
       color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[500]};
+
       & * {
         font-family: ui-sans-serif, Inter, system-ui, sans-serif, sans-serif !important;
       }
@@ -128,6 +129,7 @@ export const DevtoolsWrapper = ({ children }: { children: React.ReactNode }) => 
       className={styles.clsx(css.wrapper, positionStyle[position])}
       style={{
         position: "fixed",
+        overflowX: "hidden",
       }}
     >
       {children}

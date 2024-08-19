@@ -19,6 +19,10 @@ export type ClientOptionsType<C extends ClientInstance> = {
    */
   adapter?: AdapterType;
   /**
+   * Enable dev request reference map
+   */
+  enableDevRequestMap?: boolean;
+  /**
    * Custom cache initialization prop
    */
   cache?: (client: C) => C["cache"];

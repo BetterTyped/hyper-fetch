@@ -49,6 +49,9 @@ export class Client<
   readonly url: string;
   public debug: boolean;
 
+  /** Only used in dev mode */
+  __requestsMap: Set<RequestInstance> = new Set();
+
   // Private
   __onErrorCallbacks: ResponseInterceptorType[] = [];
   __onSuccessCallbacks: ResponseInterceptorType[] = [];
@@ -501,7 +504,7 @@ export class Client<
         endpoint: endpoint as EndpointType extends string ? EndpointType : typeof endpoint,
       };
 
-      return new Request<
+      const request = new Request<
         Response,
         Payload,
         QueryParams,
@@ -509,6 +512,12 @@ export class Client<
         EndpointType extends string ? EndpointType : typeof endpoint,
         Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>
       >(this as unknown as Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>, mappedParams);
+
+      if (process?.env?.NODE_ENV === "development") {
+        this.__requestsMap.add(request);
+      }
+
+      return request;
     };
   };
 }
