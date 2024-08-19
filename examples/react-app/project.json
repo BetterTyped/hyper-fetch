@@ -50,7 +50,7 @@
     },
     "app-preview": {
       "executor": "@nx/vite:preview-server",
-      "defaultConfiguration": "development",
+      "defaultConfiguration": "production",
       "options": {
         "buildTarget": "react-app:app-build"
       },

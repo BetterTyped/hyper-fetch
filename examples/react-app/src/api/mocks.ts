@@ -41,16 +41,16 @@ const getMock = (
     return HttpResponse.json(typeof response === "function" ? response(details) : response, { status: 200 });
   };
 
-  if (method.toUpperCase() === "POST") {
+  if ((method as string).toUpperCase() === "POST") {
     return http.post(url, requestResolver);
   }
-  if (method.toUpperCase() === "PUT") {
+  if ((method as string).toUpperCase() === "PUT") {
     return http.put(url, requestResolver);
   }
-  if (method.toUpperCase() === "PATCH") {
+  if ((method as string).toUpperCase() === "PATCH") {
     return http.patch(url, requestResolver);
   }
-  if (method.toUpperCase() === "DELETE") {
+  if ((method as string).toUpperCase() === "DELETE") {
     return http.delete(url, requestResolver);
   }
   return http.get(url, requestResolver);

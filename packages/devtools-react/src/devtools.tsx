@@ -31,6 +31,7 @@ const modules = {
  * TODO:
  * - max network elements - performance handling?
  * - max cache elements - performance handling?
+ * - Do not show for production use
  */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
