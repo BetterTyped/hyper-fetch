@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
 import { css } from "goober";
+import { Size } from "re-resizable";
 
 import { Header } from "./components/header/header";
 import { Cache } from "./pages/cache/cache";
@@ -54,6 +55,7 @@ export const Devtools = <T extends ClientInstance>({
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
   const [position, setPosition] = useState<"top" | "left" | "right" | "bottom">(initialPosition);
+  const [size, setSize] = useState<Size>({ width: 0, height: 0 });
 
   const Component = modules[module];
 
@@ -85,6 +87,7 @@ export const Devtools = <T extends ClientInstance>({
   }>({});
   // Explorer
   const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
+  const [detailsExplorerRequest, setDetailsExplorerRequest] = useState<RequestInstance | null>(null);
 
   const handleClearNetwork = useCallback(() => {
     setRequests([]);
@@ -402,7 +405,11 @@ export const Devtools = <T extends ClientInstance>({
       setPosition={setPosition}
       explorerSearchTerm={explorerSearchTerm}
       setExplorerSearchTerm={setExplorerSearchTerm}
+      detailsExplorerRequest={detailsExplorerRequest}
+      setDetailsExplorerRequest={setDetailsExplorerRequest}
       simulatedError={simulatedError}
+      size={size}
+      setSize={setSize}
     >
       {open && (
         <DevtoolsWrapper>

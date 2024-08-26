@@ -1,7 +1,8 @@
 import clsx from "clsx";
 import React from "react";
 import { css } from "goober";
-import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
+import { Size } from "re-resizable";
+import { ClientInstance, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 import {
   DevtoolsCacheEvent,
@@ -70,6 +71,10 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   // Explorer
   explorerSearchTerm: "",
   setExplorerSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
+  detailsExplorerRequest: null as RequestInstance | null,
+  setDetailsExplorerRequest: (() => {}) as React.Dispatch<React.SetStateAction<RequestInstance | null>>,
   // Common
   simulatedError: new Error("Simulated error") as any,
+  size: { width: 0, height: 0 } as Size,
+  setSize: (() => {}) as React.Dispatch<React.SetStateAction<Size>>,
 });

@@ -1,5 +1,5 @@
-import { Resizable, Size } from "re-resizable";
-import { useEffect, useState } from "react";
+import { Resizable } from "re-resizable";
+import { useEffect } from "react";
 
 import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
@@ -101,24 +101,30 @@ const minSizes = {
 
 export const DevtoolsWrapper = ({ children }: { children: React.ReactNode }) => {
   const css = styles.useStyles();
-  const { position } = useDevtoolsContext("DevtoolsWrapper");
+  const { position, size, setSize } = useDevtoolsContext("DevtoolsWrapper");
 
   const positionStyle = positionStyles.useStyles();
 
-  const [size, setSize] = useState<Size>(sizes[position]);
-
   useEffect(() => {
     setSize(sizes[position]);
-  }, [position]);
+  }, [position, setSize]);
 
   return (
     <Resizable
       size={size}
+      onResize={(e, direction, ref) => {
+        const { width, height } = ref.getBoundingClientRect();
+        setSize(() => ({
+          width,
+          height,
+        }));
+      }}
       // eslint-disable-next-line max-params
-      onResizeStop={(e, direction, ref, d) => {
-        setSize((prev) => ({
-          width: Number(prev.width) + d.width,
-          height: Number(prev.height) + d.height,
+      onResizeStop={(e, direction, ref) => {
+        const { width, height } = ref.getBoundingClientRect();
+        setSize(() => ({
+          width,
+          height,
         }));
       }}
       defaultSize={sizes[position]}

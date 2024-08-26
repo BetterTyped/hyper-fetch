@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { Button } from "components/header/button/button";
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
@@ -12,8 +14,11 @@ import { ExplorerIcon } from "icons/explorer";
 import { styles } from "./header.styles";
 
 export const Header = () => {
-  const { module, setModule, setOpen } = useDevtoolsContext("DevtoolsHeader");
   const css = styles.useStyles();
+
+  const { module, setModule, setOpen, size } = useDevtoolsContext("DevtoolsHeader");
+
+  const [small, setSmall] = useState(false);
 
   const getColor = (type: DevtoolsModule) => {
     return module === type ? "primary" : "secondary";
@@ -23,6 +28,14 @@ export const Header = () => {
     return module === type ? "rgb(88 196 220)" : "rgb(180, 194, 204)";
   };
 
+  useEffect(() => {
+    if (typeof size.width === "number" && size.width < 650) {
+      setSmall(true);
+    } else {
+      setSmall(false);
+    }
+  }, [size]);
+
   return (
     <div className={css.wrapper}>
       <button type="button" className={css.heading} onClick={() => setModule(DevtoolsModule.NETWORK)}>
@@ -30,19 +43,31 @@ export const Header = () => {
         <div className={css.title}>DevTools</div>
       </button>
       <div style={{ display: "flex", alignItems: "center", padding: "0 10px 0 0" }}>
-        <Button color={getColor(DevtoolsModule.NETWORK)} onClick={() => setModule(DevtoolsModule.NETWORK)}>
+        <Button
+          small={small}
+          color={getColor(DevtoolsModule.NETWORK)}
+          onClick={() => setModule(DevtoolsModule.NETWORK)}
+        >
           <NetworkIcon fill={getIconColor(DevtoolsModule.NETWORK)} />
           Network
         </Button>
-        <Button color={getColor(DevtoolsModule.CACHE)} onClick={() => setModule(DevtoolsModule.CACHE)}>
+        <Button small={small} color={getColor(DevtoolsModule.CACHE)} onClick={() => setModule(DevtoolsModule.CACHE)}>
           <CacheIcon fill={getIconColor(DevtoolsModule.CACHE)} />
           Cache
         </Button>
-        <Button color={getColor(DevtoolsModule.PROCESSING)} onClick={() => setModule(DevtoolsModule.PROCESSING)}>
+        <Button
+          small={small}
+          color={getColor(DevtoolsModule.PROCESSING)}
+          onClick={() => setModule(DevtoolsModule.PROCESSING)}
+        >
           <ProcessingIcon fill={getIconColor(DevtoolsModule.PROCESSING)} />
           Processing
         </Button>
-        <Button color={getColor(DevtoolsModule.VISUALIZATION)} onClick={() => setModule(DevtoolsModule.VISUALIZATION)}>
+        <Button
+          small={small}
+          color={getColor(DevtoolsModule.VISUALIZATION)}
+          onClick={() => setModule(DevtoolsModule.VISUALIZATION)}
+        >
           <ExplorerIcon fill={getIconColor(DevtoolsModule.VISUALIZATION)} />
           Explorer
         </Button>

@@ -7,7 +7,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { styles } from "pages/network/network.styles";
 
 export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
-  const { client, setDetailsRequestId, theme, detailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
+  const { setDetailsRequestId, theme, detailsRequestId } = useDevtoolsContext("DevtoolsNetworkRequest");
   const css = styles.useStyles();
 
   const status = useMemo(() => {
@@ -32,11 +32,9 @@ export const Request = ({ item }: { item: DevtoolsRequestEvent }) => {
         </div>
       </td>
 
-      {typeof client.defaultMethod === "string" && (
-        <td className={css.cell} style={{ color }}>
-          {String(item.request.method)}
-        </td>
-      )}
+      <td className={css.cell} style={{ color }}>
+        {String(item.request.method)}
+      </td>
       <td className={css.cell} style={{ color, textTransform: "capitalize" }}>
         {String(item.response?.success ?? "")}
       </td>

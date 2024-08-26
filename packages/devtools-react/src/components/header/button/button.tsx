@@ -28,6 +28,12 @@ const styles = createStyles((isLight, css) => {
         outline-offset: -2px !important;
       }
     `,
+
+    small: css`
+      font-size: 0px !important;
+      padding-right: 8px;
+    `,
+
     primary: css`
       border-bottom: 2px solid ${tokens.colors.cyan[300]}!important;
       color: ${isLight ? tokens.colors.dark[300] : tokens.colors.light[50]};
@@ -46,14 +52,16 @@ const styles = createStyles((isLight, css) => {
 export const Button = ({
   children,
   color = "primary",
+  small = true,
   ...props
 }: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
   color?: "primary" | "secondary";
+  small?: boolean;
 }) => {
   const css = styles.useStyles();
 
   return (
-    <button type="button" {...props} className={clsx(css.base, css[color], props.className)}>
+    <button type="button" {...props} className={clsx(css.base, css[color], props.className, { [css.small]: small })}>
       {children}
     </button>
   );
