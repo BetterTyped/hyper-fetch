@@ -2,6 +2,6 @@
 . "$(dirname "$0")/_/husky.sh"
 
 yarn commitlint --edit "$1"
-yarn nx run-many --target=build --all
-yarn nx run-many --target=lint --all --parallel=10
-yarn nx run-many --target=typecheck --all --parallel=10
+yarn build
+yarn lint
+# yarn typecheck

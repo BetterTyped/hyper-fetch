@@ -1,8 +1,8 @@
 {
-//  "extends": ["../../.eslintrc.json"],
-//  "parserOptions": {
-//    "project": ["./tsconfig.json"]
-//  },
+  "extends": ["../../.eslintrc.json"],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
   "rules": {},
   "ignorePatterns": ["dist/", "coverage/", "jest.config.ts", "/*.js"]
 }

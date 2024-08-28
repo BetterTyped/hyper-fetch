@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/react-app/src",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "app-build": {
       "executor": "@nx/vite:build",
@@ -40,7 +41,6 @@
     "run-server": {
       "command": "node examples/react-app/server/server.js"
     },
-
     "serve": {
       "executor": "nx:run-commands",
       "options": {
@@ -50,22 +50,24 @@
     },
     "app-preview": {
       "executor": "@nx/vite:preview-server",
-      "defaultConfiguration": "production",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "react-app:app-build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "react-app:app-build:development"
+          "buildTarget": "react-app:app-build:development",
+          "dev": true
         },
         "production": {
-          "buildTarget": "react-app:app-build:production"
+          "buildTarget": "react-app:app-build:production",
+          "dev": false
         }
       }
     },
     "app-test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/examples/react-app"],
+      "outputs": ["{workspaceRoot}/coverage/examples/react-app"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/examples/react-app"
@@ -78,6 +80,5 @@
         "lintFilePatterns": ["examples/react-app/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  },
-  "tags": []
+  }
 }

@@ -1,23 +1,11 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "hyper-fetch",
-  "affected": {
-    "defaultBase": "main"
-  },
   "implicitDependencies": {
     "package.json": {
       "dependencies": "*",
       "devDependencies": "*"
     },
     ".eslintrc.json": "*"
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "parallel": 1
-      }
-    }
   },
   "targetDefaults": {
     "build": {
@@ -88,5 +76,7 @@
         "serveStaticTargetName": "serve-static"
       }
     }
-  ]
+  ],
+  "parallel": 1,
+  "defaultBase": "main"
 }

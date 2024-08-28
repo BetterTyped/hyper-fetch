@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "examples/next-app",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "app-build": {
       "executor": "@nx/next:build",
@@ -58,6 +59,5 @@
         "lintFilePatterns": ["examples/next/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  },
-  "tags": []
+  }
 }

@@ -1,8 +1,7 @@
 import { ClientInstance } from "@hyper-fetch/core";
-import { DevtoolsRequestEvent } from "devtools.types";
 
 // TODO - here add additional event from main devtools class
-const applyEvents = (client: ClientInstance) => {
+export const applyEvents = (client: ClientInstance) => {
   const unmountOffline = client.appManager.events.onOffline(() => {
     // TODO - gather online = false info
   });
@@ -11,13 +10,12 @@ const applyEvents = (client: ClientInstance) => {
     // TODO - gather online = true info
   });
 
-  const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
+  const unmountOnRequestPause = client.requestManager.events.onAbort(() => {
     // TODO - set anceled info
-    setCanceled((prev) => [
-      ...prev,
-      { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-    ]);
-
+    // setCanceled((prev) => [
+    //   ...prev,
+    //   { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+    // ]);
     // updateQueues();
   });
   const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange(() => {
@@ -32,12 +30,12 @@ const applyEvents = (client: ClientInstance) => {
   const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange(() => {
     // updateQueues();
   });
-  const unmountOnRemove = client.requestManager.events.onRemove(({ requestId, request, resolved }) => {
+  const unmountOnRemove = client.requestManager.events.onRemove(({ resolved }) => {
     if (!resolved) {
-      setRemoved((prev) => [
-        ...prev,
-        { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-      ]);
+      // setRemoved((prev) => [
+      //   ...prev,
+      //   { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+      // ]);
     }
     // updateQueues();
   });
@@ -55,8 +53,8 @@ const applyEvents = (client: ClientInstance) => {
   return () => {
     unmountOffline();
     unmountOnline();
-    unmountOnResponse();
-    unmountOnRequestStart();
+    // unmountOnResponse();
+    // unmountOnRequestStart();
     unmountOnRequestPause();
     unmountOnFetchQueueChange();
     unmountOnFetchQueueStatusChange();

@@ -153,5 +153,5 @@ export class DevtoolsQueueStats {
   }) => {
     this.requestsFailed.push({ requestId, response, details });
   };
-  addCancelledRequest = ({ requestId, request }: {}) => {};
+  // addCancelledRequest = ({ requestId, request }: {}) => {};
 }

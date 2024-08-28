@@ -10,7 +10,7 @@ export class RequestManager {
   events = getRequestManagerEvents(this.emitter);
 
   constructor() {
-    this.emitter?.setMaxListeners(Infinity);
+    this.emitter?.setMaxListeners(20000);
   }
 
   abortControllers = new Map<string, Map<string, AbortController>>();

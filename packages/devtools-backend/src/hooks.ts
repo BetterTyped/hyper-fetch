@@ -1,6 +1,6 @@
-import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
+import { ClientInstance } from "@hyper-fetch/core";
 
-import { DevtoolsCacheEvent, DevtoolsElement } from "./devtools.types";
+import { DevtoolsCacheEvent } from "./devtools.types";
 
 export const handleCacheChange = (client: ClientInstance) => {
   const cacheKeys = [...client.cache.storage.keys()];

@@ -36,7 +36,7 @@ export class Cache<C extends ClientInstance> {
     public client: C,
     public options?: CacheOptionsType,
   ) {
-    this.emitter?.setMaxListeners(Infinity);
+    this.emitter?.setMaxListeners(20000);
     this.storage = this.options?.storage || (new Map<string, CacheValueType>() as typeof this.storage);
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);

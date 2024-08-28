@@ -59,7 +59,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   constructor(public options: SocketOptionsType<Adapter>) {
     const { url, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =
       this.options;
-    this.emitter?.setMaxListeners(Infinity);
+    this.emitter?.setMaxListeners(20000);
     this.url = url;
     this.queryParams = queryParams;
     this.debug = false;

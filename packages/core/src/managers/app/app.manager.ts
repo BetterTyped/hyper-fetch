@@ -19,7 +19,7 @@ export class AppManager {
   isFocused: boolean;
 
   constructor(public options?: AppManagerOptionsType) {
-    this.emitter?.setMaxListeners(Infinity);
+    this.emitter?.setMaxListeners(20000);
     const {
       focusEvent = appManagerInitialOptions.focusEvent,
       onlineEvent = appManagerInitialOptions.onlineEvent,

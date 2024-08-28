@@ -38,14 +38,15 @@
   "devDependencies": {
     "@better-hooks/performance": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "2.1.1",
-    "react": ">= 16.8.0",
     "clsx": "2.1.1",
     "goober": "2.1.14",
+    "immer": "10.1.1",
     "match-sorter": "6.3.4",
     "re-resizable": "6.9.17",
+    "react": ">= 16.8.0",
+    "react-complex-tree": "^2.4.5",
     "react-json-tree": "0.19.0",
-    "superjson": "2.2.1",
-    "immer": "10.1.1"
+    "superjson": "2.2.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -3,7 +3,7 @@ import { ClientInstance } from "@hyper-fetch/core";
 import { DevtoolsQueueStats } from "devtools.stats";
 import { DevtoolsRequestEvent } from "devtools.types";
 
-class BackendDevtools {
+export class BackendDevtools {
   client: ClientInstance;
   queueStats: DevtoolsQueueStats;
   requests: DevtoolsRequestEvent[] = [];
