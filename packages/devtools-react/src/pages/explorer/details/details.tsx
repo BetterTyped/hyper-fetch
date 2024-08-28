@@ -1,6 +1,5 @@
 import { ComponentType, useState } from "react";
 import { Resizable } from "re-resizable";
-import { RequestInstance } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -10,10 +9,11 @@ import { Button } from "components/button/button";
 import { SendIcon } from "icons/send";
 import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
+import { DevtoolsExplorerRequest } from "../content/content";
 
 import { styles } from "../explorer.styles";
 
-const components: Record<Tabs, ComponentType<{ item: RequestInstance }>> = {
+const components: Record<Tabs, ComponentType<{ item: DevtoolsExplorerRequest }>> = {
   [Tabs.PARAMS]: TabParams,
   [Tabs.AUTH]: () => <div>Authorization</div>,
   [Tabs.HEADERS]: () => <div>Headers</div>,
@@ -22,7 +22,7 @@ const components: Record<Tabs, ComponentType<{ item: RequestInstance }>> = {
   [Tabs.RESPONSE]: () => <div>Response</div>,
 };
 
-export const Details = ({ item }: { item: RequestInstance }) => {
+export const Details = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.PARAMS);
 
   const css = styles.useStyles();
@@ -43,9 +43,9 @@ export const Details = ({ item }: { item: RequestInstance }) => {
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <div className={css.head}>
           <div className={css.bar}>
-            <Chip color="blue">{String(item.method)}</Chip>
+            <Chip color="blue">{String(item.request.method)}</Chip>
             <Separator style={{ height: "18px", margin: "0 4px" }} />
-            <span className={css.endpoint}>{item.endpoint}</span>
+            <span className={css.endpoint}>{item.request.endpoint}</span>
           </div>
           <Button>
             Send

@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { css } from "goober";
 import { Size } from "re-resizable";
-import { ClientInstance, QueueDataType, RequestInstance } from "@hyper-fetch/core";
+import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
 
 import {
   DevtoolsCacheEvent,
@@ -14,6 +14,7 @@ import {
 } from "devtools.types";
 import { createContext } from "utils/context";
 import { Status } from "utils/request.status.utils";
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
 
 export type Sort = { key: string; order: "asc" | "desc" };
 
@@ -71,8 +72,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   // Explorer
   explorerSearchTerm: "",
   setExplorerSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
-  detailsExplorerRequest: null as RequestInstance | null,
-  setDetailsExplorerRequest: (() => {}) as React.Dispatch<React.SetStateAction<RequestInstance | null>>,
+  detailsExplorerRequest: null as DevtoolsExplorerRequest | null,
+  setDetailsExplorerRequest: (() => {}) as React.Dispatch<React.SetStateAction<DevtoolsExplorerRequest | null>>,
   // Common
   simulatedError: new Error("Simulated error") as any,
   size: { width: 0, height: 0 } as Size,

@@ -1,16 +1,16 @@
 import { useMemo } from "react";
-import { RequestInstance } from "@hyper-fetch/core";
 
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
 import { Label } from "components/table/label/label";
 import { Table } from "components/table/table";
 
-export const TabParams = ({ item }: { item: RequestInstance }) => {
+export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const parameters: string[] = useMemo(() => {
     const groupRegex = /:([A-Za-z0-9_]+)([?+*]?)/g;
-    const matches = item.endpoint.match(groupRegex);
+    const matches = item.request.endpoint.match(groupRegex);
     if (!matches) return [];
     return matches;
-  }, [item.endpoint]);
+  }, [item.request.endpoint]);
 
   return (
     <div>

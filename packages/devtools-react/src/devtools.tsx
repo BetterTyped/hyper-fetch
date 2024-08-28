@@ -20,6 +20,7 @@ import {
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
 import { DevtoolsWrapper } from "devtools.wrapper";
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
 
 const modules = {
   Network,
@@ -87,7 +88,7 @@ export const Devtools = <T extends ClientInstance>({
   }>({});
   // Explorer
   const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
-  const [detailsExplorerRequest, setDetailsExplorerRequest] = useState<RequestInstance | null>(null);
+  const [detailsExplorerRequest, setDetailsExplorerRequest] = useState<DevtoolsExplorerRequest | null>(null);
 
   const handleClearNetwork = useCallback(() => {
     setRequests([]);

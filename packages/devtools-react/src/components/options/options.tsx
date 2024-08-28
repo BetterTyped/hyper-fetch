@@ -179,7 +179,7 @@ export const Options = ({ children }: { children: React.ReactNode }) => {
                     <DropdownMenu.Label className={css.menuLabel}>Position</DropdownMenu.Label>
                     <DropdownMenu.RadioGroup value={position} onValueChange={setPosition as any}>
                       {positions.map((item) => (
-                        <DropdownMenu.RadioItem className={styles.clsx(css.item, css.value)} value={item}>
+                        <DropdownMenu.RadioItem key={item} className={styles.clsx(css.item, css.value)} value={item}>
                           <DropdownMenu.ItemIndicator className={css.indicator}>·</DropdownMenu.ItemIndicator>
                           {item}
                         </DropdownMenu.RadioItem>
