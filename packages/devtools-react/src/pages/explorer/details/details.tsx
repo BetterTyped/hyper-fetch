@@ -49,7 +49,13 @@ export const Details = ({ item }: { item: RequestInstance }) => {
           </div>
           <Button>
             Send
-            <SendIcon width="12px" />
+            <SendIcon
+              style={{
+                width: "12px",
+                marginLeft: "1px",
+                marginBottom: "-2px",
+              }}
+            />
           </Button>
         </div>
       </Toolbar>

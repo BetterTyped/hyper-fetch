@@ -80,6 +80,7 @@ export const styles = createStyles((isLight, css) => {
     `,
     tabs: css`
       display: flex;
+      flex-wrap: wrap;
       width: 100%;
       gap: 10px;
       padding: 10px;

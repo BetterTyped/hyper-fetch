@@ -10,8 +10,8 @@ export type AdapterInstance = AdapterType<any, any, any, any, any, any>;
 
 export type AdapterType<
   AdapterOptions = AdapterOptionsType,
-  MethodType = HttpMethodsType,
-  StatusType = HttpStatusType,
+  MethodType extends string = HttpMethodsType,
+  StatusType extends number | string = HttpStatusType,
   Extra extends Record<string, any> = AdapterExtraType,
   QueryParams = QueryParamsType | string,
   EndpointType = string,

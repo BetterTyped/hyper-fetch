@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Resizable } from "re-resizable";
 import { useQueue } from "@hyper-fetch/react";
-import { QueueDataType } from "@hyper-fetch/core";
+import { QueueDataType, Request } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -48,7 +48,12 @@ export const Details = ({ item }: { item: QueueDataType }) => {
   const status = getQueueStatus(item);
 
   const dummyRequest = useMemo(() => {
-    return client.createRequest()({ endpoint: "", queueKey: item.queueKey, method: item.queueKey.split("_")[0] });
+    // change new Request();
+    return new Request(client, {
+      endpoint: "",
+      queueKey: item.queueKey,
+      method: item.queueKey.split("_")[0],
+    });
   }, [client, item.queueKey]);
 
   const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
