@@ -1,3 +1,5 @@
+import React from "react";
+
 import { createStyles } from "theme/use-styles.hook";
 
 const styles = createStyles((isLight, css) => {
@@ -30,16 +32,21 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-export const IconButton = ({
-  children,
-  className,
-  ...props
-}: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>) => {
-  const css = styles.useStyles();
+export const IconButton = React.forwardRef(
+  (
+    {
+      children,
+      className,
+      ...props
+    }: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
+    ref: React.ForwardedRef<HTMLButtonElement>,
+  ) => {
+    const css = styles.useStyles();
 
-  return (
-    <button type="button" {...props} className={styles.clsx(css.base, className)}>
-      {children}
-    </button>
-  );
-};
+    return (
+      <button {...props} ref={ref} type="button" className={styles.clsx(css.base, className)}>
+        {children}
+      </button>
+    );
+  },
+);

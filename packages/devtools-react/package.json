@@ -41,6 +41,7 @@
     "clsx": "2.1.1",
     "goober": "2.1.14",
     "immer": "10.1.1",
+    "lucide-react": "^0.436.0",
     "match-sorter": "6.3.4",
     "re-resizable": "6.9.17",
     "react": ">= 16.8.0",

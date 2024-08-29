@@ -9,7 +9,7 @@ import { Button } from "components/button/button";
 import { SendIcon } from "icons/send";
 import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
-import { DevtoolsExplorerRequest } from "../content/content";
+import { DevtoolsExplorerRequest } from "../content/content.types";
 
 import { styles } from "../explorer.styles";
 

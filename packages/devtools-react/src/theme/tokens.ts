@@ -63,8 +63,19 @@ export const tokens = {
       900: "#7f1d1d",
       950: "#450a0a",
     },
+    yellow: {
+      50: "#fefce8",
+      100: "#fef9c3",
+      200: "#fef08a",
+      300: "#fde047",
+      400: "#facc15",
+      500: "#eab308",
+      600: "#ca8a04",
+      700: "#a16207",
+      800: "#854d0e",
+      900: "#713f12",
+    },
     orange: {
-      25: "#FFFCF5",
       50: "#FFFAEB",
       100: "#FEF0C7",
       200: "#FEDF89",
@@ -77,7 +88,6 @@ export const tokens = {
       900: "#7A2E0E",
     },
     purple: {
-      25: "#FAFAFF",
       50: "#F4F3FF",
       100: "#EBE9FE",
       200: "#D9D6FE",
@@ -90,7 +100,6 @@ export const tokens = {
       900: "#3E1C96",
     },
     teal: {
-      25: "#F6FEFC",
       50: "#F0FDF9",
       100: "#CCFBEF",
       200: "#99F6E0",
@@ -103,7 +112,6 @@ export const tokens = {
       900: "#134E48",
     },
     pink: {
-      25: "#fdf2f8",
       50: "#fce7f3",
       100: "#fbcfe8",
       200: "#f9a8d4",
@@ -116,7 +124,6 @@ export const tokens = {
       900: "#500724",
     },
     cyan: {
-      25: "#ecfeff",
       50: "#cffafe",
       100: "#a5f3fc",
       200: "#67e8f9",
@@ -169,5 +176,17 @@ export const tokens = {
     "2xl": (color = "rgb(0 0 0 / 0.25)") => `0 25px 50px -12px ${color}` as const,
     inner: (color = "rgb(0 0 0 / 0.05)") => `inset 0 2px 4px 0 ${color}` as const,
     none: () => `none` as const,
+  },
+  zIndex: {
+    0: 0,
+    10: 10,
+    20: 20,
+    30: 30,
+    40: 40,
+    50: 50,
+    100: 100,
+    500: 500,
+    1000: 1000,
+    99999: 99999,
   },
 } as const;

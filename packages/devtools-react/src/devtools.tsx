@@ -20,7 +20,8 @@ import {
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
 import { DevtoolsWrapper } from "devtools.wrapper";
-import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content.types";
+import { DevtoolsDataProvider } from "pages/explorer/content/content.state";
 
 const modules = {
   Network,
@@ -40,7 +41,7 @@ export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
   initiallyOpen?: boolean;
   initialTheme?: "light" | "dark";
-  initialPosition?: "top" | "left" | "right" | "bottom";
+  initialPosition?: "Top" | "Left" | "Right" | "Bottom";
   simulatedError?: any;
 };
 
@@ -48,14 +49,14 @@ export const Devtools = <T extends ClientInstance>({
   client,
   initialTheme = "dark",
   initiallyOpen = false,
-  initialPosition = "right",
+  initialPosition = "Right",
   simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
 }: DevtoolsProps<T>) => {
   const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
-  const [position, setPosition] = useState<"top" | "left" | "right" | "bottom">(initialPosition);
+  const [position, setPosition] = useState<"Top" | "Left" | "Right" | "Bottom">(initialPosition);
   const [size, setSize] = useState<Size>({ width: 0, height: 0 });
 
   const Component = modules[module];
@@ -404,6 +405,7 @@ export const Devtools = <T extends ClientInstance>({
       setLoadingKeys={setLoadingKeys}
       position={position}
       setPosition={setPosition}
+      treeState={new DevtoolsDataProvider([...client.__requestsMap.values()])}
       explorerSearchTerm={explorerSearchTerm}
       setExplorerSearchTerm={setExplorerSearchTerm}
       detailsExplorerRequest={detailsExplorerRequest}

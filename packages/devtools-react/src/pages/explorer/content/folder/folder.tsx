@@ -1,11 +1,11 @@
 import { TreeItem } from "react-complex-tree";
-import { EllipsisIcon, FileUp } from "lucide-react";
+import { EllipsisIcon, FolderIcon } from "lucide-react";
 
 import * as DropdownMenu from "components/dropdown/dropdown";
 import { IconButton } from "components/icon-button/icon-button";
-import { DevtoolsExplorerRequest } from "../content.types";
+import { DevtoolsExplorerFolder } from "../content.types";
+import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
-import { Method } from "components/method/method";
 
 const styles = createStyles((isLight, css) => {
   return {
@@ -19,19 +19,30 @@ const styles = createStyles((isLight, css) => {
       display: flex;
       align-items: center;
       gap: 5px;
+
+      & svg {
+        width: 16px;
+        height: 16px;
+      }
     `,
   };
 });
 
-export const Request = ({ item }: { item: TreeItem<DevtoolsExplorerRequest> }) => {
+export const Folder = ({ item }: { item: TreeItem<DevtoolsExplorerFolder> }) => {
+  const { treeState } = useDevtoolsContext("DevtoolsExplorerFolder");
   const css = styles.useStyles();
+
+  const addNewFolder = () => {
+    treeState.injectItem(window.prompt("Item name") ?? "New item", item.index);
+  };
 
   return (
     <div className={css.item}>
       <span className={css.title}>
-        <Method method={item.data.request.method} />
+        <FolderIcon />
         {item.data.name}
       </span>
+
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <IconButton>
@@ -41,8 +52,8 @@ export const Request = ({ item }: { item: TreeItem<DevtoolsExplorerRequest> }) =
 
         <DropdownMenu.Content>
           <DropdownMenu.Label>
-            <FileUp />
-            Request
+            <FolderIcon />
+            Folder
           </DropdownMenu.Label>
           <DropdownMenu.Separator />
           <DropdownMenu.Group>
@@ -50,18 +61,21 @@ export const Request = ({ item }: { item: TreeItem<DevtoolsExplorerRequest> }) =
               Rename
               <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
             </DropdownMenu.Item>
-            <DropdownMenu.Item>
-              Show cache
+            <DropdownMenu.Item onClick={addNewFolder}>
+              Add folder
               <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
             </DropdownMenu.Item>
             <DropdownMenu.Item>
-              Show in network
+              Run folder
+              <DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item>
+              View documentation
               <DropdownMenu.Shortcut>⇧⌘P</DropdownMenu.Shortcut>
             </DropdownMenu.Item>
           </DropdownMenu.Group>
           <DropdownMenu.Separator />
-          <DropdownMenu.Item>Add example response</DropdownMenu.Item>
-          <DropdownMenu.Item>Add request template</DropdownMenu.Item>
+          <DropdownMenu.Item>Add Request</DropdownMenu.Item>
           <DropdownMenu.Item>View documentation</DropdownMenu.Item>
           <DropdownMenu.Item>Support</DropdownMenu.Item>
           <DropdownMenu.Item>API</DropdownMenu.Item>

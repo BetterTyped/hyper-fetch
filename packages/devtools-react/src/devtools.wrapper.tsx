@@ -23,6 +23,7 @@ const styles = createStyles((isLight, css) => {
       }
       & svg {
         fill: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
+        stroke: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
       }
       & button:focus-within {
         outline-offset: 2px;
@@ -34,25 +35,25 @@ const styles = createStyles((isLight, css) => {
 
 const positionStyles = createStyles((theme, css) => {
   return {
-    top: css`
+    Top: css`
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
       bottom: auto !important;
     `,
-    left: css`
+    Left: css`
       top: 0 !important;
       left: 0 !important;
       right: auto !important;
       bottom: 0 !important;
     `,
-    right: css`
+    Right: css`
       top: 0 !important;
       left: auto !important;
       right: 0 !important;
       bottom: 0 !important;
     `,
-    bottom: css`
+    Bottom: css`
       top: auto !important;
       left: 0 !important;
       right: 0 !important;
@@ -62,38 +63,38 @@ const positionStyles = createStyles((theme, css) => {
 });
 
 const sizes = {
-  top: {
+  Top: {
     width: "100%",
     height: "400px",
   },
-  left: {
+  Left: {
     width: "700px",
     height: "100%",
   },
-  right: {
+  Right: {
     width: "700px",
     height: "100%",
   },
-  bottom: {
+  Bottom: {
     width: "100%",
     height: "400px",
   },
 };
 
 const minSizes = {
-  top: {
+  Top: {
     width: "100vw",
     height: "100px",
   },
-  left: {
+  Left: {
     width: "300px",
     height: "100vh",
   },
-  right: {
+  Right: {
     width: "300px",
     height: "100vh",
   },
-  bottom: {
+  Bottom: {
     width: "100vw",
     height: "100px",
   },

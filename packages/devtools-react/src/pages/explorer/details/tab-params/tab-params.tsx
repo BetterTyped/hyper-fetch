@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
 import { Label } from "components/table/label/label";
 import { Table } from "components/table/table";
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content.types";
 
 export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const parameters: string[] = useMemo(() => {

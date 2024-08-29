@@ -14,7 +14,8 @@ import {
 } from "devtools.types";
 import { createContext } from "utils/context";
 import { Status } from "utils/request.status.utils";
-import { DevtoolsExplorerRequest } from "pages/explorer/content/content";
+import { DevtoolsExplorerRequest } from "pages/explorer/content/content.types";
+import { DevtoolsDataProvider } from "pages/explorer/content/content.state";
 
 export type Sort = { key: string; order: "asc" | "desc" };
 
@@ -31,8 +32,8 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setModule: (() => {}) as (module: DevtoolsModule) => void,
   isOnline: true,
   setIsOnline: (() => {}) as (isOffline: boolean) => void,
-  position: "right" as "top" | "right" | "bottom" | "left",
-  setPosition: (() => {}) as (position: "top" | "right" | "bottom" | "left") => void,
+  position: "right" as "Top" | "Right" | "Bottom" | "Left",
+  setPosition: (() => {}) as (position: "Top" | "Right" | "Bottom" | "Left") => void,
   success: [] as DevtoolsRequestResponse[],
   failed: [] as DevtoolsRequestResponse[],
   inProgress: [] as DevtoolsElement[],
@@ -70,6 +71,7 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   processingSort: null as Sort | null,
   setProcessingSort: (() => {}) as React.Dispatch<React.SetStateAction<Sort | null>>,
   // Explorer
+  treeState: new DevtoolsDataProvider([]),
   explorerSearchTerm: "",
   setExplorerSearchTerm: (() => {}) as React.Dispatch<React.SetStateAction<string>>,
   detailsExplorerRequest: null as DevtoolsExplorerRequest | null,
