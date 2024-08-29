@@ -6,6 +6,8 @@ import { createStyles, ExtractKeys } from "theme/use-styles.hook";
 const styles = createStyles((isLight, css) => {
   return {
     base: css`
+      display: flex;
+      align-items: center;
       border: 0px;
       border-radius: 4px;
       font-weight: 500;

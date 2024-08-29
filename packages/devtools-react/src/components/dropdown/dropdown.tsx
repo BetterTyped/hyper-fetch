@@ -115,6 +115,11 @@ const styles = createStyles((isLight, css) => {
       opacity: 0.6;
       letter-spacing: 0.1em;
       padding-left: 10px;
+
+      & svg {
+        height: 12px;
+        width: 12px;
+      }
     `,
   };
 });

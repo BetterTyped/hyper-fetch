@@ -4,6 +4,11 @@ import { createStyles } from "theme/use-styles.hook";
 export const styles = createStyles((isLight, css) => {
   return {
     content: css``,
+    row: css`
+      display: flex;
+      gap: 10px;
+      padding: 10px 8px;
+    `,
     item: css`
       width: 100%;
       display: flex;
@@ -29,19 +34,20 @@ export const styles = createStyles((isLight, css) => {
     `,
     head: css`
       display: flex;
+      align-items: center;
       flex: 1 1 auto;
+      font-size: 14px;
       gap: 10px;
     `,
     bar: css`
       display: flex;
       align-items: center;
       gap: 3px;
-      background: ${tokens.colors.dark[500]};
+      background: ${isLight ? tokens.colors.light[300] : tokens.colors.dark[500]};
       border: none;
       border-radius: 6px;
-      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[300]};
+      color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[300]};
       font-size: 16px;
-      font-weight: 300;
       padding: 4px 10px 4px 4px;
       width: 100%;
     `,
@@ -51,6 +57,14 @@ export const styles = createStyles((isLight, css) => {
       white-space: nowrap;
       max-width: 100%;
       font-size: 14px;
+      font-weight: 400;
+
+      & span {
+        font-weight: 500;
+        display: inline-block;
+        color: ${isLight ? tokens.colors.cyan[800] : tokens.colors.cyan[200]};
+        opacity: 0.6;
+      }
     `,
     tabs: css`
       display: flex;

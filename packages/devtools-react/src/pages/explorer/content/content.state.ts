@@ -27,8 +27,8 @@ export class DevtoolsDataProvider implements TreeDataProvider {
       {
         root: {
           index: "root",
-          canRename: true,
-          canMove: true,
+          canRename: false,
+          canMove: false,
           isFolder: true,
           children: ["requests"],
           data: {
@@ -39,8 +39,8 @@ export class DevtoolsDataProvider implements TreeDataProvider {
         },
         requests: {
           index: "requests",
-          canRename: true,
-          canMove: true,
+          canRename: false,
+          canMove: false,
           isFolder: true,
           children: items.map((item, index) => item.cacheKey + index),
           data: {

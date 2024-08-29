@@ -1,4 +1,4 @@
-import { TreeItem } from "react-complex-tree";
+import { TreeItem, TreeItemRenderContext } from "react-complex-tree";
 import { EllipsisIcon, FileUp } from "lucide-react";
 
 import * as DropdownMenu from "components/dropdown/dropdown";
@@ -23,8 +23,18 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-export const Request = ({ item }: { item: TreeItem<DevtoolsExplorerRequest> }) => {
+export const Request = ({
+  item,
+  context,
+}: {
+  item: TreeItem<DevtoolsExplorerRequest>;
+  context: TreeItemRenderContext<"expandedItems">;
+}) => {
   const css = styles.useStyles();
+
+  const renameRequest = () => {
+    context.startRenamingItem();
+  };
 
   return (
     <div className={css.item}>
@@ -46,7 +56,7 @@ export const Request = ({ item }: { item: TreeItem<DevtoolsExplorerRequest> }) =
           </DropdownMenu.Label>
           <DropdownMenu.Separator />
           <DropdownMenu.Group>
-            <DropdownMenu.Item>
+            <DropdownMenu.Item onClick={renameRequest}>
               Rename
               <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
             </DropdownMenu.Item>

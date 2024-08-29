@@ -10,6 +10,7 @@ import { SendIcon } from "icons/send";
 import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { DevtoolsExplorerRequest } from "../content/content.types";
+import { Method } from "components/method/method";
 
 import { styles } from "../explorer.styles";
 
@@ -38,14 +39,25 @@ export const Details = ({ item }: { item: DevtoolsExplorerRequest }) => {
       boundsByDirection
       className={css.details}
     >
-      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
+      <Toolbar style={{ flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <div className={css.head}>
+          <Method method={item.request.method} style={{ marginBottom: "-2px" }} />
+          {item.name}
+        </div>
+      </Toolbar>
+      <div className={css.detailsContent}>
+        <div className={css.row}>
           <div className={css.bar}>
-            <Chip color="blue">{String(item.request.method)}</Chip>
+            <Chip color="blue">
+              <Method method={item.request.method} />
+            </Chip>
             <Separator style={{ height: "18px", margin: "0 4px" }} />
-            <span className={css.endpoint}>{item.request.endpoint}</span>
+            <span className={css.endpoint}>
+              <span>{"{{baseUrl}}"}</span>
+              {item.request.endpoint}
+            </span>
           </div>
           <Button>
             Send
@@ -58,8 +70,6 @@ export const Details = ({ item }: { item: DevtoolsExplorerRequest }) => {
             />
           </Button>
         </div>
-      </Toolbar>
-      <div className={css.detailsContent}>
         {/* Tabs */}
         <div className={css.tabs}>
           {Object.values(Tabs).map((tab) => {

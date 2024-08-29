@@ -52,7 +52,6 @@ export const Content = () => {
         canRename
         canSearch
         onPrimaryAction={handleSelect}
-        onRenameItem={(item, name) => alert(`${item.data} renamed to ${name}`)}
         renderItemTitle={TreeElement}
         viewState={{
           "tree-1": {

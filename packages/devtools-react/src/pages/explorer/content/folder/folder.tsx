@@ -1,4 +1,4 @@
-import { TreeItem } from "react-complex-tree";
+import { TreeItem, TreeItemRenderContext } from "react-complex-tree";
 import { EllipsisIcon, FolderIcon } from "lucide-react";
 
 import * as DropdownMenu from "components/dropdown/dropdown";
@@ -28,12 +28,22 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-export const Folder = ({ item }: { item: TreeItem<DevtoolsExplorerFolder> }) => {
+export const Folder = ({
+  item,
+  context,
+}: {
+  item: TreeItem<DevtoolsExplorerFolder>;
+  context: TreeItemRenderContext<"expandedItems">;
+}) => {
   const { treeState } = useDevtoolsContext("DevtoolsExplorerFolder");
   const css = styles.useStyles();
 
   const addNewFolder = () => {
     treeState.injectItem(window.prompt("Item name") ?? "New item", item.index);
+  };
+
+  const renameFolder = () => {
+    context.startRenamingItem();
   };
 
   return (
@@ -57,10 +67,12 @@ export const Folder = ({ item }: { item: TreeItem<DevtoolsExplorerFolder> }) => 
           </DropdownMenu.Label>
           <DropdownMenu.Separator />
           <DropdownMenu.Group>
-            <DropdownMenu.Item>
-              Rename
-              <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
-            </DropdownMenu.Item>
+            {item.canRename && (
+              <DropdownMenu.Item onClick={renameFolder}>
+                Rename
+                <DropdownMenu.Shortcut>⌘S</DropdownMenu.Shortcut>
+              </DropdownMenu.Item>
+            )}
             <DropdownMenu.Item onClick={addNewFolder}>
               Add folder
               <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>

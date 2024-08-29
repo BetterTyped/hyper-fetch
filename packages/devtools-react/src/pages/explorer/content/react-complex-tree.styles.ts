@@ -4,9 +4,13 @@ import { createStyles } from "theme/use-styles.hook";
 export const reactComplexTreeStyles = createStyles((isLight, css) => {
   return {
     styles: css`
+      padding: 0 5px;
+
       --rct-color-tree-bg: transparent;
-      --rct-item-height: 28px;
+      --rct-item-height: 30px;
       --rct-color-search-highlight-bg: #acccf1;
+      --rct-color-drag-between-line-bg: ${tokens.colors.cyan[400]};
+      --rct-color-focustree-item-draggingover-bg: ${tokens.colors.cyan[500] + tokens.alpha[40]};
 
       --rct-color-tree-focus-outline: transparent;
       --rct-item-margin: 1px;
@@ -14,8 +18,8 @@ export const reactComplexTreeStyles = createStyles((isLight, css) => {
       --rct-radius: 4px;
       --rct-bar-offset: 6px;
       --rct-bar-width: 4px;
-      --rct-bar-color: #0366d6;
-      --rct-focus-outline: #000000;
+      --rct-bar-color: transparent;
+      --rct-focus-outline: ${tokens.colors.cyan[400] + tokens.alpha[40]};
 
       --rct-color-focustree-item-selected-bg: ${isLight ? tokens.colors.light[400] : tokens.colors.dark[500]};
       --rct-color-focustree-item-hover-bg: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[500]};
@@ -32,23 +36,32 @@ export const reactComplexTreeStyles = createStyles((isLight, css) => {
       --rct-search-width: 120px;
       --rct-search-height: 16px;
       --rct-search-padding: 8px;
-      --rct-search-border: #b4b7bd;
-      --rct-search-border-bottom: #0366d6;
-      --rct-search-bg: #f8f9fa;
-      --rct-search-text: #000000;
+      --rct-search-border: ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
+      --rct-search-border-bottom: ${tokens.colors.cyan[400]};
+      --rct-search-bg: ${isLight ? tokens.colors.light[50] : tokens.colors.dark[800]};
+      --rct-search-text: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[100]};
       --rct-search-text-offset: calc(var(--rct-search-padding) * 2 + 16px);
       --rct-search-container-width: calc(
         var(--rct-search-width) + var(--rct-search-text-offset) + var(--rct-search-padding) + 2px
       );
 
+      & * {
+        outline-offset: -10px;
+      }
+
       .rct-tree-item-button {
-        padding: 0 var(--rct-item-padding) 0
-          calc(var(--rct-item-padding) + var(--rct-arrow-container-size) + var(--rct-arrow-padding));
-        margin-left: calc(-1 * var(--rct-arrow-size));
+        padding: 0 var(--rct-item-padding) 0 var(--rct-item-padding);
+        margin-left: calc(var(--rct-arrow-size));
         cursor: var(--rct-cursor);
         transition:
           color 100ms ease-out,
           background-color 100ms ease-out;
+      }
+
+      .rct-tree-item-li-isFolder > * > .rct-tree-item-button {
+        padding: 0 var(--rct-item-padding) 0
+          calc(var(--rct-item-padding) + var(--rct-arrow-container-size) + var(--rct-arrow-padding));
+        margin-left: calc(-1 * var(--rct-arrow-size));
       }
 
       .rct-tree-item-button:focus-visible {
@@ -170,7 +183,7 @@ export const reactComplexTreeStyles = createStyles((isLight, css) => {
         justify-content: flex-end;
       }
       .rct-rtl .rct-tree-item-title-container {
-        padding-right: var(--depthOffset, 0px);
+        margin-right: var(--depthOffset, 0px);
         padding-left: 0;
       }
       .rct-rtl .rct-tree-item-title-container-selected .rct-tree-item-button::before {
@@ -204,9 +217,7 @@ export const reactComplexTreeStyles = createStyles((isLight, css) => {
       .rct-tree-item-title-container {
         display: flex;
         align-items: center;
-        border-top: 1px solid transparent;
-        border-bottom: 1px solid transparent;
-        padding-left: var(--depthOffset, 0px);
+        margin-left: var(--depthOffset, 0px);
       }
 
       .rct-tree-child-list {
