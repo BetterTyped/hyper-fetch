@@ -16,7 +16,7 @@ export const Value = ({
   if (typeof raw === "boolean") {
     return (
       <span
-        className={styles.clsx(css.value, { [css.disabledValue]: disabled })}
+        className={css.clsx(css.value, { [css.disabledValue]: disabled })}
         style={{ paddingLeft: !disabled ? "20px" : "" }}
       >
         {!disabled && (
@@ -35,7 +35,7 @@ export const Value = ({
   }
   if (typeof raw === "number") {
     return (
-      <span className={styles.clsx(css.value, { [css.disabledValue]: disabled })}>
+      <span className={css.clsx(css.value, { [css.disabledValue]: disabled })}>
         <input
           disabled={disabled}
           className={css.input}
@@ -48,7 +48,7 @@ export const Value = ({
   }
   if (typeof raw === "string") {
     return (
-      <span className={styles.clsx(css.value, { [css.disabledValue]: disabled })}>
+      <span className={css.clsx(css.value, { [css.disabledValue]: disabled })}>
         <input
           disabled={disabled}
           className={css.input}

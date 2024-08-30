@@ -3,9 +3,8 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { createStyles } from "theme/use-styles.hook";
-import { tokens } from "theme/tokens";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css, tokens }) => {
   return {
     content: css`
       z-index: ${tokens.zIndex[99999]};
@@ -141,7 +140,7 @@ export const SubTrigger = React.forwardRef<
   return (
     <DropdownMenuPrimitive.SubTrigger
       ref={ref}
-      className={styles.clsx(css.trigger, inset && css.inset, className)}
+      className={css.clsx(css.trigger, inset && css.inset, className)}
       {...props}
     >
       {children}
@@ -160,7 +159,7 @@ export const SubContent = React.forwardRef<
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.SubContent
         ref={ref}
-        className={styles.clsx(css.content, className)}
+        className={css.clsx(css.content, className)}
         sideOffset={2}
         alignOffset={-5}
         {...props}
@@ -181,7 +180,7 @@ export const Content = React.forwardRef<
       <DropdownMenuPrimitive.Content
         ref={ref}
         sideOffset={sideOffset}
-        className={styles.clsx(css.content, className)}
+        className={css.clsx(css.content, className)}
         onClick={(event) => event.stopPropagation()}
         {...props}
       />
@@ -198,7 +197,7 @@ export const Item = React.forwardRef<
 >(({ className, inset, ...props }, ref) => {
   const css = styles.useStyles();
   return (
-    <DropdownMenuPrimitive.Item ref={ref} className={styles.clsx(css.item, inset && css.inset, className)} {...props} />
+    <DropdownMenuPrimitive.Item ref={ref} className={css.clsx(css.item, inset && css.inset, className)} {...props} />
   );
 });
 Item.displayName = DropdownMenuPrimitive.Item.displayName;
@@ -211,7 +210,7 @@ export const CheckboxItem = React.forwardRef<
   return (
     <DropdownMenuPrimitive.CheckboxItem
       ref={ref}
-      className={styles.clsx(css.item, css.itemSelect, className)}
+      className={css.clsx(css.item, css.itemSelect, className)}
       checked={checked}
       {...props}
     >
@@ -232,7 +231,7 @@ export const RadioItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const css = styles.useStyles();
   return (
-    <DropdownMenuPrimitive.RadioItem ref={ref} className={styles.clsx(css.item, css.itemSelect, className)} {...props}>
+    <DropdownMenuPrimitive.RadioItem ref={ref} className={css.clsx(css.item, css.itemSelect, className)} {...props}>
       <span className={css.icon}>
         <DropdownMenuPrimitive.ItemIndicator>
           <Circle className={css.radio} />
@@ -252,11 +251,7 @@ export const Label = React.forwardRef<
 >(({ className, inset, ...props }, ref) => {
   const css = styles.useStyles();
   return (
-    <DropdownMenuPrimitive.Label
-      ref={ref}
-      className={styles.clsx(css.label, inset && css.inset, className)}
-      {...props}
-    />
+    <DropdownMenuPrimitive.Label ref={ref} className={css.clsx(css.label, inset && css.inset, className)} {...props} />
   );
 });
 Label.displayName = DropdownMenuPrimitive.Label.displayName;
@@ -266,12 +261,12 @@ export const Separator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => {
   const css = styles.useStyles();
-  return <DropdownMenuPrimitive.Separator ref={ref} className={styles.clsx(css.separator, className)} {...props} />;
+  return <DropdownMenuPrimitive.Separator ref={ref} className={css.clsx(css.separator, className)} {...props} />;
 });
 Separator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 export const Shortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   const css = styles.useStyles();
-  return <span className={styles.clsx(css.shortcut, className)} {...props} />;
+  return <span className={css.clsx(css.shortcut, className)} {...props} />;
 };
 Shortcut.displayName = "DropdownMenuShortcut";

@@ -1,21 +1,18 @@
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     row: css`
-      display: flex;
-      gap: 5px;
-      align-items: center;
       background: transparent !important;
     `,
     content: css`
-      display: flex;
-      align-items: center;
+      max-width: 40%;
     `,
     label: css`
       font-weight: 400;
       font-size: 13px;
+      width: fit-content;
     `,
     value: css`
       flex: 1;
@@ -26,6 +23,8 @@ const styles = createStyles((isLight, css) => {
       font-size: 13px;
       color: ${isLight ? tokens.colors.light[800] : tokens.colors.light[100]};
       max-width: 100% !important;
+      width: 100%;
+      padding-right: 5px;
 
       & * {
         max-width: 100% !important;

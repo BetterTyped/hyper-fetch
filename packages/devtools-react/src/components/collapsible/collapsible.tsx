@@ -4,7 +4,7 @@ import { ChevronIcon } from "icons/chevron";
 import { createStyles } from "theme/use-styles.hook";
 import { tokens } from "theme/tokens";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     button: css`
       display: flex;
@@ -96,11 +96,7 @@ export const Collapsible = ({
 
   return (
     <div className={css.wrapper}>
-      <button
-        onClick={handleToggle}
-        type="button"
-        className={styles.clsx(css.button, { [css.bottomBorder]: isExpanded })}
-      >
+      <button onClick={handleToggle} type="button" className={css.clsx(css.button, { [css.bottomBorder]: isExpanded })}>
         <ChevronIcon
           style={{
             transform: `rotate(${!isExpanded ? -90 : 0}deg)`,

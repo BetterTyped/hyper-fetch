@@ -14,7 +14,7 @@
     "moduleResolution": "bundler",
     "module": "esnext",
     "lib": ["dom", "dom.iterable", "ESNext"],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,

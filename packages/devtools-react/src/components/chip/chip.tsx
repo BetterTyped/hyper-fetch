@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { tokens } from "theme/tokens";
 import { createStyles, ExtractKeys } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ css }) => {
   return {
     base: css`
       display: flex;
@@ -15,7 +15,7 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-const sizeVariants = createStyles((_, css) => {
+const sizeVariants = createStyles(({ css }) => {
   return {
     small: css`
       font-size: 12px;
@@ -28,7 +28,7 @@ const sizeVariants = createStyles((_, css) => {
   };
 });
 
-const colorVariants = createStyles((isLight, css) => {
+const colorVariants = createStyles(({ isLight, css }) => {
   return {
     blue: css`
       color: ${isLight ? tokens.colors.blue[500] : "#00bbd4"};

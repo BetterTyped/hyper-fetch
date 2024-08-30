@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-export const styles = createStyles((isLight, css) => {
+export const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       padding: 0 10px;

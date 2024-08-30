@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       display: flex;
@@ -11,7 +11,7 @@ const styles = createStyles((isLight, css) => {
       gap: 5px;
       border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
       background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
-      padding: 4px 10px;
+      padding: 4px;
     `,
   };
 });
@@ -20,7 +20,7 @@ export const Toolbar = ({ children, className, ...props }: React.HTMLProps<HTMLD
   const css = styles.useStyles();
 
   return (
-    <div {...props} className={styles.clsx(css.base, className)}>
+    <div {...props} className={css.clsx(css.base, className)}>
       {children}
     </div>
   );

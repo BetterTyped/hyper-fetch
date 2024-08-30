@@ -1,22 +1,24 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useEffect, useState } from "react";
 
 import { Button } from "components/header/button/button";
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
 import { IconButton } from "components/icon-button/icon-button";
-import { LogoIcon } from "icons/logo";
+import { FullLogoIcon } from "icons/full-logo";
 import { NetworkIcon } from "icons/network";
 import { CacheIcon } from "icons/cache";
 import { ProcessingIcon } from "icons/processing";
 import { CloseIcon } from "icons/close";
 import { ExplorerIcon } from "icons/explorer";
+import { tokens } from "theme/tokens";
 
 import { styles } from "./header.styles";
 
 export const Header = () => {
   const css = styles.useStyles();
 
-  const { module, setModule, setOpen, size } = useDevtoolsContext("DevtoolsHeader");
+  const { module, setModule, setOpen, size, theme } = useDevtoolsContext("DevtoolsHeader");
 
   const [small, setSmall] = useState(false);
 
@@ -39,8 +41,7 @@ export const Header = () => {
   return (
     <div className={css.wrapper}>
       <button type="button" className={css.heading} onClick={() => setModule(DevtoolsModule.NETWORK)}>
-        <LogoIcon style={{ padding: "0 0 0 5px" }} />
-        <div className={css.title}>DevTools</div>
+        <FullLogoIcon height="30px" style={{ fill: theme === "light" ? tokens.colors.dark[200] : "#fff" }} />
       </button>
       <div style={{ display: "flex", alignItems: "center", padding: "0 10px 0 0" }}>
         <Button

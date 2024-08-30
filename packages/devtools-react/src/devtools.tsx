@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
 import { css } from "goober";
-import { Size } from "re-resizable";
+import { Resizable, Size } from "re-resizable";
 
 import { Header } from "./components/header/header";
-import { Cache } from "./pages/cache/cache";
-import { Network } from "./pages/network/network";
-import { Explorer } from "pages/explorer/explorer";
-import { Processing } from "./pages/processing/processing";
 import { DevtoolsProvider, Sort } from "devtools.context";
 import {
   DevtoolsCacheEvent,
@@ -19,15 +15,31 @@ import {
 } from "devtools.types";
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
+import { Sidebar } from "components/sidebar/sidebar";
+import { NetworkList } from "pages/network/list/network";
+import { CacheList } from "pages/cache/list/cache";
+import { ProcessingList } from "pages/processing/list/processing";
+import { ExplorerList } from "pages/explorer/list/explorer";
+import { NetworkDetails } from "pages/network/details/details";
+import { CacheDetails } from "pages/cache/details/details";
+import { ProcessingDetails } from "pages/processing/details/details";
+import { ExplorerDetails } from "pages/explorer/details/details";
+import { DevtoolsDataProvider } from "pages/explorer/list/content/content.state";
 import { DevtoolsWrapper } from "devtools.wrapper";
-import { DevtoolsExplorerRequest } from "pages/explorer/content/content.types";
-import { DevtoolsDataProvider } from "pages/explorer/content/content.state";
+import { DevtoolsExplorerRequest } from "pages/explorer/list/content/content.types";
 
-const modules = {
-  Network,
-  Cache,
-  Processing,
-  Explorer,
+const SidebarModules = {
+  Network: NetworkList,
+  Cache: CacheList,
+  Processing: ProcessingList,
+  Explorer: ExplorerList,
+};
+
+const DetailsModules = {
+  Network: NetworkDetails,
+  Cache: CacheDetails,
+  Processing: ProcessingDetails,
+  Explorer: ExplorerDetails,
 };
 
 /**
@@ -59,7 +71,11 @@ export const Devtools = <T extends ClientInstance>({
   const [position, setPosition] = useState<"Top" | "Left" | "Right" | "Bottom">(initialPosition);
   const [size, setSize] = useState<Size>({ width: 0, height: 0 });
 
-  const Component = modules[module];
+  const DetailsComponent = DetailsModules[module];
+  const ListComponent = SidebarModules[module];
+
+  // TODO REMOVE
+  console.error(DetailsComponent);
 
   // Network
   const [networkSearchTerm, setNetworkSearchTerm] = useState("");
@@ -419,14 +435,25 @@ export const Devtools = <T extends ClientInstance>({
           <Header />
           <div
             style={{
-              flex: "1 1 auto",
-              position: "relative",
-              overflow: "hidden",
+              width: "100%",
+              height: "100%",
               display: "flex",
-              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
-            <Component />
+            <Resizable
+              defaultSize={{
+                width: "400",
+                height: "100%",
+              }}
+              minHeight="100%"
+              maxWidth="80vw"
+            >
+              <Sidebar>
+                <ListComponent />
+              </Sidebar>
+            </Resizable>
+            <div style={{ position: "relative", flex: "1 1 auto", height: "100%" }}>{/* <DetailsComponent /> */}</div>
           </div>
         </DevtoolsWrapper>
       )}

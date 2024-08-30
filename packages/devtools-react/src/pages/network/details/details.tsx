@@ -6,18 +6,19 @@ import { Back } from "./back/back";
 import { getStatus, getStatusColor, RequestStatusIcon } from "utils/request.status.utils";
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
-import { Table } from "components/table/table";
+import * as Table from "components/table/table";
 import { Toolbar } from "components/toolbar/toolbar";
 import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
+import { Editor } from "components/editor/editor";
 import { JSONViewer } from "components/json-viewer/json-viewer";
 import { RemoveIcon } from "icons/remove";
 import { useDevtoolsContext } from "devtools.context";
 
-import { styles } from "../network.styles";
+import { styles } from "./network.styles";
 
-export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
+export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
   const css = styles.useStyles();
 
   const { removeNetworkRequest, theme } = useDevtoolsContext("DevtoolsNetworkDetails");
@@ -65,8 +66,8 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
           <div className={css.block}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo
                   label="Request URL:"
                   value={
@@ -82,8 +83,8 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
                   value={<Chip color={item.isSuccess ? "green" : "red"}>{String(item.response?.status ?? "")}</Chip>}
                 />
                 <RowInfo label="Request ID:" value={<Chip color="gray">{String(item.requestId)}</Chip>} />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
             {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
             {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
               <Chip color="orange">Mocked</Chip>
@@ -117,7 +118,8 @@ export const Details = ({ item }: { item: DevtoolsRequestEvent }) => {
         </Collapsible>
         <Collapsible title="Response" defaultOpen>
           <div className={css.block}>
-            <JSONViewer data={item.response} />
+            {/* <JSONViewer data={item.response} /> */}
+            <Editor value={JSON.stringify(item.response, null, 4)} />
           </div>
         </Collapsible>
         <Collapsible title="Response Details" defaultOpen>

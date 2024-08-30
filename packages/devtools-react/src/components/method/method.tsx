@@ -1,9 +1,8 @@
 import { HttpMethods } from "@hyper-fetch/core";
 
-import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ css }) => {
   return {
     base: css`
       text-transform: uppercase;
@@ -13,7 +12,7 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-const colorStyles = createStyles((isLight, css) => {
+const colorStyles = createStyles(({ css, tokens }) => {
   return {
     default: css`
       color: ${tokens.colors.cyan[400]};
@@ -41,7 +40,7 @@ export const Method = ({ method, ...props }: React.HTMLProps<HTMLDivElement> & {
   const colors = colorStyles.useStyles();
   const color = colors[method as keyof typeof colors] || colors.default;
   return (
-    <span {...props} className={styles.clsx(color, css.base)}>
+    <span {...props} className={css.clsx(color, css.base)}>
       {method}
     </span>
   );

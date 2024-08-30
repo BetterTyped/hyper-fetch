@@ -2,7 +2,7 @@ import { SearchIcon } from "icons/search";
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     wrapper: css`
       display: flex;
@@ -45,7 +45,7 @@ export const Search = ({
   return (
     <div className={css.wrapper}>
       <SearchIcon height="14px" width="14px" className={css.icon} />
-      <input type="text" {...props} className={styles.clsx(css.input, props.className)} />
+      <input type="text" {...props} className={css.clsx(css.input, props.className)} />
     </div>
   );
 };

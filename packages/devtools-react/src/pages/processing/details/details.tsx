@@ -9,7 +9,7 @@ import { Button } from "components/button/button";
 import { Toolbar } from "components/toolbar/toolbar";
 import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
-import { Table } from "components/table/table";
+import * as Table from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
 import { getQueueStatus } from "utils/queue.status.utils";
 import { Chip } from "components/chip/chip";
@@ -19,7 +19,7 @@ import { PlayIcon } from "icons/play";
 import { ClearIcon } from "icons/clear";
 import { Key } from "components/key/key";
 
-import { styles } from "../processing.styles";
+import { styles } from "./processing.styles";
 
 const defaultStats: DevtoolsRequestQueueStats = {
   total: 0,
@@ -40,7 +40,7 @@ const defaultStats: DevtoolsRequestQueueStats = {
   lastProcessingTime: 0,
 };
 
-export const Details = ({ item }: { item: QueueDataType }) => {
+export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
   const css = styles.useStyles();
 
   const { client, stats } = useDevtoolsContext("DevtoolsCacheDetails");
@@ -106,15 +106,15 @@ export const Details = ({ item }: { item: QueueDataType }) => {
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo label="Total Requests:" value={<Chip color="gray">{statistics.total}</Chip>} />
                 <RowInfo label="Success Requests:" value={<Chip color="green">{statistics.success}</Chip>} />
                 <RowInfo label="Failed Requests:" value={<Chip color="red">{statistics.failed}</Chip>} />
                 <RowInfo label="Canceled Requests:" value={<Chip color="orange">{statistics.canceled}</Chip>} />
                 <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
           </div>
         </Collapsible>
 
@@ -132,8 +132,8 @@ export const Details = ({ item }: { item: QueueDataType }) => {
         </Collapsible>
         <Collapsible title="Response times" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo
                   label="Last response time:"
                   value={<Chip color="blue">{parseInt(String(statistics.lastTime), 10)}ms</Chip>}
@@ -150,14 +150,14 @@ export const Details = ({ item }: { item: QueueDataType }) => {
                   label="Average response time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgTime), 10)}ms</Chip>}
                 />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
           </div>
         </Collapsible>
         <Collapsible title="Processing times" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo
                   label="Last pre-processing time:"
                   value={<Chip color="blue">{parseInt(String(statistics.lastProcessingTime), 10)}ms</Chip>}
@@ -174,14 +174,14 @@ export const Details = ({ item }: { item: QueueDataType }) => {
                   label="Average pre-processing time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgProcessingTime), 10)}ms</Chip>}
                 />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
           </div>
         </Collapsible>
         <Collapsible title="Queue times" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo
                   label="Last queue time:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
@@ -198,8 +198,8 @@ export const Details = ({ item }: { item: QueueDataType }) => {
                   label="Average time spent in queue:"
                   value={<Chip color="blue">{parseInt(String(statistics.avgQueueTime), 10)}ms</Chip>}
                 />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
           </div>
         </Collapsible>
       </div>

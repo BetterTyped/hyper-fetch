@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 
-import { Label } from "components/table/label/label";
-import { Table } from "components/table/table";
-import { DevtoolsExplorerRequest } from "pages/explorer/content/content.types";
+import * as Table from "components/table/table";
+import { DevtoolsExplorerRequest } from "pages/explorer/list/content/content.types";
 
 export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const parameters: string[] = useMemo(() => {
@@ -15,24 +14,24 @@ export const TabParams = ({ item }: { item: DevtoolsExplorerRequest }) => {
   return (
     <div>
       {!!parameters.length && (
-        <Table>
-          <thead>
-            <Label>Parameter</Label>
-            <Label>Value</Label>
-          </thead>
-          <tbody>
+        <Table.Root>
+          <Table.Header>
+            <Table.Sortable>Parameter</Table.Sortable>
+            <Table.Sortable>Value</Table.Sortable>
+          </Table.Header>
+          <Table.Body>
             {parameters.map((parameter) => {
               return (
-                <tr key={parameter}>
-                  <td>{parameter}</td>
-                  <td aria-label="parameter-value">
+                <Table.Row key={parameter}>
+                  <Table.Cell>{parameter}</Table.Cell>
+                  <Table.Cell aria-label="parameter-value">
                     <input type="text" />
-                  </td>
-                </tr>
+                  </Table.Cell>
+                </Table.Row>
               );
             })}
-          </tbody>
-        </Table>
+          </Table.Body>
+        </Table.Root>
       )}
     </div>
   );

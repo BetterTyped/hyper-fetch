@@ -5,7 +5,7 @@ import { StackIcon } from "icons/stack";
 import { createStyles } from "theme/use-styles.hook";
 import { tokens } from "theme/tokens";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       display: flex;
@@ -27,7 +27,7 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-const colorsVariants = createStyles((isLight, css) => {
+const colorsVariants = createStyles(({ isLight, css }) => {
   return {
     queue: css`
       & svg {
@@ -62,7 +62,7 @@ export const Key = ({
   const css = styles.useStyles();
   const colorVariants = colorsVariants.useStyles();
   return (
-    <div {...props} className={styles.clsx(css.base, colorVariants[type], className)}>
+    <div {...props} className={css.clsx(css.base, colorVariants[type], className)}>
       {getKeyIcon(type)}
       <span className={css.text}>{value}</span>
     </div>

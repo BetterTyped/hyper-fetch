@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-export const styles = createStyles((theme, css) => {
+export const styles = createStyles(({ css }) => {
   return {
     button: css`
       display: flex;

@@ -10,7 +10,7 @@ import { Toolbar } from "components/toolbar/toolbar";
 import { JSONViewer } from "components/json-viewer/json-viewer";
 import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
-import { Table } from "components/table/table";
+import * as Table from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Countdown } from "components/countdown/countdown";
 import { Chip } from "components/chip/chip";
@@ -20,9 +20,9 @@ import { LoadingIcon } from "icons/loading";
 import { ErrorIcon } from "icons/error";
 import { Key } from "components/key/key";
 
-import { styles } from "../cache.styles";
+import { styles } from "../list/cache.styles";
 
-export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
+export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
   const css = styles.useStyles();
 
   const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now());
@@ -139,8 +139,8 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <Table>
-              <tbody>
+            <Table.Root>
+              <Table.Body>
                 <RowInfo
                   label="Last updated:"
                   value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
@@ -165,8 +165,8 @@ export const Details = ({ item }: { item: DevtoolsCacheEvent }) => {
                     />
                   }
                 />
-              </tbody>
-            </Table>
+              </Table.Body>
+            </Table.Root>
           </div>
         </Collapsible>
         <Collapsible title="Actions" defaultOpen>

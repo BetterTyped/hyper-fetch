@@ -2,7 +2,7 @@ import React from "react";
 
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       display: flex;
@@ -44,7 +44,7 @@ export const IconButton = React.forwardRef(
     const css = styles.useStyles();
 
     return (
-      <button {...props} ref={ref} type="button" className={styles.clsx(css.base, className)}>
+      <button {...props} ref={ref} type="button" className={css.clsx(css.base, className)}>
         {children}
       </button>
     );

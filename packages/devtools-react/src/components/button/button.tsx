@@ -1,7 +1,7 @@
 import { tokens } from "theme/tokens";
 import { createStyles, ExtractKeys } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ css }) => {
   return {
     button: css`
       display: flex;
@@ -30,7 +30,7 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-const colorVariants = createStyles((theme, css) => {
+const colorVariants = createStyles(({ css }) => {
   return {
     blue: css`
       background: ${tokens.colors.blue[500]};
@@ -109,7 +109,7 @@ export const Button = ({
   const css = styles.useStyles();
   const cssColor = colorVariants.useStyles();
   return (
-    <button type="button" {...props} className={styles.clsx(css.button, cssColor[color], className)}>
+    <button type="button" {...props} className={css.clsx(css.button, cssColor[color], className)}>
       {children}
     </button>
   );

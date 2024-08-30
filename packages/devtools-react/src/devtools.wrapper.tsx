@@ -5,7 +5,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
 import { tokens } from "theme/tokens";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     wrapper: css`
       display: flex;
@@ -21,10 +21,7 @@ const styles = createStyles((isLight, css) => {
       & * {
         font-family: ui-sans-serif, Inter, system-ui, sans-serif, sans-serif !important;
       }
-      & svg {
-        fill: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
-        stroke: ${isLight ? tokens.colors.light[700] : tokens.colors.light[500]};
-      }
+
       & button:focus-within {
         outline-offset: 2px;
         outline: 2px solid ${tokens.colors.cyan[300]};
@@ -33,7 +30,7 @@ const styles = createStyles((isLight, css) => {
   };
 });
 
-const positionStyles = createStyles((theme, css) => {
+const positionStyles = createStyles(({ css }) => {
   return {
     Top: css`
       top: 0 !important;
@@ -68,11 +65,11 @@ const sizes = {
     height: "400px",
   },
   Left: {
-    width: "700px",
+    width: "1000px",
     height: "100%",
   },
   Right: {
-    width: "700px",
+    width: "1000px",
     height: "100%",
   },
   Bottom: {
@@ -133,7 +130,7 @@ export const DevtoolsWrapper = ({ children }: { children: React.ReactNode }) => 
       minWidth={minSizes[position].width}
       maxHeight="100vh"
       maxWidth="100vw"
-      className={styles.clsx(css.wrapper, positionStyle[position])}
+      className={css.clsx(css.wrapper, positionStyle[position])}
       style={{
         position: "fixed",
         overflowX: "hidden",

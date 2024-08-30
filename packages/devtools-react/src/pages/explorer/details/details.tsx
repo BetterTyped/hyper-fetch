@@ -9,10 +9,10 @@ import { Button } from "components/button/button";
 import { SendIcon } from "icons/send";
 import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
-import { DevtoolsExplorerRequest } from "../content/content.types";
 import { Method } from "components/method/method";
+import { DevtoolsExplorerRequest } from "../list/content/content.types";
 
-import { styles } from "../explorer.styles";
+import { styles } from "./explorer.styles";
 
 const components: Record<Tabs, ComponentType<{ item: DevtoolsExplorerRequest }>> = {
   [Tabs.PARAMS]: TabParams,
@@ -23,7 +23,7 @@ const components: Record<Tabs, ComponentType<{ item: DevtoolsExplorerRequest }>>
   [Tabs.RESPONSE]: () => <div>Response</div>,
 };
 
-export const Details = ({ item }: { item: DevtoolsExplorerRequest }) => {
+export const ExplorerDetails = ({ item }: { item: DevtoolsExplorerRequest }) => {
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.PARAMS);
 
   const css = styles.useStyles();

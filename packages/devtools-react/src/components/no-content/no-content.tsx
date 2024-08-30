@@ -2,7 +2,7 @@ import { NoContentIcon } from "icons/no-content";
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles((isLight, css) => {
+const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       position: absolute;
