@@ -87,6 +87,7 @@ export class Cache<C extends ClientInstance> {
       ...data,
       cacheTime,
       clearKey: this.clearKey,
+      cacheKey,
       garbageCollection,
     };
 
@@ -103,10 +104,10 @@ export class Cache<C extends ClientInstance> {
     }
 
     this.logger.debug("Emitting cache response", { request, data });
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
+      ...newCacheData,
       cacheKey,
-      newCacheData,
-    );
+    });
   };
 
   /**
@@ -226,7 +227,7 @@ export class Cache<C extends ClientInstance> {
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, Adapter>(cacheKey, data);
+        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey });
         return data;
       }
     }

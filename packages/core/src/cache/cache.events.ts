@@ -14,13 +14,12 @@ import { AdapterInstance } from "adapter";
 export const getCacheEvents = (emitter: EventEmitter) => ({
   /**
    * Set cache data
-   * @param cacheKey
    * @param data
    */
   emitCacheData: <Response, Error, Adapter extends AdapterInstance>(
-    cacheKey: string,
     data: CacheValueType<Response, Error, Adapter>,
   ): void => {
+    const { cacheKey } = data;
     emitter.emit(getCacheKey(), data);
     emitter.emit(getCacheByKey(cacheKey), data);
   },
@@ -28,14 +27,14 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * Invalidate cache values event
    */
   emitInvalidation: (cacheKey: string): void => {
-    emitter.emit(getInvalidateKey());
+    emitter.emit(getInvalidateKey(), cacheKey);
     emitter.emit(getInvalidateByKey(cacheKey));
   },
   /**
    * Delete of cache values
    */
   emitDelete: (cacheKey: string): void => {
-    emitter.emit(getDeleteKey());
+    emitter.emit(getDeleteKey(), cacheKey);
     emitter.emit(getDeleteByKey(cacheKey));
   },
   /**
@@ -67,7 +66,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param callback
    * @returns
    */
-  onInvalidate: (callback: () => void): VoidFunction => {
+  onInvalidate: (callback: (cacheKey: string) => void): VoidFunction => {
     emitter.on(getInvalidateKey(), callback);
     return () => emitter.removeListener(getInvalidateKey(), callback);
   },
@@ -81,7 +80,7 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
     emitter.on(getInvalidateByKey(cacheKey), callback);
     return () => emitter.removeListener(getInvalidateByKey(cacheKey), callback);
   },
-  onDelete: (callback: () => void): VoidFunction => {
+  onDelete: (callback: (cacheKey: string) => void): VoidFunction => {
     emitter.on(getDeleteKey(), callback);
     return () => emitter.removeListener(getDeleteKey(), callback);
   },

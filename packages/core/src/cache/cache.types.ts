@@ -42,6 +42,7 @@ export type CacheValueType<
   Adapter extends AdapterInstance = AdapterInstance,
 > = ResponseType<Response, Error, Adapter> &
   ResponseDetailsType & {
+    cacheKey: string;
     cacheTime: number;
     clearKey: string;
     garbageCollection: number;

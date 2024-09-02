@@ -58,6 +58,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       ...getDetailsState(),
       cacheTime: 1000,
       clearKey: request.client.cache.clearKey,
+      cacheKey: request.cacheKey,
       garbageCollection: request.garbageCollection,
       requestTimestamp: initialData?.requestTimestamp ?? +new Date(),
       responseTimestamp: initialData?.responseTimestamp ?? +new Date(),

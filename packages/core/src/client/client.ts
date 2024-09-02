@@ -33,7 +33,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
-import { ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
+import { ExtractAdapterType, PluginOptions, NegativeTypes, PluginType, TypeWithDefaults } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -519,5 +519,10 @@ export class Client<
 
       return request;
     };
+  };
+
+  addPlugin = <T extends ClientInstance, P extends PluginType<T>>(plugin: P, metaData?: PluginOptions<T, P>) => {
+    plugin(this as any, metaData);
+    return this;
   };
 }
