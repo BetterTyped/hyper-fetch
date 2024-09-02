@@ -5,7 +5,7 @@ import { StackIcon } from "icons/stack";
 import { createStyles } from "theme/use-styles.hook";
 import { tokens } from "theme/tokens";
 
-const styles = createStyles(({ isLight, css }) => {
+const styles = createStyles(({ css }) => {
   return {
     base: css`
       display: flex;
