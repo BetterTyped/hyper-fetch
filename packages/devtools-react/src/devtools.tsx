@@ -157,8 +157,9 @@ export const Devtools = <T extends ClientInstance>({
       if (!currentQueue) {
         return [...prevState, queue];
       }
-      prevState[currentQueue] = queue;
-      return [...prevState];
+      const newState = [...prevState];
+      newState[currentQueue] = queue;
+      return newState;
     });
   };
 
