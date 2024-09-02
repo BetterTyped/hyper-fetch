@@ -1,7 +1,11 @@
 import { ClientInstance } from "@hyper-fetch/core";
 import { EventEmitter } from "events";
 
-// PoC
+/***
+ The idea of these hooks is to add events and functionalities that are applicable only for devtools.\
+ ***/
+
+// This function allows to hook on every request creation, returning a special request map for our explorer
 export function addOnCreateRequestEvent(client: ClientInstance) {
   const eventEmitter = new EventEmitter();
   // TODO remove

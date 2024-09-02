@@ -46,7 +46,7 @@ describe("Dispatcher [ Requests ]", () => {
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
-      const runningRequests = dispatcher.getAllRunningRequest();
+      const runningRequests = dispatcher.getAllRunningRequests();
 
       expect(runningRequests).toHaveLength(2);
       expect(runningRequests).toPartiallyContain({ requestId: firstRequestId });
