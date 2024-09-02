@@ -26,7 +26,7 @@ const styles = createStyles(({ isLight, css }) => {
         outline-offset: -2px !important;
       }
       & svg {
-        fill: ${isLight ? tokens.colors.light[600] : tokens.colors.light[300]};
+        stroke: ${isLight ? tokens.colors.light[600] : tokens.colors.light[300]};
         transition: 0.15s ease-out;
       }
     `,

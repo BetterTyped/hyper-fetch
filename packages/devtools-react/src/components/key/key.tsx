@@ -1,5 +1,5 @@
 import React from "react";
-import { BadgeCheckIcon, Boxes, ShieldMinus } from "lucide-react";
+import { Boxes, HardDrive, ShieldMinus } from "lucide-react";
 
 import { createStyles } from "theme/use-styles.hook";
 
@@ -34,7 +34,7 @@ const colorsVariants = createStyles(({ isLight, css, tokens }) => {
     `,
     cache: css`
       & svg {
-        fill: ${isLight ? tokens.colors.pink[300] : tokens.colors.pink[300]};
+        stroke: ${isLight ? tokens.colors.pink[300] : tokens.colors.pink[300]};
       }
     `,
     abort: css`
@@ -52,7 +52,7 @@ const getKeyIcon = (type: KeyTypes) => {
     case "queue":
       return <Boxes />;
     case "cache":
-      return <BadgeCheckIcon />;
+      return <HardDrive />;
     case "abort":
       return <ShieldMinus />;
     default:
