@@ -1,8 +1,8 @@
 import "./App.css";
-import { DevtoolsWrapper } from "./devtools-wrapper";
+import { DevtoolsSocketWrapper } from "./sockets/devtools.socket.wrapper";
 
 function App() {
-  return <DevtoolsWrapper />;
+  return <DevtoolsSocketWrapper />;
 }
 
 export default App;

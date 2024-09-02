@@ -1,25 +1,20 @@
-import { QueueDataType, RequestInstance } from "@hyper-fetch/core";
-
-import {
-  DevtoolsCacheEvent,
-  DevtoolsElement,
-  DevtoolsRequestEvent,
-  DevtoolsRequestQueueStats,
-  DevtoolsRequestResponse,
-} from "./message.parts";
+export enum EventTypes {
+  ON_REQUEST_START = "ON_REQUEST_START",
+  ON_REQUEST_REMOVE = "ON_REQUEST_REMOVE",
+  ON_RESPONSE = "ON_RESPONSE",
+  ON_REQUEST_PAUSE = "ON_REQUEST_PAUSE",
+  ON_FETCH_QUEUE_CHANGE = "ON_FETCH_QUEUE_CHANGE",
+  ON_FETCH_QUEUE_STATUS_CHANGE = "ON_FETCH_QUEUE_STATUS_CHANGE",
+  ON_SUBMIT_QUEUE_CHANGE = "ON_SUBMIT_QUEUE_CHANGE",
+  ON_SUBMIT_QUEUE_STATUS_CHANGE = "ON_SUBMIT_QUEUE_STATUS_CHANGE",
+  ON_CACHE_CHANGE = "ON_CACHE_CHANGE",
+  ON_CACHE_INVALIDATE = "ON_CACHE_INVALIDATE",
+  ON_CACHE_DELETE = "ON_CACHE_DELETE",
+}
 
 export type MessageType = {
   data: {
-    requestsMap: RequestInstance[];
-    requests: DevtoolsRequestEvent[];
-    failed: DevtoolsRequestResponse[];
-    success: DevtoolsRequestResponse[];
-    inProgress: DevtoolsElement[];
-    paused: DevtoolsElement[];
-    canceled: DevtoolsElement[];
-    removed: DevtoolsElement[];
-    queues: QueueDataType[];
-    stats: Record<string, DevtoolsRequestQueueStats>;
-    cache: DevtoolsCacheEvent[];
+    eventType: EventTypes;
+    eventData: any;
   };
 };

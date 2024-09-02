@@ -521,8 +521,8 @@ export class Client<
     };
   };
 
-  addPlugin = <P extends PluginType<this>>(plugin: P, metaData?: PluginOptions<this, P>) => {
-    plugin(this, metaData);
+  addPlugin = <T extends ClientInstance, P extends PluginType<T>>(plugin: P, metaData?: PluginOptions<T, P>) => {
+    plugin(this as any, metaData);
     return this;
   };
 }
