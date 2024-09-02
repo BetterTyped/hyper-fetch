@@ -1,10 +1,8 @@
 import { useMemo } from "react";
 import { TrashIcon } from "lucide-react";
-import { Resizable } from "re-resizable";
 
-import { DevtoolsRequestEvent } from "devtools.types";
 import { Back } from "./back/back";
-import { getStatus, getStatusColor, RequestStatusIcon } from "utils/request.status.utils";
+import { getStatus, getStatusColor, RequestStatusIcon, Status } from "utils/request.status.utils";
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
 import * as Table from "components/table/table";
@@ -18,12 +16,19 @@ import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "./network.styles";
 
-export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
+export const NetworkDetails = () => {
   const css = styles.useStyles();
 
-  const { removeNetworkRequest, theme } = useDevtoolsContext("DevtoolsNetworkDetails");
+  const { removeNetworkRequest, theme, requests, detailsRequestId } = useDevtoolsContext("DevtoolsNetworkDetails");
+
+  const item = useMemo(() => {
+    if (!detailsRequestId) return null;
+    return requests.find((request) => request.requestId === detailsRequestId);
+  }, [detailsRequestId, requests]);
 
   const config = useMemo(() => {
+    if (!item) return null;
+
     const values = item.request.toJSON();
     delete values.data;
     delete values.params;
@@ -31,9 +36,10 @@ export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
     delete values.headers;
 
     return values;
-  }, [item.request]);
+  }, [item]);
 
   const status = useMemo(() => {
+    if (!item) return Status.REMOVED;
     return getStatus(item);
   }, [item]);
 
@@ -42,18 +48,16 @@ export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
   }, [status, theme]);
 
   const remove = () => {
-    removeNetworkRequest(item.requestId);
+    if (item) {
+      removeNetworkRequest(item.requestId);
+    }
   };
 
+  // TODO NO CONTENT
+  if (!item) return null;
+
   return (
-    <Resizable
-      bounds="parent"
-      defaultSize={{ width: "60%", height: "100%" }}
-      maxWidth="90%"
-      minWidth="200px"
-      boundsByDirection
-      className={css.details}
-    >
+    <>
       <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -128,6 +132,6 @@ export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
           </div>
         </Collapsible>
       </div>
-    </Resizable>
+    </>
   );
 };

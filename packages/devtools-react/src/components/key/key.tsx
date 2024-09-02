@@ -1,5 +1,5 @@
 import React from "react";
-import { BadgeCheckIcon, Boxes } from "lucide-react";
+import { BadgeCheckIcon, Boxes, ShieldMinus } from "lucide-react";
 
 import { createStyles } from "theme/use-styles.hook";
 
@@ -29,23 +29,32 @@ const colorsVariants = createStyles(({ isLight, css, tokens }) => {
   return {
     queue: css`
       & svg {
-        stroke: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]};
+        stroke: ${isLight ? tokens.colors.blue[300] : tokens.colors.blue[300]};
       }
     `,
     cache: css`
       & svg {
-        fill: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]};
+        fill: ${isLight ? tokens.colors.pink[300] : tokens.colors.pink[300]};
+      }
+    `,
+    abort: css`
+      & svg {
+        stroke: ${isLight ? tokens.colors.red[300] : tokens.colors.red[300]};
       }
     `,
   };
 });
 
-const getKeyIcon = (type: "queue" | "cache") => {
+export type KeyTypes = "queue" | "cache" | "abort";
+
+const getKeyIcon = (type: KeyTypes) => {
   switch (type) {
     case "queue":
       return <Boxes />;
     case "cache":
       return <BadgeCheckIcon />;
+    case "abort":
+      return <ShieldMinus />;
     default:
       return null;
   }
@@ -56,7 +65,7 @@ export const Key = ({
   type,
   className,
   ...props
-}: React.HTMLProps<HTMLDivElement> & { value: string; type: "queue" | "cache" }) => {
+}: React.HTMLProps<HTMLDivElement> & { value: string; type: KeyTypes }) => {
   const css = styles.useStyles();
   const colorVariants = colorsVariants.useStyles();
   return (

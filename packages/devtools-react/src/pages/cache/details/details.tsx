@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
-import { Resizable } from "re-resizable";
 import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
 import { CacheValueType } from "@hyper-fetch/core";
 
-import { DevtoolsCacheEvent } from "devtools.types";
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
@@ -19,18 +17,26 @@ import { Key } from "components/key/key";
 
 import { styles } from "../list/cache.styles";
 
-export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
+export const CacheDetails = () => {
   const css = styles.useStyles();
-
-  const [stale, setStale] = useState(item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now());
-
-  const { client, requests, inProgress, loadingKeys, setLoadingKeys, simulatedError } =
+  const { client, requests, inProgress, loadingKeys, setLoadingKeys, simulatedError, detailsCacheKey, cache } =
     useDevtoolsContext("DevtoolsCacheDetails");
 
-  const hasInProgressRequest = inProgress.some((i) => i.cacheKey === item.cacheKey);
-  const isLoading = loadingKeys.includes(item.cacheKey);
+  const item = useMemo(() => {
+    if (!detailsCacheKey) return null;
+    return cache.find((request) => request.cacheKey === detailsCacheKey);
+  }, [detailsCacheKey, cache]);
+
+  const [stale, setStale] = useState(
+    item ? item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now() : false,
+  );
+
+  const hasInProgressRequest = item ? inProgress.some((i) => i.cacheKey === item.cacheKey) : false;
+  const isLoading = item ? loadingKeys.includes(item.cacheKey) : false;
 
   const elements = useMemo(() => {
+    if (!item) return null;
+
     const {
       data,
       error,
@@ -51,6 +57,8 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
   }, [item]);
 
   const latestItem = useMemo(() => {
+    if (!item) return null;
+
     const element = requests.find((el) => el.request.cacheKey === item.cacheKey);
     if (!element)
       return {
@@ -61,24 +69,29 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
       };
     return element;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.cacheKey, requests?.length]);
+  }, [item?.cacheKey, requests?.length]);
 
   const onChangeData = (newData: any) => {
-    const data = { ...item.cacheData, ...newData };
-    client.cache.storage.set<any, any, any>(item.cacheKey, data);
-    client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
-    client.cache.events.emitCacheData<any, any, any>(item.cacheKey, data);
+    if (item) {
+      const data = { ...item.cacheData, ...newData };
+      client.cache.storage.set<any, any, any>(item.cacheKey, data);
+      client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
+      client.cache.events.emitCacheData<any, any, any>(item.cacheKey, data);
+    }
   };
 
   const invalidate = () => {
+    if (!item) return;
     client.cache.invalidate(item.cacheKey);
   };
 
   const remove = () => {
+    if (!item) return;
     client.cache.delete(item.cacheKey);
   };
 
   const toggleLoading = () => {
+    if (!item || !latestItem) return;
     if (!hasInProgressRequest) {
       setLoadingKeys((prev) => {
         if (prev.includes(item.cacheKey)) {
@@ -104,6 +117,7 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
   };
 
   const error = () => {
+    if (!item) return;
     const data: CacheValueType<unknown, unknown, any> = {
       ...item.cacheData,
       data: null,
@@ -116,15 +130,11 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
     client.cache.events.emitCacheData(item.cacheKey, data);
   };
 
+  // TODO NO CONTENT
+  if (!item) return null;
+
   return (
-    <Resizable
-      bounds="parent"
-      defaultSize={{ width: "60%", height: "100%" }}
-      maxWidth="90%"
-      minWidth="200px"
-      boundsByDirection
-      className={css.details}
-    >
+    <>
       <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -188,15 +198,15 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
         </Collapsible>
         <Collapsible title="Config" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <JSONViewer data={elements.additionalData} onChange={onChangeData} sortObjectKeys />
+            <JSONViewer data={elements?.additionalData} onChange={onChangeData} sortObjectKeys />
           </div>
         </Collapsible>
         <Collapsible title="Cache" defaultOpen>
           <div style={{ padding: "10px" }}>
-            <JSONViewer data={elements.data} onChange={onChangeData} />
+            <JSONViewer data={elements?.data} onChange={onChangeData} />
           </div>
         </Collapsible>
       </div>
-    </Resizable>
+    </>
   );
 };

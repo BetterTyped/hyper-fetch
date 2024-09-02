@@ -1,6 +1,5 @@
 import { ComponentType, useState } from "react";
 import { SendIcon } from "lucide-react";
-import { Resizable } from "re-resizable";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -11,6 +10,7 @@ import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "components/method/method";
 import { DevtoolsExplorerRequest } from "../list/content/content.types";
+import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "./explorer.styles";
 
@@ -23,22 +23,18 @@ const components: Record<Tabs, ComponentType<{ item: DevtoolsExplorerRequest }>>
   [Tabs.RESPONSE]: () => <div>Response</div>,
 };
 
-export const ExplorerDetails = ({ item }: { item: DevtoolsExplorerRequest }) => {
+export const ExplorerDetails = () => {
+  const { detailsExplorerRequest: item } = useDevtoolsContext("DevtoolsExplorerDetails");
   const [activeTab, setActiveTab] = useState<Tabs>(Tabs.PARAMS);
 
   const css = styles.useStyles();
 
   const TabContent = components[activeTab];
 
+  if (!item) return null;
+
   return (
-    <Resizable
-      bounds="parent"
-      defaultSize={{ width: "80%", height: "100%" }}
-      maxWidth="90%"
-      minWidth="200px"
-      boundsByDirection
-      className={css.details}
-    >
+    <>
       <Toolbar style={{ flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -83,6 +79,6 @@ export const ExplorerDetails = ({ item }: { item: DevtoolsExplorerRequest }) => 
         {/* Content */}
         <TabContent item={item} />
       </div>
-    </Resizable>
+    </>
   );
 };

@@ -1,8 +1,7 @@
 import { useMemo } from "react";
-import { Resizable } from "re-resizable";
 import { useQueue } from "@hyper-fetch/react";
 import { ListXIcon, PauseIcon, PlayIcon } from "lucide-react";
-import { QueueDataType, Request } from "@hyper-fetch/core";
+import { Request } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -12,7 +11,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
 import * as Table from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
-import { getQueueStatus } from "utils/queue.status.utils";
+import { getQueueStatus, QueueStatus } from "utils/queue.status.utils";
 import { Chip } from "components/chip/chip";
 import { DevtoolsRequestQueueStats } from "devtools.types";
 import { Key } from "components/key/key";
@@ -38,21 +37,25 @@ const defaultStats: DevtoolsRequestQueueStats = {
   lastProcessingTime: 0,
 };
 
-export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
+export const ProcessingDetails = () => {
   const css = styles.useStyles();
 
-  const { client, stats } = useDevtoolsContext("DevtoolsCacheDetails");
+  const { client, stats, queues, detailsQueueKey } = useDevtoolsContext("DevtoolsCacheDetails");
 
-  const status = getQueueStatus(item);
+  const item = useMemo(() => {
+    if (!detailsQueueKey) return null;
+    return queues.find((request) => request.queueKey === detailsQueueKey);
+  }, [detailsQueueKey, queues]);
+
+  const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
 
   const dummyRequest = useMemo(() => {
-    // change new Request();
     return new Request(client, {
       endpoint: "",
-      queueKey: item.queueKey,
-      method: item.queueKey.split("_")[0],
+      queueKey: item?.queueKey,
+      method: item?.queueKey.split("_")[0],
     });
-  }, [client, item.queueKey]);
+  }, [client, item?.queueKey]);
 
   const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
 
@@ -68,7 +71,7 @@ export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
     return {
       status,
       color: statusColor,
-      statistics: stats[item.queueKey] || defaultStats,
+      statistics: item ? stats[item.queueKey] || defaultStats : defaultStats,
     };
   }, [item, stats, status]);
 
@@ -81,19 +84,17 @@ export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
   };
 
   const clear = () => {
-    dispatcher.cancelRunningRequests(item.queueKey);
-    dispatcher.clearQueue(item.queueKey);
+    if (item) {
+      dispatcher.cancelRunningRequests(item.queueKey);
+      dispatcher.clearQueue(item.queueKey);
+    }
   };
 
+  // TODO NO CONTENT
+  if (!item) return null;
+
   return (
-    <Resizable
-      bounds="parent"
-      defaultSize={{ width: "60%", height: "100%" }}
-      maxWidth="90%"
-      minWidth="200px"
-      boundsByDirection
-      className={css.details}
-    >
+    <>
       <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -201,6 +202,6 @@ export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
           </div>
         </Collapsible>
       </div>
-    </Resizable>
+    </>
   );
 };

@@ -453,7 +453,9 @@ export const Devtools = <T extends ClientInstance>({
                 <ListComponent />
               </Sidebar>
             </Resizable>
-            <div style={{ position: "relative", flex: "1 1 auto", height: "100%" }}>{/* <DetailsComponent /> */}</div>
+            <div style={{ position: "relative", flex: "1 1 auto", height: "100%" }}>
+              <DetailsComponent />
+            </div>
           </div>
         </DevtoolsWrapper>
       )}

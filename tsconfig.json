@@ -32,15 +32,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": [
-    "node_modules",
-    "node_modules/**/*",
-    "**/node_modules/**/*",
-    "dist",
-    "dist/**/*",
-    "**/dist/**/*",
-    "coverage",
-    "coverage/**/*",
-    "**/coverage/**/*"
-  ]
+  "exclude": ["node_modules", "dist", "coverage"]
 }

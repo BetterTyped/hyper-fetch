@@ -13,6 +13,10 @@ export enum Status {
 export const getStatus = (
   item: Pick<DevtoolsRequestEvent, "isRemoved" | "isCanceled" | "isFinished" | "isSuccess">,
 ): Status => {
+  if (!item) {
+    return Status.REMOVED;
+  }
+
   if (item.isRemoved) {
     return Status.REMOVED;
   }
