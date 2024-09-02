@@ -17,6 +17,7 @@ const styles = createStyles(({ isLight, css }) => {
       & svg {
         width: 16px !important;
         height: 16px !important;
+        fill: transparent;
       }
 
       &:hover {
@@ -39,7 +40,7 @@ const styles = createStyles(({ isLight, css }) => {
       color: ${isLight ? tokens.colors.dark[300] : tokens.colors.light[50]};
 
       & svg {
-        fill: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]}!important;
+        stroke: ${isLight ? tokens.colors.cyan[300] : tokens.colors.cyan[300]}!important;
       }
     `,
     secondary: css`

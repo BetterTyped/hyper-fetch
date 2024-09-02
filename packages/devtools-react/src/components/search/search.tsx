@@ -1,4 +1,5 @@
-import { SearchIcon } from "icons/search";
+import { SearchIcon } from "lucide-react";
+
 import { tokens } from "theme/tokens";
 import { createStyles } from "theme/use-styles.hook";
 

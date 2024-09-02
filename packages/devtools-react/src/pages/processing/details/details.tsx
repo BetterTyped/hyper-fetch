@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Resizable } from "re-resizable";
 import { useQueue } from "@hyper-fetch/react";
+import { ListXIcon, PauseIcon, PlayIcon } from "lucide-react";
 import { QueueDataType, Request } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
@@ -14,9 +15,6 @@ import { RowInfo } from "components/table/row-info/row-info";
 import { getQueueStatus } from "utils/queue.status.utils";
 import { Chip } from "components/chip/chip";
 import { DevtoolsRequestQueueStats } from "devtools.types";
-import { StopIcon } from "icons/stop";
-import { PlayIcon } from "icons/play";
-import { ClearIcon } from "icons/clear";
 import { Key } from "components/key/key";
 
 import { styles } from "./processing.styles";
@@ -121,11 +119,11 @@ export const ProcessingDetails = ({ item }: { item: QueueDataType }) => {
         <Collapsible title="Actions" defaultOpen>
           <div className={css.buttons}>
             <Button color={stopped ? "blue" : "orange"} onClick={toggleQueue}>
-              {stopped ? <PlayIcon /> : <StopIcon />}
+              {stopped ? <PlayIcon /> : <PauseIcon />}
               {stopped ? "Play" : "Stop"}
             </Button>
             <Button color="gray" disabled={!requests.length} onClick={clear}>
-              <ClearIcon />
+              <ListXIcon />
               Clear
             </Button>
           </div>

@@ -2,7 +2,7 @@ import React from "react";
 
 import { createStyles } from "theme/use-styles.hook";
 
-const styles = createStyles(({ isLight, css }) => {
+const styles = createStyles(({ isLight, css, tokens }) => {
   return {
     base: css`
       display: flex;
@@ -15,6 +15,7 @@ const styles = createStyles(({ isLight, css }) => {
       height: 28px;
       background: transparent;
       transition: background 0.2s ease;
+      color: ${isLight ? tokens.colors.light[400] : tokens.colors.light[500]};
 
       &:hover {
         background: ${isLight ? "rgba(0, 0, 0, 0.05)" : "rgba(255, 255, 255, 0.1)"};

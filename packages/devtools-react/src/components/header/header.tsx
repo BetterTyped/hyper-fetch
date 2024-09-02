@@ -1,16 +1,12 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import { useEffect, useState } from "react";
+import { Cpu, DatabaseBackup, NetworkIcon, ShieldCloseIcon, SquareChartGantt } from "lucide-react";
 
 import { Button } from "components/header/button/button";
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
 import { IconButton } from "components/icon-button/icon-button";
 import { FullLogoIcon } from "icons/full-logo";
-import { NetworkIcon } from "icons/network";
-import { CacheIcon } from "icons/cache";
-import { ProcessingIcon } from "icons/processing";
-import { CloseIcon } from "icons/close";
-import { ExplorerIcon } from "icons/explorer";
 import { tokens } from "theme/tokens";
 
 import { styles } from "./header.styles";
@@ -53,7 +49,7 @@ export const Header = () => {
           Network
         </Button>
         <Button small={small} color={getColor(DevtoolsModule.CACHE)} onClick={() => setModule(DevtoolsModule.CACHE)}>
-          <CacheIcon fill={getIconColor(DevtoolsModule.CACHE)} />
+          <DatabaseBackup fill={getIconColor(DevtoolsModule.CACHE)} />
           Cache
         </Button>
         <Button
@@ -61,7 +57,7 @@ export const Header = () => {
           color={getColor(DevtoolsModule.PROCESSING)}
           onClick={() => setModule(DevtoolsModule.PROCESSING)}
         >
-          <ProcessingIcon fill={getIconColor(DevtoolsModule.PROCESSING)} />
+          <Cpu fill={getIconColor(DevtoolsModule.PROCESSING)} />
           Processing
         </Button>
         <Button
@@ -69,14 +65,14 @@ export const Header = () => {
           color={getColor(DevtoolsModule.VISUALIZATION)}
           onClick={() => setModule(DevtoolsModule.VISUALIZATION)}
         >
-          <ExplorerIcon fill={getIconColor(DevtoolsModule.VISUALIZATION)} />
+          <SquareChartGantt fill={getIconColor(DevtoolsModule.VISUALIZATION)} />
           Explorer
         </Button>
         <IconButton
           style={{ height: "32px", width: "32px", marginTop: "2px", marginLeft: "7px" }}
           onClick={() => setOpen(false)}
         >
-          <CloseIcon />
+          <ShieldCloseIcon />
         </IconButton>
       </div>
     </div>

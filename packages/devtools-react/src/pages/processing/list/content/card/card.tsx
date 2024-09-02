@@ -1,8 +1,8 @@
+import { RefreshCcwDotIcon } from "lucide-react";
 import { QueueDataType } from "@hyper-fetch/core";
 
 import { Chip } from "components/chip/chip";
 import { getQueueStatus, getQueueStatusColor } from "utils/queue.status.utils";
-import { StackIcon } from "icons/stack";
 import { useDevtoolsContext } from "devtools.context";
 import { tokens } from "theme/tokens";
 
@@ -40,7 +40,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
     >
       <div className={css.cardHeader}>
         <div className={css.title}>
-          <StackIcon />
+          <RefreshCcwDotIcon />
           Queue
         </div>
         <Chip color={statusColor}>{status}</Chip>

@@ -1,11 +1,10 @@
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, MoonStar, Settings, Sun } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, MoonStar, Settings, Sun, Wifi, WifiOff } from "lucide-react";
 
 import * as DropdownMenu from "components/dropdown/dropdown";
 import { IconButton } from "components/icon-button/icon-button";
 import { Toolbar } from "components/toolbar/toolbar";
 import { useDevtoolsContext } from "devtools.context";
-import { OptionsIcon } from "icons/options";
-import { WifiIcon } from "icons/wifi";
+import { tokens } from "theme/tokens";
 
 export enum Positions {
   Top = "Top",
@@ -43,12 +42,12 @@ export const Options = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <IconButton onClick={() => setIsOnline(!isOnline)}>
-          <WifiIcon isOnline={isOnline} />
+          {isOnline ? <Wifi stroke={tokens.colors.green[500]} /> : <WifiOff />}
         </IconButton>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <IconButton>
-              <OptionsIcon />
+              <Settings />
             </IconButton>
           </DropdownMenu.Trigger>
 

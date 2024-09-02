@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Resizable } from "re-resizable";
+import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
 import { CacheValueType } from "@hyper-fetch/core";
 
 import { DevtoolsCacheEvent } from "devtools.types";
@@ -14,10 +15,6 @@ import * as Table from "components/table/table";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Countdown } from "components/countdown/countdown";
 import { Chip } from "components/chip/chip";
-import { InvalidateIcon } from "icons/invalidate";
-import { RemoveIcon } from "icons/remove";
-import { LoadingIcon } from "icons/loading";
-import { ErrorIcon } from "icons/error";
 import { Key } from "components/key/key";
 
 import { styles } from "../list/cache.styles";
@@ -172,19 +169,19 @@ export const CacheDetails = ({ item }: { item: DevtoolsCacheEvent }) => {
         <Collapsible title="Actions" defaultOpen>
           <div className={css.buttons}>
             <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
-              <LoadingIcon />
+              <LoaderIcon />
               {isLoading ? "Restore" : "Set"} loading
             </Button>
             <Button color="red" onClick={error}>
-              <ErrorIcon />
+              <TriangleAlert />
               Simulate Error
             </Button>
             <Button color="pink" onClick={invalidate}>
-              <InvalidateIcon />
+              <FileXIcon />
               Invalidate
             </Button>
             <Button color="gray" onClick={remove}>
-              <RemoveIcon />
+              <TrashIcon />
               Remove
             </Button>
           </div>

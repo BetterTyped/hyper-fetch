@@ -1,11 +1,9 @@
 import React from "react";
+import { BadgeCheckIcon, Boxes } from "lucide-react";
 
-import { CacheIcon } from "icons/cache";
-import { StackIcon } from "icons/stack";
 import { createStyles } from "theme/use-styles.hook";
-import { tokens } from "theme/tokens";
 
-const styles = createStyles(({ isLight, css }) => {
+const styles = createStyles(({ css }) => {
   return {
     base: css`
       display: flex;
@@ -27,7 +25,7 @@ const styles = createStyles(({ isLight, css }) => {
   };
 });
 
-const colorsVariants = createStyles(({ isLight, css }) => {
+const colorsVariants = createStyles(({ isLight, css, tokens }) => {
   return {
     queue: css`
       & svg {
@@ -45,9 +43,9 @@ const colorsVariants = createStyles(({ isLight, css }) => {
 const getKeyIcon = (type: "queue" | "cache") => {
   switch (type) {
     case "queue":
-      return <StackIcon />;
+      return <Boxes />;
     case "cache":
-      return <CacheIcon />;
+      return <BadgeCheckIcon />;
     default:
       return null;
   }

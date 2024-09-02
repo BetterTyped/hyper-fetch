@@ -1,8 +1,9 @@
+import { ListXIcon } from "lucide-react";
+
 import { Options } from "components/options/options";
 import { Search } from "components/search/search";
 import { useDevtoolsContext } from "devtools.context";
 import { Button } from "components/button/button";
-import { ClearIcon } from "icons/clear";
 
 import { styles } from "../network.styles";
 
@@ -16,7 +17,7 @@ export const Toolbar = () => {
       <Search placeholder="Search" onChange={(e) => setNetworkSearchTerm(e.target.value)} />
       <div className={css.spacer} />
       <Button color="gray" onClick={clearNetwork}>
-        <ClearIcon />
+        <ListXIcon />
         Clear network
       </Button>
     </Options>

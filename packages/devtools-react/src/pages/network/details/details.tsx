@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { TrashIcon } from "lucide-react";
 import { Resizable } from "re-resizable";
 
 import { DevtoolsRequestEvent } from "devtools.types";
@@ -13,7 +14,6 @@ import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
 import { Editor } from "components/editor/editor";
 import { JSONViewer } from "components/json-viewer/json-viewer";
-import { RemoveIcon } from "icons/remove";
 import { useDevtoolsContext } from "devtools.context";
 
 import { styles } from "./network.styles";
@@ -94,7 +94,7 @@ export const NetworkDetails = ({ item }: { item: DevtoolsRequestEvent }) => {
         <Collapsible title="Actions" defaultOpen>
           <div className={css.buttons}>
             <Button color="gray" onClick={remove}>
-              <RemoveIcon />
+              <TrashIcon />
               Remove
             </Button>
           </div>

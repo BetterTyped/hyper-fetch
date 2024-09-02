@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { CircleCheck, Copy } from "lucide-react";
 
-import { CopyIcon } from "icons/copy";
-import { AcceptedIcon } from "icons/accepted";
 import { useClipboard } from "hooks/use-clipboard";
 
 import { styles } from "../json-viewer.styles";
@@ -57,7 +56,7 @@ export const Label = ({
             }
           }}
         >
-          {copied ? <AcceptedIcon className="copied" /> : <CopyIcon />}
+          {copied ? <CircleCheck className="copied" /> : <Copy />}
         </span>
       )}
     </>

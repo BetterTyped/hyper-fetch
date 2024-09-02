@@ -1,6 +1,6 @@
+import { ChevronRight } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 
-import { ChevronIcon } from "icons/chevron";
 import { createStyles } from "theme/use-styles.hook";
 import { tokens } from "theme/tokens";
 
@@ -97,7 +97,7 @@ export const Collapsible = ({
   return (
     <div className={css.wrapper}>
       <button onClick={handleToggle} type="button" className={css.clsx(css.button, { [css.bottomBorder]: isExpanded })}>
-        <ChevronIcon
+        <ChevronRight
           style={{
             transform: `rotate(${!isExpanded ? -90 : 0}deg)`,
           }}

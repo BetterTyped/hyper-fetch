@@ -1,4 +1,5 @@
 import { ComponentType, useState } from "react";
+import { SendIcon } from "lucide-react";
 import { Resizable } from "re-resizable";
 
 import { Back } from "./back/back";
@@ -6,7 +7,6 @@ import { Separator } from "components/separator/separator";
 import { Toolbar } from "components/toolbar/toolbar";
 import { Chip } from "components/chip/chip";
 import { Button } from "components/button/button";
-import { SendIcon } from "icons/send";
 import { Tabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "components/method/method";
