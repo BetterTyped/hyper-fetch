@@ -22,7 +22,7 @@ describe("Cache [ Events ]", () => {
     isCanceled: false,
     isOffline: false,
     cacheTime: request.cacheTime,
-    clearKey: cache.clearKey,
+    version: cache.version,
     garbageCollection: 300000,
   };
 

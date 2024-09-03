@@ -28,7 +28,7 @@ export class Cache<C extends ClientInstance> {
 
   public storage: CacheStorageType;
   public lazyStorage?: CacheAsyncStorageType;
-  public clearKey: string;
+  public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
 
@@ -41,7 +41,7 @@ export class Cache<C extends ClientInstance> {
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
-    this.clearKey = this.options?.clearKey || "";
+    this.version = this.options?.version || "";
     this.lazyStorage = this.options?.lazyStorage;
     this.logger = this.client.loggerManager.init("Cache");
 
@@ -86,7 +86,7 @@ export class Cache<C extends ClientInstance> {
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
       ...data,
       cacheTime,
-      clearKey: this.clearKey,
+      version: this.version,
       cacheKey,
       garbageCollection,
     };
@@ -220,7 +220,7 @@ export class Cache<C extends ClientInstance> {
       const now = +new Date();
       const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
       const isStaleData = data.cacheTime <= now - data.responseTimestamp;
-      const isValidLazyData = data.clearKey === this.clearKey;
+      const isValidLazyData = data.version === this.version;
 
       if (!isValidLazyData) {
         this.lazyStorage?.delete(cacheKey);
@@ -232,7 +232,7 @@ export class Cache<C extends ClientInstance> {
       }
     }
 
-    const isValidData = syncData?.clearKey === this.clearKey;
+    const isValidData = syncData?.version === this.version;
     if (syncData && !isValidData) {
       this.delete(cacheKey);
     }

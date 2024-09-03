@@ -5,7 +5,7 @@ import { xhrExtra } from "adapter";
 
 describe("Cache [ Lazy Storage ]", () => {
   const cacheTime = 10000;
-  const clearKey = "test";
+  const version = "test";
   const cacheKey = "1";
   const cacheData: CacheValueType = {
     data: null,
@@ -18,7 +18,7 @@ describe("Cache [ Lazy Storage ]", () => {
     isCanceled: false,
     isOffline: false,
     cacheTime,
-    clearKey,
+    version,
     garbageCollection: Infinity,
     cacheKey,
     queueKey: "2",
@@ -34,7 +34,7 @@ describe("Cache [ Lazy Storage ]", () => {
   let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
-    clearKey,
+    version,
   });
 
   beforeEach(() => {
@@ -43,7 +43,7 @@ describe("Cache [ Lazy Storage ]", () => {
     request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
-      clearKey,
+      version,
     });
     jest.resetAllMocks();
   });
@@ -74,10 +74,10 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(data).not.toBeDefined();
       expect(spy).toHaveBeenCalledTimes(0);
     });
-    it("should remove data when clearKey change", async () => {
+    it("should remove data when version change", async () => {
       await cache.options.lazyStorage.set(cacheKey, {
         ...cacheData,
-        clearKey: "old-key",
+        version: "old-key",
       });
       const deleteSpy = jest.spyOn(cache.options.lazyStorage, "delete");
       cache.events.onDataByKey(cacheKey, spy);

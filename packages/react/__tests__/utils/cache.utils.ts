@@ -35,7 +35,7 @@ export const createCacheData = <T extends RequestInstance>(
     ...(dataValue as any),
     ...detailsValue,
     cacheTime: 1000,
-    clearKey: request.client.cache.clearKey,
+    version: request.client.cache.version,
     garbageCollection: Infinity,
   });
   return [dataValue, detailsValue] as const;

@@ -7,7 +7,7 @@ import { createCache, createLazyCacheAdapter } from "../../utils";
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
   const cacheTime = 30;
-  const clearKey = "test";
+  const version = "test";
   const garbageCollection = 10;
   const cacheData: CacheValueType = {
     data: null,
@@ -20,7 +20,7 @@ describe("Cache [ Garbage Collector ]", () => {
     isCanceled: false,
     isOffline: false,
     cacheTime,
-    clearKey,
+    version,
     garbageCollection,
     cacheKey,
     queueKey: "1",
@@ -35,7 +35,7 @@ describe("Cache [ Garbage Collector ]", () => {
   let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
-    clearKey,
+    version,
   });
 
   beforeEach(async () => {
@@ -45,7 +45,7 @@ describe("Cache [ Garbage Collector ]", () => {
     request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
-      clearKey,
+      version,
     });
     jest.resetAllMocks();
     jest.clearAllMocks();
@@ -72,7 +72,7 @@ describe("Cache [ Garbage Collector ]", () => {
       storage.set(cacheKey, cacheData);
       const cacheInstance = createCache(client, {
         storage,
-        clearKey,
+        version,
       });
 
       await waitFor(() => {
@@ -83,7 +83,7 @@ describe("Cache [ Garbage Collector ]", () => {
       lazyStorage.set(cacheKey, cacheData);
       const cacheInstance = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
-        clearKey,
+        version,
       });
 
       await waitFor(() => {
@@ -97,12 +97,12 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
-    it("should remove resource with not matching lazy clearKey", async () => {
+    it("should remove resource with not matching lazy version", async () => {
       const data = { ...cacheData, garbageCollection: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
-        clearKey: "new-clear-key",
+        version: "new-clear-key",
       });
       const spy = jest.spyOn(lazyStorage, "delete");
 
@@ -111,13 +111,13 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(spy).toHaveBeenCalledWith(cacheKey);
       });
     });
-    it("should remove resource with not matching sync clearKey", async () => {
+    it("should remove resource with not matching sync version", async () => {
       const data = { ...cacheData, garbageCollection: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         // Todo: check
         storage: lazyStorage as CacheStorageType,
-        clearKey: "new-clear-key",
+        version: "new-clear-key",
       });
       const spy = jest.spyOn(lazyStorage, "delete");
 
@@ -131,7 +131,7 @@ describe("Cache [ Garbage Collector ]", () => {
       storage.set(cacheKey, { ...cacheData, garbageCollection: Infinity });
       const cacheInstance = createCache(client, {
         storage,
-        clearKey,
+        version,
       });
 
       await waitFor(() => {
@@ -143,7 +143,7 @@ describe("Cache [ Garbage Collector ]", () => {
       storage.set(cacheKey, { ...cacheData, garbageCollection: null });
       const cacheInstance = createCache(client, {
         storage,
-        clearKey,
+        version,
       });
 
       await waitFor(() => {

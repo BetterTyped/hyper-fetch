@@ -84,7 +84,7 @@ describe("useTrackingState [ Events ]", () => {
             isCanceled: false,
             isOffline: false,
             cacheTime: request.cacheTime,
-            clearKey: request.client.cache.clearKey,
+            version: request.client.cache.version,
             garbageCollection: Infinity,
           });
         });
@@ -134,7 +134,7 @@ describe("useTrackingState [ Events ]", () => {
             isCanceled: false,
             isOffline: false,
             cacheTime: request.cacheTime,
-            clearKey: request.client.cache.clearKey,
+            version: request.client.cache.version,
             garbageCollection: Infinity,
           });
         });
@@ -170,7 +170,7 @@ describe("useTrackingState [ Events ]", () => {
             isCanceled: false,
             isOffline: false,
             cacheTime: request.cacheTime,
-            clearKey: request.client.cache.clearKey,
+            version: request.client.cache.version,
             garbageCollection: Infinity,
           });
         });
@@ -196,7 +196,7 @@ describe("useTrackingState [ Events ]", () => {
             isCanceled: false,
             isOffline: false,
             cacheTime: request.cacheTime,
-            clearKey: request.client.cache.clearKey,
+            version: request.client.cache.version,
             garbageCollection: Infinity,
           });
         });

@@ -17,7 +17,7 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
    * Key to clear lazy storage data, often used for versioning
    * If the new key is different from the old one, the cache will be cleared
    */
-  clearKey?: string;
+  version?: string;
   /**
    * Initialization callback
    */
@@ -44,7 +44,7 @@ export type CacheValueType<
   ResponseDetailsType & {
     cacheKey: string;
     cacheTime: number;
-    clearKey: string;
+    version: string;
     garbageCollection: number;
     hydrated?: boolean;
   };

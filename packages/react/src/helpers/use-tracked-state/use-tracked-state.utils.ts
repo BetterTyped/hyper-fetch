@@ -57,7 +57,7 @@ export const getValidCacheData = <T extends RequestInstance>(
       ...((initialData || {}) as Partial<ExtractAdapterResolvedType<T>>),
       ...getDetailsState(),
       cacheTime: 1000,
-      clearKey: request.client.cache.clearKey,
+      version: request.client.cache.version,
       cacheKey: request.cacheKey,
       garbageCollection: request.garbageCollection,
       requestTimestamp: initialData?.requestTimestamp ?? +new Date(),
