@@ -275,7 +275,7 @@ export class Dispatcher {
   /**
    * Get currently running requests from all queueKeys
    */
-  getAllRunningRequest = () => {
+  getAllRunningRequests = () => {
     return Array.from(this.runningRequests.values()).flat();
   };
 

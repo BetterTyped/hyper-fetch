@@ -52,9 +52,9 @@ describe("Dispatcher [ Queue ]", () => {
 
       dispatcher.add(request);
 
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(1);
       await waitFor(() => {
-        expect(dispatcher.getAllRunningRequest()).toHaveLength(0);
+        expect(dispatcher.getAllRunningRequests()).toHaveLength(0);
         expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
       });
     });
@@ -69,7 +69,7 @@ describe("Dispatcher [ Queue ]", () => {
 
       expect(requestId).toBe(deduplicatedId);
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(1);
     });
     it("should queue the queued request", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
@@ -81,7 +81,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
 
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(1);
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(1);
     });
     it("should send all concurrent requests", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });
@@ -93,7 +93,7 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
 
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(dispatcher.getAllRunningRequest()).toHaveLength(2);
+      expect(dispatcher.getAllRunningRequests()).toHaveLength(2);
     });
     it("should send all concurrent requests without any duplicates", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: false });

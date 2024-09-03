@@ -32,7 +32,7 @@ describe("Request [ Sending ]", () => {
     it("should return adapter response", async () => {
       const requestExecution = request.exec();
       await sleep(5);
-      expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
+      expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
       const response = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
@@ -45,7 +45,7 @@ describe("Request [ Sending ]", () => {
     it("should return mapped adapter response", async () => {
       const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec();
       await sleep(5);
-      expect(client.fetchDispatcher.getAllRunningRequest()).toHaveLength(0);
+      expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
       const response = await requestExecution;
       expect(response).toStrictEqual({
         data: { nested: fixture },
@@ -143,7 +143,7 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.send();
       await sleep(2);
 
-      const runningRequests = client.fetchDispatcher.getAllRunningRequest();
+      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
       client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
 
       const response = await requestExecution;
@@ -161,7 +161,7 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.send({ onRemove: spy });
       await sleep(2);
 
-      const runningRequests = client.fetchDispatcher.getAllRunningRequest();
+      const runningRequests = client.fetchDispatcher.getAllRunningRequests();
       client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
 
       await requestExecution;

@@ -123,11 +123,8 @@ export const Devtools = <T extends ClientInstance>({
     setFailed((prev) => prev.filter((i) => i.requestId !== requestId));
   };
 
-  const updateQueues = useCallback(() => {
-    const fetchRequests = client.fetchDispatcher.getAllRunningRequest();
-    const submitRequests = client.submitDispatcher.getAllRunningRequest();
-
-    const allQueuedRequest: DevtoolsElement[] = [...fetchRequests, ...submitRequests].map((item) => {
+  const updateQueues = (queue: QueueDataType) => {
+    const inQueueRequests: DevtoolsElement[] = queue.requests.map((item) => {
       return {
         requestId: item.requestId,
         queueKey: item.request.queueKey,
@@ -135,47 +132,90 @@ export const Devtools = <T extends ClientInstance>({
         abortKey: item.request.abortKey,
       };
     });
-
-    const fetchQueuesArray = Array.from(
-      client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
-    ).map(([, value]) => value);
-    const submitQueuesArray = Array.from(
-      client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
-    ).map(([, value]) => value);
-
-    const pausedRequests: DevtoolsElement[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
-      if (queue.stopped) {
-        return [
-          ...acc,
-          ...queue.requests.map((item) => {
+    const pausedQueueRequests: DevtoolsElement[] = queue.stopped
+      ? inQueueRequests
+      : queue.requests
+          .filter((item) => item.stopped)
+          .map((item) => {
             return {
               requestId: item.requestId,
               queueKey: item.request.queueKey,
               cacheKey: item.request.cacheKey,
               abortKey: item.request.abortKey,
             };
-          }),
-        ];
-      }
-
-      queue.requests.forEach((item) => {
-        if (item.stopped) {
-          acc.push({
-            requestId: item.requestId,
-            queueKey: item.request.queueKey,
-            cacheKey: item.request.cacheKey,
-            abortKey: item.request.abortKey,
           });
-        }
-      });
+    setInProgress((prevState) => {
+      const filtered = prevState.filter((el) => el.queueKey !== queue.queueKey);
+      return [...filtered, ...inQueueRequests];
+    });
+    setPaused((prevState) => {
+      const filtered = prevState.filter((el) => el.queueKey !== queue.queueKey);
+      return [...filtered, ...pausedQueueRequests];
+    });
+    setQueues((prevState) => {
+      const currentQueue = prevState.findIndex((el) => el.queueKey === queue.queueKey);
+      if (!currentQueue) {
+        return [...prevState, queue];
+      }
+      const newState = [...prevState];
+      newState[currentQueue] = queue;
+      return newState;
+    });
+  };
 
-      return acc;
-    }, [] as DevtoolsElement[]);
-
-    setInProgress(allQueuedRequest);
-    setPaused(pausedRequests);
-    setQueues([...fetchQueuesArray, ...submitQueuesArray]);
-  }, [client.fetchDispatcher, client.submitDispatcher]);
+  // const updateQueues = useCallback(() => {
+  //   const fetchRequests = client.fetchDispatcher.getAllRunningRequests();
+  //   const submitRequests = client.submitDispatcher.getAllRunningRequests();
+  //
+  //   const allQueuedRequest: DevtoolsElement[] = [...fetchRequests, ...submitRequests].map((item) => {
+  //     return {
+  //       requestId: item.requestId,
+  //       queueKey: item.request.queueKey,
+  //       cacheKey: item.request.cacheKey,
+  //       abortKey: item.request.abortKey,
+  //     };
+  //   });
+  //
+  //   const fetchQueuesArray = Array.from(
+  //     client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
+  //   ).map(([, value]) => value);
+  //   const submitQueuesArray = Array.from(
+  //     client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
+  //   ).map(([, value]) => value);
+  //
+  //   const pausedRequests: DevtoolsElement[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
+  //     if (queue.stopped) {
+  //       return [
+  //         ...acc,
+  //         ...queue.requests.map((item) => {
+  //           return {
+  //             requestId: item.requestId,
+  //             queueKey: item.request.queueKey,
+  //             cacheKey: item.request.cacheKey,
+  //             abortKey: item.request.abortKey,
+  //           };
+  //         }),
+  //       ];
+  //     }
+  //
+  //     queue.requests.forEach((item) => {
+  //       if (item.stopped) {
+  //         acc.push({
+  //           requestId: item.requestId,
+  //           queueKey: item.request.queueKey,
+  //           cacheKey: item.request.cacheKey,
+  //           abortKey: item.request.abortKey,
+  //         });
+  //       }
+  //     });
+  //
+  //     return acc;
+  //   }, [] as DevtoolsElement[]);
+  //
+  //   setInProgress(allQueuedRequest);
+  //   setPaused(pausedRequests);
+  //   setQueues([...fetchQueuesArray, ...submitQueuesArray]);
+  // }, [client.fetchDispatcher, client.submitDispatcher]);
 
   const handleCacheChange = useCallback(() => {
     const cacheKeys = [...client.cache.storage.keys()];
@@ -276,10 +316,10 @@ export const Devtools = <T extends ClientInstance>({
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests((prev) => [{ ...details, triggerTimestamp: new Date() }, ...prev] as DevtoolsRequestEvent[]);
       setLoadingKeys((prev) => prev.filter((i) => i !== details.request.cacheKey));
-      updateQueues();
+      // updateQueues();
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
-      updateQueues();
+      // updateQueues();
 
       if (!details.isCanceled) {
         handleStats(request, response, details);
@@ -297,19 +337,19 @@ export const Devtools = <T extends ClientInstance>({
         { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
       ]);
 
-      updateQueues();
+      // updateQueues();
     });
-    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange(() => {
-      updateQueues();
+    const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((values) => {
+      updateQueues(values);
     });
-    const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange(() => {
-      updateQueues();
+    const unmountOnFetchQueueStatusChange = client.fetchDispatcher.events.onQueueStatusChange((values) => {
+      updateQueues(values);
     });
-    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange(() => {
-      updateQueues();
+    const unmountOnSubmitQueueChange = client.submitDispatcher.events.onQueueChange((values) => {
+      updateQueues(values);
     });
-    const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange(() => {
-      updateQueues();
+    const unmountOnSubmitQueueStatusChange = client.submitDispatcher.events.onQueueStatusChange((values) => {
+      updateQueues(values);
     });
     const unmountOnRemove = client.requestManager.events.onRemove(({ requestId, request, resolved }) => {
       if (!resolved) {
@@ -318,7 +358,7 @@ export const Devtools = <T extends ClientInstance>({
           { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
         ]);
       }
-      updateQueues();
+      // updateQueues();
     });
     const unmountOnCacheChange = client.cache.events.onData(() => {
       handleCacheChange();
@@ -346,11 +386,11 @@ export const Devtools = <T extends ClientInstance>({
       unmountOnCacheInvalidate();
       unmountCacheDelete();
     };
-  }, [client, updateQueues, handleCacheChange, handleStats, requests]);
-
-  useEffect(() => {
-    updateQueues();
-  }, [updateQueues]);
+  }, [client, handleCacheChange, handleStats, requests]);
+  //
+  // useEffect(() => {
+  //   updateQueues();
+  // }, [updateQueues]);
 
   const allRequests: DevtoolsRequestEvent[] = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
