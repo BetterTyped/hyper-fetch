@@ -119,22 +119,22 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onConnected = () => {
     logger.info("Connection open");
-    socket.__onConnectedCallbacks.forEach((callback) => {
-      callback(socket);
-    });
     state.connected = true;
     state.connecting = false;
     socket.events.emitConnected();
+    socket.__onConnectedCallbacks.forEach((callback) => {
+      callback(socket);
+    });
   };
 
   const onDisconnected = () => {
     logger.info("Connection closed");
-    socket.__onDisconnectCallbacks.forEach((callback) => {
-      callback(socket);
-    });
     state.connected = false;
     state.connecting = false;
     socket.events.emitDisconnected();
+    socket.__onDisconnectCallbacks.forEach((callback) => {
+      callback(socket);
+    });
   };
 
   const onError = (event: Error) => {

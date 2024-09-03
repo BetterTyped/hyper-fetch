@@ -163,60 +163,6 @@ export const Devtools = <T extends ClientInstance>({
     });
   };
 
-  // const updateQueues = useCallback(() => {
-  //   const fetchRequests = client.fetchDispatcher.getAllRunningRequests();
-  //   const submitRequests = client.submitDispatcher.getAllRunningRequests();
-  //
-  //   const allQueuedRequest: DevtoolsElement[] = [...fetchRequests, ...submitRequests].map((item) => {
-  //     return {
-  //       requestId: item.requestId,
-  //       queueKey: item.request.queueKey,
-  //       cacheKey: item.request.cacheKey,
-  //       abortKey: item.request.abortKey,
-  //     };
-  //   });
-  //
-  //   const fetchQueuesArray = Array.from(
-  //     client.fetchDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
-  //   ).map(([, value]) => value);
-  //   const submitQueuesArray = Array.from(
-  //     client.submitDispatcher.storage.entries() as unknown as Array<[string, QueueDataType]>,
-  //   ).map(([, value]) => value);
-  //
-  //   const pausedRequests: DevtoolsElement[] = [...fetchQueuesArray, ...submitQueuesArray].reduce((acc, queue) => {
-  //     if (queue.stopped) {
-  //       return [
-  //         ...acc,
-  //         ...queue.requests.map((item) => {
-  //           return {
-  //             requestId: item.requestId,
-  //             queueKey: item.request.queueKey,
-  //             cacheKey: item.request.cacheKey,
-  //             abortKey: item.request.abortKey,
-  //           };
-  //         }),
-  //       ];
-  //     }
-  //
-  //     queue.requests.forEach((item) => {
-  //       if (item.stopped) {
-  //         acc.push({
-  //           requestId: item.requestId,
-  //           queueKey: item.request.queueKey,
-  //           cacheKey: item.request.cacheKey,
-  //           abortKey: item.request.abortKey,
-  //         });
-  //       }
-  //     });
-  //
-  //     return acc;
-  //   }, [] as DevtoolsElement[]);
-  //
-  //   setInProgress(allQueuedRequest);
-  //   setPaused(pausedRequests);
-  //   setQueues([...fetchQueuesArray, ...submitQueuesArray]);
-  // }, [client.fetchDispatcher, client.submitDispatcher]);
-
   const handleCacheChange = useCallback(() => {
     const cacheKeys = [...client.cache.storage.keys()];
 
@@ -316,11 +262,8 @@ export const Devtools = <T extends ClientInstance>({
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
       setRequests((prev) => [{ ...details, triggerTimestamp: new Date() }, ...prev] as DevtoolsRequestEvent[]);
       setLoadingKeys((prev) => prev.filter((i) => i !== details.request.cacheKey));
-      // updateQueues();
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
-      // updateQueues();
-
       if (!details.isCanceled) {
         handleStats(request, response, details);
       }
@@ -336,8 +279,6 @@ export const Devtools = <T extends ClientInstance>({
         ...prev,
         { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
       ]);
-
-      // updateQueues();
     });
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((values) => {
       updateQueues(values);
@@ -358,7 +299,6 @@ export const Devtools = <T extends ClientInstance>({
           { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
         ]);
       }
-      // updateQueues();
     });
     const unmountOnCacheChange = client.cache.events.onData(() => {
       handleCacheChange();
