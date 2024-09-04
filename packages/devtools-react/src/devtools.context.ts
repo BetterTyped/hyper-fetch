@@ -14,12 +14,18 @@ import {
 } from "devtools.types";
 import { createContext } from "utils/context";
 import { Status } from "utils/request.status.utils";
-import { DevtoolsDataProvider } from "pages/explorer/list/content/content.state";
-import { DevtoolsExplorerRequest } from "pages/explorer/list/content/content.types";
+import { DevtoolsDataProvider } from "pages/explorer/sidebar/content.state";
+import { DevtoolsExplorerRequest } from "pages/explorer/sidebar/content.types";
 
 export type Sort = { key: string; order: "asc" | "desc" };
 
 export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...params));
+
+export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("DevtoolsSwitcher", {
+  workspaces: [] as { id: string; name: string }[],
+  activeWorkspace: null as string | null,
+  setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
+});
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {
   css: cssWrapper,

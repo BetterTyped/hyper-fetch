@@ -12,8 +12,8 @@ import {
 export enum DevtoolsModule {
   NETWORK = "Network",
   CACHE = "Cache",
-  PROCESSING = "Processing",
-  VISUALIZATION = "Explorer",
+  QUEUES = "Queues",
+  EXPLORER = "Explorer",
 }
 
 export type RequestEvent<T extends ClientInstance> = RequestEventType<

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
 import { css } from "goober";
-import { Resizable, Size } from "re-resizable";
+import { Size } from "re-resizable";
 
-import { Header } from "./components/header/header";
-import { DevtoolsProvider, Sort } from "devtools.context";
+import { DevtoolsProvider, Sort, useDevtoolsWorkspaces } from "devtools.context";
 import {
   DevtoolsCacheEvent,
   DevtoolsModule,
@@ -15,31 +14,19 @@ import {
 } from "devtools.types";
 import { Status } from "utils/request.status.utils";
 import { DevtoolsToggle } from "components/devtools-toggle/devtools-toggle";
-import { Sidebar } from "components/sidebar/sidebar";
-import { NetworkList } from "pages/network/list/network";
-import { CacheList } from "pages/cache/list/cache";
-import { ProcessingList } from "pages/processing/list/processing";
-import { ExplorerList } from "pages/explorer/list/explorer";
-import { NetworkDetails } from "pages/network/details/details";
-import { CacheDetails } from "pages/cache/details/details";
-import { ProcessingDetails } from "pages/processing/details/details";
-import { ExplorerDetails } from "pages/explorer/details/details";
-import { DevtoolsDataProvider } from "pages/explorer/list/content/content.state";
-import { DevtoolsWrapper } from "devtools.wrapper";
-import { DevtoolsExplorerRequest } from "pages/explorer/list/content/content.types";
+import { Network } from "pages/network/network";
+import { DevtoolsDataProvider } from "pages/explorer/sidebar/content.state";
+import { DevtoolsExplorerRequest } from "pages/explorer/sidebar/content.types";
+import { Application } from "components/app/app";
+import { Explorer } from "pages/explorer/explorer";
+import { Queues } from "pages/queues/queues";
+import { Cache } from "pages/cache/cache";
 
-const SidebarModules = {
-  Network: NetworkList,
-  Cache: CacheList,
-  Processing: ProcessingList,
-  Explorer: ExplorerList,
-};
-
-const DetailsModules = {
-  Network: NetworkDetails,
-  Cache: CacheDetails,
-  Processing: ProcessingDetails,
-  Explorer: ExplorerDetails,
+const Modules = {
+  [DevtoolsModule.NETWORK]: Network,
+  [DevtoolsModule.CACHE]: Cache,
+  [DevtoolsModule.QUEUES]: Queues,
+  [DevtoolsModule.EXPLORER]: Explorer,
 };
 
 /**
@@ -55,6 +42,7 @@ export type DevtoolsProps<T extends ClientInstance> = {
   initialTheme?: "light" | "dark";
   initialPosition?: "Top" | "Left" | "Right" | "Bottom";
   simulatedError?: any;
+  workspace?: string;
 };
 
 export const Devtools = <T extends ClientInstance>({
@@ -63,6 +51,7 @@ export const Devtools = <T extends ClientInstance>({
   initiallyOpen = false,
   initialPosition = "Right",
   simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
+  workspace,
 }: DevtoolsProps<T>) => {
   const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
@@ -71,11 +60,9 @@ export const Devtools = <T extends ClientInstance>({
   const [position, setPosition] = useState<"Top" | "Left" | "Right" | "Bottom">(initialPosition);
   const [size, setSize] = useState<Size>({ width: 0, height: 0 });
 
-  const DetailsComponent = DetailsModules[module];
-  const ListComponent = SidebarModules[module];
+  const { workspaces, activeWorkspace } = useDevtoolsWorkspaces("Devtools");
 
-  // TODO REMOVE
-  console.error(DetailsComponent);
+  const Module = Modules[module];
 
   // Network
   const [networkSearchTerm, setNetworkSearchTerm] = useState("");
@@ -414,6 +401,11 @@ export const Devtools = <T extends ClientInstance>({
     };
   });
 
+  const isStandalone = !!workspaces.length;
+  const isVisible = activeWorkspace === workspace;
+  const isDevtoolsVisible = isStandalone ? isVisible : open;
+  const isButtonVisible = !isStandalone && !open;
+
   return (
     <DevtoolsProvider
       css={css}
@@ -470,36 +462,12 @@ export const Devtools = <T extends ClientInstance>({
       size={size}
       setSize={setSize}
     >
-      {open && (
-        <DevtoolsWrapper>
-          <Header />
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              overflow: "hidden",
-            }}
-          >
-            <Resizable
-              defaultSize={{
-                width: "400",
-                height: "100%",
-              }}
-              minHeight="100%"
-              maxWidth="80vw"
-            >
-              <Sidebar>
-                <ListComponent />
-              </Sidebar>
-            </Resizable>
-            <div style={{ position: "relative", flex: "1 1 auto", height: "100%" }}>
-              <DetailsComponent />
-            </div>
-          </div>
-        </DevtoolsWrapper>
+      {isDevtoolsVisible && (
+        <Application isStandalone={isStandalone}>
+          <Module />
+        </Application>
       )}
-      {!open && <DevtoolsToggle onClick={() => setOpen(true)} />}
+      {isButtonVisible && <DevtoolsToggle onClick={() => setOpen(true)} />}
     </DevtoolsProvider>
   );
 };

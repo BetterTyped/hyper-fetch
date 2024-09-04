@@ -7,9 +7,9 @@ import { EventTypes } from "../../types/message.type";
 
 // TODO - standardize emitter events functions to always start with <emit>
 
-export const DevtoolsSocketWrapper = () => {
-  const dummyClient = new Client({ url: "http://localhost.dummyhost:5000" });
-  const logger = dummyClient.loggerManager.init(`DevtoolsStandalone`);
+export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
+  const protoClient = new Client({ url: "http://localhost.dummyhost:5000" });
+  const logger = protoClient.loggerManager.init(`DevtoolsStandalone`);
   const { onEvent } = useListener(receiveData, {});
   useEffect(() => {
     socket.setQuery({ connectionName: "HF_DEVTOOLS_APP" });
@@ -20,47 +20,47 @@ export const DevtoolsSocketWrapper = () => {
     const { eventType, eventData } = event.data;
     switch (eventType) {
       case EventTypes.ON_REQUEST_START:
-        dummyClient.requestManager.events.emitRequestStart(eventData);
+        protoClient.requestManager.events.emitRequestStart(eventData);
         return;
       case EventTypes.ON_REQUEST_REMOVE:
-        dummyClient.requestManager.events.emitRemove(eventData);
+        protoClient.requestManager.events.emitRemove(eventData);
         return;
       case EventTypes.ON_REQUEST_PAUSE:
-        dummyClient.requestManager.events.emitAbort(eventData);
+        protoClient.requestManager.events.emitAbort(eventData);
         return;
       case EventTypes.ON_RESPONSE:
-        dummyClient.requestManager.events.emitResponse(eventData);
+        protoClient.requestManager.events.emitResponse(eventData);
         return;
       case EventTypes.ON_FETCH_QUEUE_CHANGE: {
         const { queueKey } = eventData;
-        dummyClient.fetchDispatcher.events.setQueueChanged(queueKey, eventData);
+        protoClient.fetchDispatcher.events.setQueueChanged(queueKey, eventData);
         return;
       }
       case EventTypes.ON_FETCH_QUEUE_STATUS_CHANGE: {
         const { queueKey } = eventData;
-        dummyClient.fetchDispatcher.events.setQueueStatusChanged(queueKey, eventData);
+        protoClient.fetchDispatcher.events.setQueueStatusChanged(queueKey, eventData);
         return;
       }
       case EventTypes.ON_SUBMIT_QUEUE_CHANGE: {
         const { queueKey } = eventData;
-        dummyClient.submitDispatcher.events.setQueueChanged(queueKey, eventData);
+        protoClient.submitDispatcher.events.setQueueChanged(queueKey, eventData);
         return;
       }
       case EventTypes.ON_SUBMIT_QUEUE_STATUS_CHANGE: {
         const { queueKey } = eventData;
-        dummyClient.submitDispatcher.events.setQueueStatusChanged(queueKey, eventData);
+        protoClient.submitDispatcher.events.setQueueStatusChanged(queueKey, eventData);
         return;
       }
       case EventTypes.ON_CACHE_CHANGE: {
-        dummyClient.cache.events.emitCacheData(eventData);
+        protoClient.cache.events.emitCacheData(eventData);
         return;
       }
       case EventTypes.ON_CACHE_INVALIDATE: {
-        dummyClient.cache.events.emitInvalidation(eventData);
+        protoClient.cache.events.emitInvalidation(eventData);
         return;
       }
       case EventTypes.ON_CACHE_DELETE: {
-        dummyClient.cache.events.emitDelete(eventData);
+        protoClient.cache.events.emitDelete(eventData);
         return;
       }
 
@@ -69,5 +69,5 @@ export const DevtoolsSocketWrapper = () => {
     }
   });
 
-  return <Devtools client={dummyClient} />;
+  return <Devtools workspace={workspace} client={protoClient} />;
 };
