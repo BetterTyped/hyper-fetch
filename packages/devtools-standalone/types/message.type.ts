@@ -12,9 +12,13 @@ export enum EventTypes {
   ON_CACHE_DELETE = "ON_CACHE_DELETE",
 }
 
+export enum EmitableCustomEvents {
+  REQUEST_CREATED = "REQUEST_CREATED",
+}
+
 export type MessageType = {
   data: {
-    eventType: EventTypes;
+    eventType: EventTypes | EmitableCustomEvents;
     eventData: any;
   };
 };

@@ -1,6 +1,8 @@
 import { ClientInstance } from "@hyper-fetch/core";
 import { EventEmitter } from "events";
 
+import { EmitableCustomEvents } from "./devtools.types";
+
 /***
  The idea of these hooks is to add events and functionalities that are applicable only for devtools.\
  ***/
@@ -20,7 +22,7 @@ export function addOnCreateRequestEvent(client: ClientInstance) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           const resultingRequest = nestedTarget.apply(nestedThisArg, nestedArgs);
-          eventEmitter.emit("request_created", [client.__requestsMap.values()]);
+          eventEmitter.emit(EmitableCustomEvents.REQUEST_CREATED, [client.__requestsMap.values()]);
           return resultingRequest;
         },
       });

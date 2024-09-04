@@ -3,7 +3,7 @@ import { receiveData, socket } from "./socket";
 import { Devtools } from "@hyper-fetch/devtools-react";
 import { useEffect } from "react";
 import { Client } from "@hyper-fetch/core";
-import { EventTypes } from "../../types/message.type";
+import { EmitableCustomEvents, EventTypes } from "../../types/message.type";
 
 // TODO - standardize emitter events functions to always start with <emit>
 
@@ -61,6 +61,10 @@ export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
       }
       case EventTypes.ON_CACHE_DELETE: {
         protoClient.cache.events.emitDelete(eventData);
+        return;
+      }
+      case EmitableCustomEvents.REQUEST_CREATED: {
+        dummyClient.__requestsMap = new Set(eventData);
         return;
       }
 

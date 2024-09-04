@@ -239,7 +239,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const abort = () => {
     const { abortKey } = request;
-    const requests = dispatcher.getAllRunningRequest();
+    const requests = dispatcher.getAllRunningRequests();
     requests.forEach((requestData) => {
       if (requestData.request.abortKey === abortKey) {
         dispatcher.delete(requestData.request.queueKey, requestData.requestId, abortKey);
