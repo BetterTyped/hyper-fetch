@@ -23,13 +23,14 @@ export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...par
 
 export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("DevtoolsSwitcher", {
   workspaces: [] as { id: string; name: string }[],
-  activeWorkspace: null as string | null,
+  activeWorkspace: undefined as string | undefined,
   setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
 });
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {
   css: cssWrapper,
   client: null as any as ClientInstance,
+  isStandalone: false,
   open: false,
   setOpen: (() => {}) as (open: boolean) => void,
   theme: "light" as "light" | "dark",

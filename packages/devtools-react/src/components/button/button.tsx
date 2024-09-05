@@ -6,19 +6,13 @@ const styles = createStyles(({ css }) => {
     button: css`
       display: flex;
       align-items: center;
-      gap: 5px;
       border: 0px;
-      padding: 5px 10px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 4px;
       color: #fff !important;
+      font-weight: 500;
       filter: grayscale(0);
       transition: background 0.15 ease-in-out;
 
       & svg {
-        width: 16px;
-        height: 16px;
         fill: #fff !important;
         margin-left: -2px;
       }
@@ -57,6 +51,15 @@ const colorVariants = createStyles(({ css }) => {
       }
       &:active {
         background: ${tokens.colors.teal[900]};
+      }
+    `,
+    cyan: css`
+      background: ${tokens.colors.cyan[500]};
+      &:hover {
+        background: ${tokens.colors.cyan[700]};
+      }
+      &:active {
+        background: ${tokens.colors.cyan[900]};
       }
     `,
     pink: css`
@@ -98,18 +101,57 @@ const colorVariants = createStyles(({ css }) => {
   };
 });
 
+const sizeVariants = createStyles(({ css }) => {
+  return {
+    small: css`
+      gap: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 3px;
+      & svg {
+        width: 14px;
+        height: 14px;
+      }
+    `,
+    medium: css`
+      gap: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      & svg {
+        width: 16px;
+        height: 16px;
+      }
+    `,
+    large: css`
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      & svg {
+        width: 18px;
+        height: 18px;
+      }
+    `,
+  };
+});
+
 export const Button = ({
   children,
-  color = "blue",
+  color = "cyan",
+  size = "medium",
   className,
   ...props
 }: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
   color?: ExtractKeys<typeof colorVariants>;
+  size?: ExtractKeys<typeof sizeVariants>;
 }) => {
   const css = styles.useStyles();
   const cssColor = colorVariants.useStyles();
+  const cssSize = sizeVariants.useStyles();
+
   return (
-    <button type="button" {...props} className={css.clsx(css.button, cssColor[color], className)}>
+    <button type="button" {...props} className={css.clsx(css.button, cssColor[color], cssSize[size], className)}>
       {children}
     </button>
   );

@@ -7,6 +7,8 @@ import { menuIcons } from "./menu.constants";
 import * as DropdownMenu from "components/dropdown/dropdown";
 import { IconButton } from "components/icon-button/icon-button";
 import { tokens } from "theme/tokens";
+import { LogoIcon } from "icons/logo";
+import { useAppContext } from "../app.context";
 
 const styles = createStyles(({ isLight, css }) => {
   return {
@@ -16,11 +18,35 @@ const styles = createStyles(({ isLight, css }) => {
       align-items: center;
       justify-content: center;
       gap: 10px;
-      width: 70px;
-      min-width: 70px;
+      width: 68px;
       border-right: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
       overflow-y: auto;
       padding: 10px 5px;
+    `,
+
+    logo: css`
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      padding: 5px;
+      background:
+        linear-gradient(
+            ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]},
+            ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]}
+          )
+          padding-box,
+        conic-gradient(#94a3b8, #334155 25%, #334155 75%, #94a3b8 100%) border-box;
+      border-radius: 8px;
+      border: 1px solid #0000 !important;
+      width: 40px;
+      height: 40px;
+
+      & svg {
+        width: 22px !important;
+        height: 22px !important;
+      }
     `,
 
     menuLink: css`
@@ -39,8 +65,8 @@ const styles = createStyles(({ isLight, css }) => {
       width: 100%;
 
       & svg {
-        width: 20px !important;
-        height: 20px !important;
+        width: 18px !important;
+        height: 18px !important;
         fill: transparent;
       }
 
@@ -51,6 +77,11 @@ const styles = createStyles(({ isLight, css }) => {
       &:focus-within {
         outline-offset: 0px !important;
       }
+    `,
+
+    mobileLink: css`
+      font-size: 0px;
+      gap: 0px;
     `,
 
     active: css`
@@ -76,7 +107,7 @@ const positionsIcons = {
   Bottom: <ArrowDown />,
 };
 
-const MenuLink = ({ view }: { view: DevtoolsModule }) => {
+const MenuLink = ({ view, isMobile }: { view: DevtoolsModule; isMobile: boolean }) => {
   const css = styles.useStyles();
   const { module, setModule } = useDevtoolsContext("DevtoolsMenuLink");
 
@@ -85,7 +116,11 @@ const MenuLink = ({ view }: { view: DevtoolsModule }) => {
   const onClick = () => setModule(view);
 
   return (
-    <button type="button" onClick={onClick} className={css.clsx(css.menuLink, { [css.active]: isActive })}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={css.clsx(css.menuLink, { [css.active]: isActive, [css.mobileLink]: isMobile })}
+    >
       <Icon />
       {view}
     </button>
@@ -95,11 +130,17 @@ const MenuLink = ({ view }: { view: DevtoolsModule }) => {
 export const Menu = (props: React.HTMLProps<HTMLDivElement>) => {
   const css = styles.useStyles();
   const { theme, setTheme, isOnline, setIsOnline, position, setPosition } = useDevtoolsContext("DevtoolsMenuLink");
+  const { height } = useAppContext("ApplicationMenu");
+
+  const isMobile = height < 450;
 
   return (
     <div {...props} className={css.menu}>
+      <div className={css.logo}>
+        <LogoIcon />
+      </div>
       {Object.values(DevtoolsModule).map((view) => (
-        <MenuLink key={view} view={view} />
+        <MenuLink key={view} view={view} isMobile={isMobile} />
       ))}
       <div style={{ flex: 1 }} />
       <IconButton onClick={() => setIsOnline(!isOnline)}>

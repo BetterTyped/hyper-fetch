@@ -1,7 +1,10 @@
+import { useLayoutEffect, useRef, useState } from "react";
+
 import { createStyles } from "theme/use-styles.hook";
-import { Menu } from "./menu/menu";
-import { Header } from "./header/header";
+import { Menu, Positions } from "./menu/menu";
 import { Resizable } from "./resizable/resizable";
+import { useDevtoolsContext } from "devtools.context";
+import { AppProvider } from "./app.context";
 
 const styles = createStyles(({ isLight, css, tokens }) => {
   return {
@@ -13,7 +16,6 @@ const styles = createStyles(({ isLight, css, tokens }) => {
       overflow-y: hidden;
       background: ${isLight ? tokens.colors.light[50] : tokens.colors.dark[600]};
       border: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
-      border-radius: 10px 10px 0 0;
       color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[500]};
 
       & * {
@@ -40,20 +42,66 @@ const styles = createStyles(({ isLight, css, tokens }) => {
   };
 });
 
-export const Application = ({
-  children,
-  isStandalone = false,
-  ...props
-}: React.HTMLProps<HTMLDivElement> & { isStandalone?: boolean }) => {
+const radiusStyles = createStyles(({ css }) => {
+  return {
+    [Positions.Top]: css`
+      border-radius: 0 0 10px 10px;
+    `,
+    [Positions.Left]: css`
+      border-radius: 0 10px 10px 0;
+    `,
+    [Positions.Right]: css`
+      border-radius: 10px 0 0 10px;
+    `,
+    [Positions.Bottom]: css`
+      border-radius: 10px 10px 0 0;
+    `,
+  };
+});
+
+export const Application = ({ children, ...props }: React.HTMLProps<HTMLDivElement>) => {
+  const ref = useRef<HTMLDivElement>(null);
   const css = styles.useStyles();
+  const cssRadius = radiusStyles.useStyles();
+  const [height, setHeight] = useState(0);
+  const [width, setWeight] = useState(0);
+
+  const { position, isStandalone } = useDevtoolsContext("DevtoolsApplication");
+
+  const borderRadiusClass = cssRadius[position];
+
+  const handleResize = () => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) {
+      setHeight(rect.height);
+      setWeight(rect.width);
+    }
+  };
+
+  useLayoutEffect(() => {
+    handleResize();
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (ref.current) {
+      resizeObserver.observe(ref.current);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
-    <Resizable {...props} className={css.clsx(css.base, css.full)} isStandalone={isStandalone}>
-      <Header />
-      <div className={css.content}>
-        <Menu />
-        {children}
-      </div>
-    </Resizable>
+    <AppProvider height={height} width={width}>
+      <Resizable
+        {...props}
+        className={css.clsx(css.base, { [css.full]: isStandalone, [borderRadiusClass]: !isStandalone })}
+        isStandalone={isStandalone}
+      >
+        {/* <Header /> */}
+        <div ref={ref} className={css.content}>
+          <Menu height={height} />
+          {children}
+        </div>
+      </Resizable>
+    </AppProvider>
   );
 };

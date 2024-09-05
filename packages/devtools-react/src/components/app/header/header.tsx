@@ -1,4 +1,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
+import { CloudUploadIcon } from "lucide-react";
+
+import { Button } from "components/button/button";
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
 import { FullLogoIcon } from "icons/full-logo";
@@ -9,10 +12,12 @@ export const styles = createStyles(({ isLight, css }) => {
   return {
     base: css`
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 10px;
       border-bottom: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
-      padding: 10px 5px;
+      padding: 5px;
+      height: 50px;
     `,
     heading: css`
       display: flex;
@@ -31,6 +36,9 @@ export const styles = createStyles(({ isLight, css }) => {
       font-size: 16px;
       font-weight: 500;
     `,
+    spacer: css`
+      flex: 1 1 auto;
+    `,
   };
 });
 
@@ -44,6 +52,12 @@ export const Header = (props: React.HTMLProps<HTMLDivElement>) => {
       <button type="button" className={css.heading} onClick={() => setModule(DevtoolsModule.NETWORK)}>
         <FullLogoIcon height="26px" style={{ fill: theme === "light" ? tokens.colors.dark[200] : "#fff" }} />
       </button>
+      <div className={css.spacer} />
+      <Button color="pink">
+        <CloudUploadIcon />
+        Save Workspace
+      </Button>
+      <Button color="cyan">Login</Button>
     </div>
   );
 };

@@ -348,6 +348,7 @@ export const Devtools = <T extends ClientInstance>({
 
   return (
     <DevtoolsProvider
+      isStandalone={isStandalone}
       css={css}
       open={open}
       theme={theme}
@@ -403,7 +404,7 @@ export const Devtools = <T extends ClientInstance>({
       setSize={setSize}
     >
       {isDevtoolsVisible && (
-        <Application isStandalone={isStandalone}>
+        <Application>
           <Module />
         </Application>
       )}
