@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 import { css } from "goober";
 import { Size } from "re-resizable";
-import { ClientInstance, QueueDataType } from "@hyper-fetch/core";
+import { ClientInstance, QueueDataType, RequestInstance } from "@hyper-fetch/core";
 
 import {
   DevtoolsCacheEvent,
@@ -22,9 +22,10 @@ export type Sort = { key: string; order: "asc" | "desc" };
 export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...params));
 
 export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("DevtoolsSwitcher", {
-  workspaces: [] as { id: string; name: string }[],
+  workspaces: [] as { id: string; name: string; requests: RequestInstance[] }[],
   activeWorkspace: null as string | null,
   setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
+  setRequestList: (() => {}) as (workspaceId: string, requests: RequestInstance[]) => void,
 });
 
 export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsProvider", {

@@ -50,7 +50,7 @@ export class Client<
   public debug: boolean;
 
   /** Only used in dev mode */
-  __requestsMap: Set<RequestInstance> = new Set();
+  __requestsMap: Array<RequestInstance> = [];
 
   // Private
   __onErrorCallbacks: ResponseInterceptorType[] = [];
@@ -514,7 +514,7 @@ export class Client<
       >(this as unknown as Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>, mappedParams);
 
       if (process?.env?.NODE_ENV === "development") {
-        this.__requestsMap.add(request);
+        this.__requestsMap.push(request);
       }
 
       return request;

@@ -93,6 +93,7 @@ export const Devtools = <T extends ClientInstance>({
   // Explorer
   const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
   const [detailsExplorerRequest, setDetailsExplorerRequest] = useState<DevtoolsExplorerRequest | null>(null);
+  const [explorerRequests, setExplorerRequests] = useState<RequestInstance[]>([]);
 
   const handleClearNetwork = useCallback(() => {
     setRequests([]);
@@ -141,7 +142,7 @@ export const Devtools = <T extends ClientInstance>({
     });
     setQueues((prevState) => {
       const currentQueue = prevState.findIndex((el) => el.queueKey === queue.queueKey);
-      if (!currentQueue) {
+      if (currentQueue === -1) {
         return [...prevState, queue];
       }
       const newState = [...prevState];
@@ -314,10 +315,10 @@ export const Devtools = <T extends ClientInstance>({
       unmountCacheDelete();
     };
   }, [client, handleCacheChange, handleStats, requests]);
-  //
-  // useEffect(() => {
-  //   updateQueues();
-  // }, [updateQueues]);
+
+  useEffect(() => {
+    setExplorerRequests(client.__requestsMap);
+  }, [client.__requestsMap]);
 
   const allRequests: DevtoolsRequestEvent[] = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
@@ -393,7 +394,7 @@ export const Devtools = <T extends ClientInstance>({
       setLoadingKeys={setLoadingKeys}
       position={position}
       setPosition={setPosition}
-      treeState={new DevtoolsDataProvider([...client.__requestsMap.values()])}
+      treeState={new DevtoolsDataProvider(explorerRequests)}
       explorerSearchTerm={explorerSearchTerm}
       setExplorerSearchTerm={setExplorerSearchTerm}
       detailsExplorerRequest={detailsExplorerRequest}
