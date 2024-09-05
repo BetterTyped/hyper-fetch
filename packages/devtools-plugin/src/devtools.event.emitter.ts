@@ -55,7 +55,7 @@ export class DevtoolsEventEmitter {
         },
       });
     } else {
-      this.eventQueue.push({ eventType, data });
+      this.eventQueue.push({ eventType, eventData: data });
     }
   };
 

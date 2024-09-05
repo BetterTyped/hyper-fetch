@@ -1,14 +1,15 @@
 import { useListener } from "@hyper-fetch/react";
 import { receiveData, socket } from "./socket";
 import { Devtools } from "@hyper-fetch/devtools-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Client } from "@hyper-fetch/core";
 import { EmitableCustomEvents, EventTypes } from "../../types/message.type";
 
 // TODO - standardize emitter events functions to always start with <emit>
 
 export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
-  const protoClient = new Client({ url: "http://localhost.dummyhost:5000" });
+  const [, forceUpdate] = useState(0);
+  const protoClient = useRef(new Client({ url: "http://localhost.dummyhost:5000" })).current;
   const logger = protoClient.loggerManager.init(`DevtoolsStandalone`);
   const { onEvent } = useListener(receiveData, {});
   useEffect(() => {
@@ -65,10 +66,10 @@ export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
         return;
       }
       case EmitableCustomEvents.REQUEST_CREATED: {
-        protoClient.__requestsMap = new Set(eventData);
+        protoClient.__requestsMap = eventData;
+        forceUpdate((prevState) => prevState + 1);
         return;
       }
-
       default:
         logger.error(`Unknown event received: ${eventType}`);
     }

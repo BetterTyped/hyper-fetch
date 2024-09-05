@@ -22,7 +22,7 @@ export function addOnCreateRequestEvent(client: ClientInstance) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           const resultingRequest = nestedTarget.apply(nestedThisArg, nestedArgs);
-          eventEmitter.emit(EmitableCustomEvents.REQUEST_CREATED, [client.__requestsMap.values()]);
+          eventEmitter.emit(EmitableCustomEvents.REQUEST_CREATED, [...client.__requestsMap]);
           return resultingRequest;
         },
       });
