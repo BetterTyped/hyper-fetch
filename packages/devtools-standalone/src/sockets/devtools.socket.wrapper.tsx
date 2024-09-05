@@ -52,7 +52,8 @@ export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
         return;
       }
       case EventTypes.ON_CACHE_CHANGE: {
-        protoClient.cache.events.emitCacheData(eventData);
+        const { cacheKey } = eventData;
+        protoClient.cache.events.emitCacheData(cacheKey, eventData);
         return;
       }
       case EventTypes.ON_CACHE_INVALIDATE: {
@@ -64,7 +65,7 @@ export const DevtoolsSocketWrapper = ({ workspace }: { workspace: string }) => {
         return;
       }
       case EmitableCustomEvents.REQUEST_CREATED: {
-        dummyClient.__requestsMap = new Set(eventData);
+        protoClient.__requestsMap = new Set(eventData);
         return;
       }
 

@@ -8,8 +8,19 @@ import { NoContent } from "components/no-content/no-content";
 import { Status } from "utils/request.status.utils";
 import { PathsOf, useSearch } from "hooks/use-search";
 import { DevtoolsRequestEvent } from "devtools.types";
+import { createStyles } from "theme/use-styles.hook";
 
-import { styles } from "./network.styles";
+const styles = createStyles(({ css }) => {
+  return {
+    base: css`
+      width: 100%;
+      flex: 1 1 auto;
+    `,
+    tbody: css`
+      position: relative;
+    `,
+  };
+});
 
 export const NetworkSidebar = () => {
   const { client, requests, networkFilter, networkSearchTerm, networkSort, setNetworkSort } =
@@ -80,7 +91,7 @@ export const NetworkSidebar = () => {
   }
 
   return (
-    <Table.Root>
+    <Table.Root wrapperClassName={css.base}>
       <Table.Header style={{ opacity: !requests.length ? 0.4 : 1 }}>
         <Table.Row>
           <Table.Sortable sort={handleGetSort("request.endpoint")} onSort={handleSort("request.endpoint")}>

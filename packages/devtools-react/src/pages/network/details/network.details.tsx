@@ -13,8 +13,44 @@ import { Chip } from "components/chip/chip";
 import { Editor } from "components/editor/editor";
 import { JSONViewer } from "components/json-viewer/json-viewer";
 import { useDevtoolsContext } from "devtools.context";
+import { createStyles } from "theme/use-styles.hook";
+import { Sidebar } from "components/sidebar/sidebar";
 
-import { styles } from "./network.styles";
+const styles = createStyles(({ css }) => {
+  return {
+    details: css`
+      position: absolute !important;
+      display: flex;
+      flex-direction: column;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 10px;
+    `,
+    block: css`
+      padding: 10px;
+    `,
+    spacer: css`
+      flex: 1 1 auto;
+    `,
+    name: css`
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    `,
+    content: css`
+      overflow-y: auto;
+      padding-bottom: 10px;
+    `,
+  };
+});
 
 export const NetworkDetails = () => {
   const css = styles.useStyles();
@@ -57,7 +93,15 @@ export const NetworkDetails = () => {
   if (!item) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <Sidebar
+      className={css.details}
+      minWidth="300px"
+      maxWidth="100%"
+      defaultSize={{
+        width: "calc(100% - 400px)",
+        height: "100%",
+      }}
+    >
       <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -67,7 +111,7 @@ export const NetworkDetails = () => {
         </div>
         <div className={css.spacer} />
       </Toolbar>
-      <div className={css.detailsContent}>
+      <div className={css.content}>
         <Collapsible title="General" defaultOpen>
           <div className={css.block}>
             <Table.Root>
@@ -132,6 +176,6 @@ export const NetworkDetails = () => {
           </div>
         </Collapsible>
       </div>
-    </div>
+    </Sidebar>
   );
 };

@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import { UncontrolledTreeEnvironment, Tree, TreeItem } from "react-complex-tree";
 
+import { Sidebar } from "components/sidebar/sidebar";
 import { useDevtoolsContext } from "devtools.context";
 import { NoContent } from "components/no-content/no-content";
 import { useSearch } from "hooks/use-search";
@@ -9,14 +10,12 @@ import { DevtoolsExplorerItem } from "./content.types";
 import { TreeElement } from "./tree-element/tree-element";
 
 import { reactComplexTreeStyles } from "./react-complex-tree.styles";
-import { styles } from "./explorer.styles";
 
 export const ExplorerSidebar = () => {
   const { client, treeState, explorerSearchTerm, setDetailsExplorerRequest } =
     useDevtoolsContext("DevtoolsNetworkContent");
   // No lifecycle so we can use ref
   const requests = useRef([...client.__requestsMap.values()]).current;
-  const css = styles.useStyles();
   const treeCss = reactComplexTreeStyles.useStyles();
 
   const { items } = useSearch({
@@ -41,7 +40,7 @@ export const ExplorerSidebar = () => {
   }
 
   return (
-    <div className={css.clsx(css.content, treeCss.styles)}>
+    <Sidebar className={treeCss.clsx(treeCss.styles)}>
       <UncontrolledTreeEnvironment
         dataProvider={treeState}
         getItemTitle={(item) => item.data.name}
@@ -61,6 +60,6 @@ export const ExplorerSidebar = () => {
       >
         <Tree treeId="tree-1" rootItem="root" treeLabel="Tree Example" />
       </UncontrolledTreeEnvironment>
-    </div>
+    </Sidebar>
   );
 };

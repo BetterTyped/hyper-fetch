@@ -98,13 +98,13 @@ const styles = createStyles(({ isLight, css, tokens }) => {
   };
 });
 
-export const Root = (props: React.HTMLProps<HTMLTableElement>) => {
-  const { className } = props;
+export const Root = (props: React.HTMLProps<HTMLTableElement> & { wrapperClassName?: string }) => {
+  const { className, wrapperClassName, ...rest } = props;
   const css = styles.useStyles();
 
   return (
-    <div className={css.wrapper}>
-      <table {...props} className={css.clsx(css.table, className)} />
+    <div className={css.clsx(css.wrapper, wrapperClassName)}>
+      <table {...rest} className={css.clsx(css.table, className)} />
     </div>
   );
 };

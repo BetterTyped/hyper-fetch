@@ -4,8 +4,15 @@ import { Options } from "components/options/options";
 import { Search } from "components/search/search";
 import { useDevtoolsContext } from "devtools.context";
 import { Button } from "components/button/button";
+import { createStyles } from "theme/use-styles.hook";
 
-import { styles } from "../sidebar/network.styles";
+const styles = createStyles(({ css }) => {
+  return {
+    spacer: css`
+      flex: 1 1 auto;
+    `,
+  };
+});
 
 export const NetworkToolbar = () => {
   const { setNetworkSearchTerm, clearNetwork } = useDevtoolsContext("ToolbarNetwork");

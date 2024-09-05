@@ -14,8 +14,44 @@ import { RowInfo } from "components/table/row-info/row-info";
 import { Countdown } from "components/countdown/countdown";
 import { Chip } from "components/chip/chip";
 import { Key } from "components/key/key";
+import { Sidebar } from "components/sidebar/sidebar";
+import { createStyles } from "theme/use-styles.hook";
 
-import { styles } from "../sidebar/cache.styles";
+const styles = createStyles(({ css }) => {
+  return {
+    details: css`
+      position: absolute !important;
+      display: flex;
+      flex-direction: column;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 10px;
+    `,
+    block: css`
+      padding: 10px;
+    `,
+    spacer: css`
+      flex: 1 1 auto;
+    `,
+    name: css`
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    `,
+    content: css`
+      overflow-y: auto;
+      padding-bottom: 10px;
+    `,
+  };
+});
 
 export const CacheDetails = () => {
   const css = styles.useStyles();
@@ -134,7 +170,15 @@ export const CacheDetails = () => {
   if (!item) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <Sidebar
+      className={css.details}
+      minWidth="300px"
+      maxWidth="100%"
+      defaultSize={{
+        width: "calc(100% - 400px)",
+        height: "100%",
+      }}
+    >
       <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -143,7 +187,7 @@ export const CacheDetails = () => {
         {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
         <div style={{ flex: "1 1 auto" }} />
       </Toolbar>
-      <div className={css.detailsContent}>
+      <div className={css.content}>
         <Collapsible title="General" defaultOpen>
           <div style={{ padding: "10px" }}>
             <Table.Root>
@@ -207,6 +251,6 @@ export const CacheDetails = () => {
           </div>
         </Collapsible>
       </div>
-    </div>
+    </Sidebar>
   );
 };

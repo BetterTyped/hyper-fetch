@@ -1,33 +1,17 @@
-import { createStyles } from "theme/use-styles.hook";
 import { CacheToolbar } from "./toolbar/cache.toolbar";
 import { CacheSidebar } from "./sidebar/cache.sidebar";
 import { CacheDetails } from "./details/cache.details";
-
-const styles = createStyles(({ css }) => {
-  return {
-    base: css`
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-    `,
-    content: css`
-      display: flex;
-      flex-direction: row;
-      flex: 1 1 auto;
-      height: 100%;
-    `,
-  };
-});
+import { Body } from "components/body/body";
+import { Content } from "components/content/content";
 
 export const Cache = () => {
-  const css = styles.useStyles();
   return (
-    <div className={css.base}>
+    <Body>
       <CacheToolbar />
-      <div className={css.content}>
+      <Content>
         <CacheSidebar />
         <CacheDetails />
-      </div>
-    </div>
+      </Content>
+    </Body>
   );
 };
