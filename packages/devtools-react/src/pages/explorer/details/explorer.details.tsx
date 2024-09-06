@@ -1,24 +1,30 @@
-import { ComponentType, useState } from "react";
+import { ComponentType } from "react";
 import { SendIcon } from "lucide-react";
 
 import { Back } from "./back/back";
+import * as Tabs from "components/tabs/tabs";
 import { Separator } from "components/separator/separator";
-import { Toolbar } from "components/toolbar/toolbar";
 import { Chip } from "components/chip/chip";
 import { Button } from "components/button/button";
-import { Tabs } from "./details.types";
+import { ExploreTabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "components/method/method";
 import { DevtoolsExplorerRequest } from "../sidebar/content.types";
 import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
+import { Bar } from "components/bar/bar";
 
 const styles = createStyles(({ isLight, css, tokens }) => {
   return {
+    base: css`
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+    `,
     row: css`
       display: flex;
+      flex: 1 1 auto;
       gap: 10px;
-      padding: 10px 8px;
     `,
     item: css`
       width: 100%;
@@ -36,9 +42,9 @@ const styles = createStyles(({ isLight, css, tokens }) => {
       background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
       border-left: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
     `,
-    detailsContent: css`
+    content: css`
       overflow-y: auto;
-      padding-bottom: 10px;
+      padding: 10px 10px;
     `,
     block: css`
       padding: 10px;
@@ -77,80 +83,77 @@ const styles = createStyles(({ isLight, css, tokens }) => {
         opacity: 0.6;
       }
     `,
-    tabs: css`
-      display: flex;
-      flex-wrap: wrap;
-      width: 100%;
-      gap: 10px;
-      padding: 10px;
-    `,
+    tabs: css``,
   };
 });
 
-const components: Record<Tabs, ComponentType<{ item: DevtoolsExplorerRequest }>> = {
-  [Tabs.PARAMS]: TabParams,
-  [Tabs.AUTH]: () => <div>Authorization</div>,
-  [Tabs.HEADERS]: () => <div>Headers</div>,
-  [Tabs.BODY]: () => <div>Body</div>,
-  [Tabs.QUERY]: () => <div>Query</div>,
-  [Tabs.RESPONSE]: () => <div>Response</div>,
+const components: Record<ExploreTabs, ComponentType<{ item: DevtoolsExplorerRequest }>> = {
+  [ExploreTabs.PARAMS]: TabParams,
+  [ExploreTabs.AUTH]: () => <div>Authorization</div>,
+  [ExploreTabs.HEADERS]: () => <div>Headers</div>,
+  [ExploreTabs.BODY]: () => <div>Body</div>,
+  [ExploreTabs.QUERY]: () => <div>Query</div>,
+  [ExploreTabs.RESPONSE]: () => <div>Response</div>,
 };
 
 export const ExplorerDetails = () => {
   const { detailsExplorerRequest: item } = useDevtoolsContext("DevtoolsExplorerDetails");
-  const [activeTab, setActiveTab] = useState<Tabs>(Tabs.PARAMS);
 
   const css = styles.useStyles();
-
-  const TabContent = components[activeTab];
 
   if (!item) return null;
 
   return (
-    <div>
-      <Toolbar style={{ flexWrap: "nowrap" }}>
+    <div className={css.base}>
+      <Bar style={{ flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <div className={css.head}>
-          <Method method={item.request.method} style={{ marginBottom: "-2px" }} />
-          {item.name}
-        </div>
-      </Toolbar>
-      <div className={css.detailsContent}>
-        <div className={css.row}>
-          <div className={css.bar}>
-            <Chip color="blue">
-              <Method method={item.request.method} />
-            </Chip>
-            <Separator style={{ height: "18px", margin: "0 4px" }} />
-            <span className={css.endpoint}>
-              <span>{"{{baseUrl}}"}</span>
-              {item.request.endpoint}
-            </span>
+          <div className={css.row}>
+            <div className={css.bar}>
+              <Chip color="blue">
+                <Method method={item.request.method} />
+              </Chip>
+              <Separator style={{ height: "18px", margin: "0 4px" }} />
+              <span className={css.endpoint}>
+                <span>{"{{baseUrl}}"}</span>
+                {item.request.endpoint}
+              </span>
+            </div>
+            <Button>
+              Send
+              <SendIcon
+                style={{
+                  width: "12px",
+                  marginLeft: "1px",
+                  marginBottom: "-2px",
+                }}
+              />
+            </Button>
           </div>
-          <Button>
-            Send
-            <SendIcon
-              style={{
-                width: "12px",
-                marginLeft: "1px",
-                marginBottom: "-2px",
-              }}
-            />
-          </Button>
         </div>
+      </Bar>
+      <div className={css.content}>
         {/* Tabs */}
-        <div className={css.tabs}>
-          {Object.values(Tabs).map((tab) => {
+        <Tabs.Root defaultValue={ExploreTabs.PARAMS}>
+          <Tabs.List className={css.tabs}>
+            {Object.values(ExploreTabs).map((tab) => {
+              return (
+                <Tabs.Trigger key={tab} value={tab}>
+                  {tab}
+                </Tabs.Trigger>
+              );
+            })}
+          </Tabs.List>
+          {Object.entries(components).map(([tab, Component]) => {
             return (
-              <Button key={tab} color={activeTab === tab ? "pink" : "gray"} onClick={() => setActiveTab(tab)}>
-                {tab}
-              </Button>
+              <Tabs.Content key={tab} value={tab}>
+                <Component item={item} />
+              </Tabs.Content>
             );
           })}
-        </div>
+        </Tabs.Root>
         {/* Content */}
-        <TabContent item={item} />
       </div>
     </div>
   );

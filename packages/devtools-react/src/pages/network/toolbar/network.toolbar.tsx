@@ -1,6 +1,6 @@
 import { ListXIcon } from "lucide-react";
 
-import { Options } from "components/options/options";
+import { Toolbar } from "components/toolbar/toolbar";
 import { Search } from "components/search/search";
 import { useDevtoolsContext } from "devtools.context";
 import { Button } from "components/button/button";
@@ -20,13 +20,13 @@ export const NetworkToolbar = () => {
   const css = styles.useStyles();
 
   return (
-    <Options>
+    <Toolbar>
       <Search placeholder="Search" onChange={(e) => setNetworkSearchTerm(e.target.value)} />
       <div className={css.spacer} />
       <Button color="gray" onClick={clearNetwork}>
         <ListXIcon />
         Clear network
       </Button>
-    </Options>
+    </Toolbar>
   );
 };

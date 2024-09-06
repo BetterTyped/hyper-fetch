@@ -49,6 +49,10 @@ export const reactComplexTreeStyles = createStyles(({ isLight, css }) => {
         outline-offset: -10px;
       }
 
+      & svg {
+        stroke: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[100]};
+      }
+
       .rct-tree-item-button {
         padding: 0 var(--rct-item-padding) 0 var(--rct-item-padding);
         margin-left: calc(var(--rct-arrow-size));
@@ -122,6 +126,11 @@ export const reactComplexTreeStyles = createStyles(({ isLight, css }) => {
         align-content: center;
         border-radius: var(--rct-radius);
         cursor: var(--rct-cursor);
+      }
+
+      .rct-tree-item-arrow:not(.rct-tree-item-arrow-isFolder) {
+        width: 0;
+        margin-left: -6px;
       }
 
       .rct-tree-item-arrow.rct-tree-item-arrow-isFolder:hover {

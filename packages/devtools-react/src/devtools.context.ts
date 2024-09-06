@@ -31,7 +31,7 @@ export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("Devtoo
       request: RequestInstance;
     }[];
   }[],
-  activeWorkspace: null as string | null,
+  activeWorkspace: undefined as string | undefined,
   setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
   setRequestList: (() => {}) as (workspaceId: string, requests: RequestInstance[]) => void,
 });

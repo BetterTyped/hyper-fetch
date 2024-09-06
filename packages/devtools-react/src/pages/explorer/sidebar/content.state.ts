@@ -30,22 +30,12 @@ export class DevtoolsDataProvider implements TreeDataProvider {
           canRename: false,
           canMove: false,
           isFolder: true,
-          children: ["requests"],
+          children: items
+            .sort((a, b) => a.endpoint.localeCompare(b.endpoint))
+            .map((item, index) => item.cacheKey + index),
           data: {
             type: "folder",
             name: "Root",
-            canDelete: false,
-          },
-        },
-        requests: {
-          index: "requests",
-          canRename: false,
-          canMove: false,
-          isFolder: true,
-          children: items.map((item, index) => item.cacheKey + index),
-          data: {
-            type: "folder",
-            name: "Requests",
             canDelete: false,
           },
         },

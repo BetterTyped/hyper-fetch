@@ -6,7 +6,7 @@ import { getStatus, getStatusColor, RequestStatusIcon, Status } from "utils/requ
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
 import * as Table from "components/table/table";
-import { Toolbar } from "components/toolbar/toolbar";
+import { Bar } from "components/bar/bar";
 import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
@@ -102,7 +102,7 @@ export const NetworkDetails = () => {
         height: "100%",
       }}
     >
-      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
+      <Bar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <div className={css.name} style={{ color }}>
@@ -110,7 +110,7 @@ export const NetworkDetails = () => {
           {item.request.endpoint}
         </div>
         <div className={css.spacer} />
-      </Toolbar>
+      </Bar>
       <div className={css.content}>
         <Collapsible title="General" defaultOpen>
           <div className={css.block}>

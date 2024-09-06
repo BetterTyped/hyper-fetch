@@ -1,4 +1,4 @@
-export enum Tabs {
+export enum ExploreTabs {
   PARAMS = "Params",
   AUTH = "Authorization",
   HEADERS = "Headers",

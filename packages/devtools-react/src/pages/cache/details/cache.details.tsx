@@ -5,7 +5,7 @@ import { CacheValueType } from "@hyper-fetch/core";
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
-import { Toolbar } from "components/toolbar/toolbar";
+import { Bar } from "components/bar/bar";
 import { JSONViewer } from "components/json-viewer/json-viewer";
 import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
@@ -179,14 +179,14 @@ export const CacheDetails = () => {
         height: "100%",
       }}
     >
-      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
+      <Bar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <Key value={item.cacheKey} type="cache" />
         <Chip color={stale ? "orange" : "green"}>{stale ? "Stale" : "Fresh"}</Chip>
         {item.cacheData.hydrated && <Chip color="green">Hydrated</Chip>}
         <div style={{ flex: "1 1 auto" }} />
-      </Toolbar>
+      </Bar>
       <div className={css.content}>
         <Collapsible title="General" defaultOpen>
           <div style={{ padding: "10px" }}>

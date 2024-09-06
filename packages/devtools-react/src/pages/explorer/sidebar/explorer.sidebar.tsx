@@ -1,15 +1,35 @@
 /* eslint-disable react/no-array-index-key */
 import { useRef } from "react";
+import { CirclePlusIcon } from "lucide-react";
 import { UncontrolledTreeEnvironment, Tree, TreeItem } from "react-complex-tree";
 
+import * as DropdownMenu from "components/dropdown/dropdown";
 import { Sidebar } from "components/sidebar/sidebar";
 import { useDevtoolsContext } from "devtools.context";
 import { NoContent } from "components/no-content/no-content";
 import { useSearch } from "hooks/use-search";
 import { DevtoolsExplorerItem } from "./content.types";
 import { TreeElement } from "./tree-element/tree-element";
+import { createStyles } from "theme/use-styles.hook";
+import { IconButton } from "components/icon-button/icon-button";
 
 import { reactComplexTreeStyles } from "./react-complex-tree.styles";
+
+const styles = createStyles(({ isLight, css, tokens }) => {
+  return {
+    row: css`
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 8px 0;
+    `,
+    title: css`
+      font-size: 12px;
+      font-weight: 600;
+      color: ${isLight ? tokens.colors.light[500] : tokens.colors.dark[50]};
+    `,
+  };
+});
 
 export const ExplorerSidebar = () => {
   const { client, treeState, explorerSearchTerm, setDetailsExplorerRequest } =
@@ -17,6 +37,7 @@ export const ExplorerSidebar = () => {
   // No lifecycle so we can use ref
   const requests = useRef([...client.__requestsMap.values()]).current;
   const treeCss = reactComplexTreeStyles.useStyles();
+  const css = styles.useStyles();
 
   const { items } = useSearch({
     data: requests,
@@ -35,12 +56,33 @@ export const ExplorerSidebar = () => {
     }
   };
 
+  const addNewFolder = () => {
+    treeState.injectItem(window.prompt("Item name") ?? "New item", "root");
+  };
+
   if (!items.length) {
     return <NoContent text="Make some request to see them here!" />;
   }
 
   return (
     <Sidebar className={treeCss.clsx(treeCss.styles)}>
+      <div className={css.row}>
+        <span className={css.title}>Collection</span>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <IconButton>
+              <CirclePlusIcon />
+            </IconButton>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Content>
+            <DropdownMenu.Item onClick={addNewFolder}>
+              Add folder
+              <DropdownMenu.Shortcut>⌘B</DropdownMenu.Shortcut>
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </div>
       <UncontrolledTreeEnvironment
         dataProvider={treeState}
         getItemTitle={(item) => item.data.name}

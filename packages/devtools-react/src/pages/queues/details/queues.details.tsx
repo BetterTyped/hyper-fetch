@@ -6,7 +6,6 @@ import { Request } from "@hyper-fetch/core";
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
 import { Button } from "components/button/button";
-import { Toolbar } from "components/toolbar/toolbar";
 import { useDevtoolsContext } from "devtools.context";
 import { Collapsible } from "components/collapsible/collapsible";
 import * as Table from "components/table/table";
@@ -15,6 +14,7 @@ import { getQueueStatus, QueueStatus } from "utils/queue.status.utils";
 import { Chip } from "components/chip/chip";
 import { DevtoolsRequestQueueStats } from "devtools.types";
 import { Key } from "components/key/key";
+import { Bar } from "components/bar/bar";
 
 import { styles } from "./queues.styles";
 
@@ -95,13 +95,13 @@ export const QueuesDetails = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Toolbar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
+      <Bar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <Key value={item.queueKey} type="queue" />
         <Chip color={color}>{status}</Chip>
         <div style={{ flex: "1 1 auto" }} />
-      </Toolbar>
+      </Bar>
       <div className={css.detailsContent}>
         <Collapsible title="General" defaultOpen>
           <div style={{ padding: "10px" }}>
