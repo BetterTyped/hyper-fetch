@@ -21,16 +21,18 @@ export type Sort = { key: string; order: "asc" | "desc" };
 
 export const cssWrapper = (...params: Parameters<typeof css>) => clsx(css(...params));
 
+export type Workspace = {
+  id: string;
+  name: string;
+  requests?: {
+    templates?: any[];
+    request: RequestInstance;
+  }[];
+  client: ClientInstance;
+};
+
 export const [DevtoolsWorkspaces, useDevtoolsWorkspaces] = createContext("DevtoolsSwitcher", {
-  workspaces: [] as {
-    id: string;
-    name: string;
-    requests: {
-      // additional data for future features like templates / mocking / etc
-      templates: any[];
-      request: RequestInstance;
-    }[];
-  }[],
+  workspaces: {} as Record<string, Workspace>,
   activeWorkspace: undefined as string | undefined,
   setActiveWorkspace: (() => {}) as (workspaceId: string) => void,
   setRequestList: (() => {}) as (workspaceId: string, requests: RequestInstance[]) => void,

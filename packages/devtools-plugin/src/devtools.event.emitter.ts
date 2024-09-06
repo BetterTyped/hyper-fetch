@@ -12,6 +12,7 @@ export class DevtoolsEventEmitter {
   unmountHooks: any;
   isConnected: boolean;
   eventQueue: any[] = [];
+  connectionName: string;
 
   static initialize(
     client: ClientInstance,
@@ -31,8 +32,9 @@ export class DevtoolsEventEmitter {
     this.client = client;
     this.onCreateRequestEmitter = onCreateRequestEmitter;
     this.unmountHooks = this.initializeHooks();
+    this.connectionName = `HF_DEVTOOLS_CLIENT_${appName}`;
     this.socket = new Socket({ url: `${socketAddress}:${socketPort}` }).setQuery({
-      connectionName: `HF_DEVTOOLS_CLIENT_${appName}}`,
+      connectionName: this.connectionName,
     });
     this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_CLIENT_EMITTER_TOPIC" });
     this.socket.onConnected(() => {
@@ -50,12 +52,19 @@ export class DevtoolsEventEmitter {
     if (this.isConnected) {
       this.socketEmitter.emit({
         data: {
+          messageType: "HF_EVENT",
           eventType,
           eventData: data,
+          connectionName: this.connectionName,
         },
       });
     } else {
-      this.eventQueue.push({ eventType, eventData: data });
+      this.eventQueue.push({
+        messageType: "HF_EVENT",
+        eventType,
+        eventData: data,
+        connectionName: this.connectionName,
+      });
     }
   };
 

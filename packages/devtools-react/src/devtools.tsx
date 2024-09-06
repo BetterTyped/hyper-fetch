@@ -318,7 +318,7 @@ export const Devtools = <T extends ClientInstance>({
 
   useEffect(() => {
     setExplorerRequests(client.__requestsMap);
-  }, [client.__requestsMap]);
+  }, [client.__requestsMap, workspaces]);
 
   const allRequests: DevtoolsRequestEvent[] = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);
