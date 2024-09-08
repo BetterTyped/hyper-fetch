@@ -7,20 +7,18 @@ import { Client } from "@hyper-fetch/core";
 import { ConnectionName } from "./sockets/connection.name";
 import { MessageType } from "../types/messages.types";
 import { initSocket, receiveMessage } from "./sockets/socket";
+import { useImmer } from "use-immer";
 
 function App() {
   const [defaultWorkspace, setDefaultWorkspace] = useState<string | null>(null);
   const [activeWorkspace, setActiveWorkspace] = useState<string>("Default");
-  const [workspaces, setWorkspaces] = useState<Record<string, Workspace>>({});
+  const [workspaces, setWorkspaces] = useImmer<Record<string, Workspace>>({});
   const setRequestList = (workspaceName: string, requestList: any) => {
-    // TODO fix. Immer? Or different way.
-    setWorkspaces((prevState) => {
-      const newState = { ...prevState };
-      const selectedWorkspace = (newState[workspaceName] = { ...newState[workspaceName] });
+    setWorkspaces((draft) => {
+      const selectedWorkspace = draft[workspaceName];
       if (selectedWorkspace) {
         selectedWorkspace.requests = requestList;
       }
-      return newState;
     });
   };
   const { onEvent } = useListener(receiveMessage, {});
@@ -30,22 +28,20 @@ function App() {
       case MessageType.DEVTOOLS_CLIENT_INIT:
         {
           const shouldCreateWorkspace = !workspaces[connectionName];
-          if (!shouldCreateWorkspace) {
-            // TODO handle
-            console.error("Something went wrong");
-          }
-          setWorkspaces((prevState) => {
-            return {
-              ...prevState,
-              [connectionName]: {
-                id: connectionName,
-                name: connectionName,
-                client: new Client({ url: "http://localhost.dummyhost:5000" }),
-              },
-            };
-          });
-          if (!defaultWorkspace) {
-            setDefaultWorkspace(connectionName);
+          if (shouldCreateWorkspace) {
+            setWorkspaces((draft) => {
+              return {
+                ...draft,
+                [connectionName]: {
+                  id: connectionName,
+                  name: connectionName,
+                  client: new Client({ url: "http://localhost.dummyhost:5000" }),
+                },
+              };
+            });
+            if (!defaultWorkspace) {
+              setDefaultWorkspace(connectionName);
+            }
           }
         }
         return;

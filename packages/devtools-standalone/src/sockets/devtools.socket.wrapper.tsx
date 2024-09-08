@@ -63,9 +63,8 @@ const handleEvent = (
       return;
     }
     case EmitableCustomEvents.REQUEST_CREATED: {
-      console.log("RECEIVED REQUEST CREATED MESSAGE", eventData);
-      setRequestList(workspace, eventData);
       client.__requestsMap = eventData;
+      setRequestList(workspace, eventData);
       return;
     }
     default:

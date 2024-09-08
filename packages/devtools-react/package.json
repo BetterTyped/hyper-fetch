@@ -81,5 +81,8 @@
   "keywords": [
     "react",
     "hyper-fetch"
-  ]
+  ],
+  "dependencies": {
+    "use-immer": "^0.10.0"
+  }
 }

@@ -31,8 +31,8 @@
   },
   "peerDependencies": {
     "@hyper-fetch/core": "*",
-    "@hyper-fetch/sockets": "*",
     "@hyper-fetch/devtools-react": "*",
+    "@hyper-fetch/sockets": "*",
     "ws": "^8.18.0"
   },
   "eslintConfig": {
@@ -41,19 +41,21 @@
       "react/jest"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "use-immer": "^0.10.0"
+  },
   "devDependencies": {
-    "abortcontroller-polyfill": "^1.7.5",
-    "react": ">= 16.8.0",
-    "superjson": "2.2.1",
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "abortcontroller-polyfill": "^1.7.5",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
+    "react": ">= 16.8.0",
+    "superjson": "2.2.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"

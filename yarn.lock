@@ -22187,6 +22187,11 @@ use-callback-ref@^1.3.0:
   dependencies:
     tslib "^2.0.0"
 
+use-immer@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/use-immer/-/use-immer-0.10.0.tgz#ed23afd424454604cb42bc112a455bddba894309"
+  integrity sha512-/eVwNR4TG9Tm/dd+aHYLLaI0FLfYKlkTqKMkn78Ah/EYVzWd/zJIgpkdoFEKbhQJOGo8XN7/mWrTx0exp1c+Ug==
+
 use-sidecar@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/use-sidecar/-/use-sidecar-1.1.2.tgz#2f43126ba2d7d7e117aa5855e5d8f0276dfe73c2"

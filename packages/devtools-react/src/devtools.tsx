@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
 import { css } from "goober";
 import { Size } from "re-resizable";
+import { useImmer } from "use-immer";
 
 import { DevtoolsProvider, Sort, useDevtoolsWorkspaces } from "devtools.context";
 import {
@@ -71,21 +72,21 @@ export const Devtools = <T extends ClientInstance>({
   const [success, setSuccess] = useState<DevtoolsRequestResponse[]>([]);
   const [failed, setFailed] = useState<DevtoolsRequestResponse[]>([]);
   const [removed, setRemoved] = useState<DevtoolsElement[]>([]);
-  const [inProgress, setInProgress] = useState<DevtoolsElement[]>([]);
-  const [paused, setPaused] = useState<DevtoolsElement[]>([]);
-  const [canceled, setCanceled] = useState<DevtoolsElement[]>([]);
+  const [inProgress, setInProgress] = useImmer<DevtoolsElement[]>([]);
+  const [paused, setPaused] = useImmer<DevtoolsElement[]>([]);
+  const [canceled, setCanceled] = useImmer<DevtoolsElement[]>([]);
   const [detailsRequestId, setDetailsRequestId] = useState<string | null>(null);
   const [networkFilter, setNetworkFilter] = useState<Status | null>(null);
   // Cache
   const [cacheSearchTerm, setCacheSearchTerm] = useState("");
   const [cacheSort, setCacheSort] = useState<Sort | null>(null);
-  const [cache, setCache] = useState<DevtoolsCacheEvent[]>([]);
+  const [cache, setCache] = useImmer<DevtoolsCacheEvent[]>([]);
   const [detailsCacheKey, setDetailsCacheKey] = useState<string | null>(null);
   const [loadingKeys, setLoadingKeys] = useState<string[]>([]);
   // Processing
   const [processingSearchTerm, setProcessingSearchTerm] = useState("");
   const [processingSort, setProcessingSort] = useState<Sort | null>(null);
-  const [queues, setQueues] = useState<QueueDataType[]>([]);
+  const [queues, setQueues] = useImmer<QueueDataType[]>([]);
   const [detailsQueueKey, setDetailsQueueKey] = useState<string | null>(null);
   const [stats, setStats] = useState<{
     [queueKey: string]: DevtoolsRequestQueueStats;
@@ -132,22 +133,18 @@ export const Devtools = <T extends ClientInstance>({
               abortKey: item.request.abortKey,
             };
           });
-    setInProgress((prevState) => {
-      const filtered = prevState.filter((el) => el.queueKey !== queue.queueKey);
-      return [...filtered, ...inQueueRequests];
+    setInProgress((draft) => {
+      return [...draft.filter((el) => el.queueKey !== queue.queueKey), ...inQueueRequests];
     });
     setPaused((prevState) => {
-      const filtered = prevState.filter((el) => el.queueKey !== queue.queueKey);
-      return [...filtered, ...pausedQueueRequests];
+      return [...prevState.filter((el) => el.queueKey !== queue.queueKey), ...pausedQueueRequests];
     });
-    setQueues((prevState) => {
-      const currentQueue = prevState.findIndex((el) => el.queueKey === queue.queueKey);
+    setQueues((draft) => {
+      const currentQueue = draft.findIndex((el) => el.queueKey === queue.queueKey);
       if (currentQueue === -1) {
-        return [...prevState, queue];
+        return [...draft, queue];
       }
-      const newState = [...prevState];
-      newState[currentQueue] = queue;
-      return newState;
+      draft[currentQueue] = queue;
     });
   };
 
@@ -263,10 +260,9 @@ export const Devtools = <T extends ClientInstance>({
       }
     });
     const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
-      setCanceled((prev) => [
-        ...prev,
-        { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-      ]);
+      setCanceled((draft) => {
+        draft.push({ requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey });
+      });
     });
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((values) => {
       updateQueues(values);
@@ -288,15 +284,33 @@ export const Devtools = <T extends ClientInstance>({
         ]);
       }
     });
-    const unmountOnCacheChange = client.cache.events.onData(() => {
-      handleCacheChange();
+    const unmountOnCacheChange = client.cache.events.onData((cacheData) => {
+      setCache((draft) => {
+        const { cacheKey } = cacheData;
+        const changedElement = draft.find((cacheElement) => cacheElement.cacheKey === cacheKey);
+        if (changedElement) {
+          changedElement.cacheData = cacheData;
+        } else {
+          draft.push({ cacheKey: cacheData.cacheKey, cacheData });
+        }
+      });
     });
-    const unmountOnCacheInvalidate = client.cache.events.onInvalidate(() => {
-      handleCacheChange();
+    const unmountOnCacheInvalidate = client.cache.events.onInvalidate((cacheKey) => {
+      setCache((draft) => {
+        const invalidatedElement = draft.find((cacheElement) => cacheElement.cacheKey === cacheKey);
+        if (invalidatedElement) {
+          invalidatedElement.cacheData.cacheTime = 0;
+        }
+      });
     });
 
-    const unmountCacheDelete = client.cache.events.onDelete(() => {
-      handleCacheChange();
+    const unmountCacheDelete = client.cache.events.onDelete((cacheKey) => {
+      setCache((draft) => {
+        const toRemove = draft.findIndex((cacheElement) => cacheElement.cacheKey === cacheKey);
+        if (toRemove !== -1) {
+          draft.splice(toRemove, 1);
+        }
+      });
     });
 
     return () => {
@@ -395,7 +409,7 @@ export const Devtools = <T extends ClientInstance>({
       setLoadingKeys={setLoadingKeys}
       position={position}
       setPosition={setPosition}
-      treeState={new DevtoolsDataProvider(explorerRequests)}
+      treeState={new DevtoolsDataProvider([...explorerRequests])}
       explorerSearchTerm={explorerSearchTerm}
       setExplorerSearchTerm={setExplorerSearchTerm}
       detailsExplorerRequest={detailsExplorerRequest}
