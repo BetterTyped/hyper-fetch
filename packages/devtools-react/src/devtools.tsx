@@ -3,6 +3,7 @@ import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetai
 import { css } from "goober";
 import { Size } from "re-resizable";
 import { useImmer } from "use-immer";
+import { setAutoFreeze } from "immer";
 
 import { DevtoolsProvider, Sort, useDevtoolsWorkspaces } from "devtools.context";
 import {
@@ -54,6 +55,7 @@ export const Devtools = <T extends ClientInstance>({
   simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
   workspace,
 }: DevtoolsProps<T>) => {
+  setAutoFreeze(false);
   const [open, setOpen] = useState(initiallyOpen);
   const [module, setModule] = useState(DevtoolsModule.NETWORK);
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
