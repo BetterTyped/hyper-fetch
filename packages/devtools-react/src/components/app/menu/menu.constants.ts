@@ -1,10 +1,10 @@
 import {
-  BriefcaseBusinessIcon,
+  // BriefcaseBusinessIcon,
   CpuIcon,
   DatabaseBackupIcon,
   LucideProps,
   NetworkIcon,
-  SquareChartGanttIcon,
+  // SquareChartGanttIcon,
 } from "lucide-react";
 
 import { DevtoolsModule } from "../../../devtools.types";
@@ -12,9 +12,9 @@ import { DevtoolsModule } from "../../../devtools.types";
 export const menuIcons: Partial<
   Record<DevtoolsModule, React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>>
 > = {
-  [DevtoolsModule.WORKSPACE]: BriefcaseBusinessIcon,
+  // [DevtoolsModule.WORKSPACE]: BriefcaseBusinessIcon,
   [DevtoolsModule.NETWORK]: NetworkIcon,
   [DevtoolsModule.CACHE]: DatabaseBackupIcon,
   [DevtoolsModule.QUEUES]: CpuIcon,
-  [DevtoolsModule.EXPLORER]: SquareChartGanttIcon,
+  // [DevtoolsModule.EXPLORER]: SquareChartGanttIcon,
 };

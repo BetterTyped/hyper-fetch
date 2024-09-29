@@ -46,7 +46,7 @@ export const [DevtoolsProvider, useDevtoolsContext] = createContext("DevtoolsPro
   setOpen: (() => {}) as (open: boolean) => void,
   theme: "light" as "light" | "dark",
   setTheme: (() => {}) as (theme: "light" | "dark") => void,
-  module: DevtoolsModule.WORKSPACE,
+  module: DevtoolsModule.NETWORK,
   setModule: (() => {}) as (module: DevtoolsModule) => void,
   isOnline: true,
   setIsOnline: (() => {}) as (isOffline: boolean) => void,

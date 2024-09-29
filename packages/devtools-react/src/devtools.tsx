@@ -59,7 +59,7 @@ export const Devtools = <T extends ClientInstance>({
 }: DevtoolsProps<T>) => {
   setAutoFreeze(false);
   const [open, setOpen] = useState(initiallyOpen);
-  const [module, setModule] = useState(DevtoolsModule.WORKSPACE);
+  const [module, setModule] = useState(DevtoolsModule.NETWORK);
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
   const [position, setPosition] = useState<"Top" | "Left" | "Right" | "Bottom">(initialPosition);

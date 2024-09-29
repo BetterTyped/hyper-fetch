@@ -1,12 +1,7 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, MoonStar, Settings, Sun, Wifi, WifiOff } from "lucide-react";
-
 import { createStyles } from "theme/use-styles.hook";
 import { useDevtoolsContext } from "devtools.context";
 import { DevtoolsModule } from "devtools.types";
 import { menuIcons } from "./menu.constants";
-import * as DropdownMenu from "components/dropdown/dropdown";
-import { IconButton } from "components/icon-button/icon-button";
 import { tokens } from "theme/tokens";
 import { useAppContext } from "../app.context";
 
@@ -76,12 +71,6 @@ export enum Positions {
   Right = "Right",
   Bottom = "Bottom",
 }
-const positionsIcons = {
-  Top: <ArrowUp />,
-  Left: <ArrowLeft />,
-  Right: <ArrowRight />,
-  Bottom: <ArrowDown />,
-};
 
 const MenuLink = ({ view, isMobile }: { view: DevtoolsModule; isMobile: boolean }) => {
   const css = styles.useStyles();
@@ -107,7 +96,6 @@ const MenuLink = ({ view, isMobile }: { view: DevtoolsModule; isMobile: boolean 
 
 export const Menu = (props: React.HTMLProps<HTMLDivElement>) => {
   const css = styles.useStyles();
-  const { theme, setTheme, isOnline, setIsOnline, position, setPosition } = useDevtoolsContext("DevtoolsMenuLink");
   const { height } = useAppContext("ApplicationMenu");
 
   const isMobile = height < 450;
@@ -118,56 +106,6 @@ export const Menu = (props: React.HTMLProps<HTMLDivElement>) => {
         <MenuLink key={view} view={view} isMobile={isMobile} />
       ))}
       <div style={{ flex: 1 }} />
-      <IconButton onClick={() => setIsOnline(!isOnline)}>
-        {isOnline ? <Wifi stroke={tokens.colors.green[500]} /> : <WifiOff />}
-      </IconButton>
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <IconButton>
-            <Settings />
-          </IconButton>
-        </DropdownMenu.Trigger>
-
-        <DropdownMenu.Content sideOffset={5}>
-          <DropdownMenu.Label>
-            <Settings />
-            Settings
-          </DropdownMenu.Label>
-          <DropdownMenu.Separator />
-          <DropdownMenu.Sub>
-            <DropdownMenu.SubTrigger>Theme</DropdownMenu.SubTrigger>
-            <DropdownMenu.SubContent sideOffset={2} alignOffset={-5}>
-              <DropdownMenu.RadioGroup value={theme} onValueChange={setTheme as any}>
-                <DropdownMenu.RadioItem value="light">
-                  Light
-                  <DropdownMenu.Shortcut>
-                    <Sun />
-                  </DropdownMenu.Shortcut>
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="dark">
-                  Dark
-                  <DropdownMenu.Shortcut>
-                    <MoonStar />
-                  </DropdownMenu.Shortcut>
-                </DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
-            </DropdownMenu.SubContent>
-          </DropdownMenu.Sub>
-          <DropdownMenu.Sub>
-            <DropdownMenu.SubTrigger>Position</DropdownMenu.SubTrigger>
-            <DropdownMenu.SubContent sideOffset={2} alignOffset={-5}>
-              <DropdownMenu.RadioGroup value={position} onValueChange={setPosition as any}>
-                {Object.values(Positions).map((item) => (
-                  <DropdownMenu.RadioItem key={item} value={item}>
-                    {item}
-                    <DropdownMenu.Shortcut>{positionsIcons[item]}</DropdownMenu.Shortcut>
-                  </DropdownMenu.RadioItem>
-                ))}
-              </DropdownMenu.RadioGroup>
-            </DropdownMenu.SubContent>
-          </DropdownMenu.Sub>
-        </DropdownMenu.Content>
-      </DropdownMenu.Root>
     </div>
   );
 };
