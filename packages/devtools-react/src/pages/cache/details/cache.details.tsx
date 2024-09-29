@@ -31,7 +31,7 @@ const styles = createStyles(({ css }) => {
       display: flex;
       flex-wrap: wrap;
       gap: 6px 10px;
-      padding: 6px 10px;
+      margin-top: 5px;
     `,
     block: css`
       padding: 10px;
@@ -227,26 +227,25 @@ export const CacheDetails = () => {
                 />
               </Table.Body>
             </Table.Root>
-          </div>
-        </Collapsible>
-        <Collapsible title="Actions" defaultOpen>
-          <div className={css.buttons}>
-            <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
-              <LoaderIcon />
-              {isLoading ? "Restore" : "Set"} loading
-            </Button>
-            <Button color="red" onClick={error}>
-              <TriangleAlert />
-              Simulate Error
-            </Button>
-            <Button color="pink" onClick={invalidate}>
-              <FileXIcon />
-              Invalidate
-            </Button>
-            <Button color="gray" onClick={remove}>
-              <TrashIcon />
-              Remove
-            </Button>
+
+            <div className={css.buttons}>
+              <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
+                <LoaderIcon />
+                {isLoading ? "Restore" : "Set"} loading
+              </Button>
+              <Button color="red" onClick={error}>
+                <TriangleAlert />
+                Simulate Error
+              </Button>
+              <Button color="pink" onClick={invalidate}>
+                <FileXIcon />
+                Invalidate
+              </Button>
+              <Button color="gray" onClick={remove}>
+                <TrashIcon />
+                Remove
+              </Button>
+            </div>
           </div>
         </Collapsible>
         <Collapsible title="Config" defaultOpen>

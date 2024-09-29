@@ -29,6 +29,7 @@ const styles = createStyles(({ css }) => {
       display: flex;
       flex-wrap: wrap;
       gap: 6px 10px;
+      margin-top: 5px;
     `,
     block: css`
       padding: 10px;
@@ -168,7 +169,7 @@ export const NetworkDetails = () => {
             <JSONViewer data={item.response} />
           </div>
         </Collapsible>
-        <Collapsible title="Response Details" defaultOpen>
+        <Collapsible title="Processing Details" defaultOpen>
           <div className={css.block}>
             <JSONViewer data={item.details} />
           </div>
