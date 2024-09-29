@@ -94,7 +94,7 @@ export const QueuesDetails = () => {
   if (!item) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: "1 1 auto" }}>
       <Bar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />

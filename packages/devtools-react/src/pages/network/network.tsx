@@ -1,5 +1,5 @@
 import { NetworkDetails } from "./details/network.details";
-import { NetworkSidebar } from "./sidebar/network.sidebar";
+import { NetworkList } from "./list/network.list";
 import { NetworkToolbar } from "./toolbar/network.toolbar";
 import { Body } from "components/body/body";
 import { Content } from "components/content/content";
@@ -9,7 +9,7 @@ export const Network = () => {
     <Body>
       <NetworkToolbar />
       <Content>
-        <NetworkSidebar />
+        <NetworkList />
         <NetworkDetails />
       </Content>
     </Body>

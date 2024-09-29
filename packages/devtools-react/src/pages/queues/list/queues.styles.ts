@@ -19,23 +19,6 @@ export const styles = createStyles(({ isLight, css }) => {
       gap: 6px 10px;
       padding: 6px 10px;
     `,
-    card: css`
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 10px;
-      border-radius: 8px;
-      margin: 10px;
-      width: 200px;
-      background: transparent;
-      color: ${isLight ? tokens.colors.light[700] : tokens.colors.light[400]};
-    `,
-    active: css`
-      border: 1px solid ${isLight ? tokens.colors.blue[400] : tokens.colors.blue[400]}!important;
-    `,
-    activeBackground: css`
-      background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[500]}!important;
-    `,
     cardHeader: css`
       display: flex;
       justify-content: space-between;
@@ -52,8 +35,6 @@ export const styles = createStyles(({ isLight, css }) => {
       & svg {
         width: 22px;
         height: 22px;
-      }
-      & path {
         stroke: gray;
       }
     `,

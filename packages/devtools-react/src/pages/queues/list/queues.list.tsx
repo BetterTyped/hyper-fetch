@@ -6,9 +6,10 @@ import { useSearch } from "hooks/use-search";
 
 import { styles } from "./queues.styles";
 
-export const QueuesSidebar = () => {
+// Rename to list
+export const QueuesList = () => {
   const css = styles.useStyles();
-  const { queues, processingSearchTerm } = useDevtoolsContext("DevtoolsQueuesContent");
+  const { queues, processingSearchTerm } = useDevtoolsContext("QueuesSidebar");
 
   const { items } = useSearch({
     data: queues,

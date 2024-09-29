@@ -42,14 +42,35 @@ export const styles = createStyles(({ isLight, css }) => {
         left: -3px;
         bottom: 5px;
       }
+
+      & li:has(:nth-child(3)) > ul {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        width: calc(100% - 0.875em);
+      }
+
+      & li:not(:has(:nth-child(3))) {
+        display: flex;
+      }
+
+      & li:not(:has(:nth-child(3))) > span {
+        flex: 1 1 auto;
+      }
+
+      & * {
+        box-sizing: border-box;
+      }
     `,
     value: css`
+      display: inline-flex;
       color: inherit;
       position: relative;
       background: ${isLight ? tokens.colors.light[200] : tokens.colors.dark[400]};
       padding: 2px 4px;
       border-radius: 4px;
       font-size: 12px;
+      width: 100%;
+      margin-left: 2px;
     `,
     disabledValue: css`
       background: transparent !important;
@@ -59,6 +80,14 @@ export const styles = createStyles(({ isLight, css }) => {
       background: transparent;
       border: 0;
       letter-spacing: 0.3px;
+      resize: vertical;
+      width: 100%;
+      border-radius: 3px;
+
+      &:focus {
+        outline-offset: 2px;
+        outline: 2px solid ${tokens.colors.cyan[400]};
+      }
     `,
     checkbox: css`
       position: absolute;
@@ -66,10 +95,17 @@ export const styles = createStyles(({ isLight, css }) => {
       left: 4px;
       top: 50%;
       transform: translate(0, -50%);
+      border-radius: 3px;
+
+      &:focus {
+        outline-offset: 2px;
+        outline: 2px solid ${tokens.colors.cyan[400]};
+      }
     `,
     label: css`
       position: relative;
       color: ${isLight ? tokens.colors.light[900] : tokens.colors.light[300]};
+      white-space: nowrap;
     `,
     copy: css`
       position: relative;
@@ -86,7 +122,7 @@ export const styles = createStyles(({ isLight, css }) => {
         transform: translateY(2px);
       }
       & svg.copied {
-        fill: ${isLight ? tokens.colors.green[600] : tokens.colors.green[400]};
+        stroke: ${isLight ? tokens.colors.green[600] : tokens.colors.green[400]};
       }
     `,
   };

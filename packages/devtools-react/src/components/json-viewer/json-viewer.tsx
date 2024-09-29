@@ -6,6 +6,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { Value } from "./value/value";
 import { Label } from "./label/label";
 import { getRaw, getTheme, updateValue } from "./json-viewer.utils";
+import { tokens } from "theme/tokens";
 
 import { styles } from "./json-viewer.styles";
 
@@ -39,7 +40,7 @@ export const JSONViewer = ({
         <span
           className={css.value}
           style={{
-            color: "#ff5c57",
+            color: tokens.colors.red[500],
           }}
         >
           {String(data)}

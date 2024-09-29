@@ -109,7 +109,13 @@ export const CacheDetails = () => {
 
   const onChangeData = (newData: any) => {
     if (item) {
-      const data = { ...item.cacheData, ...newData };
+      const data = { ...item.cacheData, ...newData, version: client.cache.version };
+
+      // It's not existing in cache data
+      if (data?.timestamp) {
+        delete data.timestamp;
+      }
+
       client.cache.storage.set<any, any, any>(item.cacheKey, data);
       client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
       client.cache.events.emitCacheData<any, any, any>(item.cacheKey, data);
@@ -171,13 +177,16 @@ export const CacheDetails = () => {
 
   return (
     <Sidebar
+      position="right"
       className={css.details}
-      minWidth="300px"
-      maxWidth="100%"
       defaultSize={{
-        width: "calc(100% - 400px)",
-        height: "100%",
+        width: "65%",
+        height: "65%",
       }}
+      minWidth="400px"
+      maxWidth="100%"
+      minHeight="100%"
+      maxHeight="100%"
     >
       <Bar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />

@@ -1,8 +1,18 @@
-import { CpuIcon, DatabaseBackupIcon, NetworkIcon, SquareChartGanttIcon } from "lucide-react";
+import {
+  BriefcaseBusinessIcon,
+  CpuIcon,
+  DatabaseBackupIcon,
+  LucideProps,
+  NetworkIcon,
+  SquareChartGanttIcon,
+} from "lucide-react";
 
 import { DevtoolsModule } from "../../../devtools.types";
 
-export const menuIcons = {
+export const menuIcons: Partial<
+  Record<DevtoolsModule, React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>>
+> = {
+  [DevtoolsModule.WORKSPACE]: BriefcaseBusinessIcon,
   [DevtoolsModule.NETWORK]: NetworkIcon,
   [DevtoolsModule.CACHE]: DatabaseBackupIcon,
   [DevtoolsModule.QUEUES]: CpuIcon,

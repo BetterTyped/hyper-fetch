@@ -41,7 +41,7 @@ export class Cache<C extends ClientInstance> {
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
-    this.version = this.options?.version || "";
+    this.version = this.options?.version || "0.0.1";
     this.lazyStorage = this.options?.lazyStorage;
     this.logger = this.client.loggerManager.init("Cache");
 

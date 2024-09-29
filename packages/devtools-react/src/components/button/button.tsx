@@ -13,7 +13,7 @@ const styles = createStyles(({ css }) => {
       transition: background 0.15 ease-in-out;
 
       & svg {
-        fill: #fff !important;
+        stroke: #fff !important;
         margin-left: -2px;
       }
 

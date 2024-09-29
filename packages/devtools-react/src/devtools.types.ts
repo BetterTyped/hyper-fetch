@@ -10,6 +10,7 @@ import {
 } from "@hyper-fetch/core";
 
 export enum DevtoolsModule {
+  WORKSPACE = "Workspace",
   NETWORK = "Network",
   CACHE = "Cache",
   QUEUES = "Queues",

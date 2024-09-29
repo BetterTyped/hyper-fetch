@@ -10,7 +10,6 @@ import { Bar } from "components/bar/bar";
 import { Collapsible } from "components/collapsible/collapsible";
 import { RowInfo } from "components/table/row-info/row-info";
 import { Chip } from "components/chip/chip";
-import { Editor } from "components/editor/editor";
 import { JSONViewer } from "components/json-viewer/json-viewer";
 import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
@@ -94,13 +93,16 @@ export const NetworkDetails = () => {
 
   return (
     <Sidebar
+      position="right"
       className={css.details}
-      minWidth="300px"
-      maxWidth="100%"
       defaultSize={{
-        width: "calc(100% - 400px)",
-        height: "100%",
+        width: "65%",
+        height: "65%",
       }}
+      minWidth="400px"
+      maxWidth="100%"
+      minHeight="100%"
+      maxHeight="100%"
     >
       <Bar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
         <Back />
@@ -166,8 +168,7 @@ export const NetworkDetails = () => {
         </Collapsible>
         <Collapsible title="Response" defaultOpen>
           <div className={css.block}>
-            {/* <JSONViewer data={item.response} /> */}
-            <Editor value={JSON.stringify(item.response, null, 4)} />
+            <JSONViewer data={item.response} />
           </div>
         </Collapsible>
         <Collapsible title="Response Details" defaultOpen>

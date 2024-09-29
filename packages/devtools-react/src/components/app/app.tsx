@@ -5,6 +5,7 @@ import { Menu, Positions } from "./menu/menu";
 import { Resizable } from "./resizable/resizable";
 import { useDevtoolsContext } from "devtools.context";
 import { AppProvider } from "./app.context";
+import { Header } from "./header/header";
 
 const styles = createStyles(({ isLight, css, tokens }) => {
   return {
@@ -96,7 +97,7 @@ export const Application = ({ children, ...props }: React.HTMLProps<HTMLDivEleme
         className={css.clsx(css.base, { [css.full]: isStandalone, [borderRadiusClass]: !isStandalone })}
         isStandalone={isStandalone}
       >
-        {/* <Header /> */}
+        <Header />
         <div ref={ref} className={css.content}>
           <Menu height={height} />
           {children}

@@ -1,7 +1,8 @@
 import { createStyles } from "theme/use-styles.hook";
 import { QueuesToolbar } from "./toolbar/queues.toolbar";
-import { QueuesSidebar } from "./sidebar/queues.sidebar";
+import { QueuesList } from "./list/queues.list";
 import { QueuesDetails } from "./details/queues.details";
+import { useDevtoolsContext } from "devtools.context";
 
 const styles = createStyles(({ css }) => {
   return {
@@ -20,14 +21,12 @@ const styles = createStyles(({ css }) => {
 });
 
 export const Queues = () => {
+  const { detailsQueueKey } = useDevtoolsContext("DevtoolsQueues");
   const css = styles.useStyles();
   return (
     <div className={css.base}>
       <QueuesToolbar />
-      <div className={css.content}>
-        <QueuesSidebar />
-        <QueuesDetails />
-      </div>
+      <div className={css.content}>{detailsQueueKey ? <QueuesDetails /> : <QueuesList />}</div>
     </div>
   );
 };

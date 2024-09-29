@@ -23,8 +23,10 @@ import { Application } from "components/app/app";
 import { Explorer } from "pages/explorer/explorer";
 import { Queues } from "pages/queues/queues";
 import { Cache } from "pages/cache/cache";
+import { Workspace } from "pages/workspace/workspace";
 
 const Modules = {
+  [DevtoolsModule.WORKSPACE]: Workspace,
   [DevtoolsModule.NETWORK]: Network,
   [DevtoolsModule.CACHE]: Cache,
   [DevtoolsModule.QUEUES]: Queues,
@@ -57,7 +59,7 @@ export const Devtools = <T extends ClientInstance>({
 }: DevtoolsProps<T>) => {
   setAutoFreeze(false);
   const [open, setOpen] = useState(initiallyOpen);
-  const [module, setModule] = useState(DevtoolsModule.NETWORK);
+  const [module, setModule] = useState(DevtoolsModule.WORKSPACE);
   const [theme, setTheme] = useState<"light" | "dark">(initialTheme);
   const [isOnline, setIsOnline] = useState(client.appManager.isOnline);
   const [position, setPosition] = useState<"Top" | "Left" | "Right" | "Bottom">(initialPosition);

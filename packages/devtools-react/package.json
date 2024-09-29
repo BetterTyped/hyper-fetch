@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "@better-hooks/performance": "^1.1.1",
-    "@monaco-editor/react": "^4.6.0",
     "@radix-ui/react-dropdown-menu": "2.1.1",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-switch": "^1.1.0",
@@ -48,7 +47,6 @@
     "immer": "10.1.1",
     "lucide-react": "^0.436.0",
     "match-sorter": "6.3.4",
-    "monaco-editor": "^0.51.0",
     "re-resizable": "6.9.17",
     "react": ">= 16.8.0",
     "react-complex-tree": "^2.4.5",

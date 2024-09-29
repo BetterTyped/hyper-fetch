@@ -22,7 +22,7 @@ const styles = createStyles(({ css }) => {
   };
 });
 
-export const NetworkSidebar = () => {
+export const NetworkList = () => {
   const { client, requests, networkFilter, networkSearchTerm, networkSort, setNetworkSort } =
     useDevtoolsContext("DevtoolsNetworkContent");
   const css = styles.useStyles();

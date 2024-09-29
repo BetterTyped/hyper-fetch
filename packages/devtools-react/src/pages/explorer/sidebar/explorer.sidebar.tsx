@@ -65,7 +65,7 @@ export const ExplorerSidebar = () => {
   }
 
   return (
-    <Sidebar className={treeCss.clsx(treeCss.styles)}>
+    <Sidebar position="right" className={treeCss.clsx(treeCss.styles)}>
       <div className={css.row}>
         <span className={css.title}>Collection</span>
         <DropdownMenu.Root>

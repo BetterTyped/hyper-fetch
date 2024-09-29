@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, MoonStar, Settings, Sun, Wifi, WifiOff } from "lucide-react";
 
 import { createStyles } from "theme/use-styles.hook";
@@ -7,7 +8,6 @@ import { menuIcons } from "./menu.constants";
 import * as DropdownMenu from "components/dropdown/dropdown";
 import { IconButton } from "components/icon-button/icon-button";
 import { tokens } from "theme/tokens";
-import { LogoIcon } from "icons/logo";
 import { useAppContext } from "../app.context";
 
 const styles = createStyles(({ isLight, css }) => {
@@ -19,34 +19,10 @@ const styles = createStyles(({ isLight, css }) => {
       justify-content: center;
       gap: 10px;
       width: 68px;
+      min-width: 68px;
       border-right: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
       overflow-y: auto;
       padding: 10px 5px;
-    `,
-
-    logo: css`
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 5px;
-      margin-bottom: 5px;
-      padding: 5px;
-      background:
-        linear-gradient(
-            ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]},
-            ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]}
-          )
-          padding-box,
-        conic-gradient(#94a3b8, #334155 25%, #334155 75%, #94a3b8 100%) border-box;
-      border-radius: 8px;
-      border: 1px solid #0000 !important;
-      width: 40px;
-      height: 40px;
-
-      & svg {
-        width: 22px !important;
-        height: 22px !important;
-      }
     `,
 
     menuLink: css`
@@ -111,6 +87,8 @@ const MenuLink = ({ view, isMobile }: { view: DevtoolsModule; isMobile: boolean 
   const css = styles.useStyles();
   const { module, setModule } = useDevtoolsContext("DevtoolsMenuLink");
 
+  if (!menuIcons?.[view]) return null;
+
   const Icon = menuIcons[view];
   const isActive = module === view;
   const onClick = () => setModule(view);
@@ -136,9 +114,6 @@ export const Menu = (props: React.HTMLProps<HTMLDivElement>) => {
 
   return (
     <div {...props} className={css.menu}>
-      <div className={css.logo}>
-        <LogoIcon />
-      </div>
       {Object.values(DevtoolsModule).map((view) => (
         <MenuLink key={view} view={view} isMobile={isMobile} />
       ))}

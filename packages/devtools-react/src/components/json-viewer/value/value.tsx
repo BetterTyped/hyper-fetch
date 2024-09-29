@@ -17,7 +17,7 @@ export const Value = ({
     return (
       <span
         className={css.clsx(css.value, { [css.disabledValue]: disabled })}
-        style={{ paddingLeft: !disabled ? "20px" : "" }}
+        style={{ paddingLeft: !disabled ? "24px" : "" }}
       >
         {!disabled && (
           <input
@@ -47,14 +47,19 @@ export const Value = ({
     );
   }
   if (typeof raw === "string") {
+    const lines = Math.min(10, raw?.split(/\r\n|\r|\n/)?.length || 1);
+    const maxHeight = `${lines * 18}px`;
+    const resize = lines > 1 ? "vertical" : "none";
+
     return (
       <span className={css.clsx(css.value, { [css.disabledValue]: disabled })}>
-        <input
+        <textarea
+          rows={lines}
           disabled={disabled}
           className={css.input}
-          type="text"
           value={raw}
           onChange={(e) => onChange(e.target.value)}
+          style={{ maxHeight, resize }}
         />
       </span>
     );
