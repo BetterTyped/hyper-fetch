@@ -29,7 +29,6 @@ const styles = createStyles(({ css }) => {
       display: flex;
       flex-wrap: wrap;
       gap: 6px 10px;
-      padding: 6px 10px;
     `,
     block: css`
       padding: 10px;
@@ -139,14 +138,12 @@ export const NetworkDetails = () => {
             {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
               <Chip color="orange">Mocked</Chip>
             )}
-          </div>
-        </Collapsible>
-        <Collapsible title="Actions" defaultOpen>
-          <div className={css.buttons}>
-            <Button color="gray" onClick={remove}>
-              <TrashIcon />
-              Remove
-            </Button>
+            <div className={css.buttons}>
+              <Button color="gray" onClick={remove}>
+                <TrashIcon />
+                Remove
+              </Button>
+            </div>
           </div>
         </Collapsible>
         <Collapsible title="Request">
