@@ -36,7 +36,7 @@ export type ExtractClientType<T> = T extends Request<any, any, any, any, any, in
 export type ExtractAdapterType<T> =
   T extends Request<any, any, any, any, any, infer C, any, any, any> ? ExtractClientAdapterType<C> : never;
 
-export type ExtractHasDataType<T> = T extends Request<any, any, any, any, any, any, infer D, any, any> ? D : never;
+export type ExtractHasPayloadType<T> = T extends Request<any, any, any, any, any, any, infer D, any, any> ? D : never;
 
 export type ExtractHasParamsType<T> = T extends Request<any, any, any, any, any, any, any, infer P, any> ? P : never;
 

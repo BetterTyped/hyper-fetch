@@ -65,7 +65,7 @@ export function createClient<
 //     method: "POST",
 //     endpoint: "/users",
 //   })
-//   .setDataMapper((data) => {
+//   .setPayloadMapper((data) => {
 //     const formData = new FormData();
 //     formData.append("key", data.name);
 //     return formData;
@@ -97,43 +97,43 @@ export function createClient<
 //
 // // OK
 // postUser.send({ data: { name: "" } });
-// postUser.setData({ name: "" }).send();
+// postUser.setPayload({ name: "" }).send();
 // // Fail
 // postUser.send({ queryParams: "" });
 // postUser.send({ data: null }); // <------ Should fail
-// postUser.setData(null).send();
+// postUser.setPayload(null).send();
 // postUser.send();
-// postUser.setData({ name: "" }).send({ data: { name: "" } });
+// postUser.setPayload({ name: "" }).send({ data: { name: "" } });
 //
 // // ================>
 //
 // // OK
 // patchUser.send({ params: { id: "" }, data: { name: "" } });
-// patchUser.setParams({ id: "" }).setData({ name: "" }).send();
+// patchUser.setParams({ id: "" }).setPayload({ name: "" }).send();
 // // Fail
 // patchUser.send({ queryParams: "" });
 // patchUser.send({ data: null });
-// patchUser.setData(null).send();
+// patchUser.setPayload(null).send();
 // patchUser.send();
 // patchUser
 //   .setParams({ id: "" })
-//   .setData({ name: "" })
+//   .setPayload({ name: "" })
 //   .send({ data: { name: "" } });
 // patchUser
 //   .setParams({ id: "" })
-//   .setData({ name: "" })
+//   .setPayload({ name: "" })
 //   .send({ params: { id: "" } });
 //
 // // ================>
 //
 // // OK
 // mappedReq.send({ data: { name: "" } });
-// mappedReq.setData({ name: "" }).send();
+// mappedReq.setPayload({ name: "" }).send();
 // // Fail
 // mappedReq.send({ queryParams: "" });
 // mappedReq.send({ data: undefined }); // <---- should fail
-// mappedReq.setData(null).send();
-// mappedReq.setData(null).send({ data: null, queryParams: () => null });
+// mappedReq.setPayload(null).send();
+// mappedReq.setPayload(null).send({ data: null, queryParams: () => null });
 // mappedReq.send();
 // mappedReq.send({ data: new FormData() });
-// mappedReq.setData({ name: "" }).send({ data: { name: "" } });
+// mappedReq.setPayload({ name: "" }).send({ data: { name: "" } });

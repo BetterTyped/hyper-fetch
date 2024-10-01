@@ -106,7 +106,7 @@ describe("Fetch Adapter [ Server ]", () => {
         response: null;
         payload: { testData: string };
       }>()({ endpoint: "shared-endpoint", method: "POST" })
-      .setData(payload);
+      .setPayload(payload);
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = mockRequest(postRequest);
 

@@ -21,7 +21,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
           method: "setDoc",
         })
         .setParams({ teaId: 1 })
-        .setData(newData);
+        .setPayload(newData);
 
       await setReq.send();
       const { data } = await getReq.send();
@@ -44,7 +44,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
           options: { merge: true },
         })
         .setParams({ teaId: 1 })
-        .setData({ name: "Pou Ran Do Cha" } as Tea);
+        .setPayload({ name: "Pou Ran Do Cha" } as Tea);
 
       await setReq.send();
       const { data } = await getReq.send();
@@ -62,7 +62,7 @@ export const setDocTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
           options: { merge: true },
         })
         .setParams({ teaId: 1 })
-        .setData({ name: "Pou Ran Do Cha" } as Tea);
+        .setPayload({ name: "Pou Ran Do Cha" } as Tea);
 
       await testLifecycleEvents(request);
     });

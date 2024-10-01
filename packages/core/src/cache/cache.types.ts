@@ -77,7 +77,7 @@ export type CacheStorageType = {
 
 export type CacheInitialData = Record<string, CacheValueType>;
 
-export type CacheMethodType<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);
+export type CacheSetState<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);
 
 export type RequestCacheType<R extends RequestInstance> = Pick<
   R,

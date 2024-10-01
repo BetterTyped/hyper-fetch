@@ -49,7 +49,7 @@ export const requestGenericTypes = createRule({
 
           const unexpectedGenericElements = getUnexpectedGenerics({
             typeParameters,
-            allowedGenerics: ["response", "queryParams", "error", "payload"],
+            allowedGenerics: ["response", "queryParams", "error", "payload", "endpoint"],
           });
           const isEmpty = getEmptyGenerics({ typeParameters });
 

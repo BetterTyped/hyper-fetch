@@ -21,6 +21,7 @@ import {
   DefaultEndpointMapper,
   getAdapterHeaders,
   getAdapterPayload,
+  RequestGenericType,
   RequestInterceptorType,
   ResponseInterceptorType,
   StringifyCallbackType,
@@ -33,7 +34,7 @@ import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsTy
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
-import { ExtractAdapterType, PluginOptions, NegativeTypes, PluginType, TypeWithDefaults } from "types";
+import { ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -458,18 +459,33 @@ export class Client<
    * @template Response Your response
    */
   createRequest = <
-    RequestProperties extends {
-      response?: any;
-      payload?: any;
-      error?: any;
-      queryParams?: ExtractAdapterQueryParamsType<Adapter>;
-    } = {
+    RequestProperties extends RequestGenericType<ExtractAdapterQueryParamsType<Adapter>> = {
       response?: undefined;
       payload?: undefined;
       error?: Error;
       queryParams?: ExtractAdapterQueryParamsType<Adapter>;
+      endpoint?: string;
     },
-  >() => {
+  >(
+    /**
+     * `createRequest` must be initialized twice(currying).
+     *
+     * ✅ Good:
+     * ```ts
+     * const request = createRequest<RequestProperties>()(params)
+     * ```
+     * ⛔ Bad:
+     * ```ts
+     * const request = createRequest<RequestProperties>(params)
+     * ```
+     *
+     * We are using currying to achieve auto generated types for the endpoint string.
+     *
+     * This solution will be removed once https://github.com/microsoft/TypeScript/issues/10571 get resolved.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _USE_DOUBLE_INITIALIZATION?: never,
+  ) => {
     type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
     type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
     type LocalError = TypeWithDefaults<RequestProperties, "error", Error>;
@@ -521,8 +537,7 @@ export class Client<
     };
   };
 
-  addPlugin = <T extends ClientInstance, P extends PluginType<T>>(plugin: P, metaData?: PluginOptions<T, P>) => {
-    plugin(this as any, metaData);
-    return this;
+  addPlugin = <NewClient extends ClientInstance>(callback: (client: typeof this) => NewClient) => {
+    return callback(this);
   };
 }

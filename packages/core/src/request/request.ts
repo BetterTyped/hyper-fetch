@@ -55,7 +55,7 @@ export class Request<
   LocalError extends ClientErrorType, // Additional Error for specific endpoint
   Endpoint extends string,
   Client extends ClientInstance,
-  HasData extends true | false = false,
+  HasPayload extends true | false = false,
   HasParams extends true | false = false,
   HasQuery extends true | false = false,
 > {
@@ -64,7 +64,7 @@ export class Request<
   auth: boolean;
   method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
   params: ExtractRouteParams<Endpoint> | NegativeTypes;
-  data: PayloadType<Payload>;
+  payload: PayloadType<Payload>;
   queryParams: QueryParams | NegativeTypes;
   options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
   cancelable: boolean;
@@ -82,7 +82,8 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
-  dataMapper?: PayloadMapperType<Payload>;
+  revalidate: boolean;
+  payloadMapper?: PayloadMapperType<Payload>;
 
   mock?: Generator<
     GeneratorReturnMockTypes<Response, any>,
@@ -92,7 +93,9 @@ export class Request<
   mockData?: RequestDataMockTypes<Response, any>;
   isMockEnabled = false;
 
+  /** @internal */
   __requestMapper?: RequestMapper<any, any>;
+  /** @internal */
   __responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
@@ -107,7 +110,16 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     >,
-    readonly requestJSON?: any,
+    readonly initialRequestConfiguration?:
+      | RequestConfigurationType<
+          Payload,
+          Endpoint extends string ? ExtractRouteParams<Endpoint> : never,
+          QueryParams,
+          Endpoint,
+          ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
+          ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
+        >
+      | undefined,
   ) {
     const configuration: RequestOptionsType<
       Endpoint,
@@ -142,33 +154,34 @@ export class Request<
       deduplicate = false,
       deduplicateTime = 10,
     } = configuration;
-    this.endpoint = requestJSON?.endpoint ?? endpoint;
-    this.headers = requestJSON?.headers ?? headers;
-    this.auth = requestJSON?.auth ?? auth;
+    this.endpoint = initialRequestConfiguration?.endpoint ?? endpoint;
+    this.headers = initialRequestConfiguration?.headers ?? headers;
+    this.auth = initialRequestConfiguration?.auth ?? auth;
     this.method = method as ExtractAdapterMethodType<ExtractAdapterType<this>>;
-    this.params = requestJSON?.params;
-    this.data = requestJSON?.data;
-    this.queryParams = requestJSON?.queryParams;
-    this.options = requestJSON?.options ?? options;
-    this.cancelable = requestJSON?.cancelable ?? cancelable;
-    this.retry = requestJSON?.retry ?? retry;
-    this.retryTime = requestJSON?.retryTime ?? retryTime;
-    this.garbageCollection = requestJSON?.garbageCollection ?? garbageCollection;
-    this.cache = requestJSON?.cache ?? cache;
-    this.cacheTime = requestJSON?.cacheTime ?? cacheTime;
-    this.queued = requestJSON?.queued ?? queued;
-    this.offline = requestJSON?.offline ?? offline;
-    this.abortKey = requestJSON?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
-    this.cacheKey = requestJSON?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
-    this.queueKey = requestJSON?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
-    this.effectKey = requestJSON?.effectKey ?? effectKey ?? this.client.effectKeyMapper(this);
-    this.used = requestJSON?.used ?? false;
-    this.deduplicate = requestJSON?.deduplicate ?? deduplicate;
-    this.deduplicateTime = requestJSON?.deduplicateTime ?? deduplicateTime;
-    this.updatedAbortKey = requestJSON?.updatedAbortKey ?? false;
-    this.updatedCacheKey = requestJSON?.updatedCacheKey ?? false;
-    this.updatedQueueKey = requestJSON?.updatedQueueKey ?? false;
-    this.updatedEffectKey = requestJSON?.updatedEffectKey ?? false;
+    this.params = initialRequestConfiguration?.params;
+    this.payload = initialRequestConfiguration?.payload;
+    this.queryParams = initialRequestConfiguration?.queryParams;
+    this.options = initialRequestConfiguration?.options ?? options;
+    this.cancelable = initialRequestConfiguration?.cancelable ?? cancelable;
+    this.retry = initialRequestConfiguration?.retry ?? retry;
+    this.retryTime = initialRequestConfiguration?.retryTime ?? retryTime;
+    this.garbageCollection = initialRequestConfiguration?.garbageCollection ?? garbageCollection;
+    this.cache = initialRequestConfiguration?.cache ?? cache;
+    this.cacheTime = initialRequestConfiguration?.cacheTime ?? cacheTime;
+    this.queued = initialRequestConfiguration?.queued ?? queued;
+    this.offline = initialRequestConfiguration?.offline ?? offline;
+    this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
+    this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
+    this.queueKey = initialRequestConfiguration?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
+    this.effectKey = initialRequestConfiguration?.effectKey ?? effectKey ?? this.client.effectKeyMapper(this);
+    this.used = initialRequestConfiguration?.used ?? false;
+    this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
+    this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
+    this.revalidate = initialRequestConfiguration?.revalidate ?? true;
+    this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
+    this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
+    this.updatedQueueKey = initialRequestConfiguration?.updatedQueueKey ?? false;
+    this.updatedEffectKey = initialRequestConfiguration?.updatedEffectKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -180,21 +193,21 @@ export class Request<
   };
 
   public setParams = <P extends ExtractParamsType<this>>(params: P) => {
-    return this.clone<HasData, P extends null ? false : true, HasQuery>({ params });
+    return this.clone<HasPayload, P extends null ? false : true, HasQuery>({ params });
   };
 
-  public setData = <D extends Payload>(data: D) => {
-    return this.clone<D extends null ? false : true, HasParams, HasQuery>({
-      data,
+  public setPayload = <P extends Payload>(payload: P) => {
+    return this.clone<P extends null ? false : true, HasParams, HasQuery>({
+      payload,
     });
   };
 
   public setQueryParams = (queryParams: QueryParams) => {
-    return this.clone<HasData, HasParams, true>({ queryParams });
+    return this.clone<HasPayload, HasParams, true>({ queryParams });
   };
 
   public setOptions = (options: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>) => {
-    return this.clone<HasData, HasParams, true>({ options });
+    return this.clone<HasPayload, HasParams, true>({ options });
   };
 
   public setCancelable = (cancelable: boolean) => {
@@ -330,13 +343,13 @@ export class Request<
 
   /**
    * Map data before it gets send to the server
-   * @param dataMapper
+   * @param payloadMapper
    * @returns
    */
-  public setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+  public setPayloadMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.dataMapper = dataMapper;
+    cloned.payloadMapper = payloadMapper;
 
     return cloned;
   };
@@ -347,7 +360,7 @@ export class Request<
    * @returns new request
    */
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>(undefined);
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
     cloned.__requestMapper = requestMapper as any;
 
@@ -362,7 +375,7 @@ export class Request<
   public setResponseMapper = <NewResponse = Response, NewError = ExtractClientGlobalError<Client> | LocalError>(
     responseMapper?: ResponseMapper<this, NewResponse, NewError>,
   ) => {
-    const cloned = this.clone<HasData, HasParams, HasQuery>();
+    const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
     cloned.__responseMapper = responseMapper;
 
@@ -373,21 +386,28 @@ export class Request<
       LocalError,
       Endpoint,
       Client,
-      HasData,
+      HasPayload,
       HasParams,
       HasQuery
     >;
   };
 
-  private paramsMapper = (params: ParamsType | null | undefined, queryParams: QueryParams | NegativeTypes): string => {
-    let endpoint = this.requestOptions.endpoint as string;
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        endpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
-      });
-    }
-    if (queryParams) {
-      endpoint += this.client.stringifyQueryParams(queryParams as unknown as QueryParamsType);
+  private paramsMapper = (
+    params: ParamsType | null | undefined,
+    queryParams: QueryParams | NegativeTypes,
+  ): Endpoint => {
+    let { endpoint } = this.requestOptions;
+    if (typeof endpoint === "string") {
+      let stringEndpoint = String(endpoint);
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          stringEndpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+        });
+      }
+      if (queryParams) {
+        stringEndpoint += this.client.stringifyQueryParams(queryParams as unknown as QueryParamsType);
+      }
+      endpoint = stringEndpoint as typeof endpoint;
     }
     return endpoint;
   };
@@ -404,7 +424,7 @@ export class Request<
       auth: this.auth,
       method: this.method as ExtractAdapterMethodType<ExtractAdapterType<this>>,
       params: this.params as ExtractParamsType<this>,
-      data: this.data as ExtractPayloadType<this>,
+      payload: this.payload as ExtractPayloadType<this>,
       queryParams: this.queryParams as ExtractQueryParamsType<this>,
       options: this.options,
       cancelable: this.cancelable,
@@ -432,7 +452,7 @@ export class Request<
   }
 
   public clone<
-    NewData extends true | false = HasData,
+    NewData extends true | false = HasPayload,
     NewParams extends true | false = HasParams,
     NewQueryParams extends true | false = HasQuery,
   >(
@@ -446,9 +466,9 @@ export class Request<
     >,
   ) {
     const json = this.toJSON();
-    const requestJSON: RequestConfigurationType<
+    const initialRequestConfiguration: RequestConfigurationType<
       Payload,
-      (typeof this)["params"],
+      Endpoint extends string ? ExtractRouteParams<Endpoint> : never,
       QueryParams,
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
@@ -460,12 +480,12 @@ export class Request<
       abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
       queueKey: this.updatedQueueKey ? configuration?.queueKey || this.queueKey : undefined,
-      endpoint: this.paramsMapper(
-        configuration?.params || this.params,
-        configuration?.queryParams || this.queryParams,
-      ) as Endpoint,
+      endpoint: this.paramsMapper(configuration?.params || this.params, configuration?.queryParams || this.queryParams),
       queryParams: configuration?.queryParams || this.queryParams,
-      data: configuration?.data || this.data,
+      payload: configuration?.payload || this.payload,
+      params: (configuration?.params || this.params) as
+        | NegativeTypes
+        | (Endpoint extends string ? ExtractRouteParams<Endpoint> : never),
     };
 
     const cloned = new Request<
@@ -478,10 +498,10 @@ export class Request<
       NewData,
       NewParams,
       NewQueryParams
-    >(this.client, this.requestOptions, requestJSON);
+    >(this.client, this.requestOptions, initialRequestConfiguration);
 
     // Inherit methods
-    cloned.dataMapper = this.dataMapper;
+    cloned.payloadMapper = this.payloadMapper;
     cloned.__responseMapper = this.__responseMapper;
     cloned.__requestMapper = this.__requestMapper as any;
 
@@ -609,7 +629,7 @@ export class Request<
 //     method: "POST",
 //     endpoint: "/users",
 //   })
-//   .setDataMapper((data) => {
+//   .setPayloadMapper((data) => {
 //     const formData = new FormData();
 //     formData.append("key", data.name);
 //     return formData;
@@ -641,43 +661,43 @@ export class Request<
 //
 // // OK
 // postUser.send({ data: { name: "" } });
-// postUser.setData({ name: "" }).send();
+// postUser.setPayload({ name: "" }).send();
 // // Fail
 // postUser.send({ queryParams: "" });
 // postUser.send({ data: null });  // <------ Should fail
-// postUser.setData(null).send();
+// postUser.setPayload(null).send();
 // postUser.send();
-// postUser.setData({ name: "" }).send({ data: { name: "" } });
+// postUser.setPayload({ name: "" }).send({ data: { name: "" } });
 //
 // // ================>
 //
 // // OK
 // patchUser.send({ params: { id: "" }, data: { name: "" } });
-// patchUser.setParams({ id: "" }).setData({ name: "" }).send();
+// patchUser.setParams({ id: "" }).setPayload({ name: "" }).send();
 // // Fail
 // patchUser.send({ queryParams: "" });
 // patchUser.send({ data: null });
-// patchUser.setData(null).send();
+// patchUser.setPayload(null).send();
 // patchUser.send();
 // patchUser
 //   .setParams({ id: "" })
-//   .setData({ name: "" })
+//   .setPayload({ name: "" })
 //   .send({ data: { name: "" } });
 // patchUser
 //   .setParams({ id: "" })
-//   .setData({ name: "" })
+//   .setPayload({ name: "" })
 //   .send({ params: { id: "" } });
 //
 // // ================>
 //
 // // OK
 // mappedReq.send({ data: { name: "" } });
-// mappedReq.setData({ name: "" }).send();
+// mappedReq.setPayload({ name: "" }).send();
 // // Fail
 // mappedReq.send({ queryParams: "" });
 // mappedReq.send({ data: undefined });  // <---- should fail
-// mappedReq.setData(null).send();
-// mappedReq.setData(null).send({ data: null, queryParams: () => null });
+// mappedReq.setPayload(null).send();
+// mappedReq.setPayload(null).send({ data: null, queryParams: () => null });
 // mappedReq.send();
 // mappedReq.send({ data: new FormData() });
-// mappedReq.setData({ name: "" }).send({ data: { name: "" } });
+// mappedReq.setPayload({ name: "" }).send({ data: { name: "" } });

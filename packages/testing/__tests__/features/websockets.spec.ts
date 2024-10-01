@@ -49,7 +49,7 @@ describe("Websocket Mocking [ Base ]", () => {
       .createEmitter<{ name: string }>()({
         topic: "test",
       })
-      .setData(data);
+      .setPayload(data);
 
     emitter.emit();
 

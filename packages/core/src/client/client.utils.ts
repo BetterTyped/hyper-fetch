@@ -54,7 +54,7 @@ export const interceptResponse = async <GlobalErrorType, Adapter extends Adapter
 // Mappers
 
 export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = hasWindow() && request.data instanceof FormData;
+  const isFormData = hasWindow() && request.payload instanceof FormData;
   const headers: HeadersInit = {};
 
   if (!isFormData) headers["Content-Type"] = "application/json";

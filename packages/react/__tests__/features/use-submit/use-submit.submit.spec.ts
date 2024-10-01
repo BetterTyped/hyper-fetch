@@ -7,7 +7,7 @@ import { client, createRequest, renderUseSubmit } from "../../utils";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Base ]", () => {
-  let request = createRequest<null, { value: string }>({ method: "POST" });
+  let request = createRequest<{ payload: { value: string } }>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -34,7 +34,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -51,7 +51,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        await response.result.current.submit({ data: { value: "string" }, onSettle: spy });
+        await response.result.current.submit({ payload: { value: "string" }, onSettle: spy });
       });
 
       expect(spy).toBeCalledTimes(1);
@@ -66,7 +66,7 @@ describe("useSubmit [ Base ]", () => {
         response.result.current.onSubmitResponseStart(() => {
           mock = mockRequest(request);
         });
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -91,7 +91,7 @@ describe("useSubmit [ Base ]", () => {
             client.appManager.setOnline(true);
           }, 100);
         });
-        data = await response.result.current.submit({ data: { value: "string" } });
+        data = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(data).toStrictEqual({
@@ -115,7 +115,7 @@ describe("useSubmit [ Base ]", () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
           payload = cmd.data;
         });
-        response.result.current.submit({ data: myData });
+        response.result.current.submit({ payload: myData });
       });
 
       expect(payload).toStrictEqual(myData);
@@ -144,7 +144,7 @@ describe("useSubmit [ Base ]", () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
           endpoint = cmd.endpoint;
         });
-        response.result.current.submit({ data: { value: "string" }, queryParams: "?something=test" });
+        response.result.current.submit({ payload: { value: "string" }, queryParams: "?something=test" });
       });
 
       expect(endpoint).toBe("/shared-endpoint?something=test");
@@ -155,7 +155,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(request);
 
       await act(async () => {
-        data = await response.result.current.submit({ data: { value: "123" }, queryParams: "?something=test" });
+        data = await response.result.current.submit({ payload: { value: "123" }, queryParams: "?something=test" });
       });
 
       expect(data).toStrictEqual({
@@ -174,7 +174,7 @@ describe("useSubmit [ Base ]", () => {
       const response = renderUseSubmit(request, { disabled: true });
 
       await act(async () => {
-        res = await response.result.current.submit({ data: { value: "string" } });
+        res = await response.result.current.submit({ payload: { value: "string" } });
       });
 
       expect(res.data).toBeNull();
@@ -185,12 +185,12 @@ describe("useSubmit [ Base ]", () => {
     it("should allow to set data on mapped request", async () => {
       let data: unknown = null;
       const mock = mockRequest(request);
-      const mappedRequest = request.setDataMapper(() => new FormData());
+      const mappedRequest = request.setPayloadMapper(() => new FormData());
       const response = renderUseSubmit(mappedRequest);
 
       await act(async () => {
         data = await response.result.current.submit({
-          data: {
+          payload: {
             value: "string",
           },
           queryParams: { something: "test" },

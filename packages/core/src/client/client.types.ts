@@ -1,10 +1,18 @@
 import { RequestInstance } from "request";
 import { ResponseType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
 import { Client } from "client";
-import { NegativeTypes } from "types";
+import type { NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
 export type ClientInstance = Client<any, any, any>;
+
+export type RequestGenericType<QueryParams> = {
+  response?: any;
+  payload?: any;
+  error?: any;
+  queryParams?: QueryParams;
+  endpoint?: string;
+};
 
 /**
  * Configuration setup for the client

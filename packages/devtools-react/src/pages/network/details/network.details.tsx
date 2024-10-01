@@ -156,7 +156,7 @@ export const NetworkDetails = () => {
           <div className={css.block}>
             <JSONViewer
               data={{
-                payload: item.request.data,
+                payload: item.request.payload,
                 params: item.request.params,
                 queryParams: item.request.queryParams,
                 headers: item.request.headers,

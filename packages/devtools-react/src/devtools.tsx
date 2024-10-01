@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { ClientInstance, QueueDataType, RequestInstance, Response, ResponseDetailsType } from "@hyper-fetch/core";
+import {
+  ClientInstance,
+  QueueDataType,
+  RequestInstance,
+  RequestResponseType,
+  ResponseDetailsType,
+} from "@hyper-fetch/core";
 import { css } from "goober";
 import { Size } from "re-resizable";
 import { useImmer } from "use-immer";
@@ -178,7 +184,7 @@ export const Devtools = <T extends ClientInstance>({
   );
 
   const handleStats = useCallback(
-    (request: RequestInstance, response: Response<RequestInstance>, details: ResponseDetailsType) => {
+    (request: RequestInstance, response: RequestResponseType<RequestInstance>, details: ResponseDetailsType) => {
       const key = request.queueKey;
 
       setStats((prev) => {

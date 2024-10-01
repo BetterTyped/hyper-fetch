@@ -7,7 +7,7 @@ export const postFile = client
     queued: true,
     retry: 0,
   })
-  .setDataMapper((data) => {
+  .setPayloadMapper((data) => {
     const formData = new FormData();
     formData.append("file", data.file);
     return formData;

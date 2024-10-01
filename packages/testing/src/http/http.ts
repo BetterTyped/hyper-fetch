@@ -1,11 +1,11 @@
 import { setupServer } from "msw/node";
-import { ExtractResponseType, RequestInstance, Response } from "@hyper-fetch/core";
+import { ExtractResponseType, RequestInstance, RequestResponseType } from "@hyper-fetch/core";
 
 import { ErrorMockType, StatusCodesType, StatusErrorCodesType } from "./http.constants";
 import { createMock, getMockSetup } from "./http.mock";
 
 export type MockRequestOptions<Request extends RequestInstance, Status extends number> = Partial<
-  Omit<Response<Request>, "status" | "extra">
+  Omit<RequestResponseType<Request>, "status" | "extra">
 > & {
   status?: Status;
   delay?: number;

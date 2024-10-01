@@ -4,7 +4,7 @@ import { SocketAdapterInstance } from "adapter";
 import { Emitter } from "emitter";
 import {
   ExtractEmitterAdapterType,
-  ExtractEmitterHasDataType,
+  ExtractEmitterHasPayloadType,
   ExtractEmitterHasParamsType,
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
@@ -35,13 +35,13 @@ export type EmitterCallbackStartType<EmitterType extends EmitterInstance> = (emi
 
 // Emit
 
-export type EmitDataType<Payload, HasData extends boolean> = HasData extends false
+export type EmitDataType<Payload, HasPayload extends boolean> = HasPayload extends false
   ? {
       data: Payload;
     }
   : { data?: never };
 
-export type EmitParamsType<Params, HasData extends boolean> = HasData extends false
+export type EmitParamsType<Params, HasPayload extends boolean> = HasPayload extends false
   ? Params extends NegativeTypes | never | void
     ? { params?: never }
     : {
@@ -54,7 +54,7 @@ export type EmitRestType<Emitter extends EmitterInstance> = {
 };
 
 export type EmitType<Emitter extends EmitterInstance> =
-  ExtractEmitterHasDataType<Emitter> extends false
+  ExtractEmitterHasPayloadType<Emitter> extends false
     ? (
         options: EmitDataType<ExtractEmitterPayloadType<Emitter>, ExtractEmitterHasParamsType<Emitter>> &
           EmitParamsType<ExtractRouteParams<ExtractEmitterTopicType<Emitter>>, ExtractEmitterHasParamsType<Emitter>> &
@@ -99,6 +99,6 @@ export type ExtendEmitter<
   TypeWithDefaults<Properties, "payload", ExtractEmitterPayloadType<T>>,
   Properties["topic"] extends string ? Properties["topic"] : ExtractEmitterTopicType<T>,
   Properties["adapter"] extends SocketAdapterInstance ? Properties["adapter"] : ExtractEmitterAdapterType<T>,
-  Properties["hasData"] extends true ? true : ExtractEmitterHasDataType<T>,
+  Properties["hasData"] extends true ? true : ExtractEmitterHasPayloadType<T>,
   Properties["hasParams"] extends true ? true : ExtractEmitterHasParamsType<T>
 >;

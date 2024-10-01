@@ -9,7 +9,7 @@ export class Emitter<
   Payload,
   Endpoint extends string,
   Adapter extends SocketAdapterInstance,
-  HasData extends boolean = false,
+  HasPayload extends boolean = false,
   HasParams extends boolean = false,
 > {
   readonly topic: Endpoint;
@@ -48,7 +48,7 @@ export class Emitter<
   };
 
   setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
-    const cloned = this.clone<Payload, HasData, HasParams>(undefined);
+    const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
 
     cloned.dataMapper = dataMapper;
 
@@ -56,7 +56,7 @@ export class Emitter<
   };
 
   setParams(params: NonNullable<ExtractRouteParams<Endpoint>>) {
-    return this.clone<Payload, HasData, true>({ params });
+    return this.clone<Payload, HasPayload, true>({ params });
   }
 
   private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
@@ -72,15 +72,15 @@ export class Emitter<
 
   clone<
     NewPayload extends Payload = Payload,
-    NewHasData extends boolean = HasData,
+    NewHasPayload extends boolean = HasPayload,
     NewHasParams extends boolean = HasParams,
   >(
     options?: Partial<EmitterOptionsType<Endpoint, Adapter>> & {
       params?: ParamsType;
       data?: NewPayload;
     },
-  ): Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams> {
-    const json: Partial<Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams>> = {
+  ): Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams> {
+    const json: Partial<Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
       data: this.data as NewPayload,
@@ -89,7 +89,7 @@ export class Emitter<
       topic: this.paramsMapper(options?.params || this.params),
     };
 
-    const newInstance = new Emitter<NewPayload, Endpoint, Adapter, NewHasData, NewHasParams>(
+    const newInstance = new Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams>(
       this.socket,
       this.emitterOptions,
       json,

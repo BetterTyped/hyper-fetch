@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, Time } from "../../../src";
+import { Client, RequestInstance, Time } from "../../../src";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -44,9 +44,9 @@ describe("Request [ Setters ]", () => {
   it("should allow for setting ", async () => {
     const req = client.createRequest<{ response: void; payload: { test: number } }>()({ endpoint: "/users/:userId" });
     const data = { test: 123 };
-    expect(request.data).not.toBeDefined();
-    const updatedRequest = req.setData(data);
-    expect(updatedRequest.data).toBe(data);
+    expect(request.payload).not.toBeDefined();
+    const updatedRequest = req.setPayload(data);
+    expect(updatedRequest.payload).toBe(data);
   });
   it("should allow for setting query params", async () => {
     expect(request.endpoint).toBe("/users/:userId");
@@ -142,19 +142,19 @@ describe("Request [ Setters ]", () => {
       return formData;
     };
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.dataMapper).not.toBeDefined();
-    const updatedRequest = mapperRequest.setDataMapper(mapper);
-    expect(updatedRequest.dataMapper).toBe(mapper);
+    expect(mapperRequest.payloadMapper).not.toBeDefined();
+    const updatedRequest = mapperRequest.setPayloadMapper(mapper);
+    expect(updatedRequest.payloadMapper).toBe(mapper);
   });
   it("should allow for setting response mapper", async () => {
-    const mapper = (res) => ({ ...res });
+    const mapper = (res: any) => ({ ...res });
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
     expect(mapperRequest.__responseMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setResponseMapper(mapper);
     expect(updatedRequest.__responseMapper).toBe(mapper);
   });
   it("should allow for setting request mapper", async () => {
-    const mapper = (req) => req;
+    const mapper = (req: RequestInstance) => req;
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
     expect(mapperRequest.__requestMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setRequestMapper(mapper);

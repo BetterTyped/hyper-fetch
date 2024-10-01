@@ -4,7 +4,7 @@ export const getRequestValues = <R extends RequestInstance>(request: R) => {
   const isPostRequest = request.method === HttpMethods.POST;
 
   const query = request.endpoint;
-  const variables = request.data;
+  const variables = request.payload;
 
   const fullUrl = isPostRequest
     ? request.client.url

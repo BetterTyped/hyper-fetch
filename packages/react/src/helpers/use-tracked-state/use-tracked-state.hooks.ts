@@ -18,7 +18,7 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getDetailsState, getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
+import { getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
 import { useProvider } from "provider";
 
 /**
@@ -35,7 +35,6 @@ export const useTrackedState = <T extends RequestInstance>({
   initialData,
   deepCompare,
   dependencyTracking,
-  defaultCacheEmitting = true,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queueKey, cacheTime, __responseMapper } = request;
   const { cache, requestManager } = client;
@@ -193,82 +192,67 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const actions: UseTrackedStateActions<T> = {
-    setData: (data, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: true, data });
-      } else {
-        state.current.data = data;
-        renderKeyTrigger(["data"]);
-      }
+    setData: (data) => {
+      cache.update(request, (prev) => ({ data: data instanceof Function ? data(prev?.data || null) : data }));
     },
-    setError: (error, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), success: false, error });
-      } else {
-        state.current.error = error;
-        renderKeyTrigger(["error"]);
-      }
+    setError: (error) => {
+      cache.update(request, (prev) => {
+        const value = error instanceof Function ? error(prev?.error || null) : error;
+        return {
+          error: value,
+          success: !value,
+        };
+      });
+      renderKeyTrigger(["error"]);
     },
     setLoading: (loading, emitToHooks = true) => {
+      const value = loading instanceof Function ? loading(state.current.loading) : loading;
       if (emitToHooks) {
         requestManager.events.emitLoading({
           request,
           requestId: "",
-          loading,
+          loading: value,
           isRetry: false,
           isOffline: false,
         });
-      } else {
-        state.current.loading = loading;
-        renderKeyTrigger(["loading"]);
       }
+      state.current.loading = value;
+      renderKeyTrigger(["loading"]);
     },
-    setStatus: (status, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), status });
-      } else {
-        state.current.status = status;
-        renderKeyTrigger(["status"]);
-      }
+    setStatus: (status) => {
+      cache.update(request, (prev) => ({
+        // TODO: fix type
+        status: status instanceof Function ? status((prev?.status as any) || null) : status,
+      }));
+      renderKeyTrigger(["status"]);
     },
-    setSuccess: (success, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), success });
-      } else {
-        state.current.success = success;
-        renderKeyTrigger(["success"]);
-      }
+    setSuccess: (success) => {
+      cache.update(request, (prev) => ({
+        success: success instanceof Function ? success(prev?.success || false) : success,
+      }));
+      renderKeyTrigger(["success"]);
     },
-    setExtra: (extra, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current), extra });
-      } else {
-        state.current.extra = extra;
-        renderKeyTrigger(["extra"]);
-      }
+    setExtra: (extra) => {
+      cache.update(request, (prev) => ({
+        // TODO: fix type
+        extra: extra instanceof Function ? extra((prev?.extra as any) || null) : extra,
+      }));
+      renderKeyTrigger(["extra"]);
     },
-    setRetries: (retries, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current, { retries }) });
-      } else {
-        state.current.retries = retries;
-        renderKeyTrigger(["retries"]);
-      }
+    setRetries: (retries) => {
+      cache.update(request, (prev) => ({
+        retries: retries instanceof Function ? retries(prev?.retries || 0) : retries,
+      }));
+      renderKeyTrigger(["retries"]);
     },
-    setTimestamp: (timestamp, emitToCache = defaultCacheEmitting) => {
-      if (emitToCache) {
-        const currentState = state.current;
-        cache.set(request, { ...currentState, ...getDetailsState(state.current, { responseTimestamp: +timestamp }) });
-      } else {
-        state.current.timestamp = timestamp;
-        renderKeyTrigger(["timestamp"]);
-      }
+    setTimestamp: (timestamp) => {
+      cache.update(request, (prev) => ({
+        responseTimestamp:
+          timestamp instanceof Function
+            ? +timestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null)
+            : +timestamp,
+      }));
+      renderKeyTrigger(["timestamp"]);
     },
   };
 

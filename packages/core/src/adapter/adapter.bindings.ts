@@ -63,18 +63,19 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   }
 
   // Request Setup
-  const { client, abortKey, endpoint, data } = request;
+  const { client, abortKey, endpoint } = request;
 
   const fullUrl = url + endpoint;
 
   const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
   const headers = headerMapper(request);
-  let payload = data;
+  // eslint-disable-next-line prefer-destructuring
+  let payload = request.payload;
 
   try {
-    payload = payloadMapper(data);
-    if (request.dataMapper) {
-      payload = await request.dataMapper<ExtractPayloadType<RequestInstance>>(data);
+    payload = payloadMapper(payload);
+    if (request.payloadMapper) {
+      payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(payload);
     }
   } catch (err) {
     processingError = err as Error;
@@ -410,7 +411,6 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   logger.debug(`Finishing request bindings creation`, {
     fullUrl,
-    data,
     headers,
     payload,
     config,
@@ -419,7 +419,6 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   return {
     fullUrl,
-    data,
     headers,
     payload,
     config,

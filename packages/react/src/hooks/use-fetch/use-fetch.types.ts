@@ -3,9 +3,8 @@ import {
   NullableType,
   ExtractAdapterResolvedType,
   ExtendRequest,
-  ExtractPayloadType,
-  ExtractParamsType,
   NegativeTypes,
+  RequestSendOptionsType,
 } from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
@@ -15,8 +14,9 @@ import { isEqual } from "utils";
 export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
   R,
   {
-    hasData: ExtractPayloadType<R> extends NegativeTypes ? false : true;
-    hasParams: ExtractParamsType<R> extends NegativeTypes ? false : true;
+    hasData: RequestSendOptionsType<R>["payload"] extends NegativeTypes ? true : false;
+    hasParams: RequestSendOptionsType<R>["params"] extends NegativeTypes ? true : false;
+    hasQuery: RequestSendOptionsType<R>["queryParams"] extends NegativeTypes ? true : false;
   }
 >;
 

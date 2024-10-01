@@ -5,7 +5,7 @@ import {
   ExtractPayloadType,
   ExtractAdapterType,
   ExtractEndpointType,
-  ExtractHasDataType,
+  ExtractHasPayloadType,
   ExtractHasParamsType,
   ExtractHasQueryParamsType,
   ExtractErrorType,
@@ -22,7 +22,7 @@ import {
   ExtractAdapterOptionsType,
   ExtractAdapterMethodType,
   ExtractAdapterEndpointType,
-  Response,
+  RequestResponseType,
 } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { Client, ClientInstance } from "client";
@@ -59,7 +59,7 @@ export type RequestJSON<Request extends RequestInstance> = {
   disableResponseInterceptors: boolean | undefined;
   disableRequestInterceptors: boolean | undefined;
   options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
-  data: PayloadType<ExtractPayloadType<Request>>;
+  payload: PayloadType<ExtractPayloadType<Request>>;
   params: ExtractParamsType<Request> | NegativeTypes;
   queryParams: ExtractQueryParamsType<Request> | NegativeTypes;
   abortKey: string;
@@ -166,9 +166,15 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
    * Time of pooling for the deduplication to be active (default 10ms)
    */
   deduplicateTime?: number;
+  /**
+   * Decides if we should use the cache instead of making a new request
+   * @default true - it will make a new request
+   * if @false - it won't make a new request
+   */
+  revalidate?: boolean;
 };
 
-export type PayloadMapperType<Payload> = <NewDataType>(data: Payload) => NewDataType;
+export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;
 
 export type PayloadType<Payload> = Payload | NegativeTypes;
 
@@ -178,12 +184,12 @@ export type RequestConfigurationType<
   QueryParams,
   GenericEndpoint extends string,
   AdapterOptions,
-  MethodsType = HttpMethodsType,
+  MethodsType,
 > = {
   used?: boolean;
   params?: Params | NegativeTypes;
   queryParams?: QueryParams | NegativeTypes;
-  data?: PayloadType<Payload>;
+  payload?: PayloadType<Payload>;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
   updatedCacheKey?: boolean;
@@ -202,20 +208,6 @@ export type ExtractRouteParams<T extends string> = string extends T
       ? { [k in Param]: ParamType }
       : NegativeTypes;
 
-export type FetchOptionsType<AdapterOptions> = Omit<
-  Partial<RequestOptionsType<string, AdapterOptions>>,
-  "endpoint" | "method"
->;
-
-/**
- * It will check if the query params are already set
- */
-export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
-  ? { queryParams?: NegativeTypes }
-  : {
-      queryParams?: QueryParams;
-    };
-
 /**
  * If the request endpoint parameters are not filled it will throw an error
  */
@@ -228,13 +220,29 @@ export type FetchParamsType<Params, HasParams extends true | false> = Params ext
 /**
  * If the request data is not filled it will throw an error
  */
-export type FetchPayloadType<Payload, HasData extends true | false> = Payload extends NegativeTypes
-  ? { data?: NegativeTypes }
-  : HasData extends true
-    ? { data?: NegativeTypes }
-    : { data: NonNullable<Payload> };
+export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends NegativeTypes
+  ? { payload?: NegativeTypes }
+  : HasPayload extends true
+    ? { payload?: NegativeTypes }
+    : { payload: Payload };
 
-export type RequestQueueOptions = {
+/**
+ * It will check if the query params are already set
+ */
+export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
+  ? { queryParams?: NegativeTypes }
+  : HasQuery extends true
+    ? { queryParams?: NegativeTypes }
+    : QueryParams extends NegativeTypes
+      ? { queryParams?: QueryParams }
+      : {
+          queryParams: QueryParams;
+        };
+
+export type RequestDynamicSendOptionsType<Request extends RequestInstance> = Omit<
+  Partial<RequestOptionsType<string, ExtractAdapterOptionsType<ExtractAdapterType<Request>>>>,
+  "params" | "data" | "endpoint" | "method"
+> & {
   dispatcherType?: "auto" | "fetch" | "submit";
 };
 
@@ -245,28 +253,30 @@ export type RequestSendOptionsType<Request extends RequestInstance> = FetchQuery
   ExtractHasQueryParamsType<Request>
 > &
   FetchParamsType<ExtractParamsType<Request>, ExtractHasParamsType<Request>> &
-  FetchPayloadType<ExtractPayloadType<Request>, ExtractHasDataType<Request>> &
-  Omit<FetchOptionsType<ExtractAdapterOptionsType<ExtractAdapterType<Request>>>, "params" | "data"> &
-  FetchSendActionsType<Request> &
-  RequestQueueOptions;
+  FetchPayloadType<ExtractPayloadType<Request>, ExtractHasPayloadType<Request>> &
+  FetchQueryParamsType<ExtractQueryParamsType<Request>, ExtractHasQueryParamsType<Request>> &
+  RequestSendActionsType<Request> &
+  RequestDynamicSendOptionsType<Request>;
 
-export type FetchSendActionsType<Request extends RequestInstance> = {
-  onSettle?: (data: RequestEventType<Request>) => void;
-  onRequestStart?: (data: RequestEventType<Request>) => void;
-  onResponseStart?: (data: RequestEventType<Request>) => void;
-  onUploadProgress?: (data: RequestProgressEventType<Request>) => void;
-  onDownloadProgress?: (data: RequestProgressEventType<Request>) => void;
-  onResponse?: (data: RequestResponseEventType<Request>) => void;
+export type RequestSendActionsType<Request extends RequestInstance> = {
+  onSettle?: (eventData: RequestEventType<Request>) => void;
+  onRequestStart?: (eventData: RequestEventType<Request>) => void;
+  onResponseStart?: (eventData: RequestEventType<Request>) => void;
+  onUploadProgress?: (eventData: RequestProgressEventType<Request>) => void;
+  onDownloadProgress?: (eventData: RequestProgressEventType<Request>) => void;
+  onResponse?: (eventData: RequestResponseEventType<Request>) => void;
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 
 // If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
-  RequestSendOptionsType<Request>["data"] extends NegativeTypes
+  RequestSendOptionsType<Request>["payload"] extends NegativeTypes
     ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
-      ? (options?: RequestSendOptionsType<Request>) => Promise<Response<Request>>
-      : (options: RequestSendOptionsType<Request>) => Promise<Response<Request>>
-    : (options: RequestSendOptionsType<Request>) => Promise<Response<Request>>;
+      ? RequestSendOptionsType<Request>["queryParams"] extends NegativeTypes
+        ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+        : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+      : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
+    : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>;
 
 // Instance
 
@@ -293,7 +303,7 @@ export type ExtendRequest<
   TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
   Properties["endpoint"] extends string ? Properties["endpoint"] : ExtractEndpointType<Req>,
   Properties["client"] extends ClientInstance ? Properties["client"] : ExtractClientType<Req>,
-  Properties["hasData"] extends true ? true : ExtractHasDataType<Req>,
+  Properties["hasData"] extends true ? true : ExtractHasPayloadType<Req>,
   Properties["hasParams"] extends true ? true : ExtractHasParamsType<Req>,
   Properties["hasQuery"] extends true ? true : ExtractHasQueryParamsType<Req>
 >;

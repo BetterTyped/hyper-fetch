@@ -10,13 +10,15 @@ import { RequestCard } from "../../components/request.card";
 
 export const FormPage: React.FC = () => {
   // Post
-  const result = useSubmit(postUser.setData({ email: "test", age: 12, name: "name" }));
+  const result = useSubmit(postUser.setPayload({ email: "test", age: 12, name: "name" }));
 
   // Patch
-  const resultPatch = useSubmit(patchUser.setParams({ userId: 1 }).setData({ email: "test", age: 12, name: "name" }));
+  const resultPatch = useSubmit(
+    patchUser.setParams({ userId: 1 }).setPayload({ email: "test", age: 12, name: "name" }),
+  );
 
   // Queue
-  const resultQueued = useSubmit(postFile.setData({ file: {} as unknown as File }));
+  const resultQueued = useSubmit(postFile.setPayload({ file: {} as unknown as File }));
   const { stopped, requests, stop, start } = useQueue(postFile);
 
   return (

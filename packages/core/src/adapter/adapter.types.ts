@@ -13,7 +13,7 @@ export type AdapterType<
   MethodType extends string = HttpMethodsType,
   StatusType extends number | string = HttpStatusType,
   Extra extends Record<string, any> = AdapterExtraType,
-  QueryParams = QueryParamsType | string,
+  QueryParams = QueryParamsType | string | null,
   EndpointType = string,
 > = (
   request: ExtendRequest<
@@ -98,7 +98,7 @@ export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
 
 // Responses
 
-export type Response<Request extends RequestInstance> = {
+export type RequestResponseType<Request extends RequestInstance> = {
   data: ExtractResponseType<Request> | null;
   error: ExtractErrorType<Request> | null;
   status: ExtractAdapterStatusType<ExtractAdapterType<Request>> | null;

@@ -155,7 +155,7 @@ describe("Client [ Utils ]", () => {
     it("should assign form data headers", async () => {
       const defaultHeaders = {};
       const data = new FormData();
-      const formDataRequest = request.setData(data);
+      const formDataRequest = request.setPayload(data);
       const headers = client.headerMapper(formDataRequest);
 
       expect(headers).toEqual(defaultHeaders);

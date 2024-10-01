@@ -25,7 +25,7 @@ export const onSnapshotTestSuite = (
         endpoint: "",
         method: "addDoc",
       })
-      .setData(newData);
+      .setPayload(newData);
     const socketBees = new Socket({ url: "bees/", adapter });
 
     return { client, socket, socketBees, pushReq };
@@ -148,7 +148,7 @@ export const onSnapshotTestSuite = (
           endpoint: "",
           method: "addDoc",
         })
-        .setData(newTeaData);
+        .setPayload(newTeaData);
 
       await addTeaReq.send();
 
@@ -157,7 +157,7 @@ export const onSnapshotTestSuite = (
           endpoint: ":teaId",
           method: "updateDoc",
         })
-        .setData(newTeaData);
+        .setPayload(newTeaData);
 
       await updateTeaReq.send({ params: { teaId: 1 } });
 
@@ -275,13 +275,13 @@ export const onSnapshotTestSuite = (
           endpoint: "",
           method: "addDoc",
         })
-        .setData(shouldCacheData);
+        .setPayload(shouldCacheData);
       const shouldNotCacheAddDocRequest = client
         .createRequest<Tea, Tea>()({
           endpoint: "",
           method: "addDoc",
         })
-        .setData(shouldNotCacheData);
+        .setPayload(shouldNotCacheData);
 
       const { data } = await shouldCacheAddDocRequest.send();
 

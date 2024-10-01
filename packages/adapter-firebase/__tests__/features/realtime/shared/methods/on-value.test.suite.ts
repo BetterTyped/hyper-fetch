@@ -37,7 +37,7 @@ export const onValueTestSuite = (
           endpoint: "",
           method: "push",
         })
-        .setData(newData);
+        .setPayload(newData);
       const socketBees = new Socket({ url: "bees/", adapter: initializedSocketsAdapter });
 
       return { client, socket, pushReq, socketBees };

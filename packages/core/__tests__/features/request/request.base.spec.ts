@@ -84,7 +84,7 @@ describe("Fetch Adapter [ Base ]", () => {
       endpoint: "/shared-endpoint",
     });
 
-    const c = req.setData(data);
+    const c = req.setPayload(data);
     mockRequest(c);
 
     await c.send();
@@ -150,7 +150,7 @@ describe("Fetch Adapter [ Base ]", () => {
     };
     const mapperRequest = client
       .createRequest<{ response: null }>()({ endpoint: "/some-endpoint/" })
-      .setDataMapper(mapper);
+      .setPayloadMapper(mapper);
     mockRequest(mapperRequest);
 
     const { data, error } = await mapperRequest.send();

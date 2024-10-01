@@ -25,7 +25,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData(newData);
+        .setPayload(newData);
 
       await setReq.send();
       const { data, extra } = await getReq.send();
@@ -46,7 +46,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await setReq.send();
       const { data, extra } = await getReq.send();
@@ -60,7 +60,7 @@ export const setTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseAd
           method: "set",
         })
         .setParams({ teaId: 1 })
-        .setData({ data: null });
+        .setPayload({ data: null });
 
       await testLifecycleEvents(setReq);
     });

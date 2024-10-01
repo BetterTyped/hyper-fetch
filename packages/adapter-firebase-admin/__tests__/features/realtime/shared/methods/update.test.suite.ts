@@ -18,7 +18,7 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
           endpoint: ":teaId",
           method: "update",
         })
-        .setData(newData);
+        .setPayload(newData);
       const getReq = client.createRequest<Tea>()({
         endpoint: ":teaId",
         method: "get",
@@ -35,7 +35,7 @@ export const updateTestSuite = (adapterFunction: () => ReturnType<typeof Firebas
           endpoint: ":teaId",
           method: "update",
         })
-        .setData(newData);
+        .setPayload(newData);
       await testLifecycleEvents(updateReq);
     });
   });

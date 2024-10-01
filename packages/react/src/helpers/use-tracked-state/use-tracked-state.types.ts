@@ -10,6 +10,7 @@ import {
   ExtractAdapterExtraType,
   ExtractAdapterResolvedType,
   NullableType,
+  CacheSetState,
 } from "@hyper-fetch/core";
 
 import { isEqual } from "utils";
@@ -20,7 +21,6 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
-  defaultCacheEmitting?: boolean;
   deepCompare: boolean | typeof isEqual;
 };
 
@@ -73,33 +73,33 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option.
    */
-  setData: (data: ExtractResponseType<T>, emitToCache?: boolean) => void;
+  setData: (data: CacheSetState<ExtractResponseType<T>>, emitToCache?: boolean) => void;
   /**
    * Action to set custom error. We can do it locally(inside hook state) or in all hooks with 'emitToCache' option.
    */
-  setError: (error: ExtractErrorType<T>, emitToCache?: boolean) => void;
+  setError: (error: CacheSetState<ExtractErrorType<T>>, emitToCache?: boolean) => void;
   /**
    * Action to set custom loading. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setLoading: (loading: boolean, emitToHooks?: boolean) => void;
+  setLoading: (loading: CacheSetState<boolean>, emitToHooks?: boolean) => void;
   /**
    * Action to set custom status. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setStatus: (status: ExtractAdapterStatusType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setStatus: (status: CacheSetState<ExtractAdapterStatusType<ExtractAdapterType<T>>>, emitToCache?: boolean) => void;
   /**
    * Action to set custom success. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setSuccess: (success: boolean, emitToCache?: boolean) => void;
+  setSuccess: (success: CacheSetState<boolean>, emitToCache?: boolean) => void;
   /**
    * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setExtra: (extra: ExtractAdapterExtraType<ExtractAdapterType<T>>, emitToCache?: boolean) => void;
+  setExtra: (extra: CacheSetState<ExtractAdapterExtraType<ExtractAdapterType<T>>>, emitToCache?: boolean) => void;
   /**
    * Action to set custom retries count. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setRetries: (retries: number, emitToCache?: boolean) => void;
+  setRetries: (retries: CacheSetState<number>, emitToCache?: boolean) => void;
   /**
    * Action to set custom timestamp. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setTimestamp: (timestamp: Date, emitToCache?: boolean) => void;
+  setTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
 };

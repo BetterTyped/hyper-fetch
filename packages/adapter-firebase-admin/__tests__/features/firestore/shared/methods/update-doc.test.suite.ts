@@ -14,7 +14,7 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof Fire
           endpoint: ":teaId",
           method: "updateDoc",
         })
-        .setData(newData);
+        .setPayload(newData);
       const getReq = client.createRequest<Tea>()({
         endpoint: ":teaId",
         method: "getDoc",
@@ -32,7 +32,7 @@ export const updateDocTestSuite = (adapterFunction: () => ReturnType<typeof Fire
           endpoint: ":teaId",
           method: "updateDoc",
         })
-        .setData(newData);
+        .setPayload(newData);
 
       await testLifecycleEvents(request);
     });

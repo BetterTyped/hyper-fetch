@@ -23,7 +23,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
           method: "push",
           options: {},
         })
-        .setData(newData);
+        .setPayload(newData);
       const { data: pushedData, extra } = await pushReq.send();
       const { data } = await getReq.send();
 
@@ -39,7 +39,7 @@ export const pushTestSuite = (adapterFunction: () => ReturnType<typeof FirebaseA
           endpoint: "teas/",
           method: "push",
         })
-        .setData(newData);
+        .setPayload(newData);
 
       await testLifecycleEvents(pushReq);
     });

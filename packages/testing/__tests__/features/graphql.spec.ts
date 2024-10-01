@@ -102,7 +102,7 @@ describe("Graphql Mocking [ Base ]", () => {
 
   it("should allow to make mutation request", async () => {
     const expected = mockRequest(
-      mutation.setData({
+      mutation.setPayload({
         username: "Kacper",
         password: "Kacper1234",
       }),
@@ -110,7 +110,7 @@ describe("Graphql Mocking [ Base ]", () => {
     );
 
     const { data, error, status, extra } = await mutation
-      .setData({
+      .setPayload({
         username: "Kacper",
         password: "Kacper1234",
       })

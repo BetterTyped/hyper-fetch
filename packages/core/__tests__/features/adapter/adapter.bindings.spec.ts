@@ -49,7 +49,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     const client = new Client({ url }).addEffect([effect]);
     const request = client
       .createRequest<{ response: any; payload: { value: number } }>()({ endpoint, options: requestConfig })
-      .setData(data)
+      .setPayload(data)
       .setEffectKey("test")
       .setQueryParams(queryParams);
 
@@ -216,13 +216,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
         role: "ADMIN",
       };
 
-      function dataMapper({ role, userId }: { role: string; userId: number }): string {
+      function payloadMapper({ role, userId }: { role: string; userId: number }): string {
         spy();
         return `${userId}_${role}`;
       }
 
-      const requestMapped = req.setDataMapper(dataMapper);
-      const requestSetData = requestMapped.setData(newData);
+      const requestMapped = req.setPayloadMapper(payloadMapper);
+      const requestSetData = requestMapped.setPayload(newData);
 
       const { payload } = await getAdapterBindings({
         request: requestSetData,
@@ -252,9 +252,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
       const requestMapped = req.setRequestMapper<RequestInstance>((r) => {
         spy();
         // TODO figure out something to change type inside of mapper
-        return (r as RequestInstance).setData(`${newData.userId}_${newData.role}`);
+        return (r as RequestInstance).setPayload(`${newData.userId}_${newData.role}`);
       });
-      const requestSetData = requestMapped.setData(newData);
+      const requestSetData = requestMapped.setPayload(newData);
 
       const { payload } = await getAdapterBindings({
         request: requestSetData,

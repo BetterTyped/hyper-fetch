@@ -8,7 +8,7 @@ import {
   getCacheData,
   getCacheEvents,
   CacheValueType,
-  CacheMethodType,
+  CacheSetState,
   RequestCacheType,
 } from "cache";
 import { RequestInstance } from "request";
@@ -65,7 +65,7 @@ export class Cache<C extends ClientInstance> {
    */
   set = <Request extends RequestInstance>(
     request: RequestCacheType<Request>,
-    response: CacheMethodType<
+    response: CacheSetState<
       ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
         ResponseDetailsType
     > & { hydrated?: boolean },
@@ -121,7 +121,7 @@ export class Cache<C extends ClientInstance> {
    */
   update = <Request extends RequestInstance>(
     request: RequestCacheType<Request>,
-    partialResponse: CacheMethodType<
+    partialResponse: CacheSetState<
       Partial<
         ResponseType<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>> &
           ResponseDetailsType

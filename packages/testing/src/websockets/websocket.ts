@@ -8,7 +8,7 @@ import {
   ExtendEmitter,
   ExtractEmitterTopicType,
   ExtractEmitterPayloadType,
-  ExtractEmitterHasDataType,
+  ExtractEmitterHasPayloadType,
 } from "@hyper-fetch/sockets";
 import { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core";
 
@@ -59,7 +59,7 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         hasParams: ExtractRouteParams<ExtractEmitterTopicType<T>> extends NegativeTypes ? false : true;
-        hasData: Data extends void ? (ExtractEmitterHasDataType<T> extends false ? true : false) : false;
+        hasData: Data extends void ? (ExtractEmitterHasPayloadType<T> extends false ? true : false) : false;
       }
     >,
     data?: Data,
