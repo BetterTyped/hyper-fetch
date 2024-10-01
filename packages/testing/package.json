@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/testing",
   "version": "0.0.0",
   "private": false,
-  "description": "Internal testing utilities for Hyper Fetch",
+  "description": "Testing utilities for Hyper Fetch",
   "author": "Maciej Pyrc <maciekpyrc@gmail.com>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
