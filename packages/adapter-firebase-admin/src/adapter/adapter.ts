@@ -27,7 +27,7 @@ export const FirebaseAdminAdapter =
         });
       return new Promise<ResponseType<any, any, any>>((resolve) => {
         if (database instanceof Firestore) {
-          const { method = FirestoreMethods.getDocs, queryParams, data, options } = request as FirestoreRequestType;
+          const { method = FirestoreMethods.getDocs, queryParams, payload, options } = request as FirestoreRequestType;
           const availableMethods = getFirestoreAdminMethods(database, fullUrl, onSuccess, onError, resolve, {
             onRequestStart,
             onResponseEnd,
@@ -39,11 +39,11 @@ export const FirebaseAdminAdapter =
           }
           availableMethods(method, {
             constraints: queryParams?.constraints ? queryParams.constraints : [],
-            data,
+            payload,
             options,
           });
         } else {
-          const { method = RealtimeDBMethods.get, queryParams, data, options } = request as RealtimeDBRequestType;
+          const { method = RealtimeDBMethods.get, queryParams, payload, options } = request as RealtimeDBRequestType;
           const availableMethods = getRealtimeDbAdminMethods(database, fullUrl, onSuccess, onError, resolve, {
             onRequestStart,
             onResponseEnd,
@@ -56,7 +56,7 @@ export const FirebaseAdminAdapter =
           availableMethods(method, {
             constraints: queryParams?.constraints ? queryParams.constraints : [],
             options,
-            data,
+            payload,
           });
         }
       });

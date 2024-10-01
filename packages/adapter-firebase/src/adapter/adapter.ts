@@ -27,7 +27,7 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
         });
       return new Promise<ResponseType<any, any, any>>((resolve) => {
         if (database instanceof Database) {
-          const { method = RealtimeDBMethods.get, queryParams, data, options } = request as FirebaseRealtimeDBType;
+          const { method = RealtimeDBMethods.get, queryParams, payload, options } = request as FirebaseRealtimeDBType;
           const availableMethods = getRealtimeDbBrowserMethods(database, fullUrl, onSuccess, onError, resolve, {
             onResponseStart,
             onResponseEnd,
@@ -40,10 +40,10 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
           availableMethods(method, {
             constraints: queryParams?.constraints || [],
             options,
-            data,
+            payload,
           });
         } else {
-          const { method = FirestoreMethods.getDocs, queryParams, data, options } = request as FirestoreRequestType;
+          const { method = FirestoreMethods.getDocs, queryParams, payload, options } = request as FirestoreRequestType;
           const availableMethods = getFirestoreBrowserMethods(database, fullUrl, onSuccess, onError, resolve, {
             onResponseStart,
             onResponseEnd,
@@ -56,7 +56,7 @@ export const FirebaseAdapter = <T extends FirebaseDBTypes>(database: T) => {
           }
           availableMethods(method, {
             constraints: queryParams?.constraints ? queryParams.constraints : [],
-            data,
+            payload,
             options,
           });
         }

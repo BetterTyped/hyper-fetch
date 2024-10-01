@@ -65,7 +65,7 @@ export const NetworkDetails = () => {
     if (!item) return null;
 
     const values = item.request.toJSON();
-    delete values.data;
+    delete values.payload;
     delete values.params;
     delete values.queryParams;
     delete values.headers;

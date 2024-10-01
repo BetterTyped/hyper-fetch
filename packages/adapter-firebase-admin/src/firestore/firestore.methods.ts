@@ -32,7 +32,7 @@ export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
   methodName: FirestoreMethodsUnion,
   data: {
     constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    data?: any;
+    payload?: any;
     options?: Record<string, any>;
   },
 ) => Promise<void>) => {

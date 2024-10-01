@@ -43,7 +43,7 @@ export const getFirestoreBrowserMethods = <T extends FirebaseDBTypes>(
   methodName: FirestoreMethodsUnion,
   data: {
     constraints?: PermittedConstraints<FirestorePermittedMethods, FirestoreConstraintsUnion | SharedQueryConstraints>[];
-    data?: any;
+    payload?: any;
     options?: Record<string, any>;
   },
 ) => Promise<void>) => {

@@ -32,7 +32,7 @@ export const getRealtimeDbAdminMethods = <T extends FirebaseAdminDBTypes>(
   methodName: RealtimeDBMethodsUnion,
   data: {
     constraints: PermittedConstraints<RealtimePermittedMethods, RealtimeConstraintsUnion | SharedQueryConstraints>[];
-    data: any;
+    payload: any;
     options: Record<string, any>;
   },
 ) => Promise<void>) => {
