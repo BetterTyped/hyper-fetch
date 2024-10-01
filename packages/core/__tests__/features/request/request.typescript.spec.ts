@@ -1,6 +1,12 @@
-import { expectFunctionParametersType, expectNotFunctionParametersType, expectNotType } from "@hyper-fetch/testing";
+import {
+  expectFunctionParametersType,
+  expectNotFunctionParametersType,
+  expectNotType,
+  expectType,
+} from "@hyper-fetch/testing";
 
 import { Client } from "client";
+import { ExtractLocalErrorType } from "types";
 
 const client = new Client({
   url: "http://localhost:3000",
@@ -298,6 +304,10 @@ describe("Request [Types]", () => {
         ]);
       });
     });
+  });
+  it("should add correct error types", () => {
+    expectType<Error>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));
+    expectNotType<string>().assert<ExtractLocalErrorType<typeof getUser>>(new Error("message"));
   });
 });
 

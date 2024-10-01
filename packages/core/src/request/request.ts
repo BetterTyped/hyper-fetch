@@ -14,7 +14,7 @@ import {
   ResponseMapper,
   ExtractRouteParams,
 } from "request";
-import { ClientErrorType, ClientInstance } from "client";
+import { ClientInstance } from "client";
 import { getUniqueRequestId } from "utils";
 import { ExtractAdapterMethodType, ExtractAdapterOptionsType, QueryParamsType, ResponseType } from "adapter";
 import {
@@ -52,7 +52,7 @@ export class Request<
   Response,
   Payload,
   QueryParams,
-  LocalError extends ClientErrorType, // Additional Error for specific endpoint
+  LocalError,
   Endpoint extends string,
   Client extends ClientInstance,
   HasPayload extends true | false = false,

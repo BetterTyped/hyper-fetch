@@ -27,12 +27,12 @@ describe("Axios Adapter [ Base ]", () => {
 
   it("should make a request and return success data with status", async () => {
     const response = mockRequest(request);
-    const { data, status, error, extra } = await request.send();
+    const { data, status, error, extra } = await request.send({});
 
     expect(data).toStrictEqual(response);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect({ ...extra.headers }).toStrictEqual({
+    expect({ ...extra?.headers }).toStrictEqual({
       "content-type": "application/json",
       "content-length": "2",
     });
@@ -40,12 +40,12 @@ describe("Axios Adapter [ Base ]", () => {
 
   it("should make a request and return error with status", async () => {
     mockRequest(request, { status: 400 });
-    const { data, error, status, extra } = await request.send();
+    const { data, error, status, extra } = await request.send({});
 
-    expect(error.message).toBe("Request failed with status code 400");
+    expect(error?.message).toBe("Request failed with status code 400");
     expect(data).toStrictEqual(null);
     expect(status).toBe(400);
-    expect({ ...extra.headers }).toStrictEqual({
+    expect({ ...extra?.headers }).toStrictEqual({
       "content-type": "application/json",
       "content-length": "19",
     });
@@ -79,12 +79,15 @@ describe("Axios Adapter [ Base ]", () => {
   });
 
   it("should allow to add upload progress", async () => {
-    const postRequest = client.createRequest<any, any>()({ endpoint: "/shared-endpoint", method: "POST" });
+    const postRequest = client.createRequest<{ payload: { name: string } }>()({
+      endpoint: "/shared-endpoint",
+      method: "POST",
+    });
     mockRequest(postRequest);
 
     const spyUpload = jest.fn();
     await postRequest.send({
-      data: { name: "test" },
+      payload: { name: "test" },
       onUploadProgress: spyUpload,
     });
 

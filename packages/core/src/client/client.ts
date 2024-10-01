@@ -488,7 +488,7 @@ export class Client<
   ) => {
     type Response = TypeWithDefaults<RequestProperties, "response", undefined>;
     type Payload = TypeWithDefaults<RequestProperties, "payload", undefined>;
-    type LocalError = TypeWithDefaults<RequestProperties, "error", Error>;
+    type LocalError = TypeWithDefaults<RequestProperties, "error", GlobalErrorType>;
     type QueryParams = TypeWithDefaults<RequestProperties, "queryParams", ExtractAdapterQueryParamsType<Adapter>>;
 
     return <
