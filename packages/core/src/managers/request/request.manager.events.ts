@@ -34,8 +34,9 @@ import {
   getLoadingByCacheKey,
 } from "managers";
 import { AdapterInstance } from "adapter";
-import { ExtendRequest, RequestInstance } from "request";
+import { RequestInstance } from "request";
 import { Client } from "client";
+import { ExtendRequest } from "types";
 
 export const getRequestManagerEvents = (emitter: EventEmitter) => ({
   /**

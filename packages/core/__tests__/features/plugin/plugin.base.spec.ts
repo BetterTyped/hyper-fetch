@@ -1,12 +1,12 @@
 import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { createEffect } from "../../utils";
 import { Client } from "client";
+import { Plugin } from "plugin";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
-describe("Effect [ Base ]", () => {
+describe("Plugin [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
 
@@ -34,16 +34,18 @@ describe("Effect [ Base ]", () => {
       const spy4 = jest.fn();
       const spy5 = jest.fn();
 
-      const effect = createEffect(request, {
-        onError: spy1,
-        onSuccess: spy2,
-        onFinished: spy3,
-        onStart: spy4,
-        onTrigger: spy5,
-      });
-      client.addEffect(effect);
+      const effect = new Plugin({
+        name: "123",
+      })
+        .onRequestError(spy1)
+        .onRequestSuccess(spy2)
+        .onRequestFinished(spy3)
+        .onRequestStart(spy4)
+        .onRequestTrigger(spy5);
 
-      request.send();
+      client.addPlugin(effect);
+
+      request.send({});
 
       await waitFor(() => {
         expect(spy1).toHaveBeenCalledTimes(0);
@@ -61,16 +63,18 @@ describe("Effect [ Base ]", () => {
       const spy4 = jest.fn();
       const spy5 = jest.fn();
 
-      const effect = createEffect(request, {
-        onError: spy1,
-        onSuccess: spy2,
-        onFinished: spy3,
-        onStart: spy4,
-        onTrigger: spy5,
-      });
-      client.addEffect(effect);
+      const effect = new Plugin({
+        name: "123",
+      })
+        .onRequestError(spy1)
+        .onRequestSuccess(spy2)
+        .onRequestFinished(spy3)
+        .onRequestStart(spy4)
+        .onRequestTrigger(spy5);
 
-      request.send();
+      client.addPlugin(effect);
+
+      request.send({});
 
       await waitFor(() => {
         expect(spy1).toHaveBeenCalledTimes(1);
@@ -81,13 +85,15 @@ describe("Effect [ Base ]", () => {
       });
     });
     it("should not throw when effects are empty", async () => {
-      const effect = createEffect(request);
+      const effect = new Plugin({
+        name: "123",
+      });
 
-      expect(effect.onTrigger).not.toThrow();
-      expect(effect.onStart).not.toThrow();
-      expect(effect.onSuccess).not.toThrow();
-      expect(effect.onError).not.toThrow();
-      expect(effect.onFinished).not.toThrow();
+      expect(effect.onRequestTrigger).not.toThrow();
+      expect(effect.onRequestStart).not.toThrow();
+      expect(effect.onRequestSuccess).not.toThrow();
+      expect(effect.onRequestError).not.toThrow();
+      expect(effect.onRequestFinished).not.toThrow();
     });
   });
 });

@@ -3,7 +3,6 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { AppManager } from "managers";
-import { interceptorCallback } from "../../utils";
 import { Client } from "client";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
@@ -32,7 +31,9 @@ describe("Client [ Base ]", () => {
       expect(client.url).toBe(url);
     });
     it("should assign new adapter", async () => {
-      const adapter = () => interceptorCallback()();
+      const adapter = () => {
+        return {} as any;
+      };
       const client = new Client({ url: "shared-base-url", adapter });
 
       expect(client.adapter).toBe(adapter);

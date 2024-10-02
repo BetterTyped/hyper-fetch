@@ -104,11 +104,6 @@ describe("Request [ Setters ]", () => {
     const updatedRequest = request.setQueueKey("test");
     expect(updatedRequest.queueKey).toBe("test");
   });
-  it("should allow for setting effect key", async () => {
-    expect(request.effectKey).toBe("GET_/users/:userId_false");
-    const updatedRequest = request.setEffectKey("test");
-    expect(updatedRequest.effectKey).toBe("test");
-  });
   it("should allow for setting deduplicate", async () => {
     expect(request.deduplicate).toBeFalse();
     const updatedRequest = request.setDeduplicate(true);

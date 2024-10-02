@@ -1,9 +1,10 @@
 import EventEmitter from "events";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { getRequestManagerEvents } from "managers";
+import { getRequestManagerEvents, RequestProgressEventType } from "managers";
 import { sleep } from "../../../utils";
 import { Client } from "client";
+import { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -115,19 +116,15 @@ describe("RequestManager [ Base ]", () => {
       events.onUploadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-      const values = {
+      const details: RequestProgressEventType<RequestInstance> = {
+        requestId,
+        request,
         progress: 0,
         timeLeft: 0,
         sizeLeft: 0,
         total: 0,
         loaded: 0,
         startTimestamp: 0,
-      };
-
-      const details = {
-        requestId,
-        request,
-        progress: values,
       };
 
       events.emitUploadProgress(details);
@@ -142,19 +139,15 @@ describe("RequestManager [ Base ]", () => {
       events.onDownloadProgressById(requestId, spyById);
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-      const values = {
+      const details: RequestProgressEventType<RequestInstance> = {
+        requestId,
+        request,
         progress: 0,
         timeLeft: 0,
         sizeLeft: 0,
         total: 0,
         loaded: 0,
         startTimestamp: 0,
-      };
-
-      const details = {
-        requestId,
-        request,
-        progress: values,
       };
 
       events.emitDownloadProgress(details);
@@ -169,19 +162,27 @@ describe("RequestManager [ Base ]", () => {
     events.onResponseByCache(queueKey, spy);
     events.onResponseById(requestId, spyById);
 
-    const details = {
-      retries: 0,
-      timestamp: +new Date(),
-      success: true,
-      isCanceled: false,
-      isOffline: false,
-    };
-
     events.emitResponse({
       request: client.createRequest()({ endpoint: "shared-base-endpoint" }),
       requestId,
-      response: { data: null, error: null, status: 200, success: true, extra: null },
-      details,
+      response: {
+        data: null,
+        error: null,
+        status: 200,
+        success: true,
+        extra: null,
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+      },
+      details: {
+        retries: 0,
+        isCanceled: false,
+        isOffline: false,
+        requestTimestamp: +new Date(),
+        responseTimestamp: +new Date(),
+        triggerTimestamp: +new Date(),
+        addedTimestamp: +new Date(),
+      },
     });
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -194,12 +195,11 @@ describe("RequestManager [ Base ]", () => {
     events.onRemoveById(requestId, spyById);
     const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
 
-    const values = {
+    events.emitRemove({
       requestId,
       request,
-    };
-
-    events.emitRemove(values);
+      resolved: true,
+    });
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spyById).toHaveBeenCalledTimes(1);

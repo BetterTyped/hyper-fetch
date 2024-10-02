@@ -91,10 +91,10 @@ describe("Client [ Middleware ]", () => {
       client.onRequest(firstCallback).onRequest(secondCallback);
       mockRequest(request);
 
-      await request.send();
+      await request.send({});
       client.removeOnRequestInterceptors([secondCallback]);
 
-      await request.send();
+      await request.send({});
 
       expect(spy1).toHaveBeenCalledTimes(2);
       expect(spy2).toHaveBeenCalledTimes(1);
@@ -106,10 +106,10 @@ describe("Client [ Middleware ]", () => {
       client.onAuth(firstCallback).onAuth(secondCallback);
       mockRequest(authRequest);
 
-      await authRequest.send();
+      await authRequest.send({});
       client.removeOnAuthInterceptors([secondCallback]);
 
-      await authRequest.send();
+      await authRequest.send({});
 
       expect(spy1).toHaveBeenCalledTimes(2);
       expect(spy2).toHaveBeenCalledTimes(1);

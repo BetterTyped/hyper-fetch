@@ -16,7 +16,7 @@ describe("Fetch Adapter [ Server ]", () => {
 
   let client = new Client({ url: "shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
   let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -26,7 +26,7 @@ describe("Fetch Adapter [ Server ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     clientHttps = new Client({ url: "https://shared-base-url" });
-    request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
     requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
 
     client.requestManager.addAbortController(request.abortKey, requestId);
@@ -132,7 +132,7 @@ describe("Fetch Adapter [ Server ]", () => {
     mockRequest(mutation);
 
     await mutation.send({
-      data: {
+      payload: {
         username: "Kacper",
         password: "Kacper1234",
       },
@@ -157,7 +157,7 @@ describe("Fetch Adapter [ Server ]", () => {
     const buffer = Buffer.from("test");
 
     await mutation.send({
-      data: buffer as any,
+      payload: buffer as any,
     });
 
     expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);

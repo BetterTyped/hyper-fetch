@@ -11,7 +11,7 @@ import {
   AdapterInstance,
   ResponseType,
 } from "adapter";
-import { RequestInstance, getProgressData, AdapterProgressEventType } from "request";
+import { RequestInstance, getProgressData, ProgressEventType } from "request";
 import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
 import { mocker } from "mocker";
 
@@ -67,7 +67,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   const fullUrl = url + endpoint;
 
-  const effects = client.effects.filter((effect) => request.effectKey === effect.getEffectKey());
+  const { plugins } = client;
   const headers = headerMapper(request);
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
@@ -103,7 +103,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const handleRequestProgress = (
     startTimestamp: number,
     progressTimestamp: number,
-    progressEvent: AdapterProgressEventType,
+    progressEvent: ProgressEventType,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
@@ -116,7 +116,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const handleResponseProgress = (
     startTimestamp: number,
     progressTimestamp: number,
-    progressEvent: AdapterProgressEventType,
+    progressEvent: ProgressEventType,
   ) => {
     const progress = getProgressData(new Date(startTimestamp), new Date(progressTimestamp), progressEvent);
 
@@ -131,7 +131,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const onBeforeRequest = () => {
     logger.debug(`Request ready to send`, { requestId, request });
 
-    effects.forEach((effect) => effect.onTrigger(request));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestTrigger", { request }));
   };
 
   // Request
@@ -142,7 +142,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       request,
     });
 
-    effects.forEach((action) => action.onStart(request));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestStart", { request }));
 
     if (progress?.total) {
       requestTotal = getTotal(requestTotal, progress);
@@ -251,8 +251,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     response = (await request.client.__modifyResponse(response, request)) as typeof responseData;
     response = (await request.client.__modifySuccessResponse(response, request)) as typeof responseData;
 
-    effects.forEach((effect) => effect.onSuccess(response, request));
-    effects.forEach((effect) => effect.onFinished(response, request));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestSuccess", { response, request }));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestFinished", { response, request }));
 
     resolve(response);
 
@@ -286,8 +286,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     response = (await request.client.__modifyResponse(response, request)) as typeof response;
     response = (await request.client.__modifyErrorResponse(response, request)) as typeof response;
 
-    effects.forEach((effect) => effect.onError(response, request));
-    effects.forEach((effect) => effect.onFinished(response, request));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestError", { response, request }));
+    plugins.forEach((plugin) => plugin.triggerMethod("onRequestFinished", { response, request }));
 
     resolve(response);
 

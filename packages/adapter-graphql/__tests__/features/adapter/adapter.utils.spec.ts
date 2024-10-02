@@ -5,13 +5,25 @@ import { getUserQuery, getUserQueryString } from "../../constants/queries.consta
 
 describe("Graphql Adapter [ Utils ]", () => {
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
-  let request = client.createRequest<any, any>()({ endpoint: getUserQuery, method: GraphqlMethod.POST });
-  let requestGet = client.createRequest<any, any>()({ endpoint: getUserQueryString, method: GraphqlMethod.GET });
+  let request = client.createRequest<{ response: any; payload: any }>()({
+    endpoint: getUserQuery,
+    method: GraphqlMethod.POST,
+  });
+  let requestGet = client.createRequest<{ response: any; payload: any }>()({
+    endpoint: getUserQueryString,
+    method: GraphqlMethod.GET,
+  });
 
   beforeEach(() => {
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
-    request = client.createRequest<any, any>()({ endpoint: getUserQuery, method: GraphqlMethod.POST });
-    requestGet = client.createRequest<any, any>()({ endpoint: getUserQueryString, method: GraphqlMethod.GET });
+    request = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: getUserQuery,
+      method: GraphqlMethod.POST,
+    });
+    requestGet = client.createRequest<{ response: any; payload: any }>()({
+      endpoint: getUserQueryString,
+      method: GraphqlMethod.GET,
+    });
 
     jest.resetAllMocks();
     jest.clearAllMocks();

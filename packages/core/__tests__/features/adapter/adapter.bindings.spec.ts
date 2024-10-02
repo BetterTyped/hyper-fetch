@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { RequestEffect } from "effect";
+import { Plugin } from "plugin";
 import { xhrExtra, getAdapterBindings, AdapterOptionsType, ResponseType, getErrorMessage, AdapterType } from "adapter";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
@@ -21,6 +21,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
     success: true,
     status: 200,
     extra: xhrExtra,
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
   };
   const errorResponse: ResponseType<unknown, unknown, AdapterType> = {
     data: null,
@@ -28,6 +30,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
     success: false,
     status: 400,
     extra: xhrExtra,
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
   };
   const requestConfig: AdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
@@ -38,19 +42,19 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const onSuccessSpy = jest.fn();
 
   const initializeSetup = () => {
-    const effect = new RequestEffect({
-      effectKey: "test",
-      onTrigger: onTriggerSpy,
-      onError: onErrorSpy,
-      onFinished: onFinishedSpy,
-      onStart: onStartSpy,
-      onSuccess: onSuccessSpy,
-    });
-    const client = new Client({ url }).addEffect([effect]);
+    const effect = new Plugin({
+      name: "test",
+    })
+      .onRequestTrigger(onTriggerSpy)
+      .onRequestError(onErrorSpy)
+      .onRequestFinished(onFinishedSpy)
+      .onRequestStart(onStartSpy)
+      .onRequestSuccess(onSuccessSpy);
+
+    const client = new Client({ url }).addPlugin(effect);
     const request = client
       .createRequest<{ response: any; payload: { value: number } }>()({ endpoint, options: requestConfig })
       .setPayload(data)
-      .setEffectKey("test")
       .setQueryParams(queryParams);
 
     return { request, client, effect };
@@ -204,7 +208,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
     it("should allow for setting data mapper", async () => {
       const req = client.createRequest<{
         response: any;
-        payload: Record<string, unknown>;
+        payload: { role: string; userId: number };
         error: Error;
         queryParams: { userId: number; role: string };
       }>()({
@@ -221,7 +225,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         return `${userId}_${role}`;
       }
 
-      const requestMapped = req.setPayloadMapper(payloadMapper);
+      const requestMapped = req.setPayloadMapper<string>(payloadMapper);
       const requestSetData = requestMapped.setPayload(newData);
 
       const { payload } = await getAdapterBindings({
@@ -639,6 +643,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
           success: true,
           status: 222,
           extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
         };
         client.__onResponseCallbacks.push(() => errorResponse);
         client.__onSuccessCallbacks.push(() => newData);
@@ -711,6 +717,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
           success: false,
           status: null,
           extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
         };
         client.__onResponseCallbacks.push(() => successResponse);
         client.__onErrorCallbacks.push(() => newData);

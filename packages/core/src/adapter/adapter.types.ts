@@ -1,5 +1,12 @@
-import { ExtendRequest, RequestInstance } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, HttpMethodsType, HttpStatusType } from "../types";
+import { RequestInstance } from "request";
+import {
+  ExtendRequest,
+  ExtractAdapterType,
+  ExtractErrorType,
+  ExtractResponseType,
+  HttpMethodsType,
+  HttpStatusType,
+} from "../types";
 import { Client } from "client";
 
 /**

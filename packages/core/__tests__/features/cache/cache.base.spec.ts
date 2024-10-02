@@ -14,10 +14,15 @@ describe("Cache [ Base ]", () => {
     status: 200,
     success: true,
     extra: xhrExtra,
+    requestTimestamp: Date.now(),
+    responseTimestamp: Date.now(),
   };
   const details: ResponseDetailsType = {
     retries: 0,
-    timestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
   };
@@ -49,11 +54,11 @@ describe("Cache [ Base ]", () => {
       cache.set(request.setCache(true), { ...response, ...details, data: "TEST!" });
 
       expect(cache.get(request.cacheKey)).toBeDefined();
-      expect(cache.get(request.cacheKey).data).toBe("TEST!");
+      expect(cache.get(request.cacheKey)?.data).toBe("TEST!");
 
-      cache.set(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+      cache.set(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous?.data} WOW!` }));
 
-      expect(cache.get(request.cacheKey).data).toBe("TEST! WOW!");
+      expect(cache.get(request.cacheKey)?.data).toBe("TEST! WOW!");
     });
     it("should update cache", async () => {
       cache.set(request.setCache(true), { ...response, ...details });
@@ -61,7 +66,7 @@ describe("Cache [ Base ]", () => {
 
       expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST!");
 
-      cache.update(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous.data} WOW!` }));
+      cache.update(request.setCache(true), (previous) => ({ ...response, ...details, data: `${previous?.data} WOW!` }));
 
       expect(cache.get(request.cacheKey)?.data).toBe("SUPER TEST! WOW!");
     });

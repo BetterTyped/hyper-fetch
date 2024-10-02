@@ -1,7 +1,7 @@
 import { RequestInstance } from "request";
-import { ResponseType, AdapterType, QueryParamsType, AdapterInstance } from "adapter";
+import { ResponseType, AdapterType, QueryParamsType } from "adapter";
 import { Client } from "client";
-import type { NegativeTypes } from "types";
+import type { ExtendRequest, ExtractClientAdapterType, NegativeTypes } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
 export type ClientInstance = Client<any, any, any>;
@@ -12,6 +12,7 @@ export type RequestGenericType<QueryParams> = {
   error?: any;
   queryParams?: QueryParams;
   endpoint?: string;
+  params?: Record<string, string | number>;
 };
 
 /**
@@ -51,10 +52,17 @@ export type ClientOptionsType<C extends ClientInstance> = {
 // Interceptors
 
 export type RequestInterceptorType = (request: RequestInstance) => Promise<RequestInstance> | RequestInstance;
-export type ResponseInterceptorType<Response = any, Error = any, Adapter extends AdapterInstance = AdapterType> = (
-  response: ResponseType<Response, Error, Adapter>,
-  request: RequestInstance,
-) => Promise<ResponseType<any, any, Adapter>> | ResponseType<any, any, Adapter>;
+export type ResponseInterceptorType<Client extends ClientInstance, Response = any, Error = any> = (
+  response: ResponseType<Response, Error, ExtractClientAdapterType<Client>>,
+  request: ExtendRequest<
+    RequestInstance,
+    {
+      client: Client;
+    }
+  >,
+) =>
+  | Promise<ResponseType<any, any, ExtractClientAdapterType<Client>>>
+  | ResponseType<any, any, ExtractClientAdapterType<Client>>;
 
 // Stringify
 

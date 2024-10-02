@@ -15,7 +15,7 @@ describe("Provider [ Hydration ]", () => {
   let client = new Client({
     url: "http://localhost:3000",
   });
-  let request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
   const Page = () => {
     values = useProvider();
@@ -59,7 +59,7 @@ describe("Provider [ Hydration ]", () => {
     client = new Client({
       url: "http://localhost:3000",
     });
-    request = client.createRequest<any>()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
   });
 
   describe("given app is rendered on the Server", () => {

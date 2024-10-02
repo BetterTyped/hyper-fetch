@@ -1,6 +1,6 @@
 // rollup client entry point
 
-export * from "./effect";
+export * from "./plugin";
 export * from "./client";
 export * from "./cache";
 export * from "./adapter";

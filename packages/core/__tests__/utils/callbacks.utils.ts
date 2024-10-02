@@ -1,8 +1,12 @@
 import { xhrExtra, AdapterType, ResponseType } from "adapter";
 import { RequestInstance } from "request";
 import { sleep } from "./helpers.utils";
+import { ClientInstance, ResponseInterceptorType } from "client";
 
-export const interceptorCallback = (props?: { sleepTime?: number; callback: () => void }) => {
+export const interceptorCallback = (props?: {
+  sleepTime?: number;
+  callback: () => void;
+}): ResponseInterceptorType<ClientInstance> => {
   const { sleepTime, callback } = props || {};
 
   return async (response?: ResponseType<null, null, AdapterType>): Promise<ResponseType<null, null, AdapterType>> => {
@@ -18,8 +22,8 @@ export const interceptorCallback = (props?: { sleepTime?: number; callback: () =
         success: true,
         status: 200,
         extra: xhrExtra,
-        startTimestamp: 0,
-        endTimestamp: 0,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
       }
     );
   };

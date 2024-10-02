@@ -81,7 +81,10 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
 
@@ -91,11 +94,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        requestTimestamp: 0,
+        responseTimestamp: 0,
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: 0,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
+        addedTimestamp: 0,
       };
 
       await waitFor(() => {
@@ -108,7 +117,10 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
 
@@ -118,11 +130,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 400,
         success: false,
         extra: { headers: { "content-type": "application/json", "content-length": "19" } },
+        requestTimestamp: 0,
+        responseTimestamp: 0,
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: 0,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
+        addedTimestamp: 0,
       };
 
       await waitFor(() => {
@@ -136,7 +154,10 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(requestWithRetry);
 
@@ -152,11 +173,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        requestTimestamp: 0,
+        responseTimestamp: 0,
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isCanceled: false,
         isOffline: false,
+        triggerTimestamp: 0,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
+        addedTimestamp: 0,
       };
 
       await waitFor(() => {
@@ -169,7 +196,10 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).timestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
+        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
       await sleep(1);
@@ -181,11 +211,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 0,
         success: false,
         extra: xhrExtra,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: true,
         isOffline: false,
+        addedTimestamp: 0,
+        requestTimestamp: 0,
+        responseTimestamp: 0,
+        triggerTimestamp: 0,
       };
 
       await waitFor(() => {

@@ -9,7 +9,7 @@ const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingSe
 
 describe("Client [ Interceptor ]", () => {
   let client = new Client({ url: "shared-base-url/" });
-  let request = client.createRequest<any>()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
 
   const spy1 = jest.fn();
   const spy2 = jest.fn();
@@ -21,7 +21,7 @@ describe("Client [ Interceptor ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url/" });
-    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
     resetMocks();
     jest.clearAllMocks();
   });
@@ -65,7 +65,15 @@ describe("Client [ Interceptor ]", () => {
 
       client.onError(callbackAsync).onError(callbackSync).onError(callbackLast);
       await client.__modifyErrorResponse(
-        { data: null, error: null, status: 400, success: false, extra: xhrExtra },
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
+        },
         request,
       );
 
@@ -78,7 +86,15 @@ describe("Client [ Interceptor ]", () => {
 
       client.onSuccess(callbackAsync).onSuccess(callbackSync).onSuccess(callbackLast);
       await client.__modifySuccessResponse(
-        { data: null, error: null, status: 400, success: false, extra: xhrExtra },
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
+        },
         request,
       );
 
@@ -90,7 +106,18 @@ describe("Client [ Interceptor ]", () => {
       const callbackLast = interceptorCallback({ callback: spy3, sleepTime: 10 });
 
       client.onResponse(callbackAsync).onResponse(callbackSync).onResponse(callbackLast);
-      await client.__modifyResponse({ data: null, error: null, status: 400, success: false, extra: xhrExtra }, request);
+      await client.__modifyResponse(
+        {
+          data: null,
+          error: null,
+          status: 400,
+          success: false,
+          extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        },
+        request,
+      );
 
       testCallbacksExecution([spy1, spy2, spy3]);
     });
@@ -102,7 +129,15 @@ describe("Client [ Interceptor ]", () => {
 
       await expect(
         client.__modifyErrorResponse(
-          { data: null, error: null, status: 400, success: false, extra: xhrExtra },
+          {
+            data: null,
+            error: null,
+            status: 400,
+            success: false,
+            extra: xhrExtra,
+            requestTimestamp: Date.now(),
+            responseTimestamp: Date.now(),
+          },
           request,
         ),
       ).rejects.toThrow();
@@ -112,7 +147,15 @@ describe("Client [ Interceptor ]", () => {
 
       await expect(
         client.__modifySuccessResponse(
-          { data: null, error: null, status: 400, success: false, extra: xhrExtra },
+          {
+            data: null,
+            error: null,
+            status: 400,
+            success: false,
+            extra: xhrExtra,
+            requestTimestamp: Date.now(),
+            responseTimestamp: Date.now(),
+          },
           request,
         ),
       ).rejects.toThrow();
@@ -121,7 +164,18 @@ describe("Client [ Interceptor ]", () => {
       client.onResponse(() => undefined as any);
 
       await expect(
-        client.__modifyResponse({ data: null, error: null, status: 400, success: false, extra: xhrExtra }, request),
+        client.__modifyResponse(
+          {
+            data: null,
+            error: null,
+            status: 400,
+            success: false,
+            extra: xhrExtra,
+            requestTimestamp: Date.now(),
+            responseTimestamp: Date.now(),
+          },
+          request,
+        ),
       ).rejects.toThrow();
     });
   });
@@ -132,9 +186,9 @@ describe("Client [ Interceptor ]", () => {
       client.onError(firstCallback).onError(secondCallback);
       mockRequest(request, { status: 400 });
 
-      await request.send();
+      await request.send({});
       client.removeOnErrorInterceptors([secondCallback]);
-      await request.send();
+      await request.send({});
 
       expect(spy1).toHaveBeenCalledTimes(2);
       expect(spy2).toHaveBeenCalledTimes(1);
@@ -145,10 +199,10 @@ describe("Client [ Interceptor ]", () => {
       const secondCallback = interceptorCallback({ callback: spy2 });
       client.onSuccess(firstCallback).onSuccess(secondCallback);
 
-      await request.send();
+      await request.send({});
       client.removeOnSuccessInterceptors([secondCallback]);
 
-      await request.send();
+      await request.send({});
 
       expect(spy1).toHaveBeenCalledTimes(2);
       expect(spy2).toHaveBeenCalledTimes(1);
@@ -159,10 +213,10 @@ describe("Client [ Interceptor ]", () => {
       client.onResponse(firstCallback).onResponse(secondCallback);
       mockRequest(request);
 
-      await request.send();
+      await request.send({});
       client.removeOnResponseInterceptors([secondCallback]);
 
-      await request.send();
+      await request.send({});
 
       expect(spy1).toHaveBeenCalledTimes(2);
       expect(spy2).toHaveBeenCalledTimes(1);

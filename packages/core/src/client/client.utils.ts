@@ -4,12 +4,11 @@ import {
   QueryParamValuesType,
   ResponseType,
   QueryStringifyOptionsType,
-  AdapterInstance,
 } from "adapter";
 import { RequestInstance } from "request";
 import { stringifyDefaultOptions } from "client";
-import { NegativeTypes } from "types";
-import { RequestInterceptorType, ResponseInterceptorType } from "./client.types";
+import { ExtendRequest, ExtractClientAdapterType, NegativeTypes } from "types";
+import { ClientInstance, RequestInterceptorType, ResponseInterceptorType } from "./client.types";
 import { hasWindow } from "managers";
 
 // Utils
@@ -35,10 +34,10 @@ export const interceptRequest = async (interceptors: RequestInterceptorType[], r
   return newRequest;
 };
 
-export const interceptResponse = async <GlobalErrorType, Adapter extends AdapterInstance>(
-  interceptors: ResponseInterceptorType[],
-  response: ResponseType<any, GlobalErrorType, Adapter>,
-  request: RequestInstance,
+export const interceptResponse = async <GlobalErrorType, Client extends ClientInstance>(
+  interceptors: ResponseInterceptorType<Client>[],
+  response: ResponseType<any, GlobalErrorType, ExtractClientAdapterType<Client>>,
+  request: ExtendRequest<RequestInstance, { client: Client }>,
 ) => {
   let newResponse = response;
   if (!request.requestOptions.disableResponseInterceptors) {

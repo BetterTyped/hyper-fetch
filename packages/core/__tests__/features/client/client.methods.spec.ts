@@ -1,6 +1,6 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { RequestEffect } from "effect";
+import { Plugin } from "plugin";
 import { Client, StringifyCallbackType } from "client";
 import { RequestOptionsType, Request } from "request";
 import { AdapterOptionsType, QueryStringifyOptionsType } from "adapter";
@@ -31,14 +31,14 @@ describe("Client [ Methods ]", () => {
       client.setRequestDefaultOptions(() => options);
       const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.requestDefaultOptions(request.requestOptions)).toEqual(options);
+      expect(client.requestDefaultOptions?.(request.requestOptions)).toEqual(options);
       expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
       const options: AdapterOptionsType = { timeout: 12312312 };
       client.setAdapterDefaultOptions(() => options);
 
-      expect(client.adapterDefaultOptions(request)).toEqual(options);
+      expect(client.adapterDefaultOptions?.(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = {
@@ -126,43 +126,41 @@ describe("Client [ Methods ]", () => {
       expect(newRequest instanceof Request).toBeTrue();
       expect(newRequest.endpoint).toBe(endpoint);
     });
-    it("should add single effect listeners on addEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should add single effect listeners on addPlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect(effect);
+      client.addPlugin(plugin);
 
-      expect(client.effects[0]).toBe(effect);
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins[0]).toBe(plugin);
+      expect(client.plugins).toHaveLength(1);
     });
-    it("should add effects array listeners on addEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should add plugins array listeners on addPlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect([effect]);
+      client.addPlugin(plugin);
 
-      expect(client.effects[0]).toBe(effect);
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins[0]).toBe(plugin);
+      expect(client.plugins).toHaveLength(1);
     });
-    it("should remove effect listener on removeEffect method trigger", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
+    it("should remove plugin listener on removePlugin method trigger", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
 
-      client.addEffect(effect);
-      client.removeEffect(effect);
-      expect(client.effects).toHaveLength(0);
+      client.addPlugin(plugin);
+      client.removePlugin(plugin);
+      expect(client.plugins).toHaveLength(0);
 
-      client.addEffect(effect);
-      client.removeEffect(effect.getEffectKey());
-      expect(client.effects).toHaveLength(0);
+      client.addPlugin(plugin);
+      expect(client.plugins).toHaveLength(0);
     });
-    it("should not remove effect when wrong effectKey is passed", async () => {
-      const effect = new RequestEffect({ effectKey: "NEW-EFFECT" });
-      const otherEffect = new RequestEffect({ effectKey: "OTHER-EFFECT" });
+    it("should not remove plugin when wrong pluginKey is passed", async () => {
+      const plugin = new Plugin({ name: "NEW-EFFECT" });
+      const otherEffect = new Plugin({ name: "OTHER-EFFECT" });
 
-      client.addEffect(effect);
-      client.removeEffect(otherEffect);
-      expect(client.effects).toHaveLength(1);
+      client.addPlugin(plugin);
+      client.removePlugin(otherEffect);
+      expect(client.plugins).toHaveLength(1);
 
-      client.removeEffect(otherEffect.getEffectKey());
-      expect(client.effects).toHaveLength(1);
+      expect(client.plugins).toHaveLength(1);
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {
       const callback = () => ({}) as HeadersInit;

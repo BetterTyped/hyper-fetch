@@ -5,17 +5,15 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Request [ Cloning ]", () => {
-  const endpoint = "/users/:userId";
-
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint });
+  let request = client.createRequest()({ endpoint: "/users/:userId" });
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint });
+    request = client.createRequest()({ endpoint: "/users/:userId" });
     resetMocks();
     jest.resetAllMocks();
   });

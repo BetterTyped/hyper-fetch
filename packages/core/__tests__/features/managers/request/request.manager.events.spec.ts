@@ -104,7 +104,7 @@ describe("RequestManager [ Events ]", () => {
       const spy1 = jest.fn();
 
       client.fetchDispatcher.add(request);
-      client.requestManager.events.onAbortByQueue(request.abortKey, spy1);
+      client.requestManager.events.onAbortByKey(request.abortKey, spy1);
 
       await sleep(5);
       client.requestManager.abortAll();

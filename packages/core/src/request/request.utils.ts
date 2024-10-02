@@ -1,5 +1,5 @@
 import { ProgressType, ResponseType, getErrorMessage } from "adapter";
-import { AdapterProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
+import { ProgressEventType, RequestInstance, RequestJSON, RequestSendOptionsType } from "request";
 import { HttpMethods } from "constants/http.constants";
 import { canRetryRequest, Dispatcher } from "dispatcher";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
@@ -16,7 +16,7 @@ export const stringifyKey = (value: unknown): string => {
   }
 };
 
-export const getProgressValue = ({ loaded, total }: AdapterProgressEventType): number => {
+export const getProgressValue = ({ loaded, total }: ProgressEventType): number => {
   if (!loaded || !total) return 0;
   return Number(((loaded * 100) / total).toFixed(0));
 };
@@ -24,7 +24,7 @@ export const getProgressValue = ({ loaded, total }: AdapterProgressEventType): n
 export const getRequestEta = (
   startDate: Date,
   progressDate: Date,
-  { total, loaded }: AdapterProgressEventType,
+  { total, loaded }: ProgressEventType,
 ): { sizeLeft: number; timeLeft: number | null } => {
   const timeElapsed = +progressDate - +startDate || 1;
   const uploadSpeed = loaded / timeElapsed;
@@ -39,7 +39,7 @@ export const getRequestEta = (
 export const getProgressData = (
   requestStartTime: Date,
   progressDate: Date,
-  progressEvent: AdapterProgressEventType,
+  progressEvent: ProgressEventType,
 ): ProgressType => {
   const { total, loaded } = progressEvent;
   if (Number.isNaN(total) || Number.isNaN(loaded)) {
@@ -114,7 +114,8 @@ export const sendRequest = <Request extends RequestInstance>(
   request: Request,
   options?: RequestSendOptionsType<Request>,
 ) => {
-  const { requestManager } = request.client;
+  const { client } = request;
+  const { requestManager } = client;
   const [dispatcher] = getRequestDispatcher(request, options?.dispatcherType);
 
   return new Promise<

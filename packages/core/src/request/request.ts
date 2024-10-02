@@ -78,11 +78,9 @@ export class Request<
   abortKey: string;
   cacheKey: string;
   queueKey: string;
-  effectKey: string;
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
-  revalidate: boolean;
   payloadMapper?: PayloadMapperType<Payload>;
 
   mock?: Generator<
@@ -101,7 +99,6 @@ export class Request<
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
   private updatedQueueKey: boolean;
-  private updatedEffectKey: boolean;
 
   constructor(
     readonly client: Client,
@@ -150,7 +147,6 @@ export class Request<
       abortKey,
       cacheKey,
       queueKey,
-      effectKey,
       deduplicate = false,
       deduplicateTime = 10,
     } = configuration;
@@ -173,15 +169,12 @@ export class Request<
     this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
     this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
     this.queueKey = initialRequestConfiguration?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
-    this.effectKey = initialRequestConfiguration?.effectKey ?? effectKey ?? this.client.effectKeyMapper(this);
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
-    this.revalidate = initialRequestConfiguration?.revalidate ?? true;
     this.updatedAbortKey = initialRequestConfiguration?.updatedAbortKey ?? false;
     this.updatedCacheKey = initialRequestConfiguration?.updatedCacheKey ?? false;
     this.updatedQueueKey = initialRequestConfiguration?.updatedQueueKey ?? false;
-    this.updatedEffectKey = initialRequestConfiguration?.updatedEffectKey ?? false;
   }
 
   public setHeaders = (headers: HeadersInit) => {
@@ -283,11 +276,6 @@ export class Request<
     return this.clone({ queueKey });
   };
 
-  public setEffectKey = (effectKey: string) => {
-    this.updatedEffectKey = true;
-    return this.clone({ effectKey });
-  };
-
   public setDeduplicate = (deduplicate: boolean) => {
     return this.clone({ deduplicate });
   };
@@ -346,10 +334,12 @@ export class Request<
    * @param payloadMapper
    * @returns
    */
-  public setPayloadMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
+  public setPayloadMapper = <MappedPayload extends any | Promise<any>>(
+    payloadMapper: (data: Payload) => MappedPayload,
+  ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.payloadMapper = payloadMapper;
+    cloned.payloadMapper = payloadMapper as typeof this.payloadMapper;
 
     return cloned;
   };
@@ -438,14 +428,12 @@ export class Request<
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
       queueKey: this.queueKey,
-      effectKey: this.effectKey,
       used: this.used,
       disableResponseInterceptors: this.requestOptions.disableResponseInterceptors,
       disableRequestInterceptors: this.requestOptions.disableRequestInterceptors,
       updatedAbortKey: this.updatedAbortKey,
       updatedCacheKey: this.updatedCacheKey,
       updatedQueueKey: this.updatedQueueKey,
-      updatedEffectKey: this.updatedEffectKey,
       deduplicate: this.deduplicate,
       deduplicateTime: this.deduplicateTime,
     };

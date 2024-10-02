@@ -10,7 +10,7 @@ describe("Request [ Sending ]", () => {
   const fixture = { test: 1, data: [1, 2, 3] };
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<any>()({ endpoint: "shared-base-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -18,7 +18,7 @@ describe("Request [ Sending ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-base-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" });
     resetMocks();
     jest.resetAllMocks();
     mockRequest(request, { data: fixture, delay: 40 });
@@ -30,7 +30,7 @@ describe("Request [ Sending ]", () => {
 
   describe("When using request's exec method", () => {
     it("should return adapter response", async () => {
-      const requestExecution = request.exec();
+      const requestExecution = request.exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
       const response = await requestExecution;
@@ -43,7 +43,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return mapped adapter response", async () => {
-      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec();
+      const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
       const response = await requestExecution;
@@ -58,7 +58,7 @@ describe("Request [ Sending ]", () => {
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
-      const response = await request.send();
+      const response = await request.send({});
 
       expect(response).toStrictEqual({
         data: fixture,
@@ -69,7 +69,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return mapped adapter response", async () => {
-      const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send();
+      const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
@@ -82,7 +82,7 @@ describe("Request [ Sending ]", () => {
     it("should return async mapped adapter response", async () => {
       const response = await request
         .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } }))
-        .send();
+        .send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
@@ -95,7 +95,7 @@ describe("Request [ Sending ]", () => {
     it("should wait to resolve request in online mode", async () => {
       const spy = jest.fn();
       mockRequest(request, { delay: 10, status: 400 });
-      const requestExecution = request.send();
+      const requestExecution = request.send({});
       await sleep(5);
       client.appManager.setOnline(false);
 
@@ -119,7 +119,7 @@ describe("Request [ Sending ]", () => {
     it("should wait to resolve request retries", async () => {
       const spy = jest.fn();
       mockRequest(request, { delay: 10, status: 400 });
-      const requestExecution = request.setRetry(1).setRetryTime(30).send();
+      const requestExecution = request.setRetry(1).setRetryTime(30).send({});
       await sleep(5);
 
       const unmount = client.requestManager.events.onResponseByCache(request.cacheKey, () => {
@@ -140,7 +140,7 @@ describe("Request [ Sending ]", () => {
     });
     it("should return error once request got removed", async () => {
       mockRequest(request, { delay: 10, status: 400 });
-      const requestExecution = request.send();
+      const requestExecution = request.send({});
       await sleep(2);
 
       const runningRequests = client.fetchDispatcher.getAllRunningRequests();
@@ -168,10 +168,12 @@ describe("Request [ Sending ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return cancel error", async () => {
-      const newRequest = client.createRequest<any>()({ endpoint: "shared-base-endpoint" }).setCancelable(true);
+      const newRequest = client
+        .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
+        .setCancelable(true);
       const mock = mockRequest(newRequest);
 
-      const [res1, res2, res3] = await Promise.all([newRequest.send(), newRequest.send(), newRequest.send()]);
+      const [res1, res2, res3] = await Promise.all([newRequest.send({}), newRequest.send({}), newRequest.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,
@@ -207,7 +209,7 @@ describe("Request [ Sending ]", () => {
 
       const mock = mockRequest(getUsers);
 
-      const [res1, res2, res3] = await Promise.all([getUsers.send(), getUsers.send(), getUsers.send()]);
+      const [res1, res2, res3] = await Promise.all([getUsers.send({}), getUsers.send({}), getUsers.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,

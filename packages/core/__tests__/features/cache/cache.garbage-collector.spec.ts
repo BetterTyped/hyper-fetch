@@ -24,7 +24,7 @@ describe("Cache [ Garbage Collector ]", () => {
     garbageCollection,
     cacheKey,
     queueKey: "1",
-    effectKey: "2",
+    name: "2",
     endpoint: "shared-endpoint",
     method: "GET",
   };

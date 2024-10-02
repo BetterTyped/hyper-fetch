@@ -29,12 +29,12 @@ import {
 } from "client";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
-import { RequestEffectInstance } from "effect";
+import { PluginInstance } from "plugin";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
-import { ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
+import { ExtendRequest, ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -50,13 +50,10 @@ export class Client<
   readonly url: string;
   public debug: boolean;
 
-  /** Only used in dev mode */
-  __requestsMap: Array<RequestInstance> = [];
-
   // Private
-  __onErrorCallbacks: ResponseInterceptorType[] = [];
-  __onSuccessCallbacks: ResponseInterceptorType[] = [];
-  __onResponseCallbacks: ResponseInterceptorType[] = [];
+  __onErrorCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>>[] = [];
+  __onSuccessCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>>[] = [];
+  __onResponseCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>>[] = [];
   __onAuthCallbacks: RequestInterceptorType[] = [];
   __onRequestCallbacks: RequestInterceptorType[] = [];
 
@@ -67,7 +64,7 @@ export class Client<
 
   // Config
   adapter: Adapter;
-  cache: Cache<this>;
+  cache: Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
 
@@ -77,11 +74,13 @@ export class Client<
   isMockEnabled = true;
 
   // Registered requests effect
-  effects: RequestEffectInstance[] = [];
+  plugins: PluginInstance[] = [];
 
   // Options
   queryParamsConfig?: QueryStringifyOptionsType;
-  adapterDefaultOptions?: (request: RequestInstance) => ExtractAdapterOptionsType<Adapter>;
+  adapterDefaultOptions?: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => ExtractAdapterOptionsType<Adapter>;
   requestDefaultOptions?: (
     options: RequestOptionsType<
       ExtractAdapterEndpointType<Adapter>,
@@ -95,10 +94,18 @@ export class Client<
       ExtractAdapterMethodType<Adapter>
     >
   >;
-  abortKeyMapper: (request: RequestInstance) => string = getSimpleKey;
-  cacheKeyMapper: (request: RequestInstance) => string = getRequestKey;
-  queueKeyMapper: (request: RequestInstance) => string = getRequestKey;
-  effectKeyMapper: (request: RequestInstance) => string = getSimpleKey;
+  abortKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => string = getSimpleKey;
+  cacheKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => string = getRequestKey;
+  queueKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => string = getRequestKey;
+  effectKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => string = getSimpleKey;
 
   // Utils
 
@@ -131,7 +138,7 @@ export class Client<
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
     this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<this>;
+    this.cache = (cache?.(this) || new Cache(this)) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
     this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
     this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   }
@@ -147,7 +154,9 @@ export class Client<
   };
 
   setAdapterDefaultOptions = (
-    callback: (request: RequestInstance) => ExtractAdapterOptionsType<Adapter>,
+    callback: (
+      request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+    ) => ExtractAdapterOptionsType<Adapter>,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.adapterDefaultOptions = callback;
     return this;
@@ -237,7 +246,9 @@ export class Client<
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
   setAdapter = <NewAdapter extends AdapterInstance, Returns extends AdapterInstance | ClientInstance>(
-    callback: (client: this) => Returns extends AdapterInstance ? NewAdapter : Returns,
+    callback: (
+      client: Client<GlobalErrorType, Adapter, EndpointMapper>,
+    ) => Returns extends AdapterInstance ? NewAdapter : Returns,
   ): Returns extends ClientInstance
     ? Returns
     : Client<
@@ -293,7 +304,11 @@ export class Client<
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
   onError = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
+    callback: ResponseInterceptorType<
+      Client<GlobalErrorType, Adapter, EndpointMapper>,
+      any,
+      ErrorType | GlobalErrorType
+    >,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onErrorCallbacks.push(callback);
     return this;
@@ -303,7 +318,7 @@ export class Client<
    * Method for removing listeners on error.
    * */
   removeOnErrorInterceptors = (
-    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onErrorCallbacks = this.__onErrorCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
@@ -313,7 +328,11 @@ export class Client<
    * Method for intercepting success responses.
    */
   onSuccess = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
+    callback: ResponseInterceptorType<
+      Client<GlobalErrorType, Adapter, EndpointMapper>,
+      any,
+      ErrorType | GlobalErrorType
+    >,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onSuccessCallbacks.push(callback);
     return this;
@@ -323,7 +342,7 @@ export class Client<
    * Method for removing listeners on success.
    * */
   removeOnSuccessInterceptors = (
-    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onSuccessCallbacks = this.__onSuccessCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
@@ -351,7 +370,11 @@ export class Client<
    * Method for intercepting any responses.
    */
   onResponse = <ErrorType = null>(
-    callback: ResponseInterceptorType<any, ErrorType | GlobalErrorType, Adapter>,
+    callback: ResponseInterceptorType<
+      Client<GlobalErrorType, Adapter, EndpointMapper>,
+      any,
+      ErrorType | GlobalErrorType
+    >,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onResponseCallbacks.push(callback);
     return this;
@@ -361,27 +384,33 @@ export class Client<
    * Method for removing listeners on request.
    * */
   removeOnResponseInterceptors = (
-    callbacks: ResponseInterceptorType<any, null | GlobalErrorType, Adapter>[],
+    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter, EndpointMapper>, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.__onResponseCallbacks = this.__onResponseCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
   };
 
   /**
-   * Add persistent effects which trigger on the request lifecycle
+   * Add persistent plugins which trigger on the request lifecycle
    */
-  addEffect = (effect: RequestEffectInstance | RequestEffectInstance[]) => {
-    this.effects = this.effects.concat(effect);
+  addPlugin = (plugin: PluginInstance) => {
+    this.plugins.push(plugin);
+
+    plugin.triggerMethod("onMount", { client: this });
 
     return this;
   };
 
   /**
-   * Remove effects from Client
+   * Remove plugins from Client
    */
-  removeEffect = (effect: RequestEffectInstance | string) => {
-    const name = typeof effect === "string" ? effect : effect.getEffectKey();
-    this.effects = this.effects.filter((currentEffect) => currentEffect.getEffectKey() !== name);
+  removePlugin = (plugin: PluginInstance) => {
+    const pluginCount = this.plugins.length;
+    this.plugins = this.plugins.filter((p) => p !== plugin);
+
+    if (this.plugins.length !== pluginCount) {
+      plugin.triggerMethod("onUnmount", { client: this });
+    }
 
     return this;
   };
@@ -390,46 +419,87 @@ export class Client<
    * Key setters
    */
 
-  setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setAbortKeyMapper = (
+    callback: (
+      request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+    ) => string,
+  ) => {
     this.abortKeyMapper = callback;
   };
-  setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setCacheKeyMapper = (
+    callback: (
+      request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+    ) => string,
+  ) => {
     this.cacheKeyMapper = callback;
   };
-  setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setQueueKeyMapper = (
+    callback: (
+      request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+    ) => string,
+  ) => {
     this.queueKeyMapper = callback;
   };
-  setEffectKeyMapper = (callback: (request: RequestInstance) => string) => {
+  setEffectKeyMapper = (
+    callback: (
+      request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+    ) => string,
+  ) => {
     this.effectKeyMapper = callback;
   };
 
   /**
    * Helper used by http adapter to apply the modifications on response error
    */
-  __modifyAuth = async (request: RequestInstance) => interceptRequest(this.__onAuthCallbacks, request);
+  __modifyAuth = async (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => interceptRequest(this.__onAuthCallbacks, request);
 
   /**
    * Private helper to run async pre-request processing
    */
-  __modifyRequest = async (request: RequestInstance) => interceptRequest(this.__onRequestCallbacks, request);
+  __modifyRequest = async (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) => interceptRequest(this.__onRequestCallbacks, request);
 
   /**
    * Private helper to run async on-error response processing
    */
-  __modifyErrorResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
-    interceptResponse<GlobalErrorType, Adapter>(this.__onErrorCallbacks, response, request);
+  __modifyErrorResponse = async (
+    response: ResponseType<any, GlobalErrorType, Adapter>,
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) =>
+    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter, EndpointMapper>>(
+      this.__onErrorCallbacks,
+      response,
+      request,
+    );
 
   /**
    * Private helper to run async on-success response processing
    */
-  __modifySuccessResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
-    interceptResponse<GlobalErrorType, Adapter>(this.__onSuccessCallbacks, response, request);
+  __modifySuccessResponse = async (
+    response: ResponseType<any, GlobalErrorType, Adapter>,
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) =>
+    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter, EndpointMapper>>(
+      this.__onSuccessCallbacks,
+      response,
+      request,
+    );
 
   /**
    * Private helper to run async response processing
    */
-  __modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
-    interceptResponse<GlobalErrorType, Adapter>(this.__onResponseCallbacks, response, request);
+  __modifyResponse = async (
+    response: ResponseType<any, GlobalErrorType, Adapter>,
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
+  ) =>
+    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter, EndpointMapper>>(
+      this.__onResponseCallbacks,
+      response,
+      request,
+    );
 
   /**
    * Clears the Client instance and remove all listeners on it's dependencies
@@ -448,7 +518,7 @@ export class Client<
     this.cache.emitter.removeAllListeners();
 
     this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<this>;
+    this.cache = (cache?.(this) || new Cache(this)) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
     this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
     this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
   };
@@ -464,7 +534,6 @@ export class Client<
       payload?: undefined;
       error?: Error;
       queryParams?: ExtractAdapterQueryParamsType<Adapter>;
-      endpoint?: string;
     },
   >(
     /**
@@ -498,6 +567,8 @@ export class Client<
     >(
       params: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
     ) => {
+      type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", EndpointType>;
+
       const endpoint = this.endpointMapper(params.endpoint);
 
       // Splitting this type prevents "Type instantiation is excessively deep and possibly infinite" error
@@ -512,12 +583,12 @@ export class Client<
       type ExtractedAdapterType = ExtractedAdapter extends NegativeTypes ? Adapter : ExtractedAdapter;
 
       const mappedParams: RequestOptionsType<
-        EndpointType extends string ? EndpointType : typeof endpoint,
+        Endpoint extends string ? Endpoint : typeof endpoint,
         AdapterOptions,
         MethodType
       > = {
         ...params,
-        endpoint: endpoint as EndpointType extends string ? EndpointType : typeof endpoint,
+        endpoint: endpoint as Endpoint extends string ? Endpoint : typeof endpoint,
       };
 
       const request = new Request<
@@ -525,19 +596,13 @@ export class Client<
         Payload,
         QueryParams,
         LocalError,
-        EndpointType extends string ? EndpointType : typeof endpoint,
+        Endpoint extends string ? Endpoint : typeof endpoint,
         Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>
       >(this as unknown as Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>, mappedParams);
 
-      if (process?.env?.NODE_ENV === "development") {
-        this.__requestsMap.push(request);
-      }
+      this.plugins.forEach((plugin) => plugin.triggerMethod("onRequestCreate", { request }));
 
       return request;
     };
-  };
-
-  addPlugin = <NewClient extends ClientInstance>(callback: (client: typeof this) => NewClient) => {
-    return callback(this);
   };
 }

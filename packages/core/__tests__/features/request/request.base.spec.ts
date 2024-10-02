@@ -30,7 +30,7 @@ describe("Fetch Adapter [ Base ]", () => {
     const c = request.setHeaders(header);
     mockRequest(request);
 
-    await c.send();
+    await c.send({});
 
     expect(c.headers).toEqual(header);
     expect(spy).toHaveBeenCalled();
@@ -47,7 +47,7 @@ describe("Fetch Adapter [ Base ]", () => {
 
     const c = request.setAuth(false);
 
-    await c.send();
+    await c.send({});
 
     expect(c.auth).toBe(false);
     expect(spy).toHaveBeenCalled();
@@ -66,7 +66,9 @@ describe("Fetch Adapter [ Base ]", () => {
     const c = comm.setParams(params);
     mockRequest(c);
 
-    await c.send();
+    await c.send({
+      queryParams: {},
+    });
 
     expect(c.params).toEqual(params);
     expect(spy).toHaveBeenCalled();
@@ -87,11 +89,11 @@ describe("Fetch Adapter [ Base ]", () => {
     const c = req.setPayload(data);
     mockRequest(c);
 
-    await c.send();
+    await c.send({});
 
-    expect(c.data).toStrictEqual(data);
+    expect(c.payload).toStrictEqual(data);
     expect(spy).toHaveBeenCalled();
-    expect(spy.mock.calls[0][0].data).toEqual(data);
+    expect(spy.mock.calls[0][0].payload).toEqual(data);
   });
 
   it("Should allow for setting queryParams", async () => {
@@ -104,7 +106,7 @@ describe("Fetch Adapter [ Base ]", () => {
     jest.spyOn(client.fetchDispatcher, "add").mockImplementation(spy);
 
     const requestQueryParams = comm.setQueryParams(queryParams);
-    requestQueryParams.send();
+    requestQueryParams.send({});
 
     expect(requestQueryParams.queryParams).toStrictEqual(queryParams);
     expect(spy).toHaveBeenCalled();
@@ -121,7 +123,7 @@ describe("Fetch Adapter [ Base ]", () => {
       .setRequestMapper(mapper);
     mockRequest(mapperRequest);
 
-    const { data, error } = await mapperRequest.send();
+    const { data, error } = await mapperRequest.send({});
 
     expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
@@ -137,7 +139,7 @@ describe("Fetch Adapter [ Base ]", () => {
       });
     mockRequest(mapperRequest);
 
-    const { data, error } = await mapperRequest.send();
+    const { data, error } = await mapperRequest.send({});
 
     expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
@@ -153,7 +155,7 @@ describe("Fetch Adapter [ Base ]", () => {
       .setPayloadMapper(mapper);
     mockRequest(mapperRequest);
 
-    const { data, error } = await mapperRequest.send();
+    const { data, error } = await mapperRequest.send({});
 
     expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);

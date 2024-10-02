@@ -29,13 +29,13 @@ import { Client } from "client";
 
 describe("Fetch Adapter [ Server ]", () => {
   let client = new Client({ url: "https://lh3.googleusercontent.com" });
-  let request = client.createRequest<any>()({
+  let request = client.createRequest<{ response: any }>()({
     endpoint:
       "/iXmJ9aWblkGDpg-_jpcqaY10KmA8HthjZ7F15U7mJ9PQK6vZEStMlathz1FfQQWV5XeeF-A1tZ0UpDjx3q6vEm2BWZn5k1btVSuBk9ad=s660",
   });
   beforeEach(() => {
     client = new Client({ url: "https://lh3.googleusercontent.com" });
-    request = client.createRequest<any>()({
+    request = client.createRequest<{ response: any }>()({
       options: { responseType: "arraybuffer" },
       endpoint:
         "/iXmJ9aWblkGDpg-_jpcqaY10KmA8HthjZ7F15U7mJ9PQK6vZEStMlathz1FfQQWV5XeeF-A1tZ0UpDjx3q6vEm2BWZn5k1btVSuBk9ad=s660",

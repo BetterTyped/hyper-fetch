@@ -1,6 +1,8 @@
-import { ResponseType } from "adapter";
+import { ExtractAdapterEndpointType, ResponseType } from "adapter";
 import { ExtractRouteParams, Request, RequestInstance } from "request";
 import { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
+import { ClientInstance } from "client";
+import { TypeWithDefaults } from "./helpers.types";
 
 export type ExtractAdapterResolvedType<T extends RequestInstance> = ResponseType<
   ExtractResponseType<T>,
@@ -42,3 +44,29 @@ export type ExtractHasParamsType<T> = T extends Request<any, any, any, any, any,
 
 export type ExtractHasQueryParamsType<T> =
   T extends Request<any, any, any, any, any, any, any, any, infer Q> ? Q : never;
+
+export type ExtendRequest<
+  Req extends RequestInstance,
+  Properties extends {
+    response?: any;
+    payload?: any;
+    queryParams?: any;
+    globalError?: any;
+    localError?: any;
+    endpoint?: ExtractAdapterEndpointType<ExtractAdapterType<Req>>;
+    client?: ClientInstance;
+    hasData?: true | false;
+    hasParams?: true | false;
+    hasQuery?: true | false;
+  },
+> = Request<
+  TypeWithDefaults<Properties, "response", ExtractResponseType<Req>>,
+  TypeWithDefaults<Properties, "payload", ExtractPayloadType<Req>>,
+  TypeWithDefaults<Properties, "queryParams", ExtractQueryParamsType<Req>>,
+  TypeWithDefaults<Properties, "localError", ExtractLocalErrorType<Req>>,
+  Properties["endpoint"] extends string ? Properties["endpoint"] : ExtractEndpointType<Req>,
+  Properties["client"] extends ClientInstance ? Properties["client"] : ExtractClientType<Req>,
+  Properties["hasData"] extends true ? true : ExtractHasPayloadType<Req>,
+  Properties["hasParams"] extends true ? true : ExtractHasParamsType<Req>,
+  Properties["hasQuery"] extends true ? true : ExtractHasQueryParamsType<Req>
+>;

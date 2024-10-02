@@ -22,7 +22,7 @@ describe("Cache [ Lazy Storage ]", () => {
     garbageCollection: Infinity,
     cacheKey,
     queueKey: "2",
-    effectKey: "3",
+    name: "3",
     endpoint: "shared-endpoint",
     method: "GET",
   };

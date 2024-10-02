@@ -4,9 +4,9 @@ import {
   canRetryRequest,
   QueueElementType,
   DispatcherRequestType,
-  getDispatcherChangeEventKey,
-  getDispatcherDrainedEventKey,
-  getDispatcherStatusEventKey,
+  getDispatcherChangeByKey,
+  getDispatcherDrainedByKey,
+  getDispatcherStatusByKey,
   getIsEqualTimestamp,
   getRequestType,
 } from "dispatcher";
@@ -103,9 +103,9 @@ describe("Dispatcher [ Utils ]", () => {
   });
   describe("When using event get key utils", () => {
     it("should return true if retry is possible", async () => {
-      expect(getDispatcherDrainedEventKey("test")).toBe(`test-drained-event`);
-      expect(getDispatcherStatusEventKey("test")).toBe(`test-status-event`);
-      expect(getDispatcherChangeEventKey("test")).toBe(`test-change-event`);
+      expect(getDispatcherDrainedByKey("test")).toBe(`test-drained-event`);
+      expect(getDispatcherStatusByKey("test")).toBe(`test-status-event`);
+      expect(getDispatcherChangeByKey("test")).toBe(`test-change-event`);
     });
   });
   describe("When using getRequestType util", () => {

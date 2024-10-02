@@ -28,7 +28,7 @@ describe("Logger [ Utils ]", () => {
         expect(logSpy).toHaveBeenCalledTimes(1);
       });
       it("should allow to log additional data", async () => {
-        const extra = [{ test: 1 }];
+        const extra = { data: [{ test: 1 }] };
 
         logger({
           module: "Test",

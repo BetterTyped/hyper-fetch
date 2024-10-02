@@ -104,7 +104,7 @@ export const Devtools = <T extends ClientInstance>({
   // Explorer
   const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
   const [detailsExplorerRequest, setDetailsExplorerRequest] = useState<DevtoolsExplorerRequest | null>(null);
-  const [explorerRequests, setExplorerRequests] = useState<RequestInstance[]>([]);
+  const [explorerRequests] = useState<RequestInstance[]>([]);
 
   const handleClearNetwork = useCallback(() => {
     setRequests([]);
@@ -340,9 +340,9 @@ export const Devtools = <T extends ClientInstance>({
     };
   }, [client, handleCacheChange, handleStats, requests]);
 
-  useEffect(() => {
-    setExplorerRequests(client.__requestsMap);
-  }, [client.__requestsMap, workspaces]);
+  // useEffect(() => {
+  //   setExplorerRequests(client.__requestsMap);
+  // }, [client.__requestsMap, workspaces]);
 
   const allRequests: DevtoolsRequestEvent[] = requests.map((item) => {
     const isCanceled = !!canceled.find((el) => el.requestId === item.requestId);

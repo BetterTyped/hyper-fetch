@@ -11,9 +11,9 @@ describe("Client [ Auth ]", () => {
   const refreshEndpoint = "/refresh-token";
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<any>()({ endpoint: "/shared-endpoint" }).setAuth(false);
-  let authRequest = client.createRequest<any>()({ endpoint: "/auth" }).setAuth(true);
-  let refreshRequest = client.createRequest<any>()({ endpoint: refreshEndpoint });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" }).setAuth(false);
+  let authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
+  let refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
 
   beforeEach(() => {
     mockRequest(refreshRequest, { data: refreshFixture });
@@ -25,9 +25,9 @@ describe("Client [ Auth ]", () => {
 
   afterEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" }).setAuth(false);
-    authRequest = client.createRequest()({ endpoint: "/auth" }).setAuth(true);
-    refreshRequest = client.createRequest()({ endpoint: refreshEndpoint });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" }).setAuth(false);
+    authRequest = client.createRequest<{ response: any }>()({ endpoint: "/auth" }).setAuth(true);
+    refreshRequest = client.createRequest<{ response: any }>()({ endpoint: refreshEndpoint });
     resetMocks();
     jest.resetAllMocks();
   });
@@ -47,7 +47,7 @@ describe("Client [ Auth ]", () => {
         return cmd;
       });
 
-      await authRequest.send();
+      await authRequest.send({});
 
       expect(trigger).toHaveBeenCalledTimes(1);
     });
@@ -64,7 +64,7 @@ describe("Client [ Auth ]", () => {
         return cmd;
       });
 
-      await request.send();
+      await request.send({});
 
       expect(trigger).toHaveBeenCalledTimes(0);
     });
@@ -79,7 +79,7 @@ describe("Client [ Auth ]", () => {
         const { status } = res;
 
         if (!req.used && status === 401) {
-          const { data } = await refreshRequest.send();
+          const { data } = await refreshRequest.send({});
           if (data) {
             callback?.();
             return req.setUsed(true).send({});
@@ -94,7 +94,7 @@ describe("Client [ Auth ]", () => {
 
       handleErrorIntercept(() => mockRequest(request, { data: requestFixture }));
 
-      const response = await request.send();
+      const response = await request.send({});
       expect(response.data).toEqual(requestFixture);
       expect(interceptor).toHaveBeenCalledTimes(1);
     });
@@ -102,7 +102,7 @@ describe("Client [ Auth ]", () => {
       const errorResponse = mockRequest(request, { status: 401 });
 
       handleErrorIntercept();
-      const { data, error, status } = await request.send();
+      const { data, error, status } = await request.send({});
 
       expect(status).toBe(401);
       expect(data).toBe(null);
@@ -117,7 +117,7 @@ describe("Client [ Auth ]", () => {
 
       handleErrorIntercept(retry);
 
-      await request.send();
+      await request.send({});
 
       expect(retry).toHaveBeenCalledTimes(1);
     });
