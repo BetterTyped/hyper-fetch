@@ -39,13 +39,6 @@ const Modules = {
   [DevtoolsModule.EXPLORER]: Explorer,
 };
 
-/**
- * TODO:
- * - max network elements - performance handling?
- * - max cache elements - performance handling?
- * - Do not show for production use
- * - Prop for default sizes
- */
 export type DevtoolsProps<T extends ClientInstance> = {
   client: T;
   initiallyOpen?: boolean;
@@ -53,6 +46,10 @@ export type DevtoolsProps<T extends ClientInstance> = {
   initialPosition?: "Top" | "Left" | "Right" | "Bottom";
   simulatedError?: any;
   workspace?: string;
+  /**
+   * Max size of stored elements (requests, responses, events)
+   */
+  dataMaxSize?: number;
 };
 
 export const Devtools = <T extends ClientInstance>({
@@ -62,6 +59,7 @@ export const Devtools = <T extends ClientInstance>({
   initialPosition = "Right",
   simulatedError = new Error("This is error simulated by HyperFetch Devtools"),
   workspace,
+  dataMaxSize = 10000,
 }: DevtoolsProps<T>) => {
   setAutoFreeze(false);
   const [open, setOpen] = useState(initiallyOpen);
@@ -144,10 +142,14 @@ export const Devtools = <T extends ClientInstance>({
             };
           });
     setInProgress((draft) => {
-      return [...draft.filter((el) => el.queueKey !== queue.queueKey), ...inQueueRequests];
+      return [...draft.filter((el) => el.queueKey !== queue.queueKey), ...inQueueRequests].filter(
+        (_, index) => index < dataMaxSize,
+      );
     });
     setPaused((prevState) => {
-      return [...prevState.filter((el) => el.queueKey !== queue.queueKey), ...pausedQueueRequests];
+      return [...prevState.filter((el) => el.queueKey !== queue.queueKey), ...pausedQueueRequests].filter(
+        (_, index) => index < dataMaxSize,
+      );
     });
     setQueues((draft) => {
       const currentQueue = draft.findIndex((el) => el.queueKey === queue.queueKey);
@@ -255,7 +257,12 @@ export const Devtools = <T extends ClientInstance>({
     });
 
     const unmountOnRequestStart = client.requestManager.events.onRequestStart((details) => {
-      setRequests((prev) => [{ ...details, triggerTimestamp: new Date() }, ...prev] as DevtoolsRequestEvent[]);
+      setRequests(
+        (prev) =>
+          [{ ...details, triggerTimestamp: new Date() }, ...prev].filter(
+            (_, index) => index < dataMaxSize,
+          ) as DevtoolsRequestEvent[],
+      );
       setLoadingKeys((prev) => prev.filter((i) => i !== details.request.cacheKey));
     });
     const unmountOnResponse = client.requestManager.events.onResponse(({ response, details, request, requestId }) => {
@@ -264,14 +271,25 @@ export const Devtools = <T extends ClientInstance>({
       }
 
       if (response.success) {
-        setSuccess((prev) => [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse]);
+        setSuccess((prev) =>
+          [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse].filter(
+            (_, index) => index < dataMaxSize,
+          ),
+        );
       } else if (!details.isCanceled) {
-        setFailed((prev) => [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse]);
+        setFailed((prev) =>
+          [...prev, { requestId, response, details } satisfies DevtoolsRequestResponse].filter(
+            (_, index) => index < dataMaxSize,
+          ),
+        );
       }
     });
     const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
-      setCanceled((draft) => {
-        draft.push({ requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey });
+      setCanceled((prev) => {
+        return [
+          { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+          ...prev,
+        ].filter((_, index) => index < dataMaxSize);
       });
     });
     const unmountOnFetchQueueChange = client.fetchDispatcher.events.onQueueChange((values) => {
@@ -288,10 +306,12 @@ export const Devtools = <T extends ClientInstance>({
     });
     const unmountOnRemove = client.requestManager.events.onRemove(({ requestId, request, resolved }) => {
       if (!resolved) {
-        setRemoved((prev) => [
-          ...prev,
-          { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
-        ]);
+        setRemoved((prev) =>
+          [
+            { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+            ...prev,
+          ].filter((_, index) => index < dataMaxSize),
+        );
       }
     });
     const unmountOnCacheChange = client.cache.events.onData((cacheData) => {
