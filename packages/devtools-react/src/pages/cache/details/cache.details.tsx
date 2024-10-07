@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
-import { CacheValueType } from "@hyper-fetch/core";
+import { CacheValueType, getLoadingByCacheKey } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -62,6 +62,10 @@ export const CacheDetails = () => {
     if (!detailsCacheKey) return null;
     return cache.find((request) => request.cacheKey === detailsCacheKey);
   }, [detailsCacheKey, cache]);
+
+  const [listeners, setListeners] = useState(
+    item ? client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length : 0,
+  );
 
   const [stale, setStale] = useState(
     item ? item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now() : false,
@@ -172,6 +176,14 @@ export const CacheDetails = () => {
     client.cache.events.emitCacheData(item.cacheKey, data);
   };
 
+  useEffect(() => {
+    return item
+      ? client.requestManager.emitter.onListenChange(getLoadingByCacheKey(item?.cacheKey), (count) => {
+          setListeners(count);
+        })
+      : undefined;
+  }, [client.requestManager.emitter, item, item?.cacheKey]);
+
   // TODO NO CONTENT
   if (!item) return null;
 
@@ -199,6 +211,7 @@ export const CacheDetails = () => {
         <div style={{ padding: "10px" }}>
           <Table.Root>
             <Table.Body>
+              <RowInfo label="Cache Observers:" value={listeners} />
               <RowInfo
                 label="Last updated:"
                 value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
