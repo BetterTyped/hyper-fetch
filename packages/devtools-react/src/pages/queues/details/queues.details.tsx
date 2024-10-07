@@ -15,8 +15,35 @@ import { Chip } from "components/chip/chip";
 import { DevtoolsRequestQueueStats } from "devtools.types";
 import { Key } from "components/key/key";
 import { Bar } from "components/bar/bar";
+import { Sidebar } from "components/sidebar/sidebar";
+import { createStyles } from "theme/use-styles.hook";
 
-import { styles } from "./queues.styles";
+export const styles = createStyles(({ isLight, css, tokens }) => {
+  return {
+    content: css`
+      overflow-y: auto;
+    `,
+    buttons: css`
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      padding: 6px 0 0;
+    `,
+    block: css`
+      padding: 10px;
+    `,
+    details: css`
+      position: absolute !important;
+      display: flex;
+      flex-direction: column;
+      top: 0px;
+      right: 0px;
+      bottom: 0px;
+      background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
+      border-left: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
+    `,
+  };
+});
 
 const defaultStats: DevtoolsRequestQueueStats = {
   total: 0,
@@ -94,7 +121,17 @@ export const QueuesDetails = () => {
   if (!item) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", flex: "1 1 auto" }}>
+    <Sidebar
+      position="right"
+      className={css.details}
+      defaultSize={{
+        width: "70%",
+      }}
+      minWidth="400px"
+      maxWidth="100%"
+      minHeight="100%"
+      maxHeight="100%"
+    >
       <Bar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
@@ -102,22 +139,17 @@ export const QueuesDetails = () => {
         <Chip color={color}>{status}</Chip>
         <div style={{ flex: "1 1 auto" }} />
       </Bar>
-      <div className={css.detailsContent}>
-        <Collapsible title="General" defaultOpen>
-          <div style={{ padding: "10px" }}>
-            <Table.Root>
-              <Table.Body>
-                <RowInfo label="Total Requests:" value={<Chip color="gray">{statistics.total}</Chip>} />
-                <RowInfo label="Success Requests:" value={<Chip color="green">{statistics.success}</Chip>} />
-                <RowInfo label="Failed Requests:" value={<Chip color="red">{statistics.failed}</Chip>} />
-                <RowInfo label="Canceled Requests:" value={<Chip color="orange">{statistics.canceled}</Chip>} />
-                <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
-              </Table.Body>
-            </Table.Root>
-          </div>
-        </Collapsible>
-
-        <Collapsible title="Actions" defaultOpen>
+      <div className={css.content}>
+        <div className={css.block}>
+          <Table.Root>
+            <Table.Body>
+              <RowInfo label="Total Requests:" value={<Chip color="gray">{statistics.total}</Chip>} />
+              <RowInfo label="Success Requests:" value={<Chip color="green">{statistics.success}</Chip>} />
+              <RowInfo label="Failed Requests:" value={<Chip color="red">{statistics.failed}</Chip>} />
+              <RowInfo label="Canceled Requests:" value={<Chip color="orange">{statistics.canceled}</Chip>} />
+              <RowInfo label="In Progress Requests:" value={<Chip color="blue">{item.requests.length}</Chip>} />
+            </Table.Body>
+          </Table.Root>
           <div className={css.buttons}>
             <Button color={stopped ? "blue" : "orange"} onClick={toggleQueue}>
               {stopped ? <PlayIcon /> : <PauseIcon />}
@@ -128,9 +160,10 @@ export const QueuesDetails = () => {
               Clear
             </Button>
           </div>
-        </Collapsible>
+        </div>
+
         <Collapsible title="Response times" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <Table.Root>
               <Table.Body>
                 <RowInfo
@@ -154,7 +187,7 @@ export const QueuesDetails = () => {
           </div>
         </Collapsible>
         <Collapsible title="Processing times" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <Table.Root>
               <Table.Body>
                 <RowInfo
@@ -178,7 +211,7 @@ export const QueuesDetails = () => {
           </div>
         </Collapsible>
         <Collapsible title="Queue times" defaultOpen>
-          <div style={{ padding: "10px" }}>
+          <div className={css.block}>
             <Table.Root>
               <Table.Body>
                 <RowInfo
@@ -202,6 +235,6 @@ export const QueuesDetails = () => {
           </div>
         </Collapsible>
       </div>
-    </div>
+    </Sidebar>
   );
 };

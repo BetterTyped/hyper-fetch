@@ -76,19 +76,16 @@ const colorVariants = createStyles(({ css, isLight, tokens }) => {
 const sizeVariants = createStyles(({ css }) => {
   return {
     small: css`
-      gap: 4px;
       padding: 8px;
       font-size: 12px;
       border-radius: 6px;
     `,
     medium: css`
-      gap: 5px;
       padding: 10px;
       font-size: 14px;
       border-radius: 8px;
     `,
     large: css`
-      gap: 6px;
       padding: 12px;
       font-size: 16px;
       border-radius: 12px;

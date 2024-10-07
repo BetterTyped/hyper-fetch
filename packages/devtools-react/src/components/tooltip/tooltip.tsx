@@ -8,10 +8,11 @@ const styles = createStyles(({ isLight, css, tokens }) => {
     tooltip: css`
       z-index: 50;
       overflow: hidden;
-      border-radius: 0.375rem;
-      border: 1px solid ${isLight ? tokens.colors.light[300] : tokens.colors.dark[400]};
+      border-radius: 0.25rem;
+      border: 1px solid
+        ${isLight ? tokens.colors.light[300] + tokens.alpha[50] : tokens.colors.dark[400] + tokens.alpha[50]};
       background: ${isLight ? tokens.colors.light[50] : tokens.colors.dark[700]};
-      padding: 0.75rem 1rem;
+      padding: 0.25rem 0.5rem;
       font-size: 0.875rem;
       color: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[400]};
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -21,13 +22,17 @@ const styles = createStyles(({ isLight, css, tokens }) => {
   };
 });
 
-export const TooltipProvider = TooltipPrimitive.Provider;
+export const { Trigger, Arrow } = TooltipPrimitive;
 
-export const Tooltip = TooltipPrimitive.Root;
+export const Root = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root>{children}</TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
+  );
+};
 
-export const TooltipTrigger = TooltipPrimitive.Trigger;
-
-export const TooltipContent = React.forwardRef<
+export const Content = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => {
@@ -42,4 +47,4 @@ export const TooltipContent = React.forwardRef<
     />
   );
 });
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+Content.displayName = TooltipPrimitive.Content.displayName;

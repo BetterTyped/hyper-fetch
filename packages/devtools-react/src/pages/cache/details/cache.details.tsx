@@ -180,8 +180,7 @@ export const CacheDetails = () => {
       position="right"
       className={css.details}
       defaultSize={{
-        width: "65%",
-        height: "65%",
+        width: "70%",
       }}
       minWidth="400px"
       maxWidth="100%"
@@ -197,57 +196,55 @@ export const CacheDetails = () => {
         <div style={{ flex: "1 1 auto" }} />
       </Bar>
       <div className={css.content}>
-        <Collapsible title="General" defaultOpen>
-          <div style={{ padding: "10px" }}>
-            <Table.Root>
-              <Table.Body>
-                <RowInfo
-                  label="Last updated:"
-                  value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
-                />
-                <RowInfo
-                  label="Time left before stale:"
-                  value={
-                    <Countdown
-                      value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
-                      onDone={() => setStale(true)}
-                      onStart={() => setStale(false)}
-                      doneText={<Chip color="gray">Cache data is stale</Chip>}
-                    />
-                  }
-                />
-                <RowInfo
-                  label="Time left for garbage collection:"
-                  value={
-                    <Countdown
-                      value={item.cacheData.responseTimestamp + item.cacheData.garbageCollection}
-                      doneText={<Chip color="gray">Data removed from cache</Chip>}
-                    />
-                  }
-                />
-              </Table.Body>
-            </Table.Root>
+        <div style={{ padding: "10px" }}>
+          <Table.Root>
+            <Table.Body>
+              <RowInfo
+                label="Last updated:"
+                value={`${new Date(item.cacheData.responseTimestamp).toLocaleDateString()}, ${new Date(item.cacheData.responseTimestamp).toLocaleTimeString()}`}
+              />
+              <RowInfo
+                label="Time left before stale:"
+                value={
+                  <Countdown
+                    value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
+                    onDone={() => setStale(true)}
+                    onStart={() => setStale(false)}
+                    doneText={<Chip color="gray">Cache data is stale</Chip>}
+                  />
+                }
+              />
+              <RowInfo
+                label="Time left for garbage collection:"
+                value={
+                  <Countdown
+                    value={item.cacheData.responseTimestamp + item.cacheData.garbageCollection}
+                    doneText={<Chip color="gray">Data removed from cache</Chip>}
+                  />
+                }
+              />
+            </Table.Body>
+          </Table.Root>
 
-            <div className={css.buttons}>
-              <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
-                <LoaderIcon />
-                {isLoading ? "Restore" : "Set"} loading
-              </Button>
-              <Button color="red" onClick={error}>
-                <TriangleAlert />
-                Simulate Error
-              </Button>
-              <Button color="pink" onClick={invalidate}>
-                <FileXIcon />
-                Invalidate
-              </Button>
-              <Button color="gray" onClick={remove}>
-                <TrashIcon />
-                Remove
-              </Button>
-            </div>
+          <div className={css.buttons}>
+            <Button color={isLoading ? "teal" : "blue"} onClick={toggleLoading} disabled={hasInProgressRequest}>
+              <LoaderIcon />
+              {isLoading ? "Restore" : "Set"} loading
+            </Button>
+            <Button color="red" onClick={error}>
+              <TriangleAlert />
+              Simulate Error
+            </Button>
+            <Button color="pink" onClick={invalidate}>
+              <FileXIcon />
+              Invalidate
+            </Button>
+            <Button color="gray" onClick={remove}>
+              <TrashIcon />
+              Remove
+            </Button>
           </div>
-        </Collapsible>
+        </div>
         <Collapsible title="Config" defaultOpen>
           <div style={{ padding: "10px" }}>
             <JSONViewer data={elements?.additionalData} onChange={onChangeData} sortObjectKeys />

@@ -1,6 +1,7 @@
 import React from "react";
-import { Boxes, HardDrive, ShieldMinus } from "lucide-react";
+import { Atom, Boxes, CircleDotDashed } from "lucide-react";
 
+import * as Tooltip from "components/tooltip/tooltip";
 import { createStyles } from "theme/use-styles.hook";
 
 const styles = createStyles(({ css }) => {
@@ -10,6 +11,11 @@ const styles = createStyles(({ css }) => {
       align-items: center;
       gap: 4px;
       overflow: hidden;
+      background-color: transparent;
+      border: none;
+      color: inherit;
+      padding: 0;
+
       & svg {
         width: 20px;
         height: 20px;
@@ -34,7 +40,7 @@ const colorsVariants = createStyles(({ isLight, css, tokens }) => {
     `,
     cache: css`
       & svg {
-        stroke: ${isLight ? tokens.colors.pink[300] : tokens.colors.pink[300]};
+        stroke: ${isLight ? tokens.colors.orange[300] : tokens.colors.orange[300]};
       }
     `,
     abort: css`
@@ -50,11 +56,11 @@ export type KeyTypes = "queue" | "cache" | "abort";
 const getKeyIcon = (type: KeyTypes) => {
   switch (type) {
     case "queue":
-      return <Boxes />;
+      return <Atom />;
     case "cache":
-      return <HardDrive />;
+      return <Boxes />;
     case "abort":
-      return <ShieldMinus />;
+      return <CircleDotDashed />;
     default:
       return null;
   }
@@ -65,13 +71,16 @@ export const Key = ({
   type,
   className,
   ...props
-}: React.HTMLProps<HTMLDivElement> & { value: string; type: KeyTypes }) => {
+}: React.HTMLProps<HTMLButtonElement> & { value: string; type: KeyTypes }) => {
   const css = styles.useStyles();
   const colorVariants = colorsVariants.useStyles();
   return (
-    <div {...props} className={css.clsx(css.base, colorVariants[type], className)}>
-      {getKeyIcon(type)}
-      <span className={css.text}>{value}</span>
-    </div>
+    <Tooltip.Root>
+      <Tooltip.Trigger {...props} className={css.clsx(css.base, colorVariants[type], className)}>
+        {getKeyIcon(type)}
+        <span className={css.text}>{value}</span>
+      </Tooltip.Trigger>
+      <Tooltip.Content>This is {type}Key</Tooltip.Content>
+    </Tooltip.Root>
   );
 };

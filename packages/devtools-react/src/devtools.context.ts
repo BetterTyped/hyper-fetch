@@ -14,8 +14,8 @@ import {
 } from "devtools.types";
 import { createContext } from "utils/context";
 import { Status } from "utils/request.status.utils";
-import { DevtoolsDataProvider } from "pages/explorer/sidebar/content.state";
-import { DevtoolsExplorerRequest } from "pages/explorer/sidebar/content.types";
+import { DevtoolsDataProvider } from "pages/explorer/list/content.state";
+import { DevtoolsExplorerRequest } from "pages/explorer/list/content.types";
 
 export type Sort = { key: string; order: "asc" | "desc" };
 

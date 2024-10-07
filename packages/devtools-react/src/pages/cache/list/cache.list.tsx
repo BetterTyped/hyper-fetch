@@ -19,9 +19,9 @@ const styles = createStyles(({ css }) => {
   };
 });
 
-export const CacheSidebar = () => {
+export const CacheList = () => {
   const css = styles.useStyles();
-  const { cache, cacheSearchTerm } = useDevtoolsContext("DevtoolsCacheSidebar");
+  const { cache, cacheSearchTerm } = useDevtoolsContext("DevtoolsCacheList");
 
   const { items } = useSearch({ data: cache, searchKeys: ["cacheKey"], searchTerm: cacheSearchTerm });
 

@@ -46,7 +46,7 @@ export const styles = createStyles(({ isLight, css }) => {
       & li:has(:nth-child(3)) > ul {
         display: grid !important;
         grid-template-columns: 1fr;
-        width: calc(100% - 0.875em);
+        width: calc(100% - 0.675em);
       }
 
       & li:not(:has(:nth-child(3))) {

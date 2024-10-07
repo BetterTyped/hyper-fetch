@@ -9,7 +9,7 @@ import { Button } from "components/button/button";
 import { ExploreTabs } from "./details.types";
 import { TabParams } from "./tab-params/tab-params";
 import { Method } from "components/method/method";
-import { DevtoolsExplorerRequest } from "../sidebar/content.types";
+import { DevtoolsExplorerRequest } from "../list/content.types";
 import { useDevtoolsContext } from "devtools.context";
 import { createStyles } from "theme/use-styles.hook";
 import { Bar } from "components/bar/bar";

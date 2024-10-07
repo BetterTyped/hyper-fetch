@@ -3,8 +3,23 @@ import { useDevtoolsContext } from "devtools.context";
 import { Card } from "./card/card";
 import { NoContent } from "components/no-content/no-content";
 import { useSearch } from "hooks/use-search";
+import { createStyles } from "theme/use-styles.hook";
 
-import { styles } from "./queues.styles";
+const styles = createStyles(({ css }) => {
+  return {
+    wrapper: css`
+      width: 100%;
+      flex: 1 1 auto;
+      overflow-y: auto;
+    `,
+    row: css`
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      flex-wrap: wrap;
+    `,
+  };
+});
 
 // Rename to list
 export const QueuesList = () => {

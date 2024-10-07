@@ -6,9 +6,64 @@ import { getQueueStatus, getQueueStatusColor } from "utils/queue.status.utils";
 import { useDevtoolsContext } from "devtools.context";
 import { tokens } from "theme/tokens";
 import { CardButton } from "components/card-button/card-button";
+import { createStyles } from "theme/use-styles.hook";
+import { Key } from "components/key/key";
 
-import { styles } from "../queues.styles";
+const styles = createStyles(({ isLight, css }) => {
+  return {
+    cardHeader: css`
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 15px;
+      margin-bottom: 5px;
+    `,
+    title: css`
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      & svg {
+        width: 22px;
+        height: 22px;
+        stroke: gray;
+      }
+    `,
+    cardContent: css`
+      font-size: 12px;
+      font-weight: 500;
+    `,
+    value: css`
+      font-size: 28px;
+      font-weight: 700;
+      margin-right: 5px;
+      color: ${isLight ? tokens.colors.light[900] : tokens.colors.light[100]};
+    `,
+    cardFooter: css`
+      text-align: left;
+      margin-top: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      max-width: 200px;
+    `,
+    key: css`
+      font-size: 12px;
+    `,
+    description: css`
+      display: flex;
+      margin-top: -5px;
+      margin-bottom: 10px;
+      color: ${isLight ? tokens.colors.cyan[400] : tokens.colors.cyan[500]};
+      font-weight: 400;
+      font-size: 12px;
 
+      & strong {
+        margin-right: 3px;
+      }
+    `,
+  };
+});
 export const Card = ({ queue }: { queue: QueueDataType }) => {
   const css = styles.useStyles();
   const status = getQueueStatus(queue);
@@ -41,15 +96,10 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
         <span>Active request{queue.requests.length === 1 ? "" : "s"}</span>
       </div>
       <div className={css.cardFooter}>
-        <div className={css.footerRow}>
-          <span style={{ color: tokens.colors.cyan[500] }}>Total:</span>{" "}
-          <span>
-            {total} request{total !== 1 ? "s" : ""}
-          </span>
+        <div className={css.description}>
+          (<strong>{total} </strong> in total)
         </div>
-        <div className={css.footerRow}>
-          <span style={{ color: tokens.colors.cyan[500] }}>Key:</span> <span>{queue.queueKey}</span>
-        </div>
+        <Key className={css.key} type="queue" value={queue.queueKey} />
       </div>
     </CardButton>
   );

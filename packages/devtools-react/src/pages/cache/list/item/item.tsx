@@ -7,6 +7,7 @@ import { useDevtoolsContext } from "devtools.context";
 import { useCountdown } from "hooks/use-countdown";
 import { Chip } from "components/chip/chip";
 import { createStyles } from "theme/use-styles.hook";
+import { Key } from "components/key/key";
 
 const styles = createStyles(({ isLight, css, tokens }) => {
   return {
@@ -72,7 +73,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
       className={css.clsx(css.row, { [css.activeRow]: item.cacheKey === detailsCacheKey })}
     >
       <Table.Cell className={css.cell}>
-        <span>{item.cacheKey}</span>
+        <Key type="cache" value={item.cacheKey} />
       </Table.Cell>
       <Table.Cell className={css.cell}>
         <Chip color={isFresh ? "green" : "orange"}>{isFresh ? "Fresh" : "Stale"}</Chip>

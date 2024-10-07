@@ -1,3 +1,5 @@
+import TextareaAutosize from "react-textarea-autosize";
+
 import { styles } from "../json-viewer.styles";
 
 export const Value = ({
@@ -48,18 +50,17 @@ export const Value = ({
   }
   if (typeof raw === "string") {
     const lines = Math.min(10, raw?.split(/\r\n|\r|\n/)?.length || 1);
-    const maxHeight = `${lines * 18}px`;
     const resize = lines > 1 ? "vertical" : "none";
 
     return (
       <span className={css.clsx(css.value, { [css.disabledValue]: disabled })}>
-        <textarea
-          rows={lines}
+        <TextareaAutosize
+          maxRows={10}
           disabled={disabled}
           className={css.input}
           value={raw}
           onChange={(e) => onChange(e.target.value)}
-          style={{ maxHeight, resize }}
+          style={{ resize }}
         />
       </span>
     );

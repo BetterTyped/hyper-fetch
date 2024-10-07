@@ -38,11 +38,17 @@ const styles = createStyles(({ css }) => {
       flex: 1 1 auto;
     `,
     name: css`
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      gap: 4px;
       max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      & svg {
+        transform: translateY(1px);
+      }
     `,
     content: css`
       overflow-y: auto;
@@ -96,8 +102,7 @@ export const NetworkDetails = () => {
       position="right"
       className={css.details}
       defaultSize={{
-        width: "65%",
-        height: "65%",
+        width: "70%",
       }}
       minWidth="400px"
       maxWidth="100%"
@@ -114,39 +119,37 @@ export const NetworkDetails = () => {
         <div className={css.spacer} />
       </Bar>
       <div className={css.content}>
-        <Collapsible title="General" defaultOpen>
-          <div className={css.block}>
-            <Table.Root>
-              <Table.Body>
-                <RowInfo
-                  label="Request URL:"
-                  value={
-                    <Chip color="normal">
-                      {item.request.client.url}
-                      {item.request.endpoint}
-                    </Chip>
-                  }
-                />
-                <RowInfo label="Request Method:" value={<Chip color="blue">{String(item.request.method)}</Chip>} />
-                <RowInfo
-                  label="Status Code:"
-                  value={<Chip color={item.isSuccess ? "green" : "red"}>{String(item.response?.status ?? "")}</Chip>}
-                />
-                <RowInfo label="Request ID:" value={<Chip color="gray">{String(item.requestId)}</Chip>} />
-              </Table.Body>
-            </Table.Root>
-            {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
-            {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
-              <Chip color="orange">Mocked</Chip>
-            )}
-            <div className={css.buttons}>
-              <Button color="gray" onClick={remove}>
-                <TrashIcon />
-                Remove
-              </Button>
-            </div>
+        <div className={css.block}>
+          <Table.Root>
+            <Table.Body>
+              <RowInfo
+                label="Request URL:"
+                value={
+                  <Chip color="normal">
+                    {item.request.client.url}
+                    {item.request.endpoint}
+                  </Chip>
+                }
+              />
+              <RowInfo label="Request Method:" value={<Chip color="blue">{String(item.request.method)}</Chip>} />
+              <RowInfo
+                label="Status Code:"
+                value={<Chip color={item.isSuccess ? "green" : "red"}>{String(item.response?.status ?? "")}</Chip>}
+              />
+              <RowInfo label="Request ID:" value={<Chip color="gray">{String(item.requestId)}</Chip>} />
+            </Table.Body>
+          </Table.Root>
+          {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
+          {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
+            <Chip color="orange">Mocked</Chip>
+          )}
+          <div className={css.buttons}>
+            <Button color="gray" onClick={remove}>
+              <TrashIcon />
+              Remove
+            </Button>
           </div>
-        </Collapsible>
+        </div>
         <Collapsible title="Request">
           <div className={css.block}>
             <JSONViewer data={config} sortObjectKeys />
