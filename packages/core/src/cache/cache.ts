@@ -11,7 +11,7 @@ import {
   CacheSetState,
   RequestCacheType,
 } from "cache";
-import { RequestInstance } from "request";
+import { Request, RequestInstance } from "request";
 import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 import { EventEmitter } from "utils";
 
@@ -181,27 +181,29 @@ export class Cache<C extends ClientInstance> {
   /**
    * Invalidate cache by cacheKey or partial matching with RegExp
    * It emits invalidation event for each matching cacheKey and sets cacheTime to 0 to indicate out of time cache
-   * @param cacheKey
+   * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = async (cacheKey: string | RegExp) => {
-    this.logger.debug("Revalidating cache element", { cacheKey });
+  invalidate = async (key: string | RegExp | RequestInstance) => {
+    this.logger.debug("Revalidating cache element", { key });
     const keys = await this.getLazyKeys();
 
-    if (typeof cacheKey === "string") {
+    const handleInvalidation = (cacheKey: string) => {
       const value = this.storage.get(cacheKey);
       if (value) {
         this.storage.set(cacheKey, { ...value, cacheTime: 0 });
       }
       this.events.emitInvalidation(cacheKey);
+    };
+
+    if (key instanceof Request) {
+      handleInvalidation(key.cacheKey);
+    } else if (typeof key === "string") {
+      handleInvalidation(key);
     } else {
       // eslint-disable-next-line no-restricted-syntax
       for (const entityKey of keys) {
-        if (cacheKey.test(entityKey)) {
-          const value = this.storage.get(entityKey);
-          if (value) {
-            this.storage.set(entityKey, { ...value, cacheTime: 0 });
-          }
-          this.events.emitInvalidation(entityKey);
+        if (key.test(entityKey)) {
+          handleInvalidation(entityKey);
         }
       }
     }

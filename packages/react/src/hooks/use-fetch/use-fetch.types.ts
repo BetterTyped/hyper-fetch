@@ -8,7 +8,6 @@ import {
 } from "@hyper-fetch/core";
 
 import { UseRequestEventsActionsType, UseTrackedStateActions, UseTrackedStateType } from "helpers";
-import { InvalidationKeyType } from "types";
 import { isEqual } from "utils";
 
 export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
@@ -117,7 +116,7 @@ export type UseFetchReturnType<R extends RequestInstance> = UseTrackedStateType<
       reset: () => void;
     };
     /**
-     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
+     * Refetch current request
      */
-    refetch: (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: () => void;
   };

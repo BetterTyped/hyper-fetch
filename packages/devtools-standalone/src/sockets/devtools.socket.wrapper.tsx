@@ -63,7 +63,6 @@ const handleEvent = (
       return;
     }
     case EmitableCustomEvents.REQUEST_CREATED: {
-      client.__requestsMap = eventData;
       setRequestList(workspace, eventData);
       return;
     }

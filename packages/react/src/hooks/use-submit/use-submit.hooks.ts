@@ -1,7 +1,5 @@
 import { useMemo, useRef } from "react";
 import {
-  Request,
-  getRequestKey,
   ExtractAdapterResolvedType,
   RequestInstance,
   sendRequest,
@@ -19,7 +17,6 @@ import { UseSubmitOptionsType, useSubmitDefaultOptions, UseSubmitReturnType } fr
 import { useTrackedState, useRequestEvents } from "helpers";
 import { useProvider } from "provider";
 import { getBounceData } from "utils";
-import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to mutate data on the server.
@@ -181,22 +178,8 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // Invalidation
   // ******************
 
-  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.invalidate(invalidateKey);
-    }
-  };
-
-  const refetch = (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => {
-    if (!invalidateKey) return;
-
-    if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleInvalidation);
-    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleInvalidation(invalidateKey);
-    }
+  const refetch = () => {
+    cache.invalidate(request);
   };
 
   // ******************

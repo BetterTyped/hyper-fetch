@@ -5,7 +5,7 @@ import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, ExtendReques
 import { ClientInstance } from "client";
 
 export type PluginLifecycle = "trigger" | "start" | "success" | "error" | "finished";
-export type PluginInstance = Plugin<any>;
+export type PluginInstance = Plugin<any, any>;
 export type PluginRequest<C extends ClientInstance> = ExtendRequest<
   RequestInstance,
   {

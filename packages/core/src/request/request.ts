@@ -14,7 +14,7 @@ import {
   ResponseMapper,
   ExtractRouteParams,
 } from "request";
-import { ClientInstance } from "client";
+import { ClientInstance, RequestGenericType } from "client";
 import { getUniqueRequestId } from "utils";
 import { ExtractAdapterMethodType, ExtractAdapterOptionsType, QueryParamsType, ResponseType } from "adapter";
 import {
@@ -26,6 +26,7 @@ import {
   ExtractPayloadType,
   ExtractQueryParamsType,
   NegativeTypes,
+  TypeWithDefaults,
 } from "types";
 import { Time } from "constants/time.constants";
 import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
@@ -362,18 +363,22 @@ export class Request<
    * @param responseMapper our mapping callback
    * @returns new response
    */
-  public setResponseMapper = <NewResponse = Response, NewError = ExtractClientGlobalError<Client> | LocalError>(
-    responseMapper?: ResponseMapper<this, NewResponse, NewError>,
+  public setResponseMapper = <Properties extends Pick<RequestGenericType<QueryParams>, "response" | "error">>(
+    responseMapper?: ResponseMapper<
+      this,
+      TypeWithDefaults<Properties, "response", Response>,
+      TypeWithDefaults<Properties, "error", LocalError>
+    >,
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
     cloned.__responseMapper = responseMapper;
 
     return cloned as unknown as Request<
-      NewResponse,
+      TypeWithDefaults<Properties, "response", Response>,
       Payload,
       QueryParams,
-      LocalError,
+      TypeWithDefaults<Properties, "error", LocalError>,
       Endpoint,
       Client,
       HasPayload,

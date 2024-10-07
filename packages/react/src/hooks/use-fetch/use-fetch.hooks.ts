@@ -3,8 +3,6 @@ import { useDidUpdate, useDidMount, useWillUnmount } from "@better-hooks/lifecyc
 import { useDebounce, useThrottle } from "@better-hooks/performance";
 import {
   RequestInstance,
-  Request,
-  getRequestKey,
   ExtractAdapterStatusType,
   ExtractAdapterType,
   ExtractAdapterExtraType,
@@ -14,7 +12,6 @@ import { useRequestEvents, useTrackedState } from "helpers";
 import { UseFetchOptionsType, useFetchDefaultOptions, UseFetchReturnType, UseFetchRequest } from "hooks/use-fetch";
 import { useProvider } from "provider";
 import { getBounceData } from "utils";
-import { InvalidationKeyType } from "types";
 
 /**
  * This hooks aims to retrieve data from server.
@@ -131,23 +128,9 @@ export const useFetch = <R extends RequestInstance>(
     });
   }
 
-  const handleInvalidation = (invalidateKey: InvalidationKeyType) => {
-    if (invalidateKey && invalidateKey instanceof Request) {
-      cache.invalidate(getRequestKey(invalidateKey));
-    } else if (invalidateKey && !(invalidateKey instanceof Request)) {
-      cache.invalidate(invalidateKey);
-    }
-  };
-
-  const refetch = (invalidateKey?: InvalidationKeyType | InvalidationKeyType[]) => {
-    if (invalidateKey && Array.isArray(invalidateKey)) {
-      invalidateKey.forEach(handleInvalidation);
-    } else if (invalidateKey && !Array.isArray(invalidateKey)) {
-      handleInvalidation(invalidateKey);
-    } else {
-      handleFetch();
-      handleRefresh();
-    }
+  const refetch = () => {
+    handleFetch();
+    handleRefresh();
   };
 
   // ******************

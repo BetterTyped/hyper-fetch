@@ -1,6 +1,5 @@
-import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
+import { ClientInstance } from "@hyper-fetch/core";
 import { Emitter, Socket } from "@hyper-fetch/sockets";
-import { EventEmitter } from "events";
 
 import { EmitableCoreEvents, EmitableCustomEvents, DevtoolsPluginOptions } from "devtools.types";
 
@@ -8,29 +7,18 @@ export class DevtoolsEventEmitter {
   client: ClientInstance;
   socket: Socket;
   socketEmitter: Emitter<any, any, any>;
-  onCreateRequestEmitter: EventEmitter;
-  unmountHooks: any;
+  unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   eventQueue: any[] = [];
   connectionName: string;
 
-  static initialize(
-    client: ClientInstance,
-    pluginOptions: DevtoolsPluginOptions,
-    onCreateRequestEmitter: EventEmitter,
-  ): DevtoolsEventEmitter {
-    return new DevtoolsEventEmitter(client, pluginOptions, onCreateRequestEmitter);
-  }
-
   constructor(
     client: ClientInstance,
     { socketAddress = "ws://localhost", socketPort = 1234, appName }: DevtoolsPluginOptions,
-    onCreateRequestEmitter: EventEmitter,
   ) {
     this.isConnected = false;
     this.eventQueue = [];
     this.client = client;
-    this.onCreateRequestEmitter = onCreateRequestEmitter;
     this.unmountHooks = this.initializeHooks();
     this.connectionName = `HF_DEVTOOLS_CLIENT_${appName}`;
     this.socket = new Socket({ url: `${socketAddress}:${socketPort}` }).setQuery({
@@ -81,7 +69,6 @@ export class DevtoolsEventEmitter {
       unmountOnCacheChange: this.unmountOnCacheChange(),
       unmountOnCacheInvalidate: this.unmountOnCacheInvalidate(),
       unmountCacheDelete: this.unmountCacheDelete(),
-      unmountOnCreateRequest: this.unmountOnCreateRequest(),
     };
   };
 
@@ -143,12 +130,6 @@ export class DevtoolsEventEmitter {
     });
   };
 
-  unmountOnCreateRequest = () => {
-    return this.onCreateRequestEmitter.on(EmitableCustomEvents.REQUEST_CREATED, (requestMap: RequestInstance[]) => {
-      this.sendEvent(EmitableCustomEvents.REQUEST_CREATED, requestMap);
-    });
-  };
-
   unmountHooksFromClient = () => {
     this.unmountHooks.unmountOnRequestStart();
     this.unmountHooks.unmountOnResponse();
@@ -161,6 +142,5 @@ export class DevtoolsEventEmitter {
     this.unmountHooks.unmountOnCacheChange();
     this.unmountHooks.unmountOnCacheInvalidate();
     this.unmountHooks.unmountCacheDelete();
-    this.unmountHooks.unmountOnCreateRequest();
   };
 }

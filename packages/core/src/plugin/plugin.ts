@@ -11,6 +11,9 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
 
   constructor(public config: PluginOptionsType<PluginData>) {
     this.name = config.name;
+    if (config.data) {
+      this.data = config.data;
+    }
   }
 
   setClient = (client: Client) => {

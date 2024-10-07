@@ -10,7 +10,6 @@ import {
   UseTrackedStateType,
   UseTrackedStateActions,
 } from "helpers";
-import { InvalidationKeyType } from "types";
 
 export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
@@ -127,8 +126,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
       reset: () => void;
     };
     /**
-     * Refetch current request resource or pass custom key to trigger it by invalidationKey(Regex / cacheKey).
-     * @values cacheKey | Request | RegExp
+     * Refetch current request
      */
-    refetch: (invalidateKey: InvalidationKeyType | InvalidationKeyType[]) => void;
+    refetch: () => void;
   };

@@ -8,5 +8,4 @@ export * from "./hooks/use-event-messages";
 export * from "./hooks/use-app-manager";
 export * from "./helpers";
 export * from "./provider";
-export * from "./types";
 export * from "./utils";

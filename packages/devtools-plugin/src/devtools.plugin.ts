@@ -1,14 +1,25 @@
-import { ClientInstance } from "@hyper-fetch/core";
+import { Plugin, RequestInstance } from "@hyper-fetch/core";
 
 import { DevtoolsEventEmitter } from "./devtools.event.emitter";
-import { DevtoolsPluginOptions } from "./devtools.types";
-import { addOnCreateRequestEvent } from "./devtools.injections";
+import { DevtoolsPluginOptions, EmitableCustomEvents } from "./devtools.types";
 
-export const DevtoolsPlugin = <T extends ClientInstance>(client: T, options: DevtoolsPluginOptions) => {
-  const logger = client.loggerManager.init("DevtoolsPlugin");
-  const requestCreatedEventEmitter = addOnCreateRequestEvent(client);
-  DevtoolsEventEmitter.initialize(client, options, requestCreatedEventEmitter);
-  logger.info(`Successfully initialized devtools plugin`);
+export const devtoolsPlugin = (options: DevtoolsPluginOptions) => {
+  const plugin = new Plugin({
+    name: "devtools-plugin",
+    data: {
+      emitter: undefined as DevtoolsEventEmitter | undefined,
+      requests: [] as RequestInstance[],
+    },
+  });
 
-  return client;
+  plugin.onMount(({ client }) => {
+    plugin.data.emitter = new DevtoolsEventEmitter(client, options);
+  });
+
+  plugin.onRequestCreate(({ request }) => {
+    plugin.data.requests.push(request);
+    plugin.data.emitter?.sendEvent(EmitableCustomEvents.REQUEST_CREATED, plugin.data.requests);
+  });
+
+  return plugin;
 };

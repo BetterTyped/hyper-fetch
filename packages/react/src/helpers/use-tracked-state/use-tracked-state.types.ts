@@ -73,11 +73,11 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option.
    */
-  setData: (data: CacheSetState<ExtractResponseType<T>>, emitToCache?: boolean) => void;
+  setData: (data: CacheSetState<ExtractResponseType<T> | null>, emitToCache?: boolean) => void;
   /**
    * Action to set custom error. We can do it locally(inside hook state) or in all hooks with 'emitToCache' option.
    */
-  setError: (error: CacheSetState<ExtractErrorType<T>>, emitToCache?: boolean) => void;
+  setError: (error: CacheSetState<ExtractErrorType<T> | null>, emitToCache?: boolean) => void;
   /**
    * Action to set custom loading. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
@@ -93,7 +93,10 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom additional data. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setExtra: (extra: CacheSetState<ExtractAdapterExtraType<ExtractAdapterType<T>>>, emitToCache?: boolean) => void;
+  setExtra: (
+    extra: CacheSetState<ExtractAdapterExtraType<ExtractAdapterType<T>> | null>,
+    emitToCache?: boolean,
+  ) => void;
   /**
    * Action to set custom retries count. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
