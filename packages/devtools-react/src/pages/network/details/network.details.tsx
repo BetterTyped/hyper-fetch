@@ -109,7 +109,7 @@ export const NetworkDetails = () => {
       minHeight="100%"
       maxHeight="100%"
     >
-      <Bar style={{ borderBottom: "0px", flexWrap: "nowrap" }}>
+      <Bar style={{ flexWrap: "nowrap" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <div className={css.name} style={{ color }}>

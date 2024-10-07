@@ -39,7 +39,6 @@ export const styles = createStyles(({ isLight, css, tokens }) => {
       top: 0px;
       right: 0px;
       bottom: 0px;
-      background: ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]};
       border-left: 1px solid ${isLight ? tokens.colors.light[400] : tokens.colors.dark[400]};
     `,
   };
@@ -132,7 +131,7 @@ export const QueuesDetails = () => {
       minHeight="100%"
       maxHeight="100%"
     >
-      <Bar style={{ borderBottom: "0px", flexWrap: "nowrap", justifyContent: "flex-start" }}>
+      <Bar style={{ flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
         <Key value={item.queueKey} type="queue" />

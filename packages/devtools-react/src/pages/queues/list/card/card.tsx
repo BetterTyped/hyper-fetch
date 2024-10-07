@@ -45,7 +45,7 @@ const styles = createStyles(({ isLight, css }) => {
       margin-top: 5px;
       font-size: 12px;
       font-weight: 500;
-      max-width: 200px;
+      max-width: 180px;
     `,
     key: css`
       font-size: 12px;
