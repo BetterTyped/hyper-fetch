@@ -20,6 +20,9 @@
       "path": "./packages/devtools-react"
     },
     {
+      "path": "./packages/devtools-plugin"
+    },
+    {
       "path": "./packages/plugin-eslint"
     },
     {
@@ -30,6 +33,9 @@
     },
     {
       "path": "./packages/sockets"
+    },
+    {
+      "path": "./packages/testing"
     }
   ]
 }

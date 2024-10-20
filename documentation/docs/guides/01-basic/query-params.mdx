@@ -25,7 +25,7 @@ type QueryParamsType = {
   sort: string;
 };
 
-const getUsers = client.createRequest<{response: Response, queryParams: QueryParamsType}>()({ endpoint: "/users" });
+const getUsers = client.createRequest<{ response: Response; queryParams: QueryParamsType }>()({ endpoint: "/users" });
 
 // Setting the query params
 
@@ -34,7 +34,7 @@ console.log(request.endpoint); // Output: "/users?search=John&sort=age"
 ```
 
 ```ts
-const getUsers = client.createRequest<{response: Response, queryParams: string}>()({ endpoint: "/users" });
+const getUsers = client.createRequest<{ response: Response; queryParams: string }>()({ endpoint: "/users" });
 
 const request = getUsers.setQueryParams("search=John&sort=age");
 console.log(request.endpoint); // Output: "/users?search=John&sort=age"
@@ -47,6 +47,6 @@ We can setup custom config with instructions how to stringify the values. It can
 
 #### Available options:
 
-{@import Hyper-Fetch QueryStringifyOptionsType returns}
+(@import Hyper-Fetch QueryStringifyOptionsType returns)
 
 ---

@@ -31,10 +31,27 @@ export const styles = createStyles(({ isLight, css }) => {
       border: 0;
       outline-offset: -4px !important;
     `,
+
     title: css`
-      color: ${isLight ? tokens.colors.dark[400] : tokens.colors.light[500]};
-      font-size: 16px;
-      font-weight: 500;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      font-feature-settings: normal;
+      font-variation-settings: normal;
+      tab-size: 4;
+      -webkit-tap-highlight-color: transparent;
+      background-image: linear-gradient(
+        to bottom,
+        ${isLight ? "#1e293b99" : "#e2e8f099"},
+        ${isLight ? "#1e293b" : "#e2e8f0"},
+        ${isLight ? "#1e293b99" : "#e2e8f099"}
+      );
+      background-clip: text;
+      font-weight: 800;
+      color: #0000 !important;
+      line-height: 1;
+      font-size: 1.3rem;
+      margin: 0;
     `,
     spacer: css`
       flex: 1 1 auto;
@@ -45,11 +62,17 @@ export const styles = createStyles(({ isLight, css }) => {
       align-items: center;
       background:
         linear-gradient(
-            ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]},
+            ${isLight ? tokens.colors.light[50] : tokens.colors.dark[700]},
             ${isLight ? tokens.colors.light[100] : tokens.colors.dark[700]}
           )
           padding-box,
-        conic-gradient(#94a3b8, #334155 25%, #334155 75%, #94a3b8 100%) border-box;
+        conic-gradient(
+            ${isLight ? "#94a3b8" : "#94a3b8"},
+            ${isLight ? "#c4d5ed" : "#334155"} 25%,
+            ${isLight ? "#c4d5ed" : "#334155"} 75%,
+            ${isLight ? "#94a3b8" : "#94a3b8"} 100%
+          )
+          border-box;
       border-radius: 8px;
       border: 1px solid #0000 !important;
       width: 32px;
@@ -74,10 +97,10 @@ export const Header = (props: React.HTMLProps<HTMLDivElement>) => {
 
   return (
     <div {...props} className={css.base}>
-      <button type="button" className={css.logo} onClick={() => setModule(DevtoolsModule.WORKSPACE)}>
+      <button type="button" className={css.logo} onClick={() => setModule(DevtoolsModule.NETWORK)}>
         <LogoIcon />
       </button>
-      <h3>{name}</h3>
+      <h3 className={css.title}>{name}</h3>
       <div className={css.spacer} />
       <IconButton onClick={() => setOpen(false)}>
         <XIcon />

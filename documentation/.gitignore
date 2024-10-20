@@ -3,13 +3,17 @@
 
 # Production
 /build
+/docs/api
+/docs/hooks/*
+!/docs/hooks/index.mdx
+!/docs/hooks/cards.tsx
+
+/docs/ui/*
+!/docs/ui/cards.tsx
 
 # Generated files
 .docusaurus
 .cache-loader
-.docgen
-docs/api/*
-
 
 # Misc
 .DS_Store

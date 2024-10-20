@@ -15,11 +15,11 @@ adapter on the `client`.
 There are two packages to chose from with two adapters each:
 
 1. `@hyper-fetch/firebase` - for working with web realtime and firestore databases:
-    1. `firebaseAdapter` - for standard REST requests.
-    2. `firebaseSocketsAdapter` - for realtime listening.
+   1. `firebaseAdapter` - for standard REST requests.
+   2. `firebaseSocketsAdapter` - for realtime listening.
 2. `@hyper-fetch/firebase-admin` - for admin versions of the packages:
-    1. `firebaseAdminAdapter` - for standard REST requests.
-    2. `firebaseSocketsAdminAdapter` - for realtime listening.
+   1. `firebaseAdminAdapter` - for standard REST requests.
+   2. `firebaseSocketsAdminAdapter` - for realtime listening.
 
 Both packages have the same unified interface.
 
@@ -54,7 +54,8 @@ import { firebaseAdminAdapter } from "@hyper-fetch/firebase-admin";
 
 Resulting `response` is an object that contains the following properties:
 
-1. `data` - data returned from the database. Each object returned from the database is enhanced also by the `__key` param that equals id of a given document.
+1. `data` - data returned from the database. Each object returned from the database is enhanced also by the `__key`
+   param that equals id of a given document.
 2. `status` - status indicating whether a request ended with `success`, `error` or `emptyResource`. `emptyResource`
    occurs when the request to firebase succeeded but no data was returned.
 3. `success` - general information if overall request succeeded (`true`) or failed (`false`)
@@ -65,8 +66,9 @@ Resulting `response` is an object that contains the following properties:
 ## Differences from 'raw' firebase
 
 1. If we store an array in firebase, for instance `[a, b, c]`, the query would return the same array. However, if the
-   array stops being sequential - for instance, if `a` and `b` were deleted, firebase would return and object: {2: 'c',
-   4: 'e'}. Hyper Fetch always returns and array. Each object in an array has an additional `__key` property, that indicates the id of a given object.
+   array stops being sequential - for instance, if `a` and `b` were deleted, firebase would return and object:
+   `{2: 'c', 4: 'e'}`. Hyper Fetch always returns and array. Each object in an array has an additional `__key` property,
+   that indicates the id of a given object.
 
 ## Filtering queries
 

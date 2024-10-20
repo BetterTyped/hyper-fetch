@@ -63,7 +63,7 @@ Because Hyper Fetch components are created inside Client, you can set global or 
 
 We can use the `setRequestDefaultOptions` method to specify the defaults for every created request.
 
-{@import Hyper-Fetch RequestOptionsType preview}
+(@import Hyper-Fetch RequestOptionsType preview)
 
 Add them by:
 
@@ -133,7 +133,7 @@ We can modify received data with these interceptors before it will be emitted to
 Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
 `setQueryParamsConfig` method and the options listed below.
 
-{@import Hyper-Fetch QueryStringifyOptionsType returns}
+(@import Hyper-Fetch QueryStringifyOptionsType returns)
 
 To change the encoding function, use the `setStringifyQueryParams` method.
 
@@ -162,14 +162,15 @@ Client has three generic types that can be passed when initializing a client.
 ```tsx
 import { ClientErrorType, Client, AdapterType, DefaultEndpointMapper } from "@hyper-fetch/core";
 
-const client = new Client<{error: ClientErrorType, adapter: AdapterType, mapper: DefaultEndpointMapper}>
+const client = new Client<{ error: ClientErrorType; adapter: AdapterType; mapper: DefaultEndpointMapper }>();
 ```
 
 - `error` defines the global/default error type used in all the requests. It should consist of an `Error` type and your
-  default `ServerErrorType`. It is propagated down to the `createRequest` method, serving as a default for the `globalError` type.
+  default `ServerErrorType`. It is propagated down to the `createRequest` method, serving as a default for the
+  `globalError` type.
 
-- `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it
-  only when you provide [your custom adapter](/guides/02-advanced/custom-adapter.mdx).
+- `adapter` is the generic responsible for shaping options passed to the adapter. Most likely you will change it only
+  when you provide [your custom adapter](/guides/02-advanced/custom-adapter.mdx).
 
 - `mapper` -
 
@@ -223,7 +224,7 @@ Handles the logging systems for debugging.
 
 Configuration options
 
-{@import Hyper-Fetch ClientOptionsType returns}
+(@import Hyper-Fetch ClientOptionsType returns)
 
 <!-- ## Authentication
 

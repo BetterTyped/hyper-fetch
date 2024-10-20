@@ -16,6 +16,7 @@ const styles = createStyles(({ css }) => {
       color: inherit;
       padding: 0;
       max-width: 100%;
+      outline: none !important;
 
       & svg {
         width: 20px;

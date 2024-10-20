@@ -68,6 +68,10 @@ const styles = createStyles(({ isLight, css, tokens }) => {
       font-size: 12px;
       color: ${isLight ? tokens.colors.dark[100] : tokens.colors.light[400]};
     `,
+    labelWrapper: css`
+      display: flex;
+      align-items: center;
+    `,
     label: css`
       font-weight: 400;
       font-size: 12px;
@@ -86,7 +90,7 @@ const styles = createStyles(({ isLight, css, tokens }) => {
 
       & svg {
         width: 10px;
-        fill: ${isLight ? tokens.colors.light[600] : tokens.colors.light[200]};
+        stroke: ${isLight ? tokens.colors.light[600] : tokens.colors.light[200]};
         margin-left: 5px;
       }
 
@@ -189,17 +193,20 @@ export const Sortable = React.forwardRef<
           if (e.key === "Enter") handleSort();
         }}
       >
-        {children}
-        {sort === "asc" && <ArrowUp width="12px" height="12px" />}
-        {sort === "desc" && <ArrowDown width="12px" height="12px" />}
-        {!sort && (
-          <span
-            style={{
-              width: "12px",
-              height: "12px",
-            }}
-          />
-        )}
+        <div className={css.labelWrapper}>
+          {children}
+          {sort === "asc" && <ArrowUp width="12px" height="12px" />}
+          {sort === "desc" && <ArrowDown width="12px" height="12px" />}
+          {!sort && (
+            <span
+              style={{
+                marginLeft: "5px",
+                width: "10px",
+                height: "12px",
+              }}
+            />
+          )}
+        </div>
       </Head>
     );
   }

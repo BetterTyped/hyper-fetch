@@ -38,7 +38,7 @@ export const getStatusColor = (status: Status, isLight: boolean) => {
     case Status.FAILED:
       return isLight ? tokens.colors.red[500] : tokens.colors.red[400];
     case Status.IN_PROGRESS:
-      return isLight ? tokens.colors.blue[500] : tokens.colors.blue[400];
+      return isLight ? tokens.colors.blue[400] : tokens.colors.blue[200];
     default:
       return "inherit";
   }

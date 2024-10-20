@@ -79,7 +79,7 @@ requirements.
 
 #### Here you can find some examples of possible configurations.
 
-{@import Hyper-Fetch RequestOptionsType returns}
+(@import Hyper-Fetch RequestOptionsType returns)
 
 ### You can also provide options to the adapter
 
@@ -119,10 +119,10 @@ of the configurations are optional. You can also prepare a global configuration 
 setup between requests.
 
 ```ts
-type ResponseType = { success: boolean }
-type PayloadDataType = { name: string }
+type ResponseType = { success: boolean };
+type PayloadDataType = { name: string };
 
-const postUser = client.createRequest<{response: ResponseType, payload: PayloadDataType}>()({
+const postUser = client.createRequest<{ response: ResponseType; payload: PayloadDataType }>()({
   endpoint: "/some-endpoint",
   headers: {},
   auth: true,
@@ -132,7 +132,7 @@ const postUser = client.createRequest<{response: ResponseType, payload: PayloadD
   retryTime: 1000,
 });
 
-const { data, error } = await postUser.send({ data: { name: "Maciej" } })
+const { data, error } = await postUser.send({ data: { name: "Maciej" } });
 ```
 
 ### Request Data
@@ -156,13 +156,13 @@ Parameters must be defined in request endpoint using `:`
 ```ts
 const getNote = client.createRequest()({
   endpoint: "/note/:noteId",
-})
+});
 const getCategory = client.createRequest()({
   endpoint: "/category/:categoryId",
-})
+});
 const getCategoryNote = client.createRequest()({
   endpoint: "/category/:noteId",
-})
+});
 ```
 
 When you have properly prepared requests that expect parameters, you can add parameters using the `setParams` method. In
@@ -275,7 +275,12 @@ type Payload = { email: string }; // What's send with request
 type LocalError = { nameMessage: string }; // Additional "local" errors like errors for particular form
 type QueryParams = { sort: string; search: string }; // Query params interface
 
-const someRequest = client.createRequest<{response: Response, payload: Payload, error: LocalError, queryParams: QueryParams}>()({
+const someRequest = client.createRequest<{
+  response: Response;
+  payload: Payload;
+  error: LocalError;
+  queryParams: QueryParams;
+}>()({
   endpoint: "category/:categoryId",
 });
 
@@ -296,27 +301,27 @@ error; // Has 'GlobalError' or 'LocalError' type
 ```tsx
 import { client } from "./client";
 
-export const getUsers = client.createRequest<{response: UserModel[]}>()({
+export const getUsers = client.createRequest<{ response: UserModel[] }>()({
   method: "GET",
   endpoint: "/users",
 });
 
-export const getUser = client.createRequest<{response: UserModel}>()({
+export const getUser = client.createRequest<{ response: UserModel }>()({
   method: "GET",
   endpoint: "/users/:userId",
 });
 
-export const postUser = client.createRequest<{response: UserModel, payload: UserPostDataType}>()({
+export const postUser = client.createRequest<{ response: UserModel; payload: UserPostDataType }>()({
   method: "POST",
   endpoint: "/users",
 });
 
-export const patchUser = client.createRequest<{response: UserModel, payload: Partial<UserPostDataType>}>()({
+export const patchUser = client.createRequest<{ response: UserModel; payload: Partial<UserPostDataType> }>()({
   method: "PATCH",
   endpoint: "/users/:userId",
 });
 
-export const deleteUser = client.createRequest<{response: null}>()({
+export const deleteUser = client.createRequest<{ response: null }>()({
   method: "DELETE",
   endpoint: "/users/:userId",
 });
@@ -341,7 +346,7 @@ const { data, error } = await deleteUser.send({ params: { userId: 88 } });
 We can easily add lifecycle listeners to the **`send()`** method. This allows us to listen to the request events and
 perform callbacks with the received data for each stage of execution.
 
-{@import Hyper-Fetch FetchSendActionsType returns}
+(@import Hyper-Fetch FetchSendActionsType returns)
 
 #### Example
 
@@ -359,7 +364,7 @@ await request.send({
 
 Configuration options for the `client.createRequest()` method.
 
-{@import Hyper-Fetch RequestOptionsType returns}
+(@import Hyper-Fetch RequestOptionsType returns)
 
 #### Example
 

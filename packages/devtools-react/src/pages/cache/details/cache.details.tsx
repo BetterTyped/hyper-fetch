@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { TrashIcon, FileXIcon, TriangleAlert, LoaderIcon } from "lucide-react";
-import { CacheValueType, getLoadingByCacheKey } from "@hyper-fetch/core";
+import { AdapterInstance, CacheValueType, getLoadingByCacheKey } from "@hyper-fetch/core";
 
 import { Back } from "./back/back";
 import { Separator } from "components/separator/separator";
@@ -82,6 +82,7 @@ export const CacheDetails = () => {
       error,
       extra,
       responseTimestamp,
+      requestTimestamp,
       success,
       status,
       retries,
@@ -91,8 +92,22 @@ export const CacheDetails = () => {
     } = item.cacheData;
 
     return {
-      data: { data, error, extra, status, timestamp: responseTimestamp, success, retries, isCanceled, isOffline },
+      data: {
+        data,
+        error,
+        extra,
+        status,
+        responseTimestamp,
+        requestTimestamp,
+        success,
+        retries,
+        isCanceled,
+        isOffline,
+      },
       additionalData,
+    } satisfies {
+      data: Partial<CacheValueType<any, any, AdapterInstance>>;
+      additionalData: Partial<CacheValueType<any, any, AdapterInstance>>;
     };
   }, [item]);
 
@@ -111,14 +126,9 @@ export const CacheDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item?.cacheKey, requests?.length]);
 
-  const onChangeData = (newData: any) => {
+  const onChangeData = (newData: CacheValueType<any, any, any>) => {
     if (item) {
       const data = { ...item.cacheData, ...newData, version: client.cache.version };
-
-      // It's not existing in cache data
-      if (data?.timestamp) {
-        delete data.timestamp;
-      }
 
       client.cache.storage.set<any, any, any>(item.cacheKey, data);
       client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);

@@ -60,14 +60,7 @@ export const NetworkList = () => {
 
   const { items } = useSearch({
     data,
-    searchKeys: [
-      "request.endpoint",
-      "request.method",
-      "request.queueKey",
-      "request.cacheKey",
-      "request.abortKey",
-      "request.effectKey",
-    ],
+    searchKeys: ["request.endpoint", "request.method", "request.queueKey", "request.cacheKey", "request.abortKey"],
     searchTerm: networkSearchTerm,
     baseSort: networkSort
       ? (a, b) => {

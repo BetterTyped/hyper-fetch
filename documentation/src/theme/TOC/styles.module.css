@@ -1,0 +1,40 @@
+.tocWrapper {
+  position: sticky;
+  top: 100px;
+}
+
+.tocWrapper h6 {
+  padding-left: 15px;
+}
+
+.tocWrapper ul {
+  border-left: 0px !important;
+}
+.tocWrapper a {
+  @apply text-base hover:dark:brightness-[120%] hover:brightness-[80%];
+}
+
+.tableOfContents {
+  max-height: calc(100vh - (var(--ifm-navbar-height) + 2rem));
+  overflow-y: auto;
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 1rem);
+}
+
+.tocWrapper :global(.table-of-contents__link--active) {
+  color: inherit !important;
+}
+
+.tocWrapper :global(a:not(.table-of-contents__link--active)) {
+  @apply !text-slate-400;
+}
+
+@media (max-width: 996px) {
+  .tableOfContents {
+    display: none;
+  }
+
+  .docItemContainer {
+    padding: 0 0.3rem;
+  }
+}

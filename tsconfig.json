@@ -32,5 +32,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules", "dist", "coverage"]
+  "include": ["./global.d.ts"],
+  "exclude": ["node_modules/**/*", "**/node_modules/**/*", "dist/**/*", "**/dist/**/*", "*.js"]
 }

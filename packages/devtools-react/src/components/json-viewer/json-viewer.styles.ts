@@ -83,6 +83,7 @@ export const styles = createStyles(({ isLight, css }) => {
       resize: vertical;
       width: 100%;
       border-radius: 3px;
+      padding: 0;
 
       &:focus {
         outline-offset: 2px;
@@ -96,6 +97,7 @@ export const styles = createStyles(({ isLight, css }) => {
       top: 50%;
       transform: translate(0, -50%);
       border-radius: 3px;
+      padding: 0;
 
       &:focus {
         outline-offset: 2px;

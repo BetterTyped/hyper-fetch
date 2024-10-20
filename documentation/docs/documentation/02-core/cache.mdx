@@ -49,7 +49,7 @@ everything will happen automatically.
 
 Available cache events.
 
-{@import Hyper-Fetch getCacheEvents returns}
+(@import Hyper-Fetch getCacheEvents returns)
 
 ---
 
@@ -60,7 +60,7 @@ the system – i.e. local storage or IndexedDB – regardless if the source work
 allows you to set up persistent storage across sessions.
 
 ```tsx
-export const client = new Client<{error: ServerErrorType}>({
+export const client = new Client<{ error: ServerErrorType }>({
   url: "localhost:3000",
   cache: (instance) =>
     new Cache(instance, {
@@ -242,4 +242,4 @@ Cache options can be provided with some lifecycle methods. These are events such
 
 Configuration options
 
-{@import Hyper-Fetch CacheOptionsType returns}
+(@import Hyper-Fetch CacheOptionsType returns)

@@ -19,7 +19,7 @@ export const Value = ({
     return (
       <span
         className={css.clsx(css.value, { [css.disabledValue]: disabled })}
-        style={{ paddingLeft: !disabled ? "24px" : "" }}
+        style={{ padding: "0px", paddingLeft: !disabled ? "28px" : "8px" }}
       >
         {!disabled && (
           <input

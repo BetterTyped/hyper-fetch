@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Link from "@docusaurus/Link";
 
 import styles from "./header.module.css";
-import "./animation.scss";
+// import "./animation.scss";
 
 export function Header(): JSX.Element {
   return (

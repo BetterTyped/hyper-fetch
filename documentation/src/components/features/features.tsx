@@ -10,7 +10,7 @@ import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
 
 import styles from "./features.module.css";
-import "./animation.scss";
+// import "./animation.scss";
 
 type FeatureItem = {
   description: string;
