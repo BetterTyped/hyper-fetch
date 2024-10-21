@@ -4,7 +4,6 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx,css,svg,mdx}",
     "./docs/**/*.{js,jsx,ts,tsx,css,svg,mdx}",
     "./docusaurus.config.ts",
-    "node_modules/@docsgen/**/*.{js,jsx,ts,tsx,css,svg,mdx}",
   ],
   darkMode: ["class", '[data-theme="dark"]'],
   theme: {

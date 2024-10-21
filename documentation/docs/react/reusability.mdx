@@ -1,0 +1,156 @@
+---
+sidebar_position: 4
+title: Reusability of Requests
+sidebar_label: Reusability of Requests
+---
+
+# Reusability of Requests
+
+> Request is a class under the hood, so you can get access to it's information, you can use it's methods etc.
+
+---
+
+```ts
+import { z } from "zod";
+import { getUser } from "./requests";
+
+// Getting info from inside of the request
+console.log(getUser.endpoint); // "/users/:id"
+console.log(getUser.setParams({ id: 1 }).endpoint); // "/users/1"
+
+// Adding custom handlers, like validation
+const User = z.object({
+  name: z.string(),
+  age: z.number(),
+});
+
+getUser.setResponseMapper(async (response) => {
+  User.parse(response); // Throw return request error
+
+  return response;
+});
+```
+
+As you can see there is pretty much a lot of approaches to the request and what you can do with it.
+
+#### Let's focus on the `.setResponseMapper()` method.
+
+Imagine building component with a built in data fetching. In reality it's impossible to create really reusable logic for
+such components. Most likely these are bound to your API, and you can't use them anywhere else. This is hard for library
+based systems, or just reusibility in the codebase.
+
+:::Success Build smart, move faster 💡
+
+With `.setResponseMapper()` you can create a reusable logic for your components. You can define that our components
+requires type like `Request<{ name: string, id: number }>`. No matter what the data you receive, if your partial data
+exist there, you can map it easily with `setResponseMapper` and modify the response to match the required type.
+
+:::
+
+```tsx
+import { Request } from "@hyper-fetch/core";
+import { useFetch } from "@hyper-fetch/react";
+
+// highlight-next-line
+const ReusableComponent = ({ request }: { request: Request<{ id: number; name: string; description: string }> }) => {
+  const { data, loading, error } = useFetch(request);
+
+  return (
+    <div>
+      {loading && <div>Loading...</div>}
+      {error && <div>Error: {error.message}</div>}
+      {data && (
+        // highlight-start
+        <div>
+          Data: {data.id}, {data.name}, {data.description}
+        </div>
+        // highlight-end
+      )}
+    </div>
+  );
+};
+```
+
+#### Now, let's use it in our app.
+
+We create the new request and use `.setResponseMapper()` to map the response to the required type.
+
+```tsx
+// Some not matching data request
+export const getSomeData = client.createRequest<{
+  element: string;
+  elementDescription: string;
+  elementId: number;
+}>()({
+  url: "/element",
+  method: "GET",
+});
+
+const App = () => {
+  return (
+    <div>
+      <ReusableComponent
+        request={getSomeData.setResponseMapper((response) => {
+          // highlight-start
+          return {
+            ...response,
+            data: {
+              id: response.elementId,
+              name: response.element,
+              description: response.elementDescription,
+            },
+          };
+          // highlight-end
+        })}
+      />
+    </div>
+  );
+};
+```
+
+---
+
+#### That's not all!
+
+You can also pass the async callback to the `responseMapper()`. This will allow you to get data from few resources and
+map them into single one!
+
+```tsx
+// Some not matching data request
+export const getProduct = client.createRequest<{
+  id: number;
+  name: string;
+  descriptionId: number;
+}>()({
+  url: "/product/1",
+  method: "GET",
+});
+export const getPart2 = client.createRequest<{
+  descriptionId: number;
+  description: string;
+}>()({
+  url: "/product/1/:descriptionId",
+  method: "GET",
+});
+
+const App = () => {
+  return (
+    <div>
+      <ReusableComponent
+        request={getSomeData.setResponseMapper(async (response) => {
+          const descriptionData = await getPart2.setParams({ descriptionId: response.descriptionId }).send();
+          // highlight-start
+          return {
+            ...response,
+            data: {
+              ...response.data,
+              description: descriptionData.description,
+            },
+          };
+          // highlight-end
+        })}
+      />
+    </div>
+  );
+};
+```

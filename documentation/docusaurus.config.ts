@@ -3,7 +3,7 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import path from "path";
 import fs from "fs";
-import { importer } from "@docsgen/core";
+// import { importer } from "@docsgen/core";
 import plugin from "@docsgen/docusaurus";
 
 import docsVersions from "./versions.json";
@@ -33,7 +33,7 @@ const getVersions = () => {
 };
 
 const apiDocs = "api";
-const apiDocsDir = "docs/api";
+// const apiDocsDir = "docs/api";
 
 const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
@@ -190,8 +190,7 @@ const config: Config = {
       title: "",
       logo: {
         alt: "HyperFetch Logo",
-        src: "branding/logo-black.svg",
-        className: "dark:invert",
+        src: "img/brand/HF.svg",
       },
       items: [
         {

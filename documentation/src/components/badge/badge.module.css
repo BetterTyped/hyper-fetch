@@ -1,0 +1,54 @@
+.badge {
+  @apply flex items-center shadow-gray-300 dark:shadow-gray-600 bg-slate-900;
+  display: flex;
+  border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1000px 0 0 var(--tw-shadow-color) inset;
+  transition: all 200ms ease-in-out;
+  background: transparent !important;
+  text-decoration: none !important;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}
+
+.badge::before {
+  content: "";
+  background: conic-gradient(
+    from 45deg at 50% 50%,
+    transparent,
+    transparent,
+    transparent,
+    transparent,
+    transparent,
+    orange,
+    transparent,
+    transparent,
+    transparent
+  );
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  animation: rotate 3s linear infinite;
+}
+
+.backdrop {
+  @apply dark:bg-slate-900 bg-white;
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+}
+
+@keyframes rotate {
+  0% {
+    transform: translate(-50%, -50%) scale(1.4) rotate(0turn);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4) rotate(1turn);
+  }
+}
