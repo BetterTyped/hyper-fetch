@@ -9,6 +9,8 @@ import { Summary } from "./summary";
 import { CallToAction } from "./call-to-action";
 import { Modules } from "./modules/modules";
 import { Integrations } from "./integrations/integrations";
+import { Features } from "./features/features";
+import { Preview } from "./preview/preview";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -39,6 +41,8 @@ export const Landing = () => {
           <Clients />
           <Modules />
           <Integrations />
+          <Features />
+          <Preview />
           <Summary />
           <CallToAction />
         </div>

@@ -70,7 +70,7 @@ export const Summary = () => {
                 <Stage onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                   <div className="sticky top-0">
                     <FadeIn start={0.25} end={0.45}>
-                      <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-blue-500 to-pink-500 dark:from-blue-500 dark:to-blue-200 pb-3">
+                      <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
                         Simply
                       </div>
                     </FadeIn>

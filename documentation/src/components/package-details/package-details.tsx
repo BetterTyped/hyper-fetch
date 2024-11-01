@@ -81,7 +81,7 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
               <span className="text-zinc-500 dark:text-zinc-300 font-medium capitalize">{names}</span>
             </li>
             <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-zinc-400">Website</span>
+              <span className="text-zinc-400">Npm</span>
               {Array.isArray(pkg) ? (
                 <div className="flex flex-wrap gap-3">
                   {pkg.map((el, index) => (

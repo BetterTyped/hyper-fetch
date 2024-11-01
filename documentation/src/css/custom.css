@@ -429,7 +429,7 @@ pre[class*="language-"] {
   @apply px-6 md:px-8 py-8 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
 }
 .alert > div:first-child {
-  @apply flex items-center mb-3 text-2xl capitalize font-extrabold;
+  @apply mb-3 text-2xl capitalize font-extrabold;
 }
 .alert > div:first-child svg {
   @apply -mt-1;
@@ -456,13 +456,13 @@ pre[class*="language-"] {
 }
 
 .alert--info {
-  @apply bg-yellow-300 dark:bg-yellow-700 bg-opacity-30 dark:bg-opacity-30;
+  @apply bg-blue-300 dark:bg-blue-700 bg-opacity-30 dark:bg-opacity-30;
 }
 .alert--info > div:first-child {
   @apply text-blue-600 dark:text-blue-500;
 }
 .alert--info > div:first-child svg {
-  @apply fill-yellow-600 dark:fill-yellow-500;
+  @apply fill-blue-600 dark:fill-blue-500;
 }
 
 .alert--warning {

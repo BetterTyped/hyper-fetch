@@ -23,7 +23,7 @@ export const Cards = () => {
                   <item.img className="fill-white group-hover:fill-white/90 w-4 h-4" />
                 </div>
               </div>
-              <Title size="none" className="font-semibold !leading-0" wrapperClass="flex flex-wrap !leading-3 mb-2">
+              <Title size="none" className="font-semibold !leading-0" wrapperClass="flex flex-wrap !leading-4 mb-2">
                 {item.name}
               </Title>
               <Description size="none" className="!text-sm !m-0">

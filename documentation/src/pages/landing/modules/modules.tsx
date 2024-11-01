@@ -1,13 +1,11 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable no-nested-ternary */
-import { useWindowSize } from "@reins/hooks";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
 import { Title } from "@site/src/components";
+
 import { Cards } from "./cards";
 
 export const Modules = () => {
-  const [width] = useWindowSize();
-
   return (
     <section>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -16,7 +14,7 @@ export const Modules = () => {
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
             <FadeIn start={0.05} end={0.25}>
               <div>
-                <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-blue-500 to-pink-500 dark:from-blue-500 dark:to-blue-200 pb-3">
+                <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-orange-200 pb-3">
                   Where DX meets business
                 </div>
               </div>

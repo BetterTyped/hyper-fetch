@@ -142,6 +142,7 @@ const config: Config = {
   ],
 
   plugins: [
+    "docusaurus-plugin-sass",
     // "@orama/plugin-docusaurus-v3",
     "@docusaurus/theme-live-codeblock",
     async function tailwindPlugin() {
@@ -197,13 +198,19 @@ const config: Config = {
           position: "left",
           label: "Documentation",
           to: "/docs/documentation",
-          activeBaseRegex: `^/docs((?!examples|plugins).)*$`,
+          activeBaseRegex: `^/docs((?!examples|plugins|api).)*$`,
         },
         {
           to: "/docs/plugins",
           position: "left",
           label: "Plugins",
           activeBaseRegex: `/docs/plugins/`,
+        },
+        {
+          to: "/docs/api",
+          position: "left",
+          label: "Api",
+          activeBaseRegex: `/docs/api/`,
         },
         {
           to: "/examples/playground/",
