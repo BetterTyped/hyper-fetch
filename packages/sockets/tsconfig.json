@@ -7,5 +7,6 @@
     "paths": {
       "@hyper-fetch/sockets": ["../src"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }

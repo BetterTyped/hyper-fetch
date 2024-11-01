@@ -5,7 +5,7 @@ import CollapseButton from "@theme/DocSidebar/Desktop/CollapseButton";
 import Content from "@theme/DocSidebar/Desktop/Content";
 import { useFilteredSidebar } from "@site/src/hooks/use-filtered-sidebar";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { sections } from "@site/src/sections";
+import { modules } from "@site/src/modules";
 
 import { SidebarMenu } from "../../../components/sidebar-menu/sidebar-menu";
 
@@ -21,10 +21,10 @@ const DocSidebarDesktop = ({ path, sidebar, onCollapse }) => {
 
   const { activeItem } = useSidebar();
 
-  const color = activeItem?.section || sections[0];
+  const color = activeItem?.section || modules[0];
 
   return (
-    <div className="max-h-[calc(100vh-60px)]">
+    <div className="max-h-[calc(100vh-60px)] overflow-y-auto">
       {hideOnScroll && <Logo tabIndex={-1} />}
       <SidebarMenu />
       <div className={`custom-sidebar-menu ${color.text} ${color.textHover}`}>

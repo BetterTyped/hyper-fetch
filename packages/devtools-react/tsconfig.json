@@ -2,5 +2,6 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./src"
-  }
+  },
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }

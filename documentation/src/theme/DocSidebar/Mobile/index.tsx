@@ -4,7 +4,7 @@ import { useNavbarMobileSidebar } from "@docusaurus/theme-common/internal";
 import DocSidebarItems from "@theme/DocSidebarItems";
 import { useFilteredSidebar } from "@site/src/hooks/use-filtered-sidebar";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { sections } from "@site/src/sections";
+import { modules } from "@site/src/modules";
 
 import { SidebarMenu } from "../../../components/sidebar-menu/sidebar-menu";
 
@@ -14,7 +14,7 @@ const DocSidebarMobileSecondaryMenu = ({ sidebar, path }) => {
   const filteredSidebar = useFilteredSidebar(sidebar);
 
   const { activeItem } = useSidebar();
-  const color = activeItem?.section || sections[0];
+  const color = activeItem?.section || modules[0];
 
   return (
     <div>

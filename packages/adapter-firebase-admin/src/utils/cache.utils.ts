@@ -15,7 +15,10 @@ export const setCacheManually = <R extends RequestInstance>(
       isCanceled: false,
       isOffline: false,
       retries: 0,
-      timestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
     });
   } else {
     request.client.cache.set(request, {
@@ -27,7 +30,10 @@ export const setCacheManually = <R extends RequestInstance>(
       isCanceled: false,
       isOffline: false,
       retries: 0,
-      timestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
     });
   }
 };

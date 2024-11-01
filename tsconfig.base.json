@@ -17,16 +17,19 @@
       "path": "./packages/codegen-openapi"
     },
     {
-      "path": "./packages/devtools-react"
+      "path": "./packages/core"
     },
     {
       "path": "./packages/devtools-plugin"
     },
     {
-      "path": "./packages/plugin-eslint"
+      "path": "./packages/devtools-react"
     },
     {
-      "path": "./packages/core"
+      "path": "./packages/devtools-standalone/"
+    },
+    {
+      "path": "./packages/plugin-eslint"
     },
     {
       "path": "./packages/react"

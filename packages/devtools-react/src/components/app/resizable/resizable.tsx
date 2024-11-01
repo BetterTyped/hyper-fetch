@@ -59,7 +59,7 @@ export const Resizable = ({
   return (
     <ResizableComponent
       size={size}
-      onResize={(e, direction, ref) => {
+      onResize={(_, __, ref) => {
         const { width, height } = ref.getBoundingClientRect();
         setSize(() => ({
           width,
@@ -67,7 +67,7 @@ export const Resizable = ({
         }));
       }}
       // eslint-disable-next-line max-params
-      onResizeStop={(e, direction, ref) => {
+      onResizeStop={(_, __, ref) => {
         const { width, height } = ref.getBoundingClientRect();
         setSize(() => ({
           width,

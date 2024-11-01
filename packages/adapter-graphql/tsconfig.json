@@ -9,5 +9,5 @@
       "@hyper-fetch/graphql": ["../src"]
     }
   },
-  "exclude": ["dist", "jest.config.ts"]
+  "exclude": ["node_modules", "dist", "jest.config.ts", "__tests__"]
 }

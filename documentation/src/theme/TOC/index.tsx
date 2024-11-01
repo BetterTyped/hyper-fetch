@@ -3,7 +3,7 @@ import clsx from "clsx";
 import TOCItems from "@theme/TOCItems";
 import type { Props } from "@theme/TOC";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { sections } from "@site/src/sections";
+import { modules } from "@site/src/modules";
 
 import styles from "./styles.module.css";
 
@@ -16,7 +16,7 @@ const LINK_ACTIVE_CLASS_NAME = "table-of-contents__link--active";
 export default function TOC({ className, ...props }: Props): JSX.Element {
   const { activeItem } = useSidebar();
 
-  const color = activeItem?.section || sections[1];
+  const color = activeItem?.section || modules[0];
 
   return (
     <div className={clsx("toc", styles.tocWrapper)}>

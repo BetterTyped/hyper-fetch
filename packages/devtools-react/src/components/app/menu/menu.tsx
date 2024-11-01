@@ -78,7 +78,7 @@ const MenuLink = ({ view, isMobile }: { view: DevtoolsModule; isMobile: boolean 
 
   if (!menuIcons?.[view]) return null;
 
-  const Icon = menuIcons[view];
+  const Icon = menuIcons[view] as React.FC<any>;
   const isActive = module === view;
   const onClick = () => setModule(view);
 

@@ -3,8 +3,8 @@ import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import path from "path";
 import fs from "fs";
-// import { importer } from "@docsgen/core";
 import plugin from "@docsgen/docusaurus";
+import { importer } from "@docsgen/core";
 
 import docsVersions from "./versions.json";
 
@@ -33,33 +33,30 @@ const getVersions = () => {
 };
 
 const apiDocs = "api";
-// const apiDocsDir = "docs/api";
+const apiDocsDir = "docs/api";
 
 const getPackagesList = () => {
   const dirPath = path.join(__dirname, "../packages");
   const result: string[] = fs
     .readdirSync(dirPath)
-    .filter((p) => ![".DS_Store", "css"].includes(p))
+    .filter((p) => ![".DS_Store", "devtools-standalone", "devtools-react", "testing"].includes(p))
     .map((filePath) => {
       return path.join(dirPath, filePath);
     });
 
-  return [];
-  return [
-    result
-      .filter((item) => !item.includes("tokens"))
-      .map((dir) => {
-        const dirName = dir.split("/").pop();
-        const title = dirName[0] + dirName.slice(1);
+  return result
+    .filter((item) => !item.includes("tokens"))
+    .map((dir) => {
+      const dirName = dir.split("/").pop();
+      const title = dirName[0] + dirName.slice(1);
 
-        return {
-          title,
-          dir,
-          entryPath: "src/index.ts",
-          tsconfigDir: dir,
-        };
-      })[0],
-  ];
+      return {
+        title,
+        dir,
+        entryPath: "src/index.ts",
+        tsconfigDir: dir,
+      };
+    });
 };
 
 /**
@@ -124,10 +121,10 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           editUrl: "https://github.com/BetterTyped/hyper-fetch/tree/main/documentation",
           remarkPlugins: [
-            // importer({
-            //   packageRoute: apiDocs,
-            //   apiDir: apiDocsDir,
-            // }),
+            importer({
+              packageRoute: apiDocs,
+              apiDir: apiDocsDir,
+            }),
           ],
         },
         blog: {
@@ -159,19 +156,22 @@ const config: Config = {
       };
     },
     [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "examples",
+        path: "examples",
+        routeBasePath: "examples",
+        sidebarPath: require.resolve("./sidebars.examples.js"),
+      },
+    ],
+    [
       "@docsgen/docusaurus",
       {
         id: apiDocs,
         outDir: `docs/api`,
         packages: getPackagesList(),
-        generateMdx: false,
-        hasMonorepoPage: false,
         logLevel: "trace",
-        pages: {
-          component: {
-            intro: false,
-          },
-        },
+        hasMonorepoPage: false,
       } satisfies Parameters<typeof plugin>[1],
     ],
   ],
@@ -198,16 +198,16 @@ const config: Config = {
           position: "left",
           label: "Documentation",
           to: "/docs/documentation",
-          activeBaseRegex: `^/docs((?!examples|plugins|api).)*$`,
+          activeBaseRegex: `^/docs((?!examples|integrations|api).)*$`,
         },
         {
-          to: "/docs/plugins",
+          to: "/docs/integrations/overview",
           position: "left",
-          label: "Plugins",
-          activeBaseRegex: `/docs/plugins/`,
+          label: "Adapters",
+          activeBaseRegex: `/docs/integrations/`,
         },
         {
-          to: "/docs/api",
+          to: "/docs/api/overview",
           position: "left",
           label: "Api",
           activeBaseRegex: `/docs/api/`,

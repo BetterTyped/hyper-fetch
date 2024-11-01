@@ -3,7 +3,7 @@ import clsx from "clsx";
 import Link from "@docusaurus/Link";
 import type { Props } from "@theme/PaginatorNavLink";
 import { useSidebar } from "@site/src/hooks/use-sidebar";
-import { sections } from "@site/src/sections";
+import { modules } from "@site/src/modules";
 import { getDocName } from "@site/src/hooks/use-filtered-sidebar";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, import/no-default-export
@@ -11,7 +11,7 @@ export default function PaginatorNavLink(props: Props): JSX.Element {
   const { permalink, title, subLabel, isNext } = props;
   const { activeItem } = useSidebar();
 
-  const section = activeItem?.section || sections[0];
+  const section = activeItem?.section || modules[0];
 
   const item = getDocName({
     label: title,

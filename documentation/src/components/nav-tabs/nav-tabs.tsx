@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import Link from "@docusaurus/Link";
-import { sections } from "@site/src/sections";
+import { modules } from "@site/src/modules";
 import clsx from "clsx";
 
 export const NavTabs = ({
@@ -10,11 +10,7 @@ export const NavTabs = ({
   title: string;
   tabs: Array<{ to: string; label: string; active: boolean }>;
 }) => {
-  if (
-    sections.some((section) => section.names.includes(title.toLocaleLowerCase())) ||
-    !tabs.length ||
-    tabs.length < 2
-  ) {
+  if (modules.some((section) => section.names.includes(title.toLocaleLowerCase())) || !tabs.length || tabs.length < 2) {
     return null;
   }
 

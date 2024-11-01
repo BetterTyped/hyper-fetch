@@ -63,7 +63,7 @@ Because Hyper Fetch components are created inside Client, you can set global or 
 
 We can use the `setRequestDefaultOptions` method to specify the defaults for every created request.
 
-(@import Hyper-Fetch RequestOptionsType preview)
+(@import core RequestOptionsType type=returns)
 
 Add them by:
 
@@ -133,7 +133,7 @@ We can modify received data with these interceptors before it will be emitted to
 Client has a built-in query params encoding function; you can modify its options or provide your own function. Use the
 `setQueryParamsConfig` method and the options listed below.
 
-(@import Hyper-Fetch QueryStringifyOptionsType returns)
+(@import core QueryStringifyOptionsType type=returns)
 
 To change the encoding function, use the `setStringifyQueryParams` method.
 
@@ -224,72 +224,4 @@ Handles the logging systems for debugging.
 
 Configuration options
 
-(@import Hyper-Fetch ClientOptionsType returns)
-
-<!-- ## Authentication
-
-1. Adding the headers to the request during authentication
-
-```tsx
-export const client = new Client({ url }).onAuth((request) => {
-  const state = store.getState();
-  const authToken = state.auth.token;
-
-  // Before each request with setting "auth: true" add the Bearer token
-  return request.setHeaders({
-    ...request.headers,
-    Authorization: `Bearer ${authToken}`,
-  });
-});
-
-export const getUsers = client.createRequest<{ name: string; email: string }>()({
-  method: "GET",
-  endpoint: "/users",
-  auth: true, // Important!
-});
-```
-
-2. Refreshing the token
-
-```tsx
-export const client = new Client({ url }).onError(async (res, request) => {
-  const status = res[2];
-  const refreshToken = localStorage.getItem(REFRESH_TOKEN_STORAGE_FIELD);
-
-  // Check if request has the used value - this will ensure you will not go into infinite loop
-  if (!request.used && refreshToken && status === 401) {
-    // Prepare the refresh token request
-    const postRefreshToken = client.createRequest<LoginResponse, LoginData>()({
-      endpoint: "/refresh-token",
-      method: "POST",
-    });
-
-    // Call the request to receive new tokens
-    const [data] = await postRefreshToken.setData({ refreshToken }).exec();
-
-    if (data) {
-      // Safe the new tokens
-      localStorage.setItem(TOKEN_STORAGE_FIELD, data.token);
-      localStorage.setItem(REFRESH_TOKEN_STORAGE_FIELD, data.refreshToken);
-      // Repeat the request
-      return request.setUsed(true).send();
-    }
-  }
-  // Return the initial response is something goes wrong
-  return res;
-});
-``` -->
-
-<!--
-
-- connection graph with request and other systems
-
--->
-
-<!--
-## TODOS and examples
-
-- TODO - subsection for Client -> providing own adapter (other than XHR) + options
-- TODO - subsection for Client -> providing own cache.
-- TODO - subsection for Client -> section for providing own Manager implementation.
-- TODO - subsection for Client -> section for providing own queues implementation. -->
+(@import core ClientOptionsType type=returns)

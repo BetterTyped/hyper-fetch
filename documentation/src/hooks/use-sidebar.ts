@@ -1,9 +1,11 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "@docusaurus/router";
 import useGlobalData from "@docusaurus/useGlobalData";
 
 import { useVersion } from "./use-version";
-import { sections } from "../sections";
+import { modules, Section } from "../modules";
+import { integrations } from "../integrations";
+import { apiOverviewSection } from "../apis";
 
 type SidebarElement = {
   link: {
@@ -34,7 +36,7 @@ export type SidebarItem = {
   link: SidebarElement["link"];
   img: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active: boolean;
-  section: (typeof sections)[number];
+  section: (typeof modules)[number];
 };
 
 export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; activeItem: SidebarItem | null } => {
@@ -55,29 +57,74 @@ export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; ac
 
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
+
     return Object.values(currentVersion.sidebars)
+      .filter((value) =>
+        // eslint-disable-next-line no-nested-ternary
+        location.pathname.includes("/docs/api")
+          ? value.link.path.includes("/api")
+          : location.pathname.includes("/docs/integrations")
+            ? value.link.path.includes("/integrations")
+            : !value.link.path.includes("/docs/api") && !value.link.path.includes("/docs/integrations"),
+      )
       .map((value) => {
         /**
          * DO NOT CHANGE!
          * @caution If it fails - you made mistake in the sidebar config :)
          */
-        const componentName = value.link.path.split("/")[2];
+        const componentName =
+          value.link.path.includes("/integrations") ||
+          value.link.path.includes("/plugins") ||
+          value.link.path.includes("/api")
+            ? value.link.path.split("/")[3]
+            : value.link.path.split("/")[2];
         const component = componentName.toLocaleLowerCase();
-        const sectionIndex = sections.findIndex((item) =>
+        const allPackages = [
+          apiOverviewSection,
+          ...modules.filter((item) => item.isPackage),
+          ...integrations.filter((item) => item.isPackage),
+        ];
+
+        const pkgIndex = modules.findIndex((item) =>
           item.names.find((itemName) => itemName.toLowerCase() === component),
         );
-        const section = sections[sectionIndex];
-        const active = location.pathname.includes(component);
+        const pluginIndex = integrations.findIndex((item) =>
+          item.names.find((itemName) => itemName.toLowerCase() === component),
+        );
+        const packageIndex = allPackages.findIndex((item) =>
+          item.names.find((itemName) => itemName.toLowerCase() === component),
+        );
+
+        // eslint-disable-next-line no-nested-ternary
+        const section: Section = location.pathname.includes("/docs/integrations")
+          ? integrations[pluginIndex]
+          : location.pathname.includes("/docs/api")
+            ? allPackages[packageIndex]
+            : modules[pkgIndex];
+
+        if (!section) return null;
+
+        // eslint-disable-next-line no-nested-ternary
+        const prefix = location.pathname.includes("/docs/integrations")
+          ? "integrations"
+          : location.pathname.includes("/docs/api")
+            ? "api"
+            : "docs";
+
+        const active =
+          location.pathname.includes(`${prefix}/${component}/`) || location.pathname.endsWith(`${prefix}/${component}`);
+
         return {
           name: section?.label || componentName,
           description: section?.description || "",
-          index: sectionIndex,
+          index: pkgIndex,
           link: value.link,
           img: section?.img,
           active,
           section,
         } satisfies SidebarItem;
       })
+      .filter(Boolean)
       .filter((item) => item.section && (!onlyPackages || item.section.isPackage))
       .sort((a, b) => a.index - b.index);
   }, [version]);
