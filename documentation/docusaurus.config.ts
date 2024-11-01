@@ -140,7 +140,6 @@ const config: Config = {
 
   plugins: [
     "docusaurus-plugin-sass",
-    // "@orama/plugin-docusaurus-v3",
     "@docusaurus/theme-live-codeblock",
     async function tailwindPlugin() {
       return {
@@ -179,6 +178,11 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/logo.svg",
+    algolia: {
+      appId: "E1R95VA83S",
+      apiKey: "aa20780883ad65342c73e9527130a725",
+      indexName: "hyperfetch",
+    },
     colorMode: {
       defaultMode: "dark",
       // disableSwitch: true,

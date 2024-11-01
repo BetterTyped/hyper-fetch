@@ -761,10 +761,6 @@ button.DocSearch-Button {
   @apply shiny-btn;
 }
 
-orama-searchbox > div > div[tabindex="1"] {
-  @apply dark:bg-[#15151b];
-}
-
 .pagination-nav__sublabel {
   @apply text-zinc-500 dark:!text-zinc-400;
 }

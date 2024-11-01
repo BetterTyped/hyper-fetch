@@ -23,7 +23,6 @@
     "@hyper-fetch/core": "^5.7.3",
     "@hyper-fetch/react": "^5.7.3",
     "@mdx-js/react": "^3.0.0",
-    "@orama/plugin-docusaurus-v3": "^3.0.1",
     "@react-theater/scroll": "^1.0.0",
     "@reins/hooks": "0.7.0",
     "@reins/types": "0.7.0",
