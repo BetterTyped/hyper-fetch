@@ -1,5 +1,3 @@
-
-
 # getDispatcherEvents
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { getDispatcherEvents } from "@hyper-fetch/core"
+import { getDispatcherEvents } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { getDispatcherEvents } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.events.ts#L11)
+Defined in
+[dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.events.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [dispatcher/dispatcher.events.ts:11](https://github.com/BetterTyped/h
 </div><div class="api-docs__preview fn">
 
 ```ts
-getDispatcherEvents(emitter)
+getDispatcherEvents(emitter);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="emitter"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="emitter"><td class="api-docs__param-name required">
 
-### emitter 
+### emitter
 
 `Required`
 

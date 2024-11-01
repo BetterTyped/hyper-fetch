@@ -1,5 +1,3 @@
-
-
 # onWindowEvent
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { onWindowEvent } from "@hyper-fetch/core"
+import { onWindowEvent } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { onWindowEvent } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/app/app.manager.utils.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/managers/app/app.manager.utils.ts#L16)
+Defined in
+[managers/app/app.manager.utils.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/managers/app/app.manager.utils.ts#L16)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [managers/app/app.manager.utils.ts:16](https://github.com/BetterTyped
 </div><div class="api-docs__preview fn">
 
 ```ts
-onWindowEvent<K>(key, listener, options)
+onWindowEvent<K>(key, listener, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="key"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="key"><td class="api-docs__param-name required">
 
-### key 
+### key
 
 `Required`
 
@@ -50,7 +51,7 @@ onWindowEvent<K>(key, listener, options)
 
 </td></tr><tr param-data="listener"><td class="api-docs__param-name required">
 
-### listener 
+### listener
 
 `Required`
 
@@ -60,7 +61,7 @@ onWindowEvent<K>(key, listener, options)
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name optional">
 
-### options 
+### options
 
 `Optional`
 

@@ -26,7 +26,7 @@
 }
 
 .tocWrapper :global(a:not(.table-of-contents__link--active)) {
-  @apply !text-slate-400;
+  @apply !text-zinc-400;
 }
 
 @media (max-width: 996px) {

@@ -1,5 +1,3 @@
-
-
 # useFetch
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { useFetch } from "@hyper-fetch/react"
+import { useFetch } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { useFetch } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
+Defined in
+[hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/hooks/use-fetch/use-fetch.hooks.ts#L18)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [hooks/use-fetch/use-fetch.hooks.ts:18](https://github.com/BetterType
 </div><div class="api-docs__preview fn">
 
 ```ts
-useFetch<T>(command, options)
+useFetch<T>(command, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-### command 
+### command
 
 `Required`
 
@@ -52,7 +53,7 @@ Command instance
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name required">
 
-### options 
+### options
 
 `Required`
 

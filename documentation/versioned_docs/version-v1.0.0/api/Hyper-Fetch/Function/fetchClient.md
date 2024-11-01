@@ -1,5 +1,3 @@
-
-
 # fetchClient
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { fetchClient } from "@hyper-fetch/core"
+import { fetchClient } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { fetchClient } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [client/fetch.client.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/client/fetch.client.ts#L4)
+Defined in
+[client/fetch.client.ts:4](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/client/fetch.client.ts#L4)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [client/fetch.client.ts:4](https://github.com/BetterTyped/hyper-fetch
 </div><div class="api-docs__preview fn">
 
 ```ts
-fetchClient(command, requestId)
+fetchClient(command, requestId);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-### command 
+### command
 
 `Required`
 
@@ -50,7 +51,7 @@ fetchClient(command, requestId)
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-### requestId 
+### requestId
 
 `Required`
 
@@ -65,7 +66,7 @@ fetchClient(command, requestId)
 </div><div class="api-docs__returns">
 
 ```ts
-Promise<ClientResponseType<any, any>>
+Promise<ClientResponseType<any, any>>;
 ```
 
 </div>

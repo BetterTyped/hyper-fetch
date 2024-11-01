@@ -1,3 +1,4 @@
-import { Home } from "./home/home.page";
+import { Landing } from "./landing";
 
-export default Home;
+// eslint-disable-next-line import/no-default-export
+export default Landing;

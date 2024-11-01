@@ -5,7 +5,7 @@
 /* Docgen */
 
 #__docusaurus > div[role="banner"] {
-  @apply min-h-10 !bg-[#011322] !border-b border-slate-800 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600;
+  @apply min-h-10 !bg-[#1c1c1d] !border-b border-zinc-800 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600;
 }
 
 #__docusaurus > div[role="banner"] g {
@@ -17,7 +17,7 @@
 }
 
 .announcement a {
-  @apply inline-flex items-center justify-center !text-slate-100 font-bold bg-purple-800/50 py-[5px] px-2 sm:py-1 sm:px-3 rounded-md !no-underline text-[0.6rem] sm:text-[0.9rem];
+  @apply inline-flex items-center justify-center !text-zinc-100 font-bold bg-purple-800/50 py-[5px] px-2 sm:py-1 sm:px-3 rounded-md !no-underline text-[0.6rem] sm:text-[0.9rem];
 }
 .announcement a .pro {
   @apply bg-purple-500 rounded-md font-bold text-white ml-1 px-1 sm:px-2 sm:py-1.5 py-1 text-[0.5rem] sm:text-[0.7rem];
@@ -38,11 +38,11 @@
 }
 
 .api-docs__definition {
-  @apply !text-sm text-slate-400 dark:text-slate-500;
+  @apply !text-sm text-zinc-400 dark:text-zinc-500;
 }
 
 .api-docs__description p {
-  @apply font-medium italic text-lg !bg-clip-text !text-transparent !bg-gradient-to-r from-slate-800/70 via-slate-500/80 to-slate-800/70  dark:from-slate-200/60 dark:via-slate-200 dark:to-slate-200/60;
+  @apply font-medium italic text-lg !bg-clip-text !text-transparent !bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70  dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
 }
 
 .api-docs__pre,
@@ -89,7 +89,7 @@
 }
 
 .api-docs__tag-text {
-  @apply text-slate-500 dark:text-slate-400 mb-3;
+  @apply text-zinc-500 dark:text-zinc-400 mb-3;
 }
 
 .api-docs__parameters {
@@ -105,11 +105,11 @@
 }
 
 .api-docs__label {
-  @apply text-slate-500 dark:text-slate-400;
+  @apply text-zinc-500 dark:text-zinc-400;
 }
 
 .api-docs__example-title {
-  @apply mb-3 text-slate-500 dark:text-slate-400;
+  @apply mb-3 text-zinc-500 dark:text-zinc-400;
 }
 
 .api-docs__details {
@@ -121,14 +121,14 @@
 }
 
 .api-docs__table-wrapper {
-  @apply !w-full max-w-full overflow-x-auto rounded-3xl px-4 pt-2 pb-4 bg-gradient-to-tr from-slate-100 to-white dark:from-slate-800 dark:to-slate-800/25 border dark:border-slate-800;
+  @apply !w-full max-w-full overflow-x-auto rounded-3xl px-4 pt-2 pb-4 bg-gradient-to-tr from-zinc-100 to-white dark:from-zinc-800 dark:to-zinc-800/25 border dark:border-zinc-800;
 }
 .api-docs__table {
   display: table;
   @apply !w-full rounded-md m-0;
 }
 .api-docs__table * {
-  @apply border-t-0 border-x-0 border-slate-400/10;
+  @apply border-t-0 border-x-0 border-zinc-400/10;
 }
 .api-docs__table thead tr {
   @apply border-0;
@@ -137,7 +137,7 @@
   @apply w-full;
 }
 .api-docs__table tr th {
-  @apply text-left text-sm uppercase text-slate-400;
+  @apply text-left text-sm uppercase text-zinc-400;
 }
 .api-docs__table tr,
 .api-docs__table thead {
@@ -151,18 +151,18 @@
 }
 
 .api-docs__table-title {
-  @apply text-2xl pt-4 pb-3 px-2 !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-slate-800/60 via-slate-800 to-slate-800/60 dark:from-slate-200/60 dark:via-slate-200 dark:to-slate-200/60;
+  @apply text-2xl pt-4 pb-3 px-2 !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
 }
 .api-docs__table-name {
-  @apply text-[0.9rem] font-semibold text-slate-700 dark:text-slate-200;
+  @apply text-[0.9rem] font-semibold text-zinc-700 dark:text-zinc-200;
 }
 .api-docs__table-description {
-  @apply !text-[0.9rem] font-medium text-slate-500 dark:text-slate-400 min-w-[300px];
+  @apply !text-[0.9rem] font-medium text-zinc-500 dark:text-zinc-400 min-w-[300px];
 }
 
 .api-docs__table pre {
   overflow-x: auto !important;
-  @apply w-fit md:max-w-[300px] lg:max-w-[400px] rounded-none !py-0 !px-2 !bg-[#011322] mb-0;
+  @apply w-fit md:max-w-[300px] lg:max-w-[400px] rounded-none !py-0 !px-2 !bg-[#1c1c1d] mb-0;
 }
 .api-docs__table pre code {
   @apply !py-2 !px-1;
@@ -176,16 +176,16 @@
 
 .api-playground__more .api-playground__presentation,
 .api-playground__switch {
-  @apply flex bg-slate-300/10 dark:bg-slate-700/10 p-4 border dark:border-slate-300/10 rounded-3xl;
+  @apply flex bg-zinc-300/10 dark:bg-zinc-700/10 p-4 border dark:border-zinc-300/10 rounded-3xl;
 }
 .api-playground__preview:not(button) {
-  @apply w-full h-full rounded-2xl bg-slate-900 shadow-md flex flex-col justify-center items-center gap-5 p-8;
+  @apply w-full h-full rounded-2xl bg-zinc-900 shadow-md flex flex-col justify-center items-center gap-5 p-8;
   flex: 1 1 auto;
   /* background-image: url(/static/img/background.png); */
 }
 
 .api-playground__label {
-  @apply flex items-center bg-[#011322] px-4 py-2 mt-4 rounded-t-lg text-sm uppercase font-bold border-b border-slate-500/30;
+  @apply flex items-center bg-[#1c1c1d] px-4 py-2 mt-4 rounded-t-lg text-sm uppercase font-bold border-b border-zinc-500/30;
 }
 .api-playground__indicator {
   @apply flex w-2 h-2 me-3 bg-red-500 rounded-full ml-2;
@@ -194,10 +194,10 @@
   @apply rounded-none bg-red-500 dark:bg-red-700 bg-opacity-30 dark:bg-opacity-40 text-red-700 dark:text-red-200 text-sm;
 }
 .api-playground__editor {
-  @apply relative bg-[#011322] !rounded-b-xl overflow-hidden;
+  @apply relative bg-[#1c1c1d] !rounded-b-xl overflow-hidden;
 }
 button.api-playground__more {
-  @apply absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-white font-semibold bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-full text-sm px-3 py-1 text-center me-2 mb-2 dark:focus:ring-blue-900;
+  @apply absolute bottom-1 left-1/2 -translate-x-1/2 z-10 text-white font-semibold bg-yellow-400 hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-full text-sm px-3 py-1 text-center me-2 mb-2 dark:focus:ring-blue-900;
 }
 
 .api-playground__show-less {
@@ -215,7 +215,7 @@ button.api-playground__more {
   @apply !rounded-t-2xl;
 }
 .api-playground__backdrop {
-  @apply absolute bottom-0 h-20 z-[1] w-full bg-gradient-to-t from-20% from-[#011322] to-transparent;
+  @apply absolute bottom-0 h-20 z-[1] w-full bg-gradient-to-t from-20% from-[#1c1c1d] to-transparent;
 }
 
 .api-playground__controls {
@@ -225,7 +225,7 @@ button.api-playground__more {
   @apply flex items-center py-2 px-4 text-sm rounded-xl;
 }
 .api-playground__controls button:not(.api-playground__active) {
-  @apply hover:bg-slate-600/20;
+  @apply hover:bg-zinc-600/20;
 }
 .api-playground__controls button.api-playground__active {
   @apply shiny-btn;
@@ -257,7 +257,7 @@ h6 {
 
 .shiny-btn {
   border: 1px solid transparent !important;
-  @apply relative text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.slate.50),_theme(colors.slate.50))_padding-box,_conic-gradient(theme(colors.slate.400),_theme(colors.slate.200)_25%,_theme(colors.slate.200)_75%,_theme(colors.slate.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.slate.900),_theme(colors.slate.900))_padding-box,_conic-gradient(theme(colors.slate.400),_theme(colors.slate.700)_25%,_theme(colors.slate.700)_75%,_theme(colors.slate.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-slate-800/30 before:pointer-events-none before:z-[-1];
+  @apply relative text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.50),_theme(colors.zinc.50))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.200)_25%,_theme(colors.zinc.200)_75%,_theme(colors.zinc.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.zinc.900),_theme(colors.zinc.900))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-zinc-800/30 before:pointer-events-none before:z-[-1];
 }
 
 .shiny-btn::before {
@@ -269,7 +269,7 @@ h6 {
 }
 
 .shiny-btn:hover {
-  @apply dark:brightness-110 shadow-blue-500/40 dark:shadow-blue-500/40 shadow-[inset_0_0_4px_rgba(0,0,0,0.6)];
+  @apply dark:brightness-110 shadow-yellow-500/40 dark:shadow-yellow-500/40 shadow-[inset_0_0_4px_rgba(0,0,0,0.6)];
 }
 
 /* Playground */
@@ -305,17 +305,17 @@ main .col:not(.col--3) ol li {
 }
 
 .theme-doc-toc-mobile .table-of-contents {
-  @apply border-slate-300 dark:border-slate-800;
+  @apply border-zinc-300 dark:border-zinc-800;
 }
 
 main blockquote {
   @apply border-l-0 pl-0 mt-8;
 }
 .docs-wrapper main blockquote > p {
-  @apply font-medium italic text-lg bg-clip-text text-transparent bg-gradient-to-r from-slate-800/70 via-slate-500/80 to-slate-800/70;
+  @apply font-medium italic text-lg bg-clip-text text-transparent bg-gradient-to-r from-zinc-800/70 via-zinc-500/80 to-zinc-800/70;
 }
 .docs-wrapper .dark main blockquote > p {
-  @apply from-slate-200/60 via-slate-200 to-slate-200/60;
+  @apply from-zinc-200/60 via-zinc-200 to-zinc-200/60;
 }
 
 body .col .nav-tabs li {
@@ -344,14 +344,14 @@ hr {
 p,
 span,
 div {
-  @apply text-slate-700 dark:text-slate-300;
+  @apply text-zinc-700 dark:text-zinc-300;
   font-size: 17px;
   font-weight: 500;
 }
 
 b,
 strong {
-  @apply text-slate-800 dark:text-slate-100;
+  @apply text-zinc-800 dark:text-zinc-100;
 }
 
 strong {
@@ -374,11 +374,15 @@ main a {
 }
 
 div > .theme-code-block {
-  @apply !bg-[#011322];
+  @apply !bg-[#1c1c1d] border-zinc-400/20 border-[1px];
+}
+
+div > .theme-code-block span {
+  @apply text-sm;
 }
 
 .theme-code-block > div:first-child {
-  @apply text-slate-400 text-[0.8rem] font-semibold;
+  @apply text-zinc-400 text-[0.8rem] font-semibold;
 }
 .theme-code-block > div:first-child::before {
   @apply mr-2;
@@ -390,11 +394,11 @@ div > .theme-code-block {
 }
 
 .prism-code {
-  @apply rounded-none !py-4 !px-0 !bg-[#011322];
+  @apply rounded-none !py-4 !px-0 !bg-[#1c1c1d];
 }
 
 .theme-code-block-highlighted-line {
-  @apply !bg-slate-700/30;
+  @apply !bg-zinc-700/30;
 }
 
 .token {
@@ -418,11 +422,11 @@ pre[class*="language-"] {
 }
 
 .alert *:not(pre) > code {
-  @apply bg-slate-400/20 border-slate-600/5 dark:bg-slate-50/10 dark:border-slate-50/5 border;
+  @apply bg-zinc-400/20 border-zinc-600/5 dark:bg-zinc-50/10 dark:border-zinc-50/5 border;
 }
 
 .alert {
-  @apply px-6 md:px-8 py-8 rounded-2xl mt-6 border border-slate-300/30 dark:border-slate-700/20;
+  @apply px-6 md:px-8 py-8 rounded-2xl mt-6 border border-zinc-300/30 dark:border-zinc-700/20;
 }
 .alert > div:first-child {
   @apply flex items-center mb-3 text-2xl capitalize font-extrabold;
@@ -452,13 +456,13 @@ pre[class*="language-"] {
 }
 
 .alert--info {
-  @apply bg-blue-300 dark:bg-blue-700 bg-opacity-30 dark:bg-opacity-30;
+  @apply bg-yellow-300 dark:bg-yellow-700 bg-opacity-30 dark:bg-opacity-30;
 }
 .alert--info > div:first-child {
   @apply text-blue-600 dark:text-blue-500;
 }
 .alert--info > div:first-child svg {
-  @apply fill-blue-600 dark:fill-blue-500;
+  @apply fill-yellow-600 dark:fill-yellow-500;
 }
 
 .alert--warning {
@@ -484,11 +488,11 @@ pre[class*="language-"] {
 /* Blog */
 
 article .markdown p:first-of-type img {
-  @apply bg-gradient-to-br from-transparent via-slate-300/20 to-transparent rounded-3xl p-px mb-8;
+  @apply bg-gradient-to-br from-transparent via-zinc-300/20 to-transparent rounded-3xl p-px mb-8;
 }
 
 article header h2 a {
-  @apply pb-6 text-3xl sm:text-4xl !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-slate-800/60 via-slate-800 to-slate-800/60 dark:from-slate-200/60 dark:via-slate-200 dark:to-slate-200/60;
+  @apply pb-6 text-3xl sm:text-4xl !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
 }
 
 .avatar__photo {
@@ -541,15 +545,15 @@ html {
 
 html[data-theme="light"] {
   --text-primary: #fff;
-  --text-secondary: rgb(9, 17, 36);
+  --text-secondary: #1c1c1d;
   --background: var(--text-secondary);
   --ifm-background-color: var(--text-secondary);
 }
 
 html[data-theme="dark"] {
-  --text-primary: rgb(15 23 42);
-  --text-secondary: #fff;
-  --background: var(--text-secondary);
+  --text-primary: rgb(255, 255, 255);
+  --text-secondary: #e7e6e6;
+  --background: #1c1c1d;
   --ifm-background-color: var(--text-secondary);
 }
 
@@ -627,13 +631,13 @@ body {
   flex-direction: row-reverse;
 }
 .navbar__link {
-  @apply items-center font-medium text-sm text-slate-500 hover:!text-slate-800 dark:text-slate-400 dark:hover:!text-white transition duration-150 ease-in-out;
+  @apply items-center font-medium text-sm text-zinc-500 hover:!text-zinc-800 dark:text-zinc-400 dark:hover:!text-white transition duration-150 ease-in-out;
 }
 .navbar__link.navbar__link--active {
-  @apply text-slate-900 dark:text-white;
+  @apply text-zinc-900 dark:text-white;
 }
 
-.nav_versioning {
+/* .nav_versioning {
   @apply font-bold text-opacity-80;
 }
 
@@ -641,7 +645,7 @@ body {
   content: " →";
   color: var(--ifm-color-primary);
   margin-left: 5px;
-}
+} */
 
 .navbar__logo:hover {
   opacity: 0.7;
@@ -682,15 +686,15 @@ body {
   color: inherit !important;
 }
 .menu__link--active:not(.menu__link--sublist) {
-  @apply dark:bg-slate-800 bg-slate-300/40;
+  @apply dark:bg-zinc-800 bg-zinc-300/40;
 }
 
 .menu__list-item > .menu__link {
-  @apply hover:dark:text-white hover:text-slate-900;
+  @apply hover:dark:text-white hover:text-zinc-900;
 }
 
 .menu__list-item > .menu__link {
-  @apply active:dark:bg-slate-700 active:bg-slate-200 dark:active:text-slate-300 active:text-slate-700;
+  @apply active:dark:bg-zinc-700 active:bg-zinc-200 dark:active:text-zinc-300 active:text-zinc-700;
 }
 
 .navbar .clean-btn {
@@ -762,7 +766,7 @@ orama-searchbox > div > div[tabindex="1"] {
 }
 
 .pagination-nav__sublabel {
-  @apply text-slate-500 dark:!text-slate-400;
+  @apply text-zinc-500 dark:!text-zinc-400;
 }
 
 .pagination-nav__label {
@@ -770,7 +774,7 @@ orama-searchbox > div > div[tabindex="1"] {
 }
 
 .DocSearch-Button-Key {
-  @apply dark:!bg-slate-600;
+  @apply dark:!bg-zinc-600;
   transform: scale(0.8);
 }
 .DocSearch-Button-Key:nth-child(2) {
@@ -782,14 +786,14 @@ orama-searchbox > div > div[tabindex="1"] {
 }
 
 .DocSearch-Search-Icon {
-  @apply !text-slate-400 dark:!text-slate-100 !w-5 !h-5;
+  @apply !text-zinc-400 dark:!text-zinc-100 !w-5 !h-5;
 }
 .DocSearch-Button-Container .DocSearch-Search-Icon {
   @apply !w-4 !h-4;
 }
 
 .DocSearch-Form {
-  @apply !shadow-none !rounded-xl border !border-slate-500;
+  @apply !shadow-none !rounded-xl border !border-zinc-500;
 }
 
 .DocSearch-Button-Placeholder {
@@ -897,12 +901,12 @@ aside {
 
 body.dark {
   --text-primary: #fff;
-  --text-secondary: rgb(15 23 42);
+  --text-secondary: #1c1c1d;
   --background: var(--text-secondary);
 }
 
 body:not(.dark) {
-  --text-primary: rgb(15 23 42);
+  --text-primary: #1c1c1d;
   --text-secondary: #fff;
   --background: var(--text-secondary);
 }
@@ -910,8 +914,6 @@ body:not(.dark) {
 body {
   margin: 0;
   padding: 0;
-  background: var(--background);
-  color: var(--text-primary);
   font-family: Figtree;
 }
 
@@ -968,13 +970,13 @@ main a[title="more"] {
 }
 
 /* main a[title="more"]::before {
-  @apply !text-slate-600 dark:!text-white !mr-1 !pr-[1px];
+  @apply !text-zinc-600 dark:!text-white !mr-1 !pr-[1px];
   display: inline-block !important;
   content: "Read more about" !important;
 } */
 
 main a[title="more"]::after {
-  @apply mr-3 h-5 absolute left-4 !text-slate-600 dark:!text-white font-normal;
+  @apply mr-3 h-5 absolute left-4 !text-zinc-600 dark:!text-white font-normal;
   display: inline-block;
   content: "Read more about";
   /* background-image: url(/static/img/bookmark.svg); */
@@ -1022,7 +1024,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .form-select,
 .form-checkbox,
 .form-radio {
-  @apply bg-slate-800 border border-transparent focus:border-blue-500;
+  @apply bg-zinc-800 border border-transparent focus:border-blue-500;
 }
 
 .form-input,
@@ -1037,12 +1039,12 @@ input[type="search"]::-webkit-search-results-decoration {
 .form-textarea,
 .form-multiselect,
 .form-select {
-  @apply text-slate-200 text-sm px-3 py-1.5;
+  @apply text-zinc-200 text-sm px-3 py-1.5;
 }
 
 .form-input,
 .form-textarea {
-  @apply placeholder-slate-500;
+  @apply placeholder-zinc-500;
 }
 
 .form-select {

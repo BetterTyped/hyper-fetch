@@ -1,5 +1,3 @@
-
-
 # canRetryRequest
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { canRetryRequest } from "@hyper-fetch/core"
+import { canRetryRequest } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { canRetryRequest } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.utils.ts#L26)
+Defined in
+[dispatcher/dispatcher.utils.ts:26](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.utils.ts#L26)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [dispatcher/dispatcher.utils.ts:26](https://github.com/BetterTyped/hy
 </div><div class="api-docs__preview fn">
 
 ```ts
-canRetryRequest(currentRetries, retry)
+canRetryRequest(currentRetries, retry);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="currentRetries"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="currentRetries"><td class="api-docs__param-name required">
 
-### currentRetries 
+### currentRetries
 
 `Required`
 
@@ -50,7 +51,7 @@ canRetryRequest(currentRetries, retry)
 
 </td></tr><tr param-data="retry"><td class="api-docs__param-name required">
 
-### retry 
+### retry
 
 `Required`
 
@@ -65,7 +66,7 @@ canRetryRequest(currentRetries, retry)
 </div><div class="api-docs__returns">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div>

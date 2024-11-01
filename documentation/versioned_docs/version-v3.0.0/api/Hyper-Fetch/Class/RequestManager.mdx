@@ -1,5 +1,3 @@
-
-
 # RequestManager
 
 <div class="api-docs__separator" data-reactroot="">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import" data-reactroot="">
 
 ```ts
-import { RequestManager } from "@hyper-fetch/core"
+import { RequestManager } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,16 +16,14 @@ import { RequestManager } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-**Request Manager** is used to emit 
-`request lifecycle events`
- like - request start, request end, upload and download progress.
-It is also the place of 
-`request aborting`
- system, here we store all the keys and controllers that are isolated for each client instance.
+**Request Manager** is used to emit `request lifecycle events` like - request start, request end, upload and download
+progress. It is also the place of `request aborting` system, here we store all the keys and controllers that are
+isolated for each client instance.
 
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L9)
+Defined in
+[managers/request/request.manager.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -43,11 +39,10 @@ Defined in [managers/request/request.manager.ts:9](https://github.com/BetterType
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L13)
+Defined in
+[managers/request/request.manager.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L13)
 
 </p><div class="api-docs__section">
 
@@ -56,7 +51,7 @@ Defined in [managers/request/request.manager.ts:13](https://github.com/BetterTyp
 </div><div class="api-docs__property-type">
 
 ```ts
-Map<string, Map<string, AbortController>>
+Map<string, Map<string, AbortController>>;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="emitter"><h3 class="api-docs__name">
@@ -69,11 +64,10 @@ Map<string, Map<string, AbortController>>
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L10)
+Defined in
+[managers/request/request.manager.ts:10](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L10)
 
 </p><div class="api-docs__section">
 
@@ -82,7 +76,7 @@ Defined in [managers/request/request.manager.ts:10](https://github.com/BetterTyp
 </div><div class="api-docs__property-type">
 
 ```ts
-EventEmitter
+EventEmitter;
 ```
 
 </div><hr/></div><div class="api-docs__property" property-data="events"><h3 class="api-docs__name">
@@ -95,11 +89,10 @@ EventEmitter
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L11)
+Defined in
+[managers/request/request.manager.ts:11](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L11)
 
 </p><div class="api-docs__section">
 
@@ -126,7 +119,7 @@ Defined in [managers/request/request.manager.ts:11](https://github.com/BetterTyp
 </div><div class="api-docs__preview fn">
 
 ```ts
-abortAll()
+abortAll();
 ```
 
 </div><div class="api-docs__section">
@@ -135,11 +128,10 @@ abortAll()
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L59)
+Defined in
+[managers/request/request.manager.ts:59](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L59)
 
 </p><div class="api-docs__section">
 
@@ -162,7 +154,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-abortByKey(abortKey)
+abortByKey(abortKey);
 ```
 
 </div><div class="api-docs__section">
@@ -171,19 +163,22 @@ abortByKey(abortKey)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L44)
+Defined in
+[managers/request/request.manager.ts:44](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L44)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -212,7 +207,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-abortByRequestId(abortKey, requestId)
+abortByRequestId(abortKey, requestId);
 ```
 
 </div><div class="api-docs__section">
@@ -221,19 +216,22 @@ abortByRequestId(abortKey, requestId)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L55)
+Defined in
+[managers/request/request.manager.ts:55](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L55)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -243,7 +241,7 @@ Defined in [managers/request/request.manager.ts:55](https://github.com/BetterTyp
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-#### requestId 
+#### requestId
 
 `Required`
 
@@ -272,7 +270,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-addAbortController(abortKey, requestId)
+addAbortController(abortKey, requestId);
 ```
 
 </div><div class="api-docs__section">
@@ -281,19 +279,22 @@ addAbortController(abortKey, requestId)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L15)
+Defined in
+[managers/request/request.manager.ts:15](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L15)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -303,7 +304,7 @@ Defined in [managers/request/request.manager.ts:15](https://github.com/BetterTyp
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-#### requestId 
+#### requestId
 
 `Required`
 
@@ -332,7 +333,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-getAbortController(abortKey, requestId)
+getAbortController(abortKey, requestId);
 ```
 
 </div><div class="api-docs__section">
@@ -341,19 +342,22 @@ getAbortController(abortKey, requestId)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L29)
+Defined in
+[managers/request/request.manager.ts:29](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L29)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -363,7 +367,7 @@ Defined in [managers/request/request.manager.ts:29](https://github.com/BetterTyp
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-#### requestId 
+#### requestId
 
 `Required`
 
@@ -378,7 +382,7 @@ Defined in [managers/request/request.manager.ts:29](https://github.com/BetterTyp
 </div><div class="api-docs__returns">
 
 ```ts
-AbortController
+AbortController;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="removeAbortController"><h3 class="api-docs__name">
@@ -392,7 +396,7 @@ AbortController
 </div><div class="api-docs__preview fn">
 
 ```ts
-removeAbortController(abortKey, requestId)
+removeAbortController(abortKey, requestId);
 ```
 
 </div><div class="api-docs__section">
@@ -401,19 +405,22 @@ removeAbortController(abortKey, requestId)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L33)
+Defined in
+[managers/request/request.manager.ts:33](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L33)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -423,7 +430,7 @@ Defined in [managers/request/request.manager.ts:33](https://github.com/BetterTyp
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-#### requestId 
+#### requestId
 
 `Required`
 
@@ -452,7 +459,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-useAbortController(abortKey, requestId)
+useAbortController(abortKey, requestId);
 ```
 
 </div><div class="api-docs__section">
@@ -461,19 +468,22 @@ useAbortController(abortKey, requestId)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [managers/request/request.manager.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L39)
+Defined in
+[managers/request/request.manager.ts:39](https://github.com/BetterTyped/hyper-fetch/blob/c44d728f/packages/core/src/managers/request/request.manager.ts#L39)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="abortKey"><td class="api-docs__param-name required">
 
-#### abortKey 
+#### abortKey
 
 `Required`
 
@@ -483,7 +493,7 @@ Defined in [managers/request/request.manager.ts:39](https://github.com/BetterTyp
 
 </td></tr><tr param-data="requestId"><td class="api-docs__param-name required">
 
-#### requestId 
+#### requestId
 
 `Required`
 

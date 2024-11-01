@@ -1,5 +1,3 @@
-
-
 # FetchEffect
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { FetchEffect } from "@hyper-fetch/core"
+import { FetchEffect } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,19 +16,22 @@ import { FetchEffect } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L6)
+Defined in
+[effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L6)
 
 </p><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="config"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="config"><td class="api-docs__param-name required">
 
-### config 
+### config
 
 `Required`
 
@@ -52,11 +53,10 @@ Defined in [effect/fetch.effect.ts:6](https://github.com/BetterTyped/hyper-fetch
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L7)
+Defined in
+[effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L7)
 
 </p><div class="api-docs__section">
 
@@ -65,7 +65,7 @@ Defined in [effect/fetch.effect.ts:7](https://github.com/BetterTyped/hyper-fetch
 </div><div class="api-docs__property-type">
 
 ```ts
-FetchEffectConfig<T>
+FetchEffectConfig<T>;
 ```
 
 </div><hr/></div></div><div class="api-docs__section">
@@ -83,7 +83,7 @@ FetchEffectConfig<T>
 </div><div class="api-docs__preview fn">
 
 ```ts
-getEffectKey()
+getEffectKey();
 ```
 
 </div><div class="api-docs__section">
@@ -92,11 +92,10 @@ getEffectKey()
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L9)
+Defined in
+[effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L9)
 
 </p><div class="api-docs__section">
 
@@ -105,7 +104,7 @@ Defined in [effect/fetch.effect.ts:9](https://github.com/BetterTyped/hyper-fetch
 </div><div class="api-docs__returns">
 
 ```ts
-string
+string;
 ```
 
 </div><hr/></div><div class="api-docs__method" method-data="onError"><h3 class="api-docs__name">
@@ -119,7 +118,7 @@ string
 </div><div class="api-docs__preview fn">
 
 ```ts
-onError(response, command)
+onError(response, command);
 ```
 
 </div><div class="api-docs__section">
@@ -128,19 +127,22 @@ onError(response, command)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L22)
+Defined in
+[effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L22)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-#### response 
+#### response
 
 `Required`
 
@@ -150,7 +152,7 @@ Defined in [effect/fetch.effect.ts:22](https://github.com/BetterTyped/hyper-fetc
 
 </td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-#### command 
+#### command
 
 `Required`
 
@@ -179,7 +181,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-onFinished(response, command)
+onFinished(response, command);
 ```
 
 </div><div class="api-docs__section">
@@ -188,19 +190,22 @@ onFinished(response, command)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L25)
+Defined in
+[effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L25)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-#### response 
+#### response
 
 `Required`
 
@@ -210,7 +215,7 @@ Defined in [effect/fetch.effect.ts:25](https://github.com/BetterTyped/hyper-fetc
 
 </td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-#### command 
+#### command
 
 `Required`
 
@@ -239,7 +244,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-onStart(command)
+onStart(command);
 ```
 
 </div><div class="api-docs__section">
@@ -248,19 +253,22 @@ onStart(command)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L16)
+Defined in
+[effect/fetch.effect.ts:16](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L16)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-#### command 
+#### command
 
 `Required`
 
@@ -289,7 +297,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-onSuccess(response, command)
+onSuccess(response, command);
 ```
 
 </div><div class="api-docs__section">
@@ -298,19 +306,22 @@ onSuccess(response, command)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L19)
+Defined in
+[effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L19)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="response"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="response"><td class="api-docs__param-name required">
 
-#### response 
+#### response
 
 `Required`
 
@@ -320,7 +331,7 @@ Defined in [effect/fetch.effect.ts:19](https://github.com/BetterTyped/hyper-fetc
 
 </td></tr><tr param-data="command"><td class="api-docs__param-name required">
 
-#### command 
+#### command
 
 `Required`
 
@@ -349,7 +360,7 @@ void
 </div><div class="api-docs__preview fn">
 
 ```ts
-onTrigger(command)
+onTrigger(command);
 ```
 
 </div><div class="api-docs__section">
@@ -358,19 +369,22 @@ onTrigger(command)
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L13)
+Defined in
+[effect/fetch.effect.ts:13](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/effect/fetch.effect.ts#L13)
 
 </p><div class="api-docs__section">
 
 #### Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-#### command 
+#### command
 
 `Required`
 

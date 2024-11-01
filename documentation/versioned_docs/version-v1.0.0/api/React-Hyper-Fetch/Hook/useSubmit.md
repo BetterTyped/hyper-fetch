@@ -1,5 +1,3 @@
-
-
 # useSubmit
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { useSubmit } from "@hyper-fetch/react"
+import { useSubmit } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { useSubmit } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
+Defined in
+[hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/hooks/use-submit/use-submit.hooks.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [hooks/use-submit/use-submit.hooks.ts:28](https://github.com/BetterTy
 </div><div class="api-docs__preview fn">
 
 ```ts
-useSubmit<Command>(command, options)
+useSubmit<Command>(command, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-### command 
+### command
 
 `Required`
 
@@ -50,7 +51,7 @@ useSubmit<Command>(command, options)
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name required">
 
-### options 
+### options
 
 `Required`
 

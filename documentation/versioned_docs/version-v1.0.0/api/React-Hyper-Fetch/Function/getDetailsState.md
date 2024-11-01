@@ -1,5 +1,3 @@
-
-
 # getDetailsState
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { getDetailsState } from "@hyper-fetch/react"
+import { getDetailsState } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { getDetailsState } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14)
+Defined in
+[helpers/use-tracked-state/use-tracked-state.utils.ts:14](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L14)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:14](https://git
 </div><div class="api-docs__preview fn">
 
 ```ts
-getDetailsState(state, details)
+getDetailsState(state, details);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="state"><td class="api-docs__param-name optional">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="state"><td class="api-docs__param-name optional">
 
-### state 
+### state
 
 `Optional`
 
@@ -50,7 +51,7 @@ getDetailsState(state, details)
 
 </td></tr><tr param-data="details"><td class="api-docs__param-name optional">
 
-### details 
+### details
 
 `Optional`
 

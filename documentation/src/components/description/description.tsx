@@ -10,6 +10,6 @@ export const Description = (
   }[size];
 
   return (
-    <p {...props} className={`${className} ${sizeClass} mt-4 mb-10 font-normal text-slate-600 dark:text-slate-400`} />
+    <p {...props} className={`${className} ${sizeClass} mt-4 mb-10 font-normal text-zinc-600 dark:text-zinc-400`} />
   );
 };

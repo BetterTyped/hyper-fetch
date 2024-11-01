@@ -24,14 +24,14 @@ export const NavTabs = ({
         <h1 className="capitalize mt-6 mb-4">{title}</h1>
       </header>
       <div className="text-sm font-medium text-center max-w-full overflow-x-auto overflow-y-visible">
-        <ul className="flex !pl-0 border-b-2 border-slate-200 dark:border-slate-600/40 ">
+        <ul className="flex !pl-0 border-b-2 border-zinc-200 dark:border-zinc-600/40 ">
           {tabs.map((tab, idx) => (
             <li key={idx} className="z-10 relative">
               <Link
                 className={clsx(
-                  "inline-block font-semibold text-lg py-3 px-5 border-b-2 -mb-[2px] border-transparent rounded-t-lg !text-slate-400 dark:!text-slate-400 hover:!text-slate-600 hover:!border-slate-400 dark:hover:!text-slate-300 capitalize !no-underline",
+                  "inline-block font-semibold text-lg py-3 px-5 border-b-2 -mb-[2px] border-transparent rounded-t-lg !text-zinc-400 dark:!text-zinc-400 hover:!text-zinc-600 hover:!border-zinc-400 dark:hover:!text-zinc-300 capitalize !no-underline",
                   {
-                    "!border-blue-400 !text-slate-900 dark:!text-white dark:!border-blue-500": tab.active,
+                    "!border-blue-400 !text-zinc-900 dark:!text-white dark:!border-blue-500": tab.active,
                   },
                 )}
                 to={tab.to}

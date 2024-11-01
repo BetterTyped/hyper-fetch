@@ -42,7 +42,7 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
 
   return (
     <div className="package-wrapper">
-      <div className="package-details w-[320px] max-w-full bg-gradient-to-tr from-slate-50 to-slate-100/25 dark:from-slate-800 dark:to-slate-800/25 rounded-3xl border dark:border-slate-800">
+      <div className="package-details w-[320px] max-w-full bg-gradient-to-tr from-zinc-50 to-zinc-100/25 dark:from-zinc-800 dark:to-zinc-800/25 rounded-3xl border dark:border-zinc-800">
         <style>{styles}</style>
         <div className="px-5 py-6">
           <div className="text-center mb-5">
@@ -62,12 +62,12 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
             <button
               type="button"
               onClick={() => copy(npmInstall)}
-              className="flex justify-between items-center shiny-btn mb-2 !py-2 !px-4 text-slate-300 hover:text-white transition duration-150 ease-in-out group max-w-[90%] mx-auto"
+              className="flex justify-between items-center shiny-btn mb-2 !py-2 !px-4 text-zinc-300 hover:text-white transition duration-150 ease-in-out group max-w-[90%] mx-auto"
             >
               <span className="relative inline-flex items-center hover:text-white overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap">
                 {npmInstall}
               </span>
-              <Copy className="w-[15px] ml-2 fill-blue-500 transition duration-150 ease-in-out" />
+              <Copy className="w-[15px] ml-2 fill-yellow-500 transition duration-150 ease-in-out" />
               {done && (
                 <div className="absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 text-xs opacity-60 ml-2 whitespace-nowrap">
                   Copied to clipboard!
@@ -77,11 +77,11 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
           </div>
           <ul className="text-sm !pl-0">
             <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-slate-400">Name</span>
-              <span className="text-slate-500 dark:text-slate-300 font-medium capitalize">{names}</span>
+              <span className="text-zinc-400">Name</span>
+              <span className="text-zinc-500 dark:text-zinc-300 font-medium capitalize">{names}</span>
             </li>
             <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-slate-400">Website</span>
+              <span className="text-zinc-400">Website</span>
               {Array.isArray(pkg) ? (
                 <div className="flex flex-wrap gap-3">
                   {pkg.map((el, index) => (
@@ -113,8 +113,8 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
               )}
             </li>
             {/* <li className="flex items-center justify-between space-x-2 py-3 border-t [border-image:linear-gradient(to_right,theme(colors.slate.300/.3),theme(colors.slate.300),theme(colors.slate.300/.3))1] dark:[border-image:linear-gradient(to_right,theme(colors.slate.700/.3),theme(colors.slate.700),theme(colors.slate.700/.3))1]">
-              <span className="text-slate-400">Installs</span>
-              <span className="text-slate-500 dark:text-slate-300 font-medium relative p3">
+              <span className="text-zinc-400">Installs</span>
+              <span className="text-zinc-500 dark:text-zinc-300 font-medium relative p3">
                 {loading && <div className="dot-elastic mr-3" />}
                 {!loading && (data?.downloads || "--")}
               </span>

@@ -121,7 +121,7 @@ export default function DocBreadcrumbs(): JSX.Element | null {
   //               className={`${color.text} ${color.textAction} ${color.textHover} group flex items-center lg:leading-6 font-semibold pr-1 md:pr-3 !w-fit`}
   //             >
   //               <div
-  //                 className={`${color.icon} ${color.iconHover} flex items-center h-6 w-6 justify-center mr-2 rounded-md ring-1 ring-slate-900/5 shadow-sm group-hover:shadow group-hover:ring-slate-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 dark:highlight-white/10`}
+  //                 className={`${color.icon} ${color.iconHover} flex items-center h-6 w-6 justify-center mr-2 rounded-md ring-1 ring-zinc-900/5 shadow-sm group-hover:shadow group-hover:ring-zinc-900/10 dark:ring-0 dark:shadow-none dark:group-hover:shadow-none dark:group-hover:highlight-white/10 dark:highlight-white/10`}
   //               >
   //                 <homePageElement.img className="fill-white group-hover:fill-white/90 w-4 h-4" />
   //               </div>

@@ -11,13 +11,13 @@ import docsVersions from "./versions.json";
 const getVersions = () => {
   const latestVersion = docsVersions[0] || "v0.0.0";
   const latestMajor = latestVersion[1];
-  const versionsCount = Number(latestMajor) + 1;
-  const versions = { current: { label: `v${latestMajor}.0.0`, path: "" } };
+  const currentVersion = Number(latestMajor) + 1;
+  const versions = { current: { label: `v${currentVersion}.0.0`, path: "" } };
 
-  [...Array(versionsCount)].fill(0).forEach((_, index) => {
-    const version = index + 1;
+  [...Array(docsVersions.length)].fill(0).forEach((_, index) => {
+    const version = Number(latestMajor) - index;
 
-    if (versionsCount === version) {
+    if (currentVersion === version) {
       versions.current = {
         label: `v${version}.0.0`,
         path: "",
@@ -197,18 +197,24 @@ const config: Config = {
           position: "left",
           label: "Documentation",
           to: "/docs/documentation",
-          activeBaseRegex: `^/docs((?!examples|guides).)*$`,
+          activeBaseRegex: `^/docs((?!examples|plugins).)*$`,
         },
-        // {
-        //   to: "/integrations",
-        //   position: "left",
-        //   label: "Integrations",
-        // },
-        // {
-        //   to: "/blog",
-        //   position: "left",
-        //   label: "Blog",
-        // },
+        {
+          to: "/docs/plugins",
+          position: "left",
+          label: "Plugins",
+          activeBaseRegex: `/docs/plugins/`,
+        },
+        {
+          to: "/examples/playground/",
+          label: "Examples",
+          position: "left",
+        },
+        {
+          to: "/blog",
+          position: "left",
+          label: "Blog",
+        },
       ],
     },
     footer: {
@@ -250,7 +256,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} HyperFetch.`,
+      copyright: `Copyright © ${new Date().getFullYear()} BetterTyped.`,
     },
     prism: {
       theme: prismThemes.vsDark,

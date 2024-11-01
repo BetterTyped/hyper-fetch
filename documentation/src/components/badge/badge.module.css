@@ -1,5 +1,5 @@
 .badge {
-  @apply flex items-center shadow-gray-300 dark:shadow-gray-600 bg-slate-900;
+  @apply flex items-center shadow-gray-300 dark:shadow-gray-600 bg-zinc-900;
   display: flex;
   border-radius: 9999px;
   position: relative;
@@ -38,7 +38,7 @@
 }
 
 .backdrop {
-  @apply dark:bg-slate-900 bg-white;
+  @apply dark:bg-zinc-900 bg-white;
   position: absolute;
   inset: 1px;
   border-radius: 9999px;

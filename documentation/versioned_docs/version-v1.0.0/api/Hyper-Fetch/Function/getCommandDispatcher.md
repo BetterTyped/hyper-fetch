@@ -1,5 +1,3 @@
-
-
 # getCommandDispatcher
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { getCommandDispatcher } from "@hyper-fetch/core"
+import { getCommandDispatcher } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { getCommandDispatcher } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [command/command.utils.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/command/command.utils.ts#L101)
+Defined in
+[command/command.utils.ts:101](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/command/command.utils.ts#L101)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [command/command.utils.ts:101](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview fn">
 
 ```ts
-getCommandDispatcher<Command>(command, dispatcherType)
+getCommandDispatcher<Command>(command, dispatcherType);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="command"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="command"><td class="api-docs__param-name required">
 
-### command 
+### command
 
 `Required`
 
@@ -50,7 +51,7 @@ getCommandDispatcher<Command>(command, dispatcherType)
 
 </td></tr><tr param-data="dispatcherType"><td class="api-docs__param-name required">
 
-### dispatcherType 
+### dispatcherType
 
 `Required`
 
@@ -65,7 +66,7 @@ getCommandDispatcher<Command>(command, dispatcherType)
 </div><div class="api-docs__returns">
 
 ```ts
-[Dispatcher, boolean]
+[Dispatcher, boolean];
 ```
 
 </div>

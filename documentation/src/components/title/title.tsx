@@ -12,7 +12,7 @@ export const Title = forwardRef(
     const { as = "h2", className = "", wrapperClass = "", size = "md", ...rest } = props;
 
     const colorClass =
-      "from-slate-800/60 via-slate-800 to-slate-800/60 dark:from-slate-200/60 dark:via-slate-200 dark:to-slate-200/60";
+      "from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60";
 
     const sizeClass = {
       lg: "text-4xl sm:text-5xl md:text-5xl lg:text-6xl",

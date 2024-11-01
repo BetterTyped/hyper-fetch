@@ -1,3 +1,4 @@
+// Filter out pages from menu
 const skipPages = ["props", "theming"];
 
 export const getDocName = (item) => {

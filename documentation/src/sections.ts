@@ -1,4 +1,4 @@
-import { Book, Cpu, Plug, Youtube } from "lucide-react";
+import { AppWindowMac, Book, Cpu, Plug, Youtube } from "lucide-react";
 
 /**
  * This sections list must support backward compatibility with the old sidebars and sections
@@ -14,15 +14,29 @@ export const sections = [
     dir: "docs",
     names: ["documentation"],
     img: Book,
-    text: "drop-shadow-sm !text-purple-500 dark:!text-purple-400",
+    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-400",
     textAction:
-      "focus:!text-purple-500 focus:dark:!text-purple-400 active:!text-purple-600 active:dark:!text-purple-300",
-    textHover: "hover:!text-purple-500 hover:dark:!text-purple-400",
-    icon: "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 bg-purple-400 dark:bg-purple-500",
+      "focus:!text-yellow-500 focus:dark:!text-yellow-400 active:!text-yellow-600 active:dark:!text-yellow-300",
+    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
+    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
     iconHover:
-      "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 group-hover:bg-purple-400 group-hover:dark:bg-purple-500",
-    border: "border-purple-500 dark:border-purple-400",
-    borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
+      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500",
+    border: "border-yellow-500 dark:border-yellow-400",
+    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+  },
+  {
+    label: "Guides",
+    description: "",
+    isPackage: false,
+    names: ["guides"],
+    img: AppWindowMac,
+    text: "drop-shadow-sm !text-lime-500 dark:!text-lime-400",
+    textHover: "hover:!text-lime-500 hover:dark:!text-lime-400",
+    icon: "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 bg-lime-400 dark:bg-lime-500",
+    iconHover:
+      "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 group-hover:bg-lime-400 group-hover:dark:bg-lime-500",
+    border: "border-lime-500 dark:border-lime-400",
+    borderHover: "hover:border-lime-500 hover:dark:border-lime-400",
   },
   {
     label: "Core",
@@ -47,15 +61,15 @@ export const sections = [
     dir: "sockets",
     names: ["sockets"],
     img: Plug,
-    text: "drop-shadow-sm !text-yellow-500 dark:!text-yellow-400",
+    text: "drop-shadow-sm !text-purple-500 dark:!text-purple-400",
     textAction:
-      "focus:!text-yellow-500 focus:dark:!text-yellow-400 active:!text-yellow-600 active:dark:!text-yellow-300",
-    textHover: "hover:!text-yellow-500 hover:dark:!text-yellow-400",
-    icon: "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
+      "focus:!text-purple-500 focus:dark:!text-purple-400 active:!text-purple-600 active:dark:!text-purple-300",
+    textHover: "hover:!text-purple-500 hover:dark:!text-purple-400",
+    icon: "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 bg-purple-400 dark:bg-purple-500",
     iconHover:
-      "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500",
-    border: "border-yellow-500 dark:border-yellow-400",
-    borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+      "group-hover:shadow-purple-200 dark:group-hover:bg-purple-500 group-hover:bg-purple-400 group-hover:dark:bg-purple-500",
+    border: "border-purple-500 dark:border-purple-400",
+    borderHover: "hover:border-purple-500 hover:dark:border-purple-400",
   },
   {
     label: "React",
@@ -140,9 +154,9 @@ export const sections = [
   //   img: '',
   //   text: "drop-shadow-sm !text-blue-500 dark:!text-blue-400",
   //   textHover: "hover:!text-blue-500 hover:dark:!text-blue-400",
-  //   icon: "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 bg-blue-400 dark:bg-blue-500",
+  //   icon: "group-hover:shadow-blue-200 dark:group-hover:bg-yellow-500 bg-yellow-400 dark:bg-yellow-500",
   //   iconHover:
-  //     "hover:group-hover:shadow-blue-200 hover:dark:group-hover:bg-blue-500 hover:bg-blue-400 hover:dark:bg-blue-500",
+  //     "hover:group-hover:shadow-blue-200 hover:dark:group-hover:bg-yellow-500 hover:bg-yellow-400 hover:dark:bg-yellow-500",
   //   border: "border-blue-500 dark:border-blue-400",
   //   borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
   // },

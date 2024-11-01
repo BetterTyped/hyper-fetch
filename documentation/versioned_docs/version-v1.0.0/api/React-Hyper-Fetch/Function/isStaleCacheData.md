@@ -1,5 +1,3 @@
-
-
 # isStaleCacheData
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { isStaleCacheData } from "@hyper-fetch/react"
+import { isStaleCacheData } from "@hyper-fetch/react";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { isStaleCacheData } from "@hyper-fetch/react"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28)
+Defined in
+[helpers/use-tracked-state/use-tracked-state.utils.ts:28](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/react/src/helpers/use-tracked-state/use-tracked-state.utils.ts#L28)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [helpers/use-tracked-state/use-tracked-state.utils.ts:28](https://git
 </div><div class="api-docs__preview fn">
 
 ```ts
-isStaleCacheData(cacheTime, cacheTimestamp)
+isStaleCacheData(cacheTime, cacheTimestamp);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="cacheTime"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="cacheTime"><td class="api-docs__param-name required">
 
-### cacheTime 
+### cacheTime
 
 `Required`
 
@@ -50,7 +51,7 @@ isStaleCacheData(cacheTime, cacheTimestamp)
 
 </td></tr><tr param-data="cacheTimestamp"><td class="api-docs__param-name required">
 
-### cacheTimestamp 
+### cacheTimestamp
 
 `Required`
 
@@ -65,7 +66,7 @@ isStaleCacheData(cacheTime, cacheTimestamp)
 </div><div class="api-docs__returns">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div>

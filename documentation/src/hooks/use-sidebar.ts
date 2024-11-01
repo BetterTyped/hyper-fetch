@@ -55,31 +55,32 @@ export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; ac
 
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
-    return Object.values(currentVersion.sidebars).map((value) => {
-      /**
-       * DO NOT CHANGE!
-       * @caution If it fails - you made mistake in the sidebar config :)
-       */
-      const componentName = value.link.path.split("/")[2];
-      const component = componentName.toLocaleLowerCase();
-      const sectionIndex = sections.findIndex((item) =>
-        item.names.find((itemName) => itemName.toLowerCase() === component),
-      );
-      const section = sections[sectionIndex];
-      const active = location.pathname.includes(component);
-      return {
-        name: section?.label || componentName,
-        description: section?.description || "",
-        index: sectionIndex,
-        link: value.link,
-        img: section?.img,
-        active,
-        section,
-      } satisfies SidebarItem;
-    });
-  }, [version])
-    .filter((item) => item.section && (!onlyPackages || item.section.isPackage))
-    .sort((a, b) => a.index - b.index);
+    return Object.values(currentVersion.sidebars)
+      .map((value) => {
+        /**
+         * DO NOT CHANGE!
+         * @caution If it fails - you made mistake in the sidebar config :)
+         */
+        const componentName = value.link.path.split("/")[2];
+        const component = componentName.toLocaleLowerCase();
+        const sectionIndex = sections.findIndex((item) =>
+          item.names.find((itemName) => itemName.toLowerCase() === component),
+        );
+        const section = sections[sectionIndex];
+        const active = location.pathname.includes(component);
+        return {
+          name: section?.label || componentName,
+          description: section?.description || "",
+          index: sectionIndex,
+          link: value.link,
+          img: section?.img,
+          active,
+          section,
+        } satisfies SidebarItem;
+      })
+      .filter((item) => item.section && (!onlyPackages || item.section.isPackage))
+      .sort((a, b) => a.index - b.index);
+  }, [version]);
 
   const activeItem = sidebar.find((item) => item.active) ?? null;
 

@@ -24,7 +24,7 @@ const DocSidebarDesktop = ({ path, sidebar, onCollapse }) => {
   const color = activeItem?.section || sections[0];
 
   return (
-    <div className="max-h-[calc(100vh-60px)] overflow-y-auto">
+    <div className="max-h-[calc(100vh-60px)]">
       {hideOnScroll && <Logo tabIndex={-1} />}
       <SidebarMenu />
       <div className={`custom-sidebar-menu ${color.text} ${color.textHover}`}>

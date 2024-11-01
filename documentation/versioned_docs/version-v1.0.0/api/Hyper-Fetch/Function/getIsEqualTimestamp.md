@@ -1,5 +1,3 @@
-
-
 # getIsEqualTimestamp
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { getIsEqualTimestamp } from "@hyper-fetch/core"
+import { getIsEqualTimestamp } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { getIsEqualTimestamp } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
+Defined in
+[dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/dispatcher/dispatcher.utils.ts#L19)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [dispatcher/dispatcher.utils.ts:19](https://github.com/BetterTyped/hy
 </div><div class="api-docs__preview fn">
 
 ```ts
-getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
+getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="currentTimestamp"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="currentTimestamp"><td class="api-docs__param-name required">
 
-### currentTimestamp 
+### currentTimestamp
 
 `Required`
 
@@ -50,7 +51,7 @@ getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 
 </td></tr><tr param-data="threshold"><td class="api-docs__param-name required">
 
-### threshold 
+### threshold
 
 `Required`
 
@@ -60,7 +61,7 @@ getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 
 </td></tr><tr param-data="queueTimestamp"><td class="api-docs__param-name optional">
 
-### queueTimestamp 
+### queueTimestamp
 
 `Optional`
 
@@ -75,7 +76,7 @@ getIsEqualTimestamp(currentTimestamp, threshold, queueTimestamp)
 </div><div class="api-docs__returns">
 
 ```ts
-boolean
+boolean;
 ```
 
 </div>

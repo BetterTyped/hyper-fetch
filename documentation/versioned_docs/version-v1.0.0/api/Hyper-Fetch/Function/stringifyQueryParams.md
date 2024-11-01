@@ -1,5 +1,3 @@
-
-
 # stringifyQueryParams
 
 <div class="api-docs__separator">
@@ -9,7 +7,7 @@
 </div><div class="api-docs__import">
 
 ```ts
-import { stringifyQueryParams } from "@hyper-fetch/core"
+import { stringifyQueryParams } from "@hyper-fetch/core";
 ```
 
 </div><div class="api-docs__section">
@@ -18,11 +16,10 @@ import { stringifyQueryParams } from "@hyper-fetch/core"
 
 </div><div class="api-docs__description"><span class="api-docs__do-not-parse">
 
-
-
 </span></div><p class="api-docs__definition">
 
-Defined in [builder/builder.utils.ts:150](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/builder/builder.utils.ts#L150)
+Defined in
+[builder/builder.utils.ts:150](https://github.com/BetterTyped/hyper-fetch/blob/3fe127e9/packages/core/src/builder/builder.utils.ts#L150)
 
 </p><div class="api-docs__section">
 
@@ -31,16 +28,20 @@ Defined in [builder/builder.utils.ts:150](https://github.com/BetterTyped/hyper-f
 </div><div class="api-docs__preview fn">
 
 ```ts
-stringifyQueryParams(queryParams, options)
+stringifyQueryParams(queryParams, options);
 ```
 
 </div><div class="api-docs__section">
 
 ## Parameters
 
-</div><div class="api-docs__parameters"><table><thead><tr><th>Name</th><th>Details</th></tr></thead><tbody><tr param-data="queryParams"><td class="api-docs__param-name required">
+</div>
+<div class="api-docs__parameters">
+<table>
+<thead><tr><th>Name</th><th>Details</th></tr></thead>
+<tbody><tr param-data="queryParams"><td class="api-docs__param-name required">
 
-### queryParams 
+### queryParams
 
 `Required`
 
@@ -50,7 +51,7 @@ stringifyQueryParams(queryParams, options)
 
 </td></tr><tr param-data="options"><td class="api-docs__param-name required">
 
-### options 
+### options
 
 `Required`
 
@@ -65,7 +66,7 @@ stringifyQueryParams(queryParams, options)
 </div><div class="api-docs__returns">
 
 ```ts
-string
+string;
 ```
 
 </div>
