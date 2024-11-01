@@ -203,7 +203,7 @@ const config: Config = {
         {
           to: "/docs/integrations/overview",
           position: "left",
-          label: "Adapters",
+          label: "Integrations",
           activeBaseRegex: `/docs/integrations/`,
         },
         {
