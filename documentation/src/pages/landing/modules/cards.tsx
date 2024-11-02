@@ -12,7 +12,7 @@ const getAnimationValue = (value: number, index: number, windowWidth: number) =>
 
 export const Cards = () => {
   const [width] = useWindowSize();
-  const { sidebar } = useSidebar(true);
+  const { sidebar } = useSidebar({ showAllPackages: true });
 
   return (
     <Theatre>
@@ -36,7 +36,7 @@ export const Cards = () => {
                   </div>
                   <Title
                     size="none"
-                    className="font-semibold !leading-[1.5]"
+                    className="font-semibold !leading-[1.]"
                     wrapperClass="flex flex-wrap !leading-6 mb-2"
                   >
                     {item.name}

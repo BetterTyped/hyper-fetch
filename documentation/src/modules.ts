@@ -1,4 +1,6 @@
-import { AppWindowMac, Book, Cpu, LucideProps, Plug, Youtube } from "lucide-react";
+import { AppWindowMac, Book, Cpu, LucideProps, Plug } from "lucide-react";
+import { ComponentType, SVGProps } from "react";
+import ReactIcon from "@site/static/img/integration-react.svg";
 
 export type Section = {
   label: string;
@@ -11,7 +13,9 @@ export type Section = {
    * This way we can add more names if we rename something
    */
   names: string[];
-  img: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  img:
+    | React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>
+    | ComponentType<SVGProps<SVGSVGElement> & { title?: string }>;
   text: string;
   textAction: string;
   textHover: string;
@@ -100,7 +104,7 @@ export const modules: Section[] = [
     isPackage: true,
     dir: "react",
     names: ["react"],
-    img: Youtube,
+    img: ReactIcon,
     text: "drop-shadow-sm !text-green-500 dark:!text-green-400",
     textAction: "focus:!text-green-500 focus:dark:!text-green-400 active:!text-green-600 active:dark:!text-green-300",
     textHover: "hover:!text-green-500 hover:dark:!text-green-400",

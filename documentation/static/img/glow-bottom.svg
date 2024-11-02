@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2146" height="744">
   <defs>
     <linearGradient id="d" x1="43.176%" x2="50%" y1="12.436%" y2="97.744%">
-      <stop offset="0%" stop-color="#5568f7" />
-      <stop offset="100%" stop-color="#6366F1" />
+      <stop offset="0%" stop-color="#f7dc6f" />
+      <stop offset="100%" stop-color="#f1c40f" />
     </linearGradient>
     <linearGradient id="f" x1="19.609%" x2="50%" y1="14.544%" y2="100%">
-      <stop offset="0%" stop-color="#6376f1" />
-      <stop offset="100%" stop-color="#6f63f1" stop-opacity="0" />
+      <stop offset="0%" stop-color="#f7dc6f" />
+      <stop offset="100%" stop-color="#f9e15e" stop-opacity="0" />
     </linearGradient>
     <filter id="e" width="145.2%" height="187%" x="-22.6%" y="-43.5%" filterUnits="objectBoundingBox">
       <feGaussianBlur in="SourceGraphic" stdDeviation="50" />
@@ -16,9 +16,9 @@
     </filter>
     <radialGradient id="c" cx="50%" cy="100%" r="77.678%" fx="50%" fy="100%"
       gradientTransform="matrix(0 -1 .37746 0 .123 1.5)">
-      <stop offset="0%" stop-color="#193c94" />
-      <stop offset="22.35%" stop-color="#6055f7" />
-      <stop offset="100%" stop-color="#0f142a" stop-opacity="0" />
+      <stop offset="0%" stop-color="#f7dc6f" />
+      <stop offset="22.35%" stop-color="#f1c40f" />
+      <stop offset="100%" stop-color="#f9e15e" stop-opacity="0" />
     </radialGradient>
     <path id="a" d="M0 0h2440v921H0z" />
   </defs>

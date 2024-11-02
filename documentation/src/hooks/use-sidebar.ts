@@ -39,12 +39,15 @@ export type SidebarItem = {
   section: (typeof modules)[number];
 };
 
-export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; activeItem: SidebarItem | null } => {
+export const useSidebar = (options?: {
+  showAllPackages?: boolean;
+}): { sidebar: SidebarItem[]; activeItem: SidebarItem | null } => {
   const location = useLocation();
   const data = useGlobalData();
 
   const [version] = useVersion();
 
+  const { showAllPackages = false } = options || {};
   const { versions } = data["docusaurus-plugin-content-docs"].default as {
     breadcrumbs: boolean;
     path: string; // "/docs"
@@ -59,14 +62,15 @@ export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; ac
     if (!currentVersion?.sidebars) return [];
 
     return Object.values(currentVersion.sidebars)
-      .filter((value) =>
+      .filter((value) => {
+        if (showAllPackages) return value.link.path.includes("/docs/api");
         // eslint-disable-next-line no-nested-ternary
-        location.pathname.includes("/docs/api")
+        return location.pathname.includes("/docs/api")
           ? value.link.path.includes("/api")
           : location.pathname.includes("/docs/integrations")
             ? value.link.path.includes("/integrations")
-            : !value.link.path.includes("/docs/api") && !value.link.path.includes("/docs/integrations"),
-      )
+            : !value.link.path.includes("/docs/api") && !value.link.path.includes("/docs/integrations");
+      })
       .map((value) => {
         /**
          * DO NOT CHANGE!
@@ -96,13 +100,24 @@ export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; ac
         );
 
         // eslint-disable-next-line no-nested-ternary
-        const section: Section = location.pathname.includes("/docs/integrations")
-          ? integrations[pluginIndex]
-          : location.pathname.includes("/docs/api")
-            ? allPackages[packageIndex]
-            : modules[pkgIndex];
+        const section: Section = showAllPackages
+          ? allPackages[packageIndex]
+          : // eslint-disable-next-line no-nested-ternary
+            location.pathname.includes("/docs/integrations")
+            ? integrations[pluginIndex]
+            : location.pathname.includes("/docs/api")
+              ? allPackages[packageIndex]
+              : modules[pkgIndex];
 
-        if (!section) return null;
+        // eslint-disable-next-line no-nested-ternary
+        const index: number = showAllPackages
+          ? packageIndex
+          : // eslint-disable-next-line no-nested-ternary
+            location.pathname.includes("/docs/integrations")
+            ? pluginIndex
+            : location.pathname.includes("/docs/api")
+              ? packageIndex
+              : pkgIndex;
 
         // eslint-disable-next-line no-nested-ternary
         const prefix = location.pathname.includes("/docs/integrations")
@@ -117,17 +132,16 @@ export const useSidebar = (onlyPackages?: boolean): { sidebar: SidebarItem[]; ac
         return {
           name: section?.label || componentName,
           description: section?.description || "",
-          index: pkgIndex,
+          index,
           link: value.link,
           img: section?.img,
           active,
           section,
         } satisfies SidebarItem;
       })
-      .filter(Boolean)
-      .filter((item) => item.section && (!onlyPackages || item.section.isPackage))
+      .filter((item) => item.section && (!showAllPackages || item.section.isPackage))
       .sort((a, b) => a.index - b.index);
-  }, [version]);
+  }, [currentVersion.sidebars, location.pathname, showAllPackages]);
 
   const activeItem = sidebar.find((item) => item.active) ?? null;
 
