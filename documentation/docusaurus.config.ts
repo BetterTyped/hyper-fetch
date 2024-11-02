@@ -201,17 +201,17 @@ const config: Config = {
         {
           position: "left",
           label: "Documentation",
-          to: "/docs/documentation",
+          to: "/docs/getting-started",
           activeBaseRegex: `^/docs((?!examples|integrations|api).)*$`,
         },
         {
-          to: "/docs/integrations/overview",
+          to: "/docs/integrations/getting-started",
           position: "left",
           label: "Integrations",
           activeBaseRegex: `/docs/integrations/`,
         },
         {
-          to: "/docs/api/overview",
+          to: "/docs/api/getting-started",
           position: "left",
           label: "Api",
           activeBaseRegex: `/docs/api/`,

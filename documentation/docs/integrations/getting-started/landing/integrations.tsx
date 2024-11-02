@@ -1,11 +1,11 @@
-import { Description, Highlighter, Particles, Title } from "@site/src/components";
+import { Description, Particles, Title } from "@site/src/components";
 
 import { IntegrationCard } from "./card/card";
 import { integrations } from "./integrations.constants";
 import { IntegrationsList } from "./list/list";
 
 const styles = `
-aside, .theme-doc-breadcrumbs, article header, .theme-doc-version-badge {
+.theme-doc-breadcrumbs, article header, .theme-doc-version-badge {
   display: none!important;
 }
 main, main .col {
@@ -51,9 +51,9 @@ export const Integrations = () => {
         </div>
       </div>
       <section className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="pt-32 md:pt-40">
+        <div className="pt-6 md:pt-12">
           {/* Section header */}
-          <div className="text-center pb-12 md:pb-20">
+          <div className="text-center pb-4 md:pb-8">
             <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
               Integrations & Add-ons
             </div>
@@ -65,11 +65,11 @@ export const Integrations = () => {
             </div>
           </div>
 
-          <Highlighter className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-20">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <IntegrationCard item={integrations[0]} />
             <IntegrationCard item={integrations[1]} />
             <IntegrationCard item={integrations[2]} />
-          </Highlighter>
+          </div>
         </div>
       </section>
       <IntegrationsList />

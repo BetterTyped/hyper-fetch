@@ -90,13 +90,13 @@ export const useSidebar = (options?: {
         ];
 
         const pkgIndex = modules.findIndex((item) =>
-          item.names.find((itemName) => itemName.toLowerCase() === component),
+          item.paths.find((itemName) => itemName.toLowerCase() === component),
         );
         const pluginIndex = integrations.findIndex((item) =>
-          item.names.find((itemName) => itemName.toLowerCase() === component),
+          item.paths.find((itemName) => itemName.toLowerCase() === component),
         );
         const packageIndex = allPackages.findIndex((item) =>
-          item.names.find((itemName) => itemName.toLowerCase() === component),
+          item.paths.find((itemName) => itemName.toLowerCase() === component),
         );
 
         // eslint-disable-next-line no-nested-ternary

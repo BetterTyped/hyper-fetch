@@ -8,7 +8,7 @@ export const integrations: Array<CardProps["item"]> = [
     featured: true,
     description:
       "Docusaurus is a great tool to create documentation. We've built the integration to fully automate documentation creation.",
-    category: "Tool",
+    category: "Tools",
   },
   {
     link: "/docs/integrations/adapter-graphql/introduction",

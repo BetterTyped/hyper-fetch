@@ -4,7 +4,7 @@
 # Production
 /build
 /docs/api/*
-!/docs/api/overview/
+!/docs/api/getting-started/
 
 
 
