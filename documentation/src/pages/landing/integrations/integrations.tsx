@@ -1,5 +1,5 @@
 import { Theatre } from "@react-theater/scroll";
-import { Description, ScaleOut, Title } from "@site/src/components";
+import { Description, FadeIn, ScaleOut, Title } from "@site/src/components";
 import ReactIcon from "@site/static/img/integration-react.svg";
 import NextIcon from "@site/static/img/integration-next.svg";
 import RemixIcon from "@site/static/img/integration-remix.svg";
@@ -50,13 +50,17 @@ const integrationsOuter = [
 
 export const Integrations = () => {
   return (
-    <Theatre className="relative z-[-2] pt-48 -mb-[100px] md:-mb-[300px]">
+    <Theatre className="relative z-[-2] pt-10 -mb-[100px] md:-mb-[160px]">
       <div className="w-full max-w-[800px] mx-auto relative aspect-square flex items-center justify-center">
-        <div className="relative z-10 max-w-[400px] text-center -mt-[40px] md:-mt-[120px]">
-          <Title size="sm">Integrates with the tools of your choice</Title>
-          <Description className="!mb-0">
-            Written with no additional dependencies, fits perfectly into cutting edge solutions
-          </Description>
+        <div className="relative z-10 max-w-[400px] text-center -mt-[40px] md:-mt-[80px]">
+          <FadeIn start={0} end={0.2}>
+            <Title size="sm">Integrates with the tools of your choice</Title>
+          </FadeIn>
+          <FadeIn start={0.05} end={0.2}>
+            <Description className="!mb-0">
+              Written with no additional dependencies, fits perfectly into cutting edge solutions
+            </Description>
+          </FadeIn>
         </div>
         <ScaleOut start={0.1} className="absolute w-full h-full flex items-center justify-center" isStage={false}>
           {/* Circle Inner */}

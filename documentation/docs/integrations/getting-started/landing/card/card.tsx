@@ -16,7 +16,10 @@ export type CardProps = {
 
 export function IntegrationCard({ item }: CardProps) {
   return (
-    <Link to={item.link} className="!no-underline">
+    <Link
+      to={item.link}
+      className="!no-underline bg-gradient-to-tr from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-800 rounded-3xl border dark:border-zinc-800 dark:hover:border-zinc-700 transition-colors group relative"
+    >
       <div className="flex flex-col p-5 h-full">
         <div className="flex items-center space-x-3 mb-2">
           {item.img && (
@@ -27,7 +30,7 @@ export function IntegrationCard({ item }: CardProps) {
                 width="40"
                 height="40"
                 style={{ background: "radial-gradient(#fff 68%, #3a373722 72%)" }}
-                className={`w-[32px] h-[32px] border-0 rounded-full overflow-hidden p-1.5 ${item.className || ""}`}
+                className={`w-[38px] h-[38px] border-0 rounded-full overflow-hidden p-1.5 ${item.className || ""}`}
               />
               {item.featured && (
                 <img

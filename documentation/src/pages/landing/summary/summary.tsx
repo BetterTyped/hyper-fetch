@@ -2,56 +2,13 @@
 import { Particles } from "@site/src/components/particles";
 import { Highlighter, HighlighterItem } from "@site/src/components/highlighter";
 import { FadeIn } from "@site/src/components/fade-in/fade-in";
-import { Theatre, Stage } from "@react-theater/scroll";
+import { Stage } from "@react-theater/scroll";
 import { Description, Title } from "@site/src/components";
 import Link from "@docusaurus/Link";
 
 const FeatureImg01 = "/img/feature-ecosystem.png";
 const FeatureImg02 = "/img/feature-integrations.png";
 const FeatureImg03 = "/img/feature-image-03.png";
-const FeatureHearth = "/icons/feature-hearth.svg";
-const FeatureConnect = "/icons/feature-connect.svg";
-const FeatureMouse = "/icons/feature-mouse.svg";
-const FeatureControl = "/icons/feature-control.svg";
-const FeatureList = "/icons/feature-list.svg";
-const FeatureVisibility = "/icons/feature-visibility.svg";
-
-const features = [
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureHearth,
-  },
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureConnect,
-  },
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureMouse,
-  },
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureControl,
-  },
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureList,
-  },
-  {
-    name: "feature 1",
-    description: "description",
-    icon: FeatureVisibility,
-  },
-];
-
-const getAnimationValue = (value: number, index: number) => {
-  return value * (index - 3 * Math.floor(index / 3));
-};
 
 export const Summary = () => {
   return (
@@ -120,7 +77,7 @@ export const Summary = () => {
             <Highlighter className="grid md:grid-cols-12 gap-6 group">
               {/* Box #1 */}
               <FadeIn className="w-[100%] overflow-hidden md:col-span-12" start={0.2} end={0.5} translateY={40}>
-                <Link to="/docs/documentation">
+                <Link to="/docs/documentation" className="!no-underline">
                   <HighlighterItem>
                     <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -159,7 +116,7 @@ export const Summary = () => {
                                 wrapperClass="inline-flex flex-wrap font-bold pb-1"
                                 className="text-3xl"
                               >
-                                Ecosystem of your choice
+                                Supercharged Devtools
                               </Title>
                               <Description size="none">
                                 We want to revolutionize the way building application is made. We want to make it
@@ -179,9 +136,9 @@ export const Summary = () => {
                           </div>
                         </div>
                         {/* Image */}
-                        <div className="relative w-full h-64 md:h-auto overflow-hidden">
+                        <div className="relative w-full h-48 md:h-auto overflow-hidden">
                           <img
-                            className="absolute bottom-0 left-1/2 -translate-x-1/2 mx-auto max-w-none md:relative md:left-0{md}transla{}-x-0 py-8"
+                            className="absolute bottom-0 left-1/2 -translate-x-1/2 mx-auto max-w-none md:relative md:left-0 md:translate-x-0 py-8"
                             src={FeatureImg01}
                             width="504"
                             height="400"
@@ -195,7 +152,7 @@ export const Summary = () => {
               </FadeIn>
               {/* Box #2 */}
               <FadeIn className="w-[100%] overflow-hidden md:col-span-7" start={0.1} end={0.4} translateY={40}>
-                <Link to="/docs/documentation">
+                <Link to="/docs/documentation" className="!no-underline">
                   <HighlighterItem>
                     <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
                       <div className="flex flex-col">
@@ -206,27 +163,31 @@ export const Summary = () => {
                         >
                           <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
                         </div>
-                        {/* Text */}
-                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8">
-                          <div>
-                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
-                              Built for Type Safety
-                            </Title>
-                            <Description size="none" className="text-zinc-400">
-                              Use it for new or already existing projects. It&apos;s built to integrate with any APIs
-                              and React frameworks of your choice.
-                            </Description>
+                        <div className="grid grid-cols-[3fr_1fr]">
+                          {/* Text */}
+                          <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8">
+                            <div>
+                              <Title
+                                size="none"
+                                wrapperClass="inline-flex flex-wrap font-bold pb-1"
+                                className="text-2xl"
+                              >
+                                Built for Type Safety
+                              </Title>
+                              <Description size="none" className="text-zinc-400">
+                                Use it for new or already existing projects. It&apos;s built to integrate with any APIs
+                                and React frameworks of your choice.
+                              </Description>
+                            </div>
                           </div>
-                        </div>
-                        {/* Image */}
-                        <div className="relative w-full h-64 md:h-auto overflow-hidden md:pb-8 -mt-6 -ml-1">
-                          <img
-                            className="absolute object-cover bottom-0 left-1/2 -translate-x-1/2 mx-auto max-w-none md:max-w-full md:relative md:left-0 md:translate-x-0"
-                            src={FeatureImg02}
-                            width={400}
-                            height={230}
-                            alt="Feature 02"
-                          />
+                          {/* Image */}
+                          <div className="relative w-full h-full overflow-hidden">
+                            <img
+                              className="absolute w-[240%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
+                              src={FeatureImg02}
+                              alt="Feature 02"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -235,7 +196,50 @@ export const Summary = () => {
               </FadeIn>
               {/* Box #3 */}
               <FadeIn className="w-[100%] overflow-hidden md:col-span-5" start={0.3} end={0.7} translateY={40}>
-                <a href="https://github.com/BetterTyped/docsgen">
+                <a href="https://github.com/BetterTyped/docsgen" className="!no-underline">
+                  <HighlighterItem>
+                    <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+                      <div className="flex flex-col">
+                        {/* Radial gradient */}
+                        <div
+                          className="absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/2 aspect-square"
+                          aria-hidden="true"
+                        >
+                          <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
+                        </div>
+                        <div className="grid grid-cols-[3fr_1fr]">
+                          {/* Text */}
+                          <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8">
+                            <div>
+                              <Title
+                                size="none"
+                                wrapperClass="inline-flex flex-wrap font-bold pb-1"
+                                className="text-2xl"
+                              >
+                                Open sourced
+                              </Title>
+                              <Description size="none" className="text-zinc-400">
+                                We believe in the open source and transparency. Feel free to contribute, raise issues
+                                and submit pull requests.
+                              </Description>
+                            </div>
+                          </div>
+                          {/* Image */}
+                          <div className="relative w-full h-full overflow-hidden">
+                            <img
+                              className="absolute w-[160%] h-auto top-1/2 left-1/2 -translate-x-1/3 -translate-y-1/2 max-w-none"
+                              src={FeatureImg03}
+                              alt="Feature 03"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </HighlighterItem>
+                </a>
+              </FadeIn>
+              <FadeIn className="w-[100%] overflow-hidden md:col-span-3" start={0.1} end={0.4} translateY={40}>
+                <Link to="/docs/documentation" className="!no-underline">
                   <HighlighterItem>
                     <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
                       <div className="flex flex-col">
@@ -247,54 +251,107 @@ export const Summary = () => {
                           <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
                         </div>
                         {/* Text */}
-                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-6 pt-0 md:p-8">
+                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-4 md:p-6">
                           <div>
-                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1" className="text-2xl">
-                              Open sourced
+                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1 text-lg">
+                              Type Safety
                             </Title>
-                            <Description size="none" className="text-zinc-400">
-                              We believe in the open source and transparency. Feel free to contribute, raise issues and
-                              submit pull requests.
+                            <Description size="none" className="text-zinc-400 text-sm !mt-1 !mb-2">
+                              Use it for new or already existing projects.
                             </Description>
                           </div>
-                        </div>
-                        {/* Image */}
-                        <div className="relative w-full h-64 md:h-auto overflow-hidden md:pb-8">
-                          <img
-                            className="absolute bottom-0 left-1/2 -translate-x-1/2 mx-auto max-w-none md:max-w-full md:relative md:left-0 md:translate-x-0"
-                            src={FeatureImg03}
-                            width={230}
-                            height={230}
-                            alt="Feature 03"
-                          />
                         </div>
                       </div>
                     </div>
                   </HighlighterItem>
-                </a>
+                </Link>
+              </FadeIn>
+              <FadeIn className="w-[100%] overflow-hidden md:col-span-3" start={0.1} end={0.4} translateY={40}>
+                <Link to="/docs/documentation" className="!no-underline">
+                  <HighlighterItem>
+                    <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+                      <div className="flex flex-col">
+                        {/* Radial gradient */}
+                        <div
+                          className="absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/2 aspect-square"
+                          aria-hidden="true"
+                        >
+                          <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
+                        </div>
+                        {/* Text */}
+                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-4 md:p-6">
+                          <div>
+                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1 text-lg">
+                              Type Safety
+                            </Title>
+                            <Description size="none" className="text-zinc-400 text-sm !mt-1 !mb-2">
+                              Use it for new or already existing projects.
+                            </Description>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </HighlighterItem>
+                </Link>
+              </FadeIn>
+              <FadeIn className="w-[100%] overflow-hidden md:col-span-3" start={0.1} end={0.4} translateY={40}>
+                <Link to="/docs/documentation" className="!no-underline">
+                  <HighlighterItem>
+                    <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+                      <div className="flex flex-col">
+                        {/* Radial gradient */}
+                        <div
+                          className="absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/2 aspect-square"
+                          aria-hidden="true"
+                        >
+                          <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
+                        </div>
+                        {/* Text */}
+                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-4 md:p-6">
+                          <div>
+                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1 text-lg">
+                              Type Safety
+                            </Title>
+                            <Description size="none" className="text-zinc-400 text-sm !mt-1 !mb-2">
+                              Use it for new or already existing projects.
+                            </Description>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </HighlighterItem>
+                </Link>
+              </FadeIn>
+              <FadeIn className="w-[100%] overflow-hidden md:col-span-3" start={0.1} end={0.4} translateY={40}>
+                <Link to="/docs/documentation" className="!no-underline">
+                  <HighlighterItem>
+                    <div className="relative bg-zinc-50 dark:bg-zinc-900 h-full rounded-[inherit] z-20 overflow-hidden">
+                      <div className="flex flex-col">
+                        {/* Radial gradient */}
+                        <div
+                          className="absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/2 aspect-square"
+                          aria-hidden="true"
+                        >
+                          <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
+                        </div>
+                        {/* Text */}
+                        <div className="md:max-w-[480px] shrink-0 order-1 md:order-none p-4 md:p-6">
+                          <div>
+                            <Title size="none" wrapperClass="inline-flex flex-wrap font-bold pb-1 text-lg">
+                              Type Safety
+                            </Title>
+                            <Description size="none" className="text-zinc-400 text-sm !mt-1 !mb-2">
+                              Use it for new or already existing projects.
+                            </Description>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </HighlighterItem>
+                </Link>
               </FadeIn>
             </Highlighter>
           </div>
-
-          {/* Features list */}
-          <Theatre>
-            <div className="grid md:grid-cols-3 gap-8 md:gap-12">
-              {/* Feature */}
-              {features.map((feature, index) => (
-                <FadeIn
-                  key={index}
-                  start={0.1 + getAnimationValue(0.05, index)}
-                  end={0.3 + getAnimationValue(0.05, index)}
-                >
-                  <div className="flex items-center space-x-2 mb-1">
-                    <img src={feature.icon} alt="" className="dark:invert" />
-                    <h6 className="font-medium text-zinc-900 dark:text-zinc-50">{feature.name}</h6>
-                  </div>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">{feature.description}</p>
-                </FadeIn>
-              ))}
-            </div>
-          </Theatre>
         </div>
       </div>
     </section>

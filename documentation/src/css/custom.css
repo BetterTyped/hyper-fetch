@@ -17,16 +17,16 @@
 }
 
 .announcement a {
-  @apply inline-flex items-center justify-center !text-zinc-100 font-bold bg-purple-800/50 py-[5px] px-2 sm:py-1 sm:px-3 rounded-md !no-underline text-[0.6rem] sm:text-[0.9rem];
+  @apply inline-flex items-center justify-center !text-zinc-100 font-bold bg-yellow-800/50 py-[5px] px-2 sm:py-1 sm:px-3 rounded-md !no-underline text-[0.6rem] sm:text-[0.9rem];
 }
 .announcement a .pro {
-  @apply bg-purple-500 rounded-md font-bold text-white ml-1 px-1 sm:px-2 sm:py-1.5 py-1 text-[0.5rem] sm:text-[0.7rem];
+  @apply bg-yellow-500 rounded-md font-bold text-white ml-1 px-1 sm:px-2 sm:py-1.5 py-1 text-[0.5rem] sm:text-[0.7rem];
   line-height: 1;
 }
 
 .announcement a:hover,
 .announcement a:focus {
-  @apply !text-white bg-purple-800/80;
+  @apply !text-white bg-yellow-800/80;
 }
 
 .api-docs__section-title {
@@ -257,7 +257,7 @@ h6 {
 
 .shiny-btn {
   border: 1px solid transparent !important;
-  @apply relative text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.50),_theme(colors.zinc.50))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.200)_25%,_theme(colors.zinc.200)_75%,_theme(colors.zinc.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.zinc.900),_theme(colors.zinc.900))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-zinc-800/30 before:pointer-events-none before:z-[-1];
+  @apply relative text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.100),_theme(colors.zinc.50))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.200)_25%,_theme(colors.zinc.200)_75%,_theme(colors.zinc.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
 }
 
 .shiny-btn::before {
@@ -366,7 +366,7 @@ main a > span,
 main a > div,
 main a > p,
 main a {
-  @apply text-[rgb(8,126,164)] dark:text-[rgb(20,158,202)] decoration-[rgb(8,126,164)] dark:decoration-[rgb(20,158,202)];
+  @apply text-[rgb(164,120,8)] dark:text-[rgb(202,160,20)] decoration-[rgb(164,125,8)] dark:decoration-[rgb(202,156,20)];
 }
 
 .avatar__name * {
@@ -492,7 +492,7 @@ article .markdown p:first-of-type img {
 }
 
 article header h2 a {
-  @apply pb-6 text-3xl sm:text-4xl !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
+  @apply pb-6 text-3xl sm:text-4xl font-extrabold text-black dark:text-white;
 }
 
 .avatar__photo {
@@ -507,6 +507,14 @@ article header h2 a {
   @apply text-xs;
 }
 
+aside nav h3 {
+  @apply text-lg font-extrabold;
+}
+
+.avatar__name span {
+  @apply text-yellow-500;
+}
+
 /**
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
@@ -515,13 +523,13 @@ article header h2 a {
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: rgb(20, 158, 202);
-  --ifm-color-primary-dark: rgb(11, 143, 186);
-  --ifm-color-primary-darker: rgb(7, 114, 150);
-  --ifm-color-primary-darkest: rgb(1, 73, 97);
-  --ifm-color-primary-light: rgb(43, 178, 224);
-  --ifm-color-primary-lighter: rgb(85, 203, 243);
-  --ifm-color-primary-lightest: rgb(144, 225, 252);
+  --ifm-color-primary: rgb(255, 213, 0);
+  --ifm-color-primary-dark: rgb(229, 188, 0);
+  --ifm-color-primary-darker: rgb(204, 163, 0);
+  --ifm-color-primary-darkest: rgb(153, 119, 0);
+  --ifm-color-primary-light: rgb(255, 229, 51);
+  --ifm-color-primary-lighter: rgb(255, 244, 105);
+  --ifm-color-primary-lightest: rgb(255, 252, 141);
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --ifm-navbar-background-color: transparent;
@@ -700,6 +708,15 @@ body {
 .navbar .clean-btn {
   @apply shiny-btn;
   position: relative;
+  line-height: 1;
+}
+
+.clean-btn {
+  @apply w-[24px] h-[24px] !p-[0.3rem];
+}
+
+.clean-btn svg {
+  @apply w-full h-full;
 }
 
 :root:not([data-theme="dark"]) .navbar .clean-btn svg {
@@ -715,9 +732,11 @@ body {
 .navbar .clean-btn.navbar-sidebar__back {
   margin-left: 0;
   width: fit-content;
-  padding-left: 18px;
   margin-top: 15px;
   color: var(--text-primary);
+  height: 30px !important;
+  padding: 0 0.7rem !important;
+  margin-left: 15px;
 }
 .navbar .clean-btn.navbar-sidebar__close {
   width: 32px;
@@ -926,6 +945,9 @@ h6 {
 button,
 a {
   cursor: pointer;
+}
+a {
+  @apply text-yellow-500;
 }
 
 /* Typography */

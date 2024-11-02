@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -7,87 +8,137 @@
 import React, { useEffect } from "react";
 import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
+import { Theatre } from "@react-theater/scroll";
+import { Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
 import { FadeIn, Title } from "@site/src/components";
 
 import "./animation.scss";
 
 type FeatureItem = {
+  name: string;
   description: string;
-  // eslint-disable-next-line react/require-default-props
-  link?: JSX.Element;
+  icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  link: JSX.Element;
 };
 
-const FeatureList: FeatureItem[] = [
+// const FeatureList: FeatureItem[] = [
+//   {
+//     description: "Simple setup",
+//     link: <Link to="/docs/guides/basic/setup">Read more</Link>,
+//   },
+//   {
+//     description: "Automatic caching",
+//     link: <Link to="/docs/documentation/core/cache">Read more</Link>,
+//   },
+//   {
+//     description: "Built-in adapter",
+//     link: <Link to="/docs/documentation/core/adapter">Read more</Link>,
+//   },
+//   {
+//     description: "Request cancellation",
+//     link: <Link to="/docs/guides/advanced/cancellation">Read more</Link>,
+//   },
+//   {
+//     description: "Persistence",
+//     link: <Link to="/docs/guides/advanced/persistence">Read more</Link>,
+//   },
+//   {
+//     description: "Easy to test",
+//     link: <Link to="/docs/documentation/getting-started/testing">Read more</Link>,
+//   },
+//   {
+//     description: "Window Focus/Blur Events",
+//     link: <Link to="/docs/guides/react/core/window-focus-blur">Read more</Link>,
+//   },
+//   {
+//     description: "SSR Support",
+//     link: <Link to="/docs/documentation/getting-started/environment">Read more</Link>,
+//   },
+//   {
+//     description: "Authentication",
+//     link: <Link to="/docs/guides/basic/authentication">Read more</Link>,
+//   },
+//   {
+//     description: "Queueing",
+//     link: <Link to="/docs/guides/advanced/queueing">Read more</Link>,
+//   },
+//   {
+//     description: "Offline first ready",
+//     link: <Link to="/docs/guides/advanced/offline">Read more</Link>,
+//   },
+//   {
+//     description: "Prefetching",
+//     link: <Link to="/docs/guides/advanced/prefetching">Read more</Link>,
+//   },
+// ];
+
+const features: FeatureItem[] = [
   {
-    description: "Simple setup",
-    link: <Link to="/docs/guides/basic/setup">Read more</Link>,
+    name: "Automatic caching",
+    description: "Automatically caches responses and reuses them when making the same request again.",
+    icon: Database,
+    link: (
+      <Link className="text-sm" to="/docs/documentation/core/cache">
+        Read more
+      </Link>
+    ),
   },
   {
-    description: "Automatic caching",
-    link: <Link to="/docs/documentation/core/cache">Read more</Link>,
+    name: "Data Persistance",
+    description: "Persists your data to the local storage or indexedDB to reuse it when needed.",
+    icon: Atom,
+    link: (
+      <Link className="text-sm" to="/docs/guides/advanced/persistence">
+        Read more
+      </Link>
+    ),
   },
   {
-    description: "Built-in adapter",
-    link: <Link to="/docs/documentation/core/adapter">Read more</Link>,
+    name: "SSR & Server Components support",
+    description: "Supports server-side rendering and server components out of the box.",
+    icon: Server,
+    link: (
+      <Link className="text-sm" to="/docs/documentation/getting-started/environment">
+        Read more
+      </Link>
+    ),
   },
   {
-    description: "Request cancellation",
-    link: <Link to="/docs/guides/advanced/cancellation">Read more</Link>,
+    name: "Built-in Authentication",
+    description: "Built-in authentication allow you to easily manage user sessions.",
+    icon: Fingerprint,
+    link: (
+      <Link className="text-sm" to="/docs/guides/basic/authentication">
+        Read more
+      </Link>
+    ),
   },
   {
-    description: "Persistence",
-    link: <Link to="/docs/guides/advanced/persistence">Read more</Link>,
+    name: "Offline First",
+    description:
+      "Automatically uses cached data when the user is offline, and updates the cache when the user is online.",
+    icon: Wifi,
+    link: (
+      <Link className="text-sm" to="/docs/guides/advanced/offline">
+        Read more
+      </Link>
+    ),
   },
   {
-    description: "Easy to test",
-    link: <Link to="/docs/documentation/getting-started/testing">Read more</Link>,
-  },
-  {
-    description: "Window Focus/Blur Events",
-    link: <Link to="/docs/guides/react/core/window-focus-blur">Read more</Link>,
-  },
-  {
-    description: "SSR Support",
-    link: <Link to="/docs/documentation/getting-started/environment">Read more</Link>,
-  },
-  {
-    description: "Authentication",
-    link: <Link to="/docs/guides/basic/authentication">Read more</Link>,
-  },
-  {
-    description: "Queueing",
-    link: <Link to="/docs/guides/advanced/queueing">Read more</Link>,
-  },
-  {
-    description: "Offline first ready",
-    link: <Link to="/docs/guides/advanced/offline">Read more</Link>,
-  },
-  {
-    description: "Prefetching",
-    link: <Link to="/docs/guides/advanced/prefetching">Read more</Link>,
+    name: "Prefetching",
+    description: "Prefetch data before components mount, so that it's available instantly when needed.",
+    icon: TrendingUpDown,
+    link: (
+      <Link className="text-sm" to="/docs/guides/advanced/prefetching">
+        Read more
+      </Link>
+    ),
   },
 ];
 
-function Feature({ description, link }: FeatureItem) {
-  return (
-    <div className="">
-      <div className="">
-        <svg
-          className="w-5 h-5"
-          viewBox="0 0 512 512"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="var(--ifm-color-warning-light)"
-        >
-          <path d="M400,48H112a64.07,64.07,0,0,0-64,64V400a64.07,64.07,0,0,0,64,64H400a64.07,64.07,0,0,0,64-64V112A64.07,64.07,0,0,0,400,48ZM364.25,186.29l-134.4,160a16,16,0,0,1-12,5.71h-.27a16,16,0,0,1-11.89-5.3l-57.6-64a16,16,0,1,1,23.78-21.4l45.29,50.32L339.75,165.71a16,16,0,0,1,24.5,20.58Z" />
-        </svg>
-      </div>
-      <div className="">
-        <div className="">{description}</div>
-        {link}
-      </div>
-    </div>
-  );
-}
+const getAnimationValue = (value: number, index: number) => {
+  return value * (index - 3 * Math.floor(index / 3));
+};
 
 export function Features(): JSX.Element {
   useEffect(() => {
@@ -165,7 +216,7 @@ export function Features(): JSX.Element {
               Control your architecture
             </Title>
           </FadeIn>
-          <FadeIn start={0.05} end={0.2}>
+          <FadeIn start={0.05} end={0.3}>
             <p className="text-lg text-zinc-400">
               Easily connect to the events that power our architecture and confidently create your own logic. We give
               you full control over your data flow like no other framework can.
@@ -173,20 +224,36 @@ export function Features(): JSX.Element {
           </FadeIn>
         </div>
 
-        <div className="">
-          {FeatureList.map((props, idx) => (
-            // eslint-disable-next-line react/no-array-index-key, react/jsx-props-no-spreading
-            <Feature key={idx} {...props} />
-          ))}
+        {/* Features list */}
+        <Theatre>
+          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+            {/* Feature */}
+            {features.map((feature, index) => (
+              <FadeIn
+                key={index}
+                start={0.1 + getAnimationValue(0.05, index)}
+                end={0.3 + getAnimationValue(0.05, index)}
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <feature.icon />
+                  <h6 className="font-medium text-zinc-900 dark:text-zinc-50">{feature.name}</h6>
+                </div>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">{feature.description}</p>
+                {feature.link}
+              </FadeIn>
+            ))}
+          </div>
+        </Theatre>
+        <div className="my-12">
+          <FadeIn start={0.05} end={0.2}>
+            <p className="text-md text-zinc-400">
+              You can find more details in{" "}
+              <Link className="text-yellow-500" to="/docs/documentation/getting-started/comparison">
+                Comparison
+              </Link>
+            </p>
+          </FadeIn>
         </div>
-      </div>
-
-      <div className="flex justify-center">
-        <FadeIn start={0.05} end={0.2}>
-          <p className="text-lg text-zinc-400">
-            You can find more details in <Link to="/docs/documentation/getting-started/comparison">Comparison</Link>
-          </p>
-        </FadeIn>
       </div>
     </section>
   );

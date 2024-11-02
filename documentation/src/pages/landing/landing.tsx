@@ -10,7 +10,9 @@ import { CallToAction } from "./call-to-action";
 import { Modules } from "./modules/modules";
 import { Integrations } from "./integrations/integrations";
 import { Features } from "./features/features";
+import { Example } from "./example/example";
 import { Preview } from "./preview/preview";
+import { Sponsors } from "./sponsors/sponsors";
 
 export const Landing = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -38,12 +40,14 @@ export const Landing = () => {
       <div className="w-[100vw] max-w-[100vw]" style={{ contain: "paint" }}>
         <div className="relative z-2">
           <Hero />
+          <Preview />
           <Clients />
           <Modules />
-          <Integrations />
           <Features />
-          <Preview />
+          <Integrations />
+          <Example />
           <Summary />
+          <Sponsors />
           <CallToAction />
         </div>
       </div>

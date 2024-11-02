@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import { Title } from "@site/src/components";
-import { CodeIcon, LucideProps } from "lucide-react";
+import { CodeIcon, LucideProps, Server, Usb, Users } from "lucide-react";
 
 import { IntegrationCard } from "../card/card";
 import { integrations } from "../integrations.constants";
@@ -22,8 +22,9 @@ const icons: Record<
   React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>
 > = {
   Tools: CodeIcon,
-  Adapters: CodeIcon,
-  Service: CodeIcon,
+  Adapters: Usb,
+  Service: Server,
+  Community: Users,
 };
 
 export function IntegrationsList() {
@@ -41,7 +42,7 @@ export function IntegrationsList() {
                     className="flex gap-2 items-center text-slate-500 hover:text-slate-400 dark:text-slate-50 dark:hover:text-white stroke-slate-50 whitespace-nowrap transition-colors space-x-2"
                     href={`#${category.toLocaleLowerCase()}`}
                   >
-                    {Icon ? <Icon className="w-5 h-5" /> : <CodeIcon className="w-5 h-5" />}
+                    {Icon ? <Icon className="brightness-50 w-5 h-5" /> : <CodeIcon className="brightness-50 w-5 h-5" />}
                     {category}
                   </a>
                 );

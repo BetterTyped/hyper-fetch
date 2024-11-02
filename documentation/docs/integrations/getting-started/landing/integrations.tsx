@@ -78,13 +78,14 @@ export const Integrations = () => {
         <Title size="sm" className="text-center">
           Have an idea for new integrations?
         </Title>
-        <Description className="text-lg text-slate-400">
-          Open a new issue on our repository, we will be extremely grateful for it!
+        <Description className="text-lg text-slate-400 text-center">
+          Create and add your own integrations. Place it on this page by creating a Pull Request on github. <br />
+          If you have an idea for a new integration, open a new issue and let us know what you need.
         </Description>
         <div>
           <a
             href="https://github.com/BetterTyped/hyper-fetch/issues"
-            className="!no-underline bg-gradient-to-br justify-center from-orange-500 via-yellow-600 to-yellow-500 text-white font-semibold rounded-xl p-[2px] max-w-[100vw] text-center text-sm md:text-md py-3 px-5 md:py-3 md:px-10 flex items-center hover:from-yellow-400 hover:to-yellow-400 dark:hover:from-yellow-100 dark:hover:to-yellow-100 hover:text-white dark:hover:text-black transition-all"
+            className="!no-underline bg-gradient-to-br justify-center from-orange-500 via-yellow-600 to-yellow-500 !text-white font-semibold rounded-xl p-[2px] max-w-[100vw] text-center text-sm md:text-md py-3 px-5 md:py-3 md:px-10 flex items-center hover:from-yellow-400 hover:to-yellow-400 dark:hover:from-yellow-100 dark:hover:to-yellow-100 hover:text-white dark:hover:text-black transition-all"
           >
             Let us know!
           </a>

@@ -1,11 +1,97 @@
 ---
 sidebar_position: 1
-title: Code Generators
+title: Openapi generator introduction
 sidebar_label: Introduction
+hide_table_of_contents: true
 ---
 
----
+import { PackageDetails } from "@site/src/components";
 
-## About
+<PackageDetails pkg="@hyper-fetch/codegen-openapi" />
 
-Code generators are used to facilitate the life of a developer and save development time.
+:::note
+
+Openapi Hyper Fetch code generator is in beta. Please let us know in case of any problems.
+
+:::
+
+:::info
+
+Note: Right now this code generator accepts only V3 version of the openapi schema.
+
+:::
+
+## Getting Started
+
+In order to start using the request generator, you need only one thing: OpenApi V3 JSON schema file or link to it. Then,
+you can simply call the package via `npx`:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json
+```
+
+This command will generate the `openapi.client.ts` that contains generated Hyper Fetch client, requests, and types:
+
+```tsx
+...
+export const client = new Client({ url: "/api/v3" });
+
+...
+export type UpdatePetRequestBody = Paths.UpdatePet.RequestBody;
+export type UpdatePetResponseType = Paths.UpdatePet.Responses.$200;
+
+export type AddPetRequestBody = Paths.AddPet.RequestBody;
+export type AddPetResponseType = Paths.AddPet.Responses.$200;
+
+...
+
+export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, undefined, undefined>()({
+  method: "PUT",
+  endpoint: "/pet",
+});
+
+export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, undefined, undefined>()({
+  method: "POST",
+  endpoint: "/pet",
+});
+
+```
+
+Declared variables with a created request always take their name from camel-cased `operationId`. The types naming always
+follows the convention - pascalCased `operationId` + \{`ResponseType`/`RequestBody`/`QueryParams`\}, e.g.:
+
+- operationId: `addPet`
+- declared variable: `addPet`
+- response type: `AddPetResponseType`
+- request body: `AddPetRequestBody`
+
+## Renaming the file
+
+The command also accepts a second, optional argument: `--name`, that allows to indicate the name of a resulting file:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts
+```
+
+## Providing base url
+
+By default, we take the base url from the first `server` param from the json schema:
+
+```json
+{
+  "servers": [{ "url": "/api/v3" }]
+}
+```
+
+However, you can provide the `--url` option for the cli that will be used instead:
+
+```tsx
+npx @hyper-fetch/codegen-openapi --schema https://petstore3.swagger.io/api/v3/openapi.json --name hyper-fetch.requests.ts --url https://petstore3.swagger.io
+```
+
+Then, the client from the generated file will use it:
+
+```tsx
+... // generated file
+export const client = new Client({url: "https://petstore3.swagger.io"})
+```

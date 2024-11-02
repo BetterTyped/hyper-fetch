@@ -67,7 +67,7 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
               <span className="relative inline-flex items-center hover:text-white overflow-x-auto text-ellipsis max-w-[90%] whitespace-nowrap">
                 {npmInstall}
               </span>
-              <Copy className="w-[15px] ml-2 fill-yellow-500 transition duration-150 ease-in-out" />
+              <Copy className="w-[15px] ml-2 stroke-yellow-500 transition duration-150 ease-in-out" />
               {done && (
                 <div className="absolute -bottom-1 translate-y-full left-1/2 -translate-x-1/2 text-xs opacity-60 ml-2 whitespace-nowrap">
                   Copied to clipboard!
