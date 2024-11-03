@@ -5,7 +5,7 @@ import Layout from "@theme/Layout";
 
 import { Hero } from "./hero";
 import { Clients } from "./clients";
-import { Summary } from "./summary";
+import { Blocks } from "./blocks";
 import { CallToAction } from "./call-to-action";
 import { Modules } from "./modules/modules";
 import { Integrations } from "./integrations/integrations";
@@ -46,7 +46,7 @@ export const Landing = () => {
           <Features />
           <Integrations />
           <Example />
-          <Summary />
+          <Blocks />
           <Sponsors />
           <CallToAction />
         </div>

@@ -3,16 +3,13 @@ import { useSidebar } from "@site/src/hooks/use-sidebar";
 import { Description, FadeIn, Title } from "@site/src/components";
 import { useWindowSize } from "@reins/hooks";
 import { Theatre } from "@react-theater/scroll";
-
-const getAnimationValue = (value: number, index: number, windowWidth: number) => {
-  // eslint-disable-next-line no-nested-ternary
-  const cols = windowWidth < 640 ? 1 : windowWidth < 767 ? 2 : 3;
-  return value * (index - cols * Math.floor(index / cols));
-};
+import { getAnimationValue } from "@site/src/utils/animation";
 
 export const Cards = () => {
   const [width] = useWindowSize();
   const { sidebar } = useSidebar({ showAllPackages: true });
+  // eslint-disable-next-line no-nested-ternary
+  const columns = width < 640 ? 1 : width < 767 ? 2 : 3;
 
   return (
     <Theatre>
@@ -21,8 +18,8 @@ export const Cards = () => {
           return (
             <FadeIn
               key={index}
-              start={0.05 + getAnimationValue(0.08, index, width)}
-              end={0.25 + getAnimationValue(0.08, index, width)}
+              start={0.05 + getAnimationValue(columns, 0.08, index)}
+              end={0.25 + getAnimationValue(columns, 0.08, index)}
               className="bg-gradient-to-tr hover:dark:brightness-[120%] hover:brightness-[90%] dark:from-zinc-800 dark:to-zinc-800/25 from-zinc-100 to-zinc-100/25 rounded-3xl border dark:border-zinc-800 dark:hover:border-zinc-700/60 transition-colors group relative"
             >
               <a href={item.link.path} key={index} style={{ textDecoration: "none" }}>

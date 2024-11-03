@@ -272,6 +272,11 @@ h6 {
   @apply dark:brightness-110 shadow-yellow-500/40 dark:shadow-yellow-500/40 shadow-[inset_0_0_4px_rgba(0,0,0,0.6)];
 }
 
+.shiny-label {
+  font-size: 14px;
+  @apply text-yellow-500 dark:text-white border relative inline-flex items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2 border-yellow-400/50 dark:border-yellow-500/30 bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110 before:absolute before:inset-x-4 before:-bottom-px before:bg-gradient-to-r before:from-transparent before:via-yellow-500 dark:before:via-yellow-50 before:to-transparent before:h-px before:w-3/5;
+}
+
 /* Playground */
 
 .playground .editor > pre > pre {
@@ -374,7 +379,7 @@ main a {
 }
 
 div > .theme-code-block {
-  @apply !bg-[#1c1c1d] border-zinc-400/20 border-[1px];
+  @apply border-[1px] border-zinc-700/20 dark:border-transparent relative text-zinc-300 hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
 }
 
 div > .theme-code-block span {
@@ -383,6 +388,9 @@ div > .theme-code-block span {
 
 .theme-code-block > div:first-child {
   @apply text-zinc-400 text-[0.8rem] font-semibold;
+  @apply relative text-zinc-300 hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
+  border: 0px;
+  border-radius: 0px;
 }
 .theme-code-block > div:first-child::before {
   @apply mr-2;

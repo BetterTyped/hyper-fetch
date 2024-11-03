@@ -10,6 +10,7 @@ import Link from "@docusaurus/Link";
 import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
 import { Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
+import { getAnimationValue } from "@site/src/utils/animation";
 import { FadeIn, Title } from "@site/src/components";
 
 import "./animation.scss";
@@ -136,10 +137,6 @@ const features: FeatureItem[] = [
   },
 ];
 
-const getAnimationValue = (value: number, index: number) => {
-  return value * (index - 3 * Math.floor(index / 3));
-};
-
 export function Features(): JSX.Element {
   useEffect(() => {
     const bolt = document.querySelector(".bolt");
@@ -181,26 +178,29 @@ export function Features(): JSX.Element {
   return (
     <section className="relative pb-20 ">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="bolt">
-          <svg viewBox="0 0 170 57" className="white left">
-            <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
-          </svg>
-          <svg viewBox="0 0 170 57" className="white right">
-            <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
-          </svg>
-          <div>
-            <span />
+        {/* Bolt */}
+        <FadeIn start={0.1} end={0.3}>
+          <div className="bolt">
+            <svg viewBox="0 0 170 57" className="white left">
+              <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
+            </svg>
+            <svg viewBox="0 0 170 57" className="white right">
+              <path d="M36.2701759,17.9733192 C-0.981139498,45.4810755 -7.86361824,57.6618438 15.6227397,54.5156241 C50.8522766,49.7962945 201.109341,31.1461782 161.361488,2" />
+            </svg>
+            <div>
+              <span />
+            </div>
+            <svg viewBox="0 0 112 44" className="circle">
+              <path d="M96.9355003,2 C109.46067,13.4022454 131.614152,42 56.9906735,42 C-17.6328048,42 1.51790702,13.5493875 13.0513641,2" />
+            </svg>
+            <svg viewBox="0 0 70 3" className="line left">
+              <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
+            </svg>
+            <svg viewBox="0 0 70 3" className="line right">
+              <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
+            </svg>
           </div>
-          <svg viewBox="0 0 112 44" className="circle">
-            <path d="M96.9355003,2 C109.46067,13.4022454 131.614152,42 56.9906735,42 C-17.6328048,42 1.51790702,13.5493875 13.0513641,2" />
-          </svg>
-          <svg viewBox="0 0 70 3" className="line left">
-            <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
-          </svg>
-          <svg viewBox="0 0 70 3" className="line right">
-            <path transform="translate(-2.000000, 0.000000)" d="M2,1.5 L70,1.5" />
-          </svg>
-        </div>
+        </FadeIn>
 
         {/* Section header */}
         <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
@@ -231,8 +231,8 @@ export function Features(): JSX.Element {
             {features.map((feature, index) => (
               <FadeIn
                 key={index}
-                start={0.1 + getAnimationValue(0.05, index)}
-                end={0.3 + getAnimationValue(0.05, index)}
+                start={0.1 + getAnimationValue(3, 0.05, index)}
+                end={0.3 + getAnimationValue(3, 0.05, index)}
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <feature.icon />
