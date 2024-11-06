@@ -4,20 +4,20 @@
     <path id="b" d="M0 0h2324v658H0z" />
     <radialGradient id="c" cx="50%" cy="0%" r="106.751%" fx="50%" fy="0%"
       gradientTransform="matrix(0 1 -.28313 0 .5 -.5)">
-      <stop offset="0%" stop-color="#ffd700" />
-      <stop offset="22.35%" stop-color="#ffc107" stop-opacity=".64" />
+      <stop offset="0%" stop-color="#a16207" />
+      <stop offset="22.35%" stop-color="#d19600" stop-opacity=".64" />
       <stop offset="100%" stop-color="#000000" stop-opacity="0" />
     </radialGradient>
     <linearGradient id="d" x1="19.609%" x2="50%" y1="14.544%" y2="100%">
-      <stop offset="0%" stop-color="#FFF" />
-      <stop offset="100%" stop-color="#FFF" stop-opacity="0" />
+      <stop offset="0%" stop-color="#ddd" />
+      <stop offset="100%" stop-color="#ddd" stop-opacity="0" />
     </linearGradient>
     <filter id="e" width="165.1%" height="170.3%" x="-32.5%" y="-35.1%" filterUnits="objectBoundingBox">
       <feGaussianBlur in="SourceGraphic" stdDeviation="50" />
     </filter>
   </defs>
   <g fill="none" fill-rule="evenodd" transform="translate(-460)">
-    <mask id="f" fill="#fff">
+    <mask id="f" fill="#ddd">
       <use xlink:href="#b" />
     </mask>
     <use xlink:href="#b" fill="url(#c)" />

@@ -11,7 +11,7 @@ import { TimelineMax, Back } from "gsap";
 import { Theatre } from "@react-theater/scroll";
 import { Atom, Database, Fingerprint, LucideProps, Server, TrendingUpDown, Wifi } from "lucide-react";
 import { getAnimationValue } from "@site/src/utils/animation";
-import { FadeIn, Title } from "@site/src/components";
+import { FadeIn, Particles, Title } from "@site/src/components";
 
 import "./animation.scss";
 
@@ -176,8 +176,19 @@ export function Features(): JSX.Element {
   }, []);
 
   return (
-    <section className="relative pb-20 ">
+    <section className="relative pb-20 pt-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Illustration */}
+        <div
+          className="absolute inset-0 -z-10 -mx-28 rounded-t-[3rem] pointer-events-none overflow-hidden opacity-40"
+          aria-hidden="true"
+        >
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10">
+            <img src="/img/glow-top.svg" className="max-w-none" width={1404} height={658} alt="Features" />
+          </div>
+        </div>
+        <Particles className="absolute inset-0 -z-10" />
+
         {/* Bolt */}
         <FadeIn start={0.1} end={0.3}>
           <div className="bolt">

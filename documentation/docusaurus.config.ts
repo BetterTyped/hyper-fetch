@@ -84,6 +84,10 @@ const config: Config = {
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
 
+  future: {
+    experimental_faster: true,
+  },
+
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
@@ -200,9 +204,9 @@ const config: Config = {
       items: [
         {
           position: "left",
-          label: "Documentation",
+          label: "Docs",
           to: "/docs/getting-started",
-          activeBaseRegex: `^/docs((?!examples|integrations|api).)*$`,
+          activeBaseRegex: `^/docs((?!examples|integrations|api|devtools).)*$`,
         },
         {
           to: "/docs/integrations/getting-started",
@@ -215,6 +219,11 @@ const config: Config = {
           position: "left",
           label: "Api",
           activeBaseRegex: `/docs/api/`,
+        },
+        {
+          to: "/docs/devtools",
+          position: "left",
+          html: "Devtools <span class='new-feature'>New</span>",
         },
         {
           to: "/examples/playground/",

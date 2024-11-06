@@ -27,15 +27,17 @@ export const Sponsors = () => {
           </Description>
         </FadeIn>
       </div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <a href="https://github.com/sponsors/prc5">
-          <img
-            src="https://github.com/prc5/sponsors/blob/main/packages/all/sponsorkit/sponsors.png?raw=true"
-            alt="My Sponsors"
-            className="max-w-[900px] mx-auto"
-          />
-        </a>
-      </div>
+      <FadeIn start={0.1} end={0.4}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <a href="https://github.com/sponsors/prc5">
+            <img
+              src="https://github.com/prc5/sponsors/blob/main/packages/all/sponsorkit/sponsors.png?raw=true"
+              alt="My Sponsors"
+              className="max-w-[900px] mx-auto"
+            />
+          </a>
+        </div>
+      </FadeIn>
     </section>
   );
 };

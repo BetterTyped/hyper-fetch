@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1265">
+  <defs>
+    <filter x="-17.6%" y="-34.2%" width="135.1%" height="168.4%" filterUnits="objectBoundingBox" id="b">
+      <feGaussianBlur stdDeviation="50" in="SourceGraphic" />
+    </filter>
+    <linearGradient x1="98.284%" y1="37.276%" x2="9.488%" y2="37.276%" id="a">
+      <stop stop-color="#a16207" offset="0%" />
+      <stop stop-color="rgb(234 179 8)" stop-opacity="0" offset="100%" />
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <path
+      fill="url(#a)"
+      filter="url(#b)"
+      d="M262.132 307.493 253.019 438.5l844.887-307.493L1107.019 0z"
+      transform="translate(-.103 -152)"
+    />
+  </g>
+</svg>

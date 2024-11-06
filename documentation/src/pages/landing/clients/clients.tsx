@@ -38,7 +38,7 @@ export const Clients = () => {
         <a href="https://bettertyped.com" className="text-blue-500 font-semibold">
           BetterTyped
         </a>{" "}
-        software.
+        open-source software.
       </div>
       <div className="relative h-[60px]">
         {/* Particles animation */}

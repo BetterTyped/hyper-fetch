@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* New feature */
+
+.new-feature {
+  @apply flex items-center dark:bg-yellow-700 bg-yellow-500 px-1.5 py-0 rounded-full ml-1;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 10px;
+  height: 18px;
+}
+
+.new-feature-link svg {
+  display: none;
+}
+
+.navbar__item:hover .new-feature,
+.navbar__link--active .new-feature {
+  @apply dark:bg-yellow-600 bg-yellow-600 !text-white;
+}
+
 /* Docgen */
 
 #__docusaurus > div[role="banner"] {
@@ -48,6 +67,10 @@
 .api-docs__pre,
 .api-docs__pre > div {
   @apply !mb-0;
+}
+
+pre {
+  width: 100% !important;
 }
 
 .api-docs__import pre,
@@ -260,12 +283,12 @@ h6 {
   @apply relative text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.100),_theme(colors.zinc.50))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.200)_25%,_theme(colors.zinc.200)_75%,_theme(colors.zinc.400)_100%)_border-box!important] dark:[background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-white/30 dark:before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
 }
 
-.shiny-btn::before {
-  @apply rounded-xl hidden;
-}
-
 .shiny-btn {
   @apply rounded-xl before:!rounded-sm;
+}
+
+.shiny-btn::before {
+  @apply rounded-xl hidden;
 }
 
 .shiny-btn:hover {
@@ -274,7 +297,7 @@ h6 {
 
 .shiny-label {
   font-size: 14px;
-  @apply text-yellow-500 dark:text-white border relative inline-flex items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2 border-yellow-400/50 dark:border-yellow-500/30 bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110 before:absolute before:inset-x-4 before:-bottom-px before:bg-gradient-to-r before:from-transparent before:via-yellow-500 dark:before:via-yellow-50 before:to-transparent before:h-px before:w-3/5;
+  @apply text-yellow-600 dark:text-white border relative inline-flex items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2 border-yellow-400/50 dark:border-yellow-500/30 bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110 before:absolute before:inset-x-4 before:-bottom-px before:bg-gradient-to-r before:from-transparent before:via-yellow-500 dark:before:via-yellow-50 before:to-transparent before:h-px before:w-3/5;
 }
 
 /* Playground */

@@ -19,7 +19,7 @@ export const MediumBlock = ({
               className="absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-none -z-10 w-1/2 aspect-square"
               aria-hidden="true"
             >
-              <div className="absolute inset-0 translate-z-0 bg-zinc-300 dark:bg-zinc-800 rounded-full blur-[80px]" />
+              <div className="absolute inset-0 translate-z-0 bg-zinc-200 dark:bg-zinc-800 rounded-full blur-[80px]" />
             </div>
             <div className="grid grid-cols-[3fr_1fr]">
               {/* Text */}

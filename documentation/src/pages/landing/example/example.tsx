@@ -40,6 +40,26 @@ export function Example(): JSX.Element {
             </FadeIn>
           </div>
         </div>
+        {/* Blurred shape */}
+        <div
+          className="absolute bottom-0 -mb-20 left-1/2 -translate-x-1/2 blur-2xl pointer-events-none opacity-50 dark:opacity-50 -rotate-45"
+          aria-hidden="true"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="434" height="427">
+            <defs>
+              <linearGradient id="bs2-a" x1="19.609%" x2="50%" y1="14.544%" y2="100%">
+                <stop offset="0%" stopColor="#fbc646" />
+                <stop offset="100%" stopColor="#fbc646" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path
+              className="dark:fill-yellow-700 fill-yellow-300"
+              fillRule="evenodd"
+              d="m346 898 461 369-284 58z"
+              transform="translate(-346 -898)"
+            />
+          </svg>
+        </div>
         <FadeIn start={0.2} end={0.6}>
           <div className="">
             <iframe

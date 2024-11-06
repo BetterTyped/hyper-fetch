@@ -11,7 +11,7 @@ import { Modules } from "./modules/modules";
 import { Integrations } from "./integrations/integrations";
 import { Features } from "./features/features";
 import { Example } from "./example/example";
-import { Preview } from "./preview/preview";
+// import { Preview } from "./preview/preview";
 import { Sponsors } from "./sponsors/sponsors";
 
 export const Landing = () => {
@@ -37,16 +37,16 @@ export const Landing = () => {
 
   return (
     <Layout title="Seamless Requests and Real-Time Connectivity" description={siteConfig.tagline}>
-      <div className="w-[100vw] max-w-[100vw]" style={{ contain: "paint" }}>
-        <div className="relative z-2">
+      <div className="w-[100vw] max-w-[100vw]">
+        <div className="relative z-10">
           <Hero />
-          <Preview />
+          {/* <Preview /> */}
           <Clients />
           <Modules />
           <Features />
           <Integrations />
-          <Example />
           <Blocks />
+          <Example />
           <Sponsors />
           <CallToAction />
         </div>

@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+import Link from "@docusaurus/Link";
 import { Description, Title } from "@site/src/components";
 
 export const CallToAction = () => {
@@ -42,26 +43,13 @@ export const CallToAction = () => {
               </div>
             </div>
             <Title className="h2 bg-clip-text !text-transparent bg-gradient-to-r from-zinc-200/60 via-zinc-200 to-zinc-200/60 pb-4">
-              Build with{" "}
-              <span
-                className="font-bold bg-clip-text bg-gradient-to-r !text-transparent from-blue-600 to-pink-500"
-                style={{
-                  fontSize: "inherit",
-                }}
-              >
-                HyperFetch
-              </span>
+              Build with HyperFetch
             </Title>
-            <Description className="text-lg text-zinc-400 mb-8">
-              Try it for yourself! Start coding for free and upgrade anytime.
-            </Description>
+            <Description className="text-lg text-zinc-400 mb-8">Try it for yourself!</Description>
             <div>
-              <a
-                href="https://share-eu1.hsforms.com/1qvuH3v9FQbG6q2oZ-8D7PQ2dk74d"
-                className="hover:opacity-70 !no-underline bg-gradient-to-b dark:from-40% dark:from-zinc-50 dark:to-zinc-200 from-20% from-zinc-600 to-zinc-900 text-white dark:text-black font-semibold rounded-xl max-w-full border text-center py-3 px-10"
-              >
-                Contact us <span className="ml-2">💬</span>
-              </a>
+              <Link className="shiny-btn px-3 py-2" to="/docs/getting-started">
+                Get started
+              </Link>
             </div>
           </div>
         </div>
