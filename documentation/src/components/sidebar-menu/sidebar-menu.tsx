@@ -20,7 +20,7 @@ export const SidebarMenu = () => {
   const { sidebar, activeItem } = useSidebar();
 
   return (
-    <div className="px-4">
+    <div className="px-4 min-w-[250px]">
       <div className="docs_sidebar">
         <VersionDropdown
           className="nav_versioning shadow-zinc-500/20 dark:shadow-zinc-200/20 shadow-[inset_0_1px_1px_rgba(0,0,0,0.6)] text-black/50 dark:text-white/60 py-1 px-4 font-bold leading-5 bg-zinc-400/20 dark:bg-zinc-400/10 rounded-full flex items-center space-x-2 w-fit hover:opacity-80"

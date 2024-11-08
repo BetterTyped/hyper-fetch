@@ -1,38 +1,38 @@
 import Link from "@docusaurus/Link";
 import { Description, Title } from "@site/src/components";
+import { useSidebar } from "@site/src/hooks/use-sidebar";
+import { Section } from "@site/src/modules";
+import clsx from "clsx";
 
 export type CardProps = {
-  item: {
-    link: string;
-    category?: string;
-    img?: string;
-    name: string;
-    featured?: boolean;
-    description: string;
-    className?: string;
-  };
+  section: Section;
   className?: string;
 };
 
-export function IntegrationCard({ item }: CardProps) {
+export function IntegrationCard({ section, className }: CardProps) {
+  const { sidebar } = useSidebar();
+
+  const item = sidebar.find((element) => element.section.label === section.label);
+
   return (
     <Link
-      to={item.link}
-      className="!no-underline bg-gradient-to-tr from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-800 rounded-3xl border dark:border-zinc-800 dark:hover:border-zinc-700 transition-colors group relative"
+      to={item.link.path}
+      className={clsx(
+        className,
+        "flex !no-underline bg-gradient-to-tr from-zinc-100 to-zinc-50 dark:from-zinc-800 dark:to-zinc-800 rounded-3xl border dark:border-zinc-800 dark:hover:border-zinc-700 transition-colors group relative",
+      )}
     >
       <div className="flex flex-col p-5 h-full">
         <div className="flex items-center space-x-3 mb-2">
-          {item.img && (
+          {item.section.img && (
             <div className="relative mr-2">
-              <img
-                src={item.img}
-                alt={item.name}
+              <item.img
                 width="40"
                 height="40"
                 style={{ background: "radial-gradient(#fff 68%, #3a373722 72%)" }}
-                className={`w-[38px] h-[38px] border-0 rounded-full overflow-hidden p-1.5 ${item.className || ""}`}
+                className={`w-[38px] h-[38px] border-0 rounded-full overflow-hidden p-1.5 ${item.section.icon || ""}`}
               />
-              {item.featured && (
+              {item.section.featured && (
                 <img
                   className="absolute top-0 -right-1"
                   src="/img/star.svg"

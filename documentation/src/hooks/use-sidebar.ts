@@ -92,7 +92,7 @@ export const useSidebar = (options?: {
         const pkgIndex = modules.findIndex((item) =>
           item.paths.find((itemName) => itemName.toLowerCase() === component),
         );
-        const pluginIndex = integrations.findIndex((item) =>
+        const integrationIndex = integrations.findIndex((item) =>
           item.paths.find((itemName) => itemName.toLowerCase() === component),
         );
         const packageIndex = allPackages.findIndex((item) =>
@@ -104,7 +104,7 @@ export const useSidebar = (options?: {
           ? allPackages[packageIndex]
           : // eslint-disable-next-line no-nested-ternary
             location.pathname.includes("/docs/integrations")
-            ? integrations[pluginIndex]
+            ? integrations[integrationIndex]
             : location.pathname.includes("/docs/api")
               ? allPackages[packageIndex]
               : modules[pkgIndex];
@@ -114,7 +114,7 @@ export const useSidebar = (options?: {
           ? packageIndex
           : // eslint-disable-next-line no-nested-ternary
             location.pathname.includes("/docs/integrations")
-            ? pluginIndex
+            ? integrationIndex
             : location.pathname.includes("/docs/api")
               ? packageIndex
               : pkgIndex;

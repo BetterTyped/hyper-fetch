@@ -1,16 +1,15 @@
 import { Description, Particles, Title } from "@site/src/components";
 
-import { IntegrationCard } from "./card/card";
-import { integrations } from "./integrations.constants";
 import { IntegrationsList } from "./list/list";
+import { PromotedCarousel } from "./promoted-carousel/promoted-carousel";
 
 const styles = `
 .theme-doc-breadcrumbs, article header, .theme-doc-version-badge {
   display: none!important;
 }
-main, main .col {
+main > div > .row > .col {
   width: 100%!important;
-  max-width: 100%!important;
+  max-width: none!important;
 }
 `;
 
@@ -19,12 +18,12 @@ export const Integrations = () => {
     <>
       <style>{styles}</style>
       <div className="relative opacity-90 dark:opacity-100 -z-10">
-        {/* Illustration 02 */}
+        {/* Graphic 02 */}
         <div
           className="md:block absolute left-1/2 -translate-x-1/2 bottom-0 -mb-16 blur-2xl opacity-90 pointer-events-none -z-10 max-w-[100vw]"
           aria-hidden="true"
         >
-          <img src="/img/page-illustration-02.svg" width={1440} height={427} alt="Page Illustration 02" />
+          <img src="/img/page-illustration-02.svg" width={1440} height={427} alt="Page Graphic 02" />
         </div>
 
         {/* Opacity layer */}
@@ -42,17 +41,16 @@ export const Integrations = () => {
         {/* Particles animation */}
         <Particles className="absolute inset-0 h-96 -z-10" quantity={15} />
 
-        {/* Illustration */}
+        {/* Graphic */}
         <div
           className="md:block absolute left-1/2 -translate-x-1/2 -mt-16 blur-2xl opacity-90 pointer-events-none -z-10 max-w-[100vw]"
           aria-hidden="true"
         >
-          <img src="/img/page-illustration.svg" width={1440} height={427} alt="Page Illustration" />
+          <img src="/img/page-illustration.svg" width={1440} height={427} alt="Page Graphic" />
         </div>
       </div>
       <section className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="pt-6 md:pt-12">
-          {/* Section header */}
           <div className="text-center pb-4 md:pb-8">
             <div className="inline-flex font-medium bg-clip-text !text-transparent bg-gradient-to-r from-yellow-500 to-orange-500 dark:from-yellow-500 dark:to-yellow-200 pb-3">
               Integrations & Add-ons
@@ -64,14 +62,10 @@ export const Integrations = () => {
               </Description>
             </div>
           </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <IntegrationCard item={integrations[0]} />
-            <IntegrationCard item={integrations[1]} />
-            <IntegrationCard item={integrations[2]} />
-          </div>
+          <PromotedCarousel />
         </div>
       </section>
+
       <IntegrationsList />
 
       <div className="px-4 mb-20 flex flex-col items-center">

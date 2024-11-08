@@ -29,6 +29,8 @@ export type Section = {
   iconHover: string;
   border: string;
   borderHover: string;
+  category: string;
+  featured?: boolean;
 };
 
 /**
@@ -54,6 +56,7 @@ export const modules: Section[] = [
       "group-hover:shadow-yellow-200 dark:group-hover:bg-yellow-500 group-hover:bg-yellow-400 group-hover:dark:bg-yellow-500",
     border: "border-yellow-500 dark:border-yellow-400",
     borderHover: "hover:border-yellow-500 hover:dark:border-yellow-400",
+    category: "docs",
   },
   {
     label: "Guides",
@@ -70,6 +73,7 @@ export const modules: Section[] = [
       "group-hover:shadow-lime-200 dark:group-hover:bg-lime-500 group-hover:bg-lime-400 group-hover:dark:bg-lime-500 !bg-opacity-30",
     border: "border-lime-500 dark:border-lime-400",
     borderHover: "hover:border-lime-500 hover:dark:border-lime-400",
+    category: "docs",
   },
   {
     label: "Core",
@@ -86,6 +90,7 @@ export const modules: Section[] = [
       "group-hover:shadow-green-200 dark:group-hover:bg-green-500 group-hover:bg-green-400 group-hover:dark:bg-green-500 !bg-opacity-40",
     border: "border-green-500 dark:border-green-400",
     borderHover: "hover:border-green-500 hover:dark:border-green-400",
+    category: "Framework",
   },
   {
     label: "Sockets",
@@ -102,6 +107,7 @@ export const modules: Section[] = [
       "group-hover:shadow-blue-200 dark:group-hover:bg-blue-500 group-hover:bg-blue-400 group-hover:dark:bg-blue-500 !bg-opacity-40",
     border: "border-blue-500 dark:border-blue-400",
     borderHover: "hover:border-blue-500 hover:dark:border-blue-400",
+    category: "Framework",
   },
   {
     label: "React",
@@ -118,5 +124,6 @@ export const modules: Section[] = [
       "group-hover:shadow-sky-200 dark:group-hover:bg-sky-500 group-hover:bg-sky-400 group-hover:dark:bg-sky-500 !bg-opacity-40",
     border: "border-sky-500 dark:border-sky-400",
     borderHover: "hover:border-sky-500 hover:dark:border-sky-400",
+    category: "Framework",
   },
 ];

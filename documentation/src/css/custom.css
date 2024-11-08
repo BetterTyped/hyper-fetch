@@ -300,6 +300,14 @@ h6 {
   @apply text-yellow-600 dark:text-white border relative inline-flex items-center pb-[2px] pl-2.5 pr-2 rounded-full gap-x-2 border-yellow-400/50 dark:border-yellow-500/30 bg-yellow-400/10 dark:bg-yellow-500/10 before:scale-y-110 before:absolute before:inset-x-4 before:-bottom-px before:bg-gradient-to-r before:from-transparent before:via-yellow-500 dark:before:via-yellow-50 before:to-transparent before:h-px before:w-3/5;
 }
 
+.shadow-neon {
+  box-shadow:
+    0px 0px var(--tw-shadow-color),
+    0px 0px 4px #fff,
+    0px 0px 8px var(--tw-shadow-color),
+    0px 0px 16px var(--tw-shadow-color);
+}
+
 /* Playground */
 
 .playground .editor > pre > pre {
@@ -1179,12 +1187,20 @@ input[type="search"]::-webkit-search-results-decoration {
   @apply opacity-50 cursor-default pointer-events-none;
 }
 
-.testimonials-carousel .swiper-slide {
+.swiper-slide {
   @apply opacity-80;
 }
 
-.testimonials-carousel .swiper-slide.swiper-slide-active {
+.swiper-slide.swiper-slide-active {
   @apply opacity-100;
+}
+
+.swiper-slide {
+  height: auto !important;
+  align-self: stretch !important;
+}
+.swiper-content {
+  height: 100% !important;
 }
 
 /* Pulsing animation */

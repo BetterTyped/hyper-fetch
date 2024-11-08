@@ -48,7 +48,7 @@ export const PackageDetails = ({ pkg }: { pkg: string | string[] }) => {
           <div className="text-center mb-5">
             <div className="mb-4">
               <div className="relative inline-flex">
-                <img src="/img/integrations-github.svg" width={80} height={80} alt="Icon 08" />
+                <img src="/img/github-logo.svg" width={80} height={80} alt="Icon 08" />
                 <img
                   className="absolute top-0 -right-1"
                   src="/img/star.svg"

@@ -6,7 +6,8 @@ import Link from "@docusaurus/Link";
 import { useClipboard, useIsMounted, useWindowSize } from "@reins/hooks";
 import { useState } from "react";
 import { ArrowRight, Copy, Sparkles } from "lucide-react";
-import Shape from "@site/static/img/shape.svg";
+
+import { Paths } from "./paths/paths";
 
 const installationCommand = "npm install @hyper-fetch/core";
 
@@ -30,10 +31,8 @@ export const Hero = () => {
   return (
     <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[128px] pb-[68px] -mt-[88px]">
       {/* Illustrations */}
-      <Shape
-        preserveAspectRatio="none"
-        className="absolute w-[100vw] h-full opacity-30 pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-[1] stroke-zinc-400 dark:stroke-zinc-600"
-      />
+      <Paths />
+
       <div className="absolute w-[100vw] h-full pointer-events-none p-10 inset-0" aria-hidden="true">
         <div className="absolute left-1/2 -translate-x-1/2 top-0 -z-10">
           <img src="/img/glow-main.svg" className="max-w-none min-w-[100vw]" width={2546} alt="glow" />
