@@ -78,15 +78,13 @@ export const Integrations = () => {
             <div className="w-[500px] lg:w-[600px] aspect-square rounded-full border border-zinc-500 flex items-center justify-center">
               {integrationsInner.map((Icon, i) => (
                 <div
+                  key={i}
                   className="absolute w-full h-10 md:h-12"
                   style={{
                     transform: `rotate(${i * (360 / integrationsInner.length)}deg)`,
                   }}
                 >
-                  <div
-                    key={i}
-                    className="relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 shiny-btn !rounded-full before:!rounded-full -translate-x-1/2 -translate-y-1/2"
-                  >
+                  <div className="relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 shiny-btn !rounded-full before:!rounded-full -translate-x-1/2 -translate-y-1/2">
                     <Icon
                       className="max-w-[50%] max-h-[50%]"
                       style={{
@@ -111,15 +109,13 @@ export const Integrations = () => {
             <div className="w-[700px] lg:w-[880px] aspect-square rounded-full border border-zinc-500 flex items-center justify-center">
               {integrationsOuter.map((Icon, i) => (
                 <div
+                  key={i}
                   className="absolute w-full h-10 md:h-12"
                   style={{
                     transform: `rotate(${i * (360 / integrationsOuter.length)}deg)`,
                   }}
                 >
-                  <div
-                    key={i}
-                    className="relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 shiny-btn !rounded-full before:!rounded-full -translate-x-1/2 -translate-y-1/2"
-                  >
+                  <div className="relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 shiny-btn !rounded-full before:!rounded-full -translate-x-1/2 -translate-y-1/2">
                     <Icon
                       className="max-w-[50%] max-h-[50%]"
                       style={{
