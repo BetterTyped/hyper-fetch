@@ -53,7 +53,11 @@ describe("Fetch Adapter [ Bindings ]", () => {
 
     const client = new Client({ url }).addPlugin(effect);
     const request = client
-      .createRequest<{ response: any; payload: { value: number } }>()({ endpoint, options: requestConfig })
+      .createRequest<{
+        response: any;
+        payload: { value: number };
+        queryParams: string;
+      }>()({ endpoint, options: requestConfig })
       .setPayload(data)
       .setQueryParams(queryParams);
 

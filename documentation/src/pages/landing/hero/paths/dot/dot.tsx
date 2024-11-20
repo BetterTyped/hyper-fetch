@@ -91,7 +91,7 @@ export const Dot = ({
       />
       <span
         id={`idLabel${id}`}
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full pt-[2px] text-[10px] text-zinc-300 dark:text-zinc-500 opacity-0 whitespace-nowrap"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full pt-[0px] text-[10px] text-zinc-300 dark:text-zinc-500 opacity-0 whitespace-nowrap"
       >
         {tool.name}
       </span>

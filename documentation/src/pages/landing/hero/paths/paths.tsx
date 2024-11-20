@@ -87,7 +87,7 @@ const max = paths.length - 1;
 gsap.registerPlugin(MotionPathPlugin);
 
 function getRandomNumber(excludedNumbers: number[]): number {
-  const possibleNumbers = Array.from({ length: 11 }, (_, i) => i).filter((num) => !excludedNumbers.includes(num));
+  const possibleNumbers = Array.from({ length: 15 }, (_, i) => i).filter((num) => !excludedNumbers.includes(num));
   if (possibleNumbers.length === 0) {
     return 0;
   }
@@ -116,7 +116,7 @@ const generateAnimationData = () => {
       neighbors
         .map((d) => d.delay)
         .reduce((acc, curr) => {
-          const numbers = [curr - 1, curr, curr + 1].filter((n) => n >= 0);
+          const numbers = [curr - 2, curr - 1, curr, curr + 1, curr + 2].filter((n) => n >= 0);
 
           return [...new Set([...acc, ...numbers])];
         }, [] as number[]),
