@@ -1,13 +1,23 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
-import { xhrExtra, getAdapterBindings, AdapterOptionsType, ResponseType, getErrorMessage, AdapterType } from "adapter";
+import {
+  xhrExtra,
+  getAdapterBindings,
+  AdapterOptionsType,
+  ResponseType,
+  getErrorMessage,
+  AdapterType,
+  ResponseErrorType,
+} from "adapter";
 import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
 import { Client } from "client";
 import { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
+
+jest.useFakeTimers().setSystemTime(new Date());
 
 describe("Fetch Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
@@ -224,12 +234,11 @@ describe("Fetch Adapter [ Bindings ]", () => {
         role: "ADMIN",
       };
 
-      function payloadMapper({ role, userId }: { role: string; userId: number }): string {
+      const requestMapped = req.setPayloadMapper<string>((value) => {
+        const { role, userId } = value;
         spy();
         return `${userId}_${role}`;
-      }
-
-      const requestMapped = req.setPayloadMapper<string>(payloadMapper);
+      });
       const requestSetData = requestMapped.setPayload(newData);
 
       const { payload } = await getAdapterBindings({
@@ -293,7 +302,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onRequestStartByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onRequestStartByQueue(request.queryKey, spy);
         onRequestStart();
         unmount();
         expect(spy).toHaveBeenCalledTimes(1);
@@ -306,7 +315,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onRequestStart();
         unmount();
         testProgressSpy({ spy, request, requestId, startTimestamp });
@@ -324,7 +333,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         };
 
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onRequestStart(progress);
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp });
@@ -346,7 +355,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const startTimestamp = onRequestStart();
         await sleep(30);
-        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const progressTimestamp = onRequestProgress(progress);
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp, progressTimestamp });
@@ -374,7 +383,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         let value: number | undefined;
-        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, ({ loaded }) => {
+        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, ({ loaded }) => {
           value = loaded;
         });
         onRequestProgress({});
@@ -390,7 +399,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         let value: number | undefined;
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, ({ loaded }) => {
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, ({ loaded }) => {
           value = loaded;
         });
         onResponseProgress({});
@@ -414,7 +423,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const startTimestamp = onRequestStart({ total: progress.total, loaded: 0 });
         await sleep(30);
-        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
         const progressTimestamp = onRequestEnd();
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp, progressTimestamp, timeLeft: 0 });
@@ -447,7 +456,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onResponseStartByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onResponseStartByQueue(request.queryKey, spy);
         onResponseStart();
         unmount();
         expect(spy).toHaveBeenCalledTimes(1);
@@ -460,7 +469,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onResponseStart();
         unmount();
         testProgressSpy({ spy, request, requestId, startTimestamp });
@@ -478,7 +487,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         };
 
         const spy = jest.fn();
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const startTimestamp = onResponseStart(progress);
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp });
@@ -491,7 +500,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorExtra: xhrExtra,
         });
         let value: number | undefined;
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, ({ total }) => {
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, ({ total }) => {
           value = total;
         });
         onResponseStart();
@@ -524,7 +533,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const startTimestamp = onResponseStart();
         await sleep(30);
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const progressTimestamp = onResponseProgress(progress);
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp, progressTimestamp });
@@ -561,7 +570,7 @@ describe("Fetch Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const startTimestamp = onResponseStart({ total: progress.total, loaded: 0 });
         await sleep(30);
-        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy);
+        const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
         const progressTimestamp = onResponseEnd();
         unmount();
         testProgressSpy({ ...progress, spy, request, requestId, startTimestamp, progressTimestamp, timeLeft: 0 });
@@ -607,8 +616,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         await onSuccess(data, 200, xhrExtra, () => null);
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
-        expect(onSuccessSpy).toHaveBeenCalledWith(successResponse, request);
-        expect(onFinishedSpy).toHaveBeenCalledWith(successResponse, request);
+        expect(onSuccessSpy).toHaveBeenCalledWith({ response: successResponse, request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: successResponse, request });
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onSuccess } = await getAdapterBindings({
@@ -656,8 +665,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         client.__onResponseCallbacks = [];
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(newData);
-        expect(onSuccessSpy).toHaveBeenCalledWith(newData, request);
-        expect(onFinishedSpy).toHaveBeenCalledWith(newData, request);
+        expect(onSuccessSpy).toHaveBeenCalledWith({ response: newData, request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
       });
     });
     describe("when onError got executed", () => {
@@ -681,8 +690,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         await onError(data, 400, xhrExtra, () => null);
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
-        expect(onErrorSpy).toHaveBeenCalledWith(errorResponse, request);
-        expect(onFinishedSpy).toHaveBeenCalledWith(errorResponse, request);
+        expect(onErrorSpy).toHaveBeenCalledWith({ response: errorResponse, request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: errorResponse, request });
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onError } = await getAdapterBindings({
@@ -730,8 +739,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
         expect(response).toEqual(newData);
-        expect(onErrorSpy).toHaveBeenCalledWith(newData, request);
-        expect(onFinishedSpy).toHaveBeenCalledWith(newData, request);
+        expect(onErrorSpy).toHaveBeenCalledWith({ response: newData, request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
       });
     });
     describe("when errors methods got executed", () => {
@@ -749,7 +758,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-        });
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        } satisfies ResponseErrorType<any, AdapterType>);
       });
       it("should return correct message when onTimeoutError is executed", async () => {
         const { onTimeoutError } = await getAdapterBindings({
@@ -765,7 +776,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-        });
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        } satisfies ResponseErrorType<any, AdapterType>);
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
         const { onUnexpectedError } = await getAdapterBindings({
@@ -781,7 +794,9 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-        });
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        } satisfies ResponseErrorType<any, AdapterType>);
       });
     });
   });

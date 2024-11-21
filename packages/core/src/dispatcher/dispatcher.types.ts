@@ -4,8 +4,8 @@ import { RequestInstance } from "request";
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;
   onInitialization?: (dispatcherInstance: Dispatcher) => void;
-  onUpdateStorage?: <Request extends RequestInstance>(queueKey: string, data: QueueDataType<Request>) => void;
-  onDeleteFromStorage?: <Request extends RequestInstance>(queueKey: string, data: QueueDataType<Request>) => void;
+  onUpdateStorage?: <Request extends RequestInstance>(data: QueueDataType<Request>) => void;
+  onDeleteFromStorage?: <Request extends RequestInstance>(data: QueueDataType<Request>) => void;
   onClearStorage?: (dispatcherInstance: Dispatcher) => void;
 };
 
@@ -20,7 +20,7 @@ export type QueueElementType<Request extends RequestInstance = RequestInstance> 
   resolved: boolean;
 };
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
-  queueKey: string;
+  queryKey: string;
   requests: QueueElementType<Request>[];
   stopped: boolean;
 };

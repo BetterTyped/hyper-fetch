@@ -33,10 +33,13 @@ describe("Cache [ Utils ]", () => {
         success: errorResponse.success,
         extra: errorResponse.extra,
         retries: 0,
-        timestamp: errorResponse.responseTimestamp,
+        requestTimestamp: errorResponse.responseTimestamp,
+        responseTimestamp: errorResponse.responseTimestamp,
+        addedTimestamp: errorResponse.responseTimestamp,
+        triggerTimestamp: errorResponse.responseTimestamp,
         isCanceled: false,
         isOffline: false,
-      });
+      } satisfies ReturnType<typeof getCacheData>);
     });
 
     it("should use successful response over previous data", async () => {

@@ -36,10 +36,10 @@ describe("RequestManager [ Events ]", () => {
       const spy5 = jest.fn();
       const spy6 = jest.fn();
 
-      client.requestManager.events.onRequestStartByQueue(request.queueKey, spy1);
-      client.requestManager.events.onResponseStartByQueue(request.queueKey, spy2);
-      client.requestManager.events.onUploadProgressByQueue(request.queueKey, spy3);
-      client.requestManager.events.onDownloadProgressByQueue(request.queueKey, spy4);
+      client.requestManager.events.onRequestStartByQueue(request.queryKey, spy1);
+      client.requestManager.events.onResponseStartByQueue(request.queryKey, spy2);
+      client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy3);
+      client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy4);
       client.requestManager.events.onResponseByCache(request.cacheKey, spy5);
 
       const requestId = client.fetchDispatcher.add(request);

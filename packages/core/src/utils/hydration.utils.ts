@@ -1,8 +1,7 @@
-import { AdapterInstance, ResponseType, parseResponse } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { RequestCacheType } from "cache";
-import { ClientInstance } from "client";
 import { RequestInstance } from "request";
-import { ExtractAdapterType, ExtractErrorType, ExtractResponseType, NegativeTypes } from "types";
+import { ExtractAdapterType, ExtractErrorType, ExtractResponseType } from "types";
 
 export type HydrationOptions = RequestCacheType<RequestInstance> & {
   override?: boolean;
@@ -33,32 +32,4 @@ export const serialize = <R extends RequestInstance>(
     response,
     hydrated: true,
   };
-};
-
-export const hydrate = (
-  client: ClientInstance,
-  hydrationData: HydrateDataType[] | NegativeTypes,
-  options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
-) => {
-  hydrationData?.forEach((item) => {
-    const { cacheKey, response, ...fallbackOptions } = item;
-    const defaults = {
-      cache: true,
-      override: false,
-    } satisfies Partial<HydrationOptions>;
-    const config =
-      typeof options === "function"
-        ? { ...defaults, ...fallbackOptions, ...options(item) }
-        : { ...defaults, ...fallbackOptions, ...options };
-
-    if (!config.override) {
-      const cachedData = client.cache.get(cacheKey);
-      if (cachedData) {
-        return;
-      }
-    }
-
-    const parsedData = parseResponse(response);
-    client.cache.set({ ...config, cacheKey }, parsedData);
-  });
 };

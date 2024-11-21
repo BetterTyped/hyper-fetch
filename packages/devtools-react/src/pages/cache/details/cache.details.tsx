@@ -132,7 +132,7 @@ export const CacheDetails = () => {
 
       client.cache.storage.set<any, any, any>(item.cacheKey, data);
       client.cache.lazyStorage?.set<any, any, any>(item.cacheKey, data);
-      client.cache.events.emitCacheData<any, any, any>(item.cacheKey, data);
+      client.cache.events.emitCacheData<any, any, any>(data);
     }
   };
 
@@ -183,7 +183,7 @@ export const CacheDetails = () => {
       success: false,
     };
     client.cache.storage.set(item.cacheKey, data);
-    client.cache.events.emitCacheData(item.cacheKey, data);
+    client.cache.events.emitCacheData(data);
   };
 
   useEffect(() => {

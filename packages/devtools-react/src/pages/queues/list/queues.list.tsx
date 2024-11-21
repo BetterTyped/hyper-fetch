@@ -28,7 +28,7 @@ export const QueuesList = () => {
 
   const { items } = useSearch({
     data: queues,
-    searchKeys: ["queueKey"],
+    searchKeys: ["queryKey"],
     searchTerm: processingSearchTerm,
   });
 

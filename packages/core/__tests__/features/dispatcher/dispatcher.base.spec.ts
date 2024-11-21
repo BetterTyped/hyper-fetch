@@ -8,7 +8,7 @@ const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Dispatcher [ Basic ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
+  let request = client.createRequest()({ endpoint: "shared-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -16,7 +16,7 @@ describe("Dispatcher [ Basic ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-nase-endpoint" });
+    request = client.createRequest()({ endpoint: "shared-endpoint" });
     resetMocks();
     jest.resetAllMocks();
   });
@@ -31,9 +31,9 @@ describe("Dispatcher [ Basic ]", () => {
       const newDispatcher = createDispatcher(client, { storage });
 
       const dispatcherDump = newDispatcher.createStorageElement(request);
-      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
+      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
 
-      expect(storage.get(request.queueKey)?.requests[0]).toBe(dispatcherDump);
+      expect(storage.get(request.queryKey)?.requests[0]).toBe(dispatcherDump);
     });
     it("should trigger onInitialization callback", async () => {
       const spy = jest.fn();
@@ -46,23 +46,26 @@ describe("Dispatcher [ Basic ]", () => {
       const spy = jest.fn();
       const newDispatcher = createDispatcher(client, { onUpdateStorage: spy });
 
-      newDispatcher.stop(request.queueKey);
+      newDispatcher.stop(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(request.queueKey, { requests: [], stopped: true });
+      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: true });
     });
     it("should trigger onDeleteFromStorage callback", async () => {
       const spy = jest.fn();
       const newDispatcher = createDispatcher(client, { onDeleteFromStorage: spy });
       const dispatcherDump = newDispatcher.createStorageElement(request);
 
-      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
-      newDispatcher.delete(request.queueKey, dispatcherDump.requestId, request.abortKey);
-      newDispatcher.addQueueElement(request.queueKey, dispatcherDump);
-      newDispatcher.clearQueue(request.queueKey);
+      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
+      newDispatcher.delete(request.queryKey, dispatcherDump.requestId, request.abortKey);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: false });
+
+      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
+      newDispatcher.clearQueue(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenCalledWith(request.queueKey, { requests: [], stopped: false });
+      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: false });
     });
     it("should trigger onClearStorage callback", async () => {
       const spy = jest.fn();

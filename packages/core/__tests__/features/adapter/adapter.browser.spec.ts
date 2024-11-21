@@ -20,7 +20,7 @@ describe("Fetch Adapter [ Browser ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
     resetMocks();

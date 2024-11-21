@@ -70,7 +70,7 @@ export const QueuesDetails = () => {
 
   const item = useMemo(() => {
     if (!detailsQueueKey) return null;
-    return queues.find((request) => request.queueKey === detailsQueueKey);
+    return queues.find((request) => request.queryKey === detailsQueueKey);
   }, [detailsQueueKey, queues]);
 
   const status = item ? getQueueStatus(item) : QueueStatus.PENDING;
@@ -78,10 +78,10 @@ export const QueuesDetails = () => {
   const dummyRequest = useMemo(() => {
     return new Request(client, {
       endpoint: "",
-      queueKey: item?.queueKey,
-      method: item?.queueKey.split("_")[0],
+      queryKey: item?.queryKey,
+      method: item?.queryKey.split("_")[0],
     });
-  }, [client, item?.queueKey]);
+  }, [client, item?.queryKey]);
 
   const { start, stop, stopped, requests, dispatcher } = useQueue(dummyRequest);
 
@@ -97,7 +97,7 @@ export const QueuesDetails = () => {
     return {
       status,
       color: statusColor,
-      statistics: item ? stats[item.queueKey] || defaultStats : defaultStats,
+      statistics: item ? stats[item.queryKey] || defaultStats : defaultStats,
     };
   }, [item, stats, status]);
 
@@ -111,8 +111,8 @@ export const QueuesDetails = () => {
 
   const clear = () => {
     if (item) {
-      dispatcher.cancelRunningRequests(item.queueKey);
-      dispatcher.clearQueue(item.queueKey);
+      dispatcher.cancelRunningRequests(item.queryKey);
+      dispatcher.clearQueue(item.queryKey);
     }
   };
 
@@ -134,7 +134,7 @@ export const QueuesDetails = () => {
       <Bar style={{ flexWrap: "nowrap", justifyContent: "flex-start" }}>
         <Back />
         <Separator style={{ height: "18px", margin: "0 4px 0 0" }} />
-        <Key value={item.queueKey} type="queue" />
+        <Key value={item.queryKey} type="queue" />
         <Chip color={color}>{status}</Chip>
         <div style={{ flex: "1 1 auto" }} />
       </Bar>

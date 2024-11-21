@@ -6,6 +6,8 @@ import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter, sleep } from "../../utils";
 import { Client } from "client";
 
+jest.useFakeTimers().setSystemTime(new Date());
+
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("Dispatcher [ Events ]", () => {
@@ -27,7 +29,7 @@ describe("Dispatcher [ Events ]", () => {
     client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
-    mockRequest(request);
+    mockRequest(request, { status: 200, delay: 0 });
   });
 
   afterAll(() => {
@@ -37,7 +39,7 @@ describe("Dispatcher [ Events ]", () => {
   describe("When using dispatcher events", () => {
     it("should emit loading event", async () => {
       const spy = jest.fn();
-      const unmount = client.requestManager.events.onLoadingByQueue(request.queueKey, spy);
+      const unmount = client.requestManager.events.onLoadingByQueue(request.queryKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
@@ -46,29 +48,31 @@ describe("Dispatcher [ Events ]", () => {
     });
     it("should emit drained event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onDrainedByKey(request.queueKey, spy);
-      dispatcher.add(request.setQueued(true));
+      const unmount = dispatcher.events.onDrainedByKey(request.queryKey, spy);
+      const requestId = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, requestId, request.abortKey);
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
       unmount();
-      dispatcher.add(request.setQueued(true));
+      const requestId2 = dispatcher.add(request.setQueued(true));
+      dispatcher.delete(request.queryKey, requestId2, request.abortKey);
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should emit queue status change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueStatusChangeByKey(request.queueKey, spy);
-      dispatcher.stop(request.queueKey);
+      const unmount = dispatcher.events.onQueueStatusChangeByKey(request.queryKey, spy);
+      dispatcher.stop(request.queryKey);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit queue change event", async () => {
       const spy = jest.fn();
-      const unmount = dispatcher.events.onQueueChangeByKey(request.queueKey, spy);
+      const unmount = dispatcher.events.onQueueChangeByKey(request.queryKey, spy);
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
       unmount();
@@ -94,17 +98,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
-        requestTimestamp: 0,
-        responseTimestamp: 0,
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: 0,
-        requestTimestamp: 0,
-        responseTimestamp: 0,
-        addedTimestamp: 0,
+        triggerTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
       };
 
       await waitFor(() => {
@@ -130,17 +134,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 400,
         success: false,
         extra: { headers: { "content-type": "application/json", "content-length": "19" } },
-        requestTimestamp: 0,
-        responseTimestamp: 0,
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: 0,
-        requestTimestamp: 0,
-        responseTimestamp: 0,
-        addedTimestamp: 0,
+        triggerTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
       };
 
       await waitFor(() => {
@@ -173,17 +177,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
-        requestTimestamp: 0,
-        responseTimestamp: 0,
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: 0,
-        requestTimestamp: 0,
-        responseTimestamp: 0,
-        addedTimestamp: 0,
+        triggerTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        addedTimestamp: Date.now(),
       };
 
       await waitFor(() => {
@@ -196,10 +200,6 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
       await sleep(1);
@@ -211,17 +211,17 @@ describe("Dispatcher [ Events ]", () => {
         status: 0,
         success: false,
         extra: xhrExtra,
-        requestTimestamp: 0,
-        responseTimestamp: 0,
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: true,
         isOffline: false,
-        addedTimestamp: 0,
-        requestTimestamp: 0,
-        responseTimestamp: 0,
-        triggerTimestamp: 0,
+        addedTimestamp: Date.now(),
+        requestTimestamp: Date.now(),
+        responseTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
       };
 
       await waitFor(() => {

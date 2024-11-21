@@ -50,7 +50,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   } = mergedOptions;
 
   /**
-   * Because of the dynamic cacheKey / queueKey signing within the request we need to store it's latest instance
+   * Because of the dynamic cacheKey / queryKey signing within the request we need to store it's latest instance
    * so the events got triggered properly and show the latest result without mixing it up
    */
   const { client } = request;

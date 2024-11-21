@@ -258,7 +258,7 @@ const { data, error } = await requestWithParams.send(); // Success
 
 ## Keys
 
-Each request gets its identifiers – `queueKey`, `cacheKey`, `abortKey`, and `effectKey`. They are needed to determine
+Each request gets its identifiers – `queryKey`, `cacheKey`, `abortKey`, and `effectKey`. They are needed to determine
 under which key items will be cached, queued, canceled or handled by [Effects](/documentation/02-core/effect.mdx). By
 default, keys are auto-generated based on the current parameters and endpoint and method values. However, you can
 overwrite these values with other methods as needed.

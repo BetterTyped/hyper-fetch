@@ -85,10 +85,10 @@ postFile.send()
 
 // Stop the request from being send for later
 // Do not delete it from storage to trigger it later
-client.fetchDispatcher.stop(postFile.queueKey)
+client.fetchDispatcher.stop(postFile.queryKey)
 
 ...
 
 // Start sending again
-client.fetchDispatcher.start(postFile.queueKey)
+client.fetchDispatcher.start(postFile.queryKey)
 ```

@@ -37,7 +37,6 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
   let request = req;
-  let startTime: number;
 
   // Progress
   let requestTotal = 1;
@@ -73,15 +72,17 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let payload = request.payload;
 
   try {
-    payload = payloadMapper(payload);
     if (request.payloadMapper) {
-      payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(payload);
+      payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
+    } else if (payloadMapper) {
+      payload = await payloadMapper(payload);
     }
   } catch (err) {
     processingError = err as Error;
   }
 
   const config = request.options as ExtractAdapterOptionsType<T> | undefined;
+  const startTime = +new Date();
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
@@ -385,8 +386,6 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const makeRequest = (
     apiCall: (resolve: (value: ResponseType<any, any, T> | PromiseLike<ResponseType<any, any, T>>) => void) => void,
   ): Promise<ResponseType<any, any, T>> => {
-    startTime = +new Date();
-
     if (processingError) {
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }
@@ -406,6 +405,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
         onSuccess,
       });
     }
+
     return new Promise(apiCall);
   };
 

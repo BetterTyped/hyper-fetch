@@ -8,7 +8,7 @@ export const CacheToolbar = () => {
   return (
     <Toolbar>
       <Search placeholder="Search" onChange={(e) => setCacheSearchTerm(e.target.value)} />
-      {/* Toolbar: Show active - only with emitter observers (hooks)
+      {/* Toolbar: Show active - only with emitter observers (hooks) */}
     </Toolbar>
   );
 };

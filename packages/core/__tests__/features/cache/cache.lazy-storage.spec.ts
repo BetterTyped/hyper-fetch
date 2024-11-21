@@ -1,4 +1,4 @@
-import { CacheValueType } from "cache";
+import { CacheAsyncStorageType, CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "adapter";
@@ -14,17 +14,16 @@ describe("Cache [ Lazy Storage ]", () => {
     success: true,
     extra: xhrExtra,
     retries: 0,
-    timestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
     cacheTime,
     version,
     garbageCollection: Infinity,
     cacheKey,
-    queueKey: "2",
-    name: "3",
-    endpoint: "shared-endpoint",
-    method: "GET",
   };
 
   const lazyStorage = new Map();
@@ -59,7 +58,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should lazy load data", async () => {
-      await cache.options.lazyStorage.set(cacheKey, cacheData);
+      await cache.options?.lazyStorage?.set(cacheKey, cacheData);
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -67,7 +66,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should not emit stale data", async () => {
-      await cache.options.lazyStorage.set(cacheKey, { ...cacheData, timestamp: +new Date() - cacheTime });
+      await cache.options?.lazyStorage?.set(cacheKey, { ...cacheData, responseTimestamp: +new Date() - cacheTime });
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -75,11 +74,12 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should remove data when version change", async () => {
-      await cache.options.lazyStorage.set(cacheKey, {
+      await cache.options?.lazyStorage?.set(cacheKey, {
         ...cacheData,
         version: "old-key",
       });
-      const deleteSpy = jest.spyOn(cache.options.lazyStorage, "delete");
+
+      const deleteSpy = jest.spyOn(cache.options?.lazyStorage as CacheAsyncStorageType, "delete");
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);
@@ -88,14 +88,14 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(deleteSpy).toHaveBeenCalledTimes(1);
     });
     it("should delete lazy storage data", async () => {
-      await cache.options.lazyStorage.set(cacheKey, cacheData);
+      await cache.options?.lazyStorage?.set(cacheKey, cacheData);
       await cache.delete(cacheKey);
       await sleep(50);
-      expect(await cache.options.lazyStorage.get(cacheKey)).not.toBeDefined();
+      expect(await cache.options?.lazyStorage?.get(cacheKey)).not.toBeDefined();
     });
     it("should get keys from lazy storage and sync storage", async () => {
       const otherKey = "otherKey";
-      await cache.options.lazyStorage.set(cacheKey, cacheData);
+      await cache.options?.lazyStorage?.set(cacheKey, cacheData);
       await cache.storage.set(otherKey, cacheData);
       const keys = await cache.getLazyKeys();
       await sleep(50);

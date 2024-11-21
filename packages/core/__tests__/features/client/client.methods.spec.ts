@@ -150,7 +150,7 @@ describe("Client [ Methods ]", () => {
       expect(client.plugins).toHaveLength(0);
 
       client.addPlugin(plugin);
-      expect(client.plugins).toHaveLength(0);
+      expect(client.plugins).toHaveLength(1);
     });
     it("should not remove plugin when wrong pluginKey is passed", async () => {
       const plugin = new Plugin({ name: "NEW-EFFECT" });
@@ -189,7 +189,7 @@ describe("Client [ Methods ]", () => {
 
       expect(client.abortKeyMapper).toEqual(callback);
       expect(client.cacheKeyMapper).toEqual(callback);
-      expect(client.queueKeyMapper).toEqual(callback);
+      expect(client.queryKeyMapper).toEqual(callback);
       expect(client.effectKeyMapper).toEqual(callback);
     });
   });

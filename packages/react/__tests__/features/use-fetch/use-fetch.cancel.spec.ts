@@ -8,7 +8,7 @@ import { client, createRequest, renderUseFetch, waitForRender } from "../../util
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useFetch [ Cancel ]", () => {
-  let request = createRequest({ cacheKey: "test", queueKey: "testQueue", cancelable: true });
+  let request = createRequest({ cacheKey: "test", queryKey: "testQueue", cancelable: true });
 
   beforeAll(() => {
     startServer();
@@ -24,7 +24,7 @@ describe("useFetch [ Cancel ]", () => {
 
   beforeEach(() => {
     jest.resetModules();
-    request = createRequest({ cacheKey: "test", queueKey: "testQueue", cancelable: true });
+    request = createRequest({ cacheKey: "test", queryKey: "testQueue", cancelable: true });
     client.clear();
   });
 

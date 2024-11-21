@@ -19,7 +19,7 @@ export const addQueueElement = <T extends RequestInstance>(
 ) => {
   const { stop = false, queueType = "auto" } = options || {};
   const [dispatcher] = getRequestDispatcher(request, queueType);
-  if (stop) dispatcher.stop(request.queueKey);
+  if (stop) dispatcher.stop(request.queryKey);
   return dispatcher.add(request);
 };
 

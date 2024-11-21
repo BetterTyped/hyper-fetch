@@ -1,5 +1,5 @@
 {
-  "extends": ["plugin:@nx/react-typescript", "next", "next/core-web-vitals", "../../.eslintrc.json"],
+  "extends": ["plugin:@nx/react-typescript", "../../.eslintrc.json"],
   "ignorePatterns": ["!**/*", ".next/**/*"],
   "overrides": [
     {

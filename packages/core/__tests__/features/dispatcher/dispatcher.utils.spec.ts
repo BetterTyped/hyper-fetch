@@ -40,10 +40,10 @@ describe("Dispatcher [ Utils ]", () => {
 
   describe("When using request counting methods", () => {
     it("should increment request count", async () => {
-      const queueKey = "test";
-      expect(dispatcher.getQueueRequestCount(queueKey)).toBe(0);
-      dispatcher.incrementQueueRequestCount(queueKey);
-      expect(dispatcher.getQueueRequestCount(queueKey)).toBe(1);
+      const queryKey = "test";
+      expect(dispatcher.getQueueRequestCount(queryKey)).toBe(0);
+      dispatcher.incrementQueueRequestCount(queryKey);
+      expect(dispatcher.getQueueRequestCount(queryKey)).toBe(1);
     });
   });
   describe("When using getRequest method", () => {
@@ -52,14 +52,14 @@ describe("Dispatcher [ Utils ]", () => {
       mockRequest(request);
 
       const requestId = dispatcher.add(request);
-      const storedRequest = dispatcher.getRequest(request.queueKey, requestId);
+      const storedRequest = dispatcher.getRequest(request.queryKey, requestId);
       expect(storedRequest).toBeDefined();
     });
     it("should not return request from empty store", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const storedRequest = dispatcher.getRequest(request.queueKey, "test");
+      const storedRequest = dispatcher.getRequest(request.queryKey, "test");
       expect(storedRequest).not.toBeDefined();
     });
   });
@@ -68,14 +68,14 @@ describe("Dispatcher [ Utils ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
       dispatcher.add(request);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
 
-      dispatcher.clearQueue(request.queueKey);
+      dispatcher.clearQueue(request.queryKey);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
     });
   });
   describe("When using getIsEqualTimestamp util", () => {

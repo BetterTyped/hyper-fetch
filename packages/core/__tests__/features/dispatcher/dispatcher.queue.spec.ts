@@ -37,14 +37,14 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       const loadingSpy = jest.fn();
-      client.requestManager.events.onLoadingByQueue(request.queueKey, loadingSpy);
+      client.requestManager.events.onLoadingByQueue(request.queryKey, loadingSpy);
       const requestId = dispatcher.add(request);
 
       expect(requestId).toBeString();
       expect(adapterSpy).toHaveBeenCalledTimes(1);
       expect(loadingSpy).toHaveBeenCalledTimes(1);
-      expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeTrue();
-      expect(dispatcher.getQueueRequestCount(request.queueKey)).toBe(1);
+      expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeTrue();
+      expect(dispatcher.getQueueRequestCount(request.queryKey)).toBe(1);
     });
     it("should add running request and delete it once data is fetched", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -55,7 +55,7 @@ describe("Dispatcher [ Queue ]", () => {
       expect(dispatcher.getAllRunningRequests()).toHaveLength(1);
       await waitFor(() => {
         expect(dispatcher.getAllRunningRequests()).toHaveLength(0);
-        expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+        expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
       });
     });
     it("should deduplicate requests and return ongoing requestId", async () => {
@@ -230,8 +230,8 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When flushing requests", () => {
     it("should flush all queues request", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "2" });
       mockRequest(firstRequest);
       mockRequest(secondRequest);
 
@@ -264,9 +264,9 @@ describe("Dispatcher [ Queue ]", () => {
       dispatcher.add(request);
       dispatcher.add(request);
 
-      dispatcher.flushQueue(request.queueKey);
-      dispatcher.flushQueue(request.queueKey);
-      dispatcher.flushQueue(request.queueKey);
+      dispatcher.flushQueue(request.queryKey);
+      dispatcher.flushQueue(request.queryKey);
+      dispatcher.flushQueue(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(1);
 
@@ -280,10 +280,10 @@ describe("Dispatcher [ Queue ]", () => {
 
       const spy = jest.spyOn(dispatcher, "performRequest");
       const jsonRequest = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queueKey, jsonRequest);
-      dispatcher.addRunningRequest(request.queueKey, jsonRequest.requestId, request);
+      dispatcher.addQueueElement(request.queryKey, jsonRequest);
+      dispatcher.addRunningRequest(request.queryKey, jsonRequest.requestId, request);
 
-      dispatcher.flushQueue(request.queueKey);
+      dispatcher.flushQueue(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(0);
     });
@@ -294,10 +294,10 @@ describe("Dispatcher [ Queue ]", () => {
 
       const spy = jest.spyOn(client, "adapter");
       const jsonRequest = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queueKey, jsonRequest);
-      dispatcher.stopRequest(request.queueKey, jsonRequest.requestId);
+      dispatcher.addQueueElement(request.queryKey, jsonRequest);
+      dispatcher.stopRequest(request.queryKey, jsonRequest.requestId);
 
-      dispatcher.flushQueue(request.queueKey);
+      dispatcher.flushQueue(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(0);
     });
@@ -320,21 +320,21 @@ describe("Dispatcher [ Queue ]", () => {
   });
   describe("When starting and stopping queue", () => {
     it("should stop queue from being send", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(0);
-        expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
+        expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeFalse();
       });
     });
     it("should stop queue and cancel ongoing requests", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
@@ -348,32 +348,32 @@ describe("Dispatcher [ Queue ]", () => {
 
       await sleep(1);
 
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(firstSpy).toHaveBeenCalledTimes(1);
         expect(secondSpy).toHaveBeenCalledTimes(1);
-        expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
+        expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeFalse();
       });
     });
     it("should start previously stopped queue", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
-      dispatcher.start(request.queueKey);
-      expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeTrue();
+      dispatcher.start(request.queryKey);
+      expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeTrue();
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(2);
       });
     });
     it("should pause queue and finish ongoing requests", async () => {
-      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "1" });
+      const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
@@ -387,13 +387,13 @@ describe("Dispatcher [ Queue ]", () => {
 
       await sleep(1);
 
-      dispatcher.pause(request.queueKey);
+      dispatcher.pause(request.queryKey);
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(firstSpy).toHaveBeenCalledTimes(0);
         expect(secondSpy).toHaveBeenCalledTimes(0);
-        expect(dispatcher.getIsActiveQueue(request.queueKey)).toBeFalse();
+        expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeFalse();
       });
     });
     it("should not remove requests from queue storage on stop", async () => {
@@ -402,9 +402,9 @@ describe("Dispatcher [ Queue ]", () => {
 
       dispatcher.add(request);
       await sleep(2);
-      dispatcher.stop(request.queueKey);
+      dispatcher.stop(request.queryKey);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
     });
     it("should not remove request from queue storage on stopRequest", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
@@ -412,9 +412,9 @@ describe("Dispatcher [ Queue ]", () => {
 
       const requestId = dispatcher.add(request);
       await sleep(2);
-      dispatcher.stopRequest(request.queueKey, requestId);
+      dispatcher.stopRequest(request.queryKey, requestId);
 
-      expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(1);
+      expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(1);
     });
   });
 
@@ -427,7 +427,7 @@ describe("Dispatcher [ Queue ]", () => {
       await sleep(1);
       client.requestManager.abortAll();
       await waitFor(() => {
-        expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+        expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
       });
     });
   });
@@ -441,7 +441,7 @@ describe("Dispatcher [ Queue ]", () => {
       await sleep(1);
       client.appManager.setOnline(false);
       await waitFor(() => {
-        expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+        expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
       });
     });
   });

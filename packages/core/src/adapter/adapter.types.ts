@@ -101,7 +101,7 @@ export type AdapterExtraType = {
   headers: Record<string, string>;
 };
 
-export type AdapterPayloadMappingType = (data: unknown) => string | FormData;
+export type AdapterPayloadMappingType = (data: unknown) => string | FormData | Promise<string | FormData>;
 
 // Responses
 

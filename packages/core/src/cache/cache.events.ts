@@ -17,11 +17,10 @@ export const getCacheEvents = (emitter: EventEmitter) => ({
    * @param data
    */
   emitCacheData: <Response, Error, Adapter extends AdapterInstance>(
-    cacheKey: string,
     data: CacheValueType<Response, Error, Adapter>,
   ): void => {
     emitter.emit(getCacheKey(), data);
-    emitter.emit(getCacheByKey(cacheKey), data);
+    emitter.emit(getCacheByKey(data.cacheKey), data);
   },
   /**
    * Invalidate cache values event

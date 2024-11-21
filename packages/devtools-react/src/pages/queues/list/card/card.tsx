@@ -77,12 +77,12 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
     } as const
   )[status];
 
-  const total = (stats[queue.queueKey]?.total || 0) + queue.requests.length;
+  const total = (stats[queue.queryKey]?.total || 0) + queue.requests.length;
 
   return (
     <CardButton
-      color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queueKey && !queue.stopped })}
-      onClick={() => setDetailsQueueKey(queue.queueKey)}
+      color={getQueueStatusColor({ queue, active: detailsQueueKey === queue.queryKey && !queue.stopped })}
+      onClick={() => setDetailsQueueKey(queue.queryKey)}
     >
       <div className={css.cardHeader}>
         <div className={css.title}>
@@ -99,7 +99,7 @@ export const Card = ({ queue }: { queue: QueueDataType }) => {
         <div className={css.description}>
           (<strong>{total} </strong> in total)
         </div>
-        <Key className={css.key} type="queue" value={queue.queueKey} />
+        <Key className={css.key} type="queue" value={queue.queryKey} />
       </div>
     </CardButton>
   );

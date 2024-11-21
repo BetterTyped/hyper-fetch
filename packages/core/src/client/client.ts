@@ -13,6 +13,7 @@ import {
   ResponseType,
   xhrExtra,
   ExtractAdapterEndpointType,
+  parseResponse,
 } from "adapter";
 import {
   ClientErrorType,
@@ -35,6 +36,7 @@ import { AppManager, LoggerManager, RequestManager, SeverityType } from "manager
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
 import { ExtendRequest, ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
+import { HydrateDataType, HydrationOptions } from "utils";
 
 /**
  * **Client** is a class that allows you to configure the connection with the server and then use it to create
@@ -100,7 +102,7 @@ export class Client<
   cacheKeyMapper: (
     request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
   ) => string = getRequestKey;
-  queueKeyMapper: (
+  queryKeyMapper: (
     request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
   ) => string = getRequestKey;
   effectKeyMapper: (
@@ -438,7 +440,7 @@ export class Client<
       request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter, EndpointMapper> }>,
     ) => string,
   ) => {
-    this.queueKeyMapper = callback;
+    this.queryKeyMapper = callback;
   };
   setEffectKeyMapper = (
     callback: (
@@ -521,6 +523,38 @@ export class Client<
     this.cache = (cache?.(this) || new Cache(this)) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
     this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
     this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
+  };
+
+  /**
+   * Hydrate your SSR cache data
+   * @param hydrationData
+   * @param options
+   */
+  hydrate = (
+    hydrationData: HydrateDataType[] | NegativeTypes,
+    options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
+  ) => {
+    hydrationData?.forEach((item) => {
+      const { cacheKey, response, ...fallbackOptions } = item;
+      const defaults = {
+        cache: true,
+        override: true,
+      } satisfies Partial<HydrationOptions>;
+      const config =
+        typeof options === "function"
+          ? { ...defaults, ...fallbackOptions, ...options(item) }
+          : { ...defaults, ...fallbackOptions, ...options };
+
+      if (!config.override) {
+        const cachedData = this.cache.get(cacheKey);
+        if (cachedData) {
+          return;
+        }
+      }
+
+      const parsedData = parseResponse(response);
+      this.cache.set({ ...config, cacheKey }, parsedData);
+    });
   };
 
   /**

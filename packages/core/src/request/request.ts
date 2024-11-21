@@ -78,7 +78,7 @@ export class Request<
   offline: boolean;
   abortKey: string;
   cacheKey: string;
-  queueKey: string;
+  queryKey: string;
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
@@ -147,7 +147,7 @@ export class Request<
       offline = true,
       abortKey,
       cacheKey,
-      queueKey,
+      queryKey,
       deduplicate = false,
       deduplicateTime = 10,
     } = configuration;
@@ -169,7 +169,7 @@ export class Request<
     this.offline = initialRequestConfiguration?.offline ?? offline;
     this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
     this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
-    this.queueKey = initialRequestConfiguration?.queueKey ?? queueKey ?? this.client.queueKeyMapper(this);
+    this.queryKey = initialRequestConfiguration?.queryKey ?? queryKey ?? this.client.queryKeyMapper(this);
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;
@@ -272,9 +272,9 @@ export class Request<
     return this.clone({ cacheKey });
   };
 
-  public setQueueKey = (queueKey: string) => {
+  public setQueueKey = (queryKey: string) => {
     this.updatedQueueKey = true;
-    return this.clone({ queueKey });
+    return this.clone({ queryKey });
   };
 
   public setDeduplicate = (deduplicate: boolean) => {
@@ -432,7 +432,7 @@ export class Request<
       offline: this.offline,
       abortKey: this.abortKey,
       cacheKey: this.cacheKey,
-      queueKey: this.queueKey,
+      queryKey: this.queryKey,
       used: this.used,
       disableResponseInterceptors: this.requestOptions.disableResponseInterceptors,
       disableRequestInterceptors: this.requestOptions.disableRequestInterceptors,
@@ -472,7 +472,7 @@ export class Request<
       options: configuration?.options || this.options,
       abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
-      queueKey: this.updatedQueueKey ? configuration?.queueKey || this.queueKey : undefined,
+      queryKey: this.updatedQueueKey ? configuration?.queryKey || this.queryKey : undefined,
       endpoint: this.paramsMapper(configuration?.params || this.params, configuration?.queryParams || this.queryParams),
       queryParams: configuration?.queryParams || this.queryParams,
       payload: configuration?.payload || this.payload,
@@ -554,7 +554,7 @@ export class Request<
     const { adapter, requestManager } = this.client;
     const request = this.clone(options);
 
-    const requestId = getUniqueRequestId(this.queueKey);
+    const requestId = getUniqueRequestId(this.queryKey);
 
     // Listen for aborting
     requestManager.addAbortController(this.abortKey, requestId);

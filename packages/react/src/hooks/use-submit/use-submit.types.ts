@@ -65,7 +65,7 @@ export type UseSubmitReturnType<RequestType extends RequestInstance> = Omit<
 > &
   UseTrackedStateActions<RequestType> & {
     /**
-     * Callback which allows to cancel ongoing requests from given queueKey.
+     * Callback which allows to cancel ongoing requests from given queryKey.
      */
     abort: () => void;
     /**

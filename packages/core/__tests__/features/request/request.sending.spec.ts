@@ -144,7 +144,7 @@ describe("Request [ Sending ]", () => {
       await sleep(2);
 
       const runningRequests = client.fetchDispatcher.getAllRunningRequests();
-      client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
+      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
       const response = await requestExecution;
       expect(response).toStrictEqual({
@@ -162,7 +162,7 @@ describe("Request [ Sending ]", () => {
       await sleep(2);
 
       const runningRequests = client.fetchDispatcher.getAllRunningRequests();
-      client.fetchDispatcher.delete(request.queueKey, runningRequests[0].requestId, request.abortKey);
+      client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
       await requestExecution;
       expect(spy).toHaveBeenCalledTimes(1);

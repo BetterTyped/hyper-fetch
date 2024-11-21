@@ -99,7 +99,9 @@ describe("Cache [ Base ]", () => {
       await cache.invalidate(request.cacheKey);
       await sleep(1);
 
-      expect(cache.get(request.cacheKey)).not.toBeDefined();
+      const data = cache.get(request.cacheKey);
+      expect(data).toBeDefined();
+      expect(data?.cacheTime).toBe(0);
       expect(trigger).toHaveBeenCalledTimes(1);
       unmount();
     });

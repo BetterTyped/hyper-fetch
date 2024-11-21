@@ -41,9 +41,9 @@ individually; there are multiple dispatching modes available, which you can read
 
 ## QueueKey
 
-**`queueKey`**, which is kept on the instance of the Request being used, plays an important role in queues. It is used
+**`queryKey`**, which is kept on the instance of the Request being used, plays an important role in queues. It is used
 in propagation and reception of request events on a given queue and in management of incoming and outgoing requests. By
-default, the queueKey value is automatically based on the method, endpoint, and query parameters of the given request.
+default, the queryKey value is automatically based on the method, endpoint, and query parameters of the given request.
 However, you can add the key manually when setting the Request or using one of its methods.
 
 ---
@@ -72,7 +72,7 @@ suspends waiting requests.
 
 ### Queue - Pausing / Stopping / Starting
 
-You can `stop`, `pause` and `start` any group of requests using that group’s `queueKey`. Stopping cancels all started
+You can `stop`, `pause` and `start` any group of requests using that group’s `queryKey`. Stopping cancels all started
 requests; pausing completes in-progress requests and holds all others.
 
 ```tsx

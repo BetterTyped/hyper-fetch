@@ -82,7 +82,7 @@ export const getInitialState = <T extends RequestInstance>(
 
   const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialData, cacheData);
-  const initialLoading = dispatcher.hasRunningRequests(request.queueKey);
+  const initialLoading = dispatcher.hasRunningRequests(request.queryKey);
 
   if (cacheState) {
     const mappedData = __responseMapper ? __responseMapper(cacheState) : cacheState;

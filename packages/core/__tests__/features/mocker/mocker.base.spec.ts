@@ -110,9 +110,9 @@ describe("Mocker [ Base ]", () => {
 
     await sleep(5);
 
-    dispatcher.cancelRunningRequest(firstRequest.queueKey, requestId);
+    dispatcher.cancelRunningRequest(firstRequest.queryKey, requestId);
 
-    expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
+    expect(dispatcher.getRunningRequests(firstRequest.queryKey)).toHaveLength(1);
     expect(firstSpy).toHaveBeenCalledTimes(1);
     expect(secondSpy).toHaveBeenCalledTimes(1);
   });
@@ -326,8 +326,8 @@ describe("Mocker [ Base ]", () => {
 
     const requestSpy = jest.fn();
     const responseSpy = jest.fn();
-    client.requestManager.events.onUploadProgressByQueue(request.queueKey, requestSpy);
-    client.requestManager.events.onDownloadProgressByQueue(request.queueKey, responseSpy);
+    client.requestManager.events.onUploadProgressByQueue(request.queryKey, requestSpy);
+    client.requestManager.events.onDownloadProgressByQueue(request.queryKey, responseSpy);
     const response = await mockedRequest.send({});
     expect(requestSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
     expect(responseSpy.mock.calls.length).toBeGreaterThanOrEqual(3);

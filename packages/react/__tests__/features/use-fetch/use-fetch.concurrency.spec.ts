@@ -61,8 +61,8 @@ describe("useFetch [ Concurrency ]", () => {
       it("should not start in loading mode when queue is paused", async () => {
         act(() => {
           const queueElement = client.fetchDispatcher.createStorageElement(request);
-          client.fetchDispatcher.addQueueElement(request.queueKey, queueElement);
-          client.fetchDispatcher.stop(request.queueKey);
+          client.fetchDispatcher.addQueueElement(request.queryKey, queueElement);
+          client.fetchDispatcher.stop(request.queryKey);
         });
         mockRequest(request);
         const { result } = renderUseFetch(request);

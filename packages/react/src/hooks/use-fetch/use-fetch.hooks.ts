@@ -53,7 +53,7 @@ export const useFetch = <R extends RequestInstance>(
   const requestThrottle = useThrottle({ interval: bounceTime, timeout: bounceTimeout });
   const refreshDebounce = useDebounce({ delay: refreshTime });
 
-  const { cacheKey, queueKey, client } = request;
+  const { cacheKey, queryKey, client } = request;
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
 
   const ignoreReact18DoubleRender = useRef(true);
@@ -112,8 +112,8 @@ export const useFetch = <R extends RequestInstance>(
       const isBlurred = !appManager.isFocused;
 
       // If window tab is not active should we refresh the cache
-      const isFetching = dispatcher.hasRunningRequests(request.queueKey);
-      const isQueued = dispatcher.getIsActiveQueue(request.queueKey);
+      const isFetching = dispatcher.hasRunningRequests(request.queryKey);
+      const isQueued = dispatcher.getIsActiveQueue(request.queryKey);
       const isActive = isFetching || isQueued;
       const canRefreshBlurred = isBlurred && refetchBlurred && !isActive;
       const canRefreshFocused = !isBlurred && !isActive;
@@ -139,8 +139,8 @@ export const useFetch = <R extends RequestInstance>(
 
   // This help us to check for currently running requests
   const getIsFetchingIdentity = () => {
-    // We need to check if the queueKey have the same cacheKey elements ongoing
-    return dispatcher.getRunningRequests(queueKey).some((running) => running.request.cacheKey === cacheKey);
+    // We need to check if the queryKey have the same cacheKey elements ongoing
+    return dispatcher.getRunningRequests(queryKey).some((running) => running.request.cacheKey === cacheKey);
   };
 
   const initialFetchData = () => {
@@ -164,7 +164,7 @@ export const useFetch = <R extends RequestInstance>(
        * This way it will not wait for debouncing but fetch data right away
        */
       if (bounce) {
-        logger.debug(`Bounce request with ${bounceType}`, { queueKey, request });
+        logger.debug(`Bounce request with ${bounceType}`, { queryKey, request });
         bounceFunction(() => handleFetch());
       } else {
         handleFetch();

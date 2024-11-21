@@ -45,15 +45,11 @@ export class Cache<C extends ClientInstance> {
     this.lazyStorage = this.options?.lazyStorage;
     this.logger = this.client.loggerManager.init("Cache");
 
-    this.getLazyKeys().then((keys) => {
-      keys.forEach(this.scheduleGarbageCollector);
-    });
+    [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
 
     // Going back from offline should re-trigger garbage collection
     this.client.appManager.events.onOnline(() => {
-      this.getLazyKeys().then((keys) => {
-        keys.forEach(this.scheduleGarbageCollector);
-      });
+      [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
     });
   }
 
@@ -104,13 +100,10 @@ export class Cache<C extends ClientInstance> {
     }
 
     this.logger.debug("Emitting cache response", { request, data });
-    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>(
+    this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
+      ...newCacheData,
       cacheKey,
-      {
-        ...newCacheData,
-        cacheKey,
-      },
-    );
+    });
   };
 
   /**
@@ -183,29 +176,36 @@ export class Cache<C extends ClientInstance> {
    * It emits invalidation event for each matching cacheKey and sets cacheTime to 0 to indicate out of time cache
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = async (key: string | RegExp | RequestInstance) => {
-    this.logger.debug("Revalidating cache element", { key });
+  invalidate = async (invalidateKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+    this.logger.debug("Revalidating cache element", { invalidateKeys });
     const keys = await this.getLazyKeys();
 
-    const handleInvalidation = (cacheKey: string) => {
-      const value = this.storage.get(cacheKey);
-      if (value) {
-        this.storage.set(cacheKey, { ...value, cacheTime: 0 });
+    const invalidate = (key: string | RegExp | RequestInstance) => {
+      const handleInvalidation = (cacheKey: string) => {
+        const value = this.storage.get(cacheKey);
+        if (value) {
+          this.storage.set(cacheKey, { ...value, cacheTime: 0 });
+        }
+        this.events.emitInvalidation(cacheKey);
+      };
+
+      if (key instanceof Request) {
+        handleInvalidation(key.cacheKey);
+      } else if (typeof key === "string") {
+        handleInvalidation(key);
+      } else if (keys?.length) {
+        keys.forEach((entityKey) => {
+          if (key.test(entityKey)) {
+            handleInvalidation(entityKey);
+          }
+        });
       }
-      this.events.emitInvalidation(cacheKey);
     };
 
-    if (key instanceof Request) {
-      handleInvalidation(key.cacheKey);
-    } else if (typeof key === "string") {
-      handleInvalidation(key);
+    if (Array.isArray(invalidateKeys)) {
+      invalidateKeys.forEach(invalidate);
     } else {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const entityKey of keys) {
-        if (key.test(entityKey)) {
-          handleInvalidation(entityKey);
-        }
-      }
+      invalidate(invalidateKeys);
     }
   };
 
@@ -232,7 +232,7 @@ export class Cache<C extends ClientInstance> {
       }
       if (isNewestData && !isStaleData && isValidLazyData) {
         this.storage.set<Response, Error, Adapter>(cacheKey, data);
-        this.events.emitCacheData<Response, Error, Adapter>(cacheKey, { ...data, cacheKey });
+        this.events.emitCacheData<Response, Error, Adapter>({ ...data, cacheKey });
         return data;
       }
     }
@@ -261,9 +261,9 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    * @returns
    */
-  scheduleGarbageCollector = async (cacheKey: string) => {
+  scheduleGarbageCollector = (cacheKey: string) => {
     // We need to make sure that all of the values will be removed, also that we have the proper data
-    const cacheData = await this.getLazyResource(cacheKey);
+    const cacheData = this.storage.get(cacheKey);
 
     // Clear running garbage collectors for given key
     clearTimeout(this.garbageCollectors.get(cacheKey));

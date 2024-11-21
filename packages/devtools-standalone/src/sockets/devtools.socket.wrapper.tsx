@@ -30,28 +30,23 @@ const handleEvent = (
       client.requestManager.events.emitResponse(eventData);
       return;
     case EmitableCoreEvents.ON_FETCH_QUEUE_CHANGE: {
-      const { queueKey } = eventData;
-      client.fetchDispatcher.events.setQueueChanged(queueKey, eventData);
+      client.fetchDispatcher.events.setQueueChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_FETCH_QUEUE_STATUS_CHANGE: {
-      const { queueKey } = eventData;
-      client.fetchDispatcher.events.setQueueStatusChanged(queueKey, eventData);
+      client.fetchDispatcher.events.setQueueStatusChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_SUBMIT_QUEUE_CHANGE: {
-      const { queueKey } = eventData;
-      client.submitDispatcher.events.setQueueChanged(queueKey, eventData);
+      client.submitDispatcher.events.setQueueChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_SUBMIT_QUEUE_STATUS_CHANGE: {
-      const { queueKey } = eventData;
-      client.submitDispatcher.events.setQueueStatusChanged(queueKey, eventData);
+      client.submitDispatcher.events.setQueueStatusChanged(eventData);
       return;
     }
     case EmitableCoreEvents.ON_CACHE_CHANGE: {
-      const { cacheKey } = eventData;
-      client.cache.events.emitCacheData(cacheKey, eventData);
+      client.cache.events.emitCacheData(eventData);
       return;
     }
     case EmitableCoreEvents.ON_CACHE_INVALIDATE: {

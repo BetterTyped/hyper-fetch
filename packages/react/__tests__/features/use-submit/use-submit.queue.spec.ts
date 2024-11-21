@@ -72,7 +72,7 @@ describe("useSubmit [ Queue ]", () => {
 
         act(() => {
           previouslyRenderedHook.result.current.submit();
-          client.submitDispatcher.stop(request.queueKey);
+          client.submitDispatcher.stop(request.queryKey);
         });
 
         await waitForRender();

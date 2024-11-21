@@ -29,7 +29,7 @@ export type RequestEvent<T extends ClientInstance> = RequestEventType<
 export type DevtoolsElement = {
   requestId: string;
   cacheKey: string;
-  queueKey: string;
+  queryKey: string;
   abortKey: string;
 };
 

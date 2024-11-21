@@ -125,7 +125,7 @@ describe("Fetch Adapter [ Server ]", () => {
       method: "POST",
     });
 
-    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });
@@ -148,7 +148,7 @@ describe("Fetch Adapter [ Server ]", () => {
       method: "POST",
     });
 
-    jest.spyOn(http, "request").mockImplementation((endpoint, options, callback) => {
+    jest.spyOn(http, "request").mockImplementation((_, options, callback) => {
       receivedOptions = options;
       return requestCopy(options, callback);
     });

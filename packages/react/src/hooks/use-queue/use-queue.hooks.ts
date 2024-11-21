@@ -22,7 +22,7 @@ export const useQueue = <Request extends RequestInstance>(
     ...options,
   };
 
-  const { abortKey, queueKey, client } = request;
+  const { abortKey, queryKey, client } = request;
   const { requestManager } = client;
 
   const [dispatcher] = getRequestDispatcher(request, queueType);
@@ -38,12 +38,12 @@ export const useQueue = <Request extends RequestInstance>(
     (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
       return queueElements.map<QueueRequest<Request>>((req) => ({
         ...req,
-        stopRequest: () => dispatcher.stopRequest(queueKey, req.requestId),
-        startRequest: () => dispatcher.startRequest(queueKey, req.requestId),
-        deleteRequest: () => dispatcher.delete(queueKey, req.requestId, abortKey),
+        stopRequest: () => dispatcher.stopRequest(queryKey, req.requestId),
+        startRequest: () => dispatcher.startRequest(queryKey, req.requestId),
+        deleteRequest: () => dispatcher.delete(queryKey, req.requestId, abortKey),
       }));
     },
-    [abortKey, dispatcher, queueKey],
+    [abortKey, dispatcher, queryKey],
   );
 
   const mergePayloadType = useCallback((requestId: string, data: Partial<QueueRequest<Request>>) => {
@@ -55,7 +55,7 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const getInitialState = () => {
-    const requestQueue = dispatcher.getQueue<Request>(queueKey);
+    const requestQueue = dispatcher.getQueue<Request>(queryKey);
 
     setStopped(requestQueue.stopped);
     setRequests(createRequestsArray(requestQueue.requests));
@@ -74,18 +74,18 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const mountEvents = () => {
-    const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queueKey, updateQueueState);
-    const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queueKey, updateQueueState);
+    const unmountChange = dispatcher.events.onQueueChangeByKey<Request>(queryKey, updateQueueState);
+    const unmountStatus = dispatcher.events.onQueueStatusChangeByKey<Request>(queryKey, updateQueueState);
 
     const unmountDownload = requestManager.events.onDownloadProgressByQueue(
-      queueKey,
+      queryKey,
       ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
         mergePayloadType(requestId, { downloading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
       },
     );
 
     const unmountUpload = requestManager.events.onUploadProgressByQueue(
-      queueKey,
+      queryKey,
       ({ progress, timeLeft, sizeLeft, total, loaded, startTimestamp, requestId }) => {
         mergePayloadType(requestId, { uploading: { progress, timeLeft, sizeLeft, total, loaded, startTimestamp } });
       },
@@ -105,14 +105,14 @@ export const useQueue = <Request extends RequestInstance>(
   // Lifecycle
   // ******************
 
-  useEffect(getInitialState, [createRequestsArray, dispatcher, queueKey]);
+  useEffect(getInitialState, [createRequestsArray, dispatcher, queryKey]);
 
   useEffect(mountEvents, [
     stopped,
     requests,
     setRequests,
     setStopped,
-    queueKey,
+    queryKey,
     dispatcher.events,
     requestManager.events,
     updateQueueState,
@@ -123,8 +123,8 @@ export const useQueue = <Request extends RequestInstance>(
     stopped,
     requests,
     dispatcher,
-    stop: () => dispatcher.stop(queueKey),
-    pause: () => dispatcher.pause(queueKey),
-    start: () => dispatcher.start(queueKey),
+    stop: () => dispatcher.stop(queryKey),
+    pause: () => dispatcher.pause(queryKey),
+    start: () => dispatcher.start(queryKey),
   };
 };

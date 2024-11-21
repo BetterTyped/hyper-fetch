@@ -97,7 +97,7 @@ export const Devtools = <T extends ClientInstance>({
   const [queues, setQueues] = useImmer<QueueDataType[]>([]);
   const [detailsQueueKey, setDetailsQueueKey] = useState<string | null>(null);
   const [stats, setStats] = useState<{
-    [queueKey: string]: DevtoolsRequestQueueStats;
+    [queryKey: string]: DevtoolsRequestQueueStats;
   }>({});
   // Explorer
   const [explorerSearchTerm, setExplorerSearchTerm] = useState("");
@@ -124,7 +124,7 @@ export const Devtools = <T extends ClientInstance>({
     const inQueueRequests: DevtoolsElement[] = queue.requests.map((item) => {
       return {
         requestId: item.requestId,
-        queueKey: item.request.queueKey,
+        queryKey: item.request.queryKey,
         cacheKey: item.request.cacheKey,
         abortKey: item.request.abortKey,
       };
@@ -136,23 +136,23 @@ export const Devtools = <T extends ClientInstance>({
           .map((item) => {
             return {
               requestId: item.requestId,
-              queueKey: item.request.queueKey,
+              queryKey: item.request.queryKey,
               cacheKey: item.request.cacheKey,
               abortKey: item.request.abortKey,
             };
           });
     setInProgress((draft) => {
-      return [...draft.filter((el) => el.queueKey !== queue.queueKey), ...inQueueRequests].filter(
+      return [...draft.filter((el) => el.queryKey !== queue.queryKey), ...inQueueRequests].filter(
         (_, index) => index < dataMaxSize,
       );
     });
     setPaused((prevState) => {
-      return [...prevState.filter((el) => el.queueKey !== queue.queueKey), ...pausedQueueRequests].filter(
+      return [...prevState.filter((el) => el.queryKey !== queue.queryKey), ...pausedQueueRequests].filter(
         (_, index) => index < dataMaxSize,
       );
     });
     setQueues((draft) => {
-      const currentQueue = draft.findIndex((el) => el.queueKey === queue.queueKey);
+      const currentQueue = draft.findIndex((el) => el.queryKey === queue.queryKey);
       if (currentQueue === -1) {
         return [...draft, queue];
       }
@@ -187,7 +187,7 @@ export const Devtools = <T extends ClientInstance>({
 
   const handleStats = useCallback(
     (request: RequestInstance, response: RequestResponseType<RequestInstance>, details: ResponseDetailsType) => {
-      const key = request.queueKey;
+      const key = request.queryKey;
 
       setStats((prev) => {
         const current: DevtoolsRequestQueueStats = prev[key] || {
@@ -287,7 +287,7 @@ export const Devtools = <T extends ClientInstance>({
     const unmountOnRequestPause = client.requestManager.events.onAbort(({ requestId, request }) => {
       setCanceled((prev) => {
         return [
-          { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+          { requestId, queryKey: request.queryKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
           ...prev,
         ].filter((_, index) => index < dataMaxSize);
       });
@@ -308,7 +308,7 @@ export const Devtools = <T extends ClientInstance>({
       if (!resolved) {
         setRemoved((prev) =>
           [
-            { requestId, queueKey: request.queueKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
+            { requestId, queryKey: request.queryKey, cacheKey: request.cacheKey, abortKey: request.abortKey },
             ...prev,
           ].filter((_, index) => index < dataMaxSize),
         );

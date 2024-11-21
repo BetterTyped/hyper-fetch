@@ -56,44 +56,44 @@ export class Dispatcher {
   // *********************************************************************
 
   /**
-   * Start request handling by queueKey
+   * Start request handling by queryKey
    */
-  start = (queueKey: string) => {
+  start = (queryKey: string) => {
     // Change status to running
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
 
     // Start the queue when its stopped
     queue.stopped = false;
-    this.setQueue(queueKey, queue);
-    this.flushQueue(queueKey);
-    this.events.setQueueStatusChanged(queueKey, queue);
+    this.setQueue(queryKey, queue);
+    this.flushQueue(queryKey);
+    this.events.setQueueStatusChanged(queue);
   };
 
   /**
    * Pause request queue, but not cancel already started requests
    */
-  pause = (queueKey: string) => {
+  pause = (queryKey: string) => {
     // Change state to stopped
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
 
     queue.stopped = true;
-    this.setQueue(queueKey, queue);
-    this.events.setQueueStatusChanged(queueKey, queue);
+    this.setQueue(queryKey, queue);
+    this.events.setQueueStatusChanged(queue);
   };
 
   /**
    * Stop request queue and cancel all started requests - those will be treated like not started
    */
-  stop = (queueKey: string) => {
+  stop = (queryKey: string) => {
     // Change state to stopped
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
 
     queue.stopped = true;
-    this.setQueue(queueKey, queue);
+    this.setQueue(queryKey, queue);
 
     // Cancel running requests
-    this.cancelRunningRequests(queueKey);
-    this.events.setQueueStatusChanged(queueKey, queue);
+    this.cancelRunningRequests(queryKey);
+    this.events.setQueueStatusChanged(queue);
   };
 
   /**
@@ -106,9 +106,9 @@ export class Dispatcher {
   /**
    * Return queue state object
    */
-  getQueue = <Request extends RequestInstance = RequestInstance>(queueKey: string) => {
-    const initialQueueState: QueueDataType<Request> = { queueKey, requests: [], stopped: false };
-    const storedEntity = this.storage.get<Request>(queueKey);
+  getQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string) => {
+    const initialQueueState: QueueDataType<Request> = { queryKey, requests: [], stopped: false };
+    const storedEntity = this.storage.get<Request>(queryKey);
 
     return storedEntity || initialQueueState;
   };
@@ -116,9 +116,9 @@ export class Dispatcher {
   /**
    * Return request from queue state
    */
-  getRequest = <Request extends RequestInstance = RequestInstance>(queueKey: string, requestId: string) => {
-    const initialQueueState: QueueDataType<Request> = { queueKey, requests: [], stopped: false };
-    const storedEntity = this.storage.get<Request>(queueKey) || initialQueueState;
+  getRequest = <Request extends RequestInstance = RequestInstance>(queryKey: string, requestId: string) => {
+    const initialQueueState: QueueDataType<Request> = { queryKey, requests: [], stopped: false };
+    const storedEntity = this.storage.get<Request>(queryKey) || initialQueueState;
 
     return storedEntity.requests.find((req) => req.requestId === requestId);
   };
@@ -126,8 +126,8 @@ export class Dispatcher {
   /**
    * Get value of the active queue status based on the stopped status
    */
-  getIsActiveQueue = (queueKey: string) => {
-    const queue = this.getQueue(queueKey);
+  getIsActiveQueue = (queryKey: string) => {
+    const queue = this.getQueue(queryKey);
     const hasAvailableRequests = queue.requests.some((req) => !req.stopped);
     const isRunningQueue = !queue.stopped;
     return hasAvailableRequests && isRunningQueue;
@@ -137,23 +137,23 @@ export class Dispatcher {
    * Add new element to storage
    */
   addQueueElement = <Request extends RequestInstance = RequestInstance>(
-    queueKey: string,
+    queryKey: string,
     element: QueueElementType<Request>,
   ) => {
-    const queue = this.getQueue<Request>(queueKey);
+    const queue = this.getQueue<Request>(queryKey);
     queue.requests.push(element);
-    this.setQueue<Request>(queueKey, queue);
+    this.setQueue<Request>(queryKey, queue);
   };
 
   /**
    * Set new queue storage value
    */
-  setQueue = <Request extends RequestInstance = RequestInstance>(queueKey: string, queue: QueueDataType<Request>) => {
-    this.storage.set<Request>(queueKey, queue);
+  setQueue = <Request extends RequestInstance = RequestInstance>(queryKey: string, queue: QueueDataType<Request>) => {
+    this.storage.set<Request>(queryKey, queue);
 
     // Emit Queue Changes
-    this.options?.onUpdateStorage?.(queueKey, queue);
-    this.events.setQueueChanged(queueKey, queue);
+    this.options?.onUpdateStorage?.(queue);
+    this.events.setQueueChanged(queue);
 
     return queue;
   };
@@ -161,14 +161,14 @@ export class Dispatcher {
   /**
    * Clear requests from queue cache
    */
-  clearQueue = (queueKey: string) => {
-    const queue = this.getQueue(queueKey);
-    const newQueue = { queueKey, requests: [], stopped: queue.stopped };
-    this.storage.set(queueKey, newQueue);
+  clearQueue = (queryKey: string) => {
+    const queue = this.getQueue(queryKey);
+    const newQueue = { queryKey, requests: [], stopped: queue.stopped };
+    this.storage.set(queryKey, newQueue);
 
     // Emit Queue Changes
-    this.options?.onDeleteFromStorage?.(queueKey, newQueue);
-    this.events.setQueueChanged(queueKey, newQueue);
+    this.options?.onDeleteFromStorage?.(newQueue);
+    this.events.setQueueChanged(newQueue);
 
     return newQueue;
   };
@@ -176,9 +176,9 @@ export class Dispatcher {
   /**
    * Method used to flush the queue requests
    */
-  flushQueue = async (queueKey: string) => {
-    const queue = this.getQueue(queueKey);
-    const runningRequests = this.getRunningRequests(queueKey);
+  flushQueue = async (queryKey: string) => {
+    const queue = this.getQueue(queryKey);
+    const runningRequests = this.getRunningRequests(queryKey);
     const queueElement = queue.requests.find((request) => !request.stopped);
 
     const isStopped = queue && queue.stopped;
@@ -193,13 +193,13 @@ export class Dispatcher {
       this.logger.debug("Skipping queue trigger", { isStopped, isOffline, isEmpty });
     } else if (isConcurrent) {
       queue.requests.forEach((element) => {
-        if (!this.hasRunningRequest(queueKey, element.requestId)) {
+        if (!this.hasRunningRequest(queryKey, element.requestId)) {
           this.performRequest(element);
         }
       });
     } else if (isInactive) {
       await this.performRequest(queueElement);
-      this.flushQueue(queueKey);
+      this.flushQueue(queryKey);
     }
   };
 
@@ -224,7 +224,7 @@ export class Dispatcher {
    */
   clear = () => {
     const keys = this.getQueuesKeys();
-    keys.forEach((queueKey) => this.cancelRunningRequests(queueKey));
+    keys.forEach((queryKey) => this.cancelRunningRequests(queryKey));
 
     this.runningRequests.clear();
     this.storage.clear();
@@ -240,40 +240,40 @@ export class Dispatcher {
   /**
    * Start particular request
    */
-  startRequest = (queueKey: string, requestId: string) => {
+  startRequest = (queryKey: string, requestId: string) => {
     // Change status to running
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
     const request = queue.requests.find((element) => element.requestId === requestId);
 
     // Start the queue when its stopped
     if (request) {
       request.stopped = false;
-      this.setQueue(queueKey, queue);
-      this.flushQueue(queueKey);
-      this.events.setQueueStatusChanged(queueKey, queue);
+      this.setQueue(queryKey, queue);
+      this.flushQueue(queryKey);
+      this.events.setQueueStatusChanged(queue);
     }
   };
 
   /**
    * Stop particular request
    */
-  stopRequest = (queueKey: string, requestId: string) => {
+  stopRequest = (queryKey: string, requestId: string) => {
     // Change state to stopped
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
     const request = queue.requests.find((element) => element.requestId === requestId);
 
     if (request) {
       request.stopped = true;
-      this.setQueue(queueKey, queue);
+      this.setQueue(queryKey, queue);
 
       // Cancel running requests
-      this.cancelRunningRequest(queueKey, requestId);
-      this.events.setQueueStatusChanged(queueKey, queue);
+      this.cancelRunningRequest(queryKey, requestId);
+      this.events.setQueueStatusChanged(queue);
     }
   };
 
   /**
-   * Get currently running requests from all queueKeys
+   * Get currently running requests from all queryKeys
    */
   getAllRunningRequests = () => {
     return Array.from(this.runningRequests.values()).flat();
@@ -282,58 +282,58 @@ export class Dispatcher {
   /**
    * Get currently running requests
    */
-  getRunningRequests = (queueKey: string) => {
-    return this.runningRequests.get(queueKey) || [];
+  getRunningRequests = (queryKey: string) => {
+    return this.runningRequests.get(queryKey) || [];
   };
 
   /**
    * Get running request by id
    */
-  getRunningRequest = (queueKey: string, requestId: string) => {
-    const runningRequests = this.getRunningRequests(queueKey);
+  getRunningRequest = (queryKey: string, requestId: string) => {
+    const runningRequests = this.getRunningRequests(queryKey);
     return runningRequests.find((req) => req.requestId === requestId);
   };
 
   /**
    * Add request to the running requests list
    */
-  addRunningRequest = (queueKey: string, requestId: string, request: RequestInstance): RunningRequestValueType => {
+  addRunningRequest = (queryKey: string, requestId: string, request: RequestInstance): RunningRequestValueType => {
     const newRunningRequest = { requestId, request, timestamp: Date.now() };
-    const runningRequests = this.getRunningRequests(queueKey);
+    const runningRequests = this.getRunningRequests(queryKey);
     runningRequests.push(newRunningRequest);
-    this.runningRequests.set(queueKey, runningRequests);
+    this.runningRequests.set(queryKey, runningRequests);
     return newRunningRequest;
   };
 
   /**
    * Get the value based on the currently running requests
    */
-  hasRunningRequests = (queueKey: string) => {
-    return !!this.getRunningRequests(queueKey).length;
+  hasRunningRequests = (queryKey: string) => {
+    return !!this.getRunningRequests(queryKey).length;
   };
 
   /**
    * Check if request is currently processing
    */
-  hasRunningRequest = (queueKey: string, requestId: string) => {
-    const runningRequests = this.getRunningRequests(queueKey);
+  hasRunningRequest = (queryKey: string, requestId: string) => {
+    const runningRequests = this.getRunningRequests(queryKey);
     return !!runningRequests.find((req) => req.requestId === requestId);
   };
 
   /**
    * Cancel all started requests, but do NOT remove it from main storage
    */
-  cancelRunningRequests = (queueKey: string) => {
-    this.runningRequests.get(queueKey)?.forEach((request) => {
+  cancelRunningRequests = (queryKey: string) => {
+    this.runningRequests.get(queryKey)?.forEach((request) => {
       this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
     });
-    this.deleteRunningRequests(queueKey);
+    this.deleteRunningRequests(queryKey);
   };
   /**
    * Cancel started request, but do NOT remove it from main storage
    */
-  cancelRunningRequest = (queueKey: string, requestId: string) => {
-    const requests = this.getRunningRequests(queueKey).filter((request) => {
+  cancelRunningRequest = (queryKey: string, requestId: string) => {
+    const requests = this.getRunningRequests(queryKey).filter((request) => {
       if (request.requestId === requestId) {
         this.client.requestManager.abortByRequestId(request.request.abortKey, request.requestId);
         return false;
@@ -341,40 +341,40 @@ export class Dispatcher {
       return true;
     });
 
-    this.runningRequests.set(queueKey, requests);
+    this.runningRequests.set(queryKey, requests);
   };
 
   /**
    * Delete all started requests, but do NOT clear it from queue and do NOT cancel them
    */
-  deleteRunningRequests = (queueKey: string) => {
-    this.runningRequests.set(queueKey, []);
+  deleteRunningRequests = (queryKey: string) => {
+    this.runningRequests.set(queryKey, []);
   };
 
   /**
    * Delete request by id, but do NOT clear it from queue and do NOT cancel them
    */
-  deleteRunningRequest = (queueKey: string, requestId: string) => {
-    const runningRequests = this.getRunningRequests(queueKey);
+  deleteRunningRequest = (queryKey: string, requestId: string) => {
+    const runningRequests = this.getRunningRequests(queryKey);
     this.runningRequests.set(
-      queueKey,
+      queryKey,
       runningRequests.filter((req) => req.requestId !== requestId),
     );
   };
 
   /**
-   * Get count of requests from the same queueKey
+   * Get count of requests from the same queryKey
    */
-  getQueueRequestCount = (queueKey: string) => {
-    return this.requestCount.get(queueKey) || 0;
+  getQueueRequestCount = (queryKey: string) => {
+    return this.requestCount.get(queryKey) || 0;
   };
 
   /**
-   * Add request count to the queueKey
+   * Add request count to the queryKey
    */
-  incrementQueueRequestCount = (queueKey: string) => {
-    const count = this.requestCount.get(queueKey) || 0;
-    this.requestCount.set(queueKey, count + 1);
+  incrementQueueRequestCount = (queryKey: string) => {
+    const count = this.requestCount.get(queryKey) || 0;
+    this.requestCount.set(queryKey, count + 1);
   };
 
   /**
@@ -382,7 +382,7 @@ export class Dispatcher {
    */
   // eslint-disable-next-line class-methods-use-this
   createStorageElement = <Request extends RequestInstance>(request: Request) => {
-    const requestId = getUniqueRequestId(request.queueKey);
+    const requestId = getUniqueRequestId(request.queryKey);
     const storageElement: QueueElementType<Request> = {
       requestId,
       timestamp: +new Date(),
@@ -404,14 +404,14 @@ export class Dispatcher {
    * Add request to the dispatcher handler
    */
   add = (request: RequestInstance) => {
-    const { queueKey } = request;
+    const { queryKey } = request;
 
     // Create dump of the request to allow storing it in localStorage, AsyncStorage or any other
     // This way we don't save the Class but the instruction of the request to be done
     const storageElement = this.createStorageElement(request);
     const { requestId } = storageElement;
 
-    const queue = this.getQueue(queueKey);
+    const queue = this.getQueue(queryKey);
     const [latestRequest] = queue.requests.slice(-1);
     const requestType = getRequestType(request, latestRequest);
 
@@ -420,16 +420,16 @@ export class Dispatcher {
     switch (requestType) {
       case DispatcherRequestType.ONE_BY_ONE: {
         // Requests will go one by one
-        this.addQueueElement(queueKey, storageElement);
-        this.flushQueue(queueKey);
+        this.addQueueElement(queryKey, storageElement);
+        this.flushQueue(queryKey);
         return requestId;
       }
       case DispatcherRequestType.PREVIOUS_CANCELED: {
         // Cancel all previous on-going requests
-        this.cancelRunningRequests(queueKey);
-        this.clearQueue(queueKey);
-        this.addQueueElement(queueKey, storageElement);
-        this.flushQueue(queueKey);
+        this.cancelRunningRequests(queryKey);
+        this.clearQueue(queryKey);
+        this.addQueueElement(queryKey, storageElement);
+        this.flushQueue(queryKey);
         return requestId;
       }
       case DispatcherRequestType.DEDUPLICATED: {
@@ -437,8 +437,8 @@ export class Dispatcher {
         return queue.requests[0].requestId;
       }
       default: {
-        this.addQueueElement(queueKey, storageElement);
-        this.flushQueue(queueKey);
+        this.addQueueElement(queryKey, storageElement);
+        this.flushQueue(queryKey);
         return requestId;
       }
     }
@@ -447,25 +447,25 @@ export class Dispatcher {
   /**
    * Delete from the storage and cancel request
    */
-  delete = (queueKey: string, requestId: string, abortKey: string) => {
-    this.logger.debug("Deleting request", { queueKey, requestId, abortKey });
-    const queue = this.getQueue(queueKey);
+  delete = (queryKey: string, requestId: string, abortKey: string) => {
+    this.logger.debug("Deleting request", { queryKey, requestId, abortKey });
+    const queue = this.getQueue(queryKey);
     const queueElement = queue.requests.find((req) => req.requestId === requestId);
 
     if (!queueElement) return;
 
     queue.requests = queue.requests.filter((req) => req.requestId !== requestId);
-    this.storage.set(queueKey, queue);
+    this.storage.set(queryKey, queue);
 
     // Clean controllers
-    if (this.hasRunningRequest(queueKey, requestId)) {
-      this.deleteRunningRequest(queueKey, requestId);
+    if (this.hasRunningRequest(queryKey, requestId)) {
+      this.deleteRunningRequest(queryKey, requestId);
       this.client.requestManager.abortByRequestId(abortKey, requestId);
     }
 
     // Emit Queue Changes
-    this.options?.onDeleteFromStorage?.(queueKey, queue);
-    this.events.setQueueChanged(queueKey, queue);
+    this.options?.onDeleteFromStorage?.(queue);
+    this.events.setQueueChanged(queue);
     this.client.requestManager.events.emitRemove({
       requestId,
       request: queueElement.request,
@@ -473,7 +473,7 @@ export class Dispatcher {
     });
 
     if (!queue.requests.length) {
-      this.events.setDrained(queueKey, queue);
+      this.events.setDrained(queue);
     }
 
     return queue;
@@ -487,14 +487,14 @@ export class Dispatcher {
     const { request, requestId } = storageElement;
     this.logger.info("Performing request", { request, requestId });
 
-    const { retry, retryTime, queueKey, abortKey, offline } = request;
+    const { retry, retryTime, queryKey, abortKey, offline } = request;
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageElement.retries, retry);
     // When offline not perform any request
     const isOffline = !appManager.isOnline && offline;
     // When request with this id was triggered again
-    const isAlreadyRunning = this.hasRunningRequest(queueKey, requestId);
+    const isAlreadyRunning = this.hasRunningRequest(queryKey, requestId);
     const isStopped = storageElement.stopped;
 
     if (isOffline || isAlreadyRunning || isStopped) {
@@ -502,7 +502,7 @@ export class Dispatcher {
     }
 
     // Additionally keep the running request to possibly abort it later
-    const runningRequest = this.addRunningRequest(queueKey, requestId, request);
+    const runningRequest = this.addRunningRequest(queryKey, requestId, request);
 
     // Propagate the loading to all connected hooks
     requestManager.events.emitLoading({
@@ -514,7 +514,7 @@ export class Dispatcher {
     });
 
     // Trigger Request
-    this.incrementQueueRequestCount(queueKey);
+    this.incrementQueueRequestCount(queryKey);
     // Listen for aborting
     requestManager.addAbortController(abortKey, requestId);
 
@@ -529,10 +529,10 @@ export class Dispatcher {
     const isOfflineResponseStatus = !appManager.isOnline;
     // If there is no running request with this id, it means it was cancelled and removed during send
     const isCancelMessage = getErrorMessage("abort").message === response.error?.message;
-    const isCanceled = !this.hasRunningRequest(queueKey, requestId) || isCancelMessage;
+    const isCanceled = !this.hasRunningRequest(queryKey, requestId) || isCancelMessage;
 
     // Remove running request, must be called after isCancelled
-    this.deleteRunningRequest(queueKey, requestId);
+    this.deleteRunningRequest(queryKey, requestId);
 
     const requestDetails: ResponseDetailsType = {
       isCanceled,
@@ -560,14 +560,14 @@ export class Dispatcher {
 
     // On cancelled
     if (isCanceled) {
-      const queue = this.getQueue(queueKey);
+      const queue = this.getQueue(queryKey);
       const queueElement = queue.requests.find((req) => req.requestId === requestId);
 
       // do not remove cancelled request as it may be result of manual queue pause
       // if abort was done without stop action we can remove request
       if (!queue.stopped && !queueElement?.stopped) {
         this.logger.debug("Request paused", { response, requestDetails, request });
-        return this.delete(queueKey, requestId, abortKey);
+        return this.delete(queryKey, requestId, abortKey);
       }
       return this.logger.debug("Request canceled", { response, requestDetails, request });
     }
@@ -576,14 +576,14 @@ export class Dispatcher {
       // if we don't want to keep offline request - just delete them
       if (!offline) {
         this.logger.warning("Removing non-offline request", { response, requestDetails, request });
-        return this.delete(queueKey, requestId, abortKey);
+        return this.delete(queryKey, requestId, abortKey);
       }
       // do not remove request from store as we want to re-send it later
       return this.logger.debug("Awaiting for network restoration", { response, requestDetails, request });
     }
     // On success
     if (response.success) {
-      this.delete(queueKey, requestId, abortKey);
+      this.delete(queryKey, requestId, abortKey);
       return this.logger.debug("Successful response, removing request from queue.", {
         response,
         requestDetails,
@@ -603,7 +603,7 @@ export class Dispatcher {
       }, retryTime || 0);
     } else {
       this.logger.error("All retries have been used. Removing request from queue.");
-      this.delete(queueKey, requestId, abortKey);
+      this.delete(queryKey, requestId, abortKey);
     }
   };
 }

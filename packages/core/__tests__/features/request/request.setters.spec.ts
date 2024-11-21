@@ -100,9 +100,9 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.cacheKey).toBe("test");
   });
   it("should allow for setting queue key", async () => {
-    expect(request.queueKey).toBe("GET_/users/:userId");
+    expect(request.queryKey).toBe("GET_/users/:userId");
     const updatedRequest = request.setQueueKey("test");
-    expect(updatedRequest.queueKey).toBe("test");
+    expect(updatedRequest.queryKey).toBe("test");
   });
   it("should allow for setting deduplicate", async () => {
     expect(request.deduplicate).toBeFalse();

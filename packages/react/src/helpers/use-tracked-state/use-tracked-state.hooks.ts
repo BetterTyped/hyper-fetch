@@ -36,7 +36,7 @@ export const useTrackedState = <T extends RequestInstance>({
   deepCompare,
   dependencyTracking,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { client, cacheKey, queueKey, cacheTime, __responseMapper } = request;
+  const { client, cacheKey, queryKey, cacheTime, __responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
@@ -88,7 +88,7 @@ export const useTrackedState = <T extends RequestInstance>({
   useDidUpdate(
     () => {
       // Handle initial loading state
-      state.current.loading = dispatcher.hasRunningRequests(queueKey);
+      state.current.loading = dispatcher.hasRunningRequests(queryKey);
 
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
@@ -107,7 +107,7 @@ export const useTrackedState = <T extends RequestInstance>({
         setCacheData(cacheState);
       }
     },
-    [cacheKey, queueKey],
+    [cacheKey, queryKey],
     true,
   );
 

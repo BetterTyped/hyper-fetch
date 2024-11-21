@@ -35,7 +35,7 @@ describe("useFetch [ Deduplication ]", () => {
 
         await waitForRender();
 
-        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(1);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queryKey)).toBe(1);
       });
       it("should deduplicate requests within deduplication time", async () => {
         mockRequest(dedupeRequest, { delay: 200 });
@@ -46,7 +46,7 @@ describe("useFetch [ Deduplication ]", () => {
         renderUseFetch(dedupeRequest);
         await waitForRender();
 
-        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(1);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queryKey)).toBe(1);
       });
     });
     describe("when response is failed", () => {
@@ -62,7 +62,7 @@ describe("useFetch [ Deduplication ]", () => {
         await testSuccessState(successMock, responseOne);
         await testSuccessState(successMock, responseTwo);
 
-        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queueKey)).toBe(2);
+        expect(client.fetchDispatcher.getQueueRequestCount(dedupeRequest.queryKey)).toBe(2);
       });
     });
     describe("when response is successful", () => {

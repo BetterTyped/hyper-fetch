@@ -31,7 +31,7 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
 
 export type UseRequestEventsActionsType<T extends RequestInstance> = {
   /**
-   * Callback that allows canceling ongoing requests from the given queueKey.
+   * Callback that allows canceling ongoing requests from the given queryKey.
    */
   abort: () => void;
   /**

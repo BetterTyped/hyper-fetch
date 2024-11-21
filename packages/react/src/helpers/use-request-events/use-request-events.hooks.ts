@@ -103,9 +103,9 @@ export const useRequestEvents = <R extends RequestInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetLoadingEvent = (queueKey: string) => {
+  const handleGetLoadingEvent = (queryKey: string) => {
     return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queueKey);
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queryKey);
       if (loading || canDisableLoading) {
         actions.setLoading(loading, false);
       }
@@ -190,11 +190,11 @@ export const useRequestEvents = <R extends RequestInstance>({
       // It's important to clear previously attached listeners to not cause some additional response/request
       // events to be triggered during lifecycle
       clearLifecycleListeners();
-      const { queueKey, cacheKey } = req;
-      const requestStartUnmount = requestManager.events.onRequestStartByQueue(queueKey, handleRequestStart());
-      const responseStartUnmount = requestManager.events.onResponseStartByQueue(queueKey, handleResponseStart());
-      const uploadUnmount = requestManager.events.onUploadProgressByQueue(queueKey, handleUploadProgress);
-      const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queueKey, handleDownloadProgress);
+      const { queryKey, cacheKey } = req;
+      const requestStartUnmount = requestManager.events.onRequestStartByQueue(queryKey, handleRequestStart());
+      const responseStartUnmount = requestManager.events.onResponseStartByQueue(queryKey, handleResponseStart());
+      const uploadUnmount = requestManager.events.onUploadProgressByQueue(queryKey, handleUploadProgress);
+      const downloadUnmount = requestManager.events.onDownloadProgressByQueue(queryKey, handleDownloadProgress);
       const responseUnmount = requestManager.events.onResponseByCache(cacheKey, handleResponse());
 
       const unmount = () => {
@@ -205,7 +205,7 @@ export const useRequestEvents = <R extends RequestInstance>({
         responseUnmount();
       };
 
-      lifecycleEvents.current.set(queueKey, { unmount });
+      lifecycleEvents.current.set(queryKey, { unmount });
 
       return unmount;
     }
@@ -242,7 +242,7 @@ export const useRequestEvents = <R extends RequestInstance>({
     const requests = dispatcher.getAllRunningRequests();
     requests.forEach((requestData) => {
       if (requestData.request.abortKey === abortKey) {
-        dispatcher.delete(requestData.request.queueKey, requestData.requestId, abortKey);
+        dispatcher.delete(requestData.request.queryKey, requestData.requestId, abortKey);
       }
     });
   };

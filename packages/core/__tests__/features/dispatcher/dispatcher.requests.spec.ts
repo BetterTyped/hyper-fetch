@@ -33,14 +33,14 @@ describe("Dispatcher [ Requests ]", () => {
     it("should allow to add request to running requests", async () => {
       const requestId = "test";
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
-      expect(dispatcher.hasRunningRequest(request.queueKey, requestId)).toBeFalse();
-      dispatcher.addRunningRequest(request.queueKey, requestId, request);
-      expect(dispatcher.hasRunningRequest(request.queueKey, requestId)).toBeTrue();
+      expect(dispatcher.hasRunningRequest(request.queryKey, requestId)).toBeFalse();
+      dispatcher.addRunningRequest(request.queryKey, requestId, request);
+      expect(dispatcher.hasRunningRequest(request.queryKey, requestId)).toBeTrue();
     });
 
     it("should get all running requests", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test2" });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
@@ -52,21 +52,21 @@ describe("Dispatcher [ Requests ]", () => {
       expect(runningRequests).toPartiallyContain({ requestId: firstRequestId });
       expect(runningRequests).toPartiallyContain({ requestId: secondRequestId });
     });
-    it("should get queueKey running requests", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
+    it("should get queryKey running requests", async () => {
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test2" });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
       const firstRequestId = dispatcher.add(firstRequest);
       const secondRequestId = dispatcher.add(secondRequest);
-      const runningRequests = dispatcher.getRunningRequests(firstRequest.queueKey);
+      const runningRequests = dispatcher.getRunningRequests(firstRequest.queryKey);
 
       expect(runningRequests).toHaveLength(1);
       expect(runningRequests).toPartiallyContain({ requestId: firstRequestId });
       expect(runningRequests).not.toPartiallyContain({ requestId: secondRequestId });
     });
-    it("should get queueKey running requests when queue name space doesn't exist", async () => {
+    it("should get queryKey running requests when queue name space doesn't exist", async () => {
       const runningRequests = dispatcher.getRunningRequests("fake-namespace");
 
       expect(runningRequests).toBeArray();
@@ -75,14 +75,14 @@ describe("Dispatcher [ Requests ]", () => {
       expect(dispatcher.getRunningRequest("fake-namespace", "fake-request-id")).toBeUndefined();
     });
     it("should get single running request", async () => {
-      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test1" });
-      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queueKey: "test2" });
+      const firstRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test1" });
+      const secondRequest = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "test2" });
       mockRequest(firstRequest, { delay: 5 });
       mockRequest(secondRequest, { delay: 5 });
 
       dispatcher.add(secondRequest);
       const firstRequestId = dispatcher.add(firstRequest);
-      const request = dispatcher.getRunningRequest(firstRequest.queueKey, firstRequestId);
+      const request = dispatcher.getRunningRequest(firstRequest.queryKey, firstRequestId);
 
       expect(request?.requestId).toBe(firstRequestId);
     });
@@ -104,9 +104,9 @@ describe("Dispatcher [ Requests ]", () => {
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
       client.requestManager.events.onAbortByKey(firstRequest.abortKey, thirdSpy);
 
-      dispatcher.cancelRunningRequests(firstRequest.queueKey);
+      dispatcher.cancelRunningRequests(firstRequest.queryKey);
 
-      expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(0);
+      expect(dispatcher.getRunningRequests(firstRequest.queryKey)).toHaveLength(0);
       expect(firstSpy).toHaveBeenCalledTimes(1);
       expect(secondSpy).toHaveBeenCalledTimes(1);
       expect(thirdSpy).toHaveBeenCalledTimes(2);
@@ -126,9 +126,9 @@ describe("Dispatcher [ Requests ]", () => {
 
       await sleep(5);
 
-      dispatcher.cancelRunningRequest(firstRequest.queueKey, requestId);
+      dispatcher.cancelRunningRequest(firstRequest.queryKey, requestId);
 
-      expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
+      expect(dispatcher.getRunningRequests(firstRequest.queryKey)).toHaveLength(1);
       expect(firstSpy).toHaveBeenCalledTimes(1);
       expect(secondSpy).toHaveBeenCalledTimes(1);
     });
@@ -150,9 +150,9 @@ describe("Dispatcher [ Requests ]", () => {
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
       client.requestManager.events.onAbortByKey(firstRequest.abortKey, thirdSpy);
 
-      dispatcher.deleteRunningRequests(firstRequest.queueKey);
+      dispatcher.deleteRunningRequests(firstRequest.queryKey);
 
-      expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(0);
+      expect(dispatcher.getRunningRequests(firstRequest.queryKey)).toHaveLength(0);
       expect(firstSpy).toHaveBeenCalledTimes(0);
       expect(secondSpy).toHaveBeenCalledTimes(0);
       expect(thirdSpy).toHaveBeenCalledTimes(0);
@@ -173,11 +173,11 @@ describe("Dispatcher [ Requests ]", () => {
 
       client.requestManager.events.onAbortById(firstRequestId, firstSpy);
       client.requestManager.events.onAbortById(secondRequestId, secondSpy);
-      client.requestManager.events.onAbortByKey(firstRequest.queueKey, thirdSpy);
+      client.requestManager.events.onAbortByKey(firstRequest.queryKey, thirdSpy);
 
-      dispatcher.deleteRunningRequest(firstRequest.queueKey, firstRequestId);
+      dispatcher.deleteRunningRequest(firstRequest.queryKey, firstRequestId);
 
-      expect(dispatcher.getRunningRequests(firstRequest.queueKey)).toHaveLength(1);
+      expect(dispatcher.getRunningRequests(firstRequest.queryKey)).toHaveLength(1);
       expect(firstSpy).toHaveBeenCalledTimes(0);
       expect(secondSpy).toHaveBeenCalledTimes(0);
       expect(thirdSpy).toHaveBeenCalledTimes(0);
@@ -194,12 +194,12 @@ describe("Dispatcher [ Requests ]", () => {
 
         const requestId = dispatcher.add(request);
         await sleep(1);
-        expect(dispatcher.getRunningRequest(request.queueKey, requestId)).toBeDefined();
+        expect(dispatcher.getRunningRequest(request.queryKey, requestId)).toBeDefined();
 
-        dispatcher.stopRequest(request.queueKey, requestId);
-        const queue = dispatcher.getQueue(request.queueKey);
+        dispatcher.stopRequest(request.queryKey, requestId);
+        const queue = dispatcher.getQueue(request.queryKey);
 
-        expect(dispatcher.getRunningRequest(request.queueKey, requestId)).not.toBeDefined();
+        expect(dispatcher.getRunningRequest(request.queryKey, requestId)).not.toBeDefined();
         expect(queue.requests[0].stopped).toBeTrue();
 
         await waitFor(() => {
@@ -214,15 +214,15 @@ describe("Dispatcher [ Requests ]", () => {
         const spy = jest.spyOn(client.cache, "set");
 
         const requestId = dispatcher.add(request);
-        dispatcher.stopRequest(request.queueKey, requestId);
+        dispatcher.stopRequest(request.queryKey, requestId);
 
         await sleep(30);
 
-        dispatcher.startRequest(request.queueKey, requestId);
+        dispatcher.startRequest(request.queryKey, requestId);
 
         await waitFor(() => {
           const cacheValue = client.cache.get(request.cacheKey);
-          expect(dispatcher.getQueue(request.queueKey).requests).toHaveLength(0);
+          expect(dispatcher.getQueue(request.queryKey).requests).toHaveLength(0);
           expect(spy).toHaveBeenCalledTimes(2);
           expect(cacheValue).toBeDefined();
           expect(cacheValue?.isCanceled).toBeFalse();

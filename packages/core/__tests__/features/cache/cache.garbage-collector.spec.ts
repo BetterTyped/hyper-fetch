@@ -4,6 +4,8 @@ import { CacheStorageType, CacheValueType } from "cache";
 import { Client, Time, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
+jest.useFakeTimers().setSystemTime(new Date());
+
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
   const cacheTime = 30;
@@ -16,17 +18,16 @@ describe("Cache [ Garbage Collector ]", () => {
     success: true,
     extra: xhrExtra,
     retries: 0,
-    timestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
     cacheTime,
     version,
     garbageCollection,
     cacheKey,
-    queueKey: "1",
-    name: "2",
-    endpoint: "shared-endpoint",
-    method: "GET",
   };
 
   let lazyStorage = new Map<string, CacheValueType>();
@@ -49,7 +50,6 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     jest.resetAllMocks();
     jest.clearAllMocks();
-    cacheData.timestamp = +new Date();
   });
 
   describe("when garbage collector is triggered", () => {
@@ -64,7 +64,7 @@ describe("Cache [ Garbage Collector ]", () => {
       cache.scheduleGarbageCollector(request.cacheKey);
 
       await waitFor(async () => {
-        expect(await cache.options.lazyStorage.get(cacheKey)).not.toBeDefined();
+        expect(await cache.options?.lazyStorage?.get(cacheKey)).not.toBeDefined();
       });
     });
     it("should schedule garbage collection on mount", async () => {
