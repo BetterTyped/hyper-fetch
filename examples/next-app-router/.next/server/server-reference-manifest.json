@@ -1,0 +1,22 @@
+{
+  "node": {
+    "227c742086ecfed98c7e3739d73e9eab9596a5dd": {
+      "workers": {
+        "app/ssr/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fmaciejpyrc%2FPraca%2Fbetter-typed%2Fopen-source%2Fhyper-fetch%2Fexamples%2Fnext-app-router%2Fapp%2Fssr%2Fserver-components.page.tsx%22%2C%5B%22ServerComponents%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/ssr/page": "rsc"
+      }
+    },
+    "deebcd9ae69c901d04f798da28dec0496f5efd7f": {
+      "workers": {
+        "app/ssr/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Fmaciejpyrc%2FPraca%2Fbetter-typed%2Fopen-source%2Fhyper-fetch%2Fexamples%2Fnext-app-router%2Fapp%2Fssr%2Fserver-components.page.tsx%22%2C%5B%22ServerComponents%22%2C%22%24%24ACTION_0%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/ssr/page": "rsc"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "u+eTSwoJNzTDMpmreEK2ZY7C7XtQ7p84/mJKjBZPtyQ="
+}

@@ -50,13 +50,12 @@ Thumbs.db
 # testing
 coverage
 
-# Next.js
-.next
+# NX
+.nx
+src/mockServiceWorker.js
 
 # Firebase
 database-debug.log
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
-
-.nx
