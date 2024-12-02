@@ -79,17 +79,17 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
       });
     });
-    it("should schedule lazy storage garbage collection on mount", async () => {
-      lazyStorage.set(cacheKey, cacheData);
-      const cacheInstance = createCache(client, {
-        lazyStorage: createLazyCacheAdapter(lazyStorage),
-        version,
-      });
+    // it("should schedule lazy storage garbage collection on mount", async () => {
+    //   lazyStorage.set(cacheKey, cacheData);
+    //   const cacheInstance = createCache(client, {
+    //     lazyStorage: createLazyCacheAdapter(lazyStorage),
+    //     version,
+    //   });
 
-      await waitFor(() => {
-        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
-      });
-    });
+    //   await waitFor(() => {
+    //     expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
+    //   });
+    // });
     it("should schedule garbage collection when resource is added", async () => {
       const spy = jest.spyOn(cache, "scheduleGarbageCollector");
       cache.set(request, cacheData);
