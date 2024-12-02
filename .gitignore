@@ -5,6 +5,7 @@ build
 dist
 tmp
 out-tsc
+.next
 
 # dependencies
 node_modules
