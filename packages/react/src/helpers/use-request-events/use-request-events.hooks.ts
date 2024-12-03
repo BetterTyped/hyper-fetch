@@ -36,6 +36,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   logger,
   actions,
   setCacheData,
+  getIsDataProcessing,
 }: UseRequestEventsPropsType<T>): UseRequestEventsReturnType<T> => {
   const { responseMapper } = request;
   const { cache, requestManager } = request.client;
@@ -109,6 +110,12 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const handleGetLoadingEvent = (queueKey: string) => {
     return ({ loading }: RequestLoadingEventType) => {
+      const isProcessing = getIsDataProcessing();
+
+      // When we process the cache data, we don't want to change the loading state during it
+      // This prevents the UI from flickering with { data: null, loading: false }
+      if (isProcessing) return;
+
       const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queueKey);
       if (loading || canDisableLoading) {
         actions.setLoading(loading, false);
@@ -160,12 +167,12 @@ export const useRequestEvents = <T extends RequestInstance>({
   // Data Listeners
   // ******************
 
-  const clearDataListener = () => {
+  const clearCacheDataListener = () => {
     dataEvents.current?.unmount();
     dataEvents.current = null;
   };
 
-  const addDataListener = (req: T) => {
+  const addCacheDataListener = (req: T) => {
     // Data handlers
     const loadingUnmount = requestManager.events.onLoading(req.queueKey, handleGetLoadingEvent(req.queueKey));
     const getResponseUnmount = cache.events.onData<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(
@@ -178,7 +185,7 @@ export const useRequestEvents = <T extends RequestInstance>({
       getResponseUnmount();
     };
 
-    clearDataListener();
+    clearCacheDataListener();
     dataEvents.current = { unmount };
 
     return unmount;
@@ -264,7 +271,7 @@ export const useRequestEvents = <T extends RequestInstance>({
   useWillUnmount(() => {
     // Unmount listeners
     clearLifecycleListeners();
-    clearDataListener();
+    clearCacheDataListener();
   });
 
   return [
@@ -299,8 +306,8 @@ export const useRequestEvents = <T extends RequestInstance>({
       },
     },
     {
-      addDataListener,
-      clearDataListener,
+      addCacheDataListener,
+      clearCacheDataListener,
       addLifecycleListeners,
       removeLifecycleListener,
       clearLifecycleListeners,

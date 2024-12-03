@@ -51,6 +51,7 @@ coverage
 
 # Next.js
 .next
+.nx
 
 # Firebase
 database-debug.log

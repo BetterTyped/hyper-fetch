@@ -28,7 +28,7 @@ export const useCache = <T extends RequestInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<T>({
+  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<T>({
     logger,
     request,
     dispatcher,
@@ -46,12 +46,13 @@ export const useCache = <T extends RequestInstance>(
     request,
     dispatcher,
     setCacheData,
+    getIsDataProcessing,
   });
 
-  const { addDataListener, addLifecycleListeners } = listeners;
+  const { addCacheDataListener, addLifecycleListeners } = listeners;
 
   const handleMountEvents = () => {
-    addDataListener(request);
+    addCacheDataListener(request);
     addLifecycleListeners(request);
   };
 

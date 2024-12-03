@@ -31,6 +31,7 @@ export type UseTrackedStateReturn<T extends RequestInstance> = [
     setRenderKey: (renderKey: keyof UseTrackedStateType<T>) => void;
     setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
     getStaleStatus: () => boolean;
+    getIsDataProcessing: () => boolean;
   },
 ];
 

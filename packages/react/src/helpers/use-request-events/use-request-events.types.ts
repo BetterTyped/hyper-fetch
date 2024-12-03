@@ -24,6 +24,7 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
   logger: LoggerType;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
+  getIsDataProcessing: () => boolean;
 };
 
 export type UseRequestEventsActionsType<T extends RequestInstance> = {
@@ -73,8 +74,8 @@ export type UseRequestEventsActionsType<T extends RequestInstance> = {
 export type UseRequestEventsReturnType<T extends RequestInstance> = [
   UseRequestEventsActionsType<T>,
   {
-    addDataListener: (request: RequestInstance) => VoidFunction;
-    clearDataListener: VoidFunction;
+    addCacheDataListener: (request: RequestInstance) => VoidFunction;
+    clearCacheDataListener: VoidFunction;
     addLifecycleListeners: (request: RequestInstance, requestId?: string) => VoidFunction;
     removeLifecycleListener: (requestId: string) => void;
     clearLifecycleListeners: () => void;
