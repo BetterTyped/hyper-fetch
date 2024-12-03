@@ -108,15 +108,15 @@ export const useRequestEvents = <T extends RequestInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetLoadingEvent = (queueKey: string) => {
+  const handleGetLoadingEvent = (req: T) => {
     return ({ loading }: RequestLoadingEventType) => {
-      const isProcessing = getIsDataProcessing();
+      const isProcessing = getIsDataProcessing(req.cacheKey);
 
       // When we process the cache data, we don't want to change the loading state during it
       // This prevents the UI from flickering with { data: null, loading: false }
       if (isProcessing) return;
 
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queueKey);
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(req.queueKey);
       if (loading || canDisableLoading) {
         actions.setLoading(loading, false);
       }
@@ -174,7 +174,7 @@ export const useRequestEvents = <T extends RequestInstance>({
 
   const addCacheDataListener = (req: T) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoading(req.queueKey, handleGetLoadingEvent(req.queueKey));
+    const loadingUnmount = requestManager.events.onLoading(req.queueKey, handleGetLoadingEvent(req));
     const getResponseUnmount = cache.events.onData<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(
       req.cacheKey,
       setCacheData,

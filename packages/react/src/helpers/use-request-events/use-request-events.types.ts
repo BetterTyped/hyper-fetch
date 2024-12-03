@@ -24,7 +24,7 @@ export type UseRequestEventsPropsType<T extends RequestInstance> = {
   logger: LoggerType;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
-  getIsDataProcessing: () => boolean;
+  getIsDataProcessing: (cacheKey: string) => boolean;
 };
 
 export type UseRequestEventsActionsType<T extends RequestInstance> = {

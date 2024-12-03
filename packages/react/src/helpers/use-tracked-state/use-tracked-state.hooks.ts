@@ -179,8 +179,8 @@ export const useTrackedState = <T extends RequestInstance>({
     }
   };
 
-  const getIsDataProcessing = () => {
-    return isProcessingData.current === cacheKey;
+  const getIsDataProcessing = (processingCacheKey: string) => {
+    return isProcessingData.current === processingCacheKey;
   };
 
   const setCacheData = (
