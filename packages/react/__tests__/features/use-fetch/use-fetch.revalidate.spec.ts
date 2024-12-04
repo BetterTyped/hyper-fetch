@@ -1,5 +1,5 @@
 import { xhrExtra } from "@hyper-fetch/core";
-import { act, waitFor } from "@testing-library/react";
+import { act } from "@testing-library/react";
 
 import { startServer, resetInterceptors, stopServer, createRequestInterceptor } from "../../server";
 import { testSuccessState } from "../../shared";
@@ -83,102 +83,82 @@ describe("useFetch [ refetch ]", () => {
 
     const response = renderUseFetch(request, { revalidate: true });
 
-    await waitFor(async () => {
-      await testSuccessState(mock, response);
-    });
+    await testSuccessState(mock, response);
   });
   it("should allow to refetch current hook", async () => {
     const response = renderUseFetch(request);
 
-    await waitFor(async () => {
-      await testSuccessState(mock, response);
-    });
+    await testSuccessState(mock, response);
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       response.result.current.refetch();
     });
 
-    await waitFor(async () => {
-      await testSuccessState(customMock, response);
-    });
+    await testSuccessState(customMock, response);
   });
   it("should allow to refetch hook by RegExp", async () => {
     const regexp = /(Maciej|Kacper)/;
+
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await waitFor(async () => {
-      await testSuccessState(mock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(mock, responseOne);
+    await testSuccessState(mock, responseTwo);
+
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(regexp);
     });
 
-    await waitFor(async () => {
-      await testSuccessState(customMock, responseOne);
-      await testSuccessState(customMock, responseTwo);
-    });
+    await testSuccessState(customMock, responseOne);
+    await testSuccessState(customMock, responseTwo);
   });
   it("should allow to refetch hook by keys array", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await waitFor(async () => {
-      await testSuccessState(mock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(mock, responseOne);
+    await testSuccessState(mock, responseTwo);
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(["Maciej"]);
     });
 
-    await waitFor(async () => {
-      await testSuccessState(customMock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(customMock, responseOne);
+    await testSuccessState(mock, responseTwo);
   });
   it("should allow to refetch hook by key", async () => {
     const responseOne = renderUseFetch(request.setCacheKey("Maciej"));
     const responseTwo = renderUseFetch(request.setCacheKey("Kacper"));
 
-    await waitFor(async () => {
-      await testSuccessState(mock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(mock, responseOne);
+    await testSuccessState(mock, responseTwo);
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch("Maciej");
     });
 
-    await waitFor(async () => {
-      await testSuccessState(customMock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(customMock, responseOne);
+    await testSuccessState(mock, responseTwo);
   });
   it("should allow to refetch hook by request", async () => {
     const responseOne = renderUseFetch(request.setQueryParams("?something=123"));
     const responseTwo = renderUseFetch(request.setQueryParams("?other=999"));
 
-    await waitFor(async () => {
-      await testSuccessState(mock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(mock, responseOne);
+    await testSuccessState(mock, responseTwo);
     const customMock = createRequestInterceptor(request, { fixture: { something: 123 } });
 
     act(() => {
       responseOne.result.current.refetch(request.setQueryParams("?something=123"));
     });
 
-    await waitFor(async () => {
-      await testSuccessState(customMock, responseOne);
-      await testSuccessState(mock, responseTwo);
-    });
+    await testSuccessState(customMock, responseOne);
+    await testSuccessState(mock, responseTwo);
   });
   it("should not refetch while toggling query", async () => {
     const spy = jest.fn();
