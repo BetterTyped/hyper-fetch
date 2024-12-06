@@ -78,7 +78,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   /**
    * State handler with optimization for rerendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData }] = useTrackedState<RequestType>({
+  const [state, actions, { setRenderKey, setCacheData, getIsDataProcessing }] = useTrackedState<RequestType>({
     logger,
     request,
     dispatcher,
@@ -96,9 +96,10 @@ export const useSubmit = <RequestType extends RequestInstance>(
     request,
     dispatcher,
     setCacheData,
+    getIsDataProcessing,
   });
 
-  const { addDataListener, addLifecycleListeners } = listeners;
+  const { addCacheDataListener, addLifecycleListeners } = listeners;
 
   // ******************
   // Submitting
@@ -120,7 +121,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
     }
 
     const triggerRequest = () => {
-      addDataListener(requestClone);
+      addCacheDataListener(requestClone);
 
       const configuration: RequestSendOptionsType<RequestType> = {
         dispatcherType: "submit",
@@ -203,7 +204,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   // ******************
 
   useDidMount(() => {
-    addDataListener(request);
+    addCacheDataListener(request);
   });
 
   return {

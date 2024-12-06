@@ -40,7 +40,10 @@ describe("useFetch [ refetch ]", () => {
       success: true,
       extra: { headers: { "content-type": "application/json" } },
       retries: 0,
-      timestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
     });
@@ -78,7 +81,10 @@ describe("useFetch [ refetch ]", () => {
       success: true,
       extra: xhrExtra,
       retries: 0,
-      timestamp: +new Date(),
+      addedTimestamp: +new Date(),
+      triggerTimestamp: +new Date(),
+      requestTimestamp: +new Date(),
+      responseTimestamp: +new Date(),
       isCanceled: false,
       isOffline: false,
     });
@@ -117,7 +123,7 @@ describe("useFetch [ refetch ]", () => {
     const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(regexp);
+      client.cache.invalidate(regexp);
     });
 
     await waitFor(async () => {
@@ -136,7 +142,7 @@ describe("useFetch [ refetch ]", () => {
     const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(["Maciej"]);
+      client.cache.invalidate(["Maciej"]);
     });
 
     await waitFor(async () => {
@@ -155,7 +161,7 @@ describe("useFetch [ refetch ]", () => {
     const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch("Maciej");
+      client.cache.invalidate("Maciej");
     });
 
     await waitFor(async () => {
@@ -174,7 +180,7 @@ describe("useFetch [ refetch ]", () => {
     const customMock = mockRequest(request, { data: { something: 123 } });
 
     act(() => {
-      responseOne.result.current.refetch(request.setQueryParams("?something=123"));
+      client.cache.invalidate(request.setQueryParams("?something=123"));
     });
 
     await waitFor(async () => {

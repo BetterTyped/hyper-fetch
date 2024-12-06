@@ -35,8 +35,8 @@ export const useRequestEvents = <R extends RequestInstance>({
   logger,
   actions,
   setCacheData,
+  getIsDataProcessing,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   const { __responseMapper } = request;
   const { cache, requestManager } = request.client;
 
@@ -103,9 +103,15 @@ export const useRequestEvents = <R extends RequestInstance>({
   // Lifecycle
   // ******************
 
-  const handleGetLoadingEvent = (queryKey: string) => {
+  const handleGetLoadingEvent = (req: R) => {
     return ({ loading }: RequestLoadingEventType<RequestInstance>) => {
-      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(queryKey);
+      const isProcessing = getIsDataProcessing(req.cacheKey);
+
+      // When we process the cache data, we don't want to change the loading state during it
+      // This prevents the UI from flickering with { data: null, loading: false }
+      if (isProcessing) return;
+
+      const canDisableLoading = !loading && !dispatcher.hasRunningRequests(req.queryKey);
       if (loading || canDisableLoading) {
         actions.setLoading(loading, false);
       }
@@ -152,14 +158,14 @@ export const useRequestEvents = <R extends RequestInstance>({
   // Data Listeners
   // ******************
 
-  const clearDataListener = () => {
+  const clearCacheDataListener = () => {
     dataEvents.current?.unmount();
     dataEvents.current = null;
   };
 
-  const addDataListener = (req: R) => {
+  const addCacheDataListener = (req: R) => {
     // Data handlers
-    const loadingUnmount = requestManager.events.onLoadingByCache(req.cacheKey, handleGetLoadingEvent(req.cacheKey));
+    const loadingUnmount = requestManager.events.onLoadingByQueue(req.queryKey, handleGetLoadingEvent(req));
     const getResponseUnmount = cache.events.onDataByKey<
       ExtractResponseType<R>,
       ExtractErrorType<R>,
@@ -171,7 +177,7 @@ export const useRequestEvents = <R extends RequestInstance>({
       getResponseUnmount();
     };
 
-    clearDataListener();
+    clearCacheDataListener();
     dataEvents.current = { unmount };
 
     return unmount;
@@ -257,7 +263,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   useWillUnmount(() => {
     // Unmount listeners
     clearLifecycleListeners();
-    clearDataListener();
+    clearCacheDataListener();
   });
 
   return [
@@ -292,8 +298,8 @@ export const useRequestEvents = <R extends RequestInstance>({
       },
     },
     {
-      addDataListener,
-      clearDataListener,
+      addCacheDataListener,
+      clearCacheDataListener,
       addLifecycleListeners,
       removeLifecycleListener,
       clearLifecycleListeners,

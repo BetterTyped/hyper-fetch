@@ -544,6 +544,9 @@ export class Dispatcher {
       responseTimestamp: response.responseTimestamp,
     };
 
+    // Global response emitter to handle request execution
+    requestManager.events.emitResponse({ request, requestId, response, details: requestDetails });
+
     // Turn off loading
     requestManager.events.emitLoading({
       request,
@@ -552,8 +555,7 @@ export class Dispatcher {
       isRetry: !!storageElement.retries,
       isOffline,
     });
-    // Global response emitter to handle request execution
-    requestManager.events.emitResponse({ request, requestId, response, details: requestDetails });
+
     // Cache event to emit the data inside and store it
     cache.set(request, { ...response, ...requestDetails });
     this.logger.info("Request finished", { requestId, request, response, requestDetails });

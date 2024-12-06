@@ -56,6 +56,7 @@ export const useTrackedState = <T extends RequestInstance>({
 
   const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData || hydrationResponse, dispatcher, request));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
+  const isProcessingData = useRef("");
 
   // ******************
   // Utils
@@ -154,7 +155,7 @@ export const useTrackedState = <T extends RequestInstance>({
       extra: cacheData.extra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheData.retries,
       timestamp: new Date(cacheData.responseTimestamp),
-      loading: state.current.loading,
+      loading: dispatcher.hasRunningRequests(queryKey),
     };
 
     const changedKeys = Object.keys(newStateValues).filter((key) => {
@@ -173,17 +174,40 @@ export const useTrackedState = <T extends RequestInstance>({
     renderKeyTrigger(changedKeys);
   };
 
+  const setIsDataProcessing = ({
+    processingCacheKey,
+    isProcessing,
+  }: {
+    processingCacheKey: string;
+    isProcessing: boolean;
+  }) => {
+    if (isProcessing) {
+      isProcessingData.current = processingCacheKey;
+    }
+    // Do not turn off other keys processing
+    else if (isProcessingData.current === cacheKey) {
+      isProcessingData.current = "";
+    }
+  };
+
+  const getIsDataProcessing = (processingCacheKey: string) => {
+    return isProcessingData.current === processingCacheKey;
+  };
+
   const setCacheData = (
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
+    setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: true });
     const data = __responseMapper ? __responseMapper(cacheData) : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
         const promiseData = await data;
         handleCacheData({ ...cacheData, ...promiseData });
+        setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: false });
       })();
     }
+    setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: false });
     return handleCacheData({ ...cacheData, ...data });
   };
 
@@ -256,5 +280,5 @@ export const useTrackedState = <T extends RequestInstance>({
     },
   };
 
-  return [state.current, actions, { setRenderKey, setCacheData, getStaleStatus }];
+  return [state.current, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }];
 };

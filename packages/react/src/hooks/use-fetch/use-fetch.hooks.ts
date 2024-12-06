@@ -40,6 +40,9 @@ export const useFetch = <R extends RequestInstance>(
     bounce = useFetchDefaultOptions.bounce,
     bounceType = useFetchDefaultOptions.bounceType,
     bounceTime = useFetchDefaultOptions.bounceTime,
+    // TODO: handle type error
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     bounceTimeout = useFetchDefaultOptions.bounceTime,
     deepCompare = useFetchDefaultOptions.deepCompare,
   } = {
@@ -64,7 +67,9 @@ export const useFetch = <R extends RequestInstance>(
   /**
    * State handler with optimization for re-rendering, that hooks into the cache state and dispatchers queues
    */
-  const [state, actions, { setRenderKey, setCacheData, getStaleStatus }] = useTrackedState({
+  const [state, actions, { setRenderKey, setCacheData, getStaleStatus, getIsDataProcessing }] = useTrackedState<
+    UseFetchRequest<R>
+  >({
     logger,
     request,
     dispatcher,
@@ -82,9 +87,10 @@ export const useFetch = <R extends RequestInstance>(
     request,
     dispatcher,
     setCacheData,
+    getIsDataProcessing,
   });
 
-  const { addDataListener, addLifecycleListeners, clearDataListener } = listeners;
+  const { addCacheDataListener, addLifecycleListeners, clearCacheDataListener } = listeners;
 
   // ******************
   // Fetching
@@ -93,6 +99,11 @@ export const useFetch = <R extends RequestInstance>(
     if (!disabled) {
       logger.debug(`Fetching data`);
       dispatcher.add(request);
+      const queue = dispatcher.getQueue(request.queryKey);
+      // We want fast initial loading state if not paused / disabled
+      if (!queue.stopped && queue.requests.length) {
+        actions.setLoading(true);
+      }
     } else {
       logger.debug(`Cannot add to fetch queue`, { disabled });
     }
@@ -179,7 +190,7 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
 
   const handleMountEvents = () => {
-    addDataListener(request);
+    addCacheDataListener(request);
     addLifecycleListeners(request);
 
     const focusUnmount = appManager.events.onFocus(() => {
@@ -205,7 +216,7 @@ export const useFetch = <R extends RequestInstance>(
     const deletionUnmount = cache.events.onDeleteByKey(cacheKey, handleFetch);
 
     const unmount = () => {
-      clearDataListener();
+      clearCacheDataListener();
       focusUnmount();
       blurUnmount();
       onlineUnmount();
