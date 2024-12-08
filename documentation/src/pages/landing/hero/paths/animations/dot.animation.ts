@@ -13,7 +13,7 @@ export const dotAnimation: Animation = ({ dot, timeline }) => {
     dot,
     {
       opacity: 1,
-      scale: 0.5,
+      scale: 1,
     },
     1,
   );

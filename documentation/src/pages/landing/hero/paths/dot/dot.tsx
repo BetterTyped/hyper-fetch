@@ -3,8 +3,8 @@ import { useWindowSize } from "@reins/hooks";
 
 import { Animation } from "../animations/animation.types";
 import { dotAnimation } from "../animations/dot.animation";
-import { labelAnimation } from "../animations/label.animation";
-import { glowAnimation } from "../animations/glow.animation";
+// import { labelAnimation } from "../animations/label.animation";
+// import { glowAnimation } from "../animations/glow.animation";
 
 function getMatrix(element: HTMLDivElement) {
   const { transform } = element.style;
@@ -48,46 +48,47 @@ export const Dot = ({
         end: 1,
       },
       duration: animation.duration,
-      onUpdate: () => {
-        const item = document.querySelector(animation.item) as HTMLDivElement;
-        const gradient = document.querySelector(`#gradient${animation.index}`) as SVGPathElement;
-        const halo = document.querySelector(`#halo${animation.index}`) as SVGPathElement;
-        const paths = document.querySelector(`#paths`) as SVGElement;
-        const element = document.querySelector(animation.path) as SVGPathElement;
+      // TOO SLOW
+      // onUpdate: () => {
+      //   const item = document.querySelector(animation.item) as HTMLDivElement;
+      //   const gradient = document.querySelector(`#gradient${animation.index}`) as SVGPathElement;
+      //   const halo = document.querySelector(`#halo${animation.index}`) as SVGPathElement;
+      //   const paths = document.querySelector(`#paths`) as SVGElement;
+      //   const element = document.querySelector(animation.path) as SVGPathElement;
 
-        if (!item || !gradient || !halo || !element || !paths) {
-          return;
-        }
+      //   if (!item || !gradient || !halo || !element || !paths) {
+      //     return;
+      //   }
 
-        const { x, y } = getMatrix(item);
+      //   const { x, y } = getMatrix(item);
 
-        const svgViewportWidth = 2000;
-        const svgViewportHeight = 1000;
-        const svgWidth = paths.getBoundingClientRect().width;
-        const svgHeight = paths.getBoundingClientRect().height;
-        const topOffset = 185;
-        const leftOffset = -5;
-        const scaleX = svgViewportWidth / svgWidth;
-        const scaleY = svgViewportHeight / svgHeight;
+      //   const svgViewportWidth = 2000;
+      //   const svgViewportHeight = 1000;
+      //   const svgWidth = paths.getBoundingClientRect().width;
+      //   const svgHeight = paths.getBoundingClientRect().height;
+      //   const topOffset = 185;
+      //   const leftOffset = -5;
+      //   const scaleX = svgViewportWidth / svgWidth;
+      //   const scaleY = svgViewportHeight / svgHeight;
 
-        halo.setAttribute("cx", `${x * scaleX + leftOffset}`);
-        halo.setAttribute("cy", `${y * scaleY + topOffset}`);
+      //   halo.setAttribute("cx", `${x * scaleX + leftOffset}`);
+      //   halo.setAttribute("cy", `${y * scaleY + topOffset}`);
 
-        gradient.setAttribute("cx", `${x * scaleX + leftOffset}`);
-        gradient.setAttribute("cy", `${y * scaleY + topOffset}`);
-      },
+      //   gradient.setAttribute("cx", `${x * scaleX + leftOffset}`);
+      //   gradient.setAttribute("cy", `${y * scaleY + topOffset}`);
+      // },
     });
 
     dotAnimation(animation);
-    labelAnimation(animation);
-    glowAnimation(animation);
+    // labelAnimation(animation);
+    // glowAnimation(animation);
   }, [animation, id, width]);
 
   return (
     <div id={`idItem${id}`} className="absolute">
       <div
         id={`idDot${id}`}
-        className={`w-1 h-1 rounded-[100%] left-1/2 -translate-x-1/2 top-0 opacity-0 ${tool.dotClassName}`}
+        className={`w-[2px] h-[2px] rounded-[100%] left-1/2 -translate-x-1/2 top-0 opacity-0 ${tool.dotClassName}`}
       />
       <span
         id={`idLabel${id}`}

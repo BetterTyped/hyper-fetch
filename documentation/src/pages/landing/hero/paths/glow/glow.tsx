@@ -5,9 +5,9 @@ export const Glow = ({ id, path, pathIndex }: { id: number; path: string; pathIn
       <defs>
         <mask id={`glowMask${id}`}>
           <path d={path} fill="black" />
-          <circle id={`halo${id}`} r={16} fill="white" />
+          <circle id={`halo${id}`} r={100} fill="white" />
         </mask>
-        <radialGradient id={`gradient${id}`} r={40} gradientUnits="userSpaceOnUse">
+        <radialGradient id={`gradient${id}`} r={50} gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="yellow" stopOpacity={1} />
           <stop offset="100%" stopColor="yellow" stopOpacity={0} />
         </radialGradient>
