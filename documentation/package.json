@@ -15,12 +15,12 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docsgen/core": "1.0.2",
-    "@docsgen/docusaurus": "1.0.2",
-    "@docusaurus/core": "^3.6.1",
-    "@docusaurus/faster": "^3.6.1",
-    "@docusaurus/preset-classic": "^3.6.1",
-    "@docusaurus/theme-live-codeblock": "^3.6.1",
+    "@docsgen/core": "1.2.3",
+    "@docsgen/docusaurus": "1.2.3",
+    "@docusaurus/core": "^3.6.3",
+    "@docusaurus/faster": "^3.6.3",
+    "@docusaurus/preset-classic": "^3.6.3",
+    "@docusaurus/theme-live-codeblock": "^3.6.3",
     "@hyper-fetch/core": "^5.7.3",
     "@hyper-fetch/react": "^5.7.3",
     "@mdx-js/react": "^3.0.0",
@@ -49,9 +49,9 @@
     "three": "^0.170.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.6.1",
-    "@docusaurus/tsconfig": "^3.6.1",
-    "@docusaurus/types": "^3.6.1",
+    "@docusaurus/module-type-aliases": "^3.6.3",
+    "@docusaurus/tsconfig": "^3.6.3",
+    "@docusaurus/types": "^3.6.3",
     "@types/prismjs": "^1.26.3",
     "@types/react-slick": "^0.23.11",
     "tslib": "^2.6.2",

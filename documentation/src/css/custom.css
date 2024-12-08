@@ -2,6 +2,237 @@
 @tailwind components;
 @tailwind utilities;
 
+/*********************************************************
+* Tokens
+*/
+.namespace {
+  opacity: 0.7;
+}
+
+.token.doctype .token.doctype-tag {
+  color: #569cd6;
+}
+
+.token.doctype .token.name {
+  color: #9cdcfe;
+}
+
+.token.comment,
+.token.prolog {
+  color: #6a9955;
+}
+
+.token.punctuation,
+.language-html .language-css .token.punctuation,
+.language-html .language-javascript .token.punctuation {
+  color: #d4d4d4;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.inserted,
+.token.unit {
+  color: #b5cea8;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.deleted {
+  color: #ce9178;
+}
+
+.language-css .token.string.url {
+  text-decoration: underline;
+}
+
+.token.operator,
+.token.entity {
+  color: #d4d4d4;
+}
+
+.token.operator.arrow {
+  color: #569cd6;
+}
+
+.token.atrule {
+  color: #ce9178;
+}
+
+.token.atrule .token.rule {
+  color: #c586c0;
+}
+
+.token.atrule .token.url {
+  color: #9cdcfe;
+}
+
+.token.atrule .token.url .token.function {
+  color: #dcdcaa;
+}
+
+.token.atrule .token.url .token.punctuation {
+  color: #d4d4d4;
+}
+
+.token.keyword {
+  color: #569cd6;
+}
+
+.token.keyword.module,
+.token.keyword.control-flow {
+  color: #c586c0;
+}
+
+.token.function,
+.token.function .token.maybe-class-name {
+  color: #dcdcaa;
+}
+
+.token.regex {
+  color: #d16969;
+}
+
+.token.important {
+  color: #569cd6;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.constant {
+  color: #9cdcfe;
+}
+
+.token.class-name,
+.token.maybe-class-name {
+  color: #4ec9b0;
+}
+
+.token.console {
+  color: #9cdcfe;
+}
+
+.token.parameter {
+  color: #9cdcfe;
+}
+
+.token.interpolation {
+  color: #9cdcfe;
+}
+
+.token.punctuation.interpolation-punctuation {
+  color: #569cd6;
+}
+
+.token.boolean {
+  color: #569cd6;
+}
+
+.token.property,
+.token.variable,
+.token.imports .token.maybe-class-name,
+.token.exports .token.maybe-class-name {
+  color: #9cdcfe;
+}
+
+.token.selector {
+  color: #d7ba7d;
+}
+
+.token.escape {
+  color: #d7ba7d;
+}
+
+.token.tag {
+  color: #569cd6;
+}
+
+.token.class-name.operator {
+  color: #808080;
+}
+
+.token.tag .token.punctuation {
+  color: #808080;
+}
+
+.token.cdata {
+  color: #808080;
+}
+
+.token.attr-name {
+  color: #9cdcfe;
+}
+
+.token.attr-value,
+.token.attr-value .token.punctuation {
+  color: #ce9178;
+}
+
+.token.attr-value .token.punctuation.attr-equals {
+  color: #d4d4d4;
+}
+
+.token.entity {
+  color: #569cd6;
+}
+
+.token.namespace {
+  color: #4ec9b0;
+}
+/*********************************************************
+* Language Specific
+*/
+
+pre[class*="language-javascript"],
+code[class*="language-javascript"],
+pre[class*="language-jsx"],
+code[class*="language-jsx"],
+pre[class*="language-typescript"],
+code[class*="language-typescript"],
+pre[class*="language-tsx"],
+code[class*="language-tsx"] {
+  color: #9cdcfe;
+}
+
+pre[class*="language-css"],
+code[class*="language-css"] {
+  color: #ce9178;
+}
+
+pre[class*="language-html"],
+code[class*="language-html"] {
+  color: #d4d4d4;
+}
+
+.language-regex .token.anchor {
+  color: #dcdcaa;
+}
+
+.language-html .token.punctuation {
+  color: #808080;
+}
+/*********************************************************
+* Line highlighting
+*/
+pre[class*="language-"] > code[class*="language-"] {
+  position: relative;
+  z-index: 1;
+}
+
+.line-highlight.line-highlight {
+  background: #f7ebc6;
+  box-shadow: inset 5px 0 0 #f7d87c;
+  z-index: 0;
+}
+
 /* New feature */
 
 .new-feature {
@@ -50,6 +281,21 @@
 
 .api-docs__section-title {
   @apply mt-8 mb-4;
+}
+
+.api-docs__section-title h2 {
+  @apply relative mb-12 mt-20 !text-transparent font-extrabold bg-clip-text bg-gradient-to-b from-zinc-800/60 via-zinc-800 to-zinc-800/60 dark:from-zinc-200/60 dark:via-zinc-200 dark:to-zinc-200/60;
+}
+
+/* Underline */
+.api-docs__section-title h2:after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, #fbbf24, #f59e0b);
 }
 
 .api-docs__section-title:first-child {
@@ -185,8 +431,12 @@ pre {
 
 .api-docs__table pre {
   overflow-x: auto !important;
-  @apply w-fit md:max-w-[300px] lg:max-w-[400px] rounded-none !py-0 !px-2 !bg-[#1c1c1d] mb-0;
+  @apply w-fit rounded-none !py-0 !px-2 !bg-[#1c1c1d] mb-0;
 }
+.api-docs_table .codeBlock {
+  @apply md:max-w-[300px] lg:max-w-[400px];
+}
+
 .api-docs__table pre code {
   @apply !py-2 !px-1;
   max-width: 250px;
@@ -308,6 +558,21 @@ h6 {
     0px 0px 16px var(--tw-shadow-color);
 }
 
+body:not(.dark) .title,
+body:not(.dark) .api-docs__section-title,
+body:not(.dark) .title * {
+  text-shadow:
+    -1px -1px 0 hsla(0, 0%, 0%, 0.1),
+    1px 1px 0 rgba(200, 200, 200, 0.1);
+}
+body.dark .title,
+body.dark .api-docs__section-title,
+body.dark .title * {
+  text-shadow:
+    -1px -1px 0 hsla(0, 0%, 100%, 0.2),
+    1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
 /* Playground */
 
 .playground .editor > pre > pre {
@@ -317,6 +582,11 @@ h6 {
 /**
  * Docs page
  */
+
+.toc > div {
+  height: auto;
+  max-height: none;
+}
 
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ol,
 main .col:not(.col--3):not(.toc):not(.table-of-contents) ul {
@@ -363,8 +633,12 @@ body .col .nav-tabs li {
 }
 
 .theme-doc-sidebar-container > div {
+  position: sticky;
+  top: 90px;
   margin-top: 60px;
-  height: calc(100% - 100px);
+  height: 100%;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 
 .theme-doc-footer-edit-meta-row a,
@@ -409,11 +683,11 @@ main a {
   @apply !font-bold;
 }
 
-div > .theme-code-block {
+body .theme-code-block {
   @apply border-[1px] border-zinc-700/20 dark:border-transparent relative text-zinc-300 hover:text-white transition-all duration-150 ease-in-out [background:linear-gradient(theme(colors.zinc.700),_theme(colors.zinc.800))_padding-box,_conic-gradient(theme(colors.zinc.400),_theme(colors.zinc.700)_25%,_theme(colors.zinc.700)_75%,_theme(colors.zinc.400)_100%)_border-box!important] before:absolute before:inset-0 before:bg-zinc-700/30 before:pointer-events-none before:z-[-1];
 }
 
-div > .theme-code-block span {
+body .theme-code-block span {
   @apply text-sm;
 }
 
@@ -458,6 +732,8 @@ body .theme-code-block {
 
 pre[class*="language-"] {
   margin: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .alert *:not(pre) > code {

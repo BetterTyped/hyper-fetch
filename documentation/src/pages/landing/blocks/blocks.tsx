@@ -26,7 +26,7 @@ export const Blocks = () => {
         <div className="pt-16 md:pt-20">
           {/* Section header */}
           <div className="">
-            <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
+            <div className="max-w-3xl mx-auto text-center pb-6 md:pb-10">
               <div className="relative">
                 <Stage onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                   <div className="sticky top-0">

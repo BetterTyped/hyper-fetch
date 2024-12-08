@@ -174,7 +174,8 @@ const config: Config = {
         outDir: `docs/api`,
         packages: getPackagesList(),
         logLevel: "trace",
-        hasMonorepoPage: false,
+        addMonorepoPage: false,
+        addPackagePage: false,
       } satisfies Parameters<typeof plugin>[1],
     ],
   ],
@@ -279,8 +280,8 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} BetterTyped.`,
     },
     prism: {
-      theme: prismThemes.vsDark,
-      darkTheme: prismThemes.vsDark,
+      theme: { plain: {}, styles: [] },
+      darkTheme: { plain: {}, styles: [] },
     },
   } satisfies Preset.ThemeConfig,
 };

@@ -29,7 +29,7 @@ export const Hero = () => {
   });
 
   return (
-    <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[128px] pb-[68px] -mt-[88px]">
+    <section className="relative w-[100vw] h-fit max-w-[100vw] text-center pt-[158px] pb-[68px] -mt-[88px]">
       {/* Illustrations */}
       <Paths />
 
@@ -45,7 +45,7 @@ export const Hero = () => {
       {/* Hero content */}
       <div className="relative max-w-6xl mx-auto flex flex-col justify-center items-center px-6 mt-12 mb-12">
         <div className="mb-1">
-          <Link to="/enterprise" className="shiny-label flex items-center !no-underline py-0.5">
+          <Link to="/docs/devtools" className="shiny-label flex items-center !no-underline py-0.5">
             <Sparkles className="w-[14px] h-[14px] text-yellow-600/80 dark:text-yellow-500 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out" />
             Enterprise ready
             <span className="w-[14px] h-[1px] leading-[0.2] tracking-normal text-yellow-600/90 dark:text-white group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out mr-0.5">

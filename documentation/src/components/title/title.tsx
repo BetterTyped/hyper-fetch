@@ -43,7 +43,7 @@ export const Title = forwardRef(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={ref}
-        className={`${colorClass} ${sizeClass} leading-tight !text-transparent font-bold gap-1 ${wrapperClass}`}
+        className={`title ${colorClass} ${sizeClass} leading-tight !text-transparent font-bold gap-1 ${wrapperClass}`}
       >
         {newChildren}
       </Component>

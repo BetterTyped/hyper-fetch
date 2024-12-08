@@ -61,8 +61,13 @@ export const useSidebar = (options?: {
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
 
+    console.log(currentVersion.sidebars);
+
     return Object.values(currentVersion.sidebars)
       .filter((value) => {
+        if (!value.link?.path) {
+          console.log(value);
+        }
         if (showAllPackages) return value.link.path.includes("/docs/api");
         // eslint-disable-next-line no-nested-ternary
         return location.pathname.includes("/docs/api")
