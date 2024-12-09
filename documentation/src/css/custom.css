@@ -85,6 +85,10 @@
   color: #569cd6;
 }
 
+.token.constructor {
+  color: #569cd6 !important;
+}
+
 .token.keyword.module,
 .token.keyword.control-flow {
   color: #c586c0;

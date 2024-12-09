@@ -61,8 +61,6 @@ export const useSidebar = (options?: {
   const sidebar: SidebarItem[] = useMemo(() => {
     if (!currentVersion?.sidebars) return [];
 
-    console.log(currentVersion.sidebars);
-
     return Object.values(currentVersion.sidebars)
       .filter((value) => {
         if (!value.link?.path) {
