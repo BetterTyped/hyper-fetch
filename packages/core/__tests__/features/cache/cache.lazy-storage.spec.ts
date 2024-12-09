@@ -97,7 +97,7 @@ describe("Cache [ Lazy Storage ]", () => {
       const otherKey = "otherKey";
       await cache.options?.lazyStorage?.set(cacheKey, cacheData);
       await cache.storage.set(otherKey, cacheData);
-      const keys = await cache.getLazyKeys();
+      const keys = await cache.getAllKeys();
       await sleep(50);
       expect(keys).toStrictEqual([cacheKey, otherKey]);
     });

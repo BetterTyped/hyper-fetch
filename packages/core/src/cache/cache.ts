@@ -36,8 +36,10 @@ export class Cache<C extends ClientInstance> {
     public client: C,
     public options?: CacheOptionsType,
   ) {
-    this.emitter?.setMaxListeners(20000);
-    this.storage = this.options?.storage || (new Map<string, CacheValueType>() as typeof this.storage);
+    const { storage = new Map<string, CacheValueType>() } = this.options || {};
+
+    this.storage = storage;
+    this.emitter?.setMaxListeners(1000);
     this.events = getCacheEvents(this.emitter);
     this.options?.onInitialization?.(this);
 
@@ -45,12 +47,20 @@ export class Cache<C extends ClientInstance> {
     this.lazyStorage = this.options?.lazyStorage;
     this.logger = this.client.loggerManager.init("Cache");
 
-    [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
+    const scheduleGarbageCollector = (keys: string[]) => {
+      keys.forEach(this.scheduleGarbageCollector);
 
-    // Going back from offline should re-trigger garbage collection
-    this.client.appManager.events.onOnline(() => {
-      [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
-    });
+      // Going back from offline should re-trigger garbage collection
+      this.client.appManager.events.onOnline(() => {
+        keys.forEach(this.scheduleGarbageCollector);
+      });
+    };
+
+    scheduleGarbageCollector([...this.storage.keys()]);
+
+    // Schedule garbage collection for lazy storage
+    // To make sure we do not store some data that is no longer needed
+    this.getLazyKeys().then(scheduleGarbageCollector);
   }
 
   /**
@@ -178,7 +188,7 @@ export class Cache<C extends ClientInstance> {
    */
   invalidate = async (invalidateKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
     this.logger.debug("Revalidating cache element", { invalidateKeys });
-    const keys = await this.getLazyKeys();
+    const keys = await this.getAllKeys();
 
     const invalidate = (key: string | RegExp | RequestInstance) => {
       const handleInvalidation = (cacheKey: string) => {
@@ -249,6 +259,16 @@ export class Cache<C extends ClientInstance> {
    * @param cacheKey
    */
   getLazyKeys = async () => {
+    const keys = (await this.lazyStorage?.keys()) || [];
+
+    return [...new Set(keys)];
+  };
+
+  /**
+   * Used to receive keys from sync storage and lazy storage
+   * @param cacheKey
+   */
+  getAllKeys = async () => {
     const keys = await this.lazyStorage?.keys();
     const asyncKeys = Array.from(keys || []);
     const syncKeys = Array.from(this.storage.keys());
@@ -294,6 +314,7 @@ export class Cache<C extends ClientInstance> {
    * Clear cache storages
    */
   clear = async (): Promise<void> => {
+    this.garbageCollectors.forEach((timeout) => clearTimeout(timeout));
     this.storage.clear();
   };
 }

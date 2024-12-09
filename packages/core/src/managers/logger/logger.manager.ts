@@ -18,7 +18,7 @@ export class LoggerManager {
     private client: Pick<ClientInstance, "debug">,
     private options?: LoggerOptionsType,
   ) {
-    this.emitter?.setMaxListeners(20000);
+    this.emitter?.setMaxListeners(1000);
     this.logger = this.options?.logger || logger;
     this.severity = this.options?.severity || 2;
   }

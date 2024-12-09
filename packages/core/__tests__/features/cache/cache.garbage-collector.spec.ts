@@ -69,9 +69,19 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should schedule garbage collection on mount", async () => {
       const storage = new Map();
-      storage.set(cacheKey, cacheData);
-      const cacheInstance = createCache(client, {
+      storage.set("cacheKey", cacheData);
+
+      const cacheInstance = createCache(new Client({ url: "shared-base-url" }), {
         storage,
+        version,
+      });
+
+      expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
+    });
+    it("should schedule lazy storage garbage collection on mount", async () => {
+      lazyStorage.set(cacheKey, cacheData);
+      const cacheInstance = createCache(client, {
+        lazyStorage: createLazyCacheAdapter(lazyStorage),
         version,
       });
 
@@ -79,23 +89,10 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
       });
     });
-    // it("should schedule lazy storage garbage collection on mount", async () => {
-    //   lazyStorage.set(cacheKey, cacheData);
-    //   const cacheInstance = createCache(client, {
-    //     lazyStorage: createLazyCacheAdapter(lazyStorage),
-    //     version,
-    //   });
-
-    //   await waitFor(() => {
-    //     expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
-    //   });
-    // });
     it("should schedule garbage collection when resource is added", async () => {
       const spy = jest.spyOn(cache, "scheduleGarbageCollector");
       cache.set(request, cacheData);
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-      });
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should remove resource with not matching lazy version", async () => {
       const data = { ...cacheData, cacheTime: Time.MIN };
