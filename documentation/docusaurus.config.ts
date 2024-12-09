@@ -1,4 +1,4 @@
-import { themes as prismThemes } from "prism-react-renderer";
+import { Prism } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 import path from "path";
@@ -280,8 +280,24 @@ const config: Config = {
       copyright: `Copyright © ${new Date().getFullYear()} BetterTyped.`,
     },
     prism: {
-      theme: { plain: {}, styles: [] },
-      darkTheme: { plain: {}, styles: [] },
+      theme: {
+        plain: {},
+        styles: [
+          {
+            types: ["constructor"],
+            style: { color: "rgb(255, 255, 255)" },
+          },
+        ],
+      },
+      darkTheme: {
+        plain: {},
+        styles: [
+          {
+            types: ["constructor"],
+            style: { color: "rgb(255, 255, 255)" },
+          },
+        ],
+      },
     },
   } satisfies Preset.ThemeConfig,
 };

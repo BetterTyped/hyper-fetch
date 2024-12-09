@@ -373,7 +373,7 @@ const request = client.createRequest()({
   endpoint: "/some-endpoint",
   retry: 2,
   cancelable: true,
-  cacheTime: 20000,
+  staleTime: 20000,
   cacheKey: "users",
   deduplication: true,
 });

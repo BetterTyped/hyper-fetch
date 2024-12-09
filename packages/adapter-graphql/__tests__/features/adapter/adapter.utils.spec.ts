@@ -32,21 +32,21 @@ describe("Graphql Adapter [ Utils ]", () => {
 
   describe("When using 'getRequestValues'", () => {
     it("should generate values", async () => {
-      const { fullUrl, payload, method } = getRequestValues(request);
+      const { fullUrl, payload } = getRequestValues(request);
 
       expect(fullUrl).toBe("https://shared-base-url/graphql");
       expect(payload).toBe('{"query":"query GetUser {\\n  username {\\n    username\\n    firstName\\n  }\\n}"}');
-      expect(method).toBe("POST");
+      expect(request.method).toBe("POST");
       expect(request.endpoint).toBeString();
     });
     it("should generate values for GET", async () => {
-      const { fullUrl, payload, method } = getRequestValues(requestGet);
+      const { fullUrl, payload } = getRequestValues(requestGet);
 
       expect(fullUrl).toBe(
         "https://shared-base-url/graphql?query=%0Aquery%20GetUser%20%7B%0A%20%20username%20%7B%0A%20%20%20%20username%0A%20%20%20%20firstName%0A%20%20%7D%0A%7D%0A",
       );
       expect(payload).toBeNull();
-      expect(method).toBe("GET");
+      expect(request.method).toBe("GET");
       expect(requestGet.endpoint).toBeString();
     });
   });

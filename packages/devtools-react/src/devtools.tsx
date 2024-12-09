@@ -329,7 +329,7 @@ export const Devtools = <T extends ClientInstance>({
       setCache((draft) => {
         const invalidatedElement = draft.find((cacheElement) => cacheElement.cacheKey === cacheKey);
         if (invalidatedElement) {
-          invalidatedElement.cacheData.cacheTime = 0;
+          invalidatedElement.cacheData.staleTime = 0;
         }
       });
     });

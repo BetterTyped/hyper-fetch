@@ -15,8 +15,8 @@ describe("Graphql Adapter [ Server ]", () => {
   const requestCopy = https.request;
   let clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter).setDebug(true);
   let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter).setDebug(true);
-  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
   });
 
@@ -33,8 +33,8 @@ describe("Graphql Adapter [ Server ]", () => {
 
     clientHttp = new Client({ url: "shared-base-url" }).setAdapter(GraphqlAdapter);
     client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
-    request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,
     });
     client.requestManager.addAbortController(request.abortKey, requestId);
@@ -63,7 +63,7 @@ describe("Graphql Adapter [ Server ]", () => {
     mockRequest(request);
     await expect(() =>
       GraphqlAdapter(clientHttp).adapter(
-        clientHttp.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery }),
+        clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery }),
         requestId,
       ),
     ).not.toThrow();
@@ -91,7 +91,7 @@ describe("Graphql Adapter [ Server ]", () => {
   it("should make a request with string endpoint", async () => {
     const expected = mockRequest(request, { data: { username: "prc", firstName: "Maciej" } });
 
-    const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send();
+    const { data, error, status, extra } = await client.createRequest()({ endpoint: getUserQueryString }).send({});
 
     expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
@@ -167,7 +167,7 @@ describe("Graphql Adapter [ Server ]", () => {
     mockRequest(mutation);
 
     await mutation.send({
-      data: {
+      payload: {
         username: "Kacper",
         password: "Kacper1234",
       },
@@ -188,7 +188,7 @@ describe("Graphql Adapter [ Server ]", () => {
     const buffer = Buffer.from("test");
 
     await mutation.send({
-      data: buffer as any,
+      payload: buffer as any,
     });
 
     expect(receivedOptions.headers["Content-Length"]).toBeGreaterThan(0);

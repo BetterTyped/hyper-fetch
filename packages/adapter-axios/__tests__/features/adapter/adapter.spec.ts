@@ -73,7 +73,7 @@ describe("Axios Adapter [ Base ]", () => {
     expect(spySettle).toHaveBeenCalledTimes(1);
     expect(spyReqStart).toHaveBeenCalledTimes(1);
     expect(spyResStart).toHaveBeenCalledTimes(1);
-    expect(spyUpload).toHaveBeenCalledTimes(2);
+    expect(spyUpload).toHaveBeenCalledTimes(3);
     expect(spyDownload).toHaveBeenCalledTimes(3);
     expect(spyResponse).toHaveBeenCalledTimes(1);
   });
@@ -91,6 +91,6 @@ describe("Axios Adapter [ Base ]", () => {
       onUploadProgress: spyUpload,
     });
 
-    expect(spyUpload).toHaveBeenCalledTimes(2);
+    expect(spyUpload).toHaveBeenCalledTimes(3);
   });
 });

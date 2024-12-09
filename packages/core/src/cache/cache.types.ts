@@ -43,9 +43,9 @@ export type CacheValueType<
 > = ResponseType<Response, Error, Adapter> &
   ResponseDetailsType & {
     cacheKey: string;
-    cacheTime: number;
+    staleTime: number;
     version: string;
-    garbageCollection: number;
+    cacheTime: number;
     hydrated?: boolean;
   };
 
@@ -79,7 +79,4 @@ export type CacheInitialData = Record<string, CacheValueType>;
 
 export type CacheSetState<CacheData> = CacheData | ((previousData: CacheData | null) => CacheData);
 
-export type RequestCacheType<R extends RequestInstance> = Pick<
-  R,
-  "cacheKey" | "cache" | "cacheTime" | "garbageCollection"
->;
+export type RequestCacheType<R extends RequestInstance> = Pick<R, "cacheKey" | "cache" | "staleTime" | "cacheTime">;

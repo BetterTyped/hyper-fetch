@@ -25,9 +25,9 @@ describe("Cache [ Events ]", () => {
     isCanceled: false,
     isOffline: false,
     cacheKey: request.cacheKey,
-    cacheTime: request.cacheTime,
+    staleTime: request.staleTime,
     version: cache.version,
-    garbageCollection: 300000,
+    cacheTime: 300000,
   };
 
   beforeEach(() => {

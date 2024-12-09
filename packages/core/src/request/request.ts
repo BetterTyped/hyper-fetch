@@ -71,9 +71,9 @@ export class Request<
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: number;
-  cache: boolean;
   cacheTime: number;
+  cache: boolean;
+  staleTime: number;
   queued: boolean;
   offline: boolean;
   abortKey: string;
@@ -140,9 +140,9 @@ export class Request<
       cancelable = false,
       retry = 0,
       retryTime = 500,
-      garbageCollection = Time.MIN * 5,
-      cache = true,
       cacheTime = Time.MIN * 5,
+      cache = true,
+      staleTime = Time.MIN * 5,
       queued = false,
       offline = true,
       abortKey,
@@ -162,9 +162,9 @@ export class Request<
     this.cancelable = initialRequestConfiguration?.cancelable ?? cancelable;
     this.retry = initialRequestConfiguration?.retry ?? retry;
     this.retryTime = initialRequestConfiguration?.retryTime ?? retryTime;
-    this.garbageCollection = initialRequestConfiguration?.garbageCollection ?? garbageCollection;
-    this.cache = initialRequestConfiguration?.cache ?? cache;
     this.cacheTime = initialRequestConfiguration?.cacheTime ?? cacheTime;
+    this.cache = initialRequestConfiguration?.cache ?? cache;
+    this.staleTime = initialRequestConfiguration?.staleTime ?? staleTime;
     this.queued = initialRequestConfiguration?.queued ?? queued;
     this.offline = initialRequestConfiguration?.offline ?? offline;
     this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
@@ -229,13 +229,13 @@ export class Request<
   };
 
   public setGarbageCollection = (
-    garbageCollection: RequestOptionsType<
+    cacheTime: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["garbageCollection"],
+    >["cacheTime"],
   ) => {
-    return this.clone({ garbageCollection });
+    return this.clone({ cacheTime });
   };
 
   public setCache = (
@@ -249,13 +249,13 @@ export class Request<
   };
 
   public setCacheTime = (
-    cacheTime: RequestOptionsType<
+    staleTime: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
-    >["cacheTime"],
+    >["staleTime"],
   ) => {
-    return this.clone({ cacheTime });
+    return this.clone({ staleTime });
   };
 
   public setQueued = (queued: boolean) => {
@@ -425,9 +425,9 @@ export class Request<
       cancelable: this.cancelable,
       retry: this.retry,
       retryTime: this.retryTime,
-      garbageCollection: this.garbageCollection,
-      cache: this.cache,
       cacheTime: this.cacheTime,
+      cache: this.cache,
+      staleTime: this.staleTime,
       queued: this.queued,
       offline: this.offline,
       abortKey: this.abortKey,

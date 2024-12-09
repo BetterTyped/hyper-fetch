@@ -80,9 +80,9 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.cache).toBeFalse();
   });
   it("should allow for setting cache time", async () => {
-    expect(request.cacheTime).toBe(Time.MIN * 5);
+    expect(request.staleTime).toBe(Time.MIN * 5);
     const updatedRequest = request.setCacheTime(1000);
-    expect(updatedRequest.cacheTime).toBe(1000);
+    expect(updatedRequest.staleTime).toBe(1000);
   });
   it("should allow for setting queued", async () => {
     expect(request.queued).toBeFalse();
@@ -124,10 +124,10 @@ describe("Request [ Setters ]", () => {
     const updatedRequest = request.setOffline(false);
     expect(updatedRequest.offline).toBeFalse();
   });
-  it("should allow for setting garbageCollection", async () => {
-    expect(request.garbageCollection).toBe(Time.MIN * 5);
+  it("should allow for setting cacheTime", async () => {
+    expect(request.cacheTime).toBe(Time.MIN * 5);
     const updatedRequest = request.setGarbageCollection(Time.MIN);
-    expect(updatedRequest.garbageCollection).toBe(Time.MIN);
+    expect(updatedRequest.cacheTime).toBe(Time.MIN);
   });
   it("should allow for setting data mapper", async () => {
     const mapper = (data: { name: string; email: string }) => {

@@ -4,7 +4,7 @@ import { Client } from "client";
 import { xhrExtra } from "adapter";
 
 describe("Cache [ Lazy Storage ]", () => {
-  const cacheTime = 10000;
+  const staleTime = 10000;
   const version = "test";
   const cacheKey = "1";
   const cacheData: CacheValueType = {
@@ -20,9 +20,9 @@ describe("Cache [ Lazy Storage ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
-    cacheTime,
+    staleTime,
     version,
-    garbageCollection: Infinity,
+    cacheTime: Infinity,
     cacheKey,
   };
 
@@ -66,7 +66,7 @@ describe("Cache [ Lazy Storage ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should not emit stale data", async () => {
-      await cache.options?.lazyStorage?.set(cacheKey, { ...cacheData, responseTimestamp: +new Date() - cacheTime });
+      await cache.options?.lazyStorage?.set(cacheKey, { ...cacheData, responseTimestamp: +new Date() - staleTime });
       cache.events.onDataByKey(cacheKey, spy);
       const data = cache.get(cacheKey);
       await sleep(50);

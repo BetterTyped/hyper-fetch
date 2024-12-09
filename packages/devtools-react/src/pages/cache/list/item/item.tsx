@@ -50,8 +50,8 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   const { client, setDetailsCacheKey, detailsCacheKey } = useDevtoolsContext("DevtoolsCacheItem");
   const css = styles.useStyles();
 
-  const cacheTimestamp = item.cacheData.responseTimestamp + item.cacheData.cacheTime;
-  const countdown = useCountdown(cacheTimestamp);
+  const staleTimestamp = item.cacheData.responseTimestamp + item.cacheData.staleTime;
+  const countdown = useCountdown(staleTimestamp);
 
   const [listeners, setListeners] = useState(
     client.requestManager.emitter.listeners(getLoadingByCacheKey(item.cacheKey))?.length,
@@ -63,7 +63,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
     });
   }, [client.requestManager.emitter, item.cacheKey, setDetailsCacheKey]);
 
-  const isFresh = cacheTimestamp >= Date.now() ? Object.values(countdown).some((v) => v > 1) : false;
+  const isFresh = staleTimestamp >= Date.now() ? Object.values(countdown).some((v) => v > 1) : false;
 
   return (
     <Table.Row

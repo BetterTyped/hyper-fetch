@@ -8,7 +8,7 @@ export default {
 export const getJestConfig = (): Config.InitialOptions => ({
   cache: false,
   verbose: true,
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-fixed-jsdom",
   testTimeout: 1000000,
   preset: "ts-jest",
   testRegex: [".spec.ts"],

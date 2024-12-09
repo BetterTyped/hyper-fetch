@@ -21,13 +21,13 @@ export const serialize = <R extends RequestInstance>(
   response: ResponseType<ExtractResponseType<R>, ExtractErrorType<R>, ExtractAdapterType<R>>,
   options?: HydrationOptions,
 ): HydrateDataType => {
-  const { cacheKey, cache, cacheTime, garbageCollection } = request;
+  const { cacheKey, cache, staleTime, cacheTime } = request;
   return {
     ...options,
     cacheKey,
     cache,
+    staleTime,
     cacheTime,
-    garbageCollection,
     timestamp: Date.now(),
     response,
     hydrated: true,

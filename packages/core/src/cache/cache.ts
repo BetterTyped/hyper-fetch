@@ -67,7 +67,7 @@ export class Cache<C extends ClientInstance> {
     > & { hydrated?: boolean },
   ): void => {
     this.logger.debug("Processing cache response", { request, response });
-    const { cacheKey, cache, cacheTime, garbageCollection } = request;
+    const { cacheKey, cache, staleTime, cacheTime } = request;
     const cachedData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
@@ -81,10 +81,10 @@ export class Cache<C extends ClientInstance> {
 
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
       ...data,
-      cacheTime,
+      staleTime,
       version: this.version,
       cacheKey,
-      garbageCollection,
+      cacheTime,
     };
 
     // Only success data is valid for the cache store
@@ -173,7 +173,7 @@ export class Cache<C extends ClientInstance> {
 
   /**
    * Invalidate cache by cacheKey or partial matching with RegExp
-   * It emits invalidation event for each matching cacheKey and sets cacheTime to 0 to indicate out of time cache
+   * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
   invalidate = async (invalidateKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
@@ -184,7 +184,7 @@ export class Cache<C extends ClientInstance> {
       const handleInvalidation = (cacheKey: string) => {
         const value = this.storage.get(cacheKey);
         if (value) {
-          this.storage.set(cacheKey, { ...value, cacheTime: 0 });
+          this.storage.set(cacheKey, { ...value, staleTime: 0 });
         }
         this.events.emitInvalidation(cacheKey);
       };
@@ -224,7 +224,7 @@ export class Cache<C extends ClientInstance> {
     if (hasLazyData) {
       const now = +new Date();
       const isNewestData = syncData ? syncData.responseTimestamp < data.responseTimestamp : true;
-      const isStaleData = data.cacheTime <= now - data.responseTimestamp;
+      const isStaleData = data.staleTime <= now - data.responseTimestamp;
       const isValidLazyData = data.version === this.version;
 
       if (!isValidLazyData) {
@@ -270,8 +270,8 @@ export class Cache<C extends ClientInstance> {
 
     // Garbage collect
     if (cacheData) {
-      const timeLeft = cacheData.garbageCollection + cacheData.responseTimestamp - +new Date();
-      if (cacheData.garbageCollection !== null && JSON.stringify(cacheData.garbageCollection) === "null") {
+      const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - +new Date();
+      if (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") {
         this.logger.info("Cache value is Infinite", { cacheKey });
       } else if (timeLeft >= 0) {
         this.garbageCollectors.set(

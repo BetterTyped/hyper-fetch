@@ -83,9 +83,9 @@ describe("useTrackingState [ Events ]", () => {
             timestamp: +new Date(),
             isCanceled: false,
             isOffline: false,
-            cacheTime: request.cacheTime,
+            staleTime: request.staleTime,
             version: request.client.cache.version,
-            garbageCollection: Infinity,
+            cacheTime: Infinity,
           });
         });
 
@@ -133,9 +133,9 @@ describe("useTrackingState [ Events ]", () => {
             timestamp: +new Date(),
             isCanceled: false,
             isOffline: false,
-            cacheTime: request.cacheTime,
+            staleTime: request.staleTime,
             version: request.client.cache.version,
-            garbageCollection: Infinity,
+            cacheTime: Infinity,
           });
         });
 
@@ -169,9 +169,9 @@ describe("useTrackingState [ Events ]", () => {
             timestamp: +new Date(),
             isCanceled: false,
             isOffline: false,
-            cacheTime: request.cacheTime,
+            staleTime: request.staleTime,
             version: request.client.cache.version,
-            garbageCollection: Infinity,
+            cacheTime: Infinity,
           });
         });
 
@@ -195,9 +195,9 @@ describe("useTrackingState [ Events ]", () => {
             timestamp: 0,
             isCanceled: false,
             isOffline: false,
-            cacheTime: request.cacheTime,
+            staleTime: request.staleTime,
             version: request.client.cache.version,
-            garbageCollection: Infinity,
+            cacheTime: Infinity,
           });
         });
 

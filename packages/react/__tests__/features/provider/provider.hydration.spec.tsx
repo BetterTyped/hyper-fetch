@@ -34,8 +34,8 @@ describe("Provider [ Hydration ]", () => {
           {
             cacheKey: request.cacheKey,
             cache: true,
-            garbageCollection: Infinity,
-            cacheTime: 1000,
+            cacheTime: Infinity,
+            staleTime: 1000,
             timestamp: Date.now(),
             response: {
               data,

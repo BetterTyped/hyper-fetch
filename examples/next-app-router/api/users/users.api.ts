@@ -6,13 +6,13 @@ import { client } from "../client";
 export const getUser = client.createRequest<UserModel>()({
   endpoint: "/api/user/:userId",
   cache: true,
-  cacheTime: Time.SEC * 10,
+  staleTime: Time.SEC * 10,
 });
 
 export const getUsers = client.createRequest<UserModel[]>()({
   endpoint: "/api/users",
   cache: true,
-  cacheTime: Time.SEC * 5,
+  staleTime: Time.SEC * 5,
 });
 
 export const postUser = client.createRequest<UserModel, PostUserModel>()({

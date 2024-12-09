@@ -10,11 +10,13 @@ sidebar_label: Global Defaults
 
 ### Use global defaults for request
 
-Adding global configs can significantly limit application setup. For the greatest flexibility in configurations created for larger and more complex applications,
-global configs are added through callbacks based on request data. This allows us the flexibility to, for example,
-make one default configuration for requests using the get method and another default config for the requests using other methods.
+Adding global configs can significantly limit application setup. For the greatest flexibility in configurations created
+for larger and more complex applications, global configs are added through callbacks based on request data. This allows
+us the flexibility to, for example, make one default configuration for requests using the get method and another default
+config for the requests using other methods.
 
-Remember: Global configurations are overwritten by request settings, so the options that we set will be applied only to requests that do not have settings specified in their options.
+Remember: Global configurations are overwritten by request settings, so the options that we set will be applied only to
+requests that do not have settings specified in their options.
 
 ---
 
@@ -25,7 +27,7 @@ export const client = new Client({ url }).setRequestDefaultOptions((requestOptio
   if (requestOptions.method === "GET") {
     return {
       deduplicate: true,
-      cacheTime: 20000,
+      staleTime: 20000,
       retry: 3,
     };
   }
@@ -41,11 +43,10 @@ export const client = new Client({ url }).setRequestDefaultOptions((requestOptio
 ### Add your own key mappers
 
 Data and requests made within our library are organized by keys. Each key is generated from request metadata, such as
-parameters, query parameters, endpoints, and methods. They can be replaced by the way you choose to segregate and organize data
-with your own key mappers.
+parameters, query parameters, endpoints, and methods. They can be replaced by the way you choose to segregate and
+organize data with your own key mappers.
 
 Note: Keys must be a string value.
-
 
 ```ts
 client.setQueueKeyMapper((request) => `Custom_Key_${request.method}_${request.endpoint}`);

@@ -41,9 +41,9 @@ export type RequestJSON<Request extends RequestInstance> = {
   cancelable: boolean;
   retry: number;
   retryTime: number;
-  garbageCollection: number;
-  cache: boolean;
   cacheTime: number;
+  cache: boolean;
+  staleTime: number;
   queued: boolean;
   offline: boolean;
   disableResponseInterceptors: boolean | undefined;
@@ -101,7 +101,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
   /**
    * Should we trigger garbage collection or leave data in memory
    */
-  garbageCollection?: number;
+  cacheTime?: number;
   /**
    * Should we save the response to cache
    */
@@ -109,7 +109,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
   /**
    * Time for which the cache is considered up-to-date
    */
-  cacheTime?: number;
+  staleTime?: number;
   /**
    * Should the requests from this request be send one-by-one
    */

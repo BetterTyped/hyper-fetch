@@ -68,7 +68,7 @@ export const CacheDetails = () => {
   );
 
   const [stale, setStale] = useState(
-    item ? item.cacheData.responseTimestamp + item.cacheData.cacheTime < Date.now() : false,
+    item ? item.cacheData.responseTimestamp + item.cacheData.staleTime < Date.now() : false,
   );
 
   const hasInProgressRequest = item ? inProgress.some((i) => i.cacheKey === item.cacheKey) : false;
@@ -230,7 +230,7 @@ export const CacheDetails = () => {
                 label="Time left before stale:"
                 value={
                   <Countdown
-                    value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
+                    value={item.cacheData.responseTimestamp + item.cacheData.staleTime}
                     onDone={() => setStale(true)}
                     onStart={() => setStale(false)}
                     doneText={<Chip color="gray">Cache data is stale</Chip>}
@@ -241,7 +241,7 @@ export const CacheDetails = () => {
                 label="Time left for garbage collection:"
                 value={
                   <Countdown
-                    value={item.cacheData.responseTimestamp + item.cacheData.garbageCollection}
+                    value={item.cacheData.responseTimestamp + item.cacheData.cacheTime}
                     doneText={<Chip color="gray">Data removed from cache</Chip>}
                   />
                 }

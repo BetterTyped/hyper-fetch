@@ -31,9 +31,9 @@ export const getDetailsState = (
   };
 };
 
-export const isStaleCacheData = (cacheTime: number, cacheTimestamp: NullableType<Date | number>) => {
-  if (!cacheTimestamp) return true;
-  return +new Date() > +cacheTimestamp + cacheTime;
+export const isStaleCacheData = (staleTime: number, staleTimestamp: NullableType<Date | number>) => {
+  if (!staleTimestamp) return true;
+  return +new Date() > +staleTimestamp + staleTime;
 };
 
 export const getValidCacheData = <T extends RequestInstance>(
@@ -41,7 +41,7 @@ export const getValidCacheData = <T extends RequestInstance>(
   initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>,
   cacheData: NullableType<CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>>,
 ): CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>> | null => {
-  const isStale = isStaleCacheData(request.cacheTime, cacheData?.responseTimestamp);
+  const isStale = isStaleCacheData(request.staleTime, cacheData?.responseTimestamp);
 
   if (!isStale && cacheData) {
     return cacheData;
@@ -56,10 +56,10 @@ export const getValidCacheData = <T extends RequestInstance>(
       extra: null,
       ...((initialData || {}) as Partial<ExtractAdapterResolvedType<T>>),
       ...getDetailsState(),
-      cacheTime: 1000,
+      staleTime: 1000,
       version: request.client.cache.version,
       cacheKey: request.cacheKey,
-      garbageCollection: request.garbageCollection,
+      cacheTime: request.cacheTime,
       requestTimestamp: initialData?.requestTimestamp ?? +new Date(),
       responseTimestamp: initialData?.responseTimestamp ?? +new Date(),
     };

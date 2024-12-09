@@ -101,7 +101,7 @@ describe("Cache [ Base ]", () => {
 
       const data = cache.get(request.cacheKey);
       expect(data).toBeDefined();
-      expect(data?.cacheTime).toBe(0);
+      expect(data?.staleTime).toBe(0);
       expect(trigger).toHaveBeenCalledTimes(1);
       unmount();
     });

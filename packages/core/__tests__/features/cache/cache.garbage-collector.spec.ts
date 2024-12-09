@@ -8,9 +8,9 @@ jest.useFakeTimers().setSystemTime(new Date());
 
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
-  const cacheTime = 30;
+  const staleTime = 30;
   const version = "test";
-  const garbageCollection = 10;
+  const cacheTime = 10;
   const cacheData: CacheValueType = {
     data: null,
     error: null,
@@ -24,16 +24,16 @@ describe("Cache [ Garbage Collector ]", () => {
     triggerTimestamp: +new Date(),
     isCanceled: false,
     isOffline: false,
-    cacheTime,
+    staleTime,
     version,
-    garbageCollection,
+    cacheTime,
     cacheKey,
   };
 
   let lazyStorage = new Map<string, CacheValueType>();
 
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
+  let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, staleTime, cacheTime });
   let cache = createCache(client, {
     lazyStorage: createLazyCacheAdapter(lazyStorage),
     version,
@@ -43,7 +43,7 @@ describe("Cache [ Garbage Collector ]", () => {
     lazyStorage.clear();
     lazyStorage = new Map<string, CacheValueType>();
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, cacheTime, garbageCollection });
+    request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, staleTime, cacheTime });
     cache = createCache(client, {
       lazyStorage: createLazyCacheAdapter(lazyStorage),
       version,
@@ -98,7 +98,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching lazy version", async () => {
-      const data = { ...cacheData, garbageCollection: Time.MIN };
+      const data = { ...cacheData, cacheTime: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
@@ -112,7 +112,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching sync version", async () => {
-      const data = { ...cacheData, garbageCollection: Time.MIN };
+      const data = { ...cacheData, cacheTime: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
         // Todo: check
@@ -128,7 +128,7 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should not schedule garbage collection for Infinity", async () => {
       const storage = new Map();
-      storage.set(cacheKey, { ...cacheData, garbageCollection: Infinity });
+      storage.set(cacheKey, { ...cacheData, cacheTime: Infinity });
       const cacheInstance = createCache(client, {
         storage,
         version,
@@ -140,7 +140,7 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     it("should not schedule garbage collection for null", async () => {
       const storage = new Map();
-      storage.set(cacheKey, { ...cacheData, garbageCollection: null });
+      storage.set(cacheKey, { ...cacheData, cacheTime: null });
       const cacheInstance = createCache(client, {
         storage,
         version,

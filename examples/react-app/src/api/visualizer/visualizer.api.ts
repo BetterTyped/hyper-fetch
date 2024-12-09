@@ -5,28 +5,28 @@ import { client } from "../client";
 export const getTea = client.createRequest()({
   endpoint: "/api/teas/:teaId",
   cache: true,
-  cacheTime: Time.SEC * 10,
+  staleTime: Time.SEC * 10,
   cacheKey: "teaId",
 });
 
 export const duplicatedGetTea = client.createRequest()({
   endpoint: "/api/teas/:teaId",
   cache: true,
-  cacheTime: Time.SEC * 10,
+  staleTime: Time.SEC * 10,
   cacheKey: "teaId",
 });
 
 export const getTeas = client.createRequest()({
   endpoint: "/api/teas",
   cache: true,
-  cacheTime: Time.SEC * 5,
+  staleTime: Time.SEC * 5,
 });
 
 export const createTea = client.createRequest()({
   endpoint: "/api/teas",
   method: "POST",
   cancelable: true,
-  cacheTime: Time.SEC * 5,
+  staleTime: Time.SEC * 5,
 });
 
 export const updateTea = client.createRequest()({
