@@ -17,7 +17,7 @@ export type UseCacheOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
+  initialResponse?: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>["data"] | null;
   /**
    * Deep comparison function for hook to check for equality in incoming data, to limit rerenders.
    */

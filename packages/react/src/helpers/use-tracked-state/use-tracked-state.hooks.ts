@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useDidUpdate, useForceUpdate } from "@better-hooks/lifecycle";
 import {
   ExtractErrorType,
@@ -7,7 +7,6 @@ import {
   ExtractResponseType,
   RequestInstance,
   ExtractAdapterType,
-  HydrateDataType,
   ExtractAdapterExtraType,
 } from "@hyper-fetch/core";
 
@@ -19,12 +18,11 @@ import {
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
 import { getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
-import { useProvider } from "provider";
 
 /**
  *
  * @param request
- * @param initialData
+ * @param initialResponse
  * @param dispatcher
  * @param dependencies
  * @internal
@@ -32,7 +30,7 @@ import { useProvider } from "provider";
 export const useTrackedState = <T extends RequestInstance>({
   request,
   dispatcher,
-  initialData,
+  initialResponse,
   deepCompare,
   dependencyTracking,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
@@ -40,21 +38,8 @@ export const useTrackedState = <T extends RequestInstance>({
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
-  const { hydrationData } = useProvider();
 
-  const { hydrationResponse } = useMemo(() => {
-    const hydrationItem = hydrationData?.find((item) => item.cacheKey === cacheKey) as HydrateDataType<
-      ExtractResponseType<T>,
-      ExtractErrorType<T>,
-      ExtractAdapterType<T>
-    >;
-
-    return {
-      hydrationResponse: hydrationItem?.response,
-    };
-  }, [cacheKey, hydrationData]);
-
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialData || hydrationResponse, dispatcher, request));
+  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialResponse, dispatcher, request));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
   const isProcessingData = useRef("");
 
@@ -93,9 +78,9 @@ export const useTrackedState = <T extends RequestInstance>({
 
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
-      const cacheState = getValidCacheData<T>(request, initialData || hydrationResponse, cacheData);
+      const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
-      const hasInitialState = isEqual(initialData?.data || hydrationResponse?.data, state.current.data);
+      const hasInitialState = isEqual(initialResponse?.data, state.current.data);
       const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;

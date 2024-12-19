@@ -30,7 +30,7 @@ export const useFetch = <R extends RequestInstance>(
     disabled = useFetchDefaultOptions.disabled,
     dependencyTracking = useFetchDefaultOptions.dependencyTracking,
     revalidate = useFetchDefaultOptions.revalidate,
-    initialData = useFetchDefaultOptions.initialData,
+    initialResponse = useFetchDefaultOptions.initialResponse,
     refresh = useFetchDefaultOptions.refresh,
     refreshTime = useFetchDefaultOptions.refreshTime,
     refetchBlurred = useFetchDefaultOptions.refetchBlurred,
@@ -73,7 +73,7 @@ export const useFetch = <R extends RequestInstance>(
     logger,
     request,
     dispatcher,
-    initialData,
+    initialResponse,
     deepCompare,
     dependencyTracking,
   });

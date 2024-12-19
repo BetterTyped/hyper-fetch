@@ -19,7 +19,7 @@ export const useCache = <T extends RequestInstance>(
 
   // Build the configuration options
   const { config: globalConfig } = useProvider();
-  const { dependencyTracking, initialData, deepCompare } = {
+  const { dependencyTracking, initialResponse, deepCompare } = {
     ...useCacheDefaultOptions,
     ...globalConfig.useCacheConfig,
     ...options,
@@ -32,7 +32,7 @@ export const useCache = <T extends RequestInstance>(
     logger,
     request,
     dispatcher,
-    initialData,
+    initialResponse,
     deepCompare,
     dependencyTracking,
   });

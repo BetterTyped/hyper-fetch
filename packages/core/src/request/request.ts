@@ -228,7 +228,7 @@ export class Request<
     return this.clone({ retryTime });
   };
 
-  public setGarbageCollection = (
+  public setCacheTime = (
     cacheTime: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
@@ -248,7 +248,7 @@ export class Request<
     return this.clone({ cache });
   };
 
-  public setCacheTime = (
+  public setStaleTime = (
     staleTime: RequestOptionsType<
       Endpoint,
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,

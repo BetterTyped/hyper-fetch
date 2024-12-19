@@ -57,7 +57,7 @@ describe("useFetch [ Base ]", () => {
         });
       });
 
-      const view = renderUseFetch(request.setCacheTime(10));
+      const view = renderUseFetch(request.setStaleTime(10));
 
       await testCacheState({ data: null, error: null, status: null, success: true, extra: xhrExtra }, view);
     });

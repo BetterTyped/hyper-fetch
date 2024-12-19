@@ -81,7 +81,7 @@ describe("Request [ Setters ]", () => {
   });
   it("should allow for setting cache time", async () => {
     expect(request.staleTime).toBe(Time.MIN * 5);
-    const updatedRequest = request.setCacheTime(1000);
+    const updatedRequest = request.setStaleTime(1000);
     expect(updatedRequest.staleTime).toBe(1000);
   });
   it("should allow for setting queued", async () => {
@@ -126,7 +126,7 @@ describe("Request [ Setters ]", () => {
   });
   it("should allow for setting cacheTime", async () => {
     expect(request.cacheTime).toBe(Time.MIN * 5);
-    const updatedRequest = request.setGarbageCollection(Time.MIN);
+    const updatedRequest = request.setCacheTime(Time.MIN);
     expect(updatedRequest.cacheTime).toBe(Time.MIN);
   });
   it("should allow for setting data mapper", async () => {

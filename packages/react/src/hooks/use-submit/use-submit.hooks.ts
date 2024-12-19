@@ -42,7 +42,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   const {
     disabled,
     dependencyTracking = true,
-    initialData,
+    initialResponse,
     bounce,
     bounceType,
     bounceTime,
@@ -82,7 +82,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
     logger,
     request,
     dispatcher,
-    initialData,
+    initialResponse,
     deepCompare,
     dependencyTracking,
   });

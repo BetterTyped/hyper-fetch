@@ -18,7 +18,7 @@ import { isEqual } from "utils";
 export type UseTrackedStateProps<T extends RequestInstance> = {
   request: T;
   logger: LoggerType;
-  initialData: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
+  initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   deepCompare: boolean | typeof isEqual;

@@ -39,7 +39,7 @@ export type UseFetchOptionsType<R extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterResolvedType<UseFetchRequest<R>>>>;
+  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<UseFetchRequest<R>>>>;
   /**
    * Enable/disable refresh data
    */

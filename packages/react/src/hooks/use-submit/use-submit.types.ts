@@ -19,7 +19,7 @@ export type UseSubmitOptionsType<T extends RequestInstance> = {
   /**
    * If cache is empty we can use placeholder data.
    */
-  initialData?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
+  initialResponse?: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   /**
    * Enable/disable debouncing for often changing keys or refreshing, to limit requests to server.
    */

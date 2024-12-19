@@ -1,5 +1,5 @@
 import React from "react";
-import { ClientInstance, RequestInstance, HydrateDataType, HydrationOptions } from "@hyper-fetch/core";
+import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
 
 import { UseSubmitOptionsType } from "hooks/use-submit";
 import { UseCacheOptionsType } from "hooks/use-cache";
@@ -32,18 +32,9 @@ export type ProviderProps<Client extends ClientInstance = ClientInstance> = {
    * Configuration to set for available hooks
    */
   config?: ProviderOptionsType;
-  /**
-   * Fallbacks to hydrate for particular requests
-   */
-  hydrationData?: HydrateDataType[];
-  /**
-   * Hydration configuration
-   */
-  hydrationConfig?: HydrationOptions;
 };
 
 export type ProviderValueType = {
   config: ProviderOptionsType;
   setConfig: (newConfig: ProviderOptionsType) => void;
-  hydrationData?: HydrateDataType[];
 };
