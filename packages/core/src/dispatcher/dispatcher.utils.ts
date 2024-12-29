@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { DispatcherRequestType, QueueElementType } from "dispatcher";
+import { DispatcherRequestType, QueueItemType } from "dispatcher";
 
 // Events
 
@@ -38,7 +38,7 @@ export const canRetryRequest = (currentRetries: number, retry: number | undefine
   return false;
 };
 
-export const getRequestType = (request: RequestInstance, latestRequest: QueueElementType | undefined) => {
+export const getRequestType = (request: RequestInstance, latestRequest: QueueItemType | undefined) => {
   const { queued, cancelable, deduplicate } = request;
   const canDeduplicate = latestRequest ? +new Date() - latestRequest.timestamp <= request.deduplicateTime : false;
 

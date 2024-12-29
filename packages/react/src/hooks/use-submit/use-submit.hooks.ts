@@ -56,7 +56,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
   const { client } = request;
   const { cache, submitDispatcher: dispatcher, loggerManager } = client;
 
-  const logger = useRef(loggerManager.init("useSubmit")).current;
+  const logger = useRef(loggerManager.initialize(client, "useSubmit")).current;
   const requestDebounce = useDebounce({ delay: bounceTime });
   const requestThrottle = useThrottle({
     interval: bounceTime,

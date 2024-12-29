@@ -8,25 +8,28 @@
  * you don't want to deal with this.
  */
 
-const { TextDecoder, TextEncoder } = require("node:util");
-const { ReadableStream, TransformStream } = require("node:stream/web");
+if (typeof globalThis === "object") {
+  const { TextDecoder, TextEncoder } = require("node:util");
+  const { ReadableStream, TransformStream } = require("node:stream/web");
 
-Object.defineProperties(globalThis, {
-  TextDecoder: { value: TextDecoder },
-  TextEncoder: { value: TextEncoder },
-  ReadableStream: { value: ReadableStream },
-  TransformStream: { value: TransformStream },
-});
+  Object.defineProperties(globalThis, {
+    TextDecoder: { value: TextDecoder },
+    TextEncoder: { value: TextEncoder },
+    ReadableStream: { value: ReadableStream },
+    TransformStream: { value: TransformStream },
+  });
 
-const { Blob, File } = require("node:buffer");
-const { fetch, Headers, FormData, Request, Response } = require("undici");
+  const { Blob, File } = require("node:buffer");
+  const { Headers, FormData, Request, Response } = require("undici");
+  const { BroadcastChannel } = require("node:worker_threads");
 
-Object.defineProperties(globalThis, {
-  fetch: { value: fetch, writable: true },
-  Blob: { value: Blob },
-  File: { value: File },
-  Headers: { value: Headers },
-  FormData: { value: FormData },
-  Request: { value: Request },
-  Response: { value: Response },
-});
+  Object.defineProperties(globalThis, {
+    Blob: { value: Blob },
+    File: { value: File },
+    Headers: { value: Headers },
+    FormData: { value: FormData },
+    Request: { value: Request, configurable: true },
+    Response: { value: Response, configurable: true },
+    BroadcastChannel: { value: BroadcastChannel },
+  });
+}

@@ -1,6 +1,6 @@
 import { AdapterInstance, ResponseType } from "adapter";
-import { ClientInstance } from "client";
 import { ResponseDetailsType, LoggerType } from "managers";
+import { ClientInstance } from "client";
 import {
   CacheOptionsType,
   CacheAsyncStorageType,
@@ -31,37 +31,42 @@ export class Cache<C extends ClientInstance> {
   public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
+  public client: C;
 
-  constructor(
-    public client: C,
-    public options?: CacheOptionsType,
-  ) {
-    const { storage = new Map<string, CacheValueType>() } = this.options || {};
+  constructor(public options?: CacheOptionsType<C>) {
+    const { storage = new Map<string, CacheValueType>(), lazyStorage, version = "0.0.1" } = options ?? {};
 
-    this.storage = storage;
     this.emitter?.setMaxListeners(1000);
     this.events = getCacheEvents(this.emitter);
-    this.options?.onInitialization?.(this);
 
-    this.version = this.options?.version || "0.0.1";
-    this.lazyStorage = this.options?.lazyStorage;
-    this.logger = this.client.loggerManager.init("Cache");
+    this.storage = storage;
+    this.version = version;
+    this.lazyStorage = lazyStorage;
+  }
 
-    const scheduleGarbageCollector = (keys: string[]) => {
+  initialize = (client: C) => {
+    this.client = client;
+    this.logger = client.loggerManager.initialize(client, "Cache");
+
+    // Going back from offline should re-trigger garbage collection
+    client.appManager.events.onOnline(() => {
+      [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
+    });
+
+    const scheduleGarbageCollection = (keys: string[]) => {
       keys.forEach(this.scheduleGarbageCollector);
-
-      // Going back from offline should re-trigger garbage collection
-      this.client.appManager.events.onOnline(() => {
-        keys.forEach(this.scheduleGarbageCollector);
-      });
     };
 
-    scheduleGarbageCollector([...this.storage.keys()]);
+    scheduleGarbageCollection([...this.storage.keys()]);
 
     // Schedule garbage collection for lazy storage
     // To make sure we do not store some data that is no longer needed
-    this.getLazyKeys().then(scheduleGarbageCollector);
-  }
+    this.getLazyKeys().then(scheduleGarbageCollection);
+
+    this.client.triggerPlugins("onCacheMount", { cache: this as unknown as Cache<ClientInstance> });
+
+    return this;
+  };
 
   /**
    * Set the cache data to the storage
@@ -78,7 +83,7 @@ export class Cache<C extends ClientInstance> {
   ): void => {
     this.logger.debug("Processing cache response", { request, response });
     const { cacheKey, cache, staleTime, cacheTime } = request;
-    const cachedData = this.storage.get<
+    const previousCacheData = this.storage.get<
       ExtractResponseType<Request>,
       ExtractErrorType<Request>,
       ExtractAdapterType<Request>
@@ -86,8 +91,8 @@ export class Cache<C extends ClientInstance> {
 
     // Once refresh error occurs we don't want to override already valid data in our cache with the thrown error
     // We need to check it against cache and return last valid data we have
-    const processedResponse = typeof response === "function" ? response(cachedData || null) : response;
-    const data = getCacheData(cachedData, processedResponse);
+    const processedResponse = typeof response === "function" ? response(previousCacheData || null) : response;
+    const data = getCacheData(previousCacheData, processedResponse);
 
     const newCacheData: CacheValueType<any, any, ExtractAdapterType<Request>> = {
       ...data,
@@ -103,6 +108,13 @@ export class Cache<C extends ClientInstance> {
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.options?.onChange?.(cacheKey, newCacheData);
+      this.client.triggerPlugins("onCacheItemChange", {
+        cache: this as unknown as Cache<ClientInstance>,
+        cacheKey,
+        prevData: previousCacheData as CacheValueType<any, any, AdapterInstance>,
+        newData: newCacheData as CacheValueType<any, any, AdapterInstance>,
+      });
+
       this.scheduleGarbageCollector(cacheKey);
     } else {
       // If request should not use cache - just emit response data
@@ -176,8 +188,13 @@ export class Cache<C extends ClientInstance> {
   delete = (cacheKey: string): void => {
     this.logger.debug("Deleting cache element", { cacheKey });
     this.storage.delete(cacheKey);
-    this.options?.onDelete?.(cacheKey);
     this.lazyStorage?.delete(cacheKey);
+
+    this.client.triggerPlugins("onCacheItemDelete", {
+      cache: this as unknown as Cache<ClientInstance>,
+      cacheKey,
+    });
+
     this.events.emitDelete(cacheKey);
   };
 
@@ -196,6 +213,12 @@ export class Cache<C extends ClientInstance> {
         if (value) {
           this.storage.set(cacheKey, { ...value, staleTime: 0 });
         }
+
+        this.client.triggerPlugins("onCacheItemInvalidate", {
+          cache: this as unknown as Cache<ClientInstance>,
+          cacheKey,
+        });
+
         this.events.emitInvalidation(cacheKey);
       };
 
@@ -297,13 +320,13 @@ export class Cache<C extends ClientInstance> {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
-            if (this.client.appManager.isOnline) {
+            if (this.client?.appManager.isOnline) {
               this.logger.info("Garbage collecting cache element", { cacheKey });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.client.appManager.isOnline) {
+      } else if (this.client?.appManager.isOnline) {
         this.logger.info("Garbage collecting cache element", { cacheKey });
         this.delete(cacheKey);
       }

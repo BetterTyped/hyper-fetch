@@ -14,10 +14,9 @@ export class LoggerManager {
 
   public emitter = new EventEmitter();
 
-  constructor(
-    private client: Pick<ClientInstance, "debug">,
-    private options?: LoggerOptionsType,
-  ) {
+  private client: Pick<ClientInstance, "debug">;
+
+  constructor(private options?: LoggerOptionsType) {
     this.emitter?.setMaxListeners(1000);
     this.logger = this.options?.logger || logger;
     this.severity = this.options?.severity || 2;
@@ -27,7 +26,9 @@ export class LoggerManager {
     this.severity = severity;
   };
 
-  init = (module: string): LoggerType => {
+  initialize = (client: Pick<ClientInstance, "debug">, module: string): LoggerType => {
+    this.client = client;
+
     return {
       error: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
         this.logger({

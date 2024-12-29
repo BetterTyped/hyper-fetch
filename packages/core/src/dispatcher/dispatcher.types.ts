@@ -1,16 +1,11 @@
-import { Dispatcher } from "dispatcher";
 import { RequestInstance } from "request";
 
 export type DispatcherOptionsType = {
   storage?: DispatcherStorageType;
-  onInitialization?: (dispatcherInstance: Dispatcher) => void;
-  onUpdateStorage?: <Request extends RequestInstance>(data: QueueDataType<Request>) => void;
-  onDeleteFromStorage?: <Request extends RequestInstance>(data: QueueDataType<Request>) => void;
-  onClearStorage?: (dispatcherInstance: Dispatcher) => void;
 };
 
 // Values
-export type QueueElementType<Request extends RequestInstance = RequestInstance> = {
+export type QueueItemType<Request extends RequestInstance = RequestInstance> = {
   requestId: string;
   request: Request;
   retries: number;
@@ -21,7 +16,7 @@ export type QueueElementType<Request extends RequestInstance = RequestInstance> 
 };
 export type QueueDataType<Request extends RequestInstance = RequestInstance> = {
   queryKey: string;
-  requests: QueueElementType<Request>[];
+  requests: QueueItemType<Request>[];
   stopped: boolean;
 };
 

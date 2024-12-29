@@ -30,7 +30,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 }) => {
   const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
 
-  const logger = loggerManager.init("Adapter");
+  const logger = loggerManager.initialize(req.client, "Adapter");
 
   let processingError: Error | null = null;
 
@@ -66,7 +66,6 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   const fullUrl = url + endpoint;
 
-  const { plugins } = client;
   const headers = headerMapper(request);
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
@@ -132,7 +131,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const onBeforeRequest = () => {
     logger.debug(`Request ready to send`, { requestId, request });
 
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestTrigger", { request }));
+    client.triggerPlugins("onRequestTrigger", { request });
   };
 
   // Request
@@ -143,7 +142,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       request,
     });
 
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestStart", { request }));
+    client.triggerPlugins("onRequestStart", { request });
 
     if (progress?.total) {
       requestTotal = getTotal(requestTotal, progress);
@@ -252,8 +251,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     response = (await request.client.__modifyResponse(response, request)) as typeof responseData;
     response = (await request.client.__modifySuccessResponse(response, request)) as typeof responseData;
 
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestSuccess", { response, request }));
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestFinished", { response, request }));
+    client.triggerPlugins("onRequestSuccess", { response, request });
+    client.triggerPlugins("onRequestFinished", { response, request });
 
     resolve(response);
 
@@ -287,8 +286,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     response = (await request.client.__modifyResponse(response, request)) as typeof response;
     response = (await request.client.__modifyErrorResponse(response, request)) as typeof response;
 
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestError", { response, request }));
-    plugins.forEach((plugin) => plugin.triggerMethod("onRequestFinished", { response, request }));
+    client.triggerPlugins("onRequestError", { response, request });
+    client.triggerPlugins("onRequestFinished", { response, request });
 
     resolve(response);
 

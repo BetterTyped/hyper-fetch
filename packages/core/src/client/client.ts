@@ -30,7 +30,7 @@ import {
 } from "client";
 import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
-import { PluginInstance } from "plugin";
+import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
 import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
@@ -62,7 +62,7 @@ export class Client<
   // Managers
   requestManager: RequestManager = new RequestManager();
   appManager: AppManager;
-  loggerManager: LoggerManager = new LoggerManager(this);
+  loggerManager: LoggerManager = new LoggerManager();
 
   // Config
   adapter: Adapter;
@@ -131,7 +131,7 @@ export class Client<
   endpointMapper = ((endpoint) => endpoint) as EndpointMapper;
 
   // Logger
-  logger = this.loggerManager.init("Client");
+  logger = this.loggerManager.initialize(this, "Client");
 
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter, EndpointMapper>>) {
     const { url, adapter, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
@@ -139,10 +139,15 @@ export class Client<
     this.adapter = (adapter || defaultAdapter) as Adapter;
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
-    this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
-    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
-    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
+    this.appManager = appManager?.() || new AppManager();
+    this.cache = (cache?.() || new Cache()) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
+    this.fetchDispatcher = fetchDispatcher?.() || new Dispatcher();
+    this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
+
+    this.appManager.initialize(this);
+    this.cache.initialize(this);
+    this.fetchDispatcher.initialize(this);
+    this.submitDispatcher.initialize(this);
   }
 
   /**
@@ -398,7 +403,8 @@ export class Client<
   addPlugin = (plugin: PluginInstance) => {
     this.plugins.push(plugin);
 
-    plugin.triggerMethod("onMount", { client: this });
+    plugin.initialize(this);
+    plugin.trigger("onMount", { client: this });
 
     return this;
   };
@@ -411,8 +417,20 @@ export class Client<
     this.plugins = this.plugins.filter((p) => p !== plugin);
 
     if (this.plugins.length !== pluginCount) {
-      plugin.triggerMethod("onUnmount", { client: this });
+      plugin.trigger("onUnmount", { client: this });
     }
+
+    return this;
+  };
+
+  triggerPlugins = <Key extends keyof PluginMethods<Client>>(key: Key, data: PluginMethodParameters<Key, Client>) => {
+    if (!this.plugins.length) {
+      return this;
+    }
+
+    this.plugins.forEach((plugin) => {
+      plugin.trigger(key, data);
+    });
 
     return this;
   };
@@ -519,10 +537,15 @@ export class Client<
     this.submitDispatcher.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
 
-    this.appManager = appManager?.(this) || new AppManager();
-    this.cache = (cache?.(this) || new Cache(this)) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
-    this.fetchDispatcher = fetchDispatcher?.(this) || new Dispatcher(this);
-    this.submitDispatcher = submitDispatcher?.(this) || new Dispatcher(this);
+    this.appManager = appManager?.() || new AppManager();
+    this.cache = (cache?.() || new Cache()) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
+    this.fetchDispatcher = fetchDispatcher?.() || new Dispatcher();
+    this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
+
+    this.appManager.initialize(this);
+    this.cache.initialize(this);
+    this.fetchDispatcher.initialize(this);
+    this.submitDispatcher.initialize(this);
   };
 
   /**
@@ -634,7 +657,7 @@ export class Client<
         Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>
       >(this as unknown as Client<GlobalErrorType, ExtractedAdapterType, EndpointMapper>, mappedParams);
 
-      this.plugins.forEach((plugin) => plugin.triggerMethod("onRequestCreate", { request }));
+      this.plugins.forEach((plugin) => plugin.trigger("onRequestCreate", { request }));
 
       return request;
     };

@@ -49,12 +49,12 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
 
   // Config
   adapter: ReturnType<Adapter>;
-  loggerManager = new LoggerManager(this);
+  loggerManager = new LoggerManager();
   appManager = new AppManager();
   queryParamsConfig?: QueryStringifyOptionsType;
 
   // Logger
-  logger = this.loggerManager.init("Socket");
+  logger = this.loggerManager.initialize(this, "Socket");
 
   constructor(public options: SocketOptionsType<Adapter>) {
     const { url, adapter, queryParams, reconnect, reconnectTime, queryParamsConfig, queryParamsStringify } =

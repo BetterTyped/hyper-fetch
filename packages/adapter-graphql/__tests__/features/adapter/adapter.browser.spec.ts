@@ -146,8 +146,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     const timeoutRequest = request.setOptions({ timeout: 50 });
     mockRequest(timeoutRequest, { delay: 20 });
     await timeoutRequest.send();
-    // @ts-ignore TODO: check this
-    expect(instance?.timeout).toBe(50);
+    expect(instance!.timeout).toBe(50);
 
     window.XMLHttpRequest = xml;
   });

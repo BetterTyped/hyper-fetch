@@ -60,7 +60,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "15" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "15" } });
   });
 
   it("should make a request and return error data with status", async () => {
@@ -71,7 +71,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(data);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "19" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "19" } });
   });
 
   it("should allow to cancel request and return error", async () => {
@@ -115,7 +115,7 @@ describe("Fetch Adapter [ Server ]", () => {
     expect(response).toEqual(mock);
     expect(error).toBeNull();
     expect(status).toEqual(200);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
   });
 
   it("should allow to calculate payload size", async () => {

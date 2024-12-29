@@ -16,12 +16,16 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     }
   }
 
-  setClient = (client: Client) => {
+  initialize = (client: Client) => {
     this.client = client;
+    return this;
   };
 
-  triggerMethod = <Key extends keyof PluginMethods<Client>>(method: Key, data: PluginMethodParameters<Key, Client>) => {
-    this.pluginMethods[method]?.(data as any);
+  trigger = <Key extends keyof PluginMethods<Client>>(method: Key, data: PluginMethodParameters<Key, Client>) => {
+    const callback = this.pluginMethods[method];
+    if (callback) {
+      callback(data as any);
+    }
   };
 
   /* -------------------------------------------------------------------------------------------------
@@ -88,6 +92,78 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
    */
   onRequestFinished = (callback: PluginMethods<Client>["onRequestFinished"]) => {
     this.pluginMethods.onRequestFinished = callback;
+    return this;
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Dispatcher lifecycle
+   * -----------------------------------------------------------------------------------------------*/
+
+  onDispatcherMount = (callback: PluginMethods<Client>["onDispatcherMount"]) => {
+    this.pluginMethods.onDispatcherMount = callback;
+    return this;
+  };
+
+  onDispatcherCleared = (callback: PluginMethods<Client>["onDispatcherCleared"]) => {
+    this.pluginMethods.onDispatcherCleared = callback;
+    return this;
+  };
+
+  onDispatcherQueueDrained = (callback: PluginMethods<Client>["onDispatcherQueueDrained"]) => {
+    this.pluginMethods.onDispatcherQueueDrained = callback;
+    return this;
+  };
+
+  onDispatcherItemAdded = (callback: PluginMethods<Client>["onDispatcherItemAdded"]) => {
+    this.pluginMethods.onDispatcherItemAdded = callback;
+    return this;
+  };
+
+  onDispatcherItemDeleted = (callback: PluginMethods<Client>["onDispatcherItemDeleted"]) => {
+    this.pluginMethods.onDispatcherItemDeleted = callback;
+    return this;
+  };
+
+  onDispatcherQueueCreated = (callback: PluginMethods<Client>["onDispatcherQueueCreated"]) => {
+    this.pluginMethods.onDispatcherQueueCreated = callback;
+    return this;
+  };
+
+  onDispatcherQueueCleared = (callback: PluginMethods<Client>["onDispatcherQueueCleared"]) => {
+    this.pluginMethods.onDispatcherQueueCleared = callback;
+    return this;
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Cache lifecycle
+   * -----------------------------------------------------------------------------------------------*/
+
+  onCacheMount = (callback: PluginMethods<Client>["onCacheMount"]) => {
+    this.pluginMethods.onCacheMount = callback;
+    return this;
+  };
+
+  onCacheItemChange = (callback: PluginMethods<Client>["onCacheItemChange"]) => {
+    this.pluginMethods.onCacheItemChange = callback;
+    return this;
+  };
+
+  onCacheItemDelete = (callback: PluginMethods<Client>["onCacheItemDelete"]) => {
+    this.pluginMethods.onCacheItemDelete = callback;
+    return this;
+  };
+
+  /* -------------------------------------------------------------------------------------------------
+   * App lifecycle
+   * -----------------------------------------------------------------------------------------------*/
+
+  onAppFocusChange = (callback: PluginMethods<Client>["onAppFocusChange"]) => {
+    this.pluginMethods.onAppFocusChange = callback;
+    return this;
+  };
+
+  onAppOnlineChange = (callback: PluginMethods<Client>["onAppOnlineChange"]) => {
+    this.pluginMethods.onAppOnlineChange = callback;
     return this;
   };
 }

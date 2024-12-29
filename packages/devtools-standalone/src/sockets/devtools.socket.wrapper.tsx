@@ -68,7 +68,7 @@ const handleEvent = (
 
 export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string; client: ClientInstance }) => {
   const { setRequestList } = useDevtoolsWorkspaces("Devtools");
-  const logger = client.loggerManager.init(`DevtoolsStandalone`);
+  const logger = client.loggerManager.initialize(client, `DevtoolsStandalone`);
   const { onEvent } = useListener(clientSpecificReceiveMessage, {});
   onEvent((eventData) => {
     handleEvent(client, eventData, logger, setRequestList, workspace);

@@ -2,7 +2,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import {
   canRetryRequest,
-  QueueElementType,
+  QueueItemType,
   DispatcherRequestType,
   getDispatcherChangeByKey,
   getDispatcherDrainedByKey,
@@ -111,13 +111,13 @@ describe("Dispatcher [ Utils ]", () => {
   describe("When using getRequestType util", () => {
     it("should return deduplicated type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", deduplicate: true });
-      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.DEDUPLICATED);
     });
     it("should return cancelable type", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", cancelable: true });
-      const duplicated: QueueElementType<typeof request> = dispatcher.createStorageElement(request);
+      const duplicated: QueueItemType<typeof request> = dispatcher.createStorageElement(request);
       const type = getRequestType(request, duplicated);
       expect(type).toBe(DispatcherRequestType.PREVIOUS_CANCELED);
     });

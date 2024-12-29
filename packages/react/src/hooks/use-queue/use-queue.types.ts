@@ -1,10 +1,10 @@
-import { ProgressType, RequestInstance, QueueElementType, Dispatcher } from "@hyper-fetch/core";
+import { ProgressType, RequestInstance, QueueItemType, Dispatcher } from "@hyper-fetch/core";
 
 export type UseQueueOptionsType = {
   queueType?: "auto" | "fetch" | "submit";
 };
 
-export type QueueRequest<Request extends RequestInstance> = QueueElementType<Request> & {
+export type QueueRequest<Request extends RequestInstance> = QueueItemType<Request> & {
   /**
    * Uploading progress for given request
    */

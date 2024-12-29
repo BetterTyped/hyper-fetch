@@ -13,7 +13,7 @@ export const useCache = <T extends RequestInstance>(
   const { cacheKey, client } = request;
 
   const { cache, loggerManager } = client;
-  const logger = useRef(loggerManager.init("useCache")).current;
+  const logger = useRef(loggerManager.initialize(client, "useCache")).current;
   const [dispatcher] = getRequestDispatcher(request);
   const updateKey = JSON.stringify(request.toJSON());
 

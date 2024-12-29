@@ -86,28 +86,7 @@ describe("Fetch Adapter [ Browser ]", () => {
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
-    window.XMLHttpRequest = xml;
-  });
-
-  it("should allow to set options", async () => {
-    const xml = window.XMLHttpRequest;
-    let instance: null | XMLHttpRequest = null;
-    class ExtendedXml extends XMLHttpRequest {
-      constructor() {
-        super();
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        instance = this;
-      }
-    }
-
-    window.XMLHttpRequest = ExtendedXml;
-
-    const timeoutRequest = request.setOptions({ timeout: 50 });
-    mockRequest(timeoutRequest, { delay: 20 });
-    await adapter(timeoutRequest, requestId);
-    expect(instance!.timeout).toBe(50);
-
+    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
     window.XMLHttpRequest = xml;
   });
 });

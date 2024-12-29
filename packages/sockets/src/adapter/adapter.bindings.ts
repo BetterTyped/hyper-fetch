@@ -13,7 +13,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     reconnectionAttempts?: number;
   },
 ) => {
-  const logger = socket.loggerManager.init("Socket Adapter");
+  const logger = socket.loggerManager.initialize(socket, "Socket Adapter");
   const listeners: Map<string, Map<ListenerCallbackType<T, any>, VoidFunction>> = new Map();
 
   const state = {

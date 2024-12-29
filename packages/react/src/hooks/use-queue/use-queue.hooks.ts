@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { RequestInstance, getRequestDispatcher, QueueElementType, QueueDataType } from "@hyper-fetch/core";
+import { RequestInstance, getRequestDispatcher, QueueItemType, QueueDataType } from "@hyper-fetch/core";
 
 import { UseQueueOptionsType, useQueueDefaultOptions, QueueRequest, UseQueueReturnType } from "hooks/use-queue";
 import { useProvider } from "provider";
@@ -35,7 +35,7 @@ export const useQueue = <Request extends RequestInstance>(
   // ******************
 
   const createRequestsArray = useCallback(
-    (queueElements: QueueElementType<Request>[]): QueueRequest<Request>[] => {
+    (queueElements: QueueItemType<Request>[]): QueueRequest<Request>[] => {
       return queueElements.map<QueueRequest<Request>>((req) => ({
         ...req,
         stopRequest: () => dispatcher.stopRequest(queryKey, req.requestId),

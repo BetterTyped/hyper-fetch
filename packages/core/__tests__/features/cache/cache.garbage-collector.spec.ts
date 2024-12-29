@@ -8,9 +8,9 @@ jest.useFakeTimers().setSystemTime(new Date());
 
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
-  const staleTime = 30;
+  const staleTime = 30000;
   const version = "test";
-  const cacheTime = 10;
+  const cacheTime = 10000;
   const cacheData: CacheValueType = {
     data: null,
     error: null,
@@ -30,22 +30,16 @@ describe("Cache [ Garbage Collector ]", () => {
     cacheKey,
   };
 
-  let lazyStorage = new Map<string, CacheValueType>();
-
   let client = new Client({ url: "shared-base-url" });
   let request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, staleTime, cacheTime });
   let cache = createCache(client, {
-    lazyStorage: createLazyCacheAdapter(lazyStorage),
     version,
   });
 
   beforeEach(async () => {
-    lazyStorage.clear();
-    lazyStorage = new Map<string, CacheValueType>();
     client = new Client({ url: "shared-base-url" });
     request = client.createRequest()({ endpoint: "shared-endpoint", cacheKey, staleTime, cacheTime });
     cache = createCache(client, {
-      lazyStorage: createLazyCacheAdapter(lazyStorage),
       version,
     });
     jest.resetAllMocks();
@@ -54,7 +48,7 @@ describe("Cache [ Garbage Collector ]", () => {
 
   describe("when garbage collector is triggered", () => {
     it("should garbage collect data from sync storage", async () => {
-      cache.set(request, cacheData);
+      cache.set(request.setCacheTime(10), cacheData);
       await waitFor(() => {
         expect(cache.get(cacheKey)).not.toBeDefined();
       });
@@ -68,17 +62,16 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should schedule garbage collection on mount", async () => {
-      const storage = new Map();
-      storage.set("cacheKey", cacheData);
+      const storage = new Map().set("cacheKey", cacheData);
 
       const cacheInstance = createCache(new Client({ url: "shared-base-url" }), {
         storage,
         version,
       });
-
       expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
     });
     it("should schedule lazy storage garbage collection on mount", async () => {
+      const lazyStorage = new Map<string, CacheValueType>();
       lazyStorage.set(cacheKey, cacheData);
       const cacheInstance = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
@@ -95,6 +88,7 @@ describe("Cache [ Garbage Collector ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should remove resource with not matching lazy version", async () => {
+      const lazyStorage = new Map<string, CacheValueType>();
       const data = { ...cacheData, cacheTime: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {
@@ -109,6 +103,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching sync version", async () => {
+      const lazyStorage = new Map<string, CacheValueType>();
       const data = { ...cacheData, cacheTime: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
       createCache(client, {

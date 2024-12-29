@@ -34,19 +34,19 @@ export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * Custom cache initialization prop
    */
-  cache?: (client: C) => C["cache"];
+  cache?: () => C["cache"];
   /**
    * Custom app manager initialization prop
    */
-  appManager?: (client: C) => C["appManager"];
+  appManager?: () => C["appManager"];
   /**
    * Custom fetch dispatcher initialization prop
    */
-  fetchDispatcher?: (client: C) => C["submitDispatcher"];
+  fetchDispatcher?: () => C["submitDispatcher"];
   /**
    * Custom submit dispatcher initialization prop
    */
-  submitDispatcher?: (client: C) => C["fetchDispatcher"];
+  submitDispatcher?: () => C["fetchDispatcher"];
 };
 
 // Interceptors

@@ -91,7 +91,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "jest-websocket-mock": "2.5.0",
     "lint-staged": "^13.0.1",
-    "msw": "^2.6.8",
+    "msw": "^2.7.0",
     "next": "14.2.3",
     "notistack": "^2.0.5",
     "prettier": "^3.2.5",

@@ -60,7 +60,7 @@ export const useFetch = <R extends RequestInstance>(
   const { cache, fetchDispatcher: dispatcher, appManager, loggerManager } = client;
 
   const ignoreReact18DoubleRender = useRef(true);
-  const logger = useRef(loggerManager.init("useFetch")).current;
+  const logger = useRef(loggerManager.initialize(client, "useFetch")).current;
   const bounceData = bounceType === "throttle" ? requestThrottle : requestDebounce;
   const bounceFunction = bounceType === "throttle" ? requestThrottle.throttle : requestDebounce.debounce;
 
