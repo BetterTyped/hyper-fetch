@@ -12,5 +12,3 @@ if (!global.AbortController) {
 Object.defineProperties(globalThis, {
   BroadcastChannel: { value: BroadcastChannel },
 });
-
-jest.retryTimes(2);

@@ -42,6 +42,11 @@ describe("Cache [ Garbage Collector ]", () => {
     });
     jest.resetAllMocks();
     jest.clearAllMocks();
+
+    cacheData.requestTimestamp = +new Date();
+    cacheData.responseTimestamp = +new Date();
+    cacheData.addedTimestamp = +new Date();
+    cacheData.triggerTimestamp = +new Date();
   });
 
   describe("when garbage collector is triggered", () => {
