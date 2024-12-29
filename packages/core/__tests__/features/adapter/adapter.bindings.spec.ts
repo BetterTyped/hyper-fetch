@@ -1,4 +1,4 @@
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
 import {
@@ -10,14 +10,11 @@ import {
   AdapterType,
   ResponseErrorType,
 } from "adapter";
-import { sleep } from "../../utils";
 import { testProgressSpy } from "../../shared";
 import { Client } from "client";
 import { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
-
-jest.useFakeTimers().setSystemTime(new Date());
 
 describe("Fetch Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
@@ -25,23 +22,19 @@ describe("Fetch Adapter [ Bindings ]", () => {
   const requestId = "test";
   const queryParams = "?query=params";
   const data = { value: 1 };
-  const successResponse: ResponseType<unknown, unknown, AdapterType> = {
+  const successResponse: Omit<ResponseType<unknown, unknown, AdapterType>, "requestTimestamp" | "responseTimestamp"> = {
     data,
     error: null,
     success: true,
     status: 200,
     extra: xhrExtra,
-    requestTimestamp: Date.now(),
-    responseTimestamp: Date.now(),
   };
-  const errorResponse: ResponseType<unknown, unknown, AdapterType> = {
+  const errorResponse: Omit<ResponseType<unknown, unknown, AdapterType>, "requestTimestamp" | "responseTimestamp"> = {
     data: null,
     error: data,
     success: false,
     status: 400,
     extra: xhrExtra,
-    requestTimestamp: Date.now(),
-    responseTimestamp: Date.now(),
   };
   const requestConfig: AdapterOptionsType = { responseType: "arraybuffer", timeout: 1000 };
 
@@ -603,8 +596,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const response = await onSuccess(data, 200, xhrExtra, () => null);
-        expect(response).toEqual(successResponse);
+        const { responseTimestamp, requestTimestamp, ...response } = await onSuccess(data, 200, xhrExtra, () => null);
+        expect(response).toEqual(expect.objectContaining(successResponse));
+        expect(requestTimestamp).toBeNumber();
+        expect(responseTimestamp).toBeGreaterThanOrEqual(requestTimestamp);
       });
       it("should use effect lifecycle methods", async () => {
         const { onSuccess } = await getAdapterBindings({
@@ -616,8 +611,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         await onSuccess(data, 200, xhrExtra, () => null);
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
-        expect(onSuccessSpy).toHaveBeenCalledWith({ response: successResponse, request });
-        expect(onFinishedSpy).toHaveBeenCalledWith({ response: successResponse, request });
+        expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(successResponse), request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: expect.objectContaining(successResponse), request });
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onSuccess } = await getAdapterBindings({
@@ -626,10 +621,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onResponseCallbacks.push(() => successResponse);
+        client.__onResponseCallbacks.push(() => ({
+          ...successResponse,
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
+        }));
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
-        expect(response).toEqual(successResponse);
+        expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
         const { onSuccess } = await getAdapterBindings({
@@ -638,10 +637,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onSuccessCallbacks.push(() => successResponse);
+        client.__onSuccessCallbacks.push(() => ({
+          ...successResponse,
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
+        }));
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onSuccessCallbacks = [];
-        expect(response).toEqual(successResponse);
+        expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
         const { onSuccess } = await getAdapterBindings({
@@ -659,14 +662,18 @@ describe("Fetch Adapter [ Bindings ]", () => {
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         };
-        client.__onResponseCallbacks.push(() => errorResponse);
+        client.__onResponseCallbacks.push(() => ({
+          ...errorResponse,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        }));
         client.__onSuccessCallbacks.push(() => newData);
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
         client.__onSuccessCallbacks = [];
-        expect(response).toEqual(newData);
-        expect(onSuccessSpy).toHaveBeenCalledWith({ response: newData, request });
-        expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
+        expect(response).toEqual(expect.objectContaining(newData));
+        expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
       });
     });
     describe("when onError got executed", () => {
@@ -677,8 +684,10 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const response = await onError(data, 400, xhrExtra, () => null);
+        const { requestTimestamp, responseTimestamp, ...response } = await onError(data, 400, xhrExtra, () => null);
         expect(response).toEqual(errorResponse);
+        expect(requestTimestamp).toBeNumber();
+        expect(responseTimestamp).toBeGreaterThanOrEqual(requestTimestamp);
       });
       it("should use effect lifecycle methods", async () => {
         const { onError } = await getAdapterBindings({
@@ -690,8 +699,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         await onError(data, 400, xhrExtra, () => null);
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
-        expect(onErrorSpy).toHaveBeenCalledWith({ response: errorResponse, request });
-        expect(onFinishedSpy).toHaveBeenCalledWith({ response: errorResponse, request });
+        expect(onErrorSpy).toHaveBeenCalledWith({ response: expect.objectContaining(errorResponse), request });
+        expect(onFinishedSpy).toHaveBeenCalledWith({ response: expect.objectContaining(errorResponse), request });
       });
       it("should return data transformed by __modifyResponse", async () => {
         const { onError } = await getAdapterBindings({
@@ -700,10 +709,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onResponseCallbacks.push(() => errorResponse);
+        client.__onResponseCallbacks.push(() => ({
+          ...errorResponse,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        }));
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
-        expect(response).toEqual(errorResponse);
+        expect(response).toEqual(expect.objectContaining(errorResponse));
       });
       it("should return data transformed by __modifyErrorResponse", async () => {
         const { onError } = await getAdapterBindings({
@@ -712,10 +725,14 @@ describe("Fetch Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onErrorCallbacks.push(() => errorResponse);
+        client.__onErrorCallbacks.push(() => ({
+          ...errorResponse,
+          requestTimestamp: Date.now(),
+          responseTimestamp: Date.now(),
+        }));
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onErrorCallbacks = [];
-        expect(response).toEqual(errorResponse);
+        expect(response).toEqual(expect.objectContaining(errorResponse));
       });
       it("should execute __modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings({
@@ -733,12 +750,16 @@ describe("Fetch Adapter [ Bindings ]", () => {
           requestTimestamp: Date.now(),
           responseTimestamp: Date.now(),
         };
-        client.__onResponseCallbacks.push(() => successResponse);
+        client.__onResponseCallbacks.push(() => ({
+          ...successResponse,
+          responseTimestamp: Date.now(),
+          requestTimestamp: Date.now(),
+        }));
         client.__onErrorCallbacks.push(() => newData);
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
-        expect(response).toEqual(newData);
+        expect(response).toEqual(expect.objectContaining(newData));
         expect(onErrorSpy).toHaveBeenCalledWith({ response: newData, request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
       });

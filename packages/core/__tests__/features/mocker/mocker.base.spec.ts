@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { createAdapter, createDispatcher, sleep } from "../../utils";
+import { createAdapter, createDispatcher } from "../../utils";
 import {
   AdapterType,
   Client,

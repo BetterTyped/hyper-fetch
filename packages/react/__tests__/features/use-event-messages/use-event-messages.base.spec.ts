@@ -1,8 +1,8 @@
 import { Socket } from "@hyper-fetch/sockets";
 import { act, waitFor } from "@testing-library/react";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { renderUseEventMessages, sleep } from "../../utils";
+import { renderUseEventMessages } from "../../utils";
 import { createListener } from "../../utils/listener.utils";
 
 describe("useEventMessages [ Base ]", () => {

@@ -99,11 +99,6 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
    * Dispatcher lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
-  onDispatcherMount = (callback: PluginMethods<Client>["onDispatcherMount"]) => {
-    this.pluginMethods.onDispatcherMount = callback;
-    return this;
-  };
-
   onDispatcherCleared = (callback: PluginMethods<Client>["onDispatcherCleared"]) => {
     this.pluginMethods.onDispatcherCleared = callback;
     return this;
@@ -111,6 +106,11 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
 
   onDispatcherQueueDrained = (callback: PluginMethods<Client>["onDispatcherQueueDrained"]) => {
     this.pluginMethods.onDispatcherQueueDrained = callback;
+    return this;
+  };
+
+  onDispatcherQueueRunning = (callback: PluginMethods<Client>["onDispatcherQueueRunning"]) => {
+    this.pluginMethods.onDispatcherQueueRunning = callback;
     return this;
   };
 
@@ -137,11 +137,6 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
   /* -------------------------------------------------------------------------------------------------
    * Cache lifecycle
    * -----------------------------------------------------------------------------------------------*/
-
-  onCacheMount = (callback: PluginMethods<Client>["onCacheMount"]) => {
-    this.pluginMethods.onCacheMount = callback;
-    return this;
-  };
 
   onCacheItemChange = (callback: PluginMethods<Client>["onCacheItemChange"]) => {
     this.pluginMethods.onCacheItemChange = callback;

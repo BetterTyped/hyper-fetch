@@ -1,5 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import {
   addQueueElement,
@@ -8,7 +8,6 @@ import {
   emitDownloadProgress,
   emitUploadProgress,
   renderUseQueue,
-  sleep,
   waitForRender,
 } from "../../utils";
 

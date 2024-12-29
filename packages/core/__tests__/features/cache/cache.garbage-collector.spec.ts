@@ -4,8 +4,6 @@ import { CacheStorageType, CacheValueType } from "cache";
 import { Client, Time, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
-jest.useFakeTimers().setSystemTime(new Date());
-
 describe("Cache [ Garbage Collector ]", () => {
   const cacheKey = "test";
   const staleTime = 30000;

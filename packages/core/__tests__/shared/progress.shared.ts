@@ -22,18 +22,15 @@ export const testProgressSpy = (props: {
   const timeToSend = loadedValue ? estimatedTime : null;
 
   expect(spy).toHaveBeenCalledTimes(1);
-  expect(spy).toHaveBeenCalledWith(
-    {
-      loaded: loadedValue,
-      progress: getProgressValue({ total: totalValue, loaded: loadedValue }),
-      sizeLeft: totalValue - loadedValue,
-      startTimestamp,
-      timeLeft: timeLeft ?? timeToSend,
-      total: totalValue,
-    },
-    {
-      request,
-      requestId,
-    },
-  );
+  expect(spy).toHaveBeenCalledWith({
+    request,
+    requestId,
+
+    loaded: loadedValue,
+    progress: getProgressValue({ total: totalValue, loaded: loadedValue }),
+    sizeLeft: totalValue - loadedValue,
+    startTimestamp,
+    timeLeft: timeLeft ?? timeToSend,
+    total: totalValue,
+  });
 };

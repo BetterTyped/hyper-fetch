@@ -1,9 +1,10 @@
 import { waitFor } from "@testing-library/dom";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { Dispatcher } from "dispatcher";
-import { createDispatcher, createAdapter, sleep } from "../../utils";
+import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
+import { Plugin } from "plugin";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -124,7 +125,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
-      const storageElement = dispatcher.createStorageElement(request);
+      const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
 
       expect(spy).toHaveBeenCalledTimes(1);
@@ -135,7 +136,7 @@ describe("Dispatcher [ Queue ]", () => {
 
       client.appManager.setOnline(false);
       const spy = jest.spyOn(client, "adapter");
-      const storageElement = dispatcher.createStorageElement(request);
+      const storageElement = dispatcher.createStorageItem(request);
       await dispatcher.performRequest(storageElement);
 
       expect(spy).toHaveBeenCalledTimes(0);
@@ -164,7 +165,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       const spy = jest.spyOn(client, "adapter");
-      const storageElement = dispatcher.createStorageElement(request);
+      const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
       dispatcher.performRequest(storageElement);
 
@@ -175,10 +176,12 @@ describe("Dispatcher [ Queue ]", () => {
     it("should retry failed request", async () => {
       const spy = jest.fn();
       const spyDelete = jest.fn();
+      const plugin = new Plugin({ name: "delete" }).onDispatcherItemDeleted(spyDelete);
       const customClient = new Client({
         url: "shared-base-url",
-        fetchDispatcher: (instance) => new Dispatcher(instance, { onDeleteFromStorage: spyDelete }),
-      });
+        fetchDispatcher: () => new Dispatcher(),
+      }).addPlugin(plugin);
+
       const request = customClient.createRequest()({ endpoint: "shared-base-endpoint", retry: 1, retryTime: 0 });
       mockRequest(request, { status: 400, delay: 0 });
 
@@ -279,8 +282,8 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request, { delay: 1 });
 
       const spy = jest.spyOn(dispatcher, "performRequest");
-      const jsonRequest = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queryKey, jsonRequest);
+      const jsonRequest = dispatcher.createStorageItem(request);
+      dispatcher.addQueueItem(request.queryKey, jsonRequest);
       dispatcher.addRunningRequest(request.queryKey, jsonRequest.requestId, request);
 
       dispatcher.flushQueue(request.queryKey);
@@ -293,8 +296,8 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request, { delay: 1 });
 
       const spy = jest.spyOn(client, "adapter");
-      const jsonRequest = dispatcher.createStorageElement(request);
-      dispatcher.addQueueElement(request.queryKey, jsonRequest);
+      const jsonRequest = dispatcher.createStorageItem(request);
+      dispatcher.addQueueItem(request.queryKey, jsonRequest);
       dispatcher.stopRequest(request.queryKey, jsonRequest.requestId);
 
       dispatcher.flushQueue(request.queryKey);

@@ -1,7 +1,6 @@
 import { waitFor } from "@testing-library/dom";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { sleep } from "../../../utils";
 import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -49,7 +48,7 @@ describe("RequestManager [ Events ]", () => {
       await waitFor(() => {
         expect(spy1).toHaveBeenCalledTimes(1);
         expect(spy2).toHaveBeenCalledTimes(1);
-        expect(spy3).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(3);
         expect(spy4).toHaveBeenCalledTimes(3);
         expect(spy5).toHaveBeenCalledTimes(1);
         expect(spy6).toHaveBeenCalledTimes(1);

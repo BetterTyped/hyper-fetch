@@ -53,7 +53,7 @@ describe("Client [ Methods ]", () => {
       expect(client.stringifyQueryParams({ object: {} })).toBe("?object=object");
     });
     it("should assign debug value [setDebug]", async () => {
-      client.setLogger((b) => new LoggerManager(b, { logger: () => null })).setDebug(true);
+      client.setLogger(() => new LoggerManager({ logger: () => null })).setDebug(true);
       expect(client.debug).toEqual(true);
     });
     it("should assign query params handling callback [setStringifyQueryParams]", async () => {

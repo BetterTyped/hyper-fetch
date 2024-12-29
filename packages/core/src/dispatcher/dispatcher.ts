@@ -48,7 +48,7 @@ export class Dispatcher {
       this.flush();
     });
 
-    this.client.triggerPlugins("onDispatcherMount", { dispatcher: this });
+    return this;
   };
 
   // *********************************************************************
@@ -175,7 +175,7 @@ export class Dispatcher {
     this.storage.set(queryKey, newQueue);
 
     // Emit Queue Changes
-    this.client.triggerPlugins("onDispatcherQueueCleared", { dispatcher: this, queue });
+    this.client.triggerPlugins("onDispatcherQueueCleared", { dispatcher: this, queue: newQueue });
     this.events.setQueueChanged(newQueue);
 
     return newQueue;

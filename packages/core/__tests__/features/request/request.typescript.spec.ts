@@ -12,7 +12,7 @@ const client = new Client({
   url: "http://localhost:3000",
 });
 
-const getUsers = client.createRequest<{ response: { id: string }[] }>()({
+const getUsers = client.createRequest<{ response: { id: string }[]; queryParams?: string }>()({
   method: "GET",
   endpoint: "/users",
 });
@@ -78,7 +78,7 @@ describe("Request [Types]", () => {
         {
           payload: null,
           params: { id: "test" },
-          queryParams: "",
+          queryParams: undefined,
         },
       ]);
 
@@ -86,29 +86,27 @@ describe("Request [Types]", () => {
         {
           payload: null,
           params: null,
-          queryParams: "",
+          queryParams: undefined,
         },
       ]);
     });
     it("should allow to make request with query params", () => {
-      expectFunctionParametersType(getUser.setQueryParams("").send).assert([
+      expectFunctionParametersType(getUser.send).assert([
         {
           payload: null,
           params: { id: "test" },
-          queryParams: null,
         },
       ]);
 
-      expectFunctionParametersType(getUser.setParams({ id: "test" }).setQueryParams("").send).assert([
+      expectFunctionParametersType(getUser.setParams({ id: "test" }).send).assert([
         {
           payload: null,
           params: null,
-          queryParams: null,
         },
       ]);
     });
     it("should not allow to add data to request", () => {
-      expectNotFunctionParametersType(getUser.setQueryParams("").send).assert([
+      expectNotFunctionParametersType(getUser.send).assert([
         {
           payload: { value: "test" },
           params: { id: "test" },
@@ -117,13 +115,15 @@ describe("Request [Types]", () => {
       ]);
     });
     it("should not allow to make request without params", () => {
-      expectFunctionParametersType(getUser.setQueryParams("").send).assert([
+      expectFunctionParametersType(getUser.send).assert([
         {
           payload: null,
           params: { id: "test" },
-          queryParams: null,
         },
       ]);
+    });
+    it("should not allow to make request with query params", () => {
+      expectFunctionParametersType(getUser.setQueryParams).assert([undefined]);
     });
     it("should not allow to make request with incorrect params", () => {
       expectNotType<(options?: { payload: null; params: { id: null }; queryParams: null }) => Promise<any>>().assert(
@@ -146,16 +146,14 @@ describe("Request [Types]", () => {
         {
           payload: { name: "Kacper" },
           params: null,
-          queryParams: null,
         },
       ]);
     });
     it("should allow to make request with query params", () => {
-      expectFunctionParametersType(postUser.setQueryParams("").send).assert([
+      expectFunctionParametersType(postUser.send).assert([
         {
           payload: { name: "Kacper" },
           params: null,
-          queryParams: null,
         },
       ]);
 
@@ -163,7 +161,6 @@ describe("Request [Types]", () => {
         {
           payload: null,
           params: null,
-          queryParams: "",
         },
       ]);
     });
@@ -172,16 +169,14 @@ describe("Request [Types]", () => {
         {
           payload: null,
           params: { id: "test" },
-          queryParams: null,
         },
       ]);
     });
     it("should not allow to make request without data", () => {
-      expectNotFunctionParametersType(postUser.setQueryParams("").send).assert([
+      expectNotFunctionParametersType(postUser.send).assert([
         {
           payload: null,
           params: null,
-          queryParams: null,
         },
       ]);
 
@@ -192,7 +187,7 @@ describe("Request [Types]", () => {
       ]);
     });
     it("should not allow to make request with incorrect data", () => {
-      expectNotFunctionParametersType(postUser.setQueryParams("").send).assert([
+      expectNotFunctionParametersType(postUser.send).assert([
         {
           payload: { something: "test" },
           params: null,
@@ -223,7 +218,6 @@ describe("Request [Types]", () => {
             name: "Kacper",
           },
           params: { id: 1 },
-          queryParams: null,
         },
       ]);
 
@@ -233,28 +227,23 @@ describe("Request [Types]", () => {
             name: "Kacper",
           },
           params: null,
-          queryParams: null,
         },
       ]);
     });
     it("should allow to make request with query params", () => {
-      expectFunctionParametersType(patchUser.setQueryParams("").send).assert([
+      expectFunctionParametersType(patchUser.send).assert([
         {
           payload: {
             name: "Kacper",
           },
           params: { id: 1 },
-          queryParams: null,
         },
       ]);
 
-      expectFunctionParametersType(
-        patchUser.setPayload({ name: "Kacper" }).setParams({ id: 1 }).setQueryParams("").send,
-      ).assert([
+      expectFunctionParametersType(patchUser.setPayload({ name: "Kacper" }).setParams({ id: 1 }).send).assert([
         {
           payload: null,
           params: null,
-          queryParams: null,
         },
       ]);
     });
@@ -279,7 +268,6 @@ describe("Request [Types]", () => {
         {
           payload: { name: "Maciej" },
           params: { id: 1 },
-          queryParams: null,
         },
       ]);
 
@@ -290,19 +278,20 @@ describe("Request [Types]", () => {
           queryParams: null,
         },
       ]);
-      it("should not allow to make request with incorrect params", () => {
-        expectNotFunctionParametersType(patchUser.setPayload({ name: "Kacper" }).send).assert([
-          {
-            params: { error: "test" },
-          },
-        ]);
+    });
 
-        expectNotFunctionParametersType(patchUser.setPayload({ name: "Kacper" }).send).assert([
-          {
-            params: null,
-          },
-        ]);
-      });
+    it("should not allow to make request with incorrect params", () => {
+      expectNotFunctionParametersType(patchUser.setPayload({ name: "Kacper" }).send).assert([
+        {
+          params: { error: "test" },
+        },
+      ]);
+
+      expectNotFunctionParametersType(patchUser.setPayload({ name: "Kacper" }).send).assert([
+        {
+          params: null,
+        },
+      ]);
     });
   });
   it("should add correct error types", () => {

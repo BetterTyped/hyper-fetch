@@ -3,6 +3,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 import { QueueDataType } from "dispatcher";
 import { createDispatcher } from "../../utils";
 import { Client } from "client";
+import { Plugin } from "plugin";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -30,51 +31,77 @@ describe("Dispatcher [ Basic ]", () => {
       const storage = new Map<string, QueueDataType<any>>();
       const newDispatcher = createDispatcher(client, { storage });
 
-      const dispatcherDump = newDispatcher.createStorageElement(request);
-      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
+      const dispatcherDump = newDispatcher.createStorageItem(request);
+      newDispatcher.addQueueItem(request.queryKey, dispatcherDump);
 
       expect(storage.get(request.queryKey)?.requests[0]).toBe(dispatcherDump);
     });
-    it("should trigger onInitialization callback", async () => {
+    it("should trigger on queue change callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(client, { onInitialization: spy });
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(newDispatcher);
-    });
-    it("should trigger onUpdateStorage callback", async () => {
-      const spy = jest.fn();
-      const newDispatcher = createDispatcher(client, { onUpdateStorage: spy });
+      const plugin = new Plugin({ name: "change" }).onDispatcherQueueRunning(spy);
+      const newDispatcher = createDispatcher(client.addPlugin(plugin));
 
       newDispatcher.stop(request.queryKey);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: true });
+      expect(spy).toHaveBeenCalledWith({
+        dispatcher: newDispatcher,
+        queue: { queryKey: request.queryKey, requests: [], stopped: true },
+        status: "stopped",
+      });
     });
-    it("should trigger onDeleteFromStorage callback", async () => {
-      const spy = jest.fn();
-      const newDispatcher = createDispatcher(client, { onDeleteFromStorage: spy });
-      const dispatcherDump = newDispatcher.createStorageElement(request);
+    it("should trigger on add and delete callback", async () => {
+      const spy1 = jest.fn();
+      const spy2 = jest.fn();
+      const spy3 = jest.fn();
+      const plugin1 = new Plugin({ name: "add" }).onDispatcherItemAdded(spy1);
+      const plugin2 = new Plugin({ name: "delete" }).onDispatcherItemDeleted(spy2);
+      const plugin3 = new Plugin({ name: "clear" }).onDispatcherQueueCleared(spy3);
+      const newDispatcher = createDispatcher(client.addPlugin(plugin1).addPlugin(plugin2).addPlugin(plugin3));
+      const dispatcherDump = newDispatcher.createStorageItem(request);
 
-      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
+      newDispatcher.addQueueItem(request.queryKey, dispatcherDump);
+      expect(spy1).toHaveBeenCalledTimes(1);
+      expect(spy1).toHaveBeenCalledWith({
+        dispatcher: newDispatcher,
+        queue: { queryKey: request.queryKey, requests: [dispatcherDump], stopped: false },
+        queueItem: dispatcherDump,
+      });
+
       newDispatcher.delete(request.queryKey, dispatcherDump.requestId, request.abortKey);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: false });
+      expect(spy2).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledWith({
+        dispatcher: newDispatcher,
+        queue: { queryKey: request.queryKey, requests: [], stopped: false },
+        queueItem: dispatcherDump,
+      });
 
-      newDispatcher.addQueueElement(request.queryKey, dispatcherDump);
+      newDispatcher.addQueueItem(request.queryKey, dispatcherDump);
+
+      expect(spy1).toHaveBeenCalledTimes(2);
+      expect(spy1).toHaveBeenCalledWith({
+        dispatcher: newDispatcher,
+        queue: { queryKey: request.queryKey, requests: [dispatcherDump], stopped: false },
+        queueItem: dispatcherDump,
+      });
+
       newDispatcher.clearQueue(request.queryKey);
 
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenCalledWith({ queryKey: request.queryKey, requests: [], stopped: false });
+      expect(spy3).toHaveBeenCalledTimes(1);
+      expect(spy3).toHaveBeenCalledWith({
+        dispatcher: newDispatcher,
+        queue: { queryKey: request.queryKey, requests: [], stopped: false },
+      });
     });
     it("should trigger onClearStorage callback", async () => {
       const spy = jest.fn();
-      const newDispatcher = createDispatcher(client, { onClearStorage: spy });
+      const plugin = new Plugin({ name: "clear" }).onDispatcherCleared(spy);
+      const newDispatcher = createDispatcher(client.addPlugin(plugin));
 
       newDispatcher.clear();
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(newDispatcher);
+      expect(spy).toHaveBeenCalledWith({ dispatcher: newDispatcher });
     });
   });
 });

@@ -1,6 +1,7 @@
+import { sleep } from "@hyper-fetch/testing";
+
 import { xhrExtra, AdapterType, ResponseType } from "adapter";
 import { RequestInstance } from "request";
-import { sleep } from "./helpers.utils";
 import { ClientInstance, ResponseInterceptorType } from "client";
 
 export const interceptorCallback = (props?: {

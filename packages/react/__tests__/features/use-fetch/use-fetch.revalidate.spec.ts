@@ -1,9 +1,9 @@
 import { xhrExtra } from "@hyper-fetch/core";
 import { act, waitFor } from "@testing-library/react";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { testSuccessState } from "../../shared";
-import { client, createRequest, renderUseFetch, sleep, waitForRender } from "../../utils";
+import { client, createRequest, renderUseFetch, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

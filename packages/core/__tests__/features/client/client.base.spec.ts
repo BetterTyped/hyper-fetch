@@ -8,14 +8,11 @@ import { Client } from "client";
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ Base ]", () => {
-  let clientInstance = new Client({ url: "shared-base-url" });
-
   beforeAll(() => {
     startServer();
   });
 
   beforeEach(() => {
-    clientInstance = new Client({ url: "shared-base-url" });
     resetMocks();
   });
 
@@ -45,19 +42,19 @@ describe("Client [ Base ]", () => {
       expect(client.appManager).toBe(appManager);
     });
     it("should assign new cache", async () => {
-      const cache = new Cache(clientInstance);
+      const cache = new Cache();
       const client = new Client({ url: "shared-base-url", cache: () => cache });
 
       expect(client.cache).toBe(cache);
     });
     it("should assign new fetchDispatcher", async () => {
-      const fetchDispatcher = new Dispatcher(clientInstance);
+      const fetchDispatcher = new Dispatcher();
       const client = new Client({ url: "shared-base-url", fetchDispatcher: () => fetchDispatcher });
 
       expect(client.fetchDispatcher).toBe(fetchDispatcher);
     });
     it("should assign new submitDispatcher", async () => {
-      const submitDispatcher = new Dispatcher(clientInstance);
+      const submitDispatcher = new Dispatcher();
       const client = new Client({ url: "shared-base-url", submitDispatcher: () => submitDispatcher });
 
       expect(client.submitDispatcher).toBe(submitDispatcher);
@@ -80,7 +77,7 @@ describe("Client [ Base ]", () => {
     });
     it("should assign new cache", async () => {
       const spy = jest.fn();
-      const cache = new Cache(clientInstance);
+      const cache = new Cache();
       const client = new Client({
         url: "shared-base-url",
         cache: () => {
@@ -95,7 +92,7 @@ describe("Client [ Base ]", () => {
     });
     it("should assign new fetchDispatcher", async () => {
       const spy = jest.fn();
-      const fetchDispatcher = new Dispatcher(clientInstance);
+      const fetchDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",
         fetchDispatcher: () => {
@@ -110,7 +107,7 @@ describe("Client [ Base ]", () => {
     });
     it("should assign new submitDispatcher", async () => {
       const spy = jest.fn();
-      const submitDispatcher = new Dispatcher(clientInstance);
+      const submitDispatcher = new Dispatcher();
       const client = new Client({
         url: "shared-base-url",
         submitDispatcher: () => {

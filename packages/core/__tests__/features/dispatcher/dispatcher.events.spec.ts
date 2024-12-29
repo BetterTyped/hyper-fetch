@@ -1,12 +1,10 @@
 import { waitFor } from "@testing-library/dom";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { ResponseType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { createDispatcher, createAdapter, sleep } from "../../utils";
+import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
-
-jest.useFakeTimers().setSystemTime(new Date());
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

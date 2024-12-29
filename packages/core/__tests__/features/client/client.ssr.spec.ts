@@ -9,7 +9,7 @@ const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
 describe("Client [ SSR ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
+  let request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-base-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -17,7 +17,7 @@ describe("Client [ SSR ]", () => {
 
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
+    request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-base-endpoint" });
     resetMocks();
   });
 

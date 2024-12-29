@@ -71,21 +71,19 @@ export type PluginMethods<Client extends ClientInstance> = {
    * Cache lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
-  onCacheMount?: (data: { cache: Cache<Client> }) => void;
   onCacheItemChange?: <Requests extends { cacheKey: string; response: any; error: any }>(data: {
+    cache: Cache;
     cacheKey: Requests["cacheKey"];
     prevData: CacheValueType<Requests["response"], Requests["error"], ExtractClientAdapterType<Client>> | null;
     newData: CacheValueType<Requests["response"], Requests["error"], ExtractClientAdapterType<Client>>;
-    cache: Cache<Client>;
   }) => void;
-  onCacheItemDelete?: (data: { cacheKey: string; cache: Cache<Client> }) => void;
-  onCacheItemInvalidate?: (data: { cacheKey: string; cache: Cache<Client> }) => void;
+  onCacheItemDelete?: (data: { cacheKey: string; cache: Cache }) => void;
+  onCacheItemInvalidate?: (data: { cacheKey: string; cache: Cache }) => void;
 
   /* -------------------------------------------------------------------------------------------------
    * Dispatcher lifecycle
    * -----------------------------------------------------------------------------------------------*/
 
-  onDispatcherMount?: (data: { dispatcher: Dispatcher }) => void;
   onDispatcherCleared?: (data: { dispatcher: Dispatcher }) => void;
   onDispatcherQueueDrained?: (data: {
     dispatcher: Dispatcher;

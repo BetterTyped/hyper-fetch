@@ -1,7 +1,7 @@
 import { waitFor } from "@testing-library/dom";
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { createDispatcher, createAdapter, sleep } from "../../utils";
+import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();

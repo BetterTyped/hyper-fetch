@@ -1,10 +1,8 @@
-import { Cache } from "cache";
 import { AdapterInstance, ResponseType } from "adapter";
 import { ResponseDetailsType } from "managers";
-import { ClientInstance } from "../client";
 import { RequestInstance } from "request";
 
-export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
+export type CacheOptionsType = {
   /**
    * Assign your custom sync storage
    */
@@ -18,21 +16,6 @@ export type CacheOptionsType<C extends ClientInstance = ClientInstance> = {
    * If the new key is different from the old one, the cache will be cleared
    */
   version?: string;
-  /**
-   * Initialization callback
-   */
-  onInitialization?: (cache: Cache<C>) => void;
-  /**
-   * Callback for every change in the storage
-   */
-  onChange?: <Response = any, Error = any, Adapter extends AdapterInstance = AdapterInstance>(
-    key: string,
-    data: CacheValueType<Response, Error, Adapter>,
-  ) => void;
-  /**
-   * Callback for every delete in the storage
-   */
-  onDelete?: (key: string) => void;
 };
 
 // Values

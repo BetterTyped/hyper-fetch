@@ -1,6 +1,7 @@
+import { sleep } from "@hyper-fetch/testing";
+
 import { AdapterType, adapter } from "adapter";
 import { RequestInstance } from "request";
-import { sleep } from ".";
 
 export const createAdapter = (props?: {
   sleepTime?: number;

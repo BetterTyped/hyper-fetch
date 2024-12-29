@@ -22,7 +22,7 @@ import { EventEmitter } from "utils";
  * Keys used to save the values are created dynamically on the Request class
  *
  */
-export class Cache<C extends ClientInstance> {
+export class Cache {
   public emitter = new EventEmitter();
   public events: ReturnType<typeof getCacheEvents>;
 
@@ -31,9 +31,9 @@ export class Cache<C extends ClientInstance> {
   public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
   private logger: LoggerType;
-  public client: C;
+  private client: ClientInstance;
 
-  constructor(public options?: CacheOptionsType<C>) {
+  constructor(public options?: CacheOptionsType) {
     const { storage = new Map<string, CacheValueType>(), lazyStorage, version = "0.0.1" } = options ?? {};
 
     this.emitter?.setMaxListeners(1000);
@@ -44,7 +44,7 @@ export class Cache<C extends ClientInstance> {
     this.lazyStorage = lazyStorage;
   }
 
-  initialize = (client: C) => {
+  initialize = (client: ClientInstance) => {
     this.client = client;
     this.logger = client.loggerManager.initialize(client, "Cache");
 
@@ -62,8 +62,6 @@ export class Cache<C extends ClientInstance> {
     // Schedule garbage collection for lazy storage
     // To make sure we do not store some data that is no longer needed
     this.getLazyKeys().then(scheduleGarbageCollection);
-
-    this.client.triggerPlugins("onCacheMount", { cache: this as unknown as Cache<ClientInstance> });
 
     return this;
   };
@@ -107,11 +105,10 @@ export class Cache<C extends ClientInstance> {
       this.logger.debug("Saving response to cache storage", { request, data });
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
-      this.options?.onChange?.(cacheKey, newCacheData);
       this.client.triggerPlugins("onCacheItemChange", {
-        cache: this as unknown as Cache<ClientInstance>,
+        cache: this,
         cacheKey,
-        prevData: previousCacheData as CacheValueType<any, any, AdapterInstance>,
+        prevData: (previousCacheData || null) as CacheValueType<any, any, AdapterInstance>,
         newData: newCacheData as CacheValueType<any, any, AdapterInstance>,
       });
 
@@ -191,7 +188,7 @@ export class Cache<C extends ClientInstance> {
     this.lazyStorage?.delete(cacheKey);
 
     this.client.triggerPlugins("onCacheItemDelete", {
-      cache: this as unknown as Cache<ClientInstance>,
+      cache: this,
       cacheKey,
     });
 
@@ -215,7 +212,7 @@ export class Cache<C extends ClientInstance> {
         }
 
         this.client.triggerPlugins("onCacheItemInvalidate", {
-          cache: this as unknown as Cache<ClientInstance>,
+          cache: this,
           cacheKey,
         });
 

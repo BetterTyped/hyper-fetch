@@ -1,9 +1,8 @@
 import { waitFor } from "@testing-library/dom";
-import { createWebsocketMockingServer } from "@hyper-fetch/testing";
+import { createWebsocketMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sleep } from "../../utils/helpers.utils";
 
 type DataType = { topic: string; age: number };
 

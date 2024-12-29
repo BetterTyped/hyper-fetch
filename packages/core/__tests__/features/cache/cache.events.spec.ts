@@ -1,7 +1,10 @@
+import { sleep } from "@hyper-fetch/testing";
+
 import { CacheValueType } from "cache";
-import { createCache, createLazyCacheAdapter, sleep } from "../../utils";
+import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
 import { xhrExtra } from "adapter";
+import { Plugin } from "plugin";
 
 describe("Cache [ Events ]", () => {
   const cacheKey = "test";
@@ -38,27 +41,28 @@ describe("Cache [ Events ]", () => {
   });
 
   describe("when options events are triggered", () => {
-    it("should trigger onInitialization callback", async () => {
-      const newCache = createCache(client, { onInitialization: spy });
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(newCache);
-    });
     it("should trigger onChange event when data is set", async () => {
-      const newCache = createCache(client, { onChange: spy });
+      const plugin = new Plugin({ name: "change" }).onCacheItemChange(spy);
+      const newCache = createCache(client.addPlugin(plugin));
 
       newCache.set(request, cacheData);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(request.cacheKey, cacheData);
+      expect(spy).toHaveBeenCalledWith({
+        cache: newCache,
+        cacheKey: request.cacheKey,
+        newData: cacheData,
+        prevData: null,
+      });
     });
     it("should trigger onDelete event when data is deleted", async () => {
-      const newCache = createCache(client, { onDelete: spy });
+      const plugin = new Plugin({ name: "delete" }).onCacheItemDelete(spy);
+      const newCache = createCache(client.addPlugin(plugin));
 
       newCache.delete(request.cacheKey);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(request.cacheKey);
+      expect(spy).toHaveBeenCalledWith({ cache: newCache, cacheKey: request.cacheKey });
     });
   });
   describe("when invalidate event is triggered", () => {

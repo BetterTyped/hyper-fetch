@@ -66,7 +66,7 @@ export class Client<
 
   // Config
   adapter: Adapter;
-  cache: Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
+  cache: Cache;
   fetchDispatcher: Dispatcher;
   submitDispatcher: Dispatcher;
 
@@ -138,12 +138,12 @@ export class Client<
     this.url = url;
     this.adapter = (adapter || defaultAdapter) as Adapter;
 
-    // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
+    this.cache = cache?.() || new Cache();
     this.appManager = appManager?.() || new AppManager();
-    this.cache = (cache?.() || new Cache()) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
     this.fetchDispatcher = fetchDispatcher?.() || new Dispatcher();
     this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
 
+    // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
     this.appManager.initialize(this);
     this.cache.initialize(this);
     this.fetchDispatcher.initialize(this);
@@ -192,6 +192,7 @@ export class Client<
     callback: (Client: ClientInstance) => LoggerManager,
   ): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.loggerManager = callback(this);
+    this.loggerManager.initialize(this, "Client");
     return this;
   };
 
@@ -537,11 +538,12 @@ export class Client<
     this.submitDispatcher.emitter.removeAllListeners();
     this.cache.emitter.removeAllListeners();
 
+    this.cache = cache?.() || new Cache();
     this.appManager = appManager?.() || new AppManager();
-    this.cache = (cache?.() || new Cache()) as Cache<Client<GlobalErrorType, Adapter, EndpointMapper>>;
     this.fetchDispatcher = fetchDispatcher?.() || new Dispatcher();
     this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
 
+    // DO NOT CHANGE INITIALIZATION ORDER
     this.appManager.initialize(this);
     this.cache.initialize(this);
     this.fetchDispatcher.initialize(this);

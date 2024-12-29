@@ -1,7 +1,6 @@
-import { createHttpMockingServer } from "@hyper-fetch/testing";
+import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { getErrorMessage, xhrExtra } from "adapter";
-import { sleep } from "../../utils";
 import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -33,7 +32,7 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -46,7 +45,7 @@ describe("Request [ Sending ]", () => {
       const requestExecution = request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).exec({});
       await sleep(5);
       expect(client.fetchDispatcher.getAllRunningRequests()).toHaveLength(0);
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: { nested: fixture },
         error: null,
@@ -58,7 +57,7 @@ describe("Request [ Sending ]", () => {
   });
   describe("When using request's send method", () => {
     it("should return adapter response", async () => {
-      const response = await request.send({});
+      const { responseTimestamp, requestTimestamp, ...response } = await request.send({});
 
       expect(response).toStrictEqual({
         data: fixture,
@@ -69,7 +68,9 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return mapped adapter response", async () => {
-      const response = await request.setResponseMapper((res) => ({ ...res, data: { nested: res.data } })).send({});
+      const { responseTimestamp, requestTimestamp, ...response } = await request
+        .setResponseMapper((res) => ({ ...res, data: { nested: res.data } }))
+        .send({});
 
       expect(response).toStrictEqual({
         data: { nested: fixture },
@@ -80,7 +81,7 @@ describe("Request [ Sending ]", () => {
       });
     });
     it("should return async mapped adapter response", async () => {
-      const response = await request
+      const { responseTimestamp, requestTimestamp, ...response } = await request
         .setResponseMapper(async (res) => Promise.resolve({ ...res, data: { nested: res.data } }))
         .send({});
 
@@ -106,7 +107,7 @@ describe("Request [ Sending ]", () => {
         unmount();
       });
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -128,7 +129,7 @@ describe("Request [ Sending ]", () => {
         unmount();
       });
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: fixture,
         error: null,
@@ -146,12 +147,12 @@ describe("Request [ Sending ]", () => {
       const runningRequests = client.fetchDispatcher.getAllRunningRequests();
       client.fetchDispatcher.delete(request.queryKey, runningRequests[0].requestId, request.abortKey);
 
-      const response = await requestExecution;
+      const { responseTimestamp, requestTimestamp, ...response } = await requestExecution;
       expect(response).toStrictEqual({
         data: null,
         error: getErrorMessage("deleted"),
         status: null,
-        success: null,
+        success: false,
         extra: xhrExtra,
       });
     });
@@ -173,7 +174,11 @@ describe("Request [ Sending ]", () => {
         .setCancelable(true);
       const mock = mockRequest(newRequest);
 
-      const [res1, res2, res3] = await Promise.all([newRequest.send({}), newRequest.send({}), newRequest.send({})]);
+      const [
+        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
+        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
+        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+      ] = await Promise.all([newRequest.send({}), newRequest.send({}), newRequest.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,
@@ -209,7 +214,11 @@ describe("Request [ Sending ]", () => {
 
       const mock = mockRequest(getUsers);
 
-      const [res1, res2, res3] = await Promise.all([getUsers.send({}), getUsers.send({}), getUsers.send({})]);
+      const [
+        { requestTimestamp: time1, responseTimestamp: time2, ...res1 },
+        { requestTimestamp: time3, responseTimestamp: time4, ...res2 },
+        { requestTimestamp: time5, responseTimestamp: time6, ...res3 },
+      ] = await Promise.all([getUsers.send({}), getUsers.send({}), getUsers.send({})]);
 
       expect(res1).toStrictEqual({
         data: null,
@@ -254,7 +263,7 @@ describe("Request [ Sending ]", () => {
       expect(spy1).toHaveBeenCalledTimes(1);
       expect(spy2).toHaveBeenCalledTimes(1);
       expect(spy3).toHaveBeenCalledTimes(1);
-      expect(spy4).toHaveBeenCalledTimes(2);
+      expect(spy4).toHaveBeenCalledTimes(3);
       expect(spy5).toHaveBeenCalledTimes(3);
       expect(spy6).toHaveBeenCalledTimes(1);
     });

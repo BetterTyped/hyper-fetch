@@ -1,9 +1,8 @@
 import { waitFor } from "@testing-library/dom";
-import { createSseMockingServer } from "@hyper-fetch/testing";
+import { createSseMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createListener } from "../../utils/listener.utils";
 import { createSocket } from "../../utils/socket.utils";
-import { sleep } from "../../utils/helpers.utils";
 import { ServerSentEventsAdapter } from "adapter";
 
 const config = {

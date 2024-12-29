@@ -14,7 +14,7 @@ export const logger: LoggerFunctionType = (log) => {
     const module = `%c[${emoji} ${log.module}]:[${getTime()}]:`;
     const message = `${module} ${log.message}`;
 
-    if (log.extra?.length) {
+    if (log.extra ? Object.keys(log.extra)?.length : false) {
       console.groupCollapsed(message, styles);
       console.log(log.extra);
       console.groupEnd();
