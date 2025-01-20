@@ -16,7 +16,7 @@ import { RequestInstance } from "request";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
-describe("Fetch Adapter [ Bindings ]", () => {
+describe("Adapter [ Bindings ]", () => {
   const url = "http://localhost:9000";
   const endpoint = "/endpoint";
   const requestId = "test";
@@ -623,8 +623,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
         client.__onResponseCallbacks.push(() => ({
           ...successResponse,
-          responseTimestamp: Date.now(),
-          requestTimestamp: Date.now(),
+          responseTimestamp: expect.toBeNumber(),
+          requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
@@ -639,8 +639,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
         client.__onSuccessCallbacks.push(() => ({
           ...successResponse,
-          responseTimestamp: Date.now(),
-          requestTimestamp: Date.now(),
+          responseTimestamp: expect.toBeNumber(),
+          requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess(data, 200, xhrExtra, () => null);
         client.__onSuccessCallbacks = [];
@@ -659,13 +659,13 @@ describe("Fetch Adapter [ Bindings ]", () => {
           success: true,
           status: 222,
           extra: xhrExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         };
         client.__onResponseCallbacks.push(() => ({
           ...errorResponse,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         }));
         client.__onSuccessCallbacks.push(() => newData);
         const response = await onSuccess(data, 200, xhrExtra, () => null);
@@ -711,8 +711,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
         client.__onResponseCallbacks.push(() => ({
           ...errorResponse,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onResponseCallbacks = [];
@@ -727,8 +727,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
         });
         client.__onErrorCallbacks.push(() => ({
           ...errorResponse,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onErrorCallbacks = [];
@@ -747,19 +747,19 @@ describe("Fetch Adapter [ Bindings ]", () => {
           success: false,
           status: null,
           extra: xhrExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         };
         client.__onResponseCallbacks.push(() => ({
           ...successResponse,
-          responseTimestamp: Date.now(),
-          requestTimestamp: Date.now(),
+          responseTimestamp: expect.toBeNumber(),
+          requestTimestamp: expect.toBeNumber(),
         }));
         client.__onErrorCallbacks.push(() => newData);
         const response = await onError(data, 400, xhrExtra, () => null);
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
-        expect(response).toEqual(expect.objectContaining(newData));
+        expect(response).toEqual(newData);
         expect(onErrorSpy).toHaveBeenCalledWith({ response: newData, request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
       });
@@ -779,8 +779,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, AdapterType>);
       });
       it("should return correct message when onTimeoutError is executed", async () => {
@@ -797,8 +797,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, AdapterType>);
       });
       it("should return correct message when onUnexpectedError is executed", async () => {
@@ -815,8 +815,8 @@ describe("Fetch Adapter [ Bindings ]", () => {
           status: 0,
           success: false,
           extra: xhrExtra,
-          requestTimestamp: Date.now(),
-          responseTimestamp: Date.now(),
+          requestTimestamp: expect.toBeNumber(),
+          responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, AdapterType>);
       });
     });

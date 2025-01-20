@@ -19,3 +19,5 @@ export type TypeWithDefaults<
   Key extends keyof Types,
   Value,
 > = Key extends keyof Types ? Types[Key] : Value;
+
+export type SyncOrAsync<T> = T | Promise<T>;

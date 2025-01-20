@@ -29,7 +29,7 @@ import {
   TypeWithDefaults,
 } from "types";
 import { Time } from "constants/time.constants";
-import { GeneratorReturnMockTypes, RequestDataMockTypes } from "mocker";
+import { MockerConfigType, MockResponseType } from "mocker";
 
 /**
  * Request is a class that represents a request sent to the server. It contains all the necessary information to make a request, like endpoint, method, headers, data, and much more.
@@ -83,13 +83,13 @@ export class Request<
   deduplicate: boolean;
   deduplicateTime: number;
   payloadMapper?: PayloadMapperType<Payload>;
+  mock?: {
+    fn: (options: {
+      request: RequestInstance;
+    }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
+    config: MockerConfigType;
+  };
 
-  mock?: Generator<
-    GeneratorReturnMockTypes<Response, any>,
-    GeneratorReturnMockTypes<Response, any>,
-    GeneratorReturnMockTypes<Response, any>
-  >;
-  mockData?: RequestDataMockTypes<Response, any>;
   isMockEnabled = false;
 
   /** @internal */
@@ -293,29 +293,18 @@ export class Request<
     return this.clone({ offline });
   };
 
-  public setMock = (mockData: RequestDataMockTypes<Response, this>) => {
-    const mockGenerator = function* mocked(mockedValues: typeof mockData) {
-      if (Array.isArray(mockedValues)) {
-        let iteration = 0;
-        // eslint-disable-next-line no-restricted-syntax
-        while (true) {
-          yield mockedValues[iteration];
-          iteration = mockedValues.length === iteration + 1 ? 0 : iteration + 1;
-        }
-      } else {
-        while (true) {
-          yield mockedValues;
-        }
-      }
-    };
-    this.mockData = mockData;
-    this.mock = mockGenerator(mockData);
+  public setMock = (
+    fn: (options: {
+      request: Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>;
+    }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>,
+    config: MockerConfigType = {},
+  ) => {
+    this.mock = { fn, config } as typeof this.mock;
     this.isMockEnabled = true;
     return this;
   };
 
-  public removeMock = () => {
-    this.mockData = undefined;
+  public clearMock = () => {
     this.mock = undefined;
     this.isMockEnabled = false;
     return this;
@@ -353,7 +342,7 @@ export class Request<
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.__requestMapper = requestMapper as any;
+    cloned.__requestMapper = requestMapper;
 
     return cloned;
   };
@@ -496,10 +485,9 @@ export class Request<
     // Inherit methods
     cloned.payloadMapper = this.payloadMapper;
     cloned.__responseMapper = this.__responseMapper;
-    cloned.__requestMapper = this.__requestMapper as any;
+    cloned.__requestMapper = this.__requestMapper;
 
-    // cloned.mockData = this.mockData as any;
-    // cloned.mock = this.mock as any;
+    cloned.mock = this.mock;
     cloned.isMockEnabled = this.isMockEnabled;
 
     return cloned;

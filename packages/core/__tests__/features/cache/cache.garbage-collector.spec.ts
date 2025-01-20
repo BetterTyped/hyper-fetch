@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/dom";
 
-import { CacheStorageType, CacheValueType } from "cache";
+import { CacheValueType } from "cache";
 import { Client, Time, xhrExtra } from "index";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 
@@ -73,7 +73,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
       expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
     });
-    it("should schedule lazy storage garbage collection on mount", async () => {
+    it("should not schedule lazy storage garbage collection on mount", async () => {
       const lazyStorage = new Map<string, CacheValueType>();
       lazyStorage.set(cacheKey, cacheData);
       const cacheInstance = createCache(client, {
@@ -82,7 +82,7 @@ describe("Cache [ Garbage Collector ]", () => {
       });
 
       await waitFor(() => {
-        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(1);
+        expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
       });
     });
     it("should schedule garbage collection when resource is added", async () => {
@@ -94,11 +94,14 @@ describe("Cache [ Garbage Collector ]", () => {
       const lazyStorage = new Map<string, CacheValueType>();
       const data = { ...cacheData, cacheTime: Time.MIN };
       lazyStorage.set(request.cacheKey, data);
-      createCache(client, {
+      const newCache = createCache(client, {
         lazyStorage: createLazyCacheAdapter(lazyStorage),
         version: "new-clear-key",
       });
       const spy = jest.spyOn(lazyStorage, "delete");
+
+      // get to trigger garbage collector
+      newCache.get(request.cacheKey);
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
@@ -106,15 +109,17 @@ describe("Cache [ Garbage Collector ]", () => {
       });
     });
     it("should remove resource with not matching sync version", async () => {
-      const lazyStorage = new Map<string, CacheValueType>();
+      const syncStorage = new Map<string, CacheValueType>();
       const data = { ...cacheData, cacheTime: Time.MIN };
-      lazyStorage.set(request.cacheKey, data);
-      createCache(client, {
-        // Todo: check
-        storage: lazyStorage as CacheStorageType,
+      syncStorage.set(request.cacheKey, data);
+      const newCache = createCache(client, {
+        storage: syncStorage,
         version: "new-clear-key",
       });
-      const spy = jest.spyOn(lazyStorage, "delete");
+      const spy = jest.spyOn(syncStorage, "delete");
+
+      // get to trigger garbage collector
+      newCache.get(request.cacheKey);
 
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);

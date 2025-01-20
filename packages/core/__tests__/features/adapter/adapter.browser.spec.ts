@@ -8,7 +8,7 @@ import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
-describe("Fetch Adapter [ Browser ]", () => {
+describe("Http Adapter [ Browser ]", () => {
   const requestId = "test";
 
   let client = new Client({ url: "shared-base-url" });

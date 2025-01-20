@@ -16,7 +16,7 @@ import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types
 import { mocker } from "mocker";
 
 export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>({
-  request: req,
+  request: initialReq,
   requestId,
   systemErrorStatus,
   systemErrorExtra,
@@ -28,15 +28,15 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   systemErrorExtra: ExtractAdapterExtraType<T>;
   internalErrorFormatter?: (error: Error) => any;
 }) => {
-  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = req.client;
+  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = initialReq.client;
 
-  const logger = loggerManager.initialize(req.client, "Adapter");
+  const logger = loggerManager.initialize(initialReq.client, "Adapter");
 
   let processingError: Error | null = null;
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
-  let request = req;
+  let request = initialReq;
 
   // Progress
   let requestTotal = 1;
@@ -55,10 +55,10 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   });
 
   try {
-    request = await request.client.__modifyRequest(req);
+    request = await request.client.__modifyRequest(request);
 
     if (request.auth) {
-      request = await request.client.__modifyAuth(req);
+      request = await request.client.__modifyAuth(request);
     }
 
     if (request.__requestMapper) {
@@ -392,7 +392,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   const createAbortListener = (
     status: ExtractAdapterStatusType<T>,
     abortExtra: ExtractAdapterExtraType<T>,
-    callback: () => void,
+    abortCallback: (options: { signal: AbortSignal }) => void,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
     const controller = getAbortController();
@@ -402,7 +402,7 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     const fn = () => {
       onAbortError(status, abortExtra, resolve);
-      callback();
+      abortCallback({ signal: controller.signal });
       requestManager.events.emitAbort({ requestId, request });
     };
 
@@ -424,19 +424,24 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       return onError(processingError, systemErrorStatus, systemErrorExtra, () => null);
     }
 
-    if (req.mock && req.isMockEnabled && req.client.isMockEnabled) {
-      return mocker(req, {
-        onError,
-        onResponseEnd,
-        onTimeoutError,
-        onRequestEnd,
-        createAbortListener,
-        onResponseProgress,
-        onRequestProgress,
-        onResponseStart,
-        onBeforeRequest,
-        onRequestStart,
-        onSuccess,
+    if (request.mock && request.isMockEnabled && request.client.isMockEnabled) {
+      return mocker({
+        request,
+        systemErrorStatus,
+        systemErrorExtra,
+        callbacks: {
+          onError,
+          onResponseEnd,
+          onTimeoutError,
+          onRequestEnd,
+          createAbortListener,
+          onResponseProgress,
+          onRequestProgress,
+          onResponseStart,
+          onBeforeRequest,
+          onRequestStart,
+          onSuccess,
+        },
       });
     }
 

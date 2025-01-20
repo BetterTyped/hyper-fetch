@@ -22,6 +22,7 @@ export type UseTrackedStateProps<T extends RequestInstance> = {
   dispatcher: Dispatcher;
   dependencyTracking: boolean;
   deepCompare: boolean | typeof isEqual;
+  disabled?: boolean;
 };
 
 export type UseTrackedStateReturn<T extends RequestInstance> = [

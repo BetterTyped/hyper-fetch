@@ -33,13 +33,14 @@ export const useTrackedState = <T extends RequestInstance>({
   initialResponse,
   deepCompare,
   dependencyTracking,
+  disabled,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queryKey, staleTime, __responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
 
-  const state = useRef<UseTrackedStateType<T>>(getInitialState(initialResponse, dispatcher, request));
+  const state = useRef<UseTrackedStateType<T>>(getInitialState({ initialResponse, dispatcher, request, disabled }));
   const renderKeys = useRef<Array<keyof UseTrackedStateType<T>>>([]);
   const isProcessingData = useRef("");
 

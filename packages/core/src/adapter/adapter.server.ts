@@ -29,7 +29,8 @@ export const adapter: AdapterType = async (request, requestId) => {
     method,
     headers: headers as OutgoingHttpHeaders,
     timeout: defaultTimeout,
-  };
+    signal: undefined as AbortSignal | undefined,
+  } satisfies https.RequestOptions;
 
   if (config) {
     Object.entries(config).forEach(([name, value]) => {
@@ -39,7 +40,6 @@ export const adapter: AdapterType = async (request, requestId) => {
     });
   }
 
-  let unmountListener: () => void = () => undefined;
   onBeforeRequest();
 
   if (payload) {
@@ -49,10 +49,18 @@ export const adapter: AdapterType = async (request, requestId) => {
   const requestUrl = !fullUrl.startsWith("http") ? `http://${fullUrl}` : fullUrl;
 
   return makeRequest((resolve) => {
+    const unmountListener = createAbortListener(
+      0,
+      xhrExtra,
+      ({ signal }) => {
+        options.signal = signal;
+      },
+      resolve,
+    );
+
     const httpRequest = httpClient.request(requestUrl, options, (response) => {
       // TODO - Change to settable from options
       response.setEncoding("utf8");
-      unmountListener = createAbortListener(0, xhrExtra, response.destroy, resolve);
       onRequestStart();
 
       // if (requestResponseType === "stream") {

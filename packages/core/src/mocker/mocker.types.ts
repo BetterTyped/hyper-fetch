@@ -1,29 +1,29 @@
-import { RequestInstance } from "../request";
+import { AdapterInstance, ResponseType } from "adapter";
+import { SyncOrAsync } from "types";
 
-export type RequestMockType<Response> = {
-  data: Response | Response[] | (() => Response);
-  status?: number | string;
-  success?: boolean;
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-  config?: {
-    timeout?: boolean;
-    requestTime?: number;
-    responseTime?: number;
-    totalUploaded?: number;
-    totalDownloaded?: number;
-  };
-  extra?: any;
+export type MockerConfigType = {
+  timeout?: boolean;
+  requestTime?: number;
+  responseTime?: number;
+  totalUploaded?: number;
+  totalDownloaded?: number;
 };
 
-export type RequestDataMockTypes<Response, Request extends RequestInstance> =
-  | RequestMockType<Response>
-  | RequestMockType<Response>[]
-  | ((r: Request) => RequestMockType<Response>)
-  | ((r: Request) => RequestMockType<Response>)[]
-  | ((r: Request) => Promise<RequestMockType<Response>>)
-  | ((r: Request) => Promise<RequestMockType<Response>>)[];
-
-export type GeneratorReturnMockTypes<Response, Request extends RequestInstance> =
-  | RequestMockType<Response>
-  | ((r: Request) => RequestMockType<Response>)
-  | ((r: Request) => Promise<RequestMockType<Response>>);
+export type MockResponseType<Response, Error, AdapterType extends AdapterInstance> = SyncOrAsync<
+  PartialBy<
+    Omit<ResponseType<Response, Error, AdapterType>, "data" | "error" | "responseTimestamp" | "requestTimestamp">,
+    "extra" | "success"
+  > &
+    (
+      | {
+          data: Response;
+          error?: Error;
+        }
+      | {
+          data?: Response;
+          error: Error;
+        }
+    )
+>;

@@ -4,7 +4,7 @@ import { getErrorMessage, parseErrorResponse, parseResponse } from "adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
-describe("Fetch Adapter [ Utils ]", () => {
+describe("Adapter [ Utils ]", () => {
   beforeAll(() => {
     startServer();
   });

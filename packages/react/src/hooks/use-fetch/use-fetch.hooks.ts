@@ -76,6 +76,7 @@ export const useFetch = <R extends RequestInstance>(
     initialResponse,
     deepCompare,
     dependencyTracking,
+    disabled,
   });
 
   /**
@@ -99,11 +100,6 @@ export const useFetch = <R extends RequestInstance>(
     if (!disabled) {
       logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
       dispatcher.add(request);
-      const queue = dispatcher.getQueue(request.queryKey);
-      // We want fast initial loading state if not paused / disabled
-      if (!queue.stopped && queue.requests.length) {
-        actions.setLoading(true);
-      }
     } else {
       logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }

@@ -1,9 +1,16 @@
 import { RequestInstance } from "../request";
-import { getAdapterBindings, AdapterInstance, AdapterType, ResponseType } from "adapter";
+import {
+  getAdapterBindings,
+  AdapterInstance,
+  AdapterType,
+  ResponseType,
+  ExtractAdapterExtraType,
+  ExtractAdapterStatusType,
+} from "adapter";
 
-export const mocker = async <T extends AdapterInstance = AdapterType>(
-  request: RequestInstance,
-  {
+export const mocker = async <T extends AdapterInstance = AdapterType>({
+  request,
+  callbacks: {
     onError,
     onResponseEnd,
     onTimeoutError,
@@ -15,7 +22,12 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  }: Pick<
+  },
+  systemErrorStatus,
+  systemErrorExtra,
+}: {
+  request: RequestInstance;
+  callbacks: Pick<
     Awaited<ReturnType<typeof getAdapterBindings<T>>>,
     | "onError"
     | "onResponseEnd"
@@ -28,25 +40,26 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
     | "onBeforeRequest"
     | "onRequestStart"
     | "onSuccess"
-  >,
-) => {
+  >;
+  systemErrorStatus: ExtractAdapterStatusType<T>;
+  systemErrorExtra: ExtractAdapterExtraType<T>;
+}) => {
   if (!request.mock) {
     throw new Error("[Internal HF Error] mock should be defined when calling mocker");
   }
-  const mock = request.mock.next();
-  const result = mock.value instanceof Function ? await mock.value(request) : mock.value;
+  const {
+    requestTime = 20,
+    responseTime = 20,
+    totalUploaded = 1,
+    totalDownloaded = 1,
+    timeout = false,
+  } = request.mock.config;
+  const result = await request.mock.fn({ request });
 
-  return new Promise<ResponseType<any, any, any>>((resolve) => {
-    const { data, status = 200, success = true, extra, config } = result;
-    const {
-      requestTime = 20,
-      responseTime = 20,
-      totalUploaded = 1,
-      totalDownloaded = 1,
-      timeout = false,
-    } = config || {};
+  return new Promise<ResponseType<any, any, AdapterType>>((resolve) => {
+    const { data, status, success = true, extra = request.client.defaultExtra } = result;
 
-    createAbortListener(0 as any, {} as any, () => {}, resolve);
+    createAbortListener(systemErrorStatus, systemErrorExtra, () => {}, resolve);
 
     onBeforeRequest();
     onRequestStart();
@@ -82,14 +95,17 @@ export const mocker = async <T extends AdapterInstance = AdapterType>(
       onResponseStart();
       await progress(responseTime, totalDownloaded, onResponseProgress);
       if (success) {
-        onSuccess(data, status as any, extra || {}, resolve);
+        onSuccess(data, status as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve);
       } else {
-        onError(data, status as any, extra || {}, resolve);
+        onError(data, status as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve);
       }
     };
 
     if (timeout) {
-      setTimeout(() => onTimeoutError(0 as any, extra || {}, resolve), 1);
+      setTimeout(
+        () => onTimeoutError(0 as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve),
+        1,
+      );
     } else {
       setTimeout(getResponse, requestTime + responseTime + 1);
     }

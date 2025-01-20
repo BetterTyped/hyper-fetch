@@ -53,15 +53,7 @@ export class Cache {
       [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
     });
 
-    const scheduleGarbageCollection = (keys: string[]) => {
-      keys.forEach(this.scheduleGarbageCollector);
-    };
-
-    scheduleGarbageCollection([...this.storage.keys()]);
-
-    // Schedule garbage collection for lazy storage
-    // To make sure we do not store some data that is no longer needed
-    this.getLazyKeys().then(scheduleGarbageCollection);
+    [...this.storage.keys()].forEach(this.scheduleGarbageCollector);
 
     return this;
   };
@@ -311,20 +303,32 @@ export class Cache {
     // Garbage collect
     if (cacheData) {
       const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - +new Date();
-      if (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") {
-        this.logger.info({ title: "Cache value is Infinite", type: "system", extra: { cacheKey } });
-      } else if (timeLeft >= 0) {
+      // null
+      if (cacheData.cacheTime === null) {
+        this.logger.debug({ title: "Cache time is null", type: "system", extra: { cacheKey } });
+      }
+      // Infinity
+      else if (
+        (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") ||
+        cacheData.cacheTime === Infinity
+      ) {
+        this.logger.debug({ title: "Cache time is Infinite", type: "system", extra: { cacheKey } });
+      }
+      // Run garbage collector
+      else if (timeLeft >= 0) {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
             if (this.client?.appManager.isOnline) {
-              this.logger.info({ title: "Garbage collecting cache element", type: "system", extra: { cacheKey } });
+              this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
-      } else if (this.client?.appManager.isOnline) {
-        this.logger.info({ title: "Garbage collecting cache element", type: "system", extra: { cacheKey } });
+      }
+      // Delete if value is stale and we are online
+      else if (this.client?.appManager.isOnline) {
+        this.logger.info({ title: "Garbage collecting cache data", type: "system", extra: { cacheKey } });
         this.delete(cacheKey);
       }
     }

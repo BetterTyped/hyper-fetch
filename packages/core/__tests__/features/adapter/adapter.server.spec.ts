@@ -10,14 +10,15 @@ import { Client } from "client";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
-describe("Fetch Adapter [ Server ]", () => {
+describe("Http Adapter [ Server ]", () => {
   const requestId = "test";
+  const abortKey = "abort-key";
   const requestCopy = http.request;
 
   let client = new Client({ url: "shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
-  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
-  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+  let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
 
   beforeAll(() => {
     startServer();
@@ -26,11 +27,15 @@ describe("Fetch Adapter [ Server ]", () => {
   beforeEach(() => {
     client = new Client({ url: "shared-base-url" });
     clientHttps = new Client({ url: "https://shared-base-url" });
-    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
-    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint" });
-
-    client.requestManager.addAbortController(request.abortKey, requestId);
     client.appManager.isBrowser = false;
+    clientHttps.appManager.isBrowser = false;
+
+    request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
+    requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
+
+    client.requestManager.addAbortController(abortKey, requestId);
+    clientHttps.requestManager.addAbortController(abortKey, requestId);
+
     resetMocks();
     jest.resetAllMocks();
     jest.clearAllMocks();
@@ -48,7 +53,7 @@ describe("Fetch Adapter [ Server ]", () => {
   });
 
   it("should pick https module", async () => {
-    mockRequest(request);
+    mockRequest(requestHttps);
     await expect(() => adapter(requestHttps, requestId)).not.toThrow();
   });
 
@@ -77,7 +82,7 @@ describe("Fetch Adapter [ Server ]", () => {
   it("should allow to cancel request and return error", async () => {
     mockRequest(request, { delay: 5 });
 
-    setTimeout(() => {
+    const id = setTimeout(() => {
       request.abort();
     }, 2);
 
@@ -85,6 +90,8 @@ describe("Fetch Adapter [ Server ]", () => {
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("abort").message);
+
+    clearTimeout(id);
   });
 
   it("should return timeout error when request takes too long", async () => {

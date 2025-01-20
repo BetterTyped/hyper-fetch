@@ -83,10 +83,6 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
 
@@ -96,21 +92,21 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: Date.now(),
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
-        addedTimestamp: Date.now(),
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper failed response", async () => {
@@ -119,10 +115,6 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(request);
 
@@ -132,21 +124,21 @@ describe("Dispatcher [ Events ]", () => {
         status: 400,
         success: false,
         extra: { headers: { "content-type": "application/json", "content-length": "19" } },
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: Date.now(),
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
-        addedTimestamp: Date.now(),
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper retry response", async () => {
@@ -156,10 +148,6 @@ describe("Dispatcher [ Events ]", () => {
 
       client.requestManager.events.onResponseByCache(requestWithRetry.cacheKey, (data) => {
         response = [data.response, data.details];
-        delete (response[1] as Partial<ResponseDetailsType>).responseTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).triggerTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).requestTimestamp;
-        delete (response[1] as Partial<ResponseDetailsType>).addedTimestamp;
       });
       dispatcher.add(requestWithRetry);
 
@@ -175,21 +163,21 @@ describe("Dispatcher [ Events ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 1,
         isCanceled: false,
         isOffline: false,
-        triggerTimestamp: Date.now(),
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
-        addedTimestamp: Date.now(),
+        triggerTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        addedTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
     it("should emit proper cancel response", async () => {
@@ -209,21 +197,21 @@ describe("Dispatcher [ Events ]", () => {
         status: 0,
         success: false,
         extra: xhrExtra,
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
       };
       const responseDetails: Omit<ResponseDetailsType, "timestamp"> = {
         retries: 0,
         isCanceled: true,
         isOffline: false,
-        addedTimestamp: Date.now(),
-        requestTimestamp: Date.now(),
-        responseTimestamp: Date.now(),
-        triggerTimestamp: Date.now(),
+        addedTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+        triggerTimestamp: expect.toBeNumber(),
       };
 
       await waitFor(() => {
-        expect(response).toStrictEqual([adapterResponse, responseDetails]);
+        expect(response).toEqual([adapterResponse, responseDetails]);
       });
     });
   });
