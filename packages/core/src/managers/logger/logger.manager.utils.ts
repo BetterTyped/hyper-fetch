@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { loggerStyles, LoggerType } from "managers";
+import { loggerColors, loggerStyles, LoggerType } from "managers";
 
 export const getTime = () => {
   const d = new Date();
@@ -16,11 +16,15 @@ const getModuleName = (data: Parameters<LoggerType>[0]) => {
 // Logger
 export const logger: LoggerType = (log) => {
   const styles = loggerStyles[log.level];
-  const module = `%c[${getTime()}] ${getModuleName(log)}`;
-  const message = `${module} | ${log.title}`;
+  const color = loggerColors[log.level];
+  const message = `%c[${getTime()}]%c${log.title}%c${getModuleName(log)}`;
+
+  const style1 = `${styles}${color}font-weight:600;border-radius: 4px 0 0 4px;`;
+  const style2 = `${styles}${color}font-weight:600;`;
+  const style3 = `${styles}font-weight:normal;border-radius: 0 4px 4px 0;`;
 
   if (log.extra ? Object.keys(log.extra)?.length : false) {
-    console.groupCollapsed(message, styles);
+    console.groupCollapsed(message, style1, style2, style3);
     console.log(log.extra);
     console.groupEnd();
   } else {

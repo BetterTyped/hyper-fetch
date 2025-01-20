@@ -2,11 +2,18 @@ import { LogLevel } from "./logger.manager.types";
 
 export const logLevelOrder: LogLevel[] = ["error", "warning", "info", "debug"];
 
-const defaultStyles = "background:rgba(0,0,0,0.2);padding:2px 5px;border-radius:5px;font-weight:bold;";
+const defaultStyles = "padding:2px 5px;";
 
 export const loggerStyles: Record<LogLevel, string> = {
-  error: `${defaultStyles}color:#db2525`,
-  warning: `${defaultStyles}color:#e1941e`,
-  info: `${defaultStyles}color:#1e74e1`,
-  debug: `${defaultStyles}color:#adadad`,
+  error: `${defaultStyles};background:#db252520;`,
+  warning: `${defaultStyles};background:#e1941e20;`,
+  info: `${defaultStyles};background:#1e74e120;`,
+  debug: `${defaultStyles};background:#00000020;`,
+};
+
+export const loggerColors: Record<LogLevel, string> = {
+  error: "color:#ff3737;",
+  warning: "color:#ffc107;",
+  info: "color:#34a8ff;",
+  debug: "color:#cccccc;",
 };
