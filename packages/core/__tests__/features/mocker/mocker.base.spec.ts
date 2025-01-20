@@ -80,7 +80,7 @@ describe("Mocker [ Base ]", () => {
           data: fixture,
           status: 200,
         }),
-        { responseTime: 1500, timeout: true },
+        { responseTime: 150, timeout: true },
       );
 
     const response = await mockedRequest.send({});
@@ -100,7 +100,7 @@ describe("Mocker [ Base ]", () => {
           status: 200,
         }),
         {
-          responseTime: 1500,
+          responseTime: 150,
         },
       );
     const secondRequest = client
@@ -111,7 +111,7 @@ describe("Mocker [ Base ]", () => {
           status: 200,
         }),
         {
-          responseTime: 1500,
+          responseTime: 150,
         },
       );
 
@@ -357,12 +357,12 @@ describe("Mocker [ Base ]", () => {
         data: fixture,
         status: 200,
       }),
-      { requestTime: 1000, responseTime: 1000 },
+      { requestTime: 100, responseTime: 100 },
     );
     const startDate = +new Date();
     const response = await mockedRequest.send({});
     const endDate = +new Date();
-    expect(endDate - startDate).toBeGreaterThanOrEqual(2000);
+    expect(endDate - startDate).toBeGreaterThanOrEqual(200);
     expect(response).toStrictEqual({
       data: fixture,
       error: null,
