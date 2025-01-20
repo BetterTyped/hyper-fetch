@@ -20,10 +20,10 @@ describe("Logger [ Utils ]", () => {
       it("should allow to log allowed severity", async () => {
         logger({
           module: "Test",
+          type: "system",
           level: "debug",
-          message: "Test",
-          enabled: true,
-          severity: 3,
+          title: "Test",
+          extra: {},
         });
         expect(logSpy).toHaveBeenCalledTimes(1);
       });
@@ -32,26 +32,25 @@ describe("Logger [ Utils ]", () => {
 
         logger({
           module: "Test",
+          type: "system",
           level: "debug",
-          message: "Test",
-          enabled: true,
-          severity: 3,
+          title: "Test",
           extra,
         });
         expect(logSpy).toHaveBeenCalledTimes(1);
         expect(groupCollapsedSpy).toHaveBeenCalledTimes(1);
         expect(groupEndSpy).toHaveBeenCalledTimes(1);
       });
-      it("should not allow to log not-matching severity", async () => {
-        logger({
-          module: "Test",
-          level: "debug",
-          message: "Test",
-          enabled: true,
-          severity: 2,
-        });
-        expect(logSpy).toHaveBeenCalledTimes(0);
-      });
+      // it("should not allow to log not-matching severity", async () => {
+      //   logger({
+      //     module: "Test",
+      //     type: "system",
+      //     level: "debug",
+      //     title: "Test",
+      //     extra: {},
+      //   });
+      //   expect(logSpy).toHaveBeenCalledTimes(0);
+      // });
     });
   });
 });

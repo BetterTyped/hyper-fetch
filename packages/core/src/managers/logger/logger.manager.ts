@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 
 import { ClientInstance } from "client";
-import { logger, LoggerType, SeverityType, LoggerMessageType, LoggerOptionsType, LoggerFunctionType } from "managers";
+import { logger, LogLevel, LoggerOptionsType, logLevelOrder, LoggerType, LoggerMethods } from "managers";
 
 /**
  * This class is used across the Hyper Fetch library to provide unified logging system with necessary setup per each client.
@@ -9,8 +9,9 @@ import { logger, LoggerType, SeverityType, LoggerMessageType, LoggerOptionsType,
  * like Client, Request etc. Which can give you better feedback on the logging itself.
  */
 export class LoggerManager {
-  logger: LoggerFunctionType;
-  severity: SeverityType;
+  logger: LoggerType;
+  level: LogLevel;
+  modules: string[] | undefined;
 
   public emitter = new EventEmitter();
 
@@ -19,57 +20,39 @@ export class LoggerManager {
   constructor(private options?: LoggerOptionsType) {
     this.emitter?.setMaxListeners(1000);
     this.logger = this.options?.logger || logger;
-    this.severity = this.options?.severity || 2;
+    this.level = this.options?.level || "warning";
+    this.modules = this.options?.modules;
   }
 
-  setSeverity = (severity: SeverityType) => {
-    this.severity = severity;
+  setSeverity = (level: LogLevel) => {
+    this.level = level;
   };
 
-  initialize = (client: Pick<ClientInstance, "debug">, module: string): LoggerType => {
+  setModules = (modules: string[] | undefined) => {
+    this.modules = modules;
+  };
+
+  initialize = (client: Pick<ClientInstance, "debug">, module: string): LoggerMethods => {
     this.client = client;
 
     return {
-      error: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
-        this.logger({
-          level: "error",
-          module,
-          message,
-          extra,
-          severity: this.severity,
-          enabled: this.client.debug,
-        });
-      },
-      warning: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
-        this.logger({
-          level: "warning",
-          module,
-          message,
-          extra,
-          severity: this.severity,
-          enabled: this.client.debug,
-        });
-      },
-      info: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
-        this.logger({
-          level: "info",
-          module,
-          message,
-          extra,
-          severity: this.severity,
-          enabled: this.client.debug,
-        });
-      },
-      debug: (message: LoggerMessageType, extra?: Record<string, unknown>) => {
-        this.logger({
-          level: "debug",
-          module,
-          message,
-          extra,
-          severity: this.severity,
-          enabled: this.client.debug,
-        });
-      },
+      error: (data) => this.log({ ...data, level: "error", module }),
+      warning: (data) => this.log({ ...data, level: "warning", module }),
+      info: (data) => this.log({ ...data, level: "info", module }),
+      debug: (data) => this.log({ ...data, level: "debug", module }),
     };
+  };
+
+  private log: LoggerType = (data) => {
+    if (!this.client.debug) {
+      return;
+    }
+    if (logLevelOrder.indexOf(this.level) <= logLevelOrder.indexOf(data.level)) {
+      return;
+    }
+    if (this.modules && !this.modules.includes(data.module)) {
+      return;
+    }
+    this.logger(data);
   };
 }

@@ -45,7 +45,14 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   let previousResponseTotal = 0;
 
   // Pre request modifications
-  logger.debug(`Running request middleware callbacks`, { requestId, request });
+  logger.debug({
+    title: `Running middleware callbacks`,
+    type: "request",
+    extra: {
+      request,
+      requestId,
+    },
+  });
 
   try {
     request = await request.client.__modifyRequest(req);
@@ -129,19 +136,28 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
   // Pre-request
 
   const onBeforeRequest = () => {
-    logger.debug(`Request ready to send`, { requestId, request });
-
+    logger.debug({
+      title: `Request about to be sent`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
     client.triggerPlugins("onRequestTrigger", { request });
   };
 
   // Request
 
   const onRequestStart = (progress?: ProgressDataType) => {
-    logger.info(`Request start`, {
-      requestId,
-      request,
+    logger.info({
+      title: `Request start`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
     });
-
     client.triggerPlugins("onRequestStart", { request });
 
     if (progress?.total) {
@@ -256,12 +272,15 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     resolve(response);
 
-    logger.info(`Request response received`, {
-      requestId,
-      request,
-      response,
+    logger.info({
+      title: `Response success`,
+      type: "response",
+      extra: {
+        request,
+        requestId,
+        response,
+      },
     });
-
     return response;
   };
 
@@ -291,10 +310,14 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     resolve(response);
 
-    logger.error(`Request error`, {
-      requestId,
-      request,
-      response,
+    logger.error({
+      title: `Request error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+        response,
+      },
     });
 
     return response;
@@ -305,9 +328,13 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
-    logger.error(`Abort error`, {
-      requestId,
-      request,
+    logger.error({
+      title: `Abort error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
     });
     const error = getErrorMessage("abort");
     if (internalErrorFormatter) {
@@ -321,9 +348,13 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
-    logger.error(`Timeout error`, {
-      requestId,
-      request,
+    logger.error({
+      title: `Timeout error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
     });
     const error = getErrorMessage("timeout");
     if (internalErrorFormatter) {
@@ -337,9 +368,13 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     extra: ExtractAdapterExtraType<T>,
     resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void,
   ) => {
-    logger.error(`Unexpected error`, {
-      requestId,
-      request,
+    logger.error({
+      title: `Unexpected error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
     });
     const error = getErrorMessage();
     if (internalErrorFormatter) {
@@ -408,12 +443,17 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     return new Promise(apiCall);
   };
 
-  logger.debug(`Finishing request bindings creation`, {
-    fullUrl,
-    headers,
-    payload,
-    config,
-    request,
+  logger.debug({
+    title: `Mounted adapter bindings`,
+    type: "request",
+    extra: {
+      request,
+      requestId,
+      fullUrl,
+      headers,
+      payload,
+      config,
+    },
   });
 
   return {

@@ -32,7 +32,7 @@ import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { PluginInstance, PluginMethodParameters, PluginMethods } from "plugin";
 import { getRequestKey, getSimpleKey, Request, RequestInstance, RequestOptionsType } from "request";
-import { AppManager, LoggerManager, RequestManager, SeverityType } from "managers";
+import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
 import { ExtendRequest, ExtractAdapterType, NegativeTypes, TypeWithDefaults } from "types";
@@ -138,8 +138,8 @@ export class Client<
     this.url = url;
     this.adapter = (adapter || defaultAdapter) as Adapter;
 
-    this.cache = cache?.() || new Cache();
     this.appManager = appManager?.() || new AppManager();
+    this.cache = cache?.() || new Cache();
     this.fetchDispatcher = fetchDispatcher?.() || new Dispatcher();
     this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
 
@@ -172,15 +172,15 @@ export class Client<
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean): Client<GlobalErrorType, Adapter, EndpointMapper> => {
-    this.debug = debug;
+  setDebug = (enabled: boolean): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+    this.debug = enabled;
     return this;
   };
 
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType): Client<GlobalErrorType, Adapter, EndpointMapper> => {
+  setLogLevel = (severity: LogLevel): Client<GlobalErrorType, Adapter, EndpointMapper> => {
     this.loggerManager.setSeverity(severity);
     return this;
   };

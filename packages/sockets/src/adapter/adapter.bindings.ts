@@ -27,9 +27,13 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onConnect = (): boolean => {
     if (!socket.appManager.isOnline || state.connecting) {
-      logger.warning("Cannot initialize adapter.", {
-        connecting: state.connecting,
-        online: socket.appManager.isOnline,
+      logger.warning({
+        title: "Cannot initialize adapter.",
+        type: "system",
+        extra: {
+          connecting: state.connecting,
+          online: socket.appManager.isOnline,
+        },
       });
       return false;
     }
@@ -42,7 +46,11 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onDisconnect = (): boolean => {
-    logger.debug("Disconnecting", { reconnectionAttempts: state.reconnectionAttempts });
+    logger.debug({
+      title: "Disconnecting",
+      type: "system",
+      extra: { reconnectionAttempts: state.reconnectionAttempts },
+    });
     state.connected = false;
     state.connecting = false;
     state.forceClosed = true;
@@ -54,7 +62,11 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     disconnect();
     if (state.reconnectionAttempts < socket.reconnectAttempts) {
       state.reconnectionAttempts += 1;
-      logger.debug("Reconnecting", { reconnectionAttempts: state.reconnectionAttempts });
+      logger.debug({
+        title: "Reconnecting",
+        type: "system",
+        extra: { reconnectionAttempts: state.reconnectionAttempts },
+      });
       connect();
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
@@ -62,7 +74,11 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
       socket.events.emitReconnecting(state.reconnectionAttempts);
       return true;
     }
-    logger.debug("Stopped reconnecting", { reconnectionAttempts: state.reconnectionAttempts });
+    logger.debug({
+      title: "Stopped reconnecting",
+      type: "system",
+      extra: { reconnectionAttempts: state.reconnectionAttempts },
+    });
     socket.__onReconnectStopCallbacks.forEach((callback) => {
       callback(socket);
     });
@@ -76,7 +92,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     const listenerGroup = listeners.get(topic);
     if (listenerGroup) {
       const unmount = listenerGroup.get(callback);
-      logger.debug("Removed event listener", { topic });
+      logger.debug({ title: "Removed event listener", type: "system", extra: { topic } });
       socket.events.emitListenerRemoveEvent(topic);
       listenerGroup.delete(callback);
       unmount?.();
@@ -101,7 +117,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
 
   const onEmit = async (emitter: EmitterInstance): Promise<EmitterInstance | null> => {
     if (state.connecting || !state.connected) {
-      logger.error("Cannot emit event when connection is not open");
+      logger.error({ title: "Cannot emit event when connection is not open", type: "system", extra: {} });
       return null;
     }
 
@@ -118,7 +134,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   // Lifecycle
 
   const onConnected = () => {
-    logger.info("Connection open");
+    logger.info({ title: "Connection open", type: "system", extra: {} });
     state.connected = true;
     state.connecting = false;
     socket.events.emitConnected();
@@ -128,7 +144,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onDisconnected = () => {
-    logger.info("Connection closed");
+    logger.info({ title: "Connection closed", type: "system", extra: {} });
     state.connected = false;
     state.connecting = false;
     socket.events.emitDisconnected();
@@ -138,7 +154,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onError = (event: Error) => {
-    logger.info("Error message", { event });
+    logger.info({ title: "Error message", type: "system", extra: { event } });
     socket.__onErrorCallbacks.forEach((callback) => {
       callback(event, socket);
     });
@@ -146,7 +162,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   };
 
   const onEvent = (topic: string, response: any, responseExtra: ExtractAdapterExtraType<T>) => {
-    logger.info("New event message", { response, responseExtra });
+    logger.info({ title: "New event message", type: "system", extra: { response, responseExtra } });
 
     const { data, extra } = socket.__modifyResponse({ data: response, extra: responseExtra });
 

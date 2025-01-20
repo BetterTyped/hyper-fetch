@@ -63,9 +63,9 @@ describe("Client [ Methods ]", () => {
       expect(client.stringifyQueryParams).toEqual(callback);
     });
     it("should assign logger levels [setLoggerLevel]", async () => {
-      client.setLoggerSeverity(1);
+      client.setLogLevel("info");
 
-      expect(client.loggerManager.severity).toEqual(1);
+      expect(client.loggerManager.level).toEqual("info");
     });
     it("should assign new adapter [setAdapter]", async () => {
       const callback = createAdapter();

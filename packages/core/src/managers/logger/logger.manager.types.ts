@@ -1,32 +1,43 @@
 import { AdapterInstance, ResponseType } from "adapter";
 import { RequestInstance } from "request";
-import { ResponseDetailsType } from "managers/request";
 
-// Logger
-export type SeverityType = 0 | 1 | 2 | 3;
-export type LoggerType = Record<LoggerLevelType, (message: LoggerMessageType, extra?: Record<string, unknown>) => void>;
-export type LoggerFunctionType = (log: LogType) => void;
-export type LoggerOptionsType = { logger?: LoggerFunctionType; severity?: SeverityType };
+// Extra
+export type LogLevel = "debug" | "info" | "warning" | "error";
+export type LoggerOptionsType = { logger?: LoggerType; level?: LogLevel; modules?: string[] };
 
-// Log
-export type LogType = {
-  module: string;
-  level: LoggerLevelType;
-  message: LoggerMessageType;
-  enabled: boolean;
-  severity: SeverityType;
-  extra?: Record<string, unknown>;
+// Data
+export type LogData<Data extends Record<string, any>> = {
+  /** Some Message / https://google.com */
+  title: string;
+  /** Some contextual data */
+  extra: Data;
 };
 
-export type LoggerLevelType = "error" | "warning" | "info" | "debug";
-export type LoggerMessageType = string | Record<string, unknown> | Array<unknown>;
+// Logger
+
+export type LoggerArgs = LogDataTypes & {
+  /** "debug" | "info" | "warning" | "error" */
+  level: LogLevel;
+  /** Client / Request / Cache / Dispatcher / useFetch etc. */
+  module: string;
+};
+
+export type LoggerType = (data: LoggerArgs) => void;
+
+export type LoggerMethods = Record<LogLevel, (data: LogDataTypes) => void>;
 
 // Events
 
-export type LoggerRequestEventData = { requestId: string; request: RequestInstance };
-export type LoggerResponseEventData<Adapter extends AdapterInstance> = {
-  requestId: string;
+export type LogRequestEventType = LogData<{ request: RequestInstance; [key: string]: unknown }>;
+export type LogResponseEventType = LogData<{
   request: RequestInstance;
-  response: ResponseType<unknown, unknown, Adapter>;
-  details: ResponseDetailsType;
-};
+  response: ResponseType<any, any, AdapterInstance>;
+  requestId: string;
+  [key: string]: unknown;
+}>;
+export type LogSystemEventType = LogData<{ [key: string]: unknown }>;
+
+export type LogDataTypes =
+  | ({ type: "request" } & LogRequestEventType)
+  | ({ type: "response" } & LogResponseEventType)
+  | ({ type: "system" } & LogSystemEventType);

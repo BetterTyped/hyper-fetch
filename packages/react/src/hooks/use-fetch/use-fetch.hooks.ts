@@ -97,7 +97,7 @@ export const useFetch = <R extends RequestInstance>(
   // ******************
   const handleFetch = () => {
     if (!disabled) {
-      logger.debug(`Fetching data`);
+      logger.debug({ title: `Fetching data`, type: "system", extra: { request } });
       dispatcher.add(request);
       const queue = dispatcher.getQueue(request.queryKey);
       // We want fast initial loading state if not paused / disabled
@@ -105,7 +105,7 @@ export const useFetch = <R extends RequestInstance>(
         actions.setLoading(true);
       }
     } else {
-      logger.debug(`Cannot add to fetch queue`, { disabled });
+      logger.debug({ title: `Cannot add to fetch queue`, type: "system", extra: { disabled } });
     }
   };
 
@@ -131,7 +131,7 @@ export const useFetch = <R extends RequestInstance>(
 
       if (canRefreshBlurred || canRefreshFocused) {
         handleFetch();
-        logger.debug(`Performing refresh request`);
+        logger.debug({ title: `Performing refresh request`, type: "system", extra: { request } });
       }
 
       // Start new refresh counter
@@ -175,7 +175,7 @@ export const useFetch = <R extends RequestInstance>(
        * This way it will not wait for debouncing but fetch data right away
        */
       if (bounce) {
-        logger.debug(`Bounce request with ${bounceType}`, { queryKey, request });
+        logger.debug({ title: `Bounce request with ${bounceType}`, type: "system", extra: { queryKey, request } });
         bounceFunction(() => handleFetch());
       } else {
         handleFetch();

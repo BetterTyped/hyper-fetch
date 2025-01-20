@@ -109,7 +109,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
     const requestClone = request.clone(submitOptions as any) as unknown as RequestType;
 
     if (disabled) {
-      logger.warning(`Cannot submit request`, { disabled, submitOptions });
+      logger.warning({ title: `Cannot submit request`, type: "system", extra: { disabled, submitOptions } });
       return Promise.resolve({
         data: null,
         error: new Error("Cannot submit request. Option 'disabled' is enabled"),
@@ -137,7 +137,7 @@ export const useSubmit = <RequestType extends RequestInstance>(
 
     return new Promise<ExtractAdapterResolvedType<RequestType>>((resolve) => {
       const performSubmit = async () => {
-        logger.debug(`Submitting request`, { disabled, submitOptions });
+        logger.debug({ title: `Submitting request`, type: "system", extra: { disabled, submitOptions } });
         if (bounce) {
           const bouncedResolve = bounceResolver.current;
           // We need to keep the resolve of debounced requests to prevent memory leaks - we need to always resolve promise.

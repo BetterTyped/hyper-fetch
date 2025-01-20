@@ -11,7 +11,7 @@ import {
 } from "dispatcher";
 import { ClientInstance } from "client";
 import { EventEmitter, getUniqueRequestId } from "utils";
-import { ResponseDetailsType, LoggerType } from "managers";
+import { ResponseDetailsType, LoggerMethods } from "managers";
 import { RequestInstance } from "request";
 import { getErrorMessage, RequestResponseType } from "adapter";
 
@@ -28,7 +28,7 @@ export class Dispatcher {
   private requestCount = new Map<string, number>();
   private runningRequests = new Map<string, RunningRequestValueType[]>();
 
-  private logger: LoggerType;
+  private logger: LoggerMethods;
   private client: ClientInstance;
 
   constructor(public options?: DispatcherOptionsType) {
@@ -198,7 +198,7 @@ export class Dispatcher {
     // When there are no requests to flush, when its stopped, there is running request
     // or there is no request to trigger - we don't want to perform actions
     if (isStopped || isOffline || isEmpty) {
-      this.logger.debug("Skipping queue trigger", { isStopped, isOffline, isEmpty });
+      this.logger.debug({ title: "Skipping queue trigger", type: "system", extra: { isStopped, isOffline, isEmpty } });
     } else if (isConcurrent) {
       queue.requests.forEach((element) => {
         if (!this.hasRunningRequest(queryKey, element.requestId)) {
@@ -423,7 +423,7 @@ export class Dispatcher {
     const [latestRequest] = queue.requests.slice(-1);
     const requestType = getRequestType(request, latestRequest);
 
-    this.logger.debug("Adding request to queue", { requestType, request, requestId });
+    this.logger.debug({ title: "Adding request to queue", type: "system", extra: { requestType, request, requestId } });
 
     switch (requestType) {
       case DispatcherRequestType.ONE_BY_ONE: {
@@ -456,7 +456,7 @@ export class Dispatcher {
    * Delete from the storage and cancel request
    */
   delete = (queryKey: string, requestId: string, abortKey: string) => {
-    this.logger.debug("Deleting request", { queryKey, requestId, abortKey });
+    this.logger.debug({ title: "Deleting request", type: "system", extra: { queryKey, requestId, abortKey } });
     const queue = this.getQueue(queryKey);
     const queueItem = queue.requests.find((req) => req.requestId === requestId);
 
@@ -495,7 +495,7 @@ export class Dispatcher {
    */
   performRequest = async (storageItem: QueueItemType) => {
     const { request, requestId } = storageItem;
-    this.logger.info("Performing request", { request, requestId });
+    this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
     const { retry, retryTime, queryKey, abortKey, offline } = request;
     const { adapter, requestManager, cache, appManager } = this.client;
@@ -508,7 +508,11 @@ export class Dispatcher {
     const isStopped = storageItem.stopped;
 
     if (isOffline || isAlreadyRunning || isStopped) {
-      return this.logger.warning("Unable to perform request", { isOffline, isAlreadyRunning, isStopped });
+      return this.logger.warning({
+        title: "Unable to perform request",
+        type: "system",
+        extra: { isOffline, isAlreadyRunning, isStopped },
+      });
     }
 
     // Additionally keep the running request to possibly abort it later
@@ -568,7 +572,11 @@ export class Dispatcher {
 
     // Cache event to emit the data inside and store it
     cache.set(request, { ...response, ...requestDetails });
-    this.logger.info("Request finished", { requestId, request, response, requestDetails });
+    this.logger.debug({
+      title: "Dispatcher processing response",
+      type: "system",
+      extra: { requestId, request, response, details: requestDetails },
+    });
 
     // On cancelled
     if (isCanceled) {
@@ -578,43 +586,69 @@ export class Dispatcher {
       // do not remove cancelled request as it may be result of manual queue pause
       // if abort was done without stop action we can remove request
       if (!queue.stopped && !queueItem?.stopped) {
-        this.logger.debug("Request paused", { response, requestDetails, request });
+        this.logger.debug({ title: "Request paused", type: "system", extra: { response, requestDetails, request } });
         return this.delete(queryKey, requestId, abortKey);
       }
-      return this.logger.debug("Request canceled", { response, requestDetails, request });
+      return this.logger.debug({
+        title: "Request canceled",
+        type: "system",
+        extra: { response, requestDetails, request },
+      });
     }
     // On offline
     if (!response.success && isOfflineResponseStatus) {
       // if we don't want to keep offline request - just delete them
       if (!offline) {
-        this.logger.warning("Removing non-offline request", { response, requestDetails, request });
+        this.logger.warning({
+          title: "Removing non-offline request",
+          type: "system",
+          extra: { response, requestDetails, request },
+        });
         return this.delete(queryKey, requestId, abortKey);
       }
       // do not remove request from store as we want to re-send it later
-      return this.logger.debug("Awaiting for network restoration", { response, requestDetails, request });
+      return this.logger.debug({
+        title: "Awaiting for network restoration",
+        type: "system",
+        extra: { response, requestDetails, request },
+      });
     }
     // On success
     if (response.success) {
       this.delete(queryKey, requestId, abortKey);
-      return this.logger.debug("Successful response, removing request from queue.", {
-        response,
-        requestDetails,
-        request,
+      return this.logger.debug({
+        title: "Successful response, removing request from queue.",
+        type: "system",
+        extra: {
+          response,
+          requestDetails,
+          request,
+        },
       });
     }
     // On retry
     if (!response.success && canRetry) {
-      this.logger.debug("Waiting for retry", { response, requestDetails, request });
+      this.logger.debug({ title: "Waiting for retry", type: "system", extra: { response, requestDetails, request } });
       // Perform retry once request is failed
       setTimeout(() => {
-        this.logger.warning("Error response, performing retry");
+        this.logger.warning({
+          title: "Error response, performing retry",
+          type: "request",
+          extra: { response, requestDetails, request, requestId },
+        });
         this.performRequest({
           ...storageItem,
           retries: storageItem.retries + 1,
         });
       }, retryTime || 0);
     } else {
-      this.logger.error("All retries have been used. Removing request from queue.");
+      if (request.retry) {
+        this.logger.error({
+          title: "All retries have been used. Removing request from queue.",
+          type: "request",
+          extra: { response, requestDetails, request, requestId },
+        });
+      }
       this.delete(queryKey, requestId, abortKey);
     }
   };

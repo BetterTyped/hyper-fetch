@@ -3,7 +3,7 @@ import {
   ExtractErrorType,
   CacheValueType,
   ExtractResponseType,
-  LoggerType,
+  LoggerMethods,
   RequestEventType,
   RequestInstance,
   RequestProgressEventType,
@@ -24,7 +24,7 @@ export type UseRequestEventsLifecycleMap = Map<string, { unmount: VoidFunction }
 export type UseRequestEventsPropsType<T extends RequestInstance> = {
   request: T;
   dispatcher: Dispatcher;
-  logger: LoggerType;
+  logger: LoggerMethods;
   actions: UseTrackedStateActions<T>;
   setCacheData: (cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>>) => void;
   getIsDataProcessing: (cacheKey: string) => boolean;

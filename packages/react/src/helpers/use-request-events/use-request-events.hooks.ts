@@ -37,6 +37,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   setCacheData,
   getIsDataProcessing,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const { __responseMapper } = request;
   const { cache, requestManager } = request.client;
 
@@ -84,16 +85,16 @@ export const useRequestEvents = <R extends RequestInstance>({
     const { success } = values.response;
     const { isOffline, isCanceled } = values.details;
     if (request.offline && isOffline && !success) {
-      logger.debug("Performing offline error callback", values);
+      logger.debug({ title: "Performing offline error callback", type: "system", extra: values });
       onOfflineErrorCallback.current?.(values as any);
     } else if (isCanceled) {
-      logger.debug("Performing abort callback", values);
+      logger.debug({ title: "Performing abort callback", type: "system", extra: values });
       onAbortCallback.current?.(values as any);
     } else if (success) {
-      logger.debug("Performing success callback", values);
+      logger.debug({ title: "Performing success callback", type: "system", extra: values });
       onSuccessCallback.current?.(values as any);
     } else {
-      logger.debug("Performing error callback", values);
+      logger.debug({ title: "Performing error callback", type: "system", extra: values });
       onErrorCallback.current?.(values as any);
     }
     onFinishedCallback.current?.(values);

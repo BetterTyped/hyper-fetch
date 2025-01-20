@@ -1,5 +1,5 @@
 import { AdapterInstance, ResponseType } from "adapter";
-import { ResponseDetailsType, LoggerType } from "managers";
+import { ResponseDetailsType, LoggerMethods } from "managers";
 import { ClientInstance } from "client";
 import {
   CacheOptionsType,
@@ -30,7 +30,7 @@ export class Cache {
   public lazyStorage?: CacheAsyncStorageType;
   public version: string;
   public garbageCollectors = new Map<string, ReturnType<typeof setTimeout>>();
-  private logger: LoggerType;
+  private logger: LoggerMethods;
   private client: ClientInstance;
 
   constructor(public options?: CacheOptionsType) {
@@ -79,7 +79,7 @@ export class Cache {
         ResponseDetailsType
     > & { hydrated?: boolean },
   ): void => {
-    this.logger.debug("Processing cache response", { request, response });
+    this.logger.debug({ title: "Processing cache response", type: "system", extra: { request, response } });
     const { cacheKey, cache, staleTime, cacheTime } = request;
     const previousCacheData = this.storage.get<
       ExtractResponseType<Request>,
@@ -102,7 +102,7 @@ export class Cache {
 
     // Only success data is valid for the cache store
     if (processedResponse.success && cache) {
-      this.logger.debug("Saving response to cache storage", { request, data });
+      this.logger.debug({ title: "Saving response to cache storage", type: "system", extra: { request, data } });
       this.storage.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.lazyStorage?.set<Response, Error, ExtractAdapterType<Request>>(cacheKey, newCacheData);
       this.client.triggerPlugins("onCacheItemChange", {
@@ -115,10 +115,10 @@ export class Cache {
       this.scheduleGarbageCollector(cacheKey);
     } else {
       // If request should not use cache - just emit response data
-      this.logger.debug("Prevented saving response to cache", { request, data });
+      this.logger.debug({ title: "Prevented saving response to cache", type: "system", extra: { request, data } });
     }
 
-    this.logger.debug("Emitting cache response", { request, data });
+    this.logger.debug({ title: "Emitting cache response", type: "system", extra: { request, data } });
     this.events.emitCacheData<ExtractResponseType<Request>, ExtractErrorType<Request>, ExtractAdapterType<Request>>({
       ...newCacheData,
       cacheKey,
@@ -140,7 +140,7 @@ export class Cache {
       >
     >,
   ): void => {
-    this.logger.debug("Processing cache update", { request, partialResponse });
+    this.logger.debug({ title: "Processing cache update", type: "system", extra: { request, partialResponse } });
     const { cacheKey } = request;
     const cachedData = this.storage.get<
       ExtractResponseType<Request>,
@@ -183,7 +183,7 @@ export class Cache {
    * @param cacheKey
    */
   delete = (cacheKey: string): void => {
-    this.logger.debug("Deleting cache element", { cacheKey });
+    this.logger.debug({ title: "Deleting cache element", type: "system", extra: { cacheKey } });
     this.storage.delete(cacheKey);
     this.lazyStorage?.delete(cacheKey);
 
@@ -201,7 +201,7 @@ export class Cache {
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
   invalidate = async (invalidateKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
-    this.logger.debug("Revalidating cache element", { invalidateKeys });
+    this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { invalidateKeys } });
     const keys = await this.getAllKeys();
 
     const invalidate = (key: string | RegExp | RequestInstance) => {
@@ -312,19 +312,19 @@ export class Cache {
     if (cacheData) {
       const timeLeft = cacheData.cacheTime + cacheData.responseTimestamp - +new Date();
       if (cacheData.cacheTime !== null && JSON.stringify(cacheData.cacheTime) === "null") {
-        this.logger.info("Cache value is Infinite", { cacheKey });
+        this.logger.info({ title: "Cache value is Infinite", type: "system", extra: { cacheKey } });
       } else if (timeLeft >= 0) {
         this.garbageCollectors.set(
           cacheKey,
           setTimeout(() => {
             if (this.client?.appManager.isOnline) {
-              this.logger.info("Garbage collecting cache element", { cacheKey });
+              this.logger.info({ title: "Garbage collecting cache element", type: "system", extra: { cacheKey } });
               this.delete(cacheKey);
             }
           }, timeLeft),
         );
       } else if (this.client?.appManager.isOnline) {
-        this.logger.info("Garbage collecting cache element", { cacheKey });
+        this.logger.info({ title: "Garbage collecting cache element", type: "system", extra: { cacheKey } });
         this.delete(cacheKey);
       }
     }

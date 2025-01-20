@@ -27,12 +27,12 @@ describe("Socket [ Methods ]", () => {
 
   it("should allow to set log severity", async () => {
     const socket = createSocket();
-    socket.setLoggerSeverity(3);
-    expect(socket.loggerManager.severity).toBe(3);
+    socket.setLogLevel("info");
+    expect(socket.loggerManager.level).toBe("info");
   });
 
   it("should allow to set logger", async () => {
-    const customLogger = new LoggerManager({ debug: true });
+    const customLogger = new LoggerManager();
     const method = () => customLogger;
     const socket = createSocket();
     socket.setLogger(method);

@@ -14,6 +14,7 @@ import {
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
+// TODO: tests are broken, a lot of error logs
 describe("Mocker [ Base ]", () => {
   const adapterSpy = jest.fn();
   const fixture = { test: 1, data: [200, 300, 404] };

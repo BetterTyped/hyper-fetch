@@ -1,5 +1,5 @@
 import { Devtools, useDevtoolsWorkspaces } from "@hyper-fetch/devtools-react";
-import { ClientInstance, LoggerType } from "@hyper-fetch/core";
+import { ClientInstance, LoggerMethods } from "@hyper-fetch/core";
 import { useListener } from "@hyper-fetch/react";
 import { clientSpecificReceiveMessage, sendMessage } from "./socket";
 import { useEffect } from "react";
@@ -10,7 +10,7 @@ import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } fr
 const handleEvent = (
   client: ClientInstance,
   event: BaseMessage,
-  logger: LoggerType,
+  logger: LoggerMethods,
   setRequestList: any,
   workspace: string,
 ) => {
@@ -62,7 +62,7 @@ const handleEvent = (
       return;
     }
     default:
-      logger.error(`Unknown event received: ${eventType}`);
+      logger.error({ title: `Unknown event received: ${eventType}`, type: "system", extra: { eventType, eventData } });
   }
 };
 

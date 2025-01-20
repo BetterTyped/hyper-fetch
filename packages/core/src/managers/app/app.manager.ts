@@ -24,8 +24,6 @@ export class AppManager {
   constructor(public options?: AppManagerOptionsType) {
     this.emitter?.setMaxListeners(1000);
     const {
-      focusEvent = appManagerInitialOptions.focusEvent,
-      onlineEvent = appManagerInitialOptions.onlineEvent,
       initiallyFocused = appManagerInitialOptions.initiallyFocused,
       initiallyOnline = appManagerInitialOptions.initiallyOnline,
     } = this.options || appManagerInitialOptions;
@@ -33,14 +31,16 @@ export class AppManager {
     this.setInitialFocus(initiallyFocused);
     this.setInitialOnline(initiallyOnline);
 
-    focusEvent(this.setFocused);
-    onlineEvent(this.setOnline);
-
     this.isBrowser = hasDocument();
   }
 
   initialize = (client: ClientInstance) => {
     this.client = client;
+    const { focusEvent = appManagerInitialOptions.focusEvent, onlineEvent = appManagerInitialOptions.onlineEvent } =
+      this.options || appManagerInitialOptions;
+
+    focusEvent(this.setFocused);
+    onlineEvent(this.setOnline);
   };
 
   private setInitialFocus = async (initValue: Exclude<AppManagerOptionsType["initiallyFocused"], undefined>) => {

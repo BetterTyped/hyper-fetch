@@ -4,7 +4,7 @@ import {
   StringifyCallbackType,
   QueryStringifyOptionsType,
   LoggerManager,
-  SeverityType,
+  LogLevel,
   AppManager,
   Time,
   QueryParamsType,
@@ -123,16 +123,16 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   /**
    * This method enables the logger usage and display the logs in console
    */
-  setDebug = (debug: boolean) => {
-    this.debug = debug;
+  setDebug = (enabled: boolean) => {
+    this.debug = enabled;
     return this;
   };
 
   /**
    * Set the logger severity of the messages displayed to the console
    */
-  setLoggerSeverity = (severity: SeverityType) => {
-    this.loggerManager.setSeverity(severity);
+  setLogLevel = (level: LogLevel) => {
+    this.loggerManager.setSeverity(level);
     return this;
   };
 
