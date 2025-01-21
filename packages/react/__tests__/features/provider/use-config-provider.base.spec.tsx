@@ -1,4 +1,3 @@
-import { Client } from "@hyper-fetch/core";
 import { act, render, screen, waitFor } from "@testing-library/react";
 
 import { Provider, ProviderValueType, useProvider } from "provider";
@@ -6,9 +5,6 @@ import { Provider, ProviderValueType, useProvider } from "provider";
 describe("useProvider [ Base ]", () => {
   const text = "test";
   let values: ProviderValueType | undefined;
-  const client = new Client({
-    url: "http://localhost:3000",
-  });
 
   const Page = () => {
     values = useProvider();
@@ -16,7 +12,7 @@ describe("useProvider [ Base ]", () => {
   };
   const App = () => {
     return (
-      <Provider client={client}>
+      <Provider>
         <Page />
       </Provider>
     );

@@ -1,5 +1,5 @@
 import React from "react";
-import { ClientInstance, RequestInstance } from "@hyper-fetch/core";
+import { RequestInstance } from "@hyper-fetch/core";
 
 import { UseSubmitOptionsType } from "hooks/use-submit";
 import { UseCacheOptionsType } from "hooks/use-cache";
@@ -19,11 +19,7 @@ export type ProviderOptionsType<SocketResponses = any> = {
   useEventMessages?: Partial<UseEventMessagesOptionsType<SocketResponses>>;
 };
 
-export type ProviderProps<Client extends ClientInstance = ClientInstance> = {
-  /**
-   * Instance of the Client
-   */
-  client: Client;
+export type ProviderProps = {
   /**
    * Children to render
    */

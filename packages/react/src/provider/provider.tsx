@@ -1,5 +1,4 @@
 import React, { useContext, useMemo, useState } from "react";
-import { ClientInstance } from "@hyper-fetch/core";
 
 import { ProviderProps, ProviderValueType } from "./provider.types";
 
@@ -13,7 +12,7 @@ const ConfigContext = React.createContext<ProviderValueType>({
  * @param options
  * @returns
  */
-export const Provider = <Client extends ClientInstance>({ children, config }: ProviderProps<Client>) => {
+export const Provider = ({ children, config }: ProviderProps) => {
   const [currentConfig, setConfig] = useState(config || {});
 
   const value = useMemo(() => {

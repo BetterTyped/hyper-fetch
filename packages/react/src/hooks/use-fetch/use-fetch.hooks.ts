@@ -285,9 +285,13 @@ export const useFetch = <R extends RequestInstance>(
       setRenderKey("retries");
       return state.retries;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
+    get responseTimestamp() {
+      setRenderKey("responseTimestamp");
+      return state.responseTimestamp;
+    },
+    get requestTimestamp() {
+      setRenderKey("requestTimestamp");
+      return state.requestTimestamp;
     },
     bounce: getBounceData(bounceData),
     ...actions,

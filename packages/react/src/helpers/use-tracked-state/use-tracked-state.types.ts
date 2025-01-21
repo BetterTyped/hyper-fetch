@@ -53,11 +53,11 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   /**
    * Request status
    */
-  status: ExtractAdapterStatusType<ExtractAdapterType<T>> | null;
+  status: null | ExtractAdapterStatusType<ExtractAdapterType<T>> | null;
   /**
    * Request additional response data
    */
-  extra: ExtractAdapterExtraType<ExtractAdapterType<T>>;
+  extra: null | ExtractAdapterExtraType<ExtractAdapterType<T>>;
   /**
    * Information whether request succeeded
    */
@@ -69,7 +69,11 @@ export type UseTrackedStateType<T extends RequestInstance = RequestInstance> = {
   /**
    * Request response timestamp
    */
-  timestamp: null | Date;
+  responseTimestamp: null | Date;
+  /**
+   * Request response timestamp
+   */
+  requestTimestamp: null | Date;
 };
 
 export type UseTrackedStateActions<T extends RequestInstance> = {
@@ -107,5 +111,9 @@ export type UseTrackedStateActions<T extends RequestInstance> = {
   /**
    * Action to set custom timestamp. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
    */
-  setTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
+  setResponseTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
+  /**
+   * Action to set custom timestamp. We can do it locally(inside hook state) or in cache(all related sources) with 'emitToCache' option
+   */
+  setRequestTimestamp: (timestamp: CacheSetState<Date>, emitToCache?: boolean) => void;
 };

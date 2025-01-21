@@ -237,9 +237,13 @@ export const useSubmit = <RequestType extends RequestInstance>(
       setRenderKey("retries");
       return state.retries;
     },
-    get timestamp() {
-      setRenderKey("timestamp");
-      return state.timestamp;
+    get responseTimestamp() {
+      setRenderKey("responseTimestamp");
+      return state.responseTimestamp;
+    },
+    get requestTimestamp() {
+      setRenderKey("requestTimestamp");
+      return state.requestTimestamp;
     },
     abort: callbacks.abort,
     ...actions,

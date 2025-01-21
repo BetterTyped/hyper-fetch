@@ -57,12 +57,12 @@ describe("useFetch [ Rerender ]", () => {
   });
   it("should not rerender when changed key is not used", async () => {
     const Page = () => {
-      const { setError, setTimestamp } = useFetch(request);
+      const { setError, setResponseTimestamp } = useFetch(request);
 
       rerenders += 1;
 
       useDidMount(() => {
-        setTimestamp(new Date());
+        setResponseTimestamp(new Date());
         setTimeout(() => {
           setError(new Error("test"), true);
         }, fetchTime / 2);

@@ -32,7 +32,9 @@ export const testSuccessState = async <
     expect(response.status).toBe(200);
     expect(response.extra).toHaveProperty("headers");
     expect(response.retries).toBeNumber();
-    expect(response.timestamp).toBeDate();
+
+    expect(response.responseTimestamp).toBeDate();
+    expect(response.requestTimestamp).toBeDate();
     if (typeof response.submitting === "boolean") {
       expect(response.submitting).toBe(false);
     } else {
@@ -56,7 +58,8 @@ export const testErrorState = async <
     expect(response.error).toStrictEqual(mock);
     expect(response.error).toBeDefined();
     expect(response.retries).toBeNumber();
-    expect(response.timestamp).toBeDate();
+    expect(response.responseTimestamp).toBeDate();
+    expect(response.requestTimestamp).toBeDate();
     expect(response.success).toBeFalse();
     expect(response.extra).toHaveProperty("headers");
     expect(Object.keys(response.extra)).toHaveLength(1);

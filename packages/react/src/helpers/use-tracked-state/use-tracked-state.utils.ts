@@ -136,7 +136,8 @@ export const getInitialState = <T extends RequestInstance>({
       success: mappedData.success,
       extra: (mappedData.extra || client.defaultExtra) as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheState.retries,
-      timestamp: getTimestamp(cacheState.responseTimestamp),
+      requestTimestamp: getTimestamp(cacheState.requestTimestamp),
+      responseTimestamp: getTimestamp(cacheState.responseTimestamp),
       loading: initialLoading,
     };
   }
@@ -148,7 +149,8 @@ export const getInitialState = <T extends RequestInstance>({
     success: initialState.success,
     extra: request.client.defaultExtra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
     retries: initialState.retries,
-    timestamp: getTimestamp(initialState.timestamp),
+    requestTimestamp: getTimestamp(initialState.requestTimestamp),
+    responseTimestamp: getTimestamp(initialState.responseTimestamp),
     loading: initialLoading,
   };
 };

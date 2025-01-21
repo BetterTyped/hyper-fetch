@@ -79,21 +79,16 @@ export const useTrackedState = <T extends RequestInstance>({
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
-      const isValidInitialState = isEqual(initialResponse?.data, state.current.data);
-      const hasState = !!(state.current.data || state.current.error) && !isValidInitialState;
-      const shouldLoadInitialCache = !hasState && !!state.current.data;
-      const shouldRemovePreviousData = hasState && !state.current.data;
-
       // Handle initial loading state
       state.current.loading = getIsInitiallyLoading({
         queryKey: request.queryKey,
         dispatcher,
         disabled,
         revalidate,
-        hasState,
+        hasState: !!cacheState,
       });
 
-      if (cacheState && (shouldLoadInitialCache || shouldRemovePreviousData)) {
+      if (cacheState) {
         // Don't update the state when we are fetching data for new cacheKey
         // So on paginated page we will have previous page access until the new one will be fetched
         // However: When we have some cached data, we can use it right away
@@ -147,7 +142,8 @@ export const useTrackedState = <T extends RequestInstance>({
       success: cacheData.success,
       extra: cacheData.extra as ExtractAdapterExtraType<ExtractAdapterType<T>>,
       retries: cacheData.retries,
-      timestamp: new Date(cacheData.responseTimestamp),
+      responseTimestamp: new Date(cacheData.responseTimestamp),
+      requestTimestamp: new Date(cacheData.requestTimestamp),
       loading: dispatcher.hasRunningRequests(queryKey),
     };
 
@@ -209,17 +205,24 @@ export const useTrackedState = <T extends RequestInstance>({
   // ******************
 
   const actions: UseTrackedStateActions<T> = {
-    setData: (data) => {
-      cache.update(request, (prev) => ({ data: data instanceof Function ? data(prev?.data || null) : data }));
+    setData: (data, emitToHooks) => {
+      if (emitToHooks) {
+        cache.update(request, (prev) => ({ data: data instanceof Function ? data(prev?.data || null) : data }));
+      }
+      state.current.data = data instanceof Function ? data(state.current.data || null) : data;
+      renderKeyTrigger(["data"]);
     },
-    setError: (error) => {
-      cache.update(request, (prev) => {
-        const value = error instanceof Function ? error(prev?.error || null) : error;
-        return {
-          error: value,
-          success: !value,
-        };
-      });
+    setError: (error, emitToHooks) => {
+      if (emitToHooks) {
+        cache.update(request, (prev) => {
+          const value = error instanceof Function ? error(prev?.error || null) : error;
+          return {
+            error: value,
+            success: !value,
+          };
+        });
+      }
+      state.current.error = error instanceof Function ? error(state.current.error || null) : error;
       renderKeyTrigger(["error"]);
     },
     setLoading: (loading, emitToHooks = true) => {
@@ -236,40 +239,69 @@ export const useTrackedState = <T extends RequestInstance>({
       state.current.loading = value;
       renderKeyTrigger(["loading"]);
     },
-    setStatus: (status) => {
-      cache.update(request, (prev) => ({
-        // TODO: fix type
-        status: status instanceof Function ? status((prev?.status as any) || null) : status,
-      }));
+    setStatus: (status, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          // TODO: fix type
+          status: status instanceof Function ? status((prev?.status as any) || null) : status,
+        }));
+      }
+      state.current.status = status instanceof Function ? status(state.current.status || null) : status;
       renderKeyTrigger(["status"]);
     },
-    setSuccess: (success) => {
-      cache.update(request, (prev) => ({
-        success: success instanceof Function ? success(prev?.success || false) : success,
-      }));
+    setSuccess: (success, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          success: success instanceof Function ? success(prev?.success || false) : success,
+        }));
+      }
+      state.current.success = success instanceof Function ? success(state.current.success || false) : success;
       renderKeyTrigger(["success"]);
     },
-    setExtra: (extra) => {
-      cache.update(request, (prev) => ({
-        // TODO: fix type
-        extra: extra instanceof Function ? extra((prev?.extra as any) || null) : extra,
-      }));
+    setExtra: (extra, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          // TODO: fix type
+          extra: extra instanceof Function ? extra((prev?.extra as any) || null) : extra,
+        }));
+      }
+      state.current.extra = extra instanceof Function ? extra(state.current.extra || null) : extra;
       renderKeyTrigger(["extra"]);
     },
-    setRetries: (retries) => {
-      cache.update(request, (prev) => ({
-        retries: retries instanceof Function ? retries(prev?.retries || 0) : retries,
-      }));
+    setRetries: (retries, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          retries: retries instanceof Function ? retries(prev?.retries || 0) : retries,
+        }));
+      }
+      state.current.retries = retries instanceof Function ? retries(state.current.retries || 0) : retries;
       renderKeyTrigger(["retries"]);
     },
-    setTimestamp: (timestamp) => {
-      cache.update(request, (prev) => ({
-        responseTimestamp:
-          timestamp instanceof Function
-            ? +timestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null)
-            : +timestamp,
-      }));
-      renderKeyTrigger(["timestamp"]);
+    setResponseTimestamp: (timestamp, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          responseTimestamp:
+            timestamp instanceof Function
+              ? +timestamp(prev?.responseTimestamp ? new Date(prev.responseTimestamp) : null)
+              : +timestamp,
+        }));
+      }
+      state.current.responseTimestamp =
+        timestamp instanceof Function ? timestamp(state.current.responseTimestamp || null) : timestamp;
+      renderKeyTrigger(["responseTimestamp"]);
+    },
+    setRequestTimestamp: (timestamp, emitToCache = true) => {
+      if (emitToCache) {
+        cache.update(request, (prev) => ({
+          requestTimestamp:
+            timestamp instanceof Function
+              ? +timestamp(prev?.requestTimestamp ? new Date(prev.requestTimestamp) : null)
+              : +timestamp,
+        }));
+      }
+      state.current.requestTimestamp =
+        timestamp instanceof Function ? timestamp(state.current.requestTimestamp || null) : timestamp;
+      renderKeyTrigger(["requestTimestamp"]);
     },
   };
 

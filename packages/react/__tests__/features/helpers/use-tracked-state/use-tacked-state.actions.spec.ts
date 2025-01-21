@@ -88,15 +88,25 @@ describe("useTrackedState [ Actions ]", () => {
         expect(result.current[0].extra).toBe(extra);
       });
     });
-    it("should allow to set timestamp", async () => {
+    it("should allow to set response timestamp", async () => {
       const value = new Date();
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setTimestamp(value, false);
+        result.current[1].setResponseTimestamp(value, false);
       });
 
-      expect(result.current[0].timestamp).toBe(value);
+      expect(result.current[0].responseTimestamp).toBe(value);
+    });
+    it("should allow to set request timestamp", async () => {
+      const value = new Date();
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setRequestTimestamp(value, false);
+      });
+
+      expect(result.current[0].requestTimestamp).toBe(value);
     });
     it("should allow to set retries", async () => {
       const { result } = renderUseTrackedState(request);
@@ -110,7 +120,7 @@ describe("useTrackedState [ Actions ]", () => {
   });
   describe("when updating the cache state", () => {
     it("should allow to set data", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const value = { test: 1 };
       const { result } = renderUseTrackedState(request);
 
@@ -123,7 +133,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set error", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const value = { test: 1 };
       const { result } = renderUseTrackedState(request);
 
@@ -148,7 +158,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set status", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
@@ -160,7 +170,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set success", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
@@ -173,7 +183,7 @@ describe("useTrackedState [ Actions ]", () => {
     });
     it("should allow to set extra", async () => {
       const extra = { headers: { test: "1" } };
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const { result } = renderUseTrackedState(request);
 
       act(() => {
@@ -184,13 +194,26 @@ describe("useTrackedState [ Actions ]", () => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
     });
-    it("should allow to set timestamp", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+    it("should allow to set response timestamp", async () => {
+      const spy = jest.spyOn(request.client.cache, "update");
       const value = new Date();
       const { result } = renderUseTrackedState(request);
 
       act(() => {
-        result.current[1].setTimestamp(value, true);
+        result.current[1].setResponseTimestamp(value, true);
+      });
+
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
+    });
+    it("should allow to set request timestamp", async () => {
+      const spy = jest.spyOn(request.client.cache, "update");
+      const value = new Date();
+      const { result } = renderUseTrackedState(request);
+
+      act(() => {
+        result.current[1].setRequestTimestamp(value, true);
       });
 
       await waitFor(() => {
@@ -198,7 +221,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
     });
     it("should allow to set retries", async () => {
-      const spy = jest.spyOn(request.client.cache, "set");
+      const spy = jest.spyOn(request.client.cache, "update");
       const { result } = renderUseTrackedState(request);
 
       act(() => {

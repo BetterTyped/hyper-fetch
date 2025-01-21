@@ -222,6 +222,7 @@ describe("useFetch [ refetch ]", () => {
       response.rerender({ request, revalidate: false });
     });
     await testSuccessState(mock, response);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     act(() => {
       // Fourth request
