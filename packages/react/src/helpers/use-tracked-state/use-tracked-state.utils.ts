@@ -72,16 +72,41 @@ export const getTimestamp = (timestamp?: NullableType<number | Date>) => {
   return timestamp ? new Date(timestamp) : null;
 };
 
+export const getIsInitiallyLoading = ({
+  queryKey,
+  dispatcher,
+  hasState,
+  revalidate,
+  disabled,
+}: {
+  queryKey: string;
+  dispatcher: Dispatcher;
+  hasState: boolean;
+  revalidate?: boolean;
+  disabled?: boolean;
+}) => {
+  if (!revalidate && hasState) {
+    return false;
+  }
+
+  const queue = dispatcher.getQueue(queryKey);
+  const isInitiallyLoading = dispatcher.hasRunningRequests(queryKey) || (!queue.stopped && disabled === false);
+
+  return isInitiallyLoading;
+};
+
 export const getInitialState = <T extends RequestInstance>({
   initialResponse,
   dispatcher,
   request,
   disabled,
+  revalidate,
 }: {
   initialResponse: NullableType<Partial<ExtractAdapterResolvedType<T>>>;
   dispatcher: Dispatcher;
   request: T;
   disabled?: boolean; // useFetch only
+  revalidate?: boolean; // useFetch only
 }): UseTrackedStateType<T> => {
   const { client, cacheKey, __responseMapper } = request;
   const { cache } = client;
@@ -89,9 +114,13 @@ export const getInitialState = <T extends RequestInstance>({
   const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
   const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
-  const queue = dispatcher.getQueue(request.queryKey);
-
-  const initialLoading = dispatcher.hasRunningRequests(request.queryKey) || (!queue.stopped && disabled === false);
+  const initialLoading = getIsInitiallyLoading({
+    queryKey: request.queryKey,
+    dispatcher,
+    disabled,
+    revalidate,
+    hasState: !!cacheState,
+  });
 
   if (cacheState) {
     const mappedData = __responseMapper ? __responseMapper(cacheState) : cacheState;

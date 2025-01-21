@@ -6,7 +6,7 @@ import { client, createRequest, renderUseSubmit, waitForRender } from "../../uti
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Retry ]", () => {
-  let request = createRequest<null, null>({ method: "POST" });
+  let request = createRequest<{ response: null; payload: null }>({ method: "POST" });
 
   beforeAll(() => {
     startServer();
@@ -39,7 +39,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   describe("when request retry attribute is set to true", () => {
@@ -55,7 +55,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toBeCalledTimes(2);
+      expect(spy).toHaveBeenCalledTimes(2);
     });
     it("should retry request twice", async () => {
       const spy = jest.fn();
@@ -69,7 +69,7 @@ describe("useSubmit [ Retry ]", () => {
 
       await waitForRender(150);
 
-      expect(spy).toBeCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(3);
     });
     it("should trigger retries with the config interval", async () => {
       const time: number[] = [];

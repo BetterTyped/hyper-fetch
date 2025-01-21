@@ -45,8 +45,8 @@ describe("useFetch [ Concurrency ]", () => {
         await testSuccessState(mock, responseOne);
         await testSuccessState(mock, responseTwo);
 
-        expect(spyOne).toBeCalledTimes(1);
-        expect(spyTwo).toBeCalledTimes(1);
+        expect(spyOne).toHaveBeenCalledTimes(1);
+        expect(spyTwo).toHaveBeenCalledTimes(1);
       });
       it("should start in loading mode when request is already handled by the queue", async () => {
         mockRequest(request);
@@ -60,8 +60,8 @@ describe("useFetch [ Concurrency ]", () => {
       });
       it("should not start in loading mode when queue is paused", async () => {
         act(() => {
-          const queueElement = client.fetchDispatcher.createStorageElement(request);
-          client.fetchDispatcher.addQueueElement(request.queryKey, queueElement);
+          const queueElement = client.fetchDispatcher.createStorageItem(request);
+          client.fetchDispatcher.addQueueItem(request.queryKey, queueElement);
           client.fetchDispatcher.stop(request.queryKey);
         });
         mockRequest(request);

@@ -119,7 +119,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set error", async () => {
@@ -132,7 +132,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set loading", async () => {
@@ -144,7 +144,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set status", async () => {
@@ -156,7 +156,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set success", async () => {
@@ -168,7 +168,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set extra", async () => {
@@ -181,7 +181,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set timestamp", async () => {
@@ -194,7 +194,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     it("should allow to set retries", async () => {
@@ -206,7 +206,7 @@ describe("useTrackedState [ Actions ]", () => {
       });
 
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
   });

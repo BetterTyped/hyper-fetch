@@ -1,5 +1,4 @@
-import { waitFor } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
+import { waitFor, act } from "@testing-library/react";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { testErrorState, testSuccessState } from "../../shared";
@@ -42,7 +41,7 @@ describe("useFetch [ Offline ]", () => {
         response.result.current.refetch();
       });
 
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should finish request when coming back online", async () => {
       client.appManager.setOnline(false);
@@ -67,7 +66,7 @@ describe("useFetch [ Offline ]", () => {
         client.appManager.setOnline(true);
       });
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
   });

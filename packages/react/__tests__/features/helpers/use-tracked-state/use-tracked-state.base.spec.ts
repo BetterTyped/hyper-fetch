@@ -175,7 +175,7 @@ describe("useTrackingState [ Events ]", () => {
           });
         });
 
-        expect(deepCompare).toBeCalled();
+        expect(deepCompare).toHaveBeenCalled();
         expect(result.current[0].data).toBeTrue();
       });
     });

@@ -257,7 +257,7 @@ describe("Dispatcher [ Queue ]", () => {
     it("should not trigger flush methods when queue is empty", async () => {
       const spy = jest.spyOn(dispatcher, "performRequest");
       dispatcher.flushQueue("fake-queue");
-      expect(spy).not.toBeCalled();
+      expect(spy).not.toHaveBeenCalled();
     });
     it("should not trigger flushQueue when queue is processing", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });

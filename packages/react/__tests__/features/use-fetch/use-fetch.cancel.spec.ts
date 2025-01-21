@@ -72,7 +72,7 @@ describe("useFetch [ Cancel ]", () => {
         await waitForRender();
 
         await waitFor(() => {
-          expect(spy).toBeCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
         });
       });
     });

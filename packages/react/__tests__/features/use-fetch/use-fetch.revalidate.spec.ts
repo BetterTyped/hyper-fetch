@@ -9,7 +9,9 @@ const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingSe
 
 describe("useFetch [ refetch ]", () => {
   let request = createRequest();
-  let mock = mockRequest(request);
+  let mock = mockRequest(request, {
+    data: { someData: 12345 },
+  });
 
   beforeAll(() => {
     startServer();
@@ -27,10 +29,12 @@ describe("useFetch [ refetch ]", () => {
     jest.resetModules();
     request = createRequest();
     client.clear();
-    mock = mockRequest(request);
+    mock = mockRequest(request, {
+      data: { someData: 12345 },
+    });
   });
 
-  it("should allow to prevent invalidation on mount", async () => {
+  it("should allow to prevent invalidation on mount with cache data", async () => {
     const spy = jest.fn();
     const customMock = { something: "123" };
     client.cache.set(request, {
@@ -55,9 +59,9 @@ describe("useFetch [ refetch ]", () => {
 
     await testSuccessState(customMock, response);
     await sleep(50);
-    expect(spy).toBeCalledTimes(0);
+    expect(spy).toHaveBeenCalledTimes(0);
   });
-  it("should allow to prevent invalidation on mount", async () => {
+  it("should allow invalidation on mount", async () => {
     const spy = jest.fn();
     const response = renderUseFetch(request, { revalidate: false });
 
@@ -70,7 +74,7 @@ describe("useFetch [ refetch ]", () => {
     renderUseFetch(request, { revalidate: false });
 
     await waitForRender(50);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
   it("should allow to refetch on mount", async () => {
     const customMock = { something: "123" };
@@ -202,7 +206,7 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(mock, response);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
 
     act(() => {
       // Second request
@@ -210,10 +214,9 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     // Check revalidation
-
     act(() => {
       // Third request
       response.rerender({ request, revalidate: false });
@@ -226,6 +229,6 @@ describe("useFetch [ refetch ]", () => {
     });
 
     await testSuccessState(revalidateMock, response);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

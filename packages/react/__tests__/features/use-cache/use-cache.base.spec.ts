@@ -1,4 +1,4 @@
-import { act } from "react-dom/test-utils";
+import { act } from "@testing-library/react";
 import { CacheValueType } from "@hyper-fetch/core";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
@@ -21,7 +21,11 @@ describe("useCache [ Base ]", () => {
       },
     },
     retries: 0,
-    timestamp: +new Date(),
+    requestTimestamp: +new Date(),
+    responseTimestamp: +new Date(),
+    addedTimestamp: +new Date(),
+    triggerTimestamp: +new Date(),
+    cacheKey: request.cacheKey,
     isCanceled: false,
     isOffline: false,
     staleTime: request.staleTime,
@@ -72,7 +76,7 @@ describe("useCache [ Base ]", () => {
         const response = renderUseCache(request);
 
         await testSuccessState(cacheData.data, response);
-        expect(+(response.result.current?.timestamp || 0)).toBe(cacheData.timestamp);
+        expect(+(response.result.current?.timestamp || 0)).toBe(cacheData.responseTimestamp);
         expect(response.result.current.retries).toBe(0);
       });
       it("should allow to invalidate by Request", async () => {
@@ -84,8 +88,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(request);
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by RegExp", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -96,8 +100,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(new RegExp(request.cacheKey));
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(new RegExp(request.cacheKey));
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(new RegExp(request.cacheKey));
       });
       it("should allow to invalidate by cacheKey", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -108,8 +112,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch(request.cacheKey);
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
       it("should allow to invalidate by default key", async () => {
         const spy = jest.spyOn(client.cache, "invalidate");
@@ -120,8 +124,8 @@ describe("useCache [ Base ]", () => {
           result.current.refetch();
         });
 
-        expect(spy).toBeCalledTimes(1);
-        expect(spy).toBeCalledWith(request.cacheKey);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(request.cacheKey);
       });
     });
   });

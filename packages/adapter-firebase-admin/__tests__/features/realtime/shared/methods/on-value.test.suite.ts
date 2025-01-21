@@ -66,7 +66,7 @@ export const onValueTestSuite = (
       const unmount = onValueReq.listen({ callback: spy });
 
       await waitForExpect(async () => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
 
       unmount();
@@ -75,7 +75,7 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       }, 1000);
 
       expect(socket.adapter.listeners.get(onValueReq.endpoint).size).toBe(0);
@@ -100,7 +100,7 @@ export const onValueTestSuite = (
       });
 
       await waitForExpect(async () => {
-        expect(spy).toBeCalled();
+        expect(spy).toHaveBeenCalled();
         expect(receivedData).toBeNull();
         expect(receivedExtra.status).toBe("emptyResource");
       });
@@ -122,7 +122,7 @@ export const onValueTestSuite = (
       await pushReq.send();
 
       await waitForExpect(async () => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
 
       unmount();

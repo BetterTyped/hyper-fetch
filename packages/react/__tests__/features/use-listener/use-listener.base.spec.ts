@@ -47,7 +47,7 @@ describe("useListener [ Base ]", () => {
       });
       emitListenerEvent(listener, message);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
         expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });

@@ -72,7 +72,7 @@ describe("useQueue [ Base ]", () => {
           });
         });
         await waitFor(() => {
-          expect(result.current.requests[0].downloading).toBe(progress);
+          expect(result.current.requests[0].downloading).toStrictEqual(progress);
         });
       });
       it("should update upload progress of requests", async () => {
@@ -101,7 +101,7 @@ describe("useQueue [ Base ]", () => {
           });
         });
         await waitFor(() => {
-          expect(result.current.requests[0].uploading).toBe(progress);
+          expect(result.current.requests[0].uploading).toStrictEqual(progress);
         });
       });
     });

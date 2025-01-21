@@ -77,6 +77,7 @@ export const useFetch = <R extends RequestInstance>(
     deepCompare,
     dependencyTracking,
     disabled,
+    revalidate,
   });
 
   /**

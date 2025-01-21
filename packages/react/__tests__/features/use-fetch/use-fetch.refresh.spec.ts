@@ -45,10 +45,10 @@ describe("useFetch [ Refreshing ]", () => {
     });
 
     await waitForRender();
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
     await waitForRender(hookOptions.refreshTime * 1.5);
 
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should refresh blurred tab", async () => {
     const spy = jest.fn();
@@ -62,7 +62,7 @@ describe("useFetch [ Refreshing ]", () => {
 
     await waitForRender();
     await waitForRender(hookOptions.refreshTime * 1.5);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
   it("should not refresh blurred tab", async () => {
     const spy = jest.fn();
@@ -76,7 +76,7 @@ describe("useFetch [ Refreshing ]", () => {
 
     await waitForRender();
     await waitForRender(hookOptions.refreshTime * 1.5);
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
   it("should postpone refresh when invalidation is triggered during countdown", async () => {
     // TODO
@@ -94,10 +94,10 @@ describe("useFetch [ Refreshing ]", () => {
     });
 
     await waitForRender();
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
     await waitForRender(hookOptions.refreshTime * 1.5);
 
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
 
     act(() => {
       rerender({ refresh: false });
@@ -105,6 +105,6 @@ describe("useFetch [ Refreshing ]", () => {
 
     await waitForRender(hookOptions.refreshTime * 1.5);
 
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

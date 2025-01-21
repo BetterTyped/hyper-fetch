@@ -7,7 +7,7 @@ import { testInitialState, testSuccessState } from "../../shared";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Base ]", () => {
-  let request = createRequest<any, null>({ method: "POST" });
+  let request = createRequest<{ response: any; payload: null }>({ method: "POST" });
 
   beforeAll(() => {
     startServer();

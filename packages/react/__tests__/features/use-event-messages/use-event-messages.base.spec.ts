@@ -50,7 +50,7 @@ describe("useEventMessages [ Base ]", () => {
       });
       emitListenerEvent(listener, message);
       await waitFor(() => {
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
         expect(receivedData).toEqual(message);
         expect(receivedEventData).toBeDefined();
       });
@@ -66,7 +66,7 @@ describe("useEventMessages [ Base ]", () => {
         emitListenerEvent(listener, message);
         await sleep(10);
       });
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
     it("should allow to pass filter function to onEvent callbacks", async () => {
       const message = { name: "Maciej", age: 99 };
@@ -81,7 +81,7 @@ describe("useEventMessages [ Base ]", () => {
         emitListenerEvent(listener, message);
         await sleep(10);
       });
-      expect(spy).toBeCalledTimes(0);
+      expect(spy).toHaveBeenCalledTimes(0);
     });
   });
 });

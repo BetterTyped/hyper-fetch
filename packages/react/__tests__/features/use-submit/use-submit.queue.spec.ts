@@ -7,7 +7,7 @@ import { client, createRequest, renderUseSubmit, waitForRender } from "../../uti
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Queue ]", () => {
-  let request = createRequest<any, null>({ method: "POST", queued: true });
+  let request = createRequest<{ response: any; payload: null }>({ method: "POST", queued: true });
 
   beforeAll(() => {
     startServer();
@@ -52,7 +52,7 @@ describe("useSubmit [ Queue ]", () => {
         await testData(3, response);
         await testData(4, response);
 
-        expect(spy).toBeCalledTimes(4);
+        expect(spy).toHaveBeenCalledTimes(4);
       });
       it("should start in loading mode when request in queue is ongoing", async () => {
         mockRequest(request);

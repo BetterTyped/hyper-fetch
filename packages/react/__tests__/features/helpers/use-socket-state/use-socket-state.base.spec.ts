@@ -63,7 +63,7 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onConnected(spy);
         socket.events.emitConnected();
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should call onDisconnected callback", async () => {
       const [, , callbacks] = view.result.current;
@@ -72,7 +72,7 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onDisconnected(spy);
         socket.events.emitDisconnected();
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should call onError callback", async () => {
       const value = {} as MessageEvent;
@@ -82,8 +82,8 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onError(spy);
         socket.events.emitError(value);
       });
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(value);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(value);
     });
     it("should call onConnecting callback", async () => {
       const [, , callbacks] = view.result.current;
@@ -92,7 +92,7 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onConnecting(spy);
         socket.events.emitConnecting();
       });
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should call onReconnecting callback", async () => {
       const value = 2;
@@ -102,8 +102,8 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onReconnecting(spy);
         socket.events.emitReconnecting(value);
       });
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(value);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(value);
     });
     it("should call onReconnectingStop callback", async () => {
       const value = 2;
@@ -113,8 +113,8 @@ describe("useSocketState [ Base ]", () => {
         callbacks.onReconnectingStop(spy);
         socket.events.emitReconnectingStop(value);
       });
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(value);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(value);
     });
   });
 });

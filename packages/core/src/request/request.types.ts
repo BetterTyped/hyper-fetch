@@ -246,11 +246,13 @@ export type RequestSendActionsType<Request extends RequestInstance> = {
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 
+type IsNegativeType<T> = undefined extends T ? NegativeTypes : null extends T ? NegativeTypes : T;
+
 // If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
-  RequestSendOptionsType<Request>["payload"] extends NegativeTypes
-    ? RequestSendOptionsType<Request>["params"] extends NegativeTypes
-      ? RequestSendOptionsType<Request>["queryParams"] extends NegativeTypes
+  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends NegativeTypes
+    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends NegativeTypes
+      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends NegativeTypes
         ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
         : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
       : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>

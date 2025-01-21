@@ -17,7 +17,7 @@ import {
   UseTrackedStateProps,
   UseTrackedStateReturn,
 } from "./use-tracked-state.types";
-import { getInitialState, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
+import { getInitialState, getIsInitiallyLoading, getValidCacheData, isStaleCacheData } from "./use-tracked-state.utils";
 
 /**
  *
@@ -34,6 +34,7 @@ export const useTrackedState = <T extends RequestInstance>({
   deepCompare,
   dependencyTracking,
   disabled,
+  revalidate,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
   const { client, cacheKey, queryKey, staleTime, __responseMapper } = request;
   const { cache, requestManager } = client;
@@ -74,17 +75,23 @@ export const useTrackedState = <T extends RequestInstance>({
 
   useDidUpdate(
     () => {
-      // Handle initial loading state
-      state.current.loading = dispatcher.hasRunningRequests(queryKey);
-
       // Get cache state
       const cacheData = cache.get<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>(cacheKey);
       const cacheState = getValidCacheData<T>(request, initialResponse, cacheData);
 
-      const hasInitialState = isEqual(initialResponse?.data, state.current.data);
-      const hasState = !!(state.current.data || state.current.error) && !hasInitialState;
+      const isValidInitialState = isEqual(initialResponse?.data, state.current.data);
+      const hasState = !!(state.current.data || state.current.error) && !isValidInitialState;
       const shouldLoadInitialCache = !hasState && !!state.current.data;
       const shouldRemovePreviousData = hasState && !state.current.data;
+
+      // Handle initial loading state
+      state.current.loading = getIsInitiallyLoading({
+        queryKey: request.queryKey,
+        dispatcher,
+        disabled,
+        revalidate,
+        hasState,
+      });
 
       if (cacheState && (shouldLoadInitialCache || shouldRemovePreviousData)) {
         // Don't update the state when we are fetching data for new cacheKey

@@ -79,7 +79,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookDebounceOptions.bounceTime);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should resolve debounced methods", async () => {
         mockRequest(request);
@@ -139,7 +139,7 @@ describe("useSubmit [ Bounce ]", () => {
         });
 
         expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -170,7 +170,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(spy).toBeCalledTimes(4);
+        expect(spy).toHaveBeenCalledTimes(4);
       });
     });
   });
@@ -222,7 +222,7 @@ describe("useSubmit [ Bounce ]", () => {
         await waitFor(() => {
           expect(startTime).not.toBeNull();
           expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(hookThrottleOptions.bounceTime);
-          expect(spy).toBeCalledTimes(2);
+          expect(spy).toHaveBeenCalledTimes(2);
         });
       });
       it("should resolve throttled methods", async () => {
@@ -281,7 +281,7 @@ describe("useSubmit [ Bounce ]", () => {
         await waitFor(() => {
           expect(startTime).not.toBeNull();
           expect((startTime || 0) - (submitTime || 0)).toBeGreaterThanOrEqual(newBounceTime);
-          expect(spy).toBeCalledTimes(2);
+          expect(spy).toHaveBeenCalledTimes(2);
         });
       });
     });
@@ -313,7 +313,7 @@ describe("useSubmit [ Bounce ]", () => {
           expect(startTime).not.toBeNull();
         });
 
-        expect(spy).toBeCalledTimes(4);
+        expect(spy).toHaveBeenCalledTimes(4);
       });
     });
   });

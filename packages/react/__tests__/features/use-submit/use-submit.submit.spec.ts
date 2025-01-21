@@ -7,7 +7,9 @@ import { client, createRequest, renderUseSubmit } from "../../utils";
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
 describe("useSubmit [ Base ]", () => {
-  let request = createRequest<{ payload: { value: string } }>({ method: "POST" });
+  let request = createRequest<{ payload: { value: string }; queryParams?: Record<string, string> | string }>({
+    method: "POST",
+  });
 
   beforeAll(() => {
     startServer();
@@ -43,6 +45,8 @@ describe("useSubmit [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should call onSettle", async () => {
@@ -54,7 +58,7 @@ describe("useSubmit [ Base ]", () => {
         await response.result.current.submit({ payload: { value: "string" }, onSettle: spy });
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should return data from submit method on retries", async () => {
       let data: unknown = null;
@@ -75,6 +79,8 @@ describe("useSubmit [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should return data from submit method on offline", async () => {
@@ -100,12 +106,14 @@ describe("useSubmit [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should allow to change submit details", async () => {
       // Todo
     });
-    it("should allow to pass data to submit", async () => {
+    it("should allow to pass payload to submit", async () => {
       let payload: unknown = null;
       const myData = { value: "string" };
       mockRequest(request);
@@ -113,7 +121,7 @@ describe("useSubmit [ Base ]", () => {
 
       await act(async () => {
         response.result.current.onSubmitRequestStart(({ request: cmd }) => {
-          payload = cmd.data;
+          payload = cmd.payload;
         });
         response.result.current.submit({ payload: myData });
       });
@@ -164,6 +172,8 @@ describe("useSubmit [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
     it("should throw error when hook is disabled", async () => {
@@ -203,6 +213,8 @@ describe("useSubmit [ Base ]", () => {
         status: 200,
         success: true,
         extra: { headers: { "content-type": "application/json", "content-length": "2" } },
+        responseTimestamp: expect.toBeNumber(),
+        requestTimestamp: expect.toBeNumber(),
       });
     });
   });

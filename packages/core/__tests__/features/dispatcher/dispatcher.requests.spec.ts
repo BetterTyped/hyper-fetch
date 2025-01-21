@@ -234,7 +234,7 @@ describe("Dispatcher [ Requests ]", () => {
         dispatcher.events.onQueueChangeByKey("fake-key", spy);
         dispatcher.startRequest("fake-key", "fake-request-id");
 
-        expect(spy).not.toBeCalled();
+        expect(spy).not.toHaveBeenCalled();
       });
     });
   });

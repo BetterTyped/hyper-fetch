@@ -45,7 +45,7 @@ describe("useRequestEvents [ Utils ]", () => {
         await request.send({});
       });
 
-      expect(spy).toBeCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should listen to every request id events", async () => {
       const spy = jest.fn();
@@ -63,7 +63,7 @@ describe("useRequestEvents [ Utils ]", () => {
         });
       });
 
-      expect(spy).toBeCalledTimes(3);
+      expect(spy).toHaveBeenCalledTimes(3);
     });
   });
 });

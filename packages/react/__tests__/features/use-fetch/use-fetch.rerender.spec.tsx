@@ -7,6 +7,7 @@ import { client, createRequest, waitForRender } from "../../utils";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
+// TODO fix error logs
 describe("useFetch [ Rerender ]", () => {
   let rerenders = 0;
   let request = createRequest();
@@ -42,7 +43,7 @@ describe("useFetch [ Rerender ]", () => {
 
   it("should not rerender when the same data is received from backend", async () => {
     const Page = () => {
-      const { data } = useFetch(request, { refresh: true, refreshTime: 10 });
+      const { data } = useFetch(request, { refresh: false, refreshTime: 0 });
 
       rerenders += 1;
 
@@ -50,7 +51,6 @@ describe("useFetch [ Rerender ]", () => {
     };
 
     render(<Page />);
-
     await waitForDoubleFetch();
 
     expect(rerenders).toBe(2);

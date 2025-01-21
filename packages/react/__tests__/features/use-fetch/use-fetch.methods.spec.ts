@@ -39,7 +39,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onResponseStart helper", async () => {
         const spy = jest.fn();
@@ -51,7 +51,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onDownloadProgress helper", async () => {
         const spy = jest.fn();
@@ -63,7 +63,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(3);
+        expect(spy).toHaveBeenCalledTimes(3);
       });
       it("should trigger onUploadProgress helper", async () => {
         const spy = jest.fn();
@@ -75,7 +75,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(2);
+        expect(spy).toHaveBeenCalledTimes(3);
       });
     });
     describe("when getting the response", () => {
@@ -91,8 +91,8 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(1);
-        expect(unusedSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(unusedSpy).toHaveBeenCalledTimes(0);
       });
       it("should trigger onError helper", async () => {
         const spy = jest.fn();
@@ -106,8 +106,8 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testErrorState(mock, response);
-        expect(spy).toBeCalledTimes(1);
-        expect(unusedSpy).toBeCalledTimes(0);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(unusedSpy).toHaveBeenCalledTimes(0);
       });
       it("should trigger onFinished helper on success", async () => {
         const spy = jest.fn();
@@ -119,7 +119,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(mock, response);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
       it("should trigger onFinished helper on error", async () => {
         const spy = jest.fn();
@@ -131,7 +131,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testErrorState(mock, response);
-        expect(spy).toBeCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
       });
     });
     describe("when getting internal error", () => {
@@ -146,7 +146,7 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await waitFor(() => {
-          expect(spy).toBeCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
         });
       });
       it("should trigger methods on retry", async () => {
@@ -177,14 +177,14 @@ describe("useFetch [ Methods ]", () => {
         const successMock = mockRequest(request);
         await testSuccessState(successMock, response);
 
-        expect(spy1).toBeCalledTimes(2);
-        expect(spy2).toBeCalledTimes(2);
-        expect(spy3).toBeCalledTimes(6);
-        expect(spy4).toBeCalledTimes(4);
-        expect(spy5).toBeCalledTimes(1);
-        expect(spy6).toBeCalledTimes(1);
-        expect(spy7).toBeCalledTimes(2);
-        expect(spy8).toBeCalledTimes(0);
+        expect(spy1).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(6);
+        expect(spy4).toHaveBeenCalledTimes(6);
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(1);
+        expect(spy7).toHaveBeenCalledTimes(2);
+        expect(spy8).toHaveBeenCalledTimes(0);
       });
       it("should trigger methods on coming back online", async () => {
         const spy1 = jest.fn();
@@ -219,14 +219,14 @@ describe("useFetch [ Methods ]", () => {
         });
 
         await testSuccessState(successMock, response);
-        expect(spy1).toBeCalledTimes(2);
-        expect(spy2).toBeCalledTimes(2);
-        expect(spy3).toBeCalledTimes(6);
-        expect(spy4).toBeCalledTimes(4);
-        expect(spy5).toBeCalledTimes(1);
-        expect(spy6).toBeCalledTimes(0);
-        expect(spy7).toBeCalledTimes(2);
-        expect(spy8).toBeCalledTimes(1);
+        expect(spy1).toHaveBeenCalledTimes(2);
+        expect(spy2).toHaveBeenCalledTimes(2);
+        expect(spy3).toHaveBeenCalledTimes(6);
+        expect(spy4).toHaveBeenCalledTimes(6);
+        expect(spy5).toHaveBeenCalledTimes(1);
+        expect(spy6).toHaveBeenCalledTimes(0);
+        expect(spy7).toHaveBeenCalledTimes(2);
+        expect(spy8).toHaveBeenCalledTimes(1);
       });
     });
   });
