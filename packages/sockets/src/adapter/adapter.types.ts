@@ -57,7 +57,6 @@ export type ExtractUnionSocket<
 
 export type SSEAdapterOptionsType = {
   eventSourceInit?: EventSourceInit;
-  autoConnect?: boolean;
 };
 
 export type WSAdapterOptionsType = {
@@ -66,10 +65,9 @@ export type WSAdapterOptionsType = {
   pongTimeout?: number;
   heartbeatMessage?: string;
   heartbeat?: boolean;
-  autoConnect?: boolean;
 };
 
-export type WebsocketEvent<T = any> = {
+export type SocketEvent<T = any> = {
   topic: string;
   data: T;
 };
@@ -81,7 +79,7 @@ export type ServerSentEvent<T = any> = {
 
 // Adapters
 
-export type SocketData<D = any> = { topic: string; data: D };
+export type SocketData<D = any> = { topic: string; payload: D };
 export type WebsocketAdapterType = SocketAdapterType<WSAdapterOptionsType, MessageEvent<SocketData>, never, never>;
 export type ServerSentEventsAdapterType = SocketAdapterType<
   SSEAdapterOptionsType,

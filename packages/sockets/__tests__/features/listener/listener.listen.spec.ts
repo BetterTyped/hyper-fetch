@@ -31,7 +31,8 @@ describe("Listener [ Listen ]", () => {
     emitListenerEvent(listener, message);
 
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledOnceWith({ data: message, extra: receivedExtra });
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy).toHaveBeenCalledWith({ data: message, extra: receivedExtra });
     });
 
     await sleep(10);

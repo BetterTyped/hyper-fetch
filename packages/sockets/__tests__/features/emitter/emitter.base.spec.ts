@@ -29,7 +29,7 @@ describe("Emitter [ Base ]", () => {
 
   it("should allow to set additional adapter options", async () => {
     const options = { something: "custom" };
-    const newEmitter = emitter.setOptions(options);
+    const newEmitter = (emitter as any).setOptions(options);
     expect(newEmitter.options).toStrictEqual(options);
   });
 
@@ -41,8 +41,8 @@ describe("Emitter [ Base ]", () => {
 
   it("should allow to set event data", async () => {
     const data = { test: "test-data" };
-    const newEmitter = emitter.setData(data);
-    expect(newEmitter.data).toStrictEqual(data);
+    const newEmitter = emitter.setPayload(data);
+    expect(newEmitter.payload).toStrictEqual(data);
   });
 
   it("should allow to set data mapper", async () => {
@@ -52,8 +52,8 @@ describe("Emitter [ Base ]", () => {
       spy();
       return Object.keys(d);
     };
-    const newEmitter = emitter.setDataMapper(dataMapper).setTimeout(20000).setData(data);
-    expect(newEmitter.data).toStrictEqual(data);
+    const newEmitter = emitter.setPayloadMapper(dataMapper).setTimeout(20000).setPayload(data);
+    expect(newEmitter.payload).toStrictEqual(data);
     newEmitter.emit();
     await waitFor(() => {
       expect(spy).toHaveBeenCalled();

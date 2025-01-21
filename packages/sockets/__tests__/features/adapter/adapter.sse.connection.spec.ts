@@ -8,9 +8,9 @@ const socketOptions: Parameters<typeof createSocket>[0] = {
   reconnectTime: 10,
   adapter: ServerSentEventsAdapter,
 };
+const { startServer } = createSseMockingServer();
 
 describe("Socket SSE [ Connection ]", () => {
-  const { startServer } = createSseMockingServer();
   let socket = createSocket(socketOptions);
 
   beforeEach(async () => {
@@ -59,9 +59,9 @@ describe("Socket SSE [ Connection ]", () => {
     startNewServer();
 
     await waitFor(() => {
+      expect(spy3).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy2).toHaveBeenCalledTimes(1);
-      expect(spy3).toHaveBeenCalledTimes(2);
     });
   });
 });

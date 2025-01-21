@@ -168,13 +168,6 @@ export type PluginMethods<Client extends ClientInstance> = {
       >
     >;
   }) => void;
-
-  /* -------------------------------------------------------------------------------------------------
-   * App lifecycle
-   * -----------------------------------------------------------------------------------------------*/
-
-  onAppFocusChange?: (data: { isFocused: boolean; client: Client }) => void;
-  onAppOnlineChange?: (data: { isOnline: boolean; client: Client }) => void;
 };
 
 export type PluginMethodParameters<Key extends keyof PluginMethods<Client>, Client extends ClientInstance> = Parameters<

@@ -8,5 +8,6 @@ export const initialState: UseTrackedStateType = {
   success: false,
   loading: false,
   retries: 0,
-  timestamp: null,
+  responseTimestamp: null,
+  requestTimestamp: null,
 };

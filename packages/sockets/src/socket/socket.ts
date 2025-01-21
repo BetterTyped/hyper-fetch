@@ -37,6 +37,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   reconnectTime: number;
   queryParams?: QueryParamsType | string;
   debug: boolean;
+  autoConnect: boolean;
 
   // Callbacks
   __onConnectedCallbacks: OpenCallbackType<this>[] = [];
@@ -65,6 +66,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
     this.reconnectTime = reconnectTime ?? Time.SEC * 2;
+    this.autoConnect = true;
 
     if (queryParamsConfig) {
       this.queryParamsConfig = queryParamsConfig;

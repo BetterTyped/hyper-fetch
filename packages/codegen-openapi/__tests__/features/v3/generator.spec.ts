@@ -71,10 +71,10 @@ const expectedOperationTypes = {
     "export type UpdatePetErrorType = Paths.UpdatePet.Responses.$400 | Paths.UpdatePet.Responses.$404 | Paths.UpdatePet.Responses.$405",
 };
 const expectedRequests = [
-  `export const findPets = client.createRequest<FindPetsResponseType, undefined, undefined, FindPetsQueryParams>()({method: "GET", endpoint: "/pets"})`,
-  `export const addPet = client.createRequest<AddPetResponseType, AddPetRequestBody, AddPetErrorType, undefined>()({method: "POST", endpoint: "/pet"})`,
-  `export const deletePet = client.createRequest<DeletePetResponseType, undefined, DeletePetErrorType, undefined>()({method: "DELETE", endpoint: "/pet/:petId"})`,
-  `export const updatePet = client.createRequest<UpdatePetResponseType, UpdatePetRequestBody, UpdatePetErrorType, undefined>()({method: "PUT", endpoint: "/pet"})`,
+  `export const findPets = client.createRequest<{response:FindPetsResponseType,queryParams?:FindPetsQueryParams}>()({method: "GET", endpoint: "/pets"})`,
+  `export const addPet = client.createRequest<{response:AddPetResponseType,payload:AddPetRequestBody,error:AddPetErrorType}>()({method: "POST", endpoint: "/pet"})`,
+  `export const deletePet = client.createRequest<{response:DeletePetResponseType,error:DeletePetErrorType}>()({method: "DELETE", endpoint: "/pet/:petId"})`,
+  `export const updatePet = client.createRequest<{response:UpdatePetResponseType,payload:UpdatePetRequestBody,error:UpdatePetErrorType}>()({method: "PUT", endpoint: "/pet"})`,
 ];
 
 describe("Generator", () => {
@@ -92,11 +92,11 @@ describe("Generator", () => {
       const operationTypes = OpenapiRequestGenerator.generateTypes(meta);
       const generatedRequest = OpenapiRequestGenerator.generateHyperFetchRequest(meta, operationTypes);
 
-      if (expectedMetadata[meta.id]) {
-        expect(meta).toMatchObject(expectedMetadata[meta.id]);
+      if (expectedMetadata[meta.id as keyof typeof expectedMetadata]) {
+        expect(meta).toMatchObject(expectedMetadata[meta.id as keyof typeof expectedMetadata]);
 
         Object.entries(operationTypes).forEach(([name, value]) => {
-          expect(value).toStrictEqual(expectedOperationTypes[name]);
+          expect(value).toStrictEqual(expectedOperationTypes[name as keyof typeof expectedOperationTypes]);
         });
         expect(expectedRequests).toContain(generatedRequest);
       }

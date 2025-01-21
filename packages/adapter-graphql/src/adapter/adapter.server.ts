@@ -1,4 +1,4 @@
-import { getAdapterBindings, getErrorMessage, parseResponse } from "@hyper-fetch/core";
+import { getAdapterBindings, getErrorMessage, HttpMethods, parseResponse } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
@@ -29,13 +29,16 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
   const { fullUrl, payload } = getRequestValues(request);
 
+  const { method = HttpMethods.GET } = request;
   const httpClient = request.client.url.includes("https://") ? https : http;
+  const requestUrl = !fullUrl.startsWith("http") ? `http://${fullUrl}` : fullUrl;
+
   const options = {
-    path: fullUrl,
-    method: request.method,
+    method,
     headers: headers as OutgoingHttpHeaders,
     timeout: defaultTimeout,
-  };
+    signal: undefined as AbortSignal | undefined,
+  } satisfies https.RequestOptions;
 
   if (config) {
     Object.entries(config).forEach(([name, value]) => {
@@ -53,9 +56,17 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
   }
 
   return makeRequest((resolve) => {
-    const httpRequest = httpClient.request(options, (response) => {
+    unmountListener = createAbortListener(
+      0,
+      gqlExtra,
+      ({ signal }) => {
+        options.signal = signal;
+      },
+      resolve,
+    );
+
+    const httpRequest = httpClient.request(requestUrl, options, (response) => {
       response.setEncoding("utf8");
-      unmountListener = createAbortListener(0, gqlExtra, response.destroy, resolve);
 
       let chunks = "";
       const totalDownloadBytes = Number(response.headers["content-length"]);

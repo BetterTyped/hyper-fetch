@@ -29,7 +29,7 @@ describe("useEmitter [ Base ]", () => {
       const view = renderUseEmitter(emitter);
 
       act(() => {
-        view.result.current.emit({ data: message, params: { testId: "1" } });
+        view.result.current.emit({ payload: message, params: { testId: "1" } });
       });
 
       await expectEmitterEvent(emitter.setParams({ testId: "1" }), message);

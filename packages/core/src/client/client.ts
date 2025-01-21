@@ -144,7 +144,7 @@ export class Client<
     this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
 
     // IMPORTANT: Do not change initialization order as it's crucial for dependencies injection
-    this.appManager.initialize(this);
+    this.appManager.initialize();
     this.cache.initialize(this);
     this.fetchDispatcher.initialize(this);
     this.submitDispatcher.initialize(this);
@@ -544,7 +544,7 @@ export class Client<
     this.submitDispatcher = submitDispatcher?.() || new Dispatcher();
 
     // DO NOT CHANGE INITIALIZATION ORDER
-    this.appManager.initialize(this);
+    this.appManager.initialize();
     this.cache.initialize(this);
     this.fetchDispatcher.initialize(this);
     this.submitDispatcher.initialize(this);

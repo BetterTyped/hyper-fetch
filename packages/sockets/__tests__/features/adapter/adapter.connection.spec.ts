@@ -34,7 +34,7 @@ describe("Socket Adapter [ Connection ]", () => {
 
   it("should prevent initial connection", async () => {
     const spy = jest.fn();
-    const newSocket = new Socket({ url, adapterOptions: { autoConnect: false } });
+    const newSocket = new Socket({ url, autoConnect: false });
     newSocket.events.onConnected(spy);
     await sleep(20);
     expect(spy).toHaveBeenCalledTimes(0);

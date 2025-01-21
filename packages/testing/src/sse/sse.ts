@@ -10,8 +10,8 @@ import type { ExtractRouteParams, NegativeTypes } from "@hyper-fetch/core/src";
 
 const constructEventData = <T extends Record<string, any>>({ topic }: { topic: string }, data: T) => {
   return {
-    data,
     topic,
+    data,
   };
 };
 

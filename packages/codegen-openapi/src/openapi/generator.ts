@@ -23,11 +23,11 @@ export class OpenapiRequestGenerator {
     const baseUrl = url || getBaseUrl(this.openapiDocument);
     const { schemaTypes, generatedTypes, generatedRequests } = await this.generateRequestsFromSchema();
     const contents = [
-      `import { Client } from "@hyper-fetch/core";`,
+      `import { createClient } from "@hyper-fetch/core";`,
       "\n\n",
       schemaTypes,
       "\n\n",
-      `export const client = new Client({url: "${baseUrl}"})`,
+      `export const client = createClient({url: "${baseUrl}"})`,
       "\n\n",
       generatedTypes.join("\n\n"),
       "\n\n",
@@ -81,17 +81,42 @@ export class OpenapiRequestGenerator {
     const Response = types[`${createTypeBaseName(id)}ResponseType`]
       ? `${createTypeBaseName(id)}ResponseType`
       : "unknown";
-    const Payload = types[`${createTypeBaseName(id)}RequestBody`]
-      ? `${createTypeBaseName(id)}RequestBody`
-      : "undefined";
-    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : "undefined";
+    const Payload = types[`${createTypeBaseName(id)}RequestBody`] ? `${createTypeBaseName(id)}RequestBody` : undefined;
+    const LocalError = types[`${createTypeBaseName(id)}ErrorType`] ? `${createTypeBaseName(id)}ErrorType` : undefined;
     const QueryParams = types[`${createTypeBaseName(id)}QueryParams`]
       ? `${createTypeBaseName(id)}QueryParams`
-      : "undefined";
+      : undefined;
     const getVariableName = (str: string) => str.charAt(0).toLowerCase() + str.slice(1);
+
+    let genericType = "";
+
+    const addToGenericType = (key: string, value: string) => {
+      if (genericType) {
+        genericType += ",";
+      }
+      genericType += `${key}:${value}`;
+    };
+
+    if (Response) {
+      addToGenericType("response", Response);
+    }
+    if (Payload) {
+      addToGenericType("payload", Payload);
+    }
+    if (LocalError) {
+      addToGenericType("error", LocalError);
+    }
+    if (QueryParams) {
+      addToGenericType("query", QueryParams);
+    }
+
+    if (genericType) {
+      genericType = `<{${genericType}}>`;
+    }
+
     return `export const ${getVariableName(
       createTypeBaseName(id),
-    )} = client.createRequest<${Response}, ${Payload}, ${LocalError}, ${QueryParams}>()({method: "${method}", endpoint: "${path}"})`;
+    )} = client.createRequest${genericType}()({method: "${method}", endpoint: "${path}"})`;
   }
 
   static generateTypes({

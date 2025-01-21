@@ -4,7 +4,7 @@ import { Time } from "@hyper-fetch/core";
 import { EmitterInstance } from "emitter";
 import { ListenerCallbackType, ListenerInstance } from "listener";
 import {
-  WebsocketEvent,
+  SocketEvent,
   getSocketAdapterBindings,
   getWebsocketAdapter,
   WebsocketAdapterType,
@@ -75,17 +75,15 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     };
 
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
-      const { event, response } = parseMessageEvent(newEvent);
+      const { topic, data, event } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(
-        response.topic,
-      );
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(topic);
 
       eventListeners?.forEach((_, action) => {
-        action({ data: response.data, extra: event });
+        action({ data, extra: event });
       });
 
-      onEvent(response.topic, response.data, event);
+      onEvent(topic, data, event);
       onHeartbeat();
     };
   };
@@ -105,8 +103,8 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     clearTimeout(pongTimer);
   };
 
-  const sendEventMessage = (payload: WebsocketEvent) => {
-    adapter?.send(JSON.stringify({ topic: payload.topic, data: payload.data }));
+  const sendEventMessage = (payload: SocketEvent) => {
+    adapter?.send(JSON.stringify(payload));
   };
 
   const onHeartbeat = () => {
@@ -120,7 +118,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     if (state.connecting || !heartbeat) return;
     clearTimers();
     pingTimer = setTimeout(() => {
-      sendEventMessage({ data: heartbeatMessage, topic: "heartbeat" });
+      sendEventMessage({ topic: "heartbeat", data: heartbeatMessage });
       pongTimer = setTimeout(() => {
         adapter?.close();
       }, pongTimeout);
@@ -136,7 +134,7 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
 
     if (!instance) return;
 
-    sendEventMessage({ data, topic: instance.topic });
+    sendEventMessage({ topic: instance.topic, data });
   };
 
   // Initialize

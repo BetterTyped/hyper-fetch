@@ -64,17 +64,15 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
     };
 
     adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
-      const { response, event } = parseMessageEvent(newEvent);
+      const { topic, data, event } = parseMessageEvent(newEvent);
 
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(
-        response.topic,
-      );
+      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(topic);
 
       eventListeners?.forEach((_, action) => {
-        action({ data: response.data, extra: event });
+        action({ data, extra: event });
       });
 
-      onEvent(response.topic, response, event);
+      onEvent(topic, data, event);
     };
   };
 

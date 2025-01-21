@@ -17,7 +17,7 @@ describe("Socket [ Base ]", () => {
     expect(socket).toBeDefined();
   });
   it("should initialize with autoConnect", async () => {
-    const socket = new Socket({ url, adapterOptions: { autoConnect: true } });
-    expect(socket.options.adapterOptions.autoConnect).toBeTrue();
+    const socket = new Socket({ url, autoConnect: true });
+    expect(socket.options.autoConnect).toBeTrue();
   });
 });

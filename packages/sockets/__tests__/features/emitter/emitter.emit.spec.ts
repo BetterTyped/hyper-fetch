@@ -24,7 +24,7 @@ describe("Emitter [ Emit ]", () => {
   });
 
   it("should emit event message", async () => {
-    emitter.emit({ data: message });
+    emitter.emit({ payload: message });
 
     await expect(getServer()).toReceiveMessage(
       JSON.stringify({
@@ -36,7 +36,7 @@ describe("Emitter [ Emit ]", () => {
 
   it("should allow to set params", async () => {
     const emitterWithParams = socket.createEmitter<DataType>()({ topic: "test/:testId" });
-    emitterWithParams.emit({ data: message, params: { testId: 1 } });
+    emitterWithParams.emit({ payload: message, params: { testId: 1 } });
 
     await expectEmitterEvent(emitterWithParams.setParams({ testId: 1 }), message);
   });

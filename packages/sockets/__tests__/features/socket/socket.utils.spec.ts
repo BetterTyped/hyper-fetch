@@ -24,7 +24,7 @@ describe("Socket [ Utils ]", () => {
   it("should throw on invalid listener interceptor", async () => {
     const socket = new Socket({ url });
 
-    socket.onSend(() => null);
+    socket.onSend(() => null as any);
     expect(() => interceptEmitter(socket.__onSendCallbacks, {} as EmitterInstance)).toThrow();
   });
 });

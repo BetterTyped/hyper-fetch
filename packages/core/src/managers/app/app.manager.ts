@@ -1,6 +1,5 @@
 import { EventEmitter } from "utils";
 import { appManagerInitialOptions, AppManagerOptionsType, getAppManagerEvents, hasDocument } from "managers";
-import { ClientInstance } from "client";
 
 /**
  * App manager handles main application states - focus and online. Those two values can answer questions:
@@ -14,8 +13,6 @@ import { ClientInstance } from "client";
 export class AppManager {
   emitter = new EventEmitter();
   events = getAppManagerEvents(this.emitter);
-
-  private client: ClientInstance;
 
   isBrowser: boolean;
   isOnline: boolean;
@@ -34,8 +31,7 @@ export class AppManager {
     this.isBrowser = hasDocument();
   }
 
-  initialize = (client: ClientInstance) => {
-    this.client = client;
+  initialize = () => {
     const { focusEvent = appManagerInitialOptions.focusEvent, onlineEvent = appManagerInitialOptions.onlineEvent } =
       this.options || appManagerInitialOptions;
 
@@ -64,8 +60,6 @@ export class AppManager {
   setFocused = (isFocused: boolean) => {
     this.isFocused = isFocused;
 
-    this.client.triggerPlugins("onAppFocusChange", { client: this.client, isFocused });
-
     if (isFocused) {
       this.events.emitFocus();
     } else {
@@ -75,8 +69,6 @@ export class AppManager {
 
   setOnline = (isOnline: boolean) => {
     this.isOnline = isOnline;
-
-    this.client.triggerPlugins("onAppOnlineChange", { client: this.client, isOnline });
 
     if (isOnline) {
       this.events.emitOnline();

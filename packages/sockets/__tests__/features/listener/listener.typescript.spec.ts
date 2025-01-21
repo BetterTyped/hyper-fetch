@@ -1,9 +1,9 @@
-import { expectType } from "tsd";
+import { expectType } from "@hyper-fetch/testing";
 
 import { Socket } from "socket";
 
 const client = new Socket({
-  url: "http://localhost:3000",
+  url: "ws://localhost:3000",
 });
 
 const listenForUsers = client.createListener<{ response: { data: string }[] }>()({

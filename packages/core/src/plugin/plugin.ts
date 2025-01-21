@@ -147,18 +147,4 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     this.pluginMethods.onCacheItemDelete = callback;
     return this;
   };
-
-  /* -------------------------------------------------------------------------------------------------
-   * App lifecycle
-   * -----------------------------------------------------------------------------------------------*/
-
-  onAppFocusChange = (callback: PluginMethods<Client>["onAppFocusChange"]) => {
-    this.pluginMethods.onAppFocusChange = callback;
-    return this;
-  };
-
-  onAppOnlineChange = (callback: PluginMethods<Client>["onAppOnlineChange"]) => {
-    this.pluginMethods.onAppOnlineChange = callback;
-    return this;
-  };
 }

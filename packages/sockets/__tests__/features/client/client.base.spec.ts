@@ -25,7 +25,7 @@ describe("Socket Client [ Base ]", () => {
   it("should emit message", async () => {
     const message: DataType = { test: "Maciej" };
 
-    const emitterInstance = emitter.setData(message);
+    const emitterInstance = emitter.setPayload(message);
     emitEvent(emitterInstance);
 
     expect(server).toReceiveMessage(
@@ -39,7 +39,7 @@ describe("Socket Client [ Base ]", () => {
     const spy = jest.fn().mockImplementation((res) => res);
     socket.onMessage(spy);
     socket.adapter.listeners.get = jest.fn();
-    server.send(undefined);
+    server.send(undefined as any);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(socket.adapter.listeners.get).toHaveBeenCalledWith(undefined);
   });

@@ -6,7 +6,7 @@ const { startServer, stopServer, resetMocks, mockRequest } = createHttpMockingSe
 
 describe("Http Mocking [ Base ]", () => {
   let client = new Client({ url: "shared-base-url" });
-  let request = client.createRequest()({ endpoint: "/shared-endpoint" });
+  let request = client.createRequest<{ response: any; payload: any }>()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
     startServer();
@@ -14,7 +14,7 @@ describe("Http Mocking [ Base ]", () => {
 
   beforeEach(async () => {
     client = new Client({ url: "shared-base-url" });
-    request = client.createRequest()({ endpoint: "/shared-endpoint" });
+    request = client.createRequest<{ response: any; payload: any }>()({ endpoint: "/shared-endpoint" });
 
     resetMocks();
     jest.resetAllMocks();
@@ -31,7 +31,7 @@ describe("Http Mocking [ Base ]", () => {
     expect(data).toStrictEqual(expected);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra.headers).toStrictEqual({ "content-length": "7", "content-type": "application/json" });
+    expect(extra?.headers).toStrictEqual({ "content-length": "7", "content-type": "application/json" });
   });
 
   it("should mock the error ", async () => {
@@ -41,7 +41,7 @@ describe("Http Mocking [ Base ]", () => {
     expect(data).toBe(null);
     expect(status).toBe(400);
     expect(error).toStrictEqual(expected);
-    expect(extra.headers).toStrictEqual({ "content-length": "24", "content-type": "application/json" });
+    expect(extra?.headers).toStrictEqual({ "content-length": "24", "content-type": "application/json" });
   });
 
   it("should mock the timeout of request", async () => {
@@ -50,8 +50,8 @@ describe("Http Mocking [ Base ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(500);
-    expect(error.message).toBe(getErrorMessage("timeout").message);
-    expect(extra.headers).toStrictEqual({
+    expect(error?.message).toBe(getErrorMessage("timeout").message);
+    expect(extra?.headers).toStrictEqual({
       "content-length": "29",
       "content-type": "application/json",
     });
@@ -67,7 +67,7 @@ describe("Http Mocking [ Base ]", () => {
 
     expect(data).toBeNull();
     expect(status).toBe(0);
-    expect(error.message).toBe(getErrorMessage("abort").message);
-    expect(extra.headers).toStrictEqual({});
+    expect(error?.message).toBe(getErrorMessage("abort").message);
+    expect(extra?.headers).toStrictEqual({});
   });
 });

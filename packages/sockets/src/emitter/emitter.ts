@@ -15,9 +15,9 @@ export class Emitter<
   readonly topic: Endpoint;
   params?: ParamsType;
   timeout: number;
-  data: Payload | undefined;
+  payload: Payload | undefined;
   options: ExtractAdapterEmitterOptionsType<ExtractSocketAdapterType<Socket>> | undefined;
-  dataMapper?: PayloadMapperType<any>;
+  payloadMapper?: PayloadMapperType<any>;
 
   constructor(
     readonly socket: Socket<Adapter>,
@@ -27,7 +27,7 @@ export class Emitter<
     const { topic, timeout = Time.SEC * 2, options } = emitterOptions;
 
     this.topic = json?.topic ?? topic;
-    this.data = json?.data;
+    this.payload = json?.payload;
     this.timeout = json?.timeout ?? timeout;
     this.options = json?.options ?? options;
     this.params = json?.params;
@@ -41,16 +41,16 @@ export class Emitter<
     return this.clone({ timeout });
   }
 
-  setData = <D extends Payload>(data: D) => {
+  setPayload = <D extends Payload>(payload: D) => {
     return this.clone<D, D extends null ? false : true, HasParams>({
-      data,
+      payload,
     });
   };
 
-  setDataMapper = <DataMapper extends (data: Payload) => any | Promise<any>>(dataMapper: DataMapper) => {
+  setPayloadMapper = <DataMapper extends (payload: Payload) => any | Promise<any>>(payloadMapper: DataMapper) => {
     const cloned = this.clone<Payload, HasPayload, HasParams>(undefined);
 
-    cloned.dataMapper = dataMapper;
+    cloned.payloadMapper = payloadMapper;
 
     return cloned;
   };
@@ -77,13 +77,13 @@ export class Emitter<
   >(
     options?: Partial<EmitterOptionsType<Endpoint, Adapter>> & {
       params?: ParamsType;
-      data?: NewPayload;
+      payload?: NewPayload;
     },
   ): Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams> {
     const json: Partial<Emitter<NewPayload, Endpoint, Adapter, NewHasPayload, NewHasParams>> = {
       timeout: this.timeout,
       options: this.options,
-      data: this.data as NewPayload,
+      payload: this.payload as NewPayload,
       params: options?.params || this.params,
       ...options,
       topic: this.paramsMapper(options?.params || this.params),
@@ -95,7 +95,7 @@ export class Emitter<
       json,
     );
 
-    newInstance.dataMapper = this.dataMapper;
+    newInstance.payloadMapper = this.payloadMapper;
 
     return newInstance;
   }
@@ -104,6 +104,7 @@ export class Emitter<
     const typedOptions = options as EmitterEmitOptionsType<this>;
     // TODO: fix this type
     const instance = this.clone(typedOptions as any);
+
     emitEvent(instance);
   };
 }

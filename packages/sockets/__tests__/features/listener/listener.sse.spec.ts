@@ -27,7 +27,7 @@ describe("Listener [ SSE ]", () => {
   it("should listen to given event topic", async () => {
     const spy = jest.fn();
     const message = { topic: "Maciej", age: 99 };
-    let receivedExtra;
+    let receivedExtra: any;
 
     listener.listen((data) => {
       spy(data);
@@ -37,7 +37,8 @@ describe("Listener [ SSE ]", () => {
     emitListenerEvent(listener, message);
 
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledOnceWith({ data: message, extra: receivedExtra });
+      expect(spy).toHaveBeenCalledOnce();
+      expect(spy).toHaveBeenCalledWith({ data: message, extra: receivedExtra });
     });
 
     await sleep(10);

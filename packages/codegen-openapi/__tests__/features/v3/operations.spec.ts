@@ -34,7 +34,7 @@ describe("Operations", () => {
       },
     };
     getAvailableOperations(schema as unknown as Document).forEach((operation) => {
-      const requirements = operationIdMap[operation.operationId];
+      const requirements = operationIdMap[operation.operationId as keyof typeof operationIdMap];
       if (requirements) {
         expect(requirements.path).toEqual(operation.path);
         expect(requirements.method).toEqual(operation.method);

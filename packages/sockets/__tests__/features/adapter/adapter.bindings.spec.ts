@@ -2,10 +2,10 @@ import { createSocket } from "../../utils/socket.utils";
 import { getSocketAdapterBindings } from "adapter";
 
 describe("Socket Adapter [ Bindings ]", () => {
-  let socket = createSocket({ adapterOptions: { autoConnect: false } });
+  let socket = createSocket({ autoConnect: false });
 
   beforeEach(() => {
-    socket = createSocket({ adapterOptions: { autoConnect: false } });
+    socket = createSocket({ autoConnect: false });
     jest.resetAllMocks();
   });
 

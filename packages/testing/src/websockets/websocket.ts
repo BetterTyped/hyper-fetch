@@ -47,9 +47,14 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
       ? ExtractListenerResponseType<T>
       : Record<string, any>,
   ) => {
-    const data = constructEventData(listener, event);
+    const newEvent = constructEventData(listener, event);
 
-    getServer().send(JSON.stringify(data));
+    getServer().send(
+      JSON.stringify({
+        topic: newEvent.topic,
+        data: newEvent.data,
+      }),
+    );
   };
 
   const expectEmitterEvent = <T extends EmitterInstance, Data extends ExtractEmitterPayloadType<T> | void = void>(
@@ -62,12 +67,12 @@ export const createWebsocketMockingServer = (url = "ws://localhost:1234") => {
         hasData: Data extends void ? (ExtractEmitterHasPayloadType<T> extends false ? true : false) : false;
       }
     >,
-    data?: Data,
+    payload?: Data,
   ) => {
     return expect(getServer()).toReceiveMessage(
       JSON.stringify({
         topic: emitter.topic,
-        data: data ?? emitter.data,
+        data: payload ?? emitter.payload,
       }),
       { timeout: 5000 },
     );

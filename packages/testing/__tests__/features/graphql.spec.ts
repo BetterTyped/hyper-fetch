@@ -10,8 +10,8 @@ describe("Graphql Mocking [ Base ]", () => {
   let client = new Client({
     url: "https://shared-base-url/graphql",
   }).setAdapter(GraphqlAdapter);
-  let request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-  let mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+  let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+  let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
   });
 
@@ -23,8 +23,8 @@ describe("Graphql Mocking [ Base ]", () => {
     client = new Client({
       url: "https://shared-base-url/graphql",
     }).setAdapter(GraphqlAdapter);
-    request = client.createRequest<GetUserQueryResponse>()({ endpoint: getUserQuery });
-    mutation = client.createRequest<GetUserQueryResponse, LoginMutationVariables>()({
+    request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
+    mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,
     });
 
@@ -145,7 +145,7 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(data).toBeNull();
     expect(status).toBe(500);
     expect(error).toStrictEqual([{ message: getErrorMessage("timeout").message }]);
-    expect(extra.headers).toStrictEqual({
+    expect(extra?.headers).toStrictEqual({
       "content-length": "42",
       "content-type": "application/json",
     });
@@ -162,6 +162,6 @@ describe("Graphql Mocking [ Base ]", () => {
     expect(data).toBeNull();
     expect(status).toBe(0);
     expect(error).toStrictEqual([getErrorMessage("abort")]);
-    expect(extra.headers).toStrictEqual({});
+    expect(extra?.headers).toStrictEqual({});
   });
 });

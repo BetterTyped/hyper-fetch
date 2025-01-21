@@ -28,7 +28,8 @@ describe("Websocket Mocking [ Base ]", () => {
     });
 
     const unmount = listener.listen((response) => {
-      expect(response.extra.data).toBe(JSON.stringify({ data, topic: listener.topic }));
+      expect(response.data).toStrictEqual(data);
+      expect(response.extra.data).toStrictEqual(JSON.stringify({ topic: listener.topic, data }));
       spy(response.data);
     });
 

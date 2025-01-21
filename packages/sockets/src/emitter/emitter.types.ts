@@ -37,9 +37,9 @@ export type EmitterCallbackStartType<EmitterType extends EmitterInstance> = (emi
 
 export type EmitDataType<Payload, HasPayload extends boolean> = HasPayload extends false
   ? {
-      data: Payload;
+      payload: Payload;
     }
-  : { data?: never };
+  : { payload?: never };
 
 export type EmitParamsType<Params, HasPayload extends boolean> = HasPayload extends false
   ? Params extends NegativeTypes | never | void

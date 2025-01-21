@@ -57,7 +57,7 @@ describe("Socket Client  [ Callbacks ]", () => {
 
     await socket.waitForConnection();
 
-    emitter.setData({ test: "1" }).emit();
+    emitter.setPayload({ test: "1" }).emit();
 
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);

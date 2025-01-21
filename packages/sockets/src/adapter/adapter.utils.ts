@@ -1,7 +1,7 @@
 import { parseResponse } from "@hyper-fetch/core";
 
 import { SocketInstance } from "socket";
-import { WebsocketEvent } from "./adapter.types";
+import { ServerSentEvent, SocketEvent } from "./adapter.types";
 
 export const getSocketUrl = (socket: SocketInstance) => {
   const queryParams = socket.queryParamsStringify(socket.queryParams).substring(1);
@@ -20,6 +20,7 @@ export const getSSEAdapter = (socket: SocketInstance) => {
   return new EventSource(getSocketUrl(socket), socket.options.adapterOptions?.protocols);
 };
 
-export const parseMessageEvent = (event: MessageEvent<any>) => {
-  return { event, response: parseResponse(event.data) as WebsocketEvent };
+export const parseMessageEvent = <T extends SocketEvent | ServerSentEvent>(event: MessageEvent<any>) => {
+  const parsedEvent = parseResponse(event.data) as T;
+  return { ...parsedEvent, event };
 };
