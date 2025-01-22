@@ -3,7 +3,7 @@
 import { RequestInstance, getErrorMessage } from "@hyper-fetch/core";
 import { HttpResponse, delay, graphql, GraphQLResponseResolver } from "msw";
 
-import { getEndpointMockingRegex, getMockSetup } from "../http/http.mock";
+import { getMockSetup } from "../http/http.mock";
 import { MockRequestOptions } from "../http";
 
 const getName = (endpoint: string) => {
@@ -18,7 +18,7 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
   options: MockRequestOptions<Request, Status>,
 ) => {
   const { endpoint } = request;
-  const url = getEndpointMockingRegex(endpoint);
+
   const name = getName(endpoint);
 
   const { status, delayTime, data } = getMockSetup(options, { gql: true });
@@ -28,7 +28,7 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
       await delay(delayTime);
     }
 
-    const timeoutTime = request.options?.timeout ?? 5000;
+    const timeoutTime = (request.options as any)?.timeout ?? 5000;
     const shouldTimeout = timeoutTime < delayTime;
 
     if (shouldTimeout) {
@@ -39,10 +39,10 @@ export const createMock = <Request extends RequestInstance, Status extends numbe
     return HttpResponse.json(data, { status });
   };
 
-  graphql.link(url);
+  const link = graphql.link(request.client.url);
 
   if (endpoint.includes("mutation")) {
-    return graphql.mutation(name, requestResolver);
+    return link.mutation(name, requestResolver);
   }
-  return graphql.query(name, requestResolver);
+  return link.query(name, requestResolver);
 };

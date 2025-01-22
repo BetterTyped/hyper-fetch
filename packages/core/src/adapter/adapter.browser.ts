@@ -41,7 +41,7 @@ export const adapter: AdapterType = async (request, requestId) => {
     const xhr = new XMLHttpRequest();
     xhr.timeout = defaultTimeout;
 
-    const abort = () => xhr.abort();
+    const onAbort = () => xhr.abort();
 
     // Inject xhr options
     if (config) {
@@ -59,7 +59,7 @@ export const adapter: AdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(0, xhrExtra, abort, resolve);
+    const unmountListener = createAbortListener({ status: 0, extra: xhrExtra, onAbort, resolve });
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -77,7 +77,7 @@ export const adapter: AdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError(0, xhrExtra, resolve);
+    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: xhrExtra, resolve });
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -91,11 +91,11 @@ export const adapter: AdapterType = async (request, requestId) => {
 
         if (success) {
           const data = parseResponse(event.target.response);
-          onSuccess(data, status, { headers: responseHeaders }, resolve);
+          onSuccess({ data, status, extra: { headers: responseHeaders }, resolve });
         } else {
           // delay to finish after onabort/ontimeout
-          const data = parseErrorResponse(event.target.response);
-          onError(data, status, { headers: responseHeaders }, resolve);
+          const error = parseErrorResponse(event.target.response);
+          onError({ error, status, extra: { headers: responseHeaders }, resolve });
         }
       }
     };

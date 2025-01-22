@@ -101,12 +101,12 @@ export const getFirestoreBrowserMethods = <T extends FirebaseDBTypes>(
       const { result, status, extra } = await methods[methodName](data);
       events.onRequestEnd();
       events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
+      onSuccess({ data: result, status, extra, resolve });
       events.onResponseEnd();
-    } catch (e) {
+    } catch (error) {
       events.onRequestEnd();
       events.onResponseStart();
-      onError(e, "error", {}, resolve);
+      onError({ error, status: "error", extra: {}, resolve });
       events.onResponseEnd();
     }
   };

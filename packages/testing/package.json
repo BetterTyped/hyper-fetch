@@ -20,8 +20,7 @@
     "lint": "eslint . --ext .js,.jsx,.tsx,.ts --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "tests": "yarn lint-staged",
-    "release": "yarn semantic-release --extends ../../release.config.js  -t 'hyper-fetch-testing-v${version}'"
+    "tests": "yarn lint-staged"
   },
   "publishConfig": {
     "access": "public",
@@ -53,7 +52,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "msw": "2.6.5",
+    "msw": "2.7.0",
     "abortcontroller-polyfill": "^1.7.6",
     "eventsourcemock": "2.0.0",
     "jest-websocket-mock": "2.5.0"

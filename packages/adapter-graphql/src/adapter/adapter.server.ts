@@ -1,4 +1,4 @@
-import { getAdapterBindings, getErrorMessage, HttpMethods, parseResponse } from "@hyper-fetch/core";
+import { getAdapterBindings, parseErrorResponse, parseResponse } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
@@ -29,43 +29,37 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
   const { fullUrl, payload } = getRequestValues(request);
 
-  const { method = HttpMethods.GET } = request;
   const httpClient = request.client.url.includes("https://") ? https : http;
-  const requestUrl = !fullUrl.startsWith("http") ? `http://${fullUrl}` : fullUrl;
-
   const options = {
-    method,
+    method: request.method,
     headers: headers as OutgoingHttpHeaders,
     timeout: defaultTimeout,
     signal: undefined as AbortSignal | undefined,
   } satisfies https.RequestOptions;
 
-  if (config) {
-    Object.entries(config).forEach(([name, value]) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      options[name] = value;
-    });
-  }
+  Object.entries(config || {}).forEach(([name, value]) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    options[name] = value;
+  });
 
-  let unmountListener = () => {};
+  // if (request.payload) {
+  //   options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+  // }
+
   onBeforeRequest();
 
-  if (payload) {
-    options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
-  }
-
   return makeRequest((resolve) => {
-    unmountListener = createAbortListener(
-      0,
-      gqlExtra,
-      ({ signal }) => {
+    const unmountListener = createAbortListener({
+      status: 0,
+      extra: gqlExtra,
+      onAbort: ({ signal }) => {
         options.signal = signal;
       },
       resolve,
-    );
+    });
 
-    const httpRequest = httpClient.request(requestUrl, options, (response) => {
+    const httpRequest = httpClient.request(fullUrl, options, (response) => {
       response.setEncoding("utf8");
 
       let chunks = "";
@@ -86,17 +80,30 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
 
       response.on("end", () => {
         const { statusCode = 0 } = response;
-        const res = parseResponse(chunks);
-        const data = res?.data || null;
-        const extensions = res?.extensions || {};
-        const failure = res?.errors || statusCode > 399 || statusCode === 0;
+        const success = String(statusCode).startsWith("2") || String(statusCode).startsWith("3");
 
-        if (failure) {
-          // delay to finish after onabort/ontimeout
-          const error = res?.errors || [getErrorMessage()];
-          onError(error, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
+        if (success) {
+          const { data, errors, extensions } = parseResponse(chunks);
+          onSuccess({
+            data,
+            error: errors,
+            status: statusCode,
+            extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
+            resolve,
+          });
         } else {
-          onSuccess(data, statusCode, { headers: response.headers as Record<string, string>, extensions }, resolve);
+          // delay to finish after onabort/ontimeout
+          const result = parseErrorResponse(chunks);
+
+          const error = "errors" in result ? result.errors : result;
+          const extensions = "extensions" in result ? result.extensions : undefined;
+
+          onError({
+            error,
+            status: statusCode,
+            extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
+            resolve,
+          });
         }
 
         unmountListener();
@@ -104,8 +111,8 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       });
     });
 
-    httpRequest.on("timeout", () => onTimeoutError(0, gqlExtra, resolve));
-    httpRequest.on("error", (error) => onError(error, 0, gqlExtra, resolve));
+    httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: gqlExtra, resolve }));
+    httpRequest.on("error", (error) => onError({ error, status: 0, extra: gqlExtra, resolve }));
     if (payload) {
       httpRequest.write(payload);
     }

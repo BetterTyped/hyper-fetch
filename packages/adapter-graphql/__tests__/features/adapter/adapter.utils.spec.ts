@@ -30,7 +30,7 @@ describe("Graphql Adapter [ Utils ]", () => {
     jest.restoreAllMocks();
   });
 
-  describe("When using 'getRequestValues'", () => {
+  describe("When using getRequestValues", () => {
     it("should generate values", async () => {
       const { fullUrl, payload } = getRequestValues(request);
 
@@ -46,7 +46,7 @@ describe("Graphql Adapter [ Utils ]", () => {
         "https://shared-base-url/graphql?query=%0Aquery%20GetUser%20%7B%0A%20%20username%20%7B%0A%20%20%20%20username%0A%20%20%20%20firstName%0A%20%20%7D%0A%7D%0A",
       );
       expect(payload).toBeNull();
-      expect(request.method).toBe("GET");
+      expect(requestGet.method).toBe("GET");
       expect(requestGet.endpoint).toBeString();
     });
   });

@@ -32,7 +32,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     const xhr = new XMLHttpRequest();
     xhr.timeout = defaultTimeout;
 
-    const abort = () => xhr.abort();
+    const onAbort = () => xhr.abort();
 
     // Inject xhr options
     if (config) {
@@ -50,7 +50,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener(0, gqlExtra, abort, resolve);
+    const unmountListener = createAbortListener({ status: 0, extra: gqlExtra, onAbort, resolve });
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -68,7 +68,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError(0, gqlExtra, resolve);
+    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: gqlExtra, resolve });
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -84,11 +84,17 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
         const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
         if (failure) {
-          const error = response?.errors || [getErrorMessage()];
+          const error = ("errors" in response ? response.errors : response) || [getErrorMessage()];
           // delay to finish after onabort/ontimeout
-          onError(error, status, { headers: responseHeaders, extensions }, resolve);
+          onError({ error, status, extra: { headers: responseHeaders, extensions }, resolve });
         } else {
-          onSuccess(data, status, { headers: responseHeaders, extensions }, resolve);
+          onSuccess({
+            data: data.data,
+            error: data.errors,
+            status,
+            extra: { headers: responseHeaders, extensions },
+            resolve,
+          });
         }
       }
     };

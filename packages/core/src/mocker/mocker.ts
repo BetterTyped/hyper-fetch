@@ -57,9 +57,9 @@ export const mocker = async <T extends AdapterInstance = AdapterType>({
   const result = await request.mock.fn({ request });
 
   return new Promise<ResponseType<any, any, AdapterType>>((resolve) => {
-    const { data, status, success = true, extra = request.client.defaultExtra } = result;
+    const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
 
-    createAbortListener(systemErrorStatus, systemErrorExtra, () => {}, resolve);
+    createAbortListener({ status: systemErrorStatus, extra: systemErrorExtra, onAbort: () => {}, resolve });
 
     onBeforeRequest();
     onRequestStart();
@@ -94,16 +94,32 @@ export const mocker = async <T extends AdapterInstance = AdapterType>({
       onRequestEnd();
       onResponseStart();
       await progress(responseTime, totalDownloaded, onResponseProgress);
-      if (success) {
-        onSuccess(data, status as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve);
+      if (success || (error && data)) {
+        onSuccess({
+          data,
+          error,
+          status: status as ExtractAdapterStatusType<T>,
+          extra: extra as ExtractAdapterExtraType<T>,
+          resolve,
+        });
       } else {
-        onError(data, status as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve);
+        onError({
+          error,
+          status: status as ExtractAdapterStatusType<T>,
+          extra: extra as ExtractAdapterExtraType<T>,
+          resolve,
+        });
       }
     };
 
     if (timeout) {
       setTimeout(
-        () => onTimeoutError(0 as ExtractAdapterStatusType<T>, extra as ExtractAdapterExtraType<T>, resolve),
+        () =>
+          onTimeoutError({
+            status: 0 as ExtractAdapterStatusType<T>,
+            extra: extra as ExtractAdapterExtraType<T>,
+            resolve,
+          }),
         1,
       );
     } else {

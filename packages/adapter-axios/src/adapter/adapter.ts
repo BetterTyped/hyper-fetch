@@ -34,7 +34,8 @@ export const AxiosAdapter = (): AxiosAdapterType => async (request, requestId) =
 
   return makeRequest((resolve) => {
     const controller = getAbortController();
-    const unmountListener = () => createAbortListener(0, { headers: {} }, () => {}, resolve);
+    const unmountListener = () =>
+      createAbortListener({ status: 0, extra: { headers: {} }, onAbort: () => {}, resolve });
 
     onRequestStart();
     axios({
@@ -54,11 +55,11 @@ export const AxiosAdapter = (): AxiosAdapterType => async (request, requestId) =
       },
     })
       .then((response) => {
-        onSuccess(response.data, response.status, { headers: response.headers }, resolve);
+        onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers }, resolve });
         onResponseEnd();
       })
       .catch((error) => {
-        onError(error, error.response?.status || 0, { headers: error.response?.headers }, resolve);
+        onError({ error, status: error.response?.status || 0, extra: { headers: error.response?.headers }, resolve });
       })
       .finally(() => {
         unmountListener();

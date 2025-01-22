@@ -83,12 +83,12 @@ export const getFirestoreAdminMethods = <T extends FirebaseAdminDBTypes>(
       const { result, status, extra } = await methods[methodName](data as any);
       events.onRequestEnd();
       events.onResponseStart();
-      onSuccess(result, status, extra, resolve);
+      onSuccess({ data: result, status, extra, resolve });
       events.onResponseEnd();
-    } catch (e) {
+    } catch (error) {
       events.onRequestEnd();
       events.onResponseStart();
-      onError(e, "error", {}, resolve);
+      onError({ error, status: "error", extra: {}, resolve });
       events.onResponseEnd();
     }
   };

@@ -143,7 +143,7 @@ describe("Adapter [ Bindings ]", () => {
         const resolveSpy = jest.fn();
         request.client.requestManager.addAbortController(request.abortKey, requestId);
         const controller = getAbortController();
-        const unmount = createAbortListener(0, xhrExtra, spy, resolveSpy);
+        const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy, resolve: resolveSpy });
         expect(spy).toHaveBeenCalledTimes(0);
         expect(resolveSpy).toHaveBeenCalledTimes(0);
         controller?.abort();
@@ -166,7 +166,7 @@ describe("Adapter [ Bindings ]", () => {
         const spy = jest.fn();
         const resolveSpy = jest.fn();
         const controller = getAbortController();
-        const unmount = createAbortListener(0, xhrExtra, spy, resolveSpy);
+        const unmount = createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy, resolve: resolveSpy });
         expect(spy).toHaveBeenCalledTimes(0);
         expect(resolveSpy).toHaveBeenCalledTimes(0);
         unmount();
@@ -184,12 +184,7 @@ describe("Adapter [ Bindings ]", () => {
         });
         client.requestManager.abortControllers.clear();
         expect(() =>
-          createAbortListener(
-            0,
-            xhrExtra,
-            () => null,
-            () => null,
-          ),
+          createAbortListener({ status: 0, extra: xhrExtra, onAbort: () => null, resolve: () => null }),
         ).toThrow();
       });
     });
@@ -596,7 +591,12 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const { responseTimestamp, requestTimestamp, ...response } = await onSuccess(data, 200, xhrExtra, () => null);
+        const { responseTimestamp, requestTimestamp, ...response } = await onSuccess({
+          data,
+          status: 200,
+          extra: xhrExtra,
+          resolve: () => null,
+        });
         expect(response).toEqual(expect.objectContaining(successResponse));
         expect(requestTimestamp).toBeNumber();
         expect(responseTimestamp).toBeGreaterThanOrEqual(requestTimestamp);
@@ -608,7 +608,7 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        await onSuccess(data, 200, xhrExtra, () => null);
+        await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
         expect(onSuccessSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
         expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(successResponse), request });
@@ -626,7 +626,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        const response = await onSuccess(data, 200, xhrExtra, () => null);
+        const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
         client.__onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
@@ -642,7 +642,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        const response = await onSuccess(data, 200, xhrExtra, () => null);
+        const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
@@ -668,7 +668,7 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
         }));
         client.__onSuccessCallbacks.push(() => newData);
-        const response = await onSuccess(data, 200, xhrExtra, () => null);
+        const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
         client.__onResponseCallbacks = [];
         client.__onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(newData));
@@ -684,7 +684,12 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const { requestTimestamp, responseTimestamp, ...response } = await onError(data, 400, xhrExtra, () => null);
+        const { requestTimestamp, responseTimestamp, ...response } = await onError({
+          error: data,
+          status: 400,
+          extra: xhrExtra,
+          resolve: () => null,
+        });
         expect(response).toEqual(errorResponse);
         expect(requestTimestamp).toBeNumber();
         expect(responseTimestamp).toBeGreaterThanOrEqual(requestTimestamp);
@@ -696,7 +701,7 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        await onError(data, 400, xhrExtra, () => null);
+        await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
         expect(onErrorSpy).toHaveBeenCalledTimes(1);
         expect(onFinishedSpy).toHaveBeenCalledTimes(1);
         expect(onErrorSpy).toHaveBeenCalledWith({ response: expect.objectContaining(errorResponse), request });
@@ -714,7 +719,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        const response = await onError(data, 400, xhrExtra, () => null);
+        const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
         client.__onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
@@ -730,7 +735,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        const response = await onError(data, 400, xhrExtra, () => null);
+        const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
         client.__onErrorCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
@@ -756,7 +761,7 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
         }));
         client.__onErrorCallbacks.push(() => newData);
-        const response = await onError(data, 400, xhrExtra, () => null);
+        const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
         client.__onErrorCallbacks = [];
         client.__onResponseCallbacks = [];
         expect(response).toEqual(newData);
@@ -772,7 +777,7 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const response = await onAbortError(0, xhrExtra, () => null);
+        const response = await onAbortError({ status: 0, extra: xhrExtra, resolve: () => null });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage("abort"),
@@ -790,7 +795,7 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const response = await onTimeoutError(0, xhrExtra, () => null);
+        const response = await onTimeoutError({ status: 0, extra: xhrExtra, resolve: () => null });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage("timeout"),
@@ -808,7 +813,7 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        const response = await onUnexpectedError(0, xhrExtra, () => null);
+        const response = await onUnexpectedError({ status: 0, extra: xhrExtra, resolve: () => null });
         expect(response).toEqual({
           data: null,
           error: getErrorMessage(),
