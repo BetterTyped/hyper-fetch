@@ -15,7 +15,7 @@ describe("Http Adapter [ Server ]", () => {
   const abortKey = "abort-key";
   const requestCopy = http.request;
 
-  let client = new Client({ url: "shared-base-url" });
+  let client = new Client({ url: "http://shared-base-url" });
   let clientHttps = new Client({ url: "https://shared-base-url" });
   let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint", abortKey });
   let requestHttps = clientHttps.createRequest()({ endpoint: "/shared-endpoint", abortKey });
@@ -25,7 +25,7 @@ describe("Http Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
+    client = new Client({ url: "http://shared-base-url" });
     clientHttps = new Client({ url: "https://shared-base-url" });
     client.appManager.isBrowser = false;
     clientHttps.appManager.isBrowser = false;

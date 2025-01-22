@@ -11,7 +11,7 @@ const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingSe
 describe("Http Adapter [ Browser ]", () => {
   const requestId = "test";
 
-  let client = new Client({ url: "shared-base-url" });
+  let client = new Client({ url: "https://shared-base-url" });
   let request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -19,7 +19,7 @@ describe("Http Adapter [ Browser ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" });
+    client = new Client({ url: "https://shared-base-url" });
     request = client.createRequest<{ response: any }>()({ endpoint: "/shared-endpoint" });
 
     request.client.requestManager.addAbortController(request.abortKey, requestId);
