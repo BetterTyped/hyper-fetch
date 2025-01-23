@@ -31,7 +31,7 @@ export class DevtoolsEventEmitter {
         // TODO - optimize with Dequeue to have O(1)
         // TODO - add timestamps for particular events.
         const nextEvent = this.eventQueue.shift();
-        this.socketEmitter.emit({ data: nextEvent });
+        this.socketEmitter.emit({ payload: nextEvent });
       }
     });
   }
@@ -39,7 +39,7 @@ export class DevtoolsEventEmitter {
   sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
     if (this.isConnected) {
       this.socketEmitter.emit({
-        data: {
+        payload: {
           messageType: "HF_EVENT",
           eventType,
           eventData: data,

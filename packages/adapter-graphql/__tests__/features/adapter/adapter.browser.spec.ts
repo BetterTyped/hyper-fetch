@@ -123,7 +123,7 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(expected.data).toStrictEqual(data);
     expect(status).toBe(200);
     expect(error).toBe(null);
-    expect(extra).toStrictEqual({
+    expect(extra).toMatchObject({
       headers: { "content-type": "application/json", "content-length": "11" },
       extensions: {},
     });

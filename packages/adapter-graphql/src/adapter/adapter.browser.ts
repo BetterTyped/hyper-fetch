@@ -79,18 +79,19 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
         const { status } = event.target;
         const response = parseResponse(event.target.response);
         const data = response?.data || null;
+        const errors = response?.errors || null;
         const extensions = response?.extensions || {};
         const failure = response?.errors || status > 399 || status === 0;
         const responseHeaders = getResponseHeaders(xhr.getAllResponseHeaders());
 
         if (failure) {
-          const error = ("errors" in response ? response.errors : response) || [getErrorMessage()];
+          const error = errors || [getErrorMessage()];
           // delay to finish after onabort/ontimeout
           onError({ error, status, extra: { headers: responseHeaders, extensions }, resolve });
         } else {
           onSuccess({
-            data: data.data,
-            error: data.errors,
+            data,
+            error: errors,
             status,
             extra: { headers: responseHeaders, extensions },
             resolve,
