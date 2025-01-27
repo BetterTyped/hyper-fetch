@@ -40,5 +40,8 @@
     {
       "path": "./packages/testing"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
 }

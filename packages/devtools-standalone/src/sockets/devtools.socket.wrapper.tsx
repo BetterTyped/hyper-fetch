@@ -74,7 +74,7 @@ export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string
     handleEvent(client, eventData, logger, setRequestList, workspace);
   });
   useEffect(() => {
-    sendMessage.emit({ data: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: workspace } });
+    sendMessage.emit({ payload: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: workspace } });
   }, []);
 
   return <Devtools workspace={workspace} client={client} initiallyOpen={true} />;
