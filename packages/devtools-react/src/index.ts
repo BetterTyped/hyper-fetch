@@ -1,2 +1,2 @@
-export * from "./devtools";
-export * from "./devtools.context";
+export * from "./frontend/devtools";
+export * from "./frontend/devtools.context";

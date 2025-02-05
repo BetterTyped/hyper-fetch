@@ -4,7 +4,7 @@ import { Meta, StoryObj } from "@storybook/react";
 import { randEmail, randFullName, randNumber, randUuid } from "@ngneat/falso";
 import { userEvent, within } from "@storybook/test";
 
-import { Devtools } from "devtools";
+import { Devtools } from "frontend/devtools";
 import { StoryWrapper } from "./utils/story-wrapper";
 
 const client = createClient({ url: "http://localhost:5000" });
