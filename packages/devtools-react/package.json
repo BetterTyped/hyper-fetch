@@ -2,7 +2,7 @@
   "name": "@hyper-fetch/devtools-react",
   "version": "0.0.0",
   "private": false,
-  "description": "React devtools for HyperFetch",
+  "description": "Devtools standalone for HyperFetch",
   "author": "Maciej Pyrc <m.pyrc@interia.pl>",
   "homepage": "https://hyperfetch.bettertyped.com/",
   "license": "Apache-2.0",
@@ -11,6 +11,7 @@
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
+    "dev": "vite",
     "clean": "npx rimraf dist",
     "test": "jest --watchAll --maxWorkers=3 --forceExit",
     "test-pipeline": "jest --watchAll=false --maxWorkers=1 --no-cache --forceExit",
@@ -53,7 +54,9 @@
     "react-complex-tree": "^2.4.5",
     "react-json-tree": "0.19.0",
     "react-textarea-autosize": "^8.5.3",
-    "superjson": "2.2.1"
+    "superjson": "2.2.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.1"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

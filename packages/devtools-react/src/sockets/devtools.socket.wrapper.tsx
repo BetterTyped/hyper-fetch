@@ -1,16 +1,17 @@
 import { Devtools, useDevtoolsWorkspaces } from "@hyper-fetch/devtools-react";
-import { ClientInstance, LoggerType } from "@hyper-fetch/core";
+import { ClientInstance, LoggerMethods } from "@hyper-fetch/core";
 import { useListener } from "@hyper-fetch/react";
-import { clientSpecificReceiveMessage, clientSpecificSendMessage } from "./socket";
 import { useEffect } from "react";
-import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "../../types/messages.types";
+
+import { clientSpecificReceiveMessage, clientSpecificSendMessage } from "./socket";
+import { BaseMessage, EmitableCoreEvents, EmitableCustomEvents, MessageType } from "../types/messages.types";
 
 // TODO - standardize emitter events functions to always start with <emit>
 // TODO - think of better handling and not passing all arguments
 const handleEvent = (
   client: ClientInstance,
   event: BaseMessage,
-  logger: LoggerType,
+  logger: LoggerMethods,
   setRequestList: any,
   workspace: string,
 ) => {
@@ -76,14 +77,14 @@ export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string
   });
   useEffect(() => {
     clientSpecificSendMessage.emit({
-      data: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: workspace },
+      payload: { messageType: MessageType.DEVTOOLS_CLIENT_CONFIRM, connectionName: workspace },
     });
   }, []);
 
   client.cache.events.onData((data) => {
     console.log("EMITTING DATA, CACHE CHANGE");
     clientSpecificSendMessage.emit({
-      data: {
+      payload: {
         messageType: MessageType.HF_DEVTOOLS_EVENT,
         connectionName: workspace,
         eventData: data,
@@ -92,5 +93,5 @@ export const DevtoolsSocketWrapper = ({ workspace, client }: { workspace: string
     });
   });
 
-  return <Devtools workspace={workspace} client={client} initiallyOpen={true} />;
+  return <Devtools workspace={workspace} client={client} initiallyOpen />;
 };

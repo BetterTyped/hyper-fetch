@@ -11,7 +11,7 @@ const wss = new WebSocketServer({ server });
 
 // TODO - add heartbeat + cleanup of hangup connections.
 
-let FRONTEND_WS_CONNECTION: WebSocket | null = null;
+let DEVTOOLS_WS_CONNECTION: WebSocket | null = null;
 const connections: Record<string, { ws: WebSocket; handshake: "pending" | "sent" | "confirmed"; events: any[] }> = {};
 const addConnection = (connectionName: string, connection: WebSocket) => {
   if (!connections[connectionName]) {
@@ -19,7 +19,7 @@ const addConnection = (connectionName: string, connection: WebSocket) => {
   } else {
     connections[connectionName].ws = connection;
   }
-  if (FRONTEND_WS_CONNECTION) {
+  if (DEVTOOLS_WS_CONNECTION) {
     sendHandshake(connectionName);
     connections[connectionName].handshake = "sent";
   }
@@ -36,7 +36,7 @@ const sendPendingHandshakes = () => {
 };
 
 const sendHandshake = (connectionName: string) => {
-  FRONTEND_WS_CONNECTION!.send(
+  DEVTOOLS_WS_CONNECTION!.send(
     JSON.stringify({
       ...{
         topic: SocketTopics.DEVTOOLS_APP_MAIN_LISTENER,
@@ -53,7 +53,7 @@ wss.on("connection", function connection(conn, request) {
   // TODO HANDLE REFRESHING CONNECTION AND HANGUP
   if (connectionName && connectionName === ConnectionName.HF_DEVTOOLS_APP) {
     console.log("CONNECTED TO DEVTOOLS FRONTEND");
-    FRONTEND_WS_CONNECTION = conn;
+    DEVTOOLS_WS_CONNECTION = conn;
     sendPendingHandshakes();
   }
   if (connectionName && !Array.isArray(connectionName) && connectionName.startsWith("HF_DEVTOOLS_CLIENT")) {
@@ -65,12 +65,21 @@ wss.on("connection", function connection(conn, request) {
   conn.on("message", function message(msg: MessageTypes) {
     const message = JSON.parse(msg.toString()) as MessageTypes;
     console.log("RECEIVED MESSAGE", message);
-    if (!FRONTEND_WS_CONNECTION) {
+    if (!DEVTOOLS_WS_CONNECTION) {
       // TODO handle
       console.error("FRONTEND CONNECTION NOT YET ESTABLISHED");
     }
 
     switch (message.data.messageType) {
+      case MessageType.HF_DEVTOOLS_EVENT:
+        const connectionName = message.data.connectionName;
+        console.log("RECEIVED EVENT FROM DEVTOOLS", conn);
+        if (connections[connectionName]) {
+          connections[connectionName].ws.send(
+            JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }),
+          );
+        }
+        return;
       case MessageType.DEVTOOLS_CLIENT_CONFIRM:
         console.log("ESTABLISHED CONNECTION", message.data.connectionName);
         if (!connections[message.data.connectionName]) {
@@ -81,14 +90,15 @@ wss.on("connection", function connection(conn, request) {
 
         while (connectionEvents && connectionEvents.length > 0) {
           console.log("SENDING STORED EVENTS");
-          FRONTEND_WS_CONNECTION!.send(connectionEvents.shift());
+          DEVTOOLS_WS_CONNECTION!.send(connectionEvents.shift());
         }
         return;
-      case MessageType.HF_EVENT: {
+      case MessageType.HF_APP_EVENT: {
+        console.log("I AM IN HF APP EVENT");
         const conn = message.data.connectionName;
         if (connections[conn]?.handshake) {
           console.log("SENDING HF EVENT", message);
-          FRONTEND_WS_CONNECTION!.send(
+          DEVTOOLS_WS_CONNECTION!.send(
             JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_APP_CLIENT_LISTENER }),
           );
         } else {
