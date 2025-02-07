@@ -1,6 +1,6 @@
 import { Socket } from "@hyper-fetch/sockets";
 import { SocketTopics } from "./topics";
-import { BaseMessage } from "../../types/messages.types";
+import { BaseMessage } from "../types/messages.types";
 
 export const initSocket = new Socket({ url: "ws://localhost:1234", autoConnect: false }).setDebug(true);
 

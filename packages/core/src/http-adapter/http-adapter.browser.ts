@@ -1,4 +1,5 @@
-import { xhrExtra, getResponseHeaders, parseResponse, parseErrorResponse, stringifyQueryParams } from "http-adapter";
+import { getResponseHeaders, parseResponse, parseErrorResponse, stringifyQueryParams } from "./http-adapter.utils";
+import { xhrExtra } from "./http-adapter.constants";
 import { defaultTimeout } from "./http-adapter.constants";
 import { Adapter } from "../adapter/adapter";
 import { HttpMethods } from "constants/http.constants";

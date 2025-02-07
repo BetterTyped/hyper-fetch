@@ -10,10 +10,10 @@ import {
   QueryParamsType,
 } from "./adapter.types";
 import { RequestInstance, RequestOptionsType } from "request";
-import { Client, ClientInstance, getAdapterHeaders, getAdapterPayload } from "client";
+import { Client, ClientInstance } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
-
+import { getAdapterHeaders, getAdapterPayload } from "../client/client.utils";
 const defaultMapper = (value: any) => value;
 
 export class Adapter<

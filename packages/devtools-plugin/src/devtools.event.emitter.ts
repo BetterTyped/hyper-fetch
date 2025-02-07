@@ -24,7 +24,7 @@ export class DevtoolsEventEmitter {
     this.socket = new Socket({ url: `${socketAddress}:${socketPort}` }).setQuery({
       connectionName: this.connectionName,
     });
-    this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_CLIENT_EMITTER_TOPIC" });
+    this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER_TOPIC" });
     this.socket.onConnected(() => {
       this.isConnected = true;
       while (this.eventQueue.length > 0) {
@@ -37,10 +37,11 @@ export class DevtoolsEventEmitter {
   }
 
   sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
+    console.log("SENDING EVENT", eventType);
     if (this.isConnected) {
       this.socketEmitter.emit({
         payload: {
-          messageType: "HF_EVENT",
+          messageType: "HF_APP_EVENT",
           eventType,
           eventData: data,
           connectionName: this.connectionName,
@@ -48,7 +49,7 @@ export class DevtoolsEventEmitter {
       });
     } else {
       this.eventQueue.push({
-        messageType: "HF_EVENT",
+        messageType: "HF_APP_EVENT",
         eventType,
         eventData: data,
         connectionName: this.connectionName,

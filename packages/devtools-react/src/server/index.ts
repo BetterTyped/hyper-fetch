@@ -98,7 +98,7 @@ wss.on("connection", (wsConn, request) => {
         return;
       }
       case MessageType.HF_APP_EVENT: {
-        console.log("I AM IN HF APP EVENT");
+        console.log("HF APP EVENT RECEIVED");
         const conn = message.data.connectionName;
         if (connections[conn]?.handshake && DEVTOOLS_WS_CONNECTION) {
           console.log("SENDING HF EVENT", message);
@@ -112,7 +112,7 @@ wss.on("connection", (wsConn, request) => {
         return;
       }
       default:
-        console.log("UNHANDLED MESSSAGE TYPE");
+        console.log("UNHANDLED MESSSAGE TYPE", message);
     }
   });
 });
