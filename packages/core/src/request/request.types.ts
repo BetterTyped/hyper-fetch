@@ -1,6 +1,6 @@
 import {
   NullableKeys,
-  NegativeTypes,
+  EmptyTypes,
   ExtractParamsType,
   ExtractPayloadType,
   ExtractAdapterType,
@@ -12,9 +12,11 @@ import {
   ExtractResponseType,
   HttpMethodsType,
   ExtractQueryParamsType,
+  ExtractAdapterOptionsType,
+  ExtractAdapterMethodType,
 } from "types";
 import { Request } from "request";
-import { ResponseType, ExtractAdapterOptionsType, ExtractAdapterMethodType, RequestResponseType } from "adapter";
+import { ResponseType, RequestResponseType } from "adapter";
 import { RequestEventType, RequestProgressEventType, RequestResponseEventType } from "managers";
 import { ClientInstance } from "client";
 
@@ -50,8 +52,8 @@ export type RequestJSON<Request extends RequestInstance> = {
   disableRequestInterceptors: boolean | undefined;
   options?: ExtractAdapterOptionsType<ExtractAdapterType<Request>>;
   payload: PayloadType<ExtractPayloadType<Request>>;
-  params: ExtractParamsType<Request> | NegativeTypes;
-  queryParams: ExtractQueryParamsType<Request> | NegativeTypes;
+  params: ExtractParamsType<Request> | EmptyTypes;
+  queryParams: ExtractQueryParamsType<Request> | EmptyTypes;
   abortKey: string;
   cacheKey: string;
   queryKey: string;
@@ -154,7 +156,7 @@ export type RequestOptionsType<GenericEndpoint, AdapterOptions, RequestMethods =
 
 export type PayloadMapperType<Payload> = <NewDataType>(payload: Payload) => NewDataType;
 
-export type PayloadType<Payload> = Payload | NegativeTypes;
+export type PayloadType<Payload> = Payload | EmptyTypes;
 
 export type RequestConfigurationType<
   Payload,
@@ -165,8 +167,8 @@ export type RequestConfigurationType<
   MethodsType,
 > = {
   used?: boolean;
-  params?: Params | NegativeTypes;
-  queryParams?: QueryParams | NegativeTypes;
+  params?: Params | EmptyTypes;
+  queryParams?: QueryParams | EmptyTypes;
   payload?: PayloadType<Payload>;
   headers?: HeadersInit;
   updatedAbortKey?: boolean;
@@ -179,39 +181,39 @@ export type ParamType = string | number;
 export type ParamsType = Record<string, ParamType>;
 
 export type ExtractRouteParams<T extends string> = string extends T
-  ? NegativeTypes
+  ? EmptyTypes
   : T extends `${string}:${infer Param}/${infer Rest}`
     ? { [k in Param | keyof ExtractRouteParams<Rest>]: ParamType }
     : T extends `${string}:${infer Param}`
       ? { [k in Param]: ParamType }
-      : NegativeTypes;
+      : EmptyTypes;
 
 /**
  * If the request endpoint parameters are not filled it will throw an error
  */
-export type FetchParamsType<Params, HasParams extends true | false> = Params extends NegativeTypes
-  ? { params?: NegativeTypes }
+export type FetchParamsType<Params, HasParams extends true | false> = Params extends EmptyTypes
+  ? { params?: EmptyTypes }
   : HasParams extends true
-    ? { params?: NegativeTypes }
+    ? { params?: EmptyTypes }
     : { params: Params };
 
 /**
  * If the request data is not filled it will throw an error
  */
-export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends NegativeTypes
-  ? { payload?: NegativeTypes }
+export type FetchPayloadType<Payload, HasPayload extends true | false> = Payload extends EmptyTypes
+  ? { payload?: EmptyTypes }
   : HasPayload extends true
-    ? { payload?: NegativeTypes }
+    ? { payload?: EmptyTypes }
     : { payload: Payload };
 
 /**
  * It will check if the query params are already set
  */
 export type FetchQueryParamsType<QueryParams, HasQuery extends true | false = false> = HasQuery extends true
-  ? { queryParams?: NegativeTypes }
+  ? { queryParams?: EmptyTypes }
   : HasQuery extends true
-    ? { queryParams?: NegativeTypes }
-    : QueryParams extends NegativeTypes
+    ? { queryParams?: EmptyTypes }
+    : QueryParams extends EmptyTypes
       ? { queryParams?: QueryParams }
       : {
           queryParams: QueryParams;
@@ -246,13 +248,13 @@ export type RequestSendActionsType<Request extends RequestInstance> = {
   onRemove?: (details: RequestEventType<Request>) => void;
 };
 
-type IsNegativeType<T> = undefined extends T ? NegativeTypes : null extends T ? NegativeTypes : T;
+type IsNegativeType<T> = undefined extends T ? EmptyTypes : null extends T ? EmptyTypes : T;
 
 // If no data or params provided - options should be optional. If either data or params are provided - mandatory.
 export type RequestSendType<Request extends RequestInstance> =
-  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends NegativeTypes
-    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends NegativeTypes
-      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends NegativeTypes
+  IsNegativeType<RequestSendOptionsType<Request>["payload"]> extends EmptyTypes
+    ? IsNegativeType<RequestSendOptionsType<Request>["params"]> extends EmptyTypes
+      ? IsNegativeType<RequestSendOptionsType<Request>["queryParams"]> extends EmptyTypes
         ? (options?: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
         : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>
       : (options: RequestSendOptionsType<Request>) => Promise<RequestResponseType<Request>>

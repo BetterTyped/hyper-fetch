@@ -16,7 +16,7 @@ import {
 } from "request";
 import { ClientInstance, RequestGenericType } from "client";
 import { getUniqueRequestId } from "utils";
-import { ExtractAdapterMethodType, ExtractAdapterOptionsType, QueryParamsType, ResponseType } from "adapter";
+import { ResponseType } from "adapter";
 import {
   ExtractAdapterType,
   ExtractClientAdapterType,
@@ -25,8 +25,10 @@ import {
   ExtractParamsType,
   ExtractPayloadType,
   ExtractQueryParamsType,
-  NegativeTypes,
+  EmptyTypes,
   TypeWithDefaults,
+  ExtractAdapterMethodType,
+  ExtractAdapterOptionsType,
 } from "types";
 import { Time } from "constants/time.constants";
 import { MockerConfigType, MockResponseType } from "mocker";
@@ -64,9 +66,9 @@ export class Request<
   headers?: HeadersInit;
   auth: boolean;
   method: ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
-  params: ExtractRouteParams<Endpoint> | NegativeTypes;
+  params: ExtractRouteParams<Endpoint> | EmptyTypes;
   payload: PayloadType<Payload>;
-  queryParams: QueryParams | NegativeTypes;
+  queryParams: QueryParams | EmptyTypes;
   options?: ExtractAdapterOptionsType<ExtractClientAdapterType<Client>> | undefined;
   cancelable: boolean;
   retry: number;
@@ -90,12 +92,12 @@ export class Request<
     config: MockerConfigType;
   };
 
-  isMockEnabled = false;
+  isMockerEnabled = false;
 
   /** @internal */
-  __requestMapper?: RequestMapper<any, any>;
+  unsafe_requestMapper?: RequestMapper<any, any>;
   /** @internal */
-  __responseMapper?: ResponseMapper<this, any, any>;
+  unsafe_responseMapper?: ResponseMapper<this, any, any>;
 
   private updatedAbortKey: boolean;
   private updatedCacheKey: boolean;
@@ -124,7 +126,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     > = {
-      ...(this.client.requestDefaultOptions?.(requestOptions) as RequestOptionsType<
+      ...(this.client.adapter.requestDefaultOptions?.(requestOptions) as RequestOptionsType<
         Endpoint,
         ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
         ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
@@ -300,18 +302,18 @@ export class Request<
     config: MockerConfigType = {},
   ) => {
     this.mock = { fn, config } as typeof this.mock;
-    this.isMockEnabled = true;
+    this.isMockerEnabled = true;
     return this;
   };
 
   public clearMock = () => {
     this.mock = undefined;
-    this.isMockEnabled = false;
+    this.isMockerEnabled = false;
     return this;
   };
 
-  public setEnableMocking = (isMockEnabled: boolean) => {
-    this.isMockEnabled = isMockEnabled;
+  public setEnableMocking = (isMockerEnabled: boolean) => {
+    this.isMockerEnabled = isMockerEnabled;
     return this;
   };
 
@@ -342,7 +344,7 @@ export class Request<
   public setRequestMapper = <NewRequest extends RequestInstance>(requestMapper: RequestMapper<this, NewRequest>) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.__requestMapper = requestMapper;
+    cloned.unsafe_requestMapper = requestMapper;
 
     return cloned;
   };
@@ -361,7 +363,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>();
 
-    cloned.__responseMapper = responseMapper;
+    cloned.unsafe_responseMapper = responseMapper;
 
     return cloned as unknown as Request<
       TypeWithDefaults<Properties, "response", Response>,
@@ -376,10 +378,7 @@ export class Request<
     >;
   };
 
-  private paramsMapper = (
-    params: ParamsType | null | undefined,
-    queryParams: QueryParams | NegativeTypes,
-  ): Endpoint => {
+  private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
     let { endpoint } = this.requestOptions;
     if (typeof endpoint === "string") {
       let stringEndpoint = String(endpoint);
@@ -388,9 +387,7 @@ export class Request<
           stringEndpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
         });
       }
-      if (queryParams) {
-        stringEndpoint += this.client.stringifyQueryParams(queryParams as unknown as QueryParamsType);
-      }
+
       endpoint = stringEndpoint as typeof endpoint;
     }
     return endpoint;
@@ -462,11 +459,11 @@ export class Request<
       abortKey: this.updatedAbortKey ? configuration?.abortKey || this.abortKey : undefined,
       cacheKey: this.updatedCacheKey ? configuration?.cacheKey || this.cacheKey : undefined,
       queryKey: this.updatedQueueKey ? configuration?.queryKey || this.queryKey : undefined,
-      endpoint: this.paramsMapper(configuration?.params || this.params, configuration?.queryParams || this.queryParams),
+      endpoint: this.paramsMapper(configuration?.params || this.params),
       queryParams: configuration?.queryParams || this.queryParams,
       payload: configuration?.payload || this.payload,
       params: (configuration?.params || this.params) as
-        | NegativeTypes
+        | EmptyTypes
         | (Endpoint extends string ? ExtractRouteParams<Endpoint> : never),
     };
 
@@ -484,11 +481,11 @@ export class Request<
 
     // Inherit methods
     cloned.payloadMapper = this.payloadMapper;
-    cloned.__responseMapper = this.__responseMapper;
-    cloned.__requestMapper = this.__requestMapper;
+    cloned.unsafe_responseMapper = this.unsafe_responseMapper;
+    cloned.unsafe_requestMapper = this.unsafe_requestMapper;
 
     cloned.mock = this.mock;
-    cloned.isMockEnabled = this.isMockEnabled;
+    cloned.isMockerEnabled = this.isMockerEnabled;
 
     return cloned;
   }
@@ -552,8 +549,8 @@ export class Request<
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);
 
-    if (request.__responseMapper) {
-      return request.__responseMapper(response);
+    if (request.unsafe_responseMapper) {
+      return request.unsafe_responseMapper(response);
     }
 
     return response;

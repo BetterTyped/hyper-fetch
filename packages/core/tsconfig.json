@@ -3,8 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"],
+      // This build produce the isomorphic build
+      "@browser-adapter": ["./http-adapter/http-adapter.browser.ts"],
+      "@server-adapter": ["./http-adapter/http-adapter.server.ts"],
       "@hyper-fetch/core": ["../src"]
     }
   },

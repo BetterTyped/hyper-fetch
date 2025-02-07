@@ -44,8 +44,8 @@ export const getJestConfig = (): Config.InitialOptions => ({
     `${__dirname}/jest.polyfills.js`,
   ],
   moduleNameMapper: {
-    "@browser-adapter": ["<rootDir>/src/adapter/adapter.browser.ts"],
-    "@server-adapter": ["<rootDir>/src/adapter/adapter.server.ts"],
+    "@browser-adapter": ["<rootDir>/src/http-adapter/http-adapter.browser.ts"],
+    "@server-adapter": ["<rootDir>/src/http-adapter/http-adapter.server.ts"],
   },
   testEnvironmentOptions: {
     customExportConditions: [""],

@@ -140,7 +140,7 @@ export const NetworkDetails = () => {
             </Table.Body>
           </Table.Root>
           {!!item.details?.retries && <Chip>Retried Request ({item.details.retries})</Chip>}
-          {item.request.isMockEnabled && !!(item.request.mock || item.request.mockData) && (
+          {item.request.isMockerEnabled && !!(item.request.mock || item.request.mockData) && (
             <Chip color="orange">Mocked</Chip>
           )}
           <div className={css.buttons}>

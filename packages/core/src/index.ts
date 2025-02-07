@@ -4,6 +4,7 @@ export * from "./plugin";
 export * from "./client";
 export * from "./cache";
 export * from "./adapter";
+export * from "./http-adapter";
 export * from "./request";
 export * from "./constants/time.constants";
 export * from "./constants/http.constants";

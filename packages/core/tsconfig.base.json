@@ -4,8 +4,9 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.browser.ts"]
+      // We set double browser adapters because this file is used only for the browser build
+      "@browser-adapter": ["./http-adapter/http-adapter.browser.ts"],
+      "@server-adapter": ["./http-adapter/http-adapter.browser.ts"]
     }
   }
 }

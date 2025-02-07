@@ -1,14 +1,31 @@
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
-import { HttpMethods, parseResponse } from "@hyper-fetch/core";
 
-import { xhrExtra, defaultTimeout, AdapterType, getAdapterBindings, parseErrorResponse } from "adapter";
+import { Adapter } from "../adapter/adapter";
+import { HttpAdapterOptionsType, HttpAdapterExtraType, HttpAdapterType } from "./http-adapter.types";
+import { HttpMethods } from "constants/http.constants";
+import { HttpMethodsType, HttpStatusType } from "types";
+import { parseErrorResponse, parseResponse } from "./http-adapter.utils";
+import { QueryParamsType } from "adapter";
+import { defaultTimeout, xhrExtra } from "./http-adapter.constants";
 
-export const adapter: AdapterType = async (request, requestId) => {
-  const {
-    makeRequest,
-    fullUrl,
-    config,
+export const httpAdapter: HttpAdapterType = new Adapter<
+  HttpAdapterOptionsType,
+  HttpMethodsType,
+  HttpStatusType,
+  HttpAdapterExtraType,
+  QueryParamsType | string | null,
+  string
+>({
+  name: "server",
+  defaultMethod: HttpMethods.GET,
+  defaultExtra: xhrExtra,
+  systemErrorStatus: 0 as number,
+  systemErrorExtra: xhrExtra,
+}).setFetcher(
+  async ({
+    request,
+    adapterOptions,
     headers,
     payload,
     onError,
@@ -21,39 +38,39 @@ export const adapter: AdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>({ request, requestId, systemErrorStatus: 0, systemErrorExtra: xhrExtra });
+  }) => {
+    const { method = HttpMethods.GET, client, endpoint } = request;
+    const { url } = client;
+    const httpClient = client.url.includes("https://") ? https : http;
+    const options = {
+      method,
+      headers: headers as OutgoingHttpHeaders,
+      timeout: defaultTimeout,
+      signal: undefined as AbortSignal | undefined,
+    } satisfies https.RequestOptions;
 
-  const { method = HttpMethods.GET, client } = request;
-  const httpClient = client.url.includes("https://") ? https : http;
-  const options = {
-    method,
-    headers: headers as OutgoingHttpHeaders,
-    timeout: defaultTimeout,
-    signal: undefined as AbortSignal | undefined,
-  } satisfies https.RequestOptions;
+    if (adapterOptions) {
+      Object.entries(adapterOptions).forEach(([name, value]) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        options[name] = value;
+      });
+    }
 
-  if (config) {
-    Object.entries(config).forEach(([name, value]) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      options[name] = value;
-    });
-  }
+    onBeforeRequest();
 
-  onBeforeRequest();
+    if (payload) {
+      options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+    }
 
-  if (payload) {
-    options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
-  }
+    const fullUrl = `${url}${endpoint}`;
 
-  return makeRequest((resolve) => {
     const unmountListener = createAbortListener({
       status: 0,
       extra: xhrExtra,
       onAbort: ({ signal }) => {
         options.signal = signal;
       },
-      resolve,
     });
 
     const httpRequest = httpClient.request(fullUrl, options, (response) => {
@@ -96,7 +113,6 @@ export const adapter: AdapterType = async (request, requestId) => {
             data,
             status: statusCode,
             extra: { headers: response.headers as Record<string, string> },
-            resolve,
           });
           // TODO - try catch
           // const responseData = handleResponse(responseChunks, requestResponseType, "utf8");
@@ -109,7 +125,6 @@ export const adapter: AdapterType = async (request, requestId) => {
             error,
             status: statusCode,
             extra: { headers: response.headers as Record<string, string> },
-            resolve,
           });
         }
 
@@ -118,11 +133,11 @@ export const adapter: AdapterType = async (request, requestId) => {
       });
     });
 
-    httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: xhrExtra, resolve }));
-    httpRequest.on("error", (error) => onError({ error, status: 0, extra: xhrExtra, resolve }));
+    httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: xhrExtra }));
+    httpRequest.on("error", (error) => onError({ error, status: 0, extra: xhrExtra }));
     if (payload) {
       httpRequest.write(payload);
     }
     httpRequest.end();
-  });
-};
+  },
+);

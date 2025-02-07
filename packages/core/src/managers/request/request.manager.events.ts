@@ -77,7 +77,7 @@ export const getRequestManagerEvents = (emitter: EventEmitter) => ({
 
   // Response
   emitResponse: <Adapter extends AdapterInstance>(
-    data: RequestResponseEventType<ExtendRequest<RequestInstance, { client: Client<any, Adapter, any> }>>,
+    data: RequestResponseEventType<ExtendRequest<RequestInstance, { client: Client<any, Adapter> }>>,
   ): void => {
     emitter.emit(getResponseKey(), data);
     emitter.emit(getResponseByIdKey(data.requestId), data);

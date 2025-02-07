@@ -1,7 +1,3 @@
-import { RequestInstance } from "request";
-import { ExtractErrorType } from "types";
-import { HFBufferEncoding, HyperFetchRequest } from "./adapter.types";
-
 // Utils
 
 export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => {
@@ -12,50 +8,4 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted") => 
     return new Error("Request cancelled");
   }
   return new Error("Unexpected error");
-};
-
-export const getResponseHeaders = (headersString: string): Record<string, string> => {
-  const arr = headersString.trim().split(/[\r\n]+/);
-
-  const headers: Record<string, string> = {};
-  arr.forEach((line) => {
-    const parts = line.split(": ");
-    const header = parts.shift();
-    const value = parts.join(": ");
-    if (header) {
-      headers[header] = value;
-    }
-  });
-
-  return headers;
-};
-
-// Responses
-
-export const parseResponse = (response: string | unknown) => {
-  try {
-    return JSON.parse(response as string);
-  } catch (err) {
-    return response;
-  }
-};
-
-export const handleResponse = (
-  responseChunks: any[],
-  responseType: HyperFetchRequest["responseType"],
-  responseEncoding: HFBufferEncoding,
-) => {
-  const bufferedResponse = Buffer.concat(responseChunks);
-  switch (responseType) {
-    case "arraybuffer":
-      return bufferedResponse;
-    case "json":
-      return parseResponse(bufferedResponse.toString(responseEncoding));
-    default:
-      return bufferedResponse.toString(responseEncoding);
-  }
-};
-
-export const parseErrorResponse = <T extends RequestInstance>(response: unknown): ExtractErrorType<T> => {
-  return response ? parseResponse(response) : getErrorMessage();
 };

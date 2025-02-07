@@ -4,7 +4,7 @@
 import http from "http";
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { adapter } from "../../../src/adapter/adapter.server";
+import { adapter } from "../../../src/http-adapter/http-adapter.server";
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
 

@@ -3,7 +3,7 @@ import {
   NullableType,
   ExtractAdapterResolvedType,
   ExtendRequest,
-  NegativeTypes,
+  EmptyTypes,
   RequestSendOptionsType,
 } from "@hyper-fetch/core";
 
@@ -13,9 +13,9 @@ import { isEqual } from "utils";
 export type UseFetchRequest<R extends RequestInstance> = ExtendRequest<
   R,
   {
-    hasData: RequestSendOptionsType<R>["payload"] extends NegativeTypes ? true : false;
-    hasParams: RequestSendOptionsType<R>["params"] extends NegativeTypes ? true : false;
-    hasQuery: RequestSendOptionsType<R>["queryParams"] extends NegativeTypes ? true : false;
+    hasData: RequestSendOptionsType<R>["payload"] extends EmptyTypes ? true : false;
+    hasParams: RequestSendOptionsType<R>["params"] extends EmptyTypes ? true : false;
+    hasQuery: RequestSendOptionsType<R>["queryParams"] extends EmptyTypes ? true : false;
   }
 >;
 

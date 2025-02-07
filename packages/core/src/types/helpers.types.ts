@@ -1,6 +1,6 @@
-export type NegativeTypes = null | undefined;
+export type EmptyTypes = null | undefined;
 
-export type NullableType<T> = T | NegativeTypes;
+export type NullableType<T> = T | EmptyTypes;
 
 export type NullableKeys<T> = {
   [P in keyof T]-?: NullableType<T[P]>;
@@ -11,7 +11,7 @@ export type NonNullableKeys<T> = {
 };
 
 export type RequiredKeys<T> = {
-  [P in keyof T]-?: Exclude<T[P], NegativeTypes>;
+  [P in keyof T]-?: Exclude<T[P], EmptyTypes>;
 };
 
 export type TypeWithDefaults<

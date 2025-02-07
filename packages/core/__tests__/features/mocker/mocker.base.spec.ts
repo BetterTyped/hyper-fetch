@@ -404,9 +404,9 @@ describe("Mocker [ Base ]", () => {
   it("should allow for toggling the mocker off and then turning it on again without removal", async () => {
     const mockedRequest = request.setMock(() => ({ data: fixture, status: 200 }));
     const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
-    expect(mockedRequest.isMockEnabled).toBe(true);
+    expect(mockedRequest.isMockerEnabled).toBe(true);
     mockedRequest.setEnableMocking(false);
-    expect(mockedRequest.isMockEnabled).toBe(false);
+    expect(mockedRequest.isMockerEnabled).toBe(false);
     const notMockedData = await mockedRequest.send({});
     mockedRequest.setEnableMocking(true);
     const mockedData = await mockedRequest.send({});
@@ -444,8 +444,8 @@ describe("Mocker [ Base ]", () => {
       .setMock(() => ({ data: fixture, status: 200 }));
     const data = mockRequest(mockedRequest, { data: { data: [42, 42, 42] } });
 
-    expect(mockedRequest.isMockEnabled).toBe(true);
-    expect(newClient.isMockEnabled).toBe(true);
+    expect(mockedRequest.isMockerEnabled).toBe(true);
+    expect(newClient.isMockerEnabled).toBe(true);
 
     const mockedDataDefault = await mockedRequest.send({});
     newClient.setEnableGlobalMocking(false);

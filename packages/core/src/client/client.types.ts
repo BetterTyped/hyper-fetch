@@ -1,10 +1,10 @@
 import { RequestInstance } from "request";
-import { ResponseType, AdapterType, QueryParamsType } from "adapter";
+import { ResponseType } from "adapter";
 import { Client } from "client";
-import type { ExtendRequest, ExtractClientAdapterType, NegativeTypes } from "types";
+import type { ExtendRequest, ExtractClientAdapterType } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, any, any>;
+export type ClientInstance = Client<any, any>;
 
 export type RequestGenericType<QueryParams> = {
   response?: any;
@@ -26,7 +26,7 @@ export type ClientOptionsType<C extends ClientInstance> = {
   /**
    * Custom adapter initialization prop
    */
-  adapter?: AdapterType;
+  adapter?: ExtractClientAdapterType<C>;
   /**
    * Custom cache initialization prop
    */
@@ -62,8 +62,6 @@ export type ResponseInterceptorType<Client extends ClientInstance, Response = an
 
 // Stringify
 
-export type StringifyCallbackType = (queryParams: QueryParamsType | string | NegativeTypes) => string;
-
-// Mapper
-
-export type DefaultEndpointMapper<EndpointType = any> = (endpoint: EndpointType) => string;
+export type ModifyQueryParamsCallbackType<QueryParams, ModifiedQueryParams> = (
+  queryParams: QueryParams,
+) => ModifiedQueryParams;

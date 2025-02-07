@@ -1,51 +1,53 @@
-import {
-  xhrExtra,
-  getAdapterBindings,
-  AdapterType,
-  getResponseHeaders,
-  parseResponse,
-  parseErrorResponse,
-} from "adapter";
-import { defaultTimeout } from "./adapter.constants";
+import { xhrExtra, getResponseHeaders, parseResponse, parseErrorResponse, HttpAdapterType } from "http-adapter";
+import { defaultTimeout } from "./http-adapter.constants";
+import { Adapter } from "../adapter/adapter";
+import { HttpMethods } from "constants/http.constants";
+import { HttpMethodsType, HttpStatusType } from "types";
+import { HttpAdapterOptionsType, HttpAdapterExtraType } from "./http-adapter.types";
+import { QueryParamsType } from "adapter";
 
-export const adapter: AdapterType = async (request, requestId) => {
-  const {
-    makeRequest,
-    fullUrl,
-    config,
-    payload,
+export const httpAdapter: HttpAdapterType = new Adapter<
+  HttpAdapterOptionsType,
+  HttpMethodsType,
+  HttpStatusType,
+  HttpAdapterExtraType,
+  QueryParamsType | string | null,
+  string
+>({
+  name: "browser",
+  defaultMethod: HttpMethods.GET,
+  defaultExtra: xhrExtra,
+  systemErrorStatus: 0 as number,
+  systemErrorExtra: xhrExtra,
+}).setFetcher(
+  async ({
+    request,
+    adapterOptions,
     headers,
+    payload,
     onError,
     onResponseEnd,
     onTimeoutError,
     onRequestEnd,
     createAbortListener,
     onResponseProgress,
-    onRequestProgress,
     onResponseStart,
     onBeforeRequest,
     onRequestStart,
+    onRequestProgress,
     onSuccess,
-  } = await getAdapterBindings<AdapterType>({
-    request,
-    requestId,
-    systemErrorStatus: 0,
-    systemErrorExtra: {
-      headers: {},
-    },
-  });
+  }) => {
+    const { method = "GET", client, endpoint } = request;
 
-  const { method = "GET" } = request;
-
-  return makeRequest((resolve) => {
+    const fullUrl = `${client.url}${endpoint}`;
     const xhr = new XMLHttpRequest();
     xhr.timeout = defaultTimeout;
 
     const onAbort = () => xhr.abort();
 
     // Inject xhr options
-    if (config) {
-      Object.entries(config).forEach(([name, value]) => {
+    if (adapterOptions) {
+      Object.entries(adapterOptions).forEach(([name, value]) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         xhr[name] = value;
@@ -59,7 +61,7 @@ export const adapter: AdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener({ status: 0, extra: xhrExtra, onAbort, resolve });
+    const unmountListener = createAbortListener({ status: 0, extra: xhrExtra, onAbort });
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -77,7 +79,7 @@ export const adapter: AdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: xhrExtra, resolve });
+    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: xhrExtra });
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -91,11 +93,11 @@ export const adapter: AdapterType = async (request, requestId) => {
 
         if (success) {
           const data = parseResponse(event.target.response);
-          onSuccess({ data, status, extra: { headers: responseHeaders }, resolve });
+          onSuccess({ data, status, extra: { headers: responseHeaders } });
         } else {
           // delay to finish after onabort/ontimeout
           const error = parseErrorResponse(event.target.response);
-          onError({ error, status, extra: { headers: responseHeaders }, resolve });
+          onError({ error, status, extra: { headers: responseHeaders } });
         }
       }
     };
@@ -105,5 +107,5 @@ export const adapter: AdapterType = async (request, requestId) => {
     onRequestStart();
 
     xhr.send(payload);
-  });
-};
+  },
+);

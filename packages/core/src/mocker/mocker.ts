@@ -1,14 +1,8 @@
 import { RequestInstance } from "../request";
-import {
-  getAdapterBindings,
-  AdapterInstance,
-  AdapterType,
-  ResponseType,
-  ExtractAdapterExtraType,
-  ExtractAdapterStatusType,
-} from "adapter";
+import { getAdapterBindings, AdapterInstance } from "adapter";
+import { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
-export const mocker = async <T extends AdapterInstance = AdapterType>({
+export const mocker = async <T extends AdapterInstance>({
   request,
   callbacks: {
     onError,
@@ -56,76 +50,71 @@ export const mocker = async <T extends AdapterInstance = AdapterType>({
   } = request.mock.config;
   const result = await request.mock.fn({ request });
 
-  return new Promise<ResponseType<any, any, AdapterType>>((resolve) => {
-    const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
+  const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
 
-    createAbortListener({ status: systemErrorStatus, extra: systemErrorExtra, onAbort: () => {}, resolve });
+  createAbortListener({ status: systemErrorStatus, extra: systemErrorExtra, onAbort: () => {} });
 
-    onBeforeRequest();
-    onRequestStart();
+  onBeforeRequest();
+  onRequestStart();
 
-    const progress = (
-      totalTime: number,
-      totalSize: number,
-      progressFunction: typeof onResponseProgress | typeof onRequestProgress,
-    ) =>
-      new Promise((resolveProgress) => {
-        const interval = 20;
-        const dataStart = +new Date();
-        const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
-        let currentlyLoaded = 0;
-        const timer = setInterval(function handleProgressInterval() {
-          const currentTime = Math.min(totalTime, +new Date() - dataStart);
-          currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
-          if (currentTime >= totalTime) {
-            resolveProgress(true);
-            clearInterval(timer);
-          } else {
-            progressFunction({
-              total: totalSize,
-              loaded: currentlyLoaded,
-            });
-          }
-        }, interval);
+  const progress = (
+    totalTime: number,
+    totalSize: number,
+    progressFunction: typeof onResponseProgress | typeof onRequestProgress,
+  ) =>
+    new Promise((resolveProgress) => {
+      const interval = 20;
+      const dataStart = +new Date();
+      const chunkSize = Math.floor(totalSize / Math.floor(totalTime / Math.min(totalTime, interval)));
+      let currentlyLoaded = 0;
+      const timer = setInterval(function handleProgressInterval() {
+        const currentTime = Math.min(totalTime, +new Date() - dataStart);
+        currentlyLoaded += currentlyLoaded + chunkSize >= totalSize ? totalSize - currentlyLoaded : chunkSize;
+        if (currentTime >= totalTime) {
+          resolveProgress(true);
+          clearInterval(timer);
+        } else {
+          progressFunction({
+            total: totalSize,
+            loaded: currentlyLoaded,
+          });
+        }
+      }, interval);
+    });
+
+  const getResponse = async () => {
+    await progress(requestTime, totalUploaded, onRequestProgress);
+    onRequestEnd();
+    onResponseStart();
+    await progress(responseTime, totalDownloaded, onResponseProgress);
+    if (success || (error && data)) {
+      onSuccess({
+        data,
+        error,
+        status: status as ExtractAdapterStatusType<T>,
+        extra: extra as ExtractAdapterExtraType<T>,
       });
-
-    const getResponse = async () => {
-      await progress(requestTime, totalUploaded, onRequestProgress);
-      onRequestEnd();
-      onResponseStart();
-      await progress(responseTime, totalDownloaded, onResponseProgress);
-      if (success || (error && data)) {
-        onSuccess({
-          data,
-          error,
-          status: status as ExtractAdapterStatusType<T>,
-          extra: extra as ExtractAdapterExtraType<T>,
-          resolve,
-        });
-      } else {
-        onError({
-          error,
-          status: status as ExtractAdapterStatusType<T>,
-          extra: extra as ExtractAdapterExtraType<T>,
-          resolve,
-        });
-      }
-    };
-
-    if (timeout) {
-      setTimeout(
-        () =>
-          onTimeoutError({
-            status: 0 as ExtractAdapterStatusType<T>,
-            extra: extra as ExtractAdapterExtraType<T>,
-            resolve,
-          }),
-        1,
-      );
     } else {
-      setTimeout(getResponse, requestTime + responseTime + 1);
+      onError({
+        error,
+        status: status as ExtractAdapterStatusType<T>,
+        extra: extra as ExtractAdapterExtraType<T>,
+      });
     }
+  };
 
-    onResponseEnd();
-  });
+  if (timeout) {
+    setTimeout(
+      () =>
+        onTimeoutError({
+          status: 0 as ExtractAdapterStatusType<T>,
+          extra: extra as ExtractAdapterExtraType<T>,
+        }),
+      1,
+    );
+  } else {
+    setTimeout(getResponse, requestTime + responseTime + 1);
+  }
+
+  onResponseEnd();
 };

@@ -1,37 +1,31 @@
+import { getErrorMessage, ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
+import { ClientInstance } from "client";
+import { LoggerMethods } from "managers";
+import { RequestInstance, getProgressData, ProgressEventType } from "request";
 import {
-  getErrorMessage,
-  ResponseSuccessType,
-  ResponseErrorType,
-  ProgressDataType,
+  ExtractResponseType,
+  ExtractErrorType,
+  ExtractPayloadType,
   ExtractAdapterOptionsType,
   ExtractAdapterStatusType,
   ExtractAdapterExtraType,
-  AdapterType,
-  AdapterInstance,
-  ResponseType,
-} from "adapter";
-import { RequestInstance, getProgressData, ProgressEventType } from "request";
-import { ExtractResponseType, ExtractErrorType, ExtractPayloadType } from "types";
-import { mocker } from "mocker";
+} from "types";
 
-export const getAdapterBindings = async <T extends AdapterInstance = AdapterType>({
+export const getAdapterBindings = async <T extends AdapterInstance>({
   request: initialReq,
   requestId,
-  systemErrorStatus,
-  systemErrorExtra,
-  internalErrorFormatter,
+  resolve,
+  onStartTime,
 }: {
   request: RequestInstance;
   requestId: string;
-  systemErrorStatus: ExtractAdapterStatusType<T>;
-  systemErrorExtra: ExtractAdapterExtraType<T>;
-  internalErrorFormatter?: (error: Error) => any;
+  resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
+  onStartTime: (timestamp: number) => void;
 }) => {
-  const { url, requestManager, loggerManager, headerMapper, payloadMapper } = initialReq.client;
+  const { requestManager, loggerManager } = initialReq.client;
+  const { headerMapper, payloadMapper } = initialReq.client.adapter;
 
   const logger = loggerManager.initialize(initialReq.client, "Adapter");
-
-  let processingError: Error | null = null;
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
@@ -53,41 +47,32 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     },
   });
 
-  try {
-    request = await request.client.__modifyRequest(request);
+  request = await request.client.unsafe_modifyRequest(request);
 
-    if (request.auth) {
-      request = await request.client.__modifyAuth(request);
-    }
+  if (request.auth) {
+    request = await request.client.unsafe_modifyAuth(request);
+  }
 
-    if (request.__requestMapper) {
-      request = await request.__requestMapper(request, requestId);
-    }
-  } catch (err) {
-    processingError = err as Error;
+  if (request.unsafe_requestMapper) {
+    request = await request.unsafe_requestMapper(request, requestId);
   }
 
   // Request Setup
-  const { client, abortKey, endpoint } = request;
-
-  const fullUrl = url + endpoint;
+  const { client, abortKey } = request;
 
   const headers = headerMapper(request);
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
 
-  try {
-    if (request.payloadMapper) {
-      payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
-    } else if (payloadMapper) {
-      payload = await payloadMapper(payload);
-    }
-  } catch (err) {
-    processingError = err as Error;
+  if (request.payloadMapper) {
+    payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
+  } else if (payloadMapper) {
+    payload = await payloadMapper(payload);
   }
 
-  const config = request.options as ExtractAdapterOptionsType<T> | undefined;
+  const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
   const startTime = +new Date();
+  onStartTime(startTime);
 
   const getRequestStartTimestamp = () => {
     return requestStartTimestamp;
@@ -253,12 +238,10 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
     error,
     status,
     extra,
-    resolve,
   }: {
     data: any;
     status: ExtractAdapterStatusType<T>;
     extra: ExtractAdapterExtraType<T>;
-    resolve: (value: ResponseSuccessType<any, T>) => void;
     error?: ExtractErrorType<T>;
   }): Promise<ResponseSuccessType<ExtractResponseType<T>, T>> => {
     let response: ResponseSuccessType<ExtractResponseType<T>, T> = {
@@ -270,8 +253,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       requestTimestamp: startTime,
       responseTimestamp: +new Date(),
     };
-    response = (await request.client.__modifyResponse(response, request)) as typeof data;
-    response = (await request.client.__modifySuccessResponse(response, request)) as typeof data;
+    response = (await request.client.unsafe_modifyResponse(response, request)) as typeof data;
+    response = (await request.client.unsafe_modifySuccessResponse(response, request)) as typeof data;
 
     client.triggerPlugins("onRequestSuccess", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });
@@ -292,16 +275,168 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
   // Errors
 
-  const onError = async ({
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  const onError = getAdapterOnError({
+    logger,
+    request,
+    client,
+    requestId,
+    resolve,
+    startTime,
+  });
+
+  const onAbortError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Abort error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    const error = getErrorMessage("abort");
+    return onError({ error, status, extra });
+  };
+
+  const onTimeoutError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Timeout error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    const error = getErrorMessage("timeout");
+    return onError({ error, status, extra });
+  };
+
+  const onUnexpectedError = ({
+    status,
+    extra,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+  }) => {
+    logger.error({
+      title: `Unexpected error`,
+      type: "request",
+      extra: {
+        request,
+        requestId,
+      },
+    });
+    const error = getErrorMessage();
+    return onError({ error, status, extra });
+  };
+
+  // Abort
+
+  const getAbortController = () => {
+    return requestManager.getAbortController(abortKey, requestId);
+  };
+
+  const createAbortListener = ({
+    status,
+    extra,
+    onAbort,
+  }: {
+    status: ExtractAdapterStatusType<T>;
+    extra: ExtractAdapterExtraType<T>;
+    onAbort: (options: { signal: AbortSignal }) => void;
+  }) => {
+    const controller = getAbortController();
+    if (!controller) {
+      throw new Error("Controller is not found");
+    }
+
+    const fn = () => {
+      onAbortError({ status, extra });
+      onAbort({ signal: controller.signal });
+      requestManager.events.emitAbort({ requestId, request });
+    };
+
+    // Instant abort when we stack many requests triggered at once, and we receive aborted controller
+    if (controller.signal.aborted) {
+      fn();
+    }
+
+    // Abort during the request
+    controller.signal.addEventListener("abort", fn);
+
+    return () => controller.signal.removeEventListener("abort", fn);
+  };
+
+  logger.debug({
+    title: `Mounted adapter bindings`,
+    type: "request",
+    extra: {
+      request,
+      requestId,
+      headers,
+      payload,
+      adapterOptions,
+    },
+  });
+
+  return {
+    headers,
+    payload,
+    adapterOptions,
+    getAbortController,
+    getRequestStartTimestamp,
+    getResponseStartTimestamp,
+    createAbortListener,
+    onBeforeRequest,
+    onRequestStart,
+    onRequestProgress,
+    onRequestEnd,
+    onResponseStart,
+    onResponseProgress,
+    onResponseEnd,
+    onSuccess,
+    onAbortError,
+    onTimeoutError,
+    onUnexpectedError,
+    onError,
+  };
+};
+
+export function getAdapterOnError<T extends AdapterInstance>({
+  startTime,
+  request,
+  client,
+  requestId,
+  resolve,
+  logger,
+}: {
+  startTime: number;
+  request: RequestInstance;
+  client: ClientInstance;
+  requestId: string;
+  logger: LoggerMethods;
+  resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
+}) {
+  return async ({
     error,
     status,
     extra,
-    resolve,
   }: {
     error: any;
     status: ExtractAdapterStatusType<T>;
     extra: ExtractAdapterExtraType<T>;
-    resolve: (value: ResponseErrorType<any, T>) => void;
   }): Promise<ResponseErrorType<any, T>> => {
     let response: ResponseErrorType<any, T> = {
       data: null,
@@ -313,8 +448,8 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
       responseTimestamp: +new Date(),
     };
 
-    response = (await request.client.__modifyResponse(response, request)) as typeof response;
-    response = (await request.client.__modifyErrorResponse(response, request)) as typeof response;
+    response = (await request.client.unsafe_modifyResponse(response, request)) as typeof response;
+    response = (await request.client.unsafe_modifyErrorResponse(response, request)) as typeof response;
 
     client.triggerPlugins("onRequestError", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });
@@ -333,188 +468,4 @@ export const getAdapterBindings = async <T extends AdapterInstance = AdapterType
 
     return response;
   };
-
-  const onAbortError = ({
-    status,
-    extra,
-    resolve,
-  }: {
-    status: ExtractAdapterStatusType<T>;
-    extra: ExtractAdapterExtraType<T>;
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void;
-  }) => {
-    logger.error({
-      title: `Abort error`,
-      type: "request",
-      extra: {
-        request,
-        requestId,
-      },
-    });
-    const error = getErrorMessage("abort");
-    if (internalErrorFormatter) {
-      return onError({ error: internalErrorFormatter(error), status, extra, resolve });
-    }
-    return onError({ error, status, extra, resolve });
-  };
-
-  const onTimeoutError = ({
-    status,
-    extra,
-    resolve,
-  }: {
-    status: ExtractAdapterStatusType<T>;
-    extra: ExtractAdapterExtraType<T>;
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void;
-  }) => {
-    logger.error({
-      title: `Timeout error`,
-      type: "request",
-      extra: {
-        request,
-        requestId,
-      },
-    });
-    const error = getErrorMessage("timeout");
-    if (internalErrorFormatter) {
-      return onError({ error: internalErrorFormatter(error), status, extra, resolve });
-    }
-    return onError({ error, status, extra, resolve });
-  };
-
-  const onUnexpectedError = ({
-    status,
-    extra,
-    resolve,
-  }: {
-    status: ExtractAdapterStatusType<T>;
-    extra: ExtractAdapterExtraType<T>;
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void;
-  }) => {
-    logger.error({
-      title: `Unexpected error`,
-      type: "request",
-      extra: {
-        request,
-        requestId,
-      },
-    });
-    const error = getErrorMessage();
-    if (internalErrorFormatter) {
-      return onError({ error: internalErrorFormatter(error), status, extra, resolve });
-    }
-    return onError({ error, status, extra, resolve });
-  };
-
-  // Abort
-
-  const getAbortController = () => {
-    return requestManager.getAbortController(abortKey, requestId);
-  };
-
-  const createAbortListener = ({
-    status,
-    extra,
-    onAbort,
-    resolve,
-  }: {
-    status: ExtractAdapterStatusType<T>;
-    extra: ExtractAdapterExtraType<T>;
-    onAbort: (options: { signal: AbortSignal }) => void;
-    resolve: (value: ResponseErrorType<ExtractErrorType<T>, T>) => void;
-  }) => {
-    const controller = getAbortController();
-    if (!controller) {
-      throw new Error("Controller is not found");
-    }
-
-    const fn = () => {
-      onAbortError({ status, extra, resolve });
-      onAbort({ signal: controller.signal });
-      requestManager.events.emitAbort({ requestId, request });
-    };
-
-    // Instant abort when we stack many requests triggered at once, and we receive aborted controller
-    if (controller.signal.aborted) {
-      fn();
-    }
-
-    // Abort during the request
-    controller.signal.addEventListener("abort", fn);
-
-    return () => controller.signal.removeEventListener("abort", fn);
-  };
-
-  const makeRequest = (
-    apiCall: (resolve: (value: ResponseType<any, any, T> | PromiseLike<ResponseType<any, any, T>>) => void) => void,
-  ): Promise<ResponseType<any, any, T>> => {
-    if (processingError) {
-      return onError({
-        error: processingError,
-        status: systemErrorStatus,
-        extra: systemErrorExtra,
-        resolve: () => null,
-      });
-    }
-
-    if (request.mock && request.isMockEnabled && request.client.isMockEnabled) {
-      return mocker({
-        request,
-        systemErrorStatus,
-        systemErrorExtra,
-        callbacks: {
-          onError,
-          onResponseEnd,
-          onTimeoutError,
-          onRequestEnd,
-          createAbortListener,
-          onResponseProgress,
-          onRequestProgress,
-          onResponseStart,
-          onBeforeRequest,
-          onRequestStart,
-          onSuccess,
-        },
-      });
-    }
-
-    return new Promise(apiCall);
-  };
-
-  logger.debug({
-    title: `Mounted adapter bindings`,
-    type: "request",
-    extra: {
-      request,
-      requestId,
-      fullUrl,
-      headers,
-      payload,
-      config,
-    },
-  });
-
-  return {
-    fullUrl,
-    headers,
-    payload,
-    config,
-    getAbortController,
-    getRequestStartTimestamp,
-    getResponseStartTimestamp,
-    createAbortListener,
-    onBeforeRequest,
-    onRequestStart,
-    onRequestProgress,
-    onRequestEnd,
-    onResponseStart,
-    onResponseProgress,
-    onResponseEnd,
-    onSuccess,
-    onAbortError,
-    onTimeoutError,
-    onUnexpectedError,
-    onError,
-    makeRequest,
-  };
-};
+}

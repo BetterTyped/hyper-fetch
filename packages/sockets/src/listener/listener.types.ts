@@ -1,4 +1,4 @@
-import { ExtractRouteParams, NegativeTypes, TypeWithDefaults } from "@hyper-fetch/core";
+import { ExtractRouteParams, EmptyTypes, TypeWithDefaults } from "@hyper-fetch/core";
 
 import { SocketAdapterInstance } from "adapter";
 import { Listener } from "listener";
@@ -31,7 +31,7 @@ export type ListenerParamsOptionsType<Listener extends ListenerInstance> =
 export type ListenerListenOptionsType<Listener extends ListenerInstance> = ListenerParamsOptionsType<Listener>;
 
 export type ListenType<Listener extends ListenerInstance, Adapter extends SocketAdapterInstance> =
-  ExtractRouteParams<ExtractListenerTopicType<Listener>> extends NegativeTypes
+  ExtractRouteParams<ExtractListenerTopicType<Listener>> extends EmptyTypes
     ? (
         callback: ListenerCallbackType<Adapter, ExtractListenerResponseType<Listener>>,
         options?: ListenerListenOptionsType<Listener>,
