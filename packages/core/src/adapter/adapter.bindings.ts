@@ -23,7 +23,7 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   onStartTime: (timestamp: number) => void;
 }) => {
   const { requestManager, loggerManager } = initialReq.client;
-  const { headerMapper, payloadMapper } = initialReq.client.adapter;
+  const { payloadMapper } = initialReq.client.adapter;
 
   const logger = loggerManager.initialize(initialReq.client, "Adapter");
 
@@ -60,7 +60,6 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // Request Setup
   const { client, abortKey } = request;
 
-  const headers = headerMapper(request);
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
 
@@ -385,14 +384,12 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     extra: {
       request,
       requestId,
-      headers,
       payload,
       adapterOptions,
     },
   });
 
   return {
-    headers,
     payload,
     adapterOptions,
     getAbortController,

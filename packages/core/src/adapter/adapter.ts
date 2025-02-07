@@ -1,16 +1,20 @@
+/* eslint-disable class-methods-use-this */
 import { ExtendRequest } from "types";
 import { getAdapterOnError, getAdapterBindings } from "./adapter.bindings";
-import { AdapterFetcherType, AdapterPayloadMappingType, HeaderMappingType, QueryParamsType } from "./adapter.types";
+import {
+  EndpointMapper,
+  AdapterFetcherType,
+  AdapterPayloadMappingType,
+  HeaderMappingType,
+  QueryParamsMapper,
+  QueryParamsType,
+} from "./adapter.types";
 import { RequestInstance, RequestOptionsType } from "request";
 import { Client, ClientInstance, getAdapterHeaders, getAdapterPayload } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
 
-export type EndpointMapper<EndpointType> = (endpoint: EndpointType) => string;
-
-export type EndpointMapperOptions<EndpointType> = EndpointType extends string
-  ? { endpointMapper?: EndpointMapper<EndpointType> }
-  : { endpointMapper: EndpointMapper<EndpointType> };
+const defaultMapper = (value: any) => value;
 
 export class Adapter<
   AdapterOptions,
@@ -19,6 +23,21 @@ export class Adapter<
   Extra extends Record<string, any>,
   QueryParams = QueryParamsType | string | null,
   EndpointType = string,
+  EndpointMapperType extends EndpointMapper<EndpointType> | ((value: EndpointType) => string) = (
+    value: EndpointType,
+  ) => string,
+  QueryParamsMapperType extends QueryParamsMapper<QueryParams> | ((value: QueryParams) => QueryParams) = (
+    value: QueryParams,
+  ) => QueryParams,
+  HeaderMapperType extends HeaderMappingType | ((value: RequestInstance) => HeadersInit) = (
+    value: RequestInstance,
+  ) => HeadersInit,
+  PayloadMapperType extends
+    | AdapterPayloadMappingType
+    | ((options: { request: RequestInstance; payload: unknown }) => unknown) = (options: {
+    request: RequestInstance;
+    payload: unknown;
+  }) => unknown,
 > {
   private fetcher: any;
 
@@ -67,17 +86,33 @@ export class Adapter<
    */
 
   /** Method to get default headers and to map them based on the data format exchange, by default it handles FormData / JSON formats. */
-  public headerMapper: HeaderMappingType = getAdapterHeaders;
+  public headerMapper: HeaderMapperType = getAdapterHeaders as HeaderMapperType;
   /** Method to get request data and transform them to the required format. It handles FormData and JSON by default. */
-  public payloadMapper: AdapterPayloadMappingType = getAdapterPayload;
-  /** Method to get request data and transform them to the required format. It handles FormData and JSON by default. */
-  public endpointMapper: EndpointMapper<EndpointType> = ((endpoint) => endpoint) as EndpointMapper<EndpointType>;
+  public payloadMapper: PayloadMapperType = getAdapterPayload as PayloadMapperType;
+  /** Method to get the endpoint for the adapter request. */
+  public endpointMapper: EndpointMapperType = defaultMapper as EndpointMapperType;
+  /** Method to get request data and transform them to the required format.  */
+  public queryParamsMapper: QueryParamsMapperType = defaultMapper as QueryParamsMapperType;
   /** Get default adapter options for the request. */
   public getAdapterDefaults?: (
     request: ExtendRequest<
       RequestInstance,
       {
-        client: Client<any, Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>>;
+        client: Client<
+          any,
+          Adapter<
+            AdapterOptions,
+            MethodType,
+            StatusType,
+            Extra,
+            QueryParams,
+            EndpointType,
+            EndpointMapperType,
+            QueryParamsMapperType,
+            HeaderMapperType,
+            PayloadMapperType
+          >
+        >;
       }
     >,
   ) => AdapterOptions;
@@ -109,7 +144,21 @@ export class Adapter<
         RequestInstance,
         {
           // No need for global error type, because we haven't sent the request yet
-          client: Client<any, Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>>;
+          client: Client<
+            any,
+            Adapter<
+              AdapterOptions,
+              MethodType,
+              StatusType,
+              Extra,
+              QueryParams,
+              EndpointType,
+              EndpointMapperType,
+              QueryParamsMapperType,
+              HeaderMapperType,
+              PayloadMapperType
+            >
+          >;
         }
       >,
     ) => AdapterOptions,
@@ -121,25 +170,79 @@ export class Adapter<
   /**
    * Set the custom header mapping function
    */
-  setHeaderMapper = (headerMapper: HeaderMappingType): this => {
-    this.headerMapper = headerMapper;
-    return this;
+  setHeaderMapper = <NewMapper extends HeaderMappingType>(headerMapper: NewMapper) => {
+    this.headerMapper = headerMapper as unknown as HeaderMapperType;
+    return this as unknown as Adapter<
+      AdapterOptions,
+      MethodType,
+      StatusType,
+      Extra,
+      QueryParams,
+      EndpointType,
+      EndpointMapperType,
+      QueryParamsMapperType,
+      NewMapper,
+      PayloadMapperType
+    >;
   };
 
   /**
    * Set the request payload mapping function which gets triggered before request is send
    */
-  setPayloadMapper = (payloadMapper: AdapterPayloadMappingType): this => {
-    this.payloadMapper = payloadMapper;
-    return this;
+  setPayloadMapper = <NewMapper extends AdapterPayloadMappingType>(payloadMapper: NewMapper) => {
+    this.payloadMapper = payloadMapper as unknown as PayloadMapperType;
+    return this as unknown as Adapter<
+      AdapterOptions,
+      MethodType,
+      StatusType,
+      Extra,
+      QueryParams,
+      EndpointType,
+      EndpointMapperType,
+      QueryParamsMapperType,
+      HeaderMapperType,
+      NewMapper
+    >;
   };
 
   /**
    * Set the request payload mapping function which get triggered before request get sent
    */
   setEndpointMapper = <NewEndpointMapper extends EndpointMapper<EndpointType>>(endpointMapper: NewEndpointMapper) => {
-    this.endpointMapper = endpointMapper;
-    return this;
+    this.endpointMapper = endpointMapper as unknown as EndpointMapperType;
+    return this as unknown as Adapter<
+      AdapterOptions,
+      MethodType,
+      StatusType,
+      Extra,
+      QueryParams,
+      EndpointType,
+      NewEndpointMapper,
+      QueryParamsMapperType,
+      HeaderMapperType,
+      PayloadMapperType
+    >;
+  };
+
+  /**
+   * Set the query params mapping function which get triggered before request get sent
+   */
+  setQueryParamsMapper = <NewQueryParamsMapper extends QueryParamsMapper<QueryParams>>(
+    queryParamsMapper: NewQueryParamsMapper,
+  ) => {
+    this.queryParamsMapper = queryParamsMapper as unknown as QueryParamsMapperType;
+    return this as unknown as Adapter<
+      AdapterOptions,
+      MethodType,
+      StatusType,
+      Extra,
+      QueryParams,
+      EndpointType,
+      EndpointMapperType,
+      NewQueryParamsMapper,
+      HeaderMapperType,
+      PayloadMapperType
+    >;
   };
 
   /**
@@ -149,7 +252,20 @@ export class Adapter<
    */
 
   public setFetcher(
-    fetcher: AdapterFetcherType<Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>>,
+    fetcher: AdapterFetcherType<
+      Adapter<
+        AdapterOptions,
+        MethodType,
+        StatusType,
+        Extra,
+        QueryParams,
+        EndpointType,
+        EndpointMapperType,
+        QueryParamsMapperType,
+        HeaderMapperType,
+        PayloadMapperType
+      >
+    >,
   ) {
     this.fetcher = fetcher;
     return this;
@@ -160,7 +276,21 @@ export class Adapter<
       RequestInstance,
       {
         // No need for global error type, it doesn't matter to the fetcher itself
-        client: Client<any, Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>>;
+        client: Client<
+          any,
+          Adapter<
+            AdapterOptions,
+            MethodType,
+            StatusType,
+            Extra,
+            QueryParams,
+            EndpointType,
+            EndpointMapperType,
+            QueryParamsMapperType,
+            HeaderMapperType,
+            PayloadMapperType
+          >
+        >;
         queryParams?: QueryParams;
       }
     >,
@@ -178,9 +308,21 @@ export class Adapter<
           if (!this.fetcher) {
             throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
           }
+          const { url } = request.client;
 
-          const config = await getAdapterBindings<
-            Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>
+          const { payload: transformedPayload, ...config } = await getAdapterBindings<
+            Adapter<
+              AdapterOptions,
+              MethodType,
+              StatusType,
+              Extra,
+              QueryParams,
+              EndpointType,
+              EndpointMapperType,
+              QueryParamsMapperType,
+              HeaderMapperType,
+              PayloadMapperType
+            >
           >({
             request,
             requestId,
@@ -191,7 +333,20 @@ export class Adapter<
           });
 
           if (request.mock && request.isMockerEnabled && request.client.isMockerEnabled) {
-            return mocker<Adapter<AdapterOptions, MethodType, StatusType, Extra, QueryParams, EndpointType>>({
+            return mocker<
+              Adapter<
+                AdapterOptions,
+                MethodType,
+                StatusType,
+                Extra,
+                QueryParams,
+                EndpointType,
+                EndpointMapperType,
+                QueryParamsMapperType,
+                HeaderMapperType,
+                PayloadMapperType
+              >
+            >({
               request,
               systemErrorStatus: this.options.systemErrorStatus,
               systemErrorExtra: this.options.systemErrorExtra,
@@ -199,8 +354,18 @@ export class Adapter<
             });
           }
 
+          const queryParams = this.queryParamsMapper(request.queryParams as QueryParams);
+          const endpoint = this.endpointMapper(request.endpoint);
+          const headers = this.headerMapper(request);
+          const payload = this.payloadMapper({ request, payload: transformedPayload });
+
           return this.fetcher({
             ...config,
+            url,
+            queryParams,
+            endpoint,
+            headers,
+            payload,
             request,
           });
         } catch (error) {

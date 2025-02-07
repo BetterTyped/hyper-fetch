@@ -169,9 +169,9 @@ export class Request<
     this.staleTime = initialRequestConfiguration?.staleTime ?? staleTime;
     this.queued = initialRequestConfiguration?.queued ?? queued;
     this.offline = initialRequestConfiguration?.offline ?? offline;
-    this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.abortKeyMapper(this);
-    this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.cacheKeyMapper(this);
-    this.queryKey = initialRequestConfiguration?.queryKey ?? queryKey ?? this.client.queryKeyMapper(this);
+    this.abortKey = initialRequestConfiguration?.abortKey ?? abortKey ?? this.client.unsafe_abortKeyMapper(this);
+    this.cacheKey = initialRequestConfiguration?.cacheKey ?? cacheKey ?? this.client.unsafe_cacheKeyMapper(this);
+    this.queryKey = initialRequestConfiguration?.queryKey ?? queryKey ?? this.client.unsafe_queryKeyMapper(this);
     this.used = initialRequestConfiguration?.used ?? false;
     this.deduplicate = initialRequestConfiguration?.deduplicate ?? deduplicate;
     this.deduplicateTime = initialRequestConfiguration?.deduplicateTime ?? deduplicateTime;

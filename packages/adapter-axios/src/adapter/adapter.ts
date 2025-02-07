@@ -1,4 +1,4 @@
-import { Adapter } from "@hyper-fetch/core";
+import { Adapter, stringifyQueryParams } from "@hyper-fetch/core";
 import axios, { AxiosHeaders, Method as AxiosMethods, AxiosRequestConfig } from "axios";
 
 import { AxiosExtra, RawAxiosHeaders } from "./adapter.types";
@@ -11,41 +11,46 @@ export const AxiosAdapter = new Adapter<
   number,
   AxiosExtra
 >({
+  name: "axios-adapter",
   defaultMethod: "GET",
   defaultExtra: { headers: {} },
   systemErrorStatus: 0,
   systemErrorExtra: { headers: {} },
-}).setFetcher(
-  async ({
-    makeRequest,
-    config,
-    headers,
-    fullUrl,
-    payload,
-    onError,
-    onResponseEnd,
-    onRequestEnd,
-    createAbortListener,
-    onResponseProgress,
-    onRequestProgress,
-    onResponseStart,
-    onBeforeRequest,
-    onRequestStart,
-    onSuccess,
-    getAbortController,
-  }) => {
-    const { method } = request;
+})
+  .setQueryParamsMapper(stringifyQueryParams)
+  .setFetcher(
+    async ({
+      url,
+      endpoint,
+      queryParams,
+      request,
+      headers,
+      payload,
+      adapterOptions,
+      onError,
+      onResponseEnd,
+      onRequestEnd,
+      createAbortListener,
+      onResponseProgress,
+      onRequestProgress,
+      onResponseStart,
+      onBeforeRequest,
+      onRequestStart,
+      onSuccess,
+      getAbortController,
+    }) => {
+      const { method } = request;
 
-    onBeforeRequest();
+      const fullUrl = `${url}${endpoint}${queryParams}`;
 
-    return makeRequest((resolve) => {
+      onBeforeRequest();
+
       const controller = getAbortController();
-      const unmountListener = () =>
-        createAbortListener({ status: 0, extra: { headers: {} }, onAbort: () => {}, resolve });
+      const unmountListener = () => createAbortListener({ status: 0, extra: { headers: {} }, onAbort: () => {} });
 
       onRequestStart();
       axios({
-        ...config,
+        ...adapterOptions,
         data: payload,
         method,
         url: fullUrl,
@@ -61,7 +66,7 @@ export const AxiosAdapter = new Adapter<
         },
       })
         .then((response) => {
-          onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers }, resolve });
+          onSuccess({ data: response.data, status: response.status, extra: { headers: response.headers } });
           onResponseEnd();
         })
         .catch((error) => {
@@ -69,12 +74,10 @@ export const AxiosAdapter = new Adapter<
             error,
             status: error.response?.status || 0,
             extra: { headers: error.response?.headers },
-            resolve,
           });
         })
         .finally(() => {
           unmountListener();
         });
-    });
-  },
-);
+    },
+  );

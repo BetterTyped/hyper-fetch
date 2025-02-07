@@ -17,7 +17,6 @@ import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
 import {
   ExtendRequest,
-  ExtractAdapterType,
   EmptyTypes,
   TypeWithDefaults,
   ExtractAdapterExtraType,
@@ -68,14 +67,15 @@ export class Client<
   // Registered requests effect
   plugins: PluginInstance[] = [];
 
-  abortKeyMapper: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string =
-    getSimpleKey;
-  cacheKeyMapper: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string =
-    getRequestKey;
-  queryKeyMapper: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string =
-    getRequestKey;
-  effectKeyMapper: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string =
-    getSimpleKey;
+  unsafe_abortKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
+  ) => string = getSimpleKey;
+  unsafe_cacheKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
+  ) => string = getRequestKey;
+  unsafe_queryKeyMapper: (
+    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
+  ) => string = getRequestKey;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Client");
@@ -135,19 +135,9 @@ export class Client<
   /**
    * Set custom http adapter to handle graphql, rest, firebase or others
    */
-  setAdapter = <NewAdapter extends AdapterInstance, Returns extends AdapterInstance | ClientInstance>(
-    callback: (client: Client<GlobalErrorType, Adapter>) => Returns extends AdapterInstance ? NewAdapter : Returns,
-  ): Returns extends ClientInstance
-    ? Returns
-    : Client<GlobalErrorType, Returns extends AdapterInstance ? NewAdapter : ExtractAdapterType<NewAdapter>> => {
-    const value = callback(this) as Adapter | ClientInstance;
-
-    if (value instanceof Client) {
-      return value as any;
-    }
-
-    this.adapter = value as Adapter;
-    return this as any;
+  setAdapter = <NewAdapter extends AdapterInstance>(adapter: NewAdapter): Client<GlobalErrorType, NewAdapter> => {
+    this.adapter = adapter as unknown as Adapter;
+    return this as unknown as Client<GlobalErrorType, NewAdapter>;
   };
 
   /**
@@ -305,23 +295,17 @@ export class Client<
   setAbortKeyMapper = (
     callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
   ) => {
-    this.abortKeyMapper = callback;
+    this.unsafe_abortKeyMapper = callback;
   };
   setCacheKeyMapper = (
     callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
   ) => {
-    this.cacheKeyMapper = callback;
+    this.unsafe_cacheKeyMapper = callback;
   };
   setQueueKeyMapper = (
     callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
   ) => {
-    this.queryKeyMapper = callback;
-  };
-  // Todo: Remove as it's not used anymore
-  setEffectKeyMapper = (
-    callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
-  ) => {
-    this.effectKeyMapper = callback;
+    this.unsafe_queryKeyMapper = callback;
   };
 
   /**

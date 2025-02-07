@@ -1,8 +1,13 @@
 import { RequestInstance } from "request";
 import { Client } from "client";
 import {
+  EmptyTypes,
   ExtendRequest,
+  ExtractAdapterEndpointMapperType,
   ExtractAdapterExtraType,
+  ExtractAdapterPayloadMapperType,
+  ExtractAdapterHeaderMapperType,
+  ExtractAdapterQueryParamsMapperType,
   ExtractAdapterQueryParamsType,
   ExtractAdapterStatusType,
   ExtractAdapterType,
@@ -16,10 +21,16 @@ import { getAdapterBindings } from "./adapter.bindings";
  * Base Adapter
  */
 
-export type AdapterInstance = Adapter<any, any, any, any, any, any>;
+export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any>;
 
 export type AdapterFetcherType<Adapter extends AdapterInstance> = (
-  options: Awaited<ReturnType<typeof getAdapterBindings<Adapter>>> & {
+  options: Exclude<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {
+    url: string;
+    // Todo figure out way to pass the generic types from the mapper functions
+    endpoint: ReturnType<ExtractAdapterEndpointMapperType<Adapter>>;
+    queryParams: ReturnType<ExtractAdapterQueryParamsMapperType<Adapter>>;
+    headers: ReturnType<ExtractAdapterHeaderMapperType<Adapter>>;
+    payload: ReturnType<ExtractAdapterPayloadMapperType<Adapter>>;
     request: ExtendRequest<
       RequestInstance,
       {
@@ -30,8 +41,15 @@ export type AdapterFetcherType<Adapter extends AdapterInstance> = (
   },
 ) => void;
 
-export type HeaderMappingType = <T extends RequestInstance>(request: T) => HeadersInit;
-export type AdapterPayloadMappingType = (data: unknown) => any;
+// Mappers
+
+export type HeaderMappingType = (request: RequestInstance) => HeadersInit;
+export type EndpointMapper<EndpointType> = (endpoint: EndpointType) => string;
+export type EndpointMapperOptions<EndpointType> = EndpointType extends string
+  ? { endpointMapper?: EndpointMapper<EndpointType> }
+  : { endpointMapper: EndpointMapper<EndpointType> };
+export type QueryParamsMapper<QueryParams> = (queryParams: QueryParams | EmptyTypes) => any;
+export type AdapterPayloadMappingType = (options: { request: RequestInstance; payload: unknown }) => any;
 
 // QueryParams
 
