@@ -11,7 +11,10 @@ export type HttpAdapterType = Adapter<
   HttpStatusType,
   HttpAdapterExtraType,
   QueryParamsType | string | null,
-  string
+  string,
+  any,
+  any,
+  any
 >;
 
 /**

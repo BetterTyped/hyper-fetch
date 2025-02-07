@@ -45,9 +45,6 @@ export type AdapterFetcherType<Adapter extends AdapterInstance> = (
 
 export type HeaderMappingType = (request: RequestInstance) => HeadersInit;
 export type EndpointMapper<EndpointType> = (endpoint: EndpointType) => string;
-export type EndpointMapperOptions<EndpointType> = EndpointType extends string
-  ? { endpointMapper?: EndpointMapper<EndpointType> }
-  : { endpointMapper: EndpointMapper<EndpointType> };
 export type QueryParamsMapper<QueryParams> = (queryParams: QueryParams | EmptyTypes) => any;
 export type AdapterPayloadMappingType = (options: { request: RequestInstance; payload: unknown }) => any;
 
