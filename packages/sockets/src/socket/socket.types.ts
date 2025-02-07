@@ -1,4 +1,4 @@
-import { QueryParamsType, QueryStringifyOptionsType, StringifyCallbackType } from "@hyper-fetch/core";
+import { QueryParamsType, QueryStringifyOptionsType, QueryParamsMapper } from "@hyper-fetch/core";
 
 import { Socket } from "socket";
 import { SocketAdapterInstance } from "adapter";
@@ -15,7 +15,7 @@ export type SocketOptionsType<Adapter extends SocketAdapterInstance> = {
   queryParams?: QueryParamsType | string;
   autoConnect?: boolean;
   queryParamsConfig?: QueryStringifyOptionsType;
-  queryParamsStringify?: StringifyCallbackType;
+  queryParamsStringify?: QueryParamsMapper<QueryParamsType | string>;
   adapterOptions?: ExtractAdapterOptionsType<Adapter>;
 };
 

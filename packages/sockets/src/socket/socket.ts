@@ -1,7 +1,7 @@
 import EventEmitter from "events";
 import {
   stringifyQueryParams,
-  StringifyCallbackType,
+  QueryParamsMapper,
   QueryStringifyOptionsType,
   LoggerManager,
   LogLevel,
@@ -231,7 +231,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   /**
    * Method to stringify query params from objects.
    */
-  queryParamsStringify: StringifyCallbackType = (queryParams) => {
+  queryParamsStringify: QueryParamsMapper<QueryParamsType | string> = (queryParams) => {
     return stringifyQueryParams(queryParams, this.queryParamsConfig);
   };
 
