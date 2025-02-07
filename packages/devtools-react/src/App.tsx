@@ -1,15 +1,16 @@
 import { DevtoolsWorkspaces, Workspace } from "@hyper-fetch/devtools-react";
-import "./App.css";
-import { DevtoolsSocketWrapper } from "./sockets/devtools.socket.wrapper";
 import { useEffect, useState } from "react";
 import { useListener } from "@hyper-fetch/react";
 import { Client } from "@hyper-fetch/core";
-import { ConnectionName } from "./sockets/connection.name";
-import { MessageType } from "../types/messages.types";
-import { initSocket, receiveMessage } from "./sockets/socket";
 import { useImmer } from "use-immer";
 
-function App() {
+import { ConnectionName } from "./sockets/connection.name";
+import { initSocket, receiveMessage } from "./sockets/socket";
+import { DevtoolsSocketWrapper } from "./sockets/devtools.socket.wrapper";
+import { MessageType } from "./types/messages.types";
+import "./App.css";
+
+export function App() {
   const [defaultWorkspace, setDefaultWorkspace] = useState<string | null>(null);
   const [activeWorkspace, setActiveWorkspace] = useState<string>("Default");
   const [workspaces, setWorkspaces] = useImmer<Record<string, Workspace>>({});
@@ -77,5 +78,3 @@ function App() {
     </>
   );
 }
-
-export default App;
