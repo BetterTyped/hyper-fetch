@@ -84,16 +84,17 @@ export class Request<
   used: boolean;
   deduplicate: boolean;
   deduplicateTime: number;
-  payloadMapper?: PayloadMapperType<Payload>;
-  mock?: {
+
+  isMockerEnabled = false;
+
+  unsafe_mock?: {
     fn: (options: {
       request: RequestInstance;
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
     config: MockerConfigType;
   };
-
-  isMockerEnabled = false;
-
+  /** @internal */
+  unsafe_payloadMapper?: PayloadMapperType<Payload>;
   /** @internal */
   unsafe_requestMapper?: RequestMapper<any, any>;
   /** @internal */
@@ -126,7 +127,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     > = {
-      ...(this.client.adapter.requestDefaultOptions?.(requestOptions) as RequestOptionsType<
+      ...(this.client.adapter.requestDefaults?.(requestOptions) as RequestOptionsType<
         Endpoint,
         ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
         ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
@@ -156,7 +157,7 @@ export class Request<
     this.endpoint = initialRequestConfiguration?.endpoint ?? endpoint;
     this.headers = initialRequestConfiguration?.headers ?? headers;
     this.auth = initialRequestConfiguration?.auth ?? auth;
-    this.method = method as ExtractAdapterMethodType<ExtractAdapterType<this>>;
+    this.method = method as ExtractAdapterMethodType<ExtractClientAdapterType<Client>>;
     this.params = initialRequestConfiguration?.params;
     this.payload = initialRequestConfiguration?.payload;
     this.queryParams = initialRequestConfiguration?.queryParams;
@@ -301,13 +302,13 @@ export class Request<
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>,
     config: MockerConfigType = {},
   ) => {
-    this.mock = { fn, config } as typeof this.mock;
+    this.unsafe_mock = { fn, config } as typeof this.unsafe_mock;
     this.isMockerEnabled = true;
     return this;
   };
 
   public clearMock = () => {
-    this.mock = undefined;
+    this.unsafe_mock = undefined;
     this.isMockerEnabled = false;
     return this;
   };
@@ -331,7 +332,7 @@ export class Request<
   ) => {
     const cloned = this.clone<HasPayload, HasParams, HasQuery>(undefined);
 
-    cloned.payloadMapper = payloadMapper as typeof this.payloadMapper;
+    cloned.unsafe_payloadMapper = payloadMapper as typeof this.unsafe_payloadMapper;
 
     return cloned;
   };
@@ -395,6 +396,13 @@ export class Request<
 
   public toJSON(): RequestJSON<this> {
     return {
+      //   requestOptions: RequestOptionsType<
+      //   ExtractEndpointType<Request>,
+      //   ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
+      //   ExtractAdapterMethodType<ExtractAdapterType<Request>>
+      // >;
+      // endpoint: ExtractEndpointType<Request>;
+      // method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
       requestOptions: this.requestOptions as unknown as RequestOptionsType<
         ExtractEndpointType<this>,
         ExtractAdapterOptionsType<ExtractAdapterType<this>>,
@@ -403,7 +411,8 @@ export class Request<
       endpoint: this.endpoint as ExtractEndpointType<this>,
       headers: this.headers,
       auth: this.auth,
-      method: this.method as ExtractAdapterMethodType<ExtractAdapterType<this>>,
+      // TODO: fix this type
+      method: this.method as any,
       params: this.params as ExtractParamsType<this>,
       payload: this.payload as ExtractPayloadType<this>,
       queryParams: this.queryParams as ExtractQueryParamsType<this>,
@@ -480,11 +489,11 @@ export class Request<
     >(this.client, this.requestOptions, initialRequestConfiguration);
 
     // Inherit methods
-    cloned.payloadMapper = this.payloadMapper;
+    cloned.unsafe_payloadMapper = this.unsafe_payloadMapper;
     cloned.unsafe_responseMapper = this.unsafe_responseMapper;
     cloned.unsafe_requestMapper = this.unsafe_requestMapper;
 
-    cloned.mock = this.mock;
+    cloned.unsafe_mock = this.unsafe_mock;
     cloned.isMockerEnabled = this.isMockerEnabled;
 
     return cloned;
@@ -544,7 +553,7 @@ export class Request<
     // Listen for aborting
     requestManager.addAbortController(this.abortKey, requestId);
 
-    const response = await adapter(request, requestId);
+    const response = await adapter.fetch(request, requestId);
 
     // Stop listening for aborting
     requestManager.removeAbortController(this.abortKey, requestId);

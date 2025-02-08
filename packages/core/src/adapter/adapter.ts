@@ -8,12 +8,14 @@ import {
   HeaderMappingType,
   QueryParamsMapper,
   QueryParamsType,
+  RequestResponseType,
 } from "./adapter.types";
 import { RequestInstance, RequestOptionsType } from "request";
 import { Client, ClientInstance } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
 import { getAdapterHeaders, getAdapterPayload } from "../client/client.utils";
+
 const defaultMapper = (value: any) => value;
 
 export class Adapter<
@@ -295,7 +297,7 @@ export class Adapter<
       }
     >,
     requestId: string,
-  ) {
+  ): Promise<RequestResponseType<RequestInstance>> {
     let startTime: number | undefined;
 
     return new Promise((resolve) => {
@@ -310,7 +312,7 @@ export class Adapter<
           }
           const { url } = request.client;
 
-          const { payload: transformedPayload, ...config } = await getAdapterBindings<
+          const config = await getAdapterBindings<
             Adapter<
               AdapterOptions,
               MethodType,
@@ -332,7 +334,7 @@ export class Adapter<
             },
           });
 
-          if (request.mock && request.isMockerEnabled && request.client.isMockerEnabled) {
+          if (request.unsafe_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
             return mocker<
               Adapter<
                 AdapterOptions,
@@ -357,7 +359,6 @@ export class Adapter<
           const queryParams = this.queryParamsMapper(request.queryParams as QueryParams);
           const endpoint = this.endpointMapper(request.endpoint);
           const headers = this.headerMapper(request);
-          const payload = this.payloadMapper({ request, payload: transformedPayload });
 
           return this.fetcher({
             ...config,
@@ -365,7 +366,6 @@ export class Adapter<
             queryParams,
             endpoint,
             headers,
-            payload,
             request,
           });
         } catch (error) {

@@ -16,7 +16,6 @@ import { AppManager, LoggerManager, RequestManager, LogLevel } from "managers";
 import { interceptRequest, interceptResponse } from "./client.utils";
 import { HttpMethods } from "../constants/http.constants";
 import {
-  ExtendRequest,
   EmptyTypes,
   TypeWithDefaults,
   ExtractAdapterExtraType,
@@ -42,9 +41,9 @@ export class Client<
   public debug: boolean;
 
   // Private
-  unsafe_onErrorCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>>[] = [];
-  unsafe_onSuccessCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>>[] = [];
-  unsafe_onResponseCallbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>>[] = [];
+  unsafe_onErrorCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
+  unsafe_onSuccessCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
+  unsafe_onResponseCallbacks: ResponseInterceptorType<ClientInstance>[] = [];
   unsafe_onAuthCallbacks: RequestInterceptorType[] = [];
   unsafe_onRequestCallbacks: RequestInterceptorType[] = [];
 
@@ -67,15 +66,9 @@ export class Client<
   // Registered requests effect
   plugins: PluginInstance[] = [];
 
-  unsafe_abortKeyMapper: (
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) => string = getSimpleKey;
-  unsafe_cacheKeyMapper: (
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) => string = getRequestKey;
-  unsafe_queryKeyMapper: (
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) => string = getRequestKey;
+  unsafe_abortKeyMapper: (request: RequestInstance) => string = getSimpleKey;
+  unsafe_cacheKeyMapper: (request: RequestInstance) => string = getRequestKey;
+  unsafe_queryKeyMapper: (request: RequestInstance) => string = getRequestKey;
 
   // Logger
   logger = this.loggerManager.initialize(this, "Client");
@@ -176,7 +169,7 @@ export class Client<
    * Method for intercepting error responses. It can be used for example to refresh tokens.
    */
   onError = <ErrorType = null>(
-    callback: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, ErrorType | GlobalErrorType>,
+    callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onErrorCallbacks.push(callback);
     return this;
@@ -186,7 +179,7 @@ export class Client<
    * Method for removing listeners on error.
    * */
   removeOnErrorInterceptors = (
-    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, null | GlobalErrorType>[],
+    callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onErrorCallbacks = this.unsafe_onErrorCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
@@ -196,7 +189,7 @@ export class Client<
    * Method for intercepting success responses.
    */
   onSuccess = <ErrorType = null>(
-    callback: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, ErrorType | GlobalErrorType>,
+    callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onSuccessCallbacks.push(callback);
     return this;
@@ -206,7 +199,7 @@ export class Client<
    * Method for removing listeners on success.
    * */
   removeOnSuccessInterceptors = (
-    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, null | GlobalErrorType>[],
+    callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onSuccessCallbacks = this.unsafe_onSuccessCallbacks.filter((callback) => !callbacks.includes(callback));
     return this;
@@ -232,7 +225,7 @@ export class Client<
    * Method for intercepting any responses.
    */
   onResponse = <ErrorType = null>(
-    callback: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, ErrorType | GlobalErrorType>,
+    callback: ResponseInterceptorType<ClientInstance, any, ErrorType | GlobalErrorType>,
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onResponseCallbacks.push(callback);
     return this;
@@ -242,7 +235,7 @@ export class Client<
    * Method for removing listeners on request.
    * */
   removeOnResponseInterceptors = (
-    callbacks: ResponseInterceptorType<Client<GlobalErrorType, Adapter>, any, null | GlobalErrorType>[],
+    callbacks: ResponseInterceptorType<ClientInstance, any, null | GlobalErrorType>[],
   ): Client<GlobalErrorType, Adapter> => {
     this.unsafe_onResponseCallbacks = this.unsafe_onResponseCallbacks.filter(
       (callback) => !callbacks.includes(callback),
@@ -292,19 +285,13 @@ export class Client<
    * Key setters
    */
 
-  setAbortKeyMapper = (
-    callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
-  ) => {
+  setAbortKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unsafe_abortKeyMapper = callback;
   };
-  setCacheKeyMapper = (
-    callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
-  ) => {
+  setCacheKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unsafe_cacheKeyMapper = callback;
   };
-  setQueueKeyMapper = (
-    callback: (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) => string,
-  ) => {
+  setQueueKeyMapper = (callback: (request: RequestInstance) => string) => {
     this.unsafe_queryKeyMapper = callback;
   };
 
@@ -312,16 +299,13 @@ export class Client<
    * Helper used by http adapter to apply the modifications on response error
    * @private
    */
-  unsafe_modifyAuth = async (request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>) =>
-    interceptRequest(this.unsafe_onAuthCallbacks, request);
+  unsafe_modifyAuth = async (request: RequestInstance) => interceptRequest(this.unsafe_onAuthCallbacks, request);
 
   /**
    * Private helper to run async pre-request processing
    * @private
    */
-  unsafe_modifyRequest = async (
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) => interceptRequest(this.unsafe_onRequestCallbacks, request);
+  unsafe_modifyRequest = async (request: RequestInstance) => interceptRequest(this.unsafe_onRequestCallbacks, request);
 
   /**
    * Private helper to run async on-error response processing
@@ -329,13 +313,8 @@ export class Client<
    */
   unsafe_modifyErrorResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) =>
-    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter>>(
-      this.unsafe_onErrorCallbacks,
-      response,
-      request,
-    );
+    request: RequestInstance,
+  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onErrorCallbacks, response, request);
 
   /**
    * Private helper to run async on-success response processing
@@ -343,27 +322,15 @@ export class Client<
    */
   unsafe_modifySuccessResponse = async (
     response: ResponseType<any, GlobalErrorType, Adapter>,
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) =>
-    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter>>(
-      this.unsafe_onSuccessCallbacks,
-      response,
-      request,
-    );
+    request: RequestInstance,
+  ) => interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onSuccessCallbacks, response, request);
 
   /**
    * Private helper to run async response processing
    * @private
    */
-  unsafe_modifyResponse = async (
-    response: ResponseType<any, GlobalErrorType, Adapter>,
-    request: ExtendRequest<RequestInstance, { client: Client<GlobalErrorType, Adapter> }>,
-  ) =>
-    interceptResponse<GlobalErrorType, Client<GlobalErrorType, Adapter>>(
-      this.unsafe_onResponseCallbacks,
-      response,
-      request,
-    );
+  unsafe_modifyResponse = async (response: ResponseType<any, GlobalErrorType, Adapter>, request: RequestInstance) =>
+    interceptResponse<GlobalErrorType, ClientInstance>(this.unsafe_onResponseCallbacks, response, request);
 
   /**
    * Clears the Client instance and remove all listeners on it's dependencies

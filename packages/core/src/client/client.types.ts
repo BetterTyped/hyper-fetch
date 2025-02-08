@@ -1,10 +1,10 @@
 import { RequestInstance } from "request";
-import { ResponseType } from "adapter";
+import { AdapterInstance, ResponseType } from "adapter";
 import { Client } from "client";
 import type { ExtendRequest, ExtractClientAdapterType } from "types";
 
 export type ClientErrorType = Record<string, any> | string;
-export type ClientInstance = Client<any, any>;
+export type ClientInstance = Client<any, AdapterInstance>;
 
 export type RequestGenericType<QueryParams> = {
   response?: any;

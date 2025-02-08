@@ -38,7 +38,7 @@ export const mocker = async <T extends AdapterInstance>({
   systemErrorStatus: ExtractAdapterStatusType<T>;
   systemErrorExtra: ExtractAdapterExtraType<T>;
 }) => {
-  if (!request.mock) {
+  if (!request.unsafe_mock) {
     throw new Error("[Internal HF Error] mock should be defined when calling mocker");
   }
   const {
@@ -47,8 +47,8 @@ export const mocker = async <T extends AdapterInstance>({
     totalUploaded = 1,
     totalDownloaded = 1,
     timeout = false,
-  } = request.mock.config;
-  const result = await request.mock.fn({ request });
+  } = request.unsafe_mock.config;
+  const result = await request.unsafe_mock.fn({ request });
 
   const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
 

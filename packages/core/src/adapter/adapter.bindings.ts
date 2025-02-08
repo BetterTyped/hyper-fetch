@@ -63,8 +63,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   // eslint-disable-next-line prefer-destructuring
   let payload = request.payload;
 
-  if (request.payloadMapper) {
-    payload = await request.payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
+  if (request.unsafe_payloadMapper) {
+    payload = await request.unsafe_payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
   } else if (payloadMapper) {
     payload = await payloadMapper(payload);
   }

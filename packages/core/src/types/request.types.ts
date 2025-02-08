@@ -1,7 +1,7 @@
 import { ResponseType } from "adapter";
 import { ExtractRouteParams, Request, RequestInstance } from "request";
 import { ExtractClientAdapterType, ExtractClientGlobalError } from "./client.types";
-import { ClientInstance } from "client";
+import { Client, ClientInstance } from "client";
 import { TypeWithDefaults } from "./helpers.types";
 import { ExtractAdapterEndpointType } from "./adapter.types";
 
@@ -55,7 +55,7 @@ export type ExtendRequest<
     globalError?: any;
     localError?: any;
     endpoint?: ExtractAdapterEndpointType<ExtractAdapterType<Req>>;
-    client?: ClientInstance;
+    client?: Client<any, any>;
     hasData?: true | false;
     hasParams?: true | false;
     hasQuery?: true | false;
