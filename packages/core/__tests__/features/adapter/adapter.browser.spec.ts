@@ -3,8 +3,9 @@
  */
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { adapter, getErrorMessage } from "adapter";
+import { getErrorMessage } from "adapter";
 import { Client } from "client";
+import { httpAdapter } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -34,7 +35,7 @@ describe("Http Adapter [ Browser ]", () => {
   it("should make a request and return success data with status", async () => {
     const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
@@ -45,7 +46,7 @@ describe("Http Adapter [ Browser ]", () => {
   it("should make a request and return error data with status", async () => {
     const data = mockRequest(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
@@ -60,7 +61,7 @@ describe("Http Adapter [ Browser ]", () => {
       request.abort();
     }, 2);
 
-    const { data: response, error } = await adapter(request, requestId);
+    const { data: response, error } = await httpAdapter.fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("abort").message);
@@ -70,7 +71,7 @@ describe("Http Adapter [ Browser ]", () => {
     const timeoutRequest = request.setOptions({ timeout: 5 });
     mockRequest(timeoutRequest, { delay: 20 });
 
-    const { data: response, error } = await adapter(timeoutRequest, requestId);
+    const { data: response, error } = await httpAdapter.fetch(timeoutRequest, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("timeout").message);
@@ -81,7 +82,7 @@ describe("Http Adapter [ Browser ]", () => {
     const xml = window.XMLHttpRequest;
     window.XMLHttpRequest = undefined as any;
 
-    const { data: response, error, status, extra } = await adapter(request, requestId);
+    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);

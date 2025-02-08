@@ -18,7 +18,7 @@ describe("Mocker [ Base ]", () => {
   const adapterSpy = jest.fn();
   const fixture = { test: 1, data: [200, 300, 404] };
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
   let request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
 
@@ -29,7 +29,7 @@ describe("Mocker [ Base ]", () => {
   beforeEach(() => {
     resetMocks();
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
     request = client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }).setEnableMocking(true);
 
@@ -216,15 +216,15 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("should allow for passing method to mock and return data conditionally", async () => {
-    const mockedRequest = client
-      .createRequest<{ response: any }>()({ endpoint: "/users/:id" })
-      .setMock(({ request: req }) => {
-        const { params } = req;
-        if (params?.id === 11) {
-          return { data: [1, 2, 3], status: 222 };
-        }
-        return { data: [4, 5, 6], status: 200 };
-      });
+    const mockedRequest = client.createRequest<{ response: any }>()({ endpoint: "/users/:id" });
+
+    mockedRequest.setMock(({ request: req }) => {
+      const { params } = req;
+      if (params?.id === 11) {
+        return { data: [1, 2, 3], status: 222 };
+      }
+      return { data: [4, 5, 6], status: 200 };
+    });
     const response = await mockedRequest.send({ params: { id: 11 } } as any);
     const response2 = await mockedRequest.send({ params: { id: 13 } } as any);
 
@@ -438,7 +438,7 @@ describe("Mocker [ Base ]", () => {
   });
 
   it("Should allow for globally turning on and off for all requests related to a client", async () => {
-    const newClient = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    const newClient = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     const mockedRequest = newClient
       .createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" })
       .setMock(() => ({ data: fixture, status: 200 }));

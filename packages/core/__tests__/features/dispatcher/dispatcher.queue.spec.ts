@@ -12,7 +12,7 @@ describe("Dispatcher [ Queue ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -24,7 +24,7 @@ describe("Dispatcher [ Queue ]", () => {
     resetMocks();
     client.clear();
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
   });
 
@@ -124,7 +124,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
 
@@ -135,7 +135,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(request);
 
       client.appManager.setOnline(false);
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       await dispatcher.performRequest(storageElement);
 
@@ -145,7 +145,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       client.appManager.setOnline(false);
       dispatcher.add(request.setQueueKey("test1"));
       dispatcher.add(request.setQueueKey("test2"));
@@ -164,7 +164,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const storageElement = dispatcher.createStorageItem(request);
       dispatcher.performRequest(storageElement);
       dispatcher.performRequest(storageElement);
@@ -200,7 +200,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 2, retryTime: 0 });
       mockRequest(request, { status: 400, delay: 0 });
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
 
       await waitFor(() => {
@@ -211,7 +211,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
       mockRequest(request, { status: 400, delay: 0 });
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
 
       await waitFor(() => {
@@ -222,7 +222,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", retry: 0 });
       mockRequest(request, { status: 400, delay: 5 });
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       dispatcher.add(request);
       await sleep(5);
       client.appManager.setOnline(false);
@@ -238,7 +238,7 @@ describe("Dispatcher [ Queue ]", () => {
       mockRequest(firstRequest);
       mockRequest(secondRequest);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       client.appManager.setOnline(false);
 
       dispatcher.add(firstRequest);
@@ -295,7 +295,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queued: true });
       mockRequest(request, { delay: 1 });
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const jsonRequest = dispatcher.createStorageItem(request);
       dispatcher.addQueueItem(request.queryKey, jsonRequest);
       dispatcher.stopRequest(request.queryKey, jsonRequest.requestId);
@@ -326,7 +326,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
@@ -340,7 +340,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
 
@@ -364,7 +364,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       dispatcher.stop(request.queryKey);
       dispatcher.add(request);
       dispatcher.add(request);
@@ -379,7 +379,7 @@ describe("Dispatcher [ Queue ]", () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint", queryKey: "1" });
       mockRequest(request);
 
-      const spy = jest.spyOn(client, "adapter");
+      const spy = jest.spyOn(client.adapter, "fetch");
       const firstSpy = jest.fn();
       const secondSpy = jest.fn();
 

@@ -1,10 +1,11 @@
 import { waitFor } from "@testing-library/dom";
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { ResponseType, getErrorMessage, AdapterType, xhrExtra } from "adapter";
+import { AdapterInstance, ResponseType, getErrorMessage } from "adapter";
 import { ResponseDetailsType } from "managers";
 import { createDispatcher, createAdapter } from "../../utils";
 import { Client } from "client";
+import { xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -12,7 +13,7 @@ describe("Dispatcher [ Events ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let request = client.createRequest()({ endpoint: "shared-base-endpoint" });
   let dispatcher = createDispatcher(client);
 
@@ -24,7 +25,7 @@ describe("Dispatcher [ Events ]", () => {
     resetMocks();
     jest.resetAllMocks();
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     request = client.createRequest()({ endpoint: "shared-base-endpoint" });
     dispatcher = createDispatcher(client);
     mockRequest(request, { status: 200, delay: 0 });
@@ -78,7 +79,7 @@ describe("Dispatcher [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
     it("should emit proper data response", async () => {
-      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       const mock = mockRequest(request);
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
@@ -86,7 +87,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: mock,
         error: null,
         status: 200,
@@ -110,7 +111,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper failed response", async () => {
-      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       const mock = mockRequest(request, { status: 400 });
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
@@ -118,7 +119,7 @@ describe("Dispatcher [ Events ]", () => {
       });
       dispatcher.add(request);
 
-      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: null,
         error: mock,
         status: 400,
@@ -142,7 +143,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper retry response", async () => {
-      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       const requestWithRetry = request.setRetry(1).setRetryTime(50);
       mockRequest(requestWithRetry, { status: 400, delay: 0 });
 
@@ -157,7 +158,7 @@ describe("Dispatcher [ Events ]", () => {
 
       const mock = mockRequest(requestWithRetry);
 
-      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: mock,
         error: null,
         status: 200,
@@ -181,7 +182,7 @@ describe("Dispatcher [ Events ]", () => {
       });
     });
     it("should emit proper cancel response", async () => {
-      let response: [ResponseType<unknown, unknown, AdapterType>, ResponseDetailsType];
+      let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       mockRequest(request, { status: 400 });
 
       client.requestManager.events.onResponseByCache(request.cacheKey, (data) => {
@@ -191,7 +192,7 @@ describe("Dispatcher [ Events ]", () => {
       await sleep(1);
       client.requestManager.abortAll();
 
-      const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
+      const adapterResponse: ResponseType<unknown, unknown, AdapterInstance> = {
         data: null,
         error: getErrorMessage("abort"),
         status: 0,

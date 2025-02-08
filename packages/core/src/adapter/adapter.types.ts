@@ -31,6 +31,7 @@ export type AdapterFetcherType<Adapter extends AdapterInstance> = (
     queryParams: ReturnType<ExtractAdapterQueryParamsMapperType<Adapter>>;
     headers: ReturnType<ExtractAdapterHeaderMapperType<Adapter>>;
     payload: ReturnType<ExtractAdapterPayloadMapperType<Adapter>>;
+    requestId: string;
     request: ExtendRequest<
       RequestInstance,
       {

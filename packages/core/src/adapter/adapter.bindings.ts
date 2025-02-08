@@ -12,7 +12,7 @@ import {
 } from "types";
 
 export const getAdapterBindings = async <T extends AdapterInstance>({
-  request: initialReq,
+  request: baseRequest,
   requestId,
   resolve,
   onStartTime,
@@ -22,14 +22,14 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
   onStartTime: (timestamp: number) => void;
 }) => {
-  const { requestManager, loggerManager } = initialReq.client;
-  const { payloadMapper } = initialReq.client.adapter;
+  const { requestManager, loggerManager } = baseRequest.client;
+  const { payloadMapper } = baseRequest.client.adapter;
 
-  const logger = loggerManager.initialize(initialReq.client, "Adapter");
+  const logger = loggerManager.initialize(baseRequest.client, "Adapter");
 
   let requestStartTimestamp: null | number = null;
   let responseStartTimestamp: null | number = null;
-  let request = initialReq;
+  let request = baseRequest;
 
   // Progress
   let requestTotal = 1;

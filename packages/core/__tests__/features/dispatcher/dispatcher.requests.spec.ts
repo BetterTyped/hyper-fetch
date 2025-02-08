@@ -10,7 +10,7 @@ describe("Dispatcher [ Requests ]", () => {
   const adapterSpy = jest.fn();
 
   let adapter = createAdapter({ callback: adapterSpy });
-  let client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+  let client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
   let dispatcher = createDispatcher(client);
 
   beforeAll(() => {
@@ -19,7 +19,7 @@ describe("Dispatcher [ Requests ]", () => {
 
   beforeEach(() => {
     adapter = createAdapter({ callback: adapterSpy });
-    client = new Client({ url: "shared-base-url" }).setAdapter(() => adapter);
+    client = new Client({ url: "shared-base-url" }).setAdapter(adapter);
     dispatcher = createDispatcher(client);
     resetMocks();
     jest.resetAllMocks();

@@ -1,5 +1,5 @@
 /* eslint-disable class-methods-use-this */
-import { ExtendRequest } from "types";
+import { EmptyTypes, ExtendRequest } from "types";
 import { getAdapterOnError, getAdapterBindings } from "./adapter.bindings";
 import {
   EndpointMapper,
@@ -23,7 +23,7 @@ export class Adapter<
   MethodType extends string,
   StatusType extends number | string,
   Extra extends Record<string, any>,
-  QueryParams = QueryParamsType | string | null,
+  QueryParams = QueryParamsType | string | EmptyTypes,
   EndpointType = string,
   EndpointMapperType extends EndpointMapper<EndpointType> | ((value: EndpointType) => string) = (
     value: EndpointType,
@@ -293,7 +293,6 @@ export class Adapter<
             PayloadMapperType
           >
         >;
-        queryParams?: QueryParams;
       }
     >,
     requestId: string,
@@ -367,6 +366,7 @@ export class Adapter<
             endpoint,
             headers,
             request,
+            requestId,
           });
         } catch (error) {
           const onError = getAdapterOnError({

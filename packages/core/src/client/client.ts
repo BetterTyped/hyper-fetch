@@ -130,6 +130,7 @@ export class Client<
    */
   setAdapter = <NewAdapter extends AdapterInstance>(adapter: NewAdapter): Client<GlobalErrorType, NewAdapter> => {
     this.adapter = adapter as unknown as Adapter;
+    this.adapter.initialize(this);
     return this as unknown as Client<GlobalErrorType, NewAdapter>;
   };
 

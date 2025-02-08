@@ -621,13 +621,13 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onResponseCallbacks.push(() => ({
+        client.unsafe_onResponseCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
-        client.__onResponseCallbacks = [];
+        client.unsafe_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should return data transformed by __modifySuccessResponse", async () => {
@@ -637,13 +637,13 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onSuccessCallbacks.push(() => ({
+        client.unsafe_onSuccessCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
         const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
-        client.__onSuccessCallbacks = [];
+        client.unsafe_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(successResponse));
       });
       it("should execute __modifySuccessResponse as last modifier", async () => {
@@ -662,15 +662,15 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
-        client.__onResponseCallbacks.push(() => ({
+        client.unsafe_onResponseCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
-        client.__onSuccessCallbacks.push(() => newData);
+        client.unsafe_onSuccessCallbacks.push(() => newData);
         const response = await onSuccess({ data, status: 200, extra: xhrExtra, resolve: () => null });
-        client.__onResponseCallbacks = [];
-        client.__onSuccessCallbacks = [];
+        client.unsafe_onResponseCallbacks = [];
+        client.unsafe_onSuccessCallbacks = [];
         expect(response).toEqual(expect.objectContaining(newData));
         expect(onSuccessSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: expect.objectContaining(newData), request });
@@ -714,32 +714,32 @@ describe("Adapter [ Bindings ]", () => {
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onResponseCallbacks.push(() => ({
+        client.unsafe_onResponseCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
-        client.__onResponseCallbacks = [];
+        client.unsafe_onResponseCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
-      it("should return data transformed by __modifyErrorResponse", async () => {
+      it("should return data transformed by unsafe_modifyErrorResponse", async () => {
         const { onError } = await getAdapterBindings({
           request,
           requestId,
           systemErrorStatus: 0,
           systemErrorExtra: xhrExtra,
         });
-        client.__onErrorCallbacks.push(() => ({
+        client.unsafe_onErrorCallbacks.push(() => ({
           ...errorResponse,
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         }));
         const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
-        client.__onErrorCallbacks = [];
+        client.unsafe_onErrorCallbacks = [];
         expect(response).toEqual(expect.objectContaining(errorResponse));
       });
-      it("should execute __modifyErrorResponse as last modifier", async () => {
+      it("should execute unsafe_modifyErrorResponse as last modifier", async () => {
         const { onError } = await getAdapterBindings({
           request,
           requestId,
@@ -755,15 +755,15 @@ describe("Adapter [ Bindings ]", () => {
           requestTimestamp: expect.toBeNumber(),
           responseTimestamp: expect.toBeNumber(),
         };
-        client.__onResponseCallbacks.push(() => ({
+        client.unsafe_onResponseCallbacks.push(() => ({
           ...successResponse,
           responseTimestamp: expect.toBeNumber(),
           requestTimestamp: expect.toBeNumber(),
         }));
-        client.__onErrorCallbacks.push(() => newData);
+        client.unsafe_onErrorCallbacks.push(() => newData);
         const response = await onError({ error: data, status: 400, extra: xhrExtra, resolve: () => null });
-        client.__onErrorCallbacks = [];
-        client.__onResponseCallbacks = [];
+        client.unsafe_onErrorCallbacks = [];
+        client.unsafe_onResponseCallbacks = [];
         expect(response).toEqual(newData);
         expect(onErrorSpy).toHaveBeenCalledWith({ response: newData, request });
         expect(onFinishedSpy).toHaveBeenCalledWith({ response: newData, request });
