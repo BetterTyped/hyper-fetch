@@ -13,8 +13,9 @@ import {
   ExtractAdapterType,
   ExtractErrorType,
   ExtractResponseType,
+  TypeWithDefaults,
 } from "../types";
-import { Adapter } from "./adapter";
+import { Adapter, DefaultMapperType } from "./adapter";
 import { getAdapterBindings } from "./adapter.bindings";
 
 /**
@@ -23,10 +24,47 @@ import { getAdapterBindings } from "./adapter.bindings";
 
 export type AdapterInstance = Adapter<any, any, any, any, any, any, any, any, any, any>;
 
+export type AdapterGenericType<
+  AdapterOptions,
+  MethodType extends string,
+  StatusType extends number | string,
+  Extra extends Record<string, any>,
+  QueryParams = QueryParamsType | string | EmptyTypes,
+  EndpointType = string,
+  EndpointMapperType extends EndpointMapper<EndpointType> | DefaultMapperType = DefaultMapperType,
+  QueryParamsMapperType extends QueryParamsMapper<QueryParams> | DefaultMapperType = DefaultMapperType,
+  HeaderMapperType extends HeaderMappingType | DefaultMapperType = DefaultMapperType,
+  PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
+> = {
+  adapterOptions: AdapterOptions;
+  methodType: MethodType;
+  statusType: StatusType;
+  extra: Extra;
+  queryParams?: QueryParams;
+  endpointType: EndpointType;
+  endpointMapperType?: EndpointMapperType;
+  queryParamsMapperType?: QueryParamsMapperType;
+  headerMapperType?: HeaderMapperType;
+  payloadMapperType?: PayloadMapperType;
+};
+
+export type DeclareAdapterType<Properties extends AdapterGenericType<any, any, any, any, any, any, any, any, any>> =
+  Adapter<
+    TypeWithDefaults<Properties, "adapterOptions", any>,
+    TypeWithDefaults<Properties, "methodType", any>,
+    TypeWithDefaults<Properties, "statusType", any>,
+    TypeWithDefaults<Properties, "extra", any>,
+    TypeWithDefaults<Properties, "queryParams", QueryParamsType | string | EmptyTypes>,
+    TypeWithDefaults<Properties, "endpointType", string>,
+    TypeWithDefaults<Properties, "endpointMapperType", DefaultMapperType>,
+    TypeWithDefaults<Properties, "queryParamsMapperType", DefaultMapperType>,
+    TypeWithDefaults<Properties, "headerMapperType", DefaultMapperType>,
+    NonNullable<TypeWithDefaults<Properties, "payloadMapperType", DefaultMapperType>>
+  >;
+
 export type AdapterFetcherType<Adapter extends AdapterInstance> = (
   options: Exclude<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {
     url: string;
-    // Todo figure out way to pass the generic types from the mapper functions
     endpoint: ReturnType<ExtractAdapterEndpointMapperType<Adapter>>;
     queryParams: ReturnType<ExtractAdapterQueryParamsMapperType<Adapter>>;
     headers: ReturnType<ExtractAdapterHeaderMapperType<Adapter>>;
@@ -44,10 +82,23 @@ export type AdapterFetcherType<Adapter extends AdapterInstance> = (
 
 // Mappers
 
-export type HeaderMappingType = (request: RequestInstance) => HeadersInit;
-export type EndpointMapper<EndpointType> = (endpoint: EndpointType) => string;
-export type QueryParamsMapper<QueryParams> = (queryParams: QueryParams | EmptyTypes) => any;
-export type AdapterPayloadMappingType = (options: { request: RequestInstance; payload: unknown }) => any;
+export type HeaderMappingType<Config = never> = (request: RequestInstance, config?: Config) => HeadersInit;
+export type EndpointMapper<EndpointType, Config = never> = (endpoint: EndpointType, config?: Config) => string;
+export type QueryParamsMapper<QueryParams, Config = never> = (
+  queryParams: QueryParams | EmptyTypes,
+  config?: Config,
+) => any;
+export type AdapterPayloadMappingType<Config = never> = (
+  options: { request: RequestInstance; payload: unknown },
+  config?: Config,
+) => any;
+
+export type DefaultEndpointMapper = (endpoint: string) => string;
+export type DefaultQueryParamsMapper = (
+  queryParams: QueryParamsType | string | EmptyTypes,
+) => QueryParamsType | string | EmptyTypes;
+export type DefaultHeaderMapper = (request: RequestInstance) => HeadersInit;
+export type DefaultPayloadMapper = (options: { request: RequestInstance; payload: unknown }) => string;
 
 // QueryParams
 

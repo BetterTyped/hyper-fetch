@@ -1,21 +1,19 @@
 import { HttpMethodsType, HttpStatusType } from "../types";
-import { Adapter, QueryParamsType, QueryParamType } from "adapter";
-
+import { DeclareAdapterType, QueryParamsType, QueryParamType } from "adapter";
+import { stringifyQueryParams } from "./http-adapter.utils";
 /**
  * Base Adapter
  */
 
-export type HttpAdapterType = Adapter<
-  HttpAdapterOptionsType,
-  HttpMethodsType,
-  HttpStatusType,
-  HttpAdapterExtraType,
-  QueryParamsType | string | null,
-  string,
-  any,
-  any,
-  any
->;
+export type HttpAdapterType = DeclareAdapterType<{
+  adapterOptions: HttpAdapterOptionsType;
+  methodType: HttpMethodsType;
+  statusType: HttpStatusType;
+  extra: HttpAdapterExtraType;
+  queryParams: QueryParamsType | string | null;
+  endpointType: string;
+  queryParamsMapperType: typeof stringifyQueryParams;
+}>;
 
 /**
  * Options

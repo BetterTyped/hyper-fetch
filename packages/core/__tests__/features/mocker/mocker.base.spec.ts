@@ -3,7 +3,7 @@ import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
 import { createAdapter, createDispatcher } from "../../utils";
 import {
-  AdapterType,
+  HttpAdapterType,
   Client,
   getErrorMessage,
   RequestInstance,
@@ -158,7 +158,7 @@ describe("Mocker [ Base ]", () => {
       expect(response).toBeDefined();
     });
 
-    const adapterResponse: ResponseType<unknown, unknown, AdapterType> = {
+    const adapterResponse: ResponseType<unknown, unknown, HttpAdapterType> = {
       data: { data: [1, 2, 3] },
       error: null,
       status: 200,

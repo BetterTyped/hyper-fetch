@@ -1,7 +1,8 @@
 import { createHttpMockingServer, sleep } from "@hyper-fetch/testing";
 
-import { getErrorMessage, xhrExtra } from "adapter";
+import { getErrorMessage } from "adapter";
 import { Client } from "client";
+import { xhrExtra } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 

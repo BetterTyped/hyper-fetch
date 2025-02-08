@@ -439,7 +439,7 @@ export class Client<
     ) => {
       type Endpoint = TypeWithDefaults<RequestProperties, "endpoint", EndpointType>;
 
-      const endpoint = this.adapter.endpointMapper(params.endpoint);
+      const endpoint = this.adapter.unsafe_endpointMapper(params.endpoint);
 
       // Splitting this type prevents "Type instantiation is excessively deep and possibly infinite" error
       type ExtractedAdapter = ExtractUnionAdapter<
@@ -458,7 +458,7 @@ export class Client<
         MethodType
       > = {
         ...params,
-        endpoint: endpoint as Endpoint extends string ? Endpoint : typeof endpoint,
+        endpoint: String(endpoint) as Endpoint extends string ? Endpoint : typeof endpoint,
       };
 
       const request = new Request<

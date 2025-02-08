@@ -41,11 +41,13 @@ describe("Dispatcher [ Queue ]", () => {
       client.requestManager.events.onLoadingByQueue(request.queryKey, loadingSpy);
       const requestId = dispatcher.add(request);
 
-      expect(requestId).toBeString();
-      expect(adapterSpy).toHaveBeenCalledTimes(1);
-      expect(loadingSpy).toHaveBeenCalledTimes(1);
-      expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeTrue();
-      expect(dispatcher.getQueueRequestCount(request.queryKey)).toBe(1);
+      await waitFor(() => {
+        expect(requestId).toBeString();
+        expect(adapterSpy).toHaveBeenCalledTimes(1);
+        expect(loadingSpy).toHaveBeenCalledTimes(1);
+        expect(dispatcher.getIsActiveQueue(request.queryKey)).toBeTrue();
+        expect(dispatcher.getQueueRequestCount(request.queryKey)).toBe(1);
+      });
     });
     it("should add running request and delete it once data is fetched", async () => {
       const request = client.createRequest()({ endpoint: "shared-base-endpoint" });

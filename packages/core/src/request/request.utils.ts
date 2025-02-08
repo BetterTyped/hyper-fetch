@@ -94,8 +94,9 @@ export const getRequestKey = (
    */
   const methodKey = stringifyKey(request.method);
   const endpointKey = useInitialValues ? request.requestOptions.endpoint : stringifyKey(request.endpoint);
+  const queryParamsKey = useInitialValues ? "" : stringifyKey(request.queryParams);
 
-  return `${methodKey}_${endpointKey}`;
+  return `${methodKey}_${endpointKey}_${queryParamsKey}`;
 };
 
 export const getRequestDispatcher = <Request extends RequestInstance>(

@@ -127,7 +127,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     > = {
-      ...(this.client.adapter.requestDefaults?.(requestOptions) as RequestOptionsType<
+      ...(this.client.adapter.unsafe_requestDefaults?.(requestOptions) as RequestOptionsType<
         Endpoint,
         ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
         ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
@@ -396,13 +396,6 @@ export class Request<
 
   public toJSON(): RequestJSON<this> {
     return {
-      //   requestOptions: RequestOptionsType<
-      //   ExtractEndpointType<Request>,
-      //   ExtractAdapterOptionsType<ExtractAdapterType<Request>>,
-      //   ExtractAdapterMethodType<ExtractAdapterType<Request>>
-      // >;
-      // endpoint: ExtractEndpointType<Request>;
-      // method: ExtractAdapterMethodType<ExtractAdapterType<Request>>;
       requestOptions: this.requestOptions as unknown as RequestOptionsType<
         ExtractEndpointType<this>,
         ExtractAdapterOptionsType<ExtractAdapterType<this>>,

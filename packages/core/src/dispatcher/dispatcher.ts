@@ -498,7 +498,6 @@ export class Dispatcher {
     this.logger.debug({ title: "Performing request", type: "system", extra: { request, requestId } });
 
     const { retry, retryTime, queryKey, abortKey, offline } = request;
-    // TODO - fix adapter any
     const { adapter, requestManager, cache, appManager } = this.client;
 
     const canRetry = canRetryRequest(storageItem.retries, retry);
@@ -533,7 +532,9 @@ export class Dispatcher {
     // Listen for aborting
     requestManager.addAbortController(abortKey, requestId);
 
+    console.log("IN");
     const response: RequestResponseType<any> = await adapter.fetch(request, requestId);
+    console.log("OUT");
 
     // eslint-disable-next-line no-param-reassign
     storageItem.resolved = true;

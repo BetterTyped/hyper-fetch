@@ -1,11 +1,11 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { Plugin } from "plugin";
-import { Client, StringifyCallbackType } from "client";
+import { Client } from "client";
 import { RequestOptionsType, Request } from "request";
-import { AdapterOptionsType, QueryStringifyOptionsType } from "adapter";
 import { LoggerManager } from "managers";
 import { createAdapter, interceptorCallback, middlewareCallback } from "../../utils";
+import { HttpAdapterOptionsType, QueryStringifyOptionsType } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -27,18 +27,18 @@ describe("Client [ Methods ]", () => {
 
   describe("When using config methods", () => {
     it("should assign default request config [setRequestDefaultOptions]", async () => {
-      const options: Partial<RequestOptionsType<string, AdapterOptionsType>> = { method: "POST" };
-      client.setRequestDefaultOptions(() => options);
+      const options: Partial<RequestOptionsType<string, HttpAdapterOptionsType>> = { method: "POST" };
+      client.adapter.setRequestDefaults(() => options);
       const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.requestDefaultOptions?.(request.requestOptions)).toEqual(options);
+      expect(client.adapter.unsafe_requestDefaults?.(request.requestOptions)).toEqual(options);
       expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
-      const options: AdapterOptionsType = { timeout: 12312312 };
-      client.setAdapterDefaultOptions(() => options);
+      const options: HttpAdapterOptionsType = { timeout: 12312312 };
+      client.adapter.setAdapterDefaults(() => options);
 
-      expect(client.adapterDefaultOptions?.(request)).toEqual(options);
+      expect(client.adapter.unsafe_requestDefaults?.(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = {
@@ -46,21 +46,21 @@ describe("Client [ Methods ]", () => {
         dateParser: () => "date",
         objectParser: () => "object",
       };
-      client.setQueryParamsConfig(options);
+      client.adapter.setQueryParamsMapperConfig(options);
 
-      expect(client.queryParamsConfig).toEqual(options);
-      expect(client.stringifyQueryParams({ date: new Date() })).toBe("?date=date");
-      expect(client.stringifyQueryParams({ object: {} })).toBe("?object=object");
+      expect(client.adapter.unsafe_queryParamsMapperConfig).toEqual(options);
+      expect(client.adapter.unsafe_queryParamsMapper({ date: new Date() })).toBe("?date=date");
+      expect(client.adapter.unsafe_queryParamsMapper({ object: {} })).toBe("?object=object");
     });
     it("should assign debug value [setDebug]", async () => {
       client.setLogger(() => new LoggerManager({ logger: () => null })).setDebug(true);
       expect(client.debug).toEqual(true);
     });
     it("should assign query params handling callback [setStringifyQueryParams]", async () => {
-      const callback: StringifyCallbackType = () => "";
-      client.setStringifyQueryParams(callback);
+      const callback = () => "";
+      client.adapter.setQueryParamsMapper(callback);
 
-      expect(client.stringifyQueryParams).toEqual(callback);
+      expect(client.adapter.unsafe_queryParamsMapper).toEqual(callback);
     });
     it("should assign logger levels [setLoggerLevel]", async () => {
       client.setLogLevel("info");
@@ -69,13 +69,7 @@ describe("Client [ Methods ]", () => {
     });
     it("should assign new adapter [setAdapter]", async () => {
       const callback = createAdapter();
-      client.setAdapter(() => callback);
-
-      expect(client.adapter).toEqual(callback);
-    });
-    it("should assign new adapter and return client [setAdapter]", async () => {
-      const callback = createAdapter();
-      client.setAdapter((instance) => instance.setAdapter(() => callback));
+      client.setAdapter(callback);
 
       expect(client.adapter).toEqual(callback);
     });
@@ -83,41 +77,41 @@ describe("Client [ Methods ]", () => {
       const callback = middlewareCallback();
       client.onAuth(callback).onAuth(callback);
 
-      expect(client.__onAuthCallbacks).toHaveLength(2);
-      expect(client.__onAuthCallbacks[0]).toEqual(callback);
-      expect(client.__onAuthCallbacks[1]).toEqual(callback);
+      expect(client.unsafe_onAuthCallbacks).toHaveLength(2);
+      expect(client.unsafe_onAuthCallbacks[0]).toEqual(callback);
+      expect(client.unsafe_onAuthCallbacks[1]).toEqual(callback);
     });
     it("should assign error interceptors [onError]", async () => {
       const callback = interceptorCallback();
       client.onError(callback).onError(callback);
 
-      expect(client.__onErrorCallbacks).toHaveLength(2);
-      expect(client.__onErrorCallbacks[0]).toEqual(callback);
-      expect(client.__onErrorCallbacks[1]).toEqual(callback);
+      expect(client.unsafe_onErrorCallbacks).toHaveLength(2);
+      expect(client.unsafe_onErrorCallbacks[0]).toEqual(callback);
+      expect(client.unsafe_onErrorCallbacks[1]).toEqual(callback);
     });
     it("should assign success interceptors [onSuccess]", async () => {
       const callback = interceptorCallback();
       client.onSuccess(callback).onSuccess(callback);
 
-      expect(client.__onSuccessCallbacks).toHaveLength(2);
-      expect(client.__onSuccessCallbacks[0]).toEqual(callback);
-      expect(client.__onSuccessCallbacks[1]).toEqual(callback);
+      expect(client.unsafe_onSuccessCallbacks).toHaveLength(2);
+      expect(client.unsafe_onSuccessCallbacks[0]).toEqual(callback);
+      expect(client.unsafe_onSuccessCallbacks[1]).toEqual(callback);
     });
     it("should assign request triggers [onRequest]", async () => {
       const callback = middlewareCallback();
       client.onRequest(callback).onRequest(callback);
 
-      expect(client.__onRequestCallbacks).toHaveLength(2);
-      expect(client.__onRequestCallbacks[0]).toEqual(callback);
-      expect(client.__onRequestCallbacks[1]).toEqual(callback);
+      expect(client.unsafe_onRequestCallbacks).toHaveLength(2);
+      expect(client.unsafe_onRequestCallbacks[0]).toEqual(callback);
+      expect(client.unsafe_onRequestCallbacks[1]).toEqual(callback);
     });
     it("should assign response triggers [onResponse]", async () => {
       const callback = interceptorCallback();
       client.onResponse(callback).onResponse(callback);
 
-      expect(client.__onResponseCallbacks).toHaveLength(2);
-      expect(client.__onResponseCallbacks[0]).toEqual(callback);
-      expect(client.__onResponseCallbacks[1]).toEqual(callback);
+      expect(client.unsafe_onResponseCallbacks).toHaveLength(2);
+      expect(client.unsafe_onResponseCallbacks[0]).toEqual(callback);
+      expect(client.unsafe_onResponseCallbacks[1]).toEqual(callback);
     });
     it("should create new request on createRequest method trigger", async () => {
       const endpoint = "some-endpoint";
@@ -164,33 +158,31 @@ describe("Client [ Methods ]", () => {
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {
       const callback = () => ({}) as HeadersInit;
-      client.setHeaderMapper(callback);
+      client.adapter.setHeaderMapper(callback);
 
-      expect(client.headerMapper).toEqual(callback);
+      expect(client.adapter.unsafe_headerMapper).toEqual(callback);
     });
     it("should assign payload handling callback [setPayloadMapper]", async () => {
       const callback = () => "";
-      client.setPayloadMapper(callback);
+      client.adapter.setPayloadMapper(callback);
 
-      expect(client.payloadMapper).toEqual(callback);
+      expect(client.adapter.unsafe_payloadMapper).toEqual(callback);
     });
     it("should assign endpoint handling callback [setEndpointMapper]", async () => {
       const callback = () => "";
-      client.setEndpointMapper(callback);
+      client.adapter.setEndpointMapper(callback);
 
-      expect(client.endpointMapper).toEqual(callback);
+      expect(client.adapter.unsafe_endpointMapper).toEqual(callback);
     });
     it("should assign key mappers", async () => {
       const callback = () => "";
       client.setAbortKeyMapper(callback);
       client.setCacheKeyMapper(callback);
       client.setQueueKeyMapper(callback);
-      client.setEffectKeyMapper(callback);
 
-      expect(client.abortKeyMapper).toEqual(callback);
-      expect(client.cacheKeyMapper).toEqual(callback);
-      expect(client.queryKeyMapper).toEqual(callback);
-      expect(client.effectKeyMapper).toEqual(callback);
+      expect(client.unsafe_abortKeyMapper).toEqual(callback);
+      expect(client.unsafe_cacheKeyMapper).toEqual(callback);
+      expect(client.unsafe_queryKeyMapper).toEqual(callback);
     });
   });
 });

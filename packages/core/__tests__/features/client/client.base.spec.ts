@@ -4,6 +4,7 @@ import { Cache } from "cache";
 import { Dispatcher } from "dispatcher";
 import { AppManager } from "managers";
 import { Client } from "client";
+import { Adapter } from "adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -28,9 +29,13 @@ describe("Client [ Base ]", () => {
       expect(client.url).toBe(url);
     });
     it("should assign new adapter", async () => {
-      const adapter = () => {
-        return {} as any;
-      };
+      const adapter = new Adapter({
+        name: "test",
+        defaultMethod: "GET",
+        defaultExtra: {},
+        systemErrorStatus: 0,
+        systemErrorExtra: {},
+      });
       const client = new Client({ url: "shared-base-url", adapter });
 
       expect(client.adapter).toBe(adapter);

@@ -23,7 +23,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   onStartTime: (timestamp: number) => void;
 }) => {
   const { requestManager, loggerManager } = baseRequest.client;
-  const { payloadMapper } = baseRequest.client.adapter;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { unsafe_payloadMapper } = baseRequest.client.adapter;
 
   const logger = loggerManager.initialize(baseRequest.client, "Adapter");
 
@@ -65,8 +66,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   if (request.unsafe_payloadMapper) {
     payload = await request.unsafe_payloadMapper<ExtractPayloadType<RequestInstance>>(request.payload);
-  } else if (payloadMapper) {
-    payload = await payloadMapper(payload);
+  } else if (unsafe_payloadMapper) {
+    payload = await unsafe_payloadMapper(payload);
   }
 
   const adapterOptions = request.options as ExtractAdapterOptionsType<T> | undefined;
@@ -389,8 +390,17 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
     },
   });
 
+  const queryParams = baseRequest.client.adapter.unsafe_queryParamsMapper(request.queryParams);
+  const endpoint = baseRequest.client.adapter.unsafe_endpointMapper(request.endpoint);
+  const headers = baseRequest.client.adapter.unsafe_headerMapper(request);
+  const { url } = baseRequest.client;
+
   return {
+    url,
+    endpoint,
+    queryParams,
     payload,
+    headers,
     adapterOptions,
     getAbortController,
     getRequestStartTimestamp,

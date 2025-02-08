@@ -1,6 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { Client, stringifyDefaultOptions, stringifyQueryParams } from "client";
+import { Client, stringifyDefaultOptions } from "client";
+import { stringifyQueryParams } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
 
@@ -10,7 +11,8 @@ const options = {
 };
 
 describe("Client [ Utils ]", () => {
-  let client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
+  let client = new Client({ url: "shared-base-url" });
+  client.adapter.setQueryParamsMapperConfig(options);
   let request = client.createRequest<{ payload: FormData; response: any }>()({ endpoint: "shared-nase-endpoint" });
 
   beforeAll(() => {
@@ -18,7 +20,8 @@ describe("Client [ Utils ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "shared-base-url" }).setQueryParamsConfig(options);
+    client = new Client({ url: "shared-base-url" });
+    client.adapter.setQueryParamsMapperConfig(options);
     request = client.createRequest<{ response: any; payload: FormData }>()({ endpoint: "shared-nase-endpoint" });
     resetMocks();
   });
@@ -29,15 +32,16 @@ describe("Client [ Utils ]", () => {
 
   describe("When using stringifyQueryParams util", () => {
     it("should encode falsy values", async () => {
-      const newClient = new Client({ url: "shared-base-url" }).setQueryParamsConfig({
+      const newClient = new Client({ url: "shared-base-url" });
+      newClient.adapter.setQueryParamsMapperConfig({
         encode: false,
         arrayFormat: "bracket",
       });
-      expect(newClient.stringifyQueryParams({ value: { test: new Date("9,9,2020").toISOString() } })).toBe(
+      expect(newClient.adapter.unsafe_queryParamsMapper({ value: { test: new Date("9,9,2020").toISOString() } })).toBe(
         `?value={"test":"${new Date("9,9,2020").toISOString()}"}`,
       );
       expect(
-        newClient.stringifyQueryParams({
+        newClient.adapter.unsafe_queryParamsMapper({
           page: 0,
           status: ["status1", "status2"],
           lastFreeDay: '{"from":"2023-06-20T10:37:27.508Z","to":"2023-06-24T10:37:27.508Z"}',
@@ -148,7 +152,7 @@ describe("Client [ Utils ]", () => {
   describe("When using headerMapper", () => {
     it("should assign default headers with headers mapper", async () => {
       const defaultHeaders = { "Content-Type": "application/json" };
-      const headers = client.headerMapper(request);
+      const headers = client.adapter.unsafe_headerMapper(request, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -156,14 +160,14 @@ describe("Client [ Utils ]", () => {
       const defaultHeaders = {};
       const data = new FormData();
       const formDataRequest = request.setPayload(data);
-      const headers = client.headerMapper(formDataRequest);
+      const headers = client.adapter.unsafe_headerMapper(formDataRequest, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
     it("should not re-assign form data headers", async () => {
       const defaultHeaders = { "Content-Type": "some-custom-format" };
       const formDataRequest = request.setHeaders(defaultHeaders);
-      const headers = client.headerMapper(formDataRequest);
+      const headers = client.adapter.unsafe_headerMapper(formDataRequest, undefined);
 
       expect(headers).toEqual(defaultHeaders);
     });
@@ -172,29 +176,29 @@ describe("Client [ Utils ]", () => {
   describe("When using payloadMapper", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.payloadMapper(undefined);
+      const payload = client.adapter.unsafe_payloadMapper(undefined, undefined);
 
       expect(payload).toBeUndefined();
     });
     it("should not stringify invalid payload", async () => {
-      const payload = client.payloadMapper(() => null);
+      const payload = client.adapter.unsafe_payloadMapper(() => null, undefined);
       expect(payload).toBeUndefined();
     });
   });
@@ -202,24 +206,24 @@ describe("Client [ Utils ]", () => {
   describe("When using stringifyValue util", () => {
     it("should allow to stringify payload", async () => {
       const data = { data: [] };
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify FormData payload", async () => {
       const data = new FormData();
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(data);
     });
     it("should stringify null payload", async () => {
       const data = null;
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
 
       expect(payload).toEqual(JSON.stringify(data));
     });
     it("should not stringify undefined payload", async () => {
-      const payload = client.payloadMapper(undefined);
+      const payload = client.adapter.unsafe_payloadMapper(undefined, undefined);
 
       expect(payload).toBeUndefined();
     });
@@ -227,7 +231,7 @@ describe("Client [ Utils ]", () => {
       const data: Record<string, unknown> = {};
       data.a = { b: data };
 
-      const payload = client.payloadMapper(data);
+      const payload = client.adapter.unsafe_payloadMapper(data, undefined);
       expect(payload).toBe("");
     });
   });
