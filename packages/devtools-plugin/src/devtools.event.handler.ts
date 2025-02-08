@@ -1,12 +1,13 @@
 import { ClientInstance } from "@hyper-fetch/core";
-import { Emitter, Socket } from "@hyper-fetch/sockets";
+import { Emitter, Listener, Socket } from "@hyper-fetch/sockets";
 
 import { EmitableCoreEvents, EmitableCustomEvents, DevtoolsPluginOptions } from "devtools.types";
 
-export class DevtoolsEventEmitter {
+export class DevtoolsEventHandler {
   client: ClientInstance;
   socket: Socket;
   socketEmitter: Emitter<any, any, any>;
+  socketListener: Listener<any, any, any>;
   unmountHooks: any; // TODO FIX ANY
   isConnected: boolean;
   eventQueue: any[] = [];
@@ -24,7 +25,8 @@ export class DevtoolsEventEmitter {
     this.socket = new Socket({ url: `${socketAddress}:${socketPort}` }).setQuery({
       connectionName: this.connectionName,
     });
-    this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER_TOPIC" });
+    this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
+    this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
     this.socket.onConnected(() => {
       this.isConnected = true;
       while (this.eventQueue.length > 0) {
@@ -34,19 +36,25 @@ export class DevtoolsEventEmitter {
         this.socketEmitter.emit({ payload: nextEvent });
       }
     });
+    this.socketListener.listen((message) => {
+      console.log("LISTENED TO MESSAGE!", message);
+    });
   }
 
   sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
-    console.log("SENDING EVENT", eventType);
     if (this.isConnected) {
-      this.socketEmitter.emit({
-        payload: {
-          messageType: "HF_APP_EVENT",
-          eventType,
-          eventData: data,
-          connectionName: this.connectionName,
-        },
-      });
+      try {
+        this.socketEmitter.emit({
+          payload: {
+            messageType: "HF_APP_EVENT",
+            eventType,
+            eventData: data,
+            connectionName: this.connectionName,
+          },
+        });
+      } catch (e) {
+        console.log("ERRORR", e);
+      }
     } else {
       this.eventQueue.push({
         messageType: "HF_APP_EVENT",
