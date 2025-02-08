@@ -1,11 +1,32 @@
-import { getAdapterBindings, getResponseHeaders, parseResponse, getErrorMessage } from "@hyper-fetch/core";
+import { getResponseHeaders, parseResponse, getErrorMessage, Adapter, QueryParamsType } from "@hyper-fetch/core";
 
-import { gqlExtra, GraphQLAdapterType, defaultTimeout, getRequestValues } from "adapter";
+import {
+  gqlExtra,
+  GraphQLAdapterType,
+  defaultTimeout,
+  getRequestValues,
+  GraphqlMethod,
+  GraphQlExtraType,
+  GraphQlEndpointType,
+} from "adapter";
 
-export const adapter: GraphQLAdapterType = async (request, requestId) => {
-  const {
-    makeRequest,
-    config,
+export const adapter: GraphQLAdapterType = new Adapter<
+  Partial<XMLHttpRequest>,
+  GraphqlMethod,
+  number,
+  GraphQlExtraType,
+  QueryParamsType | string,
+  GraphQlEndpointType
+>({
+  name: "graphql",
+  defaultMethod: GraphqlMethod.POST,
+  defaultExtra: gqlExtra,
+  systemErrorStatus: 0,
+  systemErrorExtra: gqlExtra,
+}).setFetcher(
+  async ({
+    request,
+    adapterOptions,
     headers,
     onError,
     onResponseEnd,
@@ -18,25 +39,17 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<GraphQLAdapterType>({
-    request,
-    requestId,
-    systemErrorStatus: 0,
-    systemErrorExtra: gqlExtra,
-    internalErrorFormatter: (error) => [error],
-  });
+  }) => {
+    const { fullUrl, payload } = getRequestValues(request);
 
-  const { fullUrl, payload } = getRequestValues(request);
-
-  return makeRequest((resolve) => {
     const xhr = new XMLHttpRequest();
     xhr.timeout = defaultTimeout;
 
     const onAbort = () => xhr.abort();
 
     // Inject xhr options
-    if (config) {
-      Object.entries(config).forEach(([name, value]) => {
+    if (adapterOptions) {
+      Object.entries(adapterOptions).forEach(([name, value]) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         xhr[name] = value;
@@ -50,7 +63,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     Object.entries(headers).forEach(([name, value]) => xhr.setRequestHeader(name, value as string));
 
     // Listen to abort signal
-    const unmountListener = createAbortListener({ status: 0, extra: gqlExtra, onAbort, resolve });
+    const unmountListener = createAbortListener({ status: 0, extra: gqlExtra, onAbort });
 
     // Request handlers
     xhr.upload.onprogress = onRequestProgress;
@@ -68,7 +81,7 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       unmountListener();
     };
 
-    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: gqlExtra, resolve });
+    xhr.ontimeout = () => onTimeoutError({ status: 0, extra: gqlExtra });
 
     // Data handler
     xhr.onreadystatechange = (e: Event) => {
@@ -87,14 +100,13 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
         if (failure) {
           const error = errors || [getErrorMessage()];
           // delay to finish after onabort/ontimeout
-          onError({ error, status, extra: { headers: responseHeaders, extensions }, resolve });
+          onError({ error, status, extra: { headers: responseHeaders, extensions } });
         } else {
           onSuccess({
             data,
             error: errors,
             status,
             extra: { headers: responseHeaders, extensions },
-            resolve,
           });
         }
       }
@@ -105,5 +117,5 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     onRequestStart();
 
     xhr.send(payload);
-  });
-};
+  },
+);

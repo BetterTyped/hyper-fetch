@@ -1,13 +1,34 @@
-import { getAdapterBindings, parseErrorResponse, parseResponse } from "@hyper-fetch/core";
+import { Adapter, parseErrorResponse, parseResponse, QueryParamsType } from "@hyper-fetch/core";
 import http, { OutgoingHttpHeaders } from "http";
 import https from "https";
 
-import { gqlExtra, defaultTimeout, GraphQLAdapterType, getRequestValues } from "adapter";
+import {
+  gqlExtra,
+  defaultTimeout,
+  GraphQLAdapterType,
+  getRequestValues,
+  GraphQlExtraType,
+  GraphqlMethod,
+  GraphQlEndpointType,
+} from "adapter";
 
-export const adapter: GraphQLAdapterType = async (request, requestId) => {
-  const {
-    makeRequest,
-    config,
+export const adapter: GraphQLAdapterType = new Adapter<
+  Partial<XMLHttpRequest>,
+  GraphqlMethod,
+  number,
+  GraphQlExtraType,
+  QueryParamsType | string,
+  GraphQlEndpointType
+>({
+  name: "graphql",
+  defaultMethod: GraphqlMethod.POST,
+  defaultExtra: gqlExtra,
+  systemErrorStatus: 0,
+  systemErrorExtra: gqlExtra,
+}).setFetcher(
+  async ({
+    request,
+    adapterOptions,
     headers,
     onError,
     onResponseEnd,
@@ -19,44 +40,35 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
     onBeforeRequest,
     onRequestStart,
     onSuccess,
-  } = await getAdapterBindings<GraphQLAdapterType>({
-    request,
-    requestId,
-    systemErrorStatus: 0,
-    systemErrorExtra: gqlExtra,
-    internalErrorFormatter: (error) => [error],
-  });
+  }) => {
+    const { fullUrl, payload } = getRequestValues(request);
 
-  const { fullUrl, payload } = getRequestValues(request);
+    const httpClient = request.client.url.includes("https://") ? https : http;
+    const options = {
+      method: request.method,
+      headers: headers as OutgoingHttpHeaders,
+      timeout: defaultTimeout,
+      signal: undefined as AbortSignal | undefined,
+    } satisfies https.RequestOptions;
 
-  const httpClient = request.client.url.includes("https://") ? https : http;
-  const options = {
-    method: request.method,
-    headers: headers as OutgoingHttpHeaders,
-    timeout: defaultTimeout,
-    signal: undefined as AbortSignal | undefined,
-  } satisfies https.RequestOptions;
+    Object.entries(adapterOptions || {}).forEach(([name, value]) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      options[name] = value;
+    });
 
-  Object.entries(config || {}).forEach(([name, value]) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    options[name] = value;
-  });
+    // if (request.payload) {
+    //   options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
+    // }
 
-  // if (request.payload) {
-  //   options.headers["Content-Length"] = Buffer.byteLength(JSON.stringify(payload));
-  // }
+    onBeforeRequest();
 
-  onBeforeRequest();
-
-  return makeRequest((resolve) => {
     const unmountListener = createAbortListener({
       status: 0,
       extra: gqlExtra,
       onAbort: ({ signal }) => {
         options.signal = signal;
       },
-      resolve,
     });
 
     const httpRequest = httpClient.request(fullUrl, options, (response) => {
@@ -89,7 +101,6 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
             error: errors,
             status: statusCode,
             extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
-            resolve,
           });
         } else {
           // delay to finish after onabort/ontimeout
@@ -102,7 +113,6 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
             error,
             status: statusCode,
             extra: { headers: response.headers as Record<string, string>, extensions: extensions ?? {} },
-            resolve,
           });
         }
 
@@ -111,11 +121,11 @@ export const adapter: GraphQLAdapterType = async (request, requestId) => {
       });
     });
 
-    httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: gqlExtra, resolve }));
-    httpRequest.on("error", (error) => onError({ error, status: 0, extra: gqlExtra, resolve }));
+    httpRequest.on("timeout", () => onTimeoutError({ status: 0, extra: gqlExtra }));
+    httpRequest.on("error", (error) => onError({ error, status: 0, extra: gqlExtra }));
     if (payload) {
       httpRequest.write(payload);
     }
     httpRequest.end();
-  });
-};
+  },
+);
