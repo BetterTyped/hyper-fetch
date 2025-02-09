@@ -60,7 +60,7 @@ export type DeclareAdapterType<Properties extends AdapterGenericType<any, any, a
   >;
 
 export type AdapterFetcherType<Adapter extends AdapterInstance> = (
-  options: Exclude<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {
+  options: Omit<Awaited<ReturnType<typeof getAdapterBindings<Adapter>>>, "payload"> & {
     url: string;
     endpoint: ReturnType<ExtractAdapterEndpointMapperType<Adapter>>;
     queryParams: ReturnType<ExtractAdapterQueryParamsMapperType<Adapter>>;

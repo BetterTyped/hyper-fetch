@@ -37,7 +37,7 @@ describe("Request [ Utils ]", () => {
         .createRequest()({ endpoint: "/users/:userId" })
         .setParams({ userId: 1 })
         .setQueryParams("?test=1");
-      expect(getRequestKey(request)).toBe("GET_/users/1?test=1");
+      expect(getRequestKey(request)).toBe("GET_/users/1_?test=1");
     });
     it("should useInitialValues and return generic endpoint key", async () => {
       const client = new Client({ url: "shared-base-url" });
@@ -45,7 +45,7 @@ describe("Request [ Utils ]", () => {
         .createRequest()({ endpoint: "/users/:userId" })
         .setParams({ userId: 1 })
         .setQueryParams("?test=1");
-      expect(getRequestKey(request, true)).toBe("GET_/users/:userId");
+      expect(getRequestKey(request, true)).toBe("GET_/users/:userId_");
     });
   });
   describe("when getRequestDispatcher function is used", () => {

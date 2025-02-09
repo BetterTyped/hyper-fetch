@@ -127,7 +127,7 @@ export class Request<
       ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
       ExtractAdapterMethodType<ExtractClientAdapterType<Client>>
     > = {
-      ...(this.client.adapter.unsafe_requestDefaults?.(requestOptions) as RequestOptionsType<
+      ...(this.client.adapter.unsafe_getRequestDefaults?.(requestOptions) as RequestOptionsType<
         Endpoint,
         ExtractAdapterOptionsType<ExtractClientAdapterType<Client>>,
         ExtractAdapterMethodType<ExtractClientAdapterType<Client>>

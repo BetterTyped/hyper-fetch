@@ -1,5 +1,5 @@
 import { RequestInstance } from "request";
-import { ResponseErrorType, ResponseType, ResponseSuccessType } from "adapter";
+import { ResponseErrorType, ResponseType, ResponseSuccessType, AdapterInstance } from "adapter";
 import { Plugin } from "plugin";
 import {
   ExtractAdapterType,
@@ -168,6 +168,12 @@ export type PluginMethods<Client extends ClientInstance> = {
       >
     >;
   }) => void;
+
+  /* -------------------------------------------------------------------------------------------------
+   * Adapter lifecycle
+   * -----------------------------------------------------------------------------------------------*/
+
+  onAdapterFetch?: (data: { request: RequestInstance; requestId: string; adapter: AdapterInstance }) => void;
 };
 
 export type PluginMethodParameters<Key extends keyof PluginMethods<Client>, Client extends ClientInstance> = Parameters<

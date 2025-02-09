@@ -49,9 +49,8 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.payload).toBe(data);
   });
   it("should allow for setting query params", async () => {
-    expect(request.endpoint).toBe("/users/:userId");
     const updatedRequest = request.setQueryParams("?test=123");
-    expect(updatedRequest.endpoint).toBe("/users/:userId?test=123");
+    expect(updatedRequest.queryParams).toBe("?test=123");
   });
   it("should allow for setting options", async () => {
     const options = { timeout: 123 };
@@ -95,12 +94,12 @@ describe("Request [ Setters ]", () => {
     expect(updatedRequest.abortKey).toBe("test");
   });
   it("should allow for setting cache key", async () => {
-    expect(request.cacheKey).toBe("GET_/users/:userId");
+    expect(request.cacheKey).toBe("GET_/users/:userId_");
     const updatedRequest = request.setCacheKey("test");
     expect(updatedRequest.cacheKey).toBe("test");
   });
   it("should allow for setting queue key", async () => {
-    expect(request.queryKey).toBe("GET_/users/:userId");
+    expect(request.queryKey).toBe("GET_/users/:userId_");
     const updatedRequest = request.setQueueKey("test");
     expect(updatedRequest.queryKey).toBe("test");
   });
@@ -137,22 +136,22 @@ describe("Request [ Setters ]", () => {
       return formData;
     };
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.payloadMapper).not.toBeDefined();
+    expect(mapperRequest.unsafe_payloadMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setPayloadMapper(mapper);
-    expect(updatedRequest.payloadMapper).toBe(mapper);
+    expect(updatedRequest.unsafe_payloadMapper).toBe(mapper);
   });
   it("should allow for setting response mapper", async () => {
     const mapper = (res: any) => ({ ...res });
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.__responseMapper).not.toBeDefined();
+    expect(mapperRequest.unsafe_responseMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setResponseMapper(mapper);
-    expect(updatedRequest.__responseMapper).toBe(mapper);
+    expect(updatedRequest.unsafe_responseMapper).toBe(mapper);
   });
   it("should allow for setting request mapper", async () => {
     const mapper = (req: RequestInstance) => req;
     const mapperRequest = client.createRequest<{ payload: { name: string; email: string } }>()({ endpoint: "test" });
-    expect(mapperRequest.__requestMapper).not.toBeDefined();
+    expect(mapperRequest.unsafe_requestMapper).not.toBeDefined();
     const updatedRequest = mapperRequest.setRequestMapper(mapper);
-    expect(updatedRequest.__requestMapper).toBe(mapper);
+    expect(updatedRequest.unsafe_requestMapper).toBe(mapper);
   });
 });

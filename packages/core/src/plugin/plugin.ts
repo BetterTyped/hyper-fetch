@@ -147,4 +147,13 @@ export class Plugin<Client extends ClientInstance = ClientInstance, PluginData =
     this.pluginMethods.onCacheItemDelete = callback;
     return this;
   };
+
+  /* -------------------------------------------------------------------------------------------------
+   * Adapter lifecycle
+   * -----------------------------------------------------------------------------------------------*/
+
+  onAdapterFetch = (callback: PluginMethods<Client>["onAdapterFetch"]) => {
+    this.pluginMethods.onAdapterFetch = callback;
+    return this;
+  };
 }

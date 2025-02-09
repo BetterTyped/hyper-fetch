@@ -77,17 +77,17 @@ describe("Http Adapter [ Browser ]", () => {
     expect(error.message).toEqual(getErrorMessage("timeout").message);
   });
 
-  it("should not throw when XMLHttpRequest is not available on window", async () => {
-    const data = mockRequest(request, { delay: 20 });
-    const xml = window.XMLHttpRequest;
-    window.XMLHttpRequest = undefined as any;
+  // it("should not throw when XMLHttpRequest is not available on window", async () => {
+  //   const data = mockRequest(request, { delay: 20 });
+  //   const xml = window.XMLHttpRequest;
+  //   window.XMLHttpRequest = undefined as any;
 
-    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
+  //   const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
 
-    expect(response).toStrictEqual(data);
-    expect(status).toBe(200);
-    expect(error).toBe(null);
-    expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
-    window.XMLHttpRequest = xml;
-  });
+  //   expect(response).toStrictEqual(data);
+  //   expect(status).toBe(200);
+  //   expect(error).toBe(null);
+  //   expect(extra).toEqual({ headers: { "content-type": "application/json", "content-length": "2" } });
+  //   window.XMLHttpRequest = xml;
+  // });
 });

@@ -31,14 +31,14 @@ describe("Client [ Methods ]", () => {
       client.adapter.setRequestDefaults(() => options);
       const req = client.createRequest()({ endpoint: "test" });
 
-      expect(client.adapter.unsafe_requestDefaults?.(request.requestOptions)).toEqual(options);
+      expect(client.adapter.unsafe_getRequestDefaults?.(request.requestOptions)).toEqual(options);
       expect(req.method).toBe("POST");
     });
     it("should assign default adapter config [setAdapterDefaultOptions]", async () => {
       const options: HttpAdapterOptionsType = { timeout: 12312312 };
       client.adapter.setAdapterDefaults(() => options);
 
-      expect(client.adapter.unsafe_requestDefaults?.(request)).toEqual(options);
+      expect(client.adapter.unsafe_getAdapterDefaults?.(request)).toEqual(options);
     });
     it("should assign query params stringify config [setQueryParamsConfig]", async () => {
       const options: QueryStringifyOptionsType = {
@@ -57,10 +57,10 @@ describe("Client [ Methods ]", () => {
       expect(client.debug).toEqual(true);
     });
     it("should assign query params handling callback [setStringifyQueryParams]", async () => {
-      const callback = () => "";
+      const callback = () => "?test=1";
       client.adapter.setQueryParamsMapper(callback);
 
-      expect(client.adapter.unsafe_queryParamsMapper).toEqual(callback);
+      expect(client.adapter.unsafe_queryParamsMapper({}, {})).toEqual("?test=1");
     });
     it("should assign logger levels [setLoggerLevel]", async () => {
       client.setLogLevel("info");
@@ -157,22 +157,22 @@ describe("Client [ Methods ]", () => {
       expect(client.plugins).toHaveLength(1);
     });
     it("should assign query params handling callback [setHeaderMapper]", async () => {
-      const callback = () => ({}) as HeadersInit;
+      const callback = () => ({ test: 123 }) as any as HeadersInit;
       client.adapter.setHeaderMapper(callback);
 
-      expect(client.adapter.unsafe_headerMapper).toEqual(callback);
+      expect(client.adapter.unsafe_headerMapper({}, {})).toEqual({ test: 123 });
     });
     it("should assign payload handling callback [setPayloadMapper]", async () => {
-      const callback = () => "";
+      const callback = () => "test-123";
       client.adapter.setPayloadMapper(callback);
 
-      expect(client.adapter.unsafe_payloadMapper).toEqual(callback);
+      expect(client.adapter.unsafe_payloadMapper({}, {})).toEqual("test-123");
     });
     it("should assign endpoint handling callback [setEndpointMapper]", async () => {
-      const callback = () => "";
+      const callback = () => "test-endpoint";
       client.adapter.setEndpointMapper(callback);
 
-      expect(client.adapter.unsafe_endpointMapper).toEqual(callback);
+      expect(client.adapter.unsafe_endpointMapper({}, {})).toEqual("test-endpoint");
     });
     it("should assign key mappers", async () => {
       const callback = () => "";

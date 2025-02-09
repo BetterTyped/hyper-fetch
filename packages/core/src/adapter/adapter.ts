@@ -62,6 +62,7 @@ export class Adapter<
   public defaultRequestOptions?: RequestOptionsType<EndpointType, AdapterOptions, MethodType>;
   public logger: LoggerMethods;
   public initialized = false;
+  public client: ClientInstance;
 
   public unsafe_onInitializeCallback: (client: ClientInstance) => void;
 
@@ -91,6 +92,7 @@ export class Adapter<
   initialize = (client: ClientInstance) => {
     this.logger = client.loggerManager.initialize(client, "Adapter");
     this.initialized = true;
+    this.client = client;
   };
 
   onInitialize = (callback: (client: ClientInstance) => void) => {
@@ -136,7 +138,7 @@ export class Adapter<
     >,
   ) => AdapterOptions;
   /** Get default request options for the request. */
-  public unsafe_requestDefaults?: (
+  public unsafe_getRequestDefaults?: (
     options: RequestOptionsType<EndpointType, AdapterOptions, MethodType>,
   ) => Partial<RequestOptionsType<EndpointType, AdapterOptions, MethodType>>;
 
@@ -149,8 +151,8 @@ export class Adapter<
   /**
    * This method allows to configure global defaults for the request configuration like method, auth, deduplication etc.
    */
-  setRequestDefaults = (callback: typeof this.unsafe_requestDefaults): this => {
-    this.unsafe_requestDefaults = callback;
+  setRequestDefaults = (callback: typeof this.unsafe_getRequestDefaults): this => {
+    this.unsafe_getRequestDefaults = callback;
     return this;
   };
 
@@ -364,9 +366,13 @@ export class Adapter<
           throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
         }
 
-        const bindings = getAdapterBindings.bind(this);
+        this.client.triggerPlugins("onAdapterFetch", {
+          adapter: this,
+          request,
+          requestId,
+        });
 
-        const config = await bindings<
+        const config = await getAdapterBindings<
           Adapter<
             AdapterOptions,
             MethodType,
@@ -429,8 +435,7 @@ export class Adapter<
       }
     };
 
-    const promise = new Promise(function resolving(resolve) {
-      // Wrapper to resolve the promise in the unsafe_fetcher context
+    const promise = new Promise((resolve) => {
       execute(resolve);
     });
 

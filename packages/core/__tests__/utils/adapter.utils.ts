@@ -2,8 +2,7 @@ import { sleep } from "@hyper-fetch/testing";
 
 import { RequestInstance } from "request";
 import { Adapter } from "adapter";
-import { HttpAdapterType } from "http-adapter";
-import { httpAdapterBrowserFetcher } from "../../src/http-adapter/http-adapter.browser.fetcher";
+import { httpAdapter, HttpAdapterType } from "http-adapter";
 
 export const createAdapter = (props?: {
   sleepTime?: number;
@@ -11,23 +10,23 @@ export const createAdapter = (props?: {
 }): HttpAdapterType => {
   const { sleepTime, callback } = props || {};
 
-  const preFetchCall = async (args: any) => {
-    if (sleepTime) {
-      await sleep(sleepTime);
-    }
-
-    callback?.(args.request, args.requestId);
-    return args;
-  };
   const adapter = new Adapter({
     name: "test",
     defaultMethod: "GET",
     defaultExtra: {},
     systemErrorStatus: 0,
     systemErrorExtra: {},
-  }).setFetcher((args) => {
-    return preFetchCall(args).then(httpAdapterBrowserFetcher);
   });
+
+  adapter.unsafe_fetcher = httpAdapter.unsafe_fetcher as any;
+  adapter.fetch = async (request, requestId) => {
+    if (sleepTime) {
+      await sleep(sleepTime);
+    }
+
+    callback?.(request, requestId);
+    return httpAdapter.fetch(request as any, requestId);
+  };
 
   return adapter as unknown as HttpAdapterType;
 };
