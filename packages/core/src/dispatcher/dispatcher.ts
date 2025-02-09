@@ -532,7 +532,9 @@ export class Dispatcher {
     // Listen for aborting
     requestManager.addAbortController(abortKey, requestId);
 
+    console.log("IN");
     const response: RequestResponseType<any> = await adapter.fetch(request, requestId);
+    console.log("OUT");
 
     // eslint-disable-next-line no-param-reassign
     storageItem.resolved = true;
