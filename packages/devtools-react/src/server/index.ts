@@ -75,7 +75,7 @@ wss.on("connection", (wsConn, request) => {
     switch (message.data.messageType) {
       case MessageType.HF_DEVTOOLS_EVENT: {
         const { connectionName } = message.data;
-        console.log("RECEIVED EVENT FROM DEVTOOLS", wsConn);
+        console.log("RECEIVED EVENT FROM DEVTOOLS", message);
         if (connections[connectionName]) {
           connections[connectionName].ws.send(
             JSON.stringify({ ...message, topic: SocketTopics.DEVTOOLS_PLUGIN_LISTENER }),
