@@ -431,11 +431,7 @@ export class Adapter<
 
     const promise = new Promise((resolve) => {
       // Wrapper to resolve the promise in the unsafe_fetcher context
-      const resolveWrapper = (value: any) => {
-        resolve(value);
-      };
-
-      execute(resolveWrapper);
+      execute(resolve);
     });
 
     return promise as Promise<RequestResponseType<RequestInstance>>;
