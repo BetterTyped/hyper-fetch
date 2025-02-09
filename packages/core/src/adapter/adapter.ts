@@ -9,6 +9,7 @@ import {
   QueryParamsMapper,
   QueryParamsType,
   RequestResponseType,
+  ResponseType,
 } from "./adapter.types";
 import { RequestInstance, RequestOptionsType } from "request";
 import { Client, ClientInstance } from "client";
@@ -353,20 +354,42 @@ export class Adapter<
   ): Promise<RequestResponseType<RequestInstance>> {
     let startTime: number | undefined;
 
-    return new Promise((resolve) => {
-      const execute = async () => {
-        try {
-          if (!this.initialized) {
-            throw new Error(`Adapter ${this.options.name} is not initialized`);
-          }
+    const execute = async (resolve: (value: ResponseType<any, any, any>) => void) => {
+      try {
+        if (!this.initialized) {
+          throw new Error(`Adapter ${this.options.name} is not initialized`);
+        }
 
-          if (!this.unsafe_fetcher) {
-            throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
-          }
+        if (!this.unsafe_fetcher) {
+          throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
+        }
 
-          const bindings = getAdapterBindings.bind(this);
+        const bindings = getAdapterBindings.bind(this);
 
-          const config = await bindings<
+        const config = await bindings<
+          Adapter<
+            AdapterOptions,
+            MethodType,
+            StatusType,
+            Extra,
+            QueryParams,
+            EndpointType,
+            EndpointMapperType,
+            QueryParamsMapperType,
+            HeaderMapperType,
+            PayloadMapperType
+          >
+        >({
+          request,
+          requestId,
+          resolve,
+          onStartTime: (time) => {
+            startTime = time;
+          },
+        });
+
+        if (request.unsafe_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
+          return mocker<
             Adapter<
               AdapterOptions,
               MethodType,
@@ -381,57 +404,40 @@ export class Adapter<
             >
           >({
             request,
-            requestId,
-            // TODO: Resolve passed into bindings, and then used through onSuccess / onError do not resolve the promise
-            // It is however working in this scope, it only stops working after passing it to the unsafe_fetcher
-            resolve,
-            onStartTime: (time) => {
-              startTime = time;
-            },
-          });
-
-          if (request.unsafe_mock && request.isMockerEnabled && request.client.isMockerEnabled) {
-            return mocker<
-              Adapter<
-                AdapterOptions,
-                MethodType,
-                StatusType,
-                Extra,
-                QueryParams,
-                EndpointType,
-                EndpointMapperType,
-                QueryParamsMapperType,
-                HeaderMapperType,
-                PayloadMapperType
-              >
-            >({
-              request,
-              systemErrorStatus: this.options.systemErrorStatus,
-              systemErrorExtra: this.options.systemErrorExtra,
-              callbacks: config,
-            });
-          }
-
-          return this.unsafe_fetcher(config);
-        } catch (error) {
-          const onError = getAdapterOnError({
-            startTime: startTime || +new Date(),
-            request,
-            client: request.client,
-            requestId,
-            resolve,
-            logger: this.logger,
-          });
-
-          return onError({
-            error,
-            status: this.options.systemErrorStatus,
-            extra: this.options.systemErrorExtra,
+            systemErrorStatus: this.options.systemErrorStatus,
+            systemErrorExtra: this.options.systemErrorExtra,
+            callbacks: config,
           });
         }
+
+        return this.unsafe_fetcher(config);
+      } catch (error) {
+        const onError = getAdapterOnError({
+          startTime: startTime || +new Date(),
+          request,
+          client: request.client,
+          requestId,
+          resolve,
+          logger: this.logger,
+        });
+
+        return onError({
+          error,
+          status: this.options.systemErrorStatus,
+          extra: this.options.systemErrorExtra,
+        });
+      }
+    };
+
+    const promise = new Promise((resolve) => {
+      // Wrapper to resolve the promise in the unsafe_fetcher context
+      const resolveWrapper = (value: any) => {
+        resolve(value);
       };
 
-      execute();
+      execute(resolveWrapper);
     });
+
+    return promise as Promise<RequestResponseType<RequestInstance>>;
   }
 }
