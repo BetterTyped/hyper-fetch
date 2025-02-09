@@ -364,9 +364,7 @@ export class Adapter<
             throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
           }
 
-          const bindings = getAdapterBindings.bind(this);
-
-          const config = await bindings<
+          const config = await getAdapterBindings<
             Adapter<
               AdapterOptions,
               MethodType,
