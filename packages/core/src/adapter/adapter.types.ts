@@ -1,14 +1,11 @@
 import { RequestInstance } from "request";
-import { Client } from "client";
 import {
   EmptyTypes,
-  ExtendRequest,
   ExtractAdapterEndpointMapperType,
   ExtractAdapterExtraType,
   ExtractAdapterPayloadMapperType,
   ExtractAdapterHeaderMapperType,
   ExtractAdapterQueryParamsMapperType,
-  ExtractAdapterQueryParamsType,
   ExtractAdapterStatusType,
   ExtractAdapterType,
   ExtractErrorType,
@@ -70,13 +67,7 @@ export type AdapterFetcherType<Adapter extends AdapterInstance> = (
     headers: ReturnType<ExtractAdapterHeaderMapperType<Adapter>>;
     payload: ReturnType<ExtractAdapterPayloadMapperType<Adapter>>;
     requestId: string;
-    request: ExtendRequest<
-      RequestInstance,
-      {
-        client: Client<any, Adapter>;
-        queryParams?: ExtractAdapterQueryParamsType<Adapter>;
-      }
-    >;
+    request: RequestInstance;
   },
 ) => void;
 

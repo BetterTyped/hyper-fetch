@@ -31,7 +31,8 @@ export class Adapter<
   HeaderMapperType extends HeaderMappingType | DefaultMapperType = DefaultMapperType,
   PayloadMapperType extends AdapterPayloadMappingType | DefaultMapperType = DefaultMapperType,
 > {
-  unsafe_fetcher: AdapterFetcherType<
+  /** Fetching function */
+  public unsafe_fetcher: AdapterFetcherType<
     Adapter<
       AdapterOptions,
       MethodType,
@@ -322,7 +323,7 @@ export class Adapter<
       >
     >,
   ) {
-    this.unsafe_fetcher = fetcher;
+    this.unsafe_fetcher = fetcher.bind(this);
     return this;
   }
 
@@ -363,7 +364,9 @@ export class Adapter<
             throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
           }
 
-          const config = await getAdapterBindings<
+          const bindings = getAdapterBindings.bind(this);
+
+          const config = await bindings<
             Adapter<
               AdapterOptions,
               MethodType,
@@ -379,6 +382,8 @@ export class Adapter<
           >({
             request,
             requestId,
+            // TODO: Resolve passed into bindings, and then used through onSuccess / onError do not resolve the promise
+            // It is however working in this scope, it only stops working after passing it to the unsafe_fetcher
             resolve,
             onStartTime: (time) => {
               startTime = time;
@@ -407,11 +412,7 @@ export class Adapter<
             });
           }
 
-          return this.unsafe_fetcher({
-            ...config,
-            request,
-            requestId,
-          });
+          return this.unsafe_fetcher(config);
         } catch (error) {
           const onError = getAdapterOnError({
             startTime: startTime || +new Date(),

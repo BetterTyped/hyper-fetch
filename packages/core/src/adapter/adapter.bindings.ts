@@ -396,6 +396,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   const { url } = baseRequest.client;
 
   return {
+    request,
+    requestId,
     url,
     endpoint,
     queryParams,
