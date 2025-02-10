@@ -445,6 +445,62 @@ describe("Adapter [ Bindings ]", () => {
         expect(progressTimestamp).toBeNumber();
       });
     });
+    describe("when handling payload mapping", () => {
+      it("should use adapter's unsafe_payloadMapper if no request mapper exists", async () => {
+        const mappedPayload = "mapped_by_adapter";
+        const spy = jest.fn().mockReturnValue(mappedPayload);
+
+        client.adapter.unsafe_payloadMapper = spy;
+
+        const { payload } = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        expect(spy).toHaveBeenCalledWith(data);
+        expect(payload).toBe(`"${mappedPayload}"`); // Stringified because of JSON.stringify in the test setup
+      });
+
+      it("should prioritize request's unsafe_payloadMapper over adapter's mapper", async () => {
+        const adapterMappedPayload = "mapped_by_adapter";
+        const requestMappedPayload = "mapped_by_request";
+
+        const adapterSpy = jest.fn().mockReturnValue(adapterMappedPayload);
+        const requestSpy = jest.fn().mockReturnValue(requestMappedPayload);
+
+        client.adapter.unsafe_payloadMapper = adapterSpy;
+        request.unsafe_payloadMapper = requestSpy;
+
+        const { payload } = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        expect(requestSpy).toHaveBeenCalledWith(data);
+        expect(adapterSpy).not.toHaveBeenCalled();
+        expect(payload).toBe(`"${requestMappedPayload}"`);
+      });
+
+      it("should use raw payload if no mappers exist", async () => {
+        const testData = { test: "raw_data" };
+        const testRequest = client
+          .createRequest<{ payload: { test: string } }>()({ endpoint: "shared-endpoint/" })
+          .setPayload(testData);
+
+        const { payload } = await getAdapterBindings({
+          request: testRequest,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        expect(payload).toBe(JSON.stringify(testData));
+      });
+    });
   });
 
   // Response

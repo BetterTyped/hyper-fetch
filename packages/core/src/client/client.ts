@@ -1,5 +1,5 @@
 import { AdapterInstance, ResponseType } from "adapter";
-import { HttpAdapterType, xhrExtra, parseResponse, httpAdapter } from "http-adapter";
+import { HttpAdapterType, xhrExtra, parseResponse, HttpAdapter } from "http-adapter";
 import {
   ClientErrorType,
   ClientInstance,
@@ -76,7 +76,7 @@ export class Client<
   constructor(public options: ClientOptionsType<Client<GlobalErrorType, Adapter>>) {
     const { url, adapter, appManager, cache, fetchDispatcher, submitDispatcher } = this.options;
     this.url = url;
-    this.adapter = (adapter || httpAdapter) as Adapter;
+    this.adapter = (adapter || HttpAdapter()) as Adapter;
 
     this.appManager = appManager?.() || new AppManager();
     this.cache = cache?.() || new Cache();

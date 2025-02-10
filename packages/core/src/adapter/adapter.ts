@@ -96,6 +96,7 @@ export class Adapter<
     this.client = client;
 
     this.unsafe_onInitializeCallback?.({ client });
+    return this;
   };
 
   onInitialize = (callback: (options: { client: ClientInstance }) => void) => {

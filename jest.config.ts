@@ -1,5 +1,6 @@
 import { getJestProjects } from "@nx/jest";
 import type { Config } from "@jest/types";
+import path from "path";
 
 export default {
   projects: getJestProjects(),
@@ -10,30 +11,13 @@ export const getJestConfig = (): Config.InitialOptions => ({
   verbose: true,
   testEnvironment: "jsdom",
   testTimeout: 1000000,
-  preset: "ts-jest",
   testRegex: [".spec.ts"],
   roots: ["<rootDir>/__tests__", "<rootDir>/src"],
-  coverageProvider: "v8",
+  coverageProvider: "babel",
   coverageReporters: [["lcov", { projectRoot: "../.." }], "clover", "json", "text"],
   collectCoverageFrom: ["<rootDir>/src/**/*.ts", "<rootDir>/src/**/*.tsx"],
   coveragePathIgnorePatterns: [".spec", "test", "tests", "types", "constants", "index.ts"],
   moduleDirectories: ["node_modules", "src"],
-  transform: {
-    "^.+\\.tsx?$": [
-      "ts-jest",
-      {
-        tsconfig: "./tsconfig.json",
-        useESM: true,
-      },
-    ],
-    "^.+\\.[jt]s?$": [
-      "ts-jest",
-      {
-        tsconfig: "./tsconfig.json",
-        useESM: true,
-      },
-    ],
-  },
   watchPlugins: ["jest-watch-typeahead/filename", "jest-watch-typeahead/testname"],
   setupFilesAfterEnv: [
     "jest-extended",
@@ -47,5 +31,8 @@ export const getJestConfig = (): Config.InitialOptions => ({
   },
   testEnvironmentOptions: {
     customExportConditions: [""],
+  },
+  transform: {
+    "^.+\\.[jt]sx?$": ["babel-jest", { configFile: path.resolve(__dirname, ".babelrc.js") }],
   },
 });

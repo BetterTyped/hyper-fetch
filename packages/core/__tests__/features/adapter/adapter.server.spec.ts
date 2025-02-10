@@ -6,7 +6,7 @@ import { createHttpMockingServer } from "@hyper-fetch/testing";
 
 import { getErrorMessage } from "adapter";
 import { Client } from "client";
-import { httpAdapter } from "http-adapter";
+import { HttpAdapter } from "http-adapter";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
 
@@ -49,18 +49,18 @@ describe("Http Adapter [ Server ]", () => {
   it("should pick correct adapter and not throw", async () => {
     mockRequest(request);
     client.appManager.isBrowser = true;
-    await expect(() => httpAdapter.fetch(request, requestId)).not.toThrow();
+    await expect(() => HttpAdapter().initialize(client).fetch(request, requestId)).not.toThrow();
   });
 
   it("should pick https module", async () => {
     mockRequest(requestHttps);
-    await expect(() => httpAdapter.fetch(requestHttps, requestId)).not.toThrow();
+    await expect(() => HttpAdapter().initialize(client).fetch(requestHttps, requestId)).not.toThrow();
   });
 
   it("should make a request and return success data with status", async () => {
     const data = mockRequest(request, { data: { response: [] } });
 
-    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toStrictEqual(data);
     expect(status).toBe(200);
@@ -71,7 +71,7 @@ describe("Http Adapter [ Server ]", () => {
   it("should make a request and return error data with status", async () => {
     const data = mockRequest(request, { status: 400 });
 
-    const { data: response, error, status, extra } = await httpAdapter.fetch(request, requestId);
+    const { data: response, error, status, extra } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(status).toBe(400);
@@ -86,7 +86,7 @@ describe("Http Adapter [ Server ]", () => {
       request.abort();
     }, 2);
 
-    const { data: response, error } = await httpAdapter.fetch(request, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(request, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("abort").message);
@@ -98,7 +98,7 @@ describe("Http Adapter [ Server ]", () => {
     const timeoutRequest = request.setOptions({ timeout: 10 });
     mockRequest(timeoutRequest, { delay: 20 });
 
-    const { data: response, error } = await httpAdapter.fetch(timeoutRequest, requestId);
+    const { data: response, error } = await HttpAdapter().initialize(client).fetch(timeoutRequest, requestId);
 
     expect(response).toBe(null);
     expect(error.message).toEqual(getErrorMessage("timeout").message);
@@ -117,7 +117,12 @@ describe("Http Adapter [ Server ]", () => {
     client.requestManager.addAbortController(postRequest.abortKey, requestId);
     const mock = mockRequest(postRequest);
 
-    const { data: response, error, status, extra } = await httpAdapter.fetch(postRequest, requestId);
+    const {
+      data: response,
+      error,
+      status,
+      extra,
+    } = await HttpAdapter().initialize(client).fetch(postRequest, requestId);
 
     expect(response).toEqual(mock);
     expect(error).toBeNull();

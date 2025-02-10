@@ -2,13 +2,16 @@ import { sleep } from "@hyper-fetch/testing";
 
 import { RequestInstance } from "request";
 import { Adapter } from "adapter";
-import { httpAdapter, HttpAdapterType } from "http-adapter";
+import { HttpAdapter, HttpAdapterType } from "http-adapter";
+import { LoggerManager } from "managers";
 
 export const createAdapter = (props?: {
   sleepTime?: number;
   callback: (request: RequestInstance, requestId: string) => void;
 }): HttpAdapterType => {
   const { sleepTime, callback } = props || {};
+
+  const httpAdapter = HttpAdapter();
 
   const adapter = new Adapter({
     name: "test",
@@ -17,6 +20,9 @@ export const createAdapter = (props?: {
     systemErrorStatus: 0,
     systemErrorExtra: {},
   });
+
+  adapter.logger = new LoggerManager().initialize({ debug: false }, "Adapter");
+  httpAdapter.logger = new LoggerManager().initialize({ debug: false }, "Adapter");
 
   adapter.unsafe_fetcher = httpAdapter.unsafe_fetcher as any;
   adapter.fetch = async (request, requestId) => {
@@ -28,5 +34,5 @@ export const createAdapter = (props?: {
     return httpAdapter.fetch(request as any, requestId);
   };
 
-  return adapter as unknown as HttpAdapterType;
+  return httpAdapter as unknown as HttpAdapterType;
 };

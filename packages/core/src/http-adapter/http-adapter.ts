@@ -3,9 +3,9 @@ import * as server from "@server-adapter";
 
 import { HttpAdapterType } from "http-adapter/http-adapter.types";
 
-export const httpAdapter: HttpAdapterType = (() => {
+export const HttpAdapter = (): HttpAdapterType => {
   if (typeof XMLHttpRequest !== "undefined") {
-    return browser.httpAdapter;
+    return browser.getAdapter();
   }
-  return server.httpAdapter;
-})();
+  return server.getAdapter();
+};
