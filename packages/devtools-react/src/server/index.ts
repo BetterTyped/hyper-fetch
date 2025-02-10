@@ -117,6 +117,8 @@ wss.on("connection", (wsConn, request) => {
   });
 });
 
+wss.on("error", console.error);
+
 server.listen(port, () => {
   console.log(`WebSocket server is running on port ${port}`);
 });

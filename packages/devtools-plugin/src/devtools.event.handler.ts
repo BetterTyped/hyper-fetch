@@ -27,6 +27,13 @@ export class DevtoolsEventHandler {
     });
     this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
+    console.log("SOCKET STATUS", this.socket.connect());
+    this.socket.onDisconnected(() => {
+      console.log("SOCKET DISCONNECTED");
+    });
+    this.socket.onError((err) => {
+      console.log("SOCKET ERR", err);
+    });
     this.socket.onConnected(() => {
       this.isConnected = true;
       while (this.eventQueue.length > 0) {
@@ -42,6 +49,7 @@ export class DevtoolsEventHandler {
   }
 
   sendEvent = (eventType: EmitableCoreEvents | EmitableCustomEvents, data: any) => {
+    console.log("SENDING EVENT", eventType);
     if (this.isConnected) {
       try {
         this.socketEmitter.emit({
