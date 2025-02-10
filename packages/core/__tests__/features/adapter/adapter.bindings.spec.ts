@@ -460,7 +460,7 @@ describe("Adapter [ Bindings ]", () => {
         });
 
         expect(spy).toHaveBeenCalledWith(data);
-        expect(payload).toBe(`"${mappedPayload}"`); // Stringified because of JSON.stringify in the test setup
+        expect(payload).toBe(mappedPayload);
       });
 
       it("should prioritize request's unsafe_payloadMapper over adapter's mapper", async () => {
@@ -482,12 +482,12 @@ describe("Adapter [ Bindings ]", () => {
 
         expect(requestSpy).toHaveBeenCalledWith(data);
         expect(adapterSpy).not.toHaveBeenCalled();
-        expect(payload).toBe(`"${requestMappedPayload}"`);
+        expect(payload).toBe(requestMappedPayload);
       });
 
       it("should use raw payload if no mappers exist", async () => {
         const testData = { test: "raw_data" };
-        const testRequest = client
+        const testRequest = new Client({ url: "test" })
           .createRequest<{ payload: { test: string } }>()({ endpoint: "shared-endpoint/" })
           .setPayload(testData);
 
@@ -499,6 +499,20 @@ describe("Adapter [ Bindings ]", () => {
         });
 
         expect(payload).toBe(JSON.stringify(testData));
+      });
+
+      it("should skip adapter's unsafe_payloadMapper when it is undefined", async () => {
+        request.unsafe_payloadMapper = undefined;
+        client.adapter.unsafe_payloadMapper = undefined as any;
+
+        const { payload } = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        expect(payload).toBe(payload);
       });
     });
   });
@@ -886,6 +900,54 @@ describe("Adapter [ Bindings ]", () => {
           responseTimestamp: expect.toBeNumber(),
         } satisfies ResponseErrorType<any, HttpAdapterType>);
       });
+    });
+  });
+
+  describe("when handling progress updates", () => {
+    it("should skip upload progress event when previousRequestTotal is 100", async () => {
+      const { onRequestProgress } = await getAdapterBindings({
+        request,
+        requestId,
+        resolve: () => null,
+        onStartTime: () => null,
+      });
+
+      const spy = jest.fn();
+      const unmount = client.requestManager.events.onUploadProgressByQueue(request.queryKey, spy);
+
+      // First call to set previousRequestTotal to 100
+      onRequestProgress({ total: 100, loaded: 100 });
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      // Second call should not emit event
+      spy.mockClear();
+      onRequestProgress({ total: 100, loaded: 100 });
+      expect(spy).not.toHaveBeenCalled();
+
+      unmount();
+    });
+
+    it("should skip download progress event when previousResponseTotal is 100", async () => {
+      const { onResponseProgress } = await getAdapterBindings({
+        request,
+        requestId,
+        resolve: () => null,
+        onStartTime: () => null,
+      });
+
+      const spy = jest.fn();
+      const unmount = client.requestManager.events.onDownloadProgressByQueue(request.queryKey, spy);
+
+      // First call to set previousResponseTotal to 100
+      onResponseProgress({ total: 100, loaded: 100 });
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      // Second call should not emit event
+      spy.mockClear();
+      onResponseProgress({ total: 100, loaded: 100 });
+      expect(spy).not.toHaveBeenCalled();
+
+      unmount();
     });
   });
 });

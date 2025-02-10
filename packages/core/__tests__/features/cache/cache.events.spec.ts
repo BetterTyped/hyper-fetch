@@ -64,6 +64,40 @@ describe("Cache [ Events ]", () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith({ cache: newCache, cacheKey: request.cacheKey });
     });
+    it("should trigger onData event when data is set", async () => {
+      const plugin = new Plugin({ name: "data" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      newCache.events.onData(spy);
+      newCache.set(request, cacheData);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: null,
+          cacheKey: request.cacheKey,
+        }),
+      );
+    });
+    it("should trigger onDelete event when data is deleted", async () => {
+      const plugin = new Plugin({ name: "delete" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      newCache.events.onDelete(spy);
+      newCache.delete(request.cacheKey);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(request.cacheKey);
+    });
+    it("should trigger onDeleteByKey event when specific cache key is deleted", async () => {
+      const plugin = new Plugin({ name: "deleteByKey" });
+      const newCache = createCache(client.addPlugin(plugin));
+
+      newCache.events.onDeleteByKey(request.cacheKey, spy);
+      newCache.delete(request.cacheKey);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
   });
   describe("when invalidate event is triggered", () => {
     it("should invalidate cache using cache key", async () => {
@@ -116,6 +150,16 @@ describe("Cache [ Events ]", () => {
       await cache.invalidate(new RegExp(cacheKey));
       await sleep(1);
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+    it("should trigger onInvalidate event when cache is invalidated", async () => {
+      cache.set(request, cacheData);
+      cache.events.onInvalidate(spy);
+
+      await cache.invalidate(cacheKey);
+      await sleep(1);
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(cacheKey);
     });
   });
 });

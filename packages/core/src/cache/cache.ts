@@ -192,8 +192,8 @@ export class Cache {
    * It emits invalidation event for each matching cacheKey and sets staleTime to 0 to indicate out of time cache
    * @param key - cacheKey or Request instance or RegExp for partial matching
    */
-  invalidate = async (invalidateKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
-    this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { invalidateKeys } });
+  invalidate = async (cacheKeys: string | RegExp | RequestInstance | Array<string | RegExp | RequestInstance>) => {
+    this.logger.debug({ title: "Revalidating cache element", type: "system", extra: { cacheKeys } });
     const keys = await this.getAllKeys();
 
     const invalidate = (key: string | RegExp | RequestInstance) => {
@@ -224,10 +224,10 @@ export class Cache {
       }
     };
 
-    if (Array.isArray(invalidateKeys)) {
-      invalidateKeys.forEach(invalidate);
+    if (Array.isArray(cacheKeys)) {
+      cacheKeys.forEach(invalidate.bind(this));
     } else {
-      invalidate(invalidateKeys);
+      invalidate.bind(this)(cacheKeys);
     }
   };
 

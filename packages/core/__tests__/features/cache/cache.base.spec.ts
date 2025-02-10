@@ -141,4 +141,80 @@ describe("Cache [ Base ]", () => {
       expect(cache.get(request.cacheKey)).not.toBeDefined();
     });
   });
+
+  describe("invalidate", () => {
+    it("should invalidate cache when given a Request instance", async () => {
+      // Create a mock Request instance
+      const mockRequest = client.createRequest()({ endpoint: "/shared-endpoint" });
+
+      // Add some data to cache with the request's cacheKey
+      const data = {
+        data: "test",
+        success: true,
+        staleTime: 1000,
+        version: "0.0.1",
+        cacheKey: mockRequest.cacheKey,
+        cacheTime: 2000,
+        responseTimestamp: Date.now(),
+        error: null,
+        status: 200,
+        extra: xhrExtra,
+        requestTimestamp: Date.now(),
+        retries: 0,
+        isCanceled: false,
+        isOffline: false,
+        addedTimestamp: Date.now(),
+        triggerTimestamp: Date.now(),
+      };
+      cache.storage.set(mockRequest.cacheKey, data);
+
+      await cache.invalidate(mockRequest);
+
+      const invalidatedData = cache.storage.get(mockRequest.cacheKey);
+
+      expect(invalidatedData?.staleTime).toBe(0);
+    });
+
+    it("should handle array of mixed invalidation keys (Request, string, RegExp)", async () => {
+      // Create test data with different keys
+      const mockRequest = client.createRequest()({ endpoint: "/shared-endpoint" });
+
+      const testData = {
+        [mockRequest.cacheKey]: "request data",
+        "string-key": "string data",
+        "test-prefix-123": "regex data 1",
+        "test-prefix-456": "regex data 2",
+      };
+
+      // Set up cache with test data
+      Object.entries(testData).forEach(([key, value]) => {
+        cache.storage.set(key, {
+          data: value,
+          success: true,
+          staleTime: 1000,
+          version: "0.0.1",
+          cacheKey: key,
+          cacheTime: 2000,
+          responseTimestamp: Date.now(),
+          error: null,
+          status: 200,
+          extra: xhrExtra,
+          requestTimestamp: Date.now(),
+          retries: 0,
+          isCanceled: false,
+          isOffline: false,
+          addedTimestamp: Date.now(),
+          triggerTimestamp: Date.now(),
+        });
+      });
+
+      // Invalidate using array of different key types
+      await cache.invalidate([mockRequest, "string-key", /^test-prefix-/]);
+
+      // Verify all matching keys were invalidated
+      Object.entries(testData).forEach(([key]) => {
+        expect(cache.storage.get(key)?.staleTime).toBe(0);
+      });
+    });
+  });
 });

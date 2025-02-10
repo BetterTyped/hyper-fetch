@@ -30,6 +30,16 @@ describe("Adapter [ Utils ]", () => {
     it("should return unexpected error", async () => {
       const error = getErrorMessage();
       expect(error.message).toBe("Unexpected error");
+      const error2 = getErrorMessage("unexpected");
+      expect(error2.message).toBe("Unexpected error");
+    });
+    it("should return deleted error", async () => {
+      const error = getErrorMessage("deleted");
+      expect(error.message).toBe("Request deleted");
+    });
+    it("should return processing error", async () => {
+      const error = getErrorMessage("processing");
+      expect(error.message).toBe("Request processing error");
     });
   });
 
