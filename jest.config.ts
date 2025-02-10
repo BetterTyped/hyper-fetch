@@ -23,7 +23,6 @@ export const getJestConfig = (): Config.InitialOptions => ({
       "ts-jest",
       {
         tsconfig: "./tsconfig.json",
-        isolatedModules: true,
         useESM: true,
       },
     ],
@@ -31,7 +30,6 @@ export const getJestConfig = (): Config.InitialOptions => ({
       "ts-jest",
       {
         tsconfig: "./tsconfig.json",
-        isolatedModules: true,
         useESM: true,
       },
     ],

@@ -1,8 +1,9 @@
 import { sleep } from "@hyper-fetch/testing";
 
-import { xhrExtra, AdapterType, ResponseType } from "adapter";
+import { ResponseType } from "adapter";
 import { RequestInstance } from "request";
 import { ClientInstance, ResponseInterceptorType } from "client";
+import { HttpAdapterType, xhrExtra } from "http-adapter";
 
 export const interceptorCallback = (props?: {
   sleepTime?: number;
@@ -10,7 +11,9 @@ export const interceptorCallback = (props?: {
 }): ResponseInterceptorType<ClientInstance> => {
   const { sleepTime, callback } = props || {};
 
-  return async (response?: ResponseType<null, null, AdapterType>): Promise<ResponseType<null, null, AdapterType>> => {
+  return async (
+    response?: ResponseType<null, null, HttpAdapterType>,
+  ): Promise<ResponseType<null, null, HttpAdapterType>> => {
     if (sleepTime) {
       await sleep(sleepTime);
     }

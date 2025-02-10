@@ -48,9 +48,9 @@ export class Client<
   unsafe_onRequestCallbacks: RequestInterceptorType[] = [];
 
   // Managers
+  loggerManager: LoggerManager = new LoggerManager();
   requestManager: RequestManager = new RequestManager();
   appManager: AppManager;
-  loggerManager: LoggerManager = new LoggerManager();
 
   // Config
   adapter: Adapter;

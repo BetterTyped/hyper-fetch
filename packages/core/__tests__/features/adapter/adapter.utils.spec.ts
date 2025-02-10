@@ -21,7 +21,7 @@ describe("Adapter [ Utils ]", () => {
   describe("When getErrorMessage util get triggered", () => {
     it("should return abort error", async () => {
       const error = getErrorMessage("abort");
-      expect(error.message).toBe("Request cancelled");
+      expect(error.message).toBe("Request aborted");
     });
     it("should return timeout error", async () => {
       const error = getErrorMessage("timeout");

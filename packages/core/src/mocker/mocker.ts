@@ -1,10 +1,10 @@
-import { RequestInstance } from "../request";
-import { getAdapterBindings, AdapterInstance } from "adapter";
+import { getAdapterBindings, AdapterInstance, RequestProcessingError } from "adapter";
 import { ExtractAdapterExtraType, ExtractAdapterStatusType } from "types";
 
 export const mocker = async <T extends AdapterInstance>({
-  request,
-  callbacks: {
+  bindings: {
+    request,
+    requestId,
     onError,
     onResponseEnd,
     onTimeoutError,
@@ -20,27 +20,14 @@ export const mocker = async <T extends AdapterInstance>({
   systemErrorStatus,
   systemErrorExtra,
 }: {
-  request: RequestInstance;
-  callbacks: Pick<
-    Awaited<ReturnType<typeof getAdapterBindings<T>>>,
-    | "onError"
-    | "onResponseEnd"
-    | "onTimeoutError"
-    | "onRequestEnd"
-    | "createAbortListener"
-    | "onResponseProgress"
-    | "onRequestProgress"
-    | "onResponseStart"
-    | "onBeforeRequest"
-    | "onRequestStart"
-    | "onSuccess"
-  >;
+  bindings: Awaited<ReturnType<typeof getAdapterBindings<T>>>;
   systemErrorStatus: ExtractAdapterStatusType<T>;
   systemErrorExtra: ExtractAdapterExtraType<T>;
 }) => {
   if (!request.unsafe_mock) {
-    throw new Error("[Internal HF Error] mock should be defined when calling mocker");
+    throw new RequestProcessingError("Mock should be defined when calling mocker");
   }
+
   const {
     requestTime = 20,
     responseTime = 20,
@@ -48,7 +35,7 @@ export const mocker = async <T extends AdapterInstance>({
     totalDownloaded = 1,
     timeout = false,
   } = request.unsafe_mock.config;
-  const result = await request.unsafe_mock.fn({ request });
+  const result = await request.unsafe_mock.fn({ request, requestId });
 
   const { data, error, status, success = true, extra = request.client.defaultExtra } = result;
 

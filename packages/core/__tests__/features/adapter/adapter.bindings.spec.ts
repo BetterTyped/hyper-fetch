@@ -186,6 +186,25 @@ describe("Adapter [ Bindings ]", () => {
         client.requestManager.abortControllers.clear();
         expect(() => createAbortListener({ status: 0, extra: xhrExtra, onAbort: () => null })).toThrow();
       });
+      it("should call onAbort when signal is aborted", async () => {
+        request.client.requestManager.addAbortController(request.abortKey, requestId);
+
+        const abortController = request.client.requestManager.getAbortController(request.abortKey, requestId);
+
+        abortController?.abort();
+        const spy = jest.fn();
+
+        const { createAbortListener } = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        createAbortListener({ status: 0, extra: xhrExtra, onAbort: spy });
+
+        expect(spy).toHaveBeenCalledTimes(1);
+      });
     });
   });
 

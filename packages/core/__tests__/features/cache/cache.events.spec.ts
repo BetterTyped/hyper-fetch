@@ -3,7 +3,7 @@ import { sleep } from "@hyper-fetch/testing";
 import { CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
-import { xhrExtra } from "adapter";
+import { xhrExtra } from "http-adapter";
 import { Plugin } from "plugin";
 
 describe("Cache [ Events ]", () => {

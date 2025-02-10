@@ -1,5 +1,11 @@
-import { getErrorMessage, ResponseSuccessType, ResponseErrorType, ProgressDataType, AdapterInstance } from "adapter";
-import { ClientInstance } from "client";
+import {
+  getErrorMessage,
+  ResponseSuccessType,
+  ResponseErrorType,
+  ProgressDataType,
+  AdapterInstance,
+  RequestProcessingError,
+} from "adapter";
 import { LoggerMethods } from "managers";
 import { RequestInstance, getProgressData, ProgressEventType } from "request";
 import {
@@ -253,8 +259,8 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
       requestTimestamp: startTime,
       responseTimestamp: +new Date(),
     };
-    response = (await request.client.unsafe_modifyResponse(response, request)) as typeof data;
-    response = (await request.client.unsafe_modifySuccessResponse(response, request)) as typeof data;
+    response = (await request.client.unsafe_modifyResponse?.(response, request)) as typeof data;
+    response = (await request.client.unsafe_modifySuccessResponse?.(response, request)) as typeof data;
 
     client.triggerPlugins("onRequestSuccess", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });
@@ -277,12 +283,11 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const onError = getAdapterOnError({
-    logger,
     request,
-    client,
     requestId,
-    resolve,
     startTime,
+    logger,
+    resolve,
   });
 
   const onAbortError = ({
@@ -359,10 +364,10 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   }) => {
     const controller = getAbortController();
     if (!controller) {
-      throw new Error("Controller is not found");
+      throw new RequestProcessingError("Controller is not found");
     }
 
-    const fn = () => {
+    const abort = () => {
       onAbortError({ status, extra });
       onAbort({ signal: controller.signal });
       requestManager.events.emitAbort({ requestId, request });
@@ -370,13 +375,13 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 
     // Instant abort when we stack many requests triggered at once, and we receive aborted controller
     if (controller.signal.aborted) {
-      fn();
+      abort();
     }
 
     // Abort during the request
-    controller.signal.addEventListener("abort", fn);
+    controller.signal.addEventListener("abort", abort);
 
-    return () => controller.signal.removeEventListener("abort", fn);
+    return () => controller.signal.removeEventListener("abort", abort);
   };
 
   logger.debug({
@@ -424,20 +429,20 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
 };
 
 export function getAdapterOnError<T extends AdapterInstance>({
-  startTime,
   request,
-  client,
   requestId,
+  startTime,
   resolve,
   logger,
 }: {
-  startTime: number;
   request: RequestInstance;
-  client: ClientInstance;
   requestId: string;
+  startTime: number;
   logger: LoggerMethods;
   resolve: (value: ResponseSuccessType<any, T> | ResponseErrorType<any, T>) => void;
 }) {
+  const { client } = request;
+
   return async ({
     error,
     status,
@@ -457,8 +462,8 @@ export function getAdapterOnError<T extends AdapterInstance>({
       responseTimestamp: +new Date(),
     };
 
-    response = (await request.client.unsafe_modifyResponse(response, request)) as typeof response;
-    response = (await request.client.unsafe_modifyErrorResponse(response, request)) as typeof response;
+    response = (await client.unsafe_modifyResponse(response, request)) as typeof response;
+    response = (await client.unsafe_modifyErrorResponse(response, request)) as typeof response;
 
     client.triggerPlugins("onRequestError", { response, request });
     client.triggerPlugins("onRequestFinished", { response, request });

@@ -3,7 +3,7 @@ import { sleep } from "@hyper-fetch/testing";
 import { CacheAsyncStorageType, CacheValueType } from "cache";
 import { createCache, createLazyCacheAdapter } from "../../utils";
 import { Client } from "client";
-import { xhrExtra } from "adapter";
+import { xhrExtra } from "http-adapter";
 
 describe("Cache [ Lazy Storage ]", () => {
   const staleTime = 10000;

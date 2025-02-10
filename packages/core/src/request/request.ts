@@ -90,6 +90,7 @@ export class Request<
   unsafe_mock?: {
     fn: (options: {
       request: RequestInstance;
+      requestId: string;
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
     config: MockerConfigType;
   };
@@ -299,6 +300,7 @@ export class Request<
   public setMock = (
     fn: (options: {
       request: Request<Response, Payload, QueryParams, LocalError, Endpoint, Client, HasPayload, HasParams, HasQuery>;
+      requestId: string;
     }) => MockResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>,
     config: MockerConfigType = {},
   ) => {

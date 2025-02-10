@@ -16,6 +16,7 @@ import { Client, ClientInstance } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
 import { getAdapterHeaders, getAdapterPayload } from "../client/client.utils";
+import { RequestProcessingError } from "./adapter.utils";
 
 export type DefaultMapperType = <V, C>(value: V, config: C) => V;
 export const defaultMapper: DefaultMapperType = (value) => value;
@@ -64,7 +65,7 @@ export class Adapter<
   public initialized = false;
   public client: ClientInstance;
 
-  public unsafe_onInitializeCallback: (client: ClientInstance) => void;
+  public unsafe_onInitializeCallback?: (options: { client: ClientInstance }) => void;
 
   public unsafe_queryParamsMapperConfig: Parameters<QueryParamsMapperType>[1];
   public unsafe_headerMapperConfig: Parameters<HeaderMapperType>[1];
@@ -93,9 +94,11 @@ export class Adapter<
     this.logger = client.loggerManager.initialize(client, "Adapter");
     this.initialized = true;
     this.client = client;
+
+    this.unsafe_onInitializeCallback?.({ client });
   };
 
-  onInitialize = (callback: (client: ClientInstance) => void) => {
+  onInitialize = (callback: (options: { client: ClientInstance }) => void) => {
     this.unsafe_onInitializeCallback = callback;
     return this;
   };
@@ -359,11 +362,11 @@ export class Adapter<
     const execute = async (resolve: (value: ResponseType<any, any, any>) => void) => {
       try {
         if (!this.initialized) {
-          throw new Error(`Adapter ${this.options.name} is not initialized`);
+          throw new RequestProcessingError(`Adapter ${this.options.name} is not initialized`);
         }
 
         if (!this.unsafe_fetcher) {
-          throw new Error(`Fetcher for ${this.options.name} adapter is not set`);
+          throw new RequestProcessingError(`Fetcher for ${this.options.name} adapter is not set`);
         }
 
         this.client.triggerPlugins("onAdapterFetch", {
@@ -372,7 +375,7 @@ export class Adapter<
           requestId,
         });
 
-        const config = await getAdapterBindings<
+        const bindings = await getAdapterBindings<
           Adapter<
             AdapterOptions,
             MethodType,
@@ -409,22 +412,20 @@ export class Adapter<
               PayloadMapperType
             >
           >({
-            request,
+            bindings,
             systemErrorStatus: this.options.systemErrorStatus,
             systemErrorExtra: this.options.systemErrorExtra,
-            callbacks: config,
           });
         }
 
-        return this.unsafe_fetcher(config);
+        return this.unsafe_fetcher(bindings);
       } catch (error) {
         const onError = getAdapterOnError({
-          startTime: startTime || +new Date(),
           request,
-          client: request.client,
           requestId,
-          resolve,
+          startTime: startTime || Date.now(),
           logger: this.logger,
+          resolve,
         });
 
         return onError({
