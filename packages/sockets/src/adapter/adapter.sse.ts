@@ -39,7 +39,9 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
     if (!enabled) return;
 
     // Clean environment
-    adapter?.close();
+    if (adapter?.readyState === EventSource.OPEN) {
+      adapter.close();
+    }
     adapter = getSSEAdapter(socket);
 
     // Make sure we picked good environment

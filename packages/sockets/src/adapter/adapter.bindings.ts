@@ -172,6 +172,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
   return {
     state,
     listeners,
+    logger,
     onConnect,
     onReconnect,
     onDisconnect,

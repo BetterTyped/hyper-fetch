@@ -21,6 +21,7 @@ import {
 export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   const {
     state,
+    logger,
     listeners,
     removeListener,
     onConnect,
@@ -44,7 +45,9 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
     if (!enabled) return;
 
     // Clean environment
-    adapter?.close();
+    if (adapter?.readyState === WebSocket.OPEN) {
+      adapter.close();
+    }
     adapter = getWebsocketAdapter(socket);
 
     // Make sure we picked good environment
@@ -104,7 +107,17 @@ export const WebsocketAdapter: WebsocketAdapterType = (socket) => {
   };
 
   const sendEventMessage = (payload: SocketEvent) => {
-    adapter?.send(JSON.stringify(payload));
+    if (adapter?.readyState === WebSocket.OPEN) {
+      adapter.send(JSON.stringify(payload));
+    } else {
+      logger.error({
+        type: "system",
+        title: "Socket is not open",
+        extra: {
+          payload,
+        },
+      });
+    }
   };
 
   const onHeartbeat = () => {
