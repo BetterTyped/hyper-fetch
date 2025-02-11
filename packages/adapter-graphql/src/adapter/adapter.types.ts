@@ -1,4 +1,4 @@
-import { AdapterType, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
+import { Adapter, EmptyTypes, QueryParamsType } from "@hyper-fetch/core";
 import { DocumentNode } from "graphql/language/ast";
 
 export enum GraphqlMethod {
@@ -10,13 +10,14 @@ export type GraphQlExtraType = { headers: HeadersInit; extensions: Record<string
 
 export type GraphQlEndpointType = string | DocumentNode;
 
-export type GraphQLAdapterType = AdapterType<
+export type GraphQLAdapterType = Adapter<
   Partial<XMLHttpRequest>,
   GraphqlMethod,
   number,
   GraphQlExtraType,
   QueryParamsType | string,
-  GraphQlEndpointType
+  GraphQlEndpointType,
+  (endpoint: GraphQlEndpointType) => string
 >;
 
 // Extract

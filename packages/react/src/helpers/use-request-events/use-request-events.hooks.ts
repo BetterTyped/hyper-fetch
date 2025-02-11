@@ -38,7 +38,7 @@ export const useRequestEvents = <R extends RequestInstance>({
   getIsDataProcessing,
 }: UseRequestEventsPropsType<R>): UseRequestEventsReturnType<R> => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { __responseMapper } = request;
+  const { unsafe_responseMapper } = request;
   const { cache, requestManager } = request.client;
 
   // ******************
@@ -140,7 +140,7 @@ export const useRequestEvents = <R extends RequestInstance>({
 
   const handleResponse = () => {
     return (values: RequestResponseEventType<R>) => {
-      const data = __responseMapper ? __responseMapper(values.response) : values.response;
+      const data = unsafe_responseMapper ? unsafe_responseMapper(values.response) : values.response;
 
       if (data instanceof Promise) {
         return (async () => {

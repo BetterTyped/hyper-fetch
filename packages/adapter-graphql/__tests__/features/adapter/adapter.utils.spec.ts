@@ -4,7 +4,7 @@ import { GraphqlMethod, getRequestValues, GraphqlAdapter } from "adapter";
 import { getUserQuery, getUserQueryString } from "../../constants/queries.constants";
 
 describe("Graphql Adapter [ Utils ]", () => {
-  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
   let request = client.createRequest<{ response: any; payload: any }>()({
     endpoint: getUserQuery,
     method: GraphqlMethod.POST,
@@ -15,7 +15,7 @@ describe("Graphql Adapter [ Utils ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
     request = client.createRequest<{ response: any; payload: any }>()({
       endpoint: getUserQuery,
       method: GraphqlMethod.POST,

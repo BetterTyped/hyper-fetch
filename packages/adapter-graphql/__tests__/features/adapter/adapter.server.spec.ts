@@ -14,8 +14,8 @@ const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockin
 describe("Graphql Adapter [ Server ]", () => {
   const requestId = "test";
   // const requestCopy = https.request;
-  let clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter).setDebug(true);
-  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter).setDebug(true);
+  let clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter()).setDebug(true);
   let requestHttp = clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
   let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
@@ -27,8 +27,8 @@ describe("Graphql Adapter [ Server ]", () => {
   });
 
   beforeEach(() => {
-    clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
-    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+    clientHttp = new Client({ url: "http://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
+    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
     requestHttp = clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
     request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
     mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
@@ -54,7 +54,7 @@ describe("Graphql Adapter [ Server ]", () => {
     mockRequest(request);
     client.appManager.isBrowser = true;
 
-    const adapter = GraphqlAdapter(client);
+    const adapter = GraphqlAdapter();
 
     expect(adapter).toBeDefined();
   });
@@ -63,7 +63,7 @@ describe("Graphql Adapter [ Server ]", () => {
     mockRequest(requestHttp);
     clientHttp.requestManager.addAbortController(requestHttp.abortKey, requestId);
 
-    const res = await GraphqlAdapter(clientHttp).adapter(
+    const res = await clientHttp.adapter.fetch(
       clientHttp.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery }),
       requestId,
     );
@@ -75,7 +75,7 @@ describe("Graphql Adapter [ Server ]", () => {
     mockRequest(request);
     client.requestManager.addAbortController(request.abortKey, requestId);
 
-    const res = await GraphqlAdapter(client).adapter(request, requestId);
+    const res = await clientHttp.adapter.fetch(request, requestId);
 
     expect(res.data).toBeDefined();
   });

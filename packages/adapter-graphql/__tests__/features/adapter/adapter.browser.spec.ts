@@ -8,7 +8,7 @@ import { LoginMutationVariables, loginMutation } from "../../constants/mutations
 const { startServer, stopServer, resetMocks, mockRequest } = createGraphqlMockingServer();
 
 describe("Graphql Adapter [ Browser ]", () => {
-  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+  let client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
   let request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
   let mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
     endpoint: loginMutation,
@@ -19,7 +19,7 @@ describe("Graphql Adapter [ Browser ]", () => {
   });
 
   beforeEach(() => {
-    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter);
+    client = new Client({ url: "https://shared-base-url/graphql" }).setAdapter(GraphqlAdapter());
     request = client.createRequest<{ response: GetUserQueryResponse }>()({ endpoint: getUserQuery });
     mutation = client.createRequest<{ response: GetUserQueryResponse; payload: LoginMutationVariables }>()({
       endpoint: loginMutation,

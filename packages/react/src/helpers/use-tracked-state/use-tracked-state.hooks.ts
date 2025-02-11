@@ -36,7 +36,7 @@ export const useTrackedState = <T extends RequestInstance>({
   disabled,
   revalidate,
 }: UseTrackedStateProps<T>): UseTrackedStateReturn<T> => {
-  const { client, cacheKey, queryKey, staleTime, __responseMapper } = request;
+  const { client, cacheKey, queryKey, staleTime, unsafe_responseMapper } = request;
   const { cache, requestManager } = client;
 
   const forceUpdate = useForceUpdate();
@@ -187,7 +187,7 @@ export const useTrackedState = <T extends RequestInstance>({
     cacheData: CacheValueType<ExtractResponseType<T>, ExtractErrorType<T>, ExtractAdapterType<T>>,
   ): Promise<void> | void => {
     setIsDataProcessing({ processingCacheKey: cacheKey, isProcessing: true });
-    const data = __responseMapper ? __responseMapper(cacheData) : cacheData;
+    const data = unsafe_responseMapper ? unsafe_responseMapper(cacheData) : cacheData;
 
     if (data instanceof Promise) {
       return (async () => {
