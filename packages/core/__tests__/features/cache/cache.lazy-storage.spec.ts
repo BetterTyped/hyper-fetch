@@ -103,5 +103,19 @@ describe("Cache [ Lazy Storage ]", () => {
       await sleep(50);
       expect(keys).toStrictEqual([cacheKey, otherKey]);
     });
+    it("should allow to get lazy cache keys", async () => {
+      const mockLazyKeys = ["lazy1", "lazy2", "lazy3"];
+      cache.lazyStorage = {
+        keys: jest.fn().mockResolvedValue(mockLazyKeys),
+        get: jest.fn(),
+        set: jest.fn(),
+        delete: jest.fn(),
+      };
+
+      const lazyKeys = await cache.getLazyKeys();
+
+      expect(cache.lazyStorage.keys).toHaveBeenCalled();
+      expect(lazyKeys).toEqual(mockLazyKeys);
+    });
   });
 });

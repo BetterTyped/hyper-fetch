@@ -138,6 +138,20 @@ describe("Cache [ Garbage Collector ]", () => {
         expect(Array.from(cacheInstance.garbageCollectors.keys())).toHaveLength(0);
       });
     });
+    it("should garbage collect when time left is less than zero", async () => {
+      const pastTimestamp = +new Date() - 20000; // 20 seconds ago
+      const staleData = {
+        ...cacheData,
+        responseTimestamp: pastTimestamp,
+        cacheTime: 10000, // 10 seconds
+      };
+
+      cache.set(request, staleData);
+
+      await waitFor(() => {
+        expect(cache.get(cacheKey)).not.toBeDefined();
+      });
+    });
     it("should not schedule garbage collection for null", async () => {
       const storage = new Map();
       storage.set(cacheKey, { ...cacheData, cacheTime: null });
