@@ -1,6 +1,7 @@
 import { createHttpMockingServer } from "@hyper-fetch/testing";
 
-import { getErrorMessage } from "adapter";
+import { createClient } from "client";
+import { getAdapterHeaders, getAdapterPayload, getErrorMessage } from "adapter";
 import { parseResponse, parseErrorResponse } from "http-adapter";
 
 const { resetMocks, startServer, stopServer } = createHttpMockingServer();
@@ -18,6 +19,23 @@ describe("Adapter [ Utils ]", () => {
     stopServer();
   });
 
+  describe("When using getAdapterHeaders util", () => {
+    it("should allow to stringify payload", async () => {
+      const request = createClient({ url: "" }).createRequest<{ response: any; payload: FormData }>()({
+        endpoint: "shared-base-endpoint",
+      });
+
+      expect(() => getAdapterHeaders(request)).not.toThrow();
+    });
+  });
+
+  describe("When using getAdapterPayload util", () => {
+    it("should allow to stringify payload", async () => {
+      const data = { data: [] };
+
+      expect(() => getAdapterPayload(data)).not.toThrow();
+    });
+  });
   describe("When getErrorMessage util get triggered", () => {
     it("should return abort error", async () => {
       const error = getErrorMessage("abort");

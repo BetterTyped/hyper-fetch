@@ -188,7 +188,7 @@ export const CacheDetails = () => {
 
   useEffect(() => {
     return item
-      ? client.requestManager.emitter.onListenChange(getLoadingByCacheKey(item?.cacheKey), (count) => {
+      ? client.requestManager.emitter.onListener(getLoadingByCacheKey(item?.cacheKey), (count) => {
           setListeners(count);
         })
       : undefined;

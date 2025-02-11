@@ -54,6 +54,89 @@ describe("RequestManager [ Events ]", () => {
         expect(spy6).toHaveBeenCalledTimes(1);
       });
     });
+
+    it("should trigger global event handlers", async () => {
+      mockRequest(request);
+
+      const loadingSpy = jest.fn();
+      const requestStartSpy = jest.fn();
+      const responseStartSpy = jest.fn();
+      const uploadProgressSpy = jest.fn();
+      const downloadProgressSpy = jest.fn();
+      const responseSpy = jest.fn();
+      const abortSpy = jest.fn();
+      const removeSpy = jest.fn();
+
+      // Set up global event listeners
+      client.requestManager.events.onLoading(loadingSpy);
+      client.requestManager.events.onRequestStart(requestStartSpy);
+      client.requestManager.events.onResponseStart(responseStartSpy);
+      client.requestManager.events.onUploadProgress(uploadProgressSpy);
+      client.requestManager.events.onDownloadProgress(downloadProgressSpy);
+      client.requestManager.events.onResponse(responseSpy);
+      client.requestManager.events.onAbort(abortSpy);
+      client.requestManager.events.onRemove(removeSpy);
+
+      // Trigger request lifecycle
+      const requestId = client.fetchDispatcher.add(request);
+
+      await sleep(5);
+
+      // Trigger abort and remove events
+      client.requestManager.abortByKey(request.abortKey);
+
+      await waitFor(() => {
+        expect(loadingSpy).toHaveBeenCalledTimes(2); // Called for start and end
+        expect(requestStartSpy).toHaveBeenCalledTimes(1);
+        expect(responseStartSpy).toHaveBeenCalledTimes(1);
+        expect(uploadProgressSpy).toHaveBeenCalledTimes(3);
+        expect(downloadProgressSpy).toHaveBeenCalledTimes(3);
+        expect(responseSpy).toHaveBeenCalledTimes(1);
+        expect(abortSpy).toHaveBeenCalledTimes(1);
+        expect(removeSpy).toHaveBeenCalledTimes(1);
+      });
+
+      // Verify event data structure
+      expect(loadingSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestId,
+          request,
+        }),
+      );
+
+      expect(requestStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestId,
+          request,
+        }),
+      );
+
+      expect(uploadProgressSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          requestId,
+          request,
+          loaded: expect.toBeNumber(),
+          progress: expect.toBeNumber(),
+          total: expect.toBeNumber(),
+        }),
+      );
+    });
+
+    it("should properly remove global event listeners", async () => {
+      mockRequest(request);
+      const spy = jest.fn();
+
+      // Add and immediately remove event listener
+      const removeListener = client.requestManager.events.onLoading(spy);
+      removeListener();
+
+      // Trigger request
+      client.fetchDispatcher.add(request);
+
+      await sleep(50);
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
   describe("When request manager aborts the request", () => {
     it("should allow to abort request by id", async () => {

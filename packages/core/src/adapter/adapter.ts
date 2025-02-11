@@ -15,8 +15,7 @@ import { RequestInstance, RequestOptionsType } from "request";
 import { Client, ClientInstance } from "client";
 import { mocker } from "mocker";
 import { LoggerMethods } from "managers";
-import { getAdapterHeaders, getAdapterPayload } from "../client/client.utils";
-import { RequestProcessingError } from "./adapter.utils";
+import { getAdapterHeaders, getAdapterPayload, RequestProcessingError } from "./adapter.utils";
 
 export type DefaultMapperType = <V, C>(value: V, config: C) => V;
 export const defaultMapper: DefaultMapperType = (value) => value;

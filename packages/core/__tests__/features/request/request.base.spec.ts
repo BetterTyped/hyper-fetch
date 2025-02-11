@@ -160,4 +160,40 @@ describe("Fetch Adapter [ Base ]", () => {
     expect(error?.message).toStrictEqual(message);
     expect(data).toBe(null);
   });
+
+  describe("read()", () => {
+    it("should return cached data when available", async () => {
+      const cachedData = {
+        data: { foo: "bar" },
+        status: 200,
+      };
+
+      await request
+        .setMock(() => ({
+          data: { foo: "bar" } as any,
+          status: 200,
+        }))
+        .send();
+
+      const result = request.read();
+
+      expect(result).toEqual({
+        ...cachedData,
+        error: null,
+        extra: request.client.adapter.defaultExtra,
+        success: true,
+        requestTimestamp: expect.any(Number),
+        responseTimestamp: expect.any(Number),
+      });
+    });
+
+    it("should return undefined when no cached data exists", () => {
+      // Ensure cache is empty
+      client.cache.clear();
+
+      const result = request.read();
+
+      expect(result).toBeUndefined();
+    });
+  });
 });

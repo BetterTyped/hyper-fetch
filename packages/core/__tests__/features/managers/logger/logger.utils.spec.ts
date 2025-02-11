@@ -1,3 +1,4 @@
+import { createClient } from "client";
 import { getTime, logger } from "managers";
 
 describe("Logger [ Utils ]", () => {
@@ -6,18 +7,18 @@ describe("Logger [ Utils ]", () => {
   const groupEndSpy = jest.spyOn(console, "groupEnd");
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   describe("Given using logger utils", () => {
     describe("When getTime util gets triggered", () => {
-      it("should allow to format data string", async () => {
+      it("should allow to format data string", () => {
         const time = getTime();
         expect(time).toBeString();
       });
     });
     describe("When logger util gets triggered", () => {
-      it("should allow to log allowed severity", async () => {
+      it("should allow to log message without extra data", () => {
         logger({
           module: "Test",
           type: "system",
@@ -26,8 +27,10 @@ describe("Logger [ Utils ]", () => {
           extra: {},
         });
         expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(groupCollapsedSpy).not.toHaveBeenCalled();
+        expect(groupEndSpy).not.toHaveBeenCalled();
       });
-      it("should allow to log additional data", async () => {
+      it("should allow to log message with extra data", () => {
         const extra = { data: [{ test: 1 }] };
 
         logger({
@@ -41,36 +44,57 @@ describe("Logger [ Utils ]", () => {
         expect(groupCollapsedSpy).toHaveBeenCalledTimes(1);
         expect(groupEndSpy).toHaveBeenCalledTimes(1);
       });
-      // it("should not allow to log not-matching severity", async () => {
-      //   logger({
-      //     module: "Test",
-      //     type: "system",
-      //     level: "debug",
-      //     title: "Test",
-      //     extra: {},
-      //   });
-      //   expect(logSpy).toHaveBeenCalledTimes(0);
-      // });
+      it("should handle request type logging correctly", () => {
+        const extra = {
+          request: createClient({ url: "https://test.com" }).createRequest()({ endpoint: "/api/test" }),
+          response: { data: "test" } as any,
+          requestId: "123",
+        };
+
+        logger({
+          module: "Test",
+          type: "request",
+          level: "debug",
+          title: "Test Request",
+          extra,
+        });
+
+        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(groupCollapsedSpy).toHaveBeenCalledTimes(1);
+        expect(groupEndSpy).toHaveBeenCalledTimes(1);
+      });
+      it("should handle response type logging correctly", () => {
+        const extra = {
+          request: createClient({ url: "https://test.com" }).createRequest()({ endpoint: "/api/test" }),
+          response: { data: "test" } as any,
+          requestId: "123",
+        };
+
+        logger({
+          module: "Test",
+          type: "response",
+          level: "debug",
+          title: "Test Response",
+          extra,
+        });
+
+        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(groupCollapsedSpy).toHaveBeenCalledTimes(1);
+        expect(groupEndSpy).toHaveBeenCalledTimes(1);
+      });
+      it("should handle no extra data", () => {
+        logger({
+          module: "Test",
+          type: "system",
+          level: "debug",
+          title: "Test Response",
+          extra: undefined as any,
+        });
+
+        expect(logSpy).toHaveBeenCalledTimes(1);
+        expect(groupCollapsedSpy).toHaveBeenCalledTimes(0);
+        expect(groupEndSpy).toHaveBeenCalledTimes(0);
+      });
     });
   });
 });
-
-// // Logger
-// export const logger: LoggerFunctionType = (log) => {
-//   if (log.enabled && log.severity >= severity[log.level]) {
-//     const styles = loggerStyles[log.level];
-//     const emoji = loggerIconLevels[log.level];
-//     const module = `%c[${log.module}]:[${getTime()}]:`;
-//     const message = `${emoji}${module} ${log.message}`;
-
-//     if (log.extra?.length) {
-//       console.groupCollapsed(message, styles);
-//       log.extra.forEach((data) => {
-//         console.log(data);
-//       });
-//       console.groupEnd();
-//     } else {
-//       console.log(message, styles);
-//     }
-//   }
-// };

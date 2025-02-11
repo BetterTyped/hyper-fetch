@@ -10,6 +10,7 @@ import {
   RequestResponseEventType,
   ResponseDetailsType,
   ResponseType,
+  mocker,
 } from "../../../src";
 
 const { resetMocks, startServer, stopServer, mockRequest } = createHttpMockingServer();
@@ -486,6 +487,81 @@ describe("Mocker [ Base ]", () => {
       },
       requestTimestamp: expect.toBeNumber(),
       responseTimestamp: expect.toBeNumber(),
+    });
+  });
+
+  it("should throw error when mock is not defined", async () => {
+    await expect(
+      mocker({
+        bindings: {
+          request: client.createRequest<{ response: any }>()({ endpoint: "shared-base-endpoint" }),
+        },
+      } as any),
+    ).rejects.toThrow("Request processing error");
+  });
+
+  describe("When handling different response scenarios", () => {
+    it("should handle success with data", async () => {
+      const mockedRequest = request.setMock(() => ({
+        data: fixture,
+        status: 200,
+        success: true,
+      }));
+
+      const response = await mockedRequest.send({});
+
+      expect(response).toStrictEqual({
+        data: fixture,
+        error: null,
+        status: 200,
+        success: true,
+        extra: request.client.defaultExtra,
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+      });
+    });
+
+    it("should handle error with data", async () => {
+      const data = { message: "Error occurred", code: 400 };
+      const mockedRequest = request.setMock(() => ({
+        data,
+        error: new Error("Test error"),
+        status: 400,
+        success: true,
+      }));
+
+      const response = await mockedRequest.send({});
+
+      expect(response).toStrictEqual({
+        data,
+        error: expect.any(Error),
+        status: 400,
+        success: true,
+        extra: request.client.defaultExtra,
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+      });
+    });
+
+    it("should handle error without data", async () => {
+      const mockedRequest = request.setMock(() => ({
+        data: null,
+        error: new Error("Test error"),
+        status: 500,
+        success: false,
+      }));
+
+      const response = await mockedRequest.send({});
+
+      expect(response).toStrictEqual({
+        data: null,
+        error: expect.any(Error),
+        status: 500,
+        success: false,
+        extra: request.client.defaultExtra,
+        requestTimestamp: expect.toBeNumber(),
+        responseTimestamp: expect.toBeNumber(),
+      });
     });
   });
 });

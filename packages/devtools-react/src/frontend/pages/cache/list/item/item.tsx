@@ -58,7 +58,7 @@ export const Item = ({ item }: { item: DevtoolsCacheEvent }) => {
   );
 
   useEffect(() => {
-    return client.requestManager.emitter.onListenChange(getLoadingByCacheKey(item.cacheKey), (count) => {
+    return client.requestManager.emitter.onListener(getLoadingByCacheKey(item.cacheKey), (count) => {
       setListeners(count);
     });
   }, [client.requestManager.emitter, item.cacheKey, setDetailsCacheKey]);

@@ -367,10 +367,12 @@ export class Client<
    * @param options
    */
   hydrate = (
-    hydrationData: HydrateDataType[] | EmptyTypes,
+    hydrationData: (HydrateDataType | EmptyTypes)[],
     options?: Partial<HydrationOptions> | ((item: HydrateDataType) => Partial<HydrationOptions>),
   ) => {
     hydrationData?.forEach((item) => {
+      if (!item) return;
+
       const { cacheKey, response, ...fallbackOptions } = item;
       const defaults = {
         cache: true,

@@ -1,5 +1,7 @@
 /* eslint-disable max-classes-per-file */
 // Utils
+import { hasWindow } from "managers";
+import { RequestInstance } from "request";
 
 export class TimeoutError extends Error {
   constructor() {
@@ -56,4 +58,31 @@ export const getErrorMessage = (errorCase?: "timeout" | "abort" | "deleted" | "p
     return new RequestProcessingError();
   }
   return new UnexpectedError();
+};
+
+// Mappers
+
+export const stringifyValue = (response: string | unknown): string => {
+  try {
+    return JSON.stringify(response as string);
+  } catch (err) {
+    return "";
+  }
+};
+
+export const getAdapterHeaders = (request: RequestInstance) => {
+  const isFormData = hasWindow() && request.payload instanceof FormData;
+  const headers: HeadersInit = {};
+
+  if (!isFormData) headers["Content-Type"] = "application/json";
+
+  Object.assign(headers, request.headers);
+  return headers as HeadersInit;
+};
+
+export const getAdapterPayload = (data: unknown): string | FormData => {
+  const isFormData = hasWindow() && data instanceof FormData;
+  if (isFormData) return data;
+
+  return stringifyValue(data);
 };

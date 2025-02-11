@@ -15,7 +15,7 @@ import {
   ExtractRouteParams,
 } from "request";
 import { ClientInstance, RequestGenericType } from "client";
-import { getUniqueRequestId } from "utils";
+import { getUniqueRequestId, HydrateDataType } from "utils";
 import { ResponseType } from "adapter";
 import {
   ExtractAdapterType,
@@ -382,18 +382,16 @@ export class Request<
   };
 
   private paramsMapper = (params: ParamsType | null | undefined): Endpoint => {
-    let { endpoint } = this.requestOptions;
-    if (typeof endpoint === "string") {
-      let stringEndpoint = String(endpoint);
-      if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-          stringEndpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
-        });
-      }
+    const { endpoint } = this.requestOptions;
 
-      endpoint = stringEndpoint as typeof endpoint;
+    let stringEndpoint = String(endpoint);
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        stringEndpoint = endpoint.replace(new RegExp(`:${key}`, "g"), String(value));
+      });
     }
-    return endpoint;
+
+    return stringEndpoint as Endpoint;
   };
 
   public toJSON(): RequestJSON<this> {
@@ -501,6 +499,59 @@ export class Request<
     return this.clone();
   };
 
+  public dehydrate = (config?: {
+    /** in case of using adapter without cache we can provide response to dehydrate */
+    response?: ResponseType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>;
+    /** override cache data */
+    override?: boolean;
+  }):
+    | HydrateDataType<Response, LocalError | ExtractClientGlobalError<Client>, ExtractClientAdapterType<Client>>
+    | undefined => {
+    const { response, override = true } = config || {};
+
+    if (response) {
+      return {
+        override,
+        cacheTime: this.cacheTime,
+        staleTime: this.staleTime,
+        cacheKey: this.cacheKey,
+        timestamp: +new Date(),
+        hydrated: true,
+        cache: true,
+        response,
+      };
+    }
+
+    const cacheData = this.client.cache.get<
+      Response,
+      LocalError | ExtractClientGlobalError<Client>,
+      ExtractClientAdapterType<Client>
+    >(this.cacheKey);
+
+    if (!cacheData) {
+      return undefined;
+    }
+
+    return {
+      override,
+      cacheTime: this.cacheTime,
+      staleTime: this.staleTime,
+      cacheKey: this.cacheKey,
+      timestamp: +new Date(),
+      hydrated: true,
+      cache: true,
+      response: {
+        data: cacheData.data,
+        error: cacheData.error,
+        status: cacheData.status,
+        success: cacheData.success,
+        extra: cacheData.extra,
+        requestTimestamp: cacheData.requestTimestamp,
+        responseTimestamp: cacheData.responseTimestamp,
+      },
+    };
+  };
+
   /**
    * Read the response from cache data
    *
@@ -516,7 +567,7 @@ export class Request<
       ExtractClientAdapterType<Client>
     >(this.cacheKey);
 
-    if (cacheData?.data) {
+    if (cacheData) {
       return {
         data: cacheData.data,
         error: cacheData.error,

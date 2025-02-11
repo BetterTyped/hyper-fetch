@@ -2,17 +2,6 @@ import { ResponseType } from "adapter";
 import { RequestInstance } from "request";
 import { ExtendRequest, ExtractClientAdapterType } from "types";
 import { ClientInstance, RequestInterceptorType, ResponseInterceptorType } from "./client.types";
-import { hasWindow } from "managers";
-
-// Utils
-
-export const stringifyValue = (response: string | unknown): string => {
-  try {
-    return JSON.stringify(response as string);
-  } catch (err) {
-    return "";
-  }
-};
 
 export const interceptRequest = async (interceptors: RequestInterceptorType[], request: RequestInstance) => {
   let newRequest = request;
@@ -42,22 +31,4 @@ export const interceptResponse = async <GlobalErrorType, Client extends ClientIn
     }
   }
   return newResponse;
-};
-// Mappers
-
-export const getAdapterHeaders = (request: RequestInstance) => {
-  const isFormData = hasWindow() && request.payload instanceof FormData;
-  const headers: HeadersInit = {};
-
-  if (!isFormData) headers["Content-Type"] = "application/json";
-
-  Object.assign(headers, request.headers);
-  return headers as HeadersInit;
-};
-
-export const getAdapterPayload = (data: unknown): string | FormData => {
-  const isFormData = hasWindow() && data instanceof FormData;
-  if (isFormData) return data;
-
-  return stringifyValue(data);
 };

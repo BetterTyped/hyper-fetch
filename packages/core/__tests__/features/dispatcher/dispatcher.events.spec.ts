@@ -78,6 +78,28 @@ describe("Dispatcher [ Events ]", () => {
       dispatcher.add(request);
       expect(spy).toHaveBeenCalledTimes(1);
     });
+    it("should handle listen change events correctly", async () => {
+      const spy = jest.fn();
+      const unmount = dispatcher.emitter.onListener(request.queryKey, spy);
+
+      const listener = () => {};
+      // Should be called when a new listener is added
+      dispatcher.emitter.on(request.queryKey, listener);
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(1);
+      expect(spy).toHaveBeenCalledWith(1);
+
+      dispatcher.emitter.off(request.queryKey, listener);
+
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(0);
+      expect(spy).toHaveBeenCalledWith(0);
+
+      // Should be called when a listener is removed
+      unmount();
+
+      dispatcher.emitter.addListener(request.queryKey, listener);
+      expect(dispatcher.emitter.listeners(request.queryKey).length).toBe(1);
+      expect(spy).toHaveBeenCalledTimes(2);
+    });
     it("should emit proper data response", async () => {
       let response: [ResponseType<unknown, unknown, AdapterInstance>, ResponseDetailsType];
       const mock = mockRequest(request);

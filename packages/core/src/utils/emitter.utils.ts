@@ -8,7 +8,7 @@ export class EventEmitter extends Emitter {
     super(options);
   }
 
-  onListenChange = (event: string, listener: (count: number) => void) => {
+  onListener = (event: string, listener: (count: number) => void) => {
     super.on(getListenName(event), listener);
     return () => {
       super.off(getListenName(event), listener);
