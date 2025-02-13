@@ -28,6 +28,9 @@ export class DevtoolsEventHandler {
     this.socketEmitter = this.socket.createEmitter<any>()({ topic: "DEVTOOLS_PLUGIN_EMITTER" });
     this.socketListener = this.socket.createListener<any>()({ topic: "DEVTOOLS_PLUGIN_LISTENER" });
     console.log("SOCKET STATUS", this.socket.connect());
+    this.socket.onConnected(() => {
+      console.log("SOCKET CONNECTED");
+    });
     this.socket.onDisconnected(() => {
       console.log("SOCKET DISCONNECTED");
     });

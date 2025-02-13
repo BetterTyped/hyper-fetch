@@ -65,7 +65,7 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
     this.queryParams = queryParams;
     this.debug = false;
     this.reconnectAttempts = reconnect ?? Infinity;
-    this.reconnectTime = reconnectTime ?? Time.SEC * 2;
+    this.reconnectTime = reconnectTime ?? Time.SEC * 5;
     this.autoConnect = true;
 
     if (queryParamsConfig) {
@@ -82,23 +82,23 @@ export class Socket<Adapter extends SocketAdapterInstance = WebsocketAdapterType
   /**
    * This method connects the socket to the server
    */
-  connect = () => {
-    this.adapter.connect();
+  connect = async () => {
+    await this.adapter.connect();
     return this.waitForConnection();
   };
 
   /**
    * This method disconnects the socket from the server
    */
-  disconnect = () => {
-    this.adapter.disconnect();
+  disconnect = async () => {
+    await this.adapter.disconnect();
   };
 
   /**
    * This method reconnect the socket to the server
    */
-  reconnect = () => {
-    this.adapter.reconnect();
+  reconnect = async () => {
+    await this.adapter.reconnect();
   };
 
   waitForConnection = (timeout = Time.SEC * 4): Promise<boolean> => {

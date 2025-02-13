@@ -35,54 +35,73 @@ export const ServerSentEventsAdapter: ServerSentEventsAdapterType = (socket) => 
   const autoConnect = socket.options?.autoConnect ?? true;
 
   const connect = () => {
-    const enabled = onConnect();
-    if (!enabled) return;
+    return new Promise((resolve) => {
+      const enabled = onConnect();
+      if (!enabled) {
+        resolve(false);
+        return;
+      }
 
-    // Clean environment
-    if (adapter?.readyState === EventSource.OPEN) {
-      adapter.close();
-    }
-    adapter = getSSEAdapter(socket);
+      // Clean environment
+      if (adapter?.readyState === EventSource.OPEN) {
+        adapter.close();
+      }
+      adapter = getSSEAdapter(socket);
 
-    // Make sure we picked good environment
-    if (!adapter) return;
+      // Make sure we picked good environment
+      if (!adapter) {
+        resolve(false);
+        return;
+      }
 
-    // Reconnection timeout
-    const timeout = setTimeout(() => {
-      reconnect();
-    }, socket.reconnectTime);
+      // Reconnection timeout
+      const timeout = setTimeout(() => {
+        reconnect();
+      }, socket.reconnectTime);
 
-    /**
-     *  Mount listeners
-     */
+      /**
+       *  Mount listeners
+       */
 
-    adapter.onopen = () => {
-      clearTimeout(timeout);
-      onConnected();
-    };
-
-    adapter.onerror = (event) => {
-      onError(new Error(event.type));
-    };
-
-    adapter.onmessage = (newEvent: MessageEvent<SocketData>) => {
-      const { topic, data, event } = parseMessageEvent(newEvent);
-
-      const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(topic);
-
-      eventListeners?.forEach((_, action) => {
-        action({ data, extra: event });
+      adapter.addEventListener("open", () => {
+        resolve(true);
+        clearTimeout(timeout);
+        onConnected();
       });
 
-      onEvent(topic, data, event);
-    };
+      adapter.addEventListener("error", (event) => {
+        resolve(false);
+        onError(new Error(event.type));
+      });
+
+      adapter.addEventListener("message", (newEvent: MessageEvent<SocketData>) => {
+        const { topic, data, event } = parseMessageEvent(newEvent);
+
+        const eventListeners: Map<ListenerCallbackType<any, any>, VoidFunction> | undefined = listeners.get(topic);
+
+        eventListeners?.forEach((_, action) => {
+          action({ data, extra: event });
+        });
+
+        onEvent(topic, data, event);
+      });
+    });
   };
 
-  const disconnect = () => {
-    onDisconnect();
-    adapter?.close();
-    onDisconnected();
-    clearTimers();
+  const disconnect = async (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (!adapter) {
+        resolve(false);
+        return;
+      }
+      adapter.addEventListener("close", () => {
+        resolve(true);
+      });
+      onDisconnect();
+      adapter?.close();
+      onDisconnected();
+      clearTimers();
+    });
   };
 
   const reconnect = () => {

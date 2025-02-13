@@ -58,8 +58,8 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
     return true;
   };
 
-  const onReconnect = (disconnect: () => void, connect: () => void): boolean => {
-    disconnect();
+  const onReconnect = async (disconnect: () => Promise<any>, connect: () => Promise<any>): Promise<boolean> => {
+    await disconnect();
     if (state.reconnectionAttempts < socket.reconnectAttempts) {
       state.reconnectionAttempts += 1;
       logger.debug({
@@ -67,7 +67,7 @@ export const getSocketAdapterBindings = <T extends SocketAdapterInstance>(
         type: "system",
         extra: { reconnectionAttempts: state.reconnectionAttempts },
       });
-      connect();
+      await connect();
       socket.__onReconnectCallbacks.forEach((callback) => {
         callback(socket);
       });
