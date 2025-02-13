@@ -205,6 +205,27 @@ describe("Adapter [ Bindings ]", () => {
 
         expect(spy).toHaveBeenCalledTimes(1);
       });
+
+      it("should work with default onAbort handler", async () => {
+        request.client.requestManager.addAbortController(request.abortKey, requestId);
+        const { createAbortListener, getAbortController } = await getAdapterBindings({
+          request,
+          requestId,
+          resolve: () => null,
+          onStartTime: () => null,
+        });
+
+        const resolveSpy = jest.fn();
+        const controller = getAbortController();
+        const unmount = createAbortListener({ status: 0, extra: xhrExtra }); // No onAbort provided
+
+        expect(resolveSpy).toHaveBeenCalledTimes(0);
+        controller?.abort();
+        await sleep(1);
+
+        // Should not throw and complete successfully
+        expect(() => unmount()).not.toThrow();
+      });
     });
   });
 

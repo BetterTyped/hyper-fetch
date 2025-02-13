@@ -6,7 +6,7 @@ import { AxiosAdapter } from "../../../src/adapter/adapter";
 const { startServer, stopServer, resetMocks, mockRequest } = createHttpMockingServer();
 
 describe("Axios Adapter [ Base ]", () => {
-  let client = new Client({ url: "shared-base-url" }).setAdapter(AxiosAdapter);
+  let client = new Client({ url: "wrong/shared-base-url" }).setAdapter(AxiosAdapter);
   let request = client.createRequest()({ endpoint: "/shared-endpoint" });
 
   beforeAll(() => {
@@ -49,6 +49,29 @@ describe("Axios Adapter [ Base ]", () => {
       "content-type": "application/json",
       "content-length": "19",
     });
+  });
+
+  it("should handle errors with no response object", async () => {
+    // Mock XMLHttpRequest to simulate a network error
+    const originalXHR = global.XMLHttpRequest;
+    global.XMLHttpRequest = jest.fn(() => ({
+      open: jest.fn(),
+      send: jest.fn(() => {
+        throw new Error("Network Error");
+      }),
+      setRequestHeader: jest.fn(),
+      addEventListener: jest.fn(),
+    })) as any;
+
+    const { data, error, status, extra } = await request.send({});
+
+    expect(error).toBeInstanceOf(Error);
+    expect(data).toStrictEqual(null);
+    expect(status).toBe(0); // systemErrorStatus default
+    expect(extra?.headers).toBeUndefined();
+
+    // Restore original XMLHttpRequest
+    global.XMLHttpRequest = originalXHR;
   });
 
   it("should allow to call the request callbacks", async () => {

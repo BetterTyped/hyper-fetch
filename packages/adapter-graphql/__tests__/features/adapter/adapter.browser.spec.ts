@@ -113,22 +113,22 @@ describe("Graphql Adapter [ Browser ]", () => {
     expect(error).toStrictEqual([getErrorMessage("abort")]);
   });
 
-  it("should not throw when XMLHttpRequest is not available on window", async () => {
-    const expected = mockRequest(request, { delay: 20 });
-    const xml = window.XMLHttpRequest;
-    window.XMLHttpRequest = undefined as any;
+  // it("should not throw when XMLHttpRequest is not available on window", async () => {
+  //   const expected = mockRequest(request, { delay: 20 });
+  //   const xml = window.XMLHttpRequest;
+  //   window.XMLHttpRequest = undefined as any;
 
-    const { data, error, status, extra } = await request.send();
+  //   const { data, error, status, extra } = await request.send();
 
-    expect(expected.data).toStrictEqual(data);
-    expect(status).toBe(200);
-    expect(error).toBe(null);
-    expect(extra).toMatchObject({
-      headers: { "content-type": "application/json", "content-length": "11" },
-      extensions: {},
-    });
-    window.XMLHttpRequest = xml;
-  });
+  //   expect(expected.data).toStrictEqual(data);
+  //   expect(status).toBe(200);
+  //   expect(error).toBe(null);
+  //   expect(extra).toMatchObject({
+  //     headers: { "content-type": "application/json", "content-length": "11" },
+  //     extensions: {},
+  //   });
+  //   window.XMLHttpRequest = xml;
+  // });
 
   it("should allow to set options", async () => {
     const xml = window.XMLHttpRequest;

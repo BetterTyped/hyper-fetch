@@ -4,8 +4,8 @@
     "rootDir": ".",
     "baseUrl": "./src",
     "paths": {
-      "@browser-adapter": ["./adapter/adapter.browser.ts"],
-      "@server-adapter": ["./adapter/adapter.server.ts"],
+      "@browser-adapter": ["./adapter/http-adapter.browser.ts"],
+      "@server-adapter": ["./adapter/http-adapter.server.ts"],
       "@hyper-fetch/graphql": ["../src"]
     }
   },

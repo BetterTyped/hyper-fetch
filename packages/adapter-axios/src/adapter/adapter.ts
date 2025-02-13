@@ -26,6 +26,7 @@ export const AxiosAdapter = new Adapter<
       request,
       headers,
       payload,
+      adapter,
       adapterOptions,
       onError,
       onResponseEnd,
@@ -46,7 +47,11 @@ export const AxiosAdapter = new Adapter<
       onBeforeRequest();
 
       const controller = getAbortController();
-      const unmountListener = () => createAbortListener({ status: 0, extra: { headers: {} }, onAbort: () => {} });
+      const unmountListener = () =>
+        createAbortListener({
+          status: 0,
+          extra: { headers: {} },
+        });
 
       onRequestStart();
       axios({
@@ -72,7 +77,7 @@ export const AxiosAdapter = new Adapter<
         .catch((error) => {
           onError({
             error,
-            status: error.response?.status || 0,
+            status: error.response?.status || adapter.systemErrorStatus,
             extra: { headers: error.response?.headers },
           });
         })

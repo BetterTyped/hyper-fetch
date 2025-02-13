@@ -356,11 +356,11 @@ export const getAdapterBindings = async <T extends AdapterInstance>({
   const createAbortListener = ({
     status,
     extra,
-    onAbort,
+    onAbort = () => {},
   }: {
     status: ExtractAdapterStatusType<T>;
     extra: ExtractAdapterExtraType<T>;
-    onAbort: (options: { signal: AbortSignal }) => void;
+    onAbort?: (options: { signal: AbortSignal }) => void;
   }) => {
     const controller = getAbortController();
     if (!controller) {
